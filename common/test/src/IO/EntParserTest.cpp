@@ -19,7 +19,7 @@
 
 #include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
 #include "IO/FileMatcher.h"

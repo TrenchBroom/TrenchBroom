@@ -20,7 +20,7 @@
 #include "SmartFlagsEditor.h"
 
 #include "Assets/EntityDefinition.h"
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "View/FlagsEditor.h"

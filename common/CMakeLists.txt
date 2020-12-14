@@ -1,7 +1,6 @@
 set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
-        ${COMMON_SOURCE_DIR}/Assets/AttributeDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.cpp
@@ -11,6 +10,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Palette.cpp
+        ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
         ${COMMON_SOURCE_DIR}/Assets/Texture.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
@@ -460,7 +460,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/AABBTree.h
         ${COMMON_SOURCE_DIR}/Assets/AssetReference.h
         ${COMMON_SOURCE_DIR}/Assets/AssetUtils.h
-        ${COMMON_SOURCE_DIR}/Assets/AttributeDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.h
@@ -471,6 +470,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Palette.h
+        ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h

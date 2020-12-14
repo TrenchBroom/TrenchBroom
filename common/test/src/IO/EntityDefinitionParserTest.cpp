@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"

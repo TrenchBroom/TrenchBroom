@@ -20,8 +20,8 @@
 #include "DefParser.h"
 
 #include "Exceptions.h"
-#include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/LegacyModelDefinitionParser.h"

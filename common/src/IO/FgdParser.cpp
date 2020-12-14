@@ -19,7 +19,7 @@
 
 #include "FgdParser.h"
 
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/File.h"
 #include "IO/DiskFileSystem.h"

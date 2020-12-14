@@ -18,7 +18,7 @@
  */
 
 #include "SmartChoiceEditor.h"
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Model/AttributableNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"

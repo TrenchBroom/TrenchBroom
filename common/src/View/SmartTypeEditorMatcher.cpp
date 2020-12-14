@@ -19,7 +19,7 @@
 
 #include "SmartTypeEditorMatcher.h"
 
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Model/AttributableNode.h"
 
 namespace TrenchBroom {

@@ -20,7 +20,7 @@
 #include "SmartAttributeEditorManager.h"
 
 #include "Macros.h"
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
 #include "View/SmartTypeEditorMatcher.h"

@@ -19,8 +19,8 @@
 
 #include "EntityAttributeEditor.h"
 
-#include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Model/AttributableNode.h"
 #include "View/EntityAttributeGrid.h"
 #include "View/MapDocument.h"

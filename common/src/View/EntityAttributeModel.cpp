@@ -20,9 +20,9 @@
 #include "EntityAttributeModel.h"
 
 #include "Macros.h"
-#include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/ResourceUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"

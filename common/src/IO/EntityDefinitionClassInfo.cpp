@@ -20,7 +20,7 @@
 #include "EntityDefinitionClassInfo.h"
 
 #include "Macros.h"
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Model/EntityAttributes.h"
 
 #include <kdl/opt_utils.h>

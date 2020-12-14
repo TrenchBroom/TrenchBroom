@@ -19,8 +19,8 @@
 
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"

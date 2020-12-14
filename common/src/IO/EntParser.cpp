@@ -19,8 +19,8 @@
 
 #include "EntParser.h"
 
-#include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "EL/Expression.h"
 #include "EL/Types.h"
 #include "EL/Value.h"

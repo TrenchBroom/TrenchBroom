@@ -19,7 +19,7 @@
 
 #include "AttributableNode.h"
 
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Assets/EntityDefinition.h"
 
 #include <kdl/collection_utils.h>

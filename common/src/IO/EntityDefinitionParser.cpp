@@ -20,9 +20,9 @@
 #include "EntityDefinitionParser.h"
 
 #include "Macros.h"
-#include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/ParserStatus.h"
 #include "Model/EntityAttributes.h"
