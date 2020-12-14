@@ -496,7 +496,7 @@ namespace TrenchBroom {
         std::vector<std::string> EntityAttributeModel::getAllAttributeNames() const {
             auto document = kdl::mem_lock(m_document);
             const auto& index = document->world()->attributableNodeIndex();
-            auto result = kdl::vector_set<std::string>(index.allNames());
+            auto result = kdl::vector_set<std::string>(index.allKeys());
 
             // also add keys from all loaded entity definitions
             for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
@@ -518,7 +518,7 @@ namespace TrenchBroom {
             auto resultSet = kdl::wrap_set(result);
 
             for (const auto& name : names) {
-                const auto values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
+                const auto values = index.allValuesForKeys(Model::EntityNodeIndexQuery::numbered(name));
                 for (const auto& value : values) {
                     resultSet.insert(value);
                 }

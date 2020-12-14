@@ -36,7 +36,7 @@ namespace TrenchBroom {
     template <typename T, size_t S, typename U> class AABBTree;
 
     namespace Model {
-        class AttributableNodeIndex;
+        class EntityNodeIndex;
         enum class BrushError;
         class BrushFace;
         class IssueGeneratorRegistry;
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         private:
             std::unique_ptr<ModelFactory> m_factory;
             LayerNode* m_defaultLayer;
-            std::unique_ptr<AttributableNodeIndex> m_attributableIndex;
+            std::unique_ptr<EntityNodeIndex> m_attributableIndex;
             std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
@@ -103,7 +103,7 @@ namespace TrenchBroom {
         private:
             void createDefaultLayer();
         public: // index
-            const AttributableNodeIndex& attributableNodeIndex() const;
+            const EntityNodeIndex& attributableNodeIndex() const;
         public: // selection
             // issue generator registration
             const std::vector<IssueGenerator*>& registeredIssueGenerators() const;

@@ -97,7 +97,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE("EntityTest.removeAttribute") {
+        TEST_CASE("EntityTest.removeProperty") {
             Entity entity;
 
             SECTION("Remove non existing attribute") {

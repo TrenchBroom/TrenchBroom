@@ -31,9 +31,9 @@ namespace TrenchBroom {
         class EntityNodeBase;
         class EntityProperty;
 
-        using AttributableNodeStringIndex = kdl::compact_trie<EntityNodeBase*>;
+        using EntityNodeStringIndex = kdl::compact_trie<EntityNodeBase*>;
 
-        class AttributableNodeIndexQuery {
+        class EntityNodeIndexQuery {
         public:
             typedef enum {
                 Type_Exact,
@@ -45,35 +45,35 @@ namespace TrenchBroom {
             Type m_type;
             std::string m_pattern;
         public:
-            static AttributableNodeIndexQuery exact(const std::string& pattern);
-            static AttributableNodeIndexQuery prefix(const std::string& pattern);
-            static AttributableNodeIndexQuery numbered(const std::string& pattern);
-            static AttributableNodeIndexQuery any();
+            static EntityNodeIndexQuery exact(const std::string& pattern);
+            static EntityNodeIndexQuery prefix(const std::string& pattern);
+            static EntityNodeIndexQuery numbered(const std::string& pattern);
+            static EntityNodeIndexQuery any();
 
-            std::set<EntityNodeBase*> execute(const AttributableNodeStringIndex& index) const;
+            std::set<EntityNodeBase*> execute(const EntityNodeStringIndex& index) const;
             bool execute(const EntityNodeBase* node, const std::string& value) const;
             std::vector<Model::EntityProperty> execute(const EntityNodeBase* node) const;
         private:
-            explicit AttributableNodeIndexQuery(Type type, const std::string& pattern = "");
+            explicit EntityNodeIndexQuery(Type type, const std::string& pattern = "");
         };
 
-        class AttributableNodeIndex {
+        class EntityNodeIndex {
         private:
-            std::unique_ptr<AttributableNodeStringIndex> m_nameIndex;
-            std::unique_ptr<AttributableNodeStringIndex> m_valueIndex;
+            std::unique_ptr<EntityNodeStringIndex> m_keyIndex;
+            std::unique_ptr<EntityNodeStringIndex> m_valueIndex;
         public:
-            AttributableNodeIndex();
-            ~AttributableNodeIndex();
+            EntityNodeIndex();
+            ~EntityNodeIndex();
 
-            void addAttributableNode(EntityNodeBase* attributable);
-            void removeAttributableNode(EntityNodeBase* attributable);
+            void addEntityNode(EntityNodeBase* node);
+            void removeEntityNode(EntityNodeBase* node);
 
-            void addAttribute(EntityNodeBase* attributable, const std::string& name, const std::string& value);
-            void removeAttribute(EntityNodeBase* attributable, const std::string& name, const std::string& value);
+            void addProperty(EntityNodeBase* node, const std::string& key, const std::string& value);
+            void removeProperty(EntityNodeBase* node, const std::string& key, const std::string& value);
 
-            std::vector<EntityNodeBase*> findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const std::string& value) const;
-            std::vector<std::string> allNames() const;
-            std::vector<std::string> allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
+            std::vector<EntityNodeBase*> findEntityNodes(const EntityNodeIndexQuery& keyQuery, const std::string& value) const;
+            std::vector<std::string> allKeys() const;
+            std::vector<std::string> allValuesForKeys(const EntityNodeIndexQuery& keyQuery) const;
         };
     }
 }

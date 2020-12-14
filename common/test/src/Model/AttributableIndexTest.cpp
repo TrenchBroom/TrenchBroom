@@ -32,16 +32,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        static std::vector<EntityNodeBase*> findExactExact(const AttributableNodeIndex& index, const std::string& name, const std::string& value) {
-            return index.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value);
+        static std::vector<EntityNodeBase*> findExactExact(const EntityNodeIndex& index, const std::string& name, const std::string& value) {
+            return index.findEntityNodes(EntityNodeIndexQuery::exact(name), value);
         }
 
-        static std::vector<EntityNodeBase*> findNumberedExact(const AttributableNodeIndex& index, const std::string& name, const std::string& value) {
-            return index.findAttributableNodes(AttributableNodeIndexQuery::numbered(name), value);
+        static std::vector<EntityNodeBase*> findNumberedExact(const EntityNodeIndex& index, const std::string& name, const std::string& value) {
+            return index.findEntityNodes(EntityNodeIndexQuery::numbered(name), value);
         }
 
-        TEST_CASE("EntityAttributeIndexTest.addAttributableNode", "[EntityAttributeIndexTest]") {
-            AttributableNodeIndex index;
+        TEST_CASE("EntityAttributeIndexTest.addEntityNode", "[EntityAttributeIndexTest]") {
+            EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
                 {"test", "somevalue"}
@@ -52,8 +52,8 @@ namespace TrenchBroom {
                 {"other", "someothervalue"}
             });
 
-            index.addAttributableNode(entity1);
-            index.addAttributableNode(entity2);
+            index.addEntityNode(entity1);
+            index.addEntityNode(entity2);
 
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
 
@@ -70,8 +70,8 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST_CASE("EntityAttributeIndexTest.removeAttributableNode", "[EntityAttributeIndexTest]") {
-            AttributableNodeIndex index;
+        TEST_CASE("EntityAttributeIndexTest.removeEntityNode", "[EntityAttributeIndexTest]") {
+            EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
                 {"test", "somevalue"}
@@ -82,10 +82,10 @@ namespace TrenchBroom {
                 {"other", "someothervalue"}
             });
 
-            index.addAttributableNode(entity1);
-            index.addAttributableNode(entity2);
+            index.addEntityNode(entity1);
+            index.addEntityNode(entity2);
 
-            index.removeAttributableNode(entity2);
+            index.removeEntityNode(entity2);
 
             const std::vector<EntityNodeBase*>& attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(1u, attributables.size());
@@ -95,8 +95,8 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST_CASE("EntityAttributeIndexTest.addAttribute", "[EntityAttributeIndexTest]") {
-            AttributableNodeIndex index;
+        TEST_CASE("EntityAttributeIndexTest.addProperty", "[EntityAttributeIndexTest]") {
+            EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
                 {"test", "somevalue"}
@@ -106,14 +106,14 @@ namespace TrenchBroom {
                 {"test", "somevalue"},
             });
 
-            index.addAttributableNode(entity1);
-            index.addAttributableNode(entity2);
+            index.addEntityNode(entity1);
+            index.addEntityNode(entity2);
 
             entity2->setEntity(Entity({
                 {"test", "somevalue"},
                 {"other", "someothervalue"},
             }));
-            index.addAttribute(entity2, "other", "someothervalue");
+            index.addProperty(entity2, "other", "someothervalue");
 
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
 
@@ -130,8 +130,8 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST_CASE("EntityAttributeIndexTest.removeAttribute", "[EntityAttributeIndexTest]") {
-            AttributableNodeIndex index;
+        TEST_CASE("EntityAttributeIndexTest.removeProperty", "[EntityAttributeIndexTest]") {
+            EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
                 {"test", "somevalue"}
@@ -142,10 +142,10 @@ namespace TrenchBroom {
                 {"other", "someothervalue"}
             });
 
-            index.addAttributableNode(entity1);
-            index.addAttributableNode(entity2);
+            index.addEntityNode(entity1);
+            index.addEntityNode(entity2);
 
-            index.removeAttribute(entity2, "other", "someothervalue");
+            index.removeProperty(entity2, "other", "someothervalue");
 
             const std::vector<EntityNodeBase*>& attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
@@ -159,14 +159,14 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityAttributeIndexTest.addNumberedEntityAttribute", "[EntityAttributeIndexTest]") {
-            AttributableNodeIndex index;
+            EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
                 {"test1", "somevalue"},
                 {"test2", "somevalue"}
             });
 
-            index.addAttributableNode(entity1);
+            index.addEntityNode(entity1);
 
             ASSERT_TRUE(findNumberedExact(index, "test", "notfound").empty());
 
@@ -179,25 +179,25 @@ namespace TrenchBroom {
 
 
         TEST_CASE("EntityAttributeIndexTest.addRemoveFloatProperty", "[EntityAttributeIndexTest]") {
-            AttributableNodeIndex index;
+            EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
                 {"delay", "3.5"}
             });
 
-            index.addAttributableNode(entity1);
+            index.addEntityNode(entity1);
 
             std::vector<EntityNodeBase*> attributables = findExactExact(index, "delay", "3.5");
             ASSERT_EQ(1u, attributables.size());
             ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
 
-            index.removeAttribute(entity1, "delay", "3.5");
+            index.removeProperty(entity1, "delay", "3.5");
 
             delete entity1;
         }
 
-        TEST_CASE("EntityAttributeIndexTest.allNames", "[EntityAttributeIndexTest]") {
-            AttributableNodeIndex index;
+        TEST_CASE("EntityAttributeIndexTest.allKeys", "[EntityAttributeIndexTest]") {
+            EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
                 {"test", "somevalue"}
@@ -208,14 +208,14 @@ namespace TrenchBroom {
                 {"other", "someothervalue"}
             });
 
-            index.addAttributableNode(entity1);
-            index.addAttributableNode(entity2);
+            index.addEntityNode(entity1);
+            index.addEntityNode(entity2);
 
-            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "test", "other" }, index.allNames());
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "test", "other" }, index.allKeys());
         }
 
-        TEST_CASE("EntityAttributeIndexTest.allValuesForNames", "[EntityAttributeIndexTest]") {
-            AttributableNodeIndex index;
+        TEST_CASE("EntityAttributeIndexTest.allValuesForKeys", "[EntityAttributeIndexTest]") {
+            EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
                 {"test", "somevalue"}
@@ -226,10 +226,11 @@ namespace TrenchBroom {
                 {"other", "someothervalue"}
             });
 
-            index.addAttributableNode(entity1);
-            index.addAttributableNode(entity2);
+            index.addEntityNode(entity1);
+            index.addEntityNode(entity2);
 
-            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "somevalue", "somevalue2" }, index.allValuesForNames(AttributableNodeIndexQuery::exact("test")));
+            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "somevalue", "somevalue2" },
+                index.allValuesForKeys(EntityNodeIndexQuery::exact("test")));
         }
     }
 }
