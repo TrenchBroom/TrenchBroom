@@ -32,6 +32,7 @@
 
 #include <kdl/overload.h>
 #include <kdl/parallel.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <fmt/format.h>
@@ -41,6 +42,37 @@
 #include <utility> // for std::pair
 #include <vector>
 #include <sstream>
+
+namespace TrenchBroom {
+    namespace IO {
+        template <typename F>
+        struct FloatWrapper {
+            F value;
+
+            FloatWrapper(const F i_value) : value(i_value) {}
+        };
+
+        template <typename F>
+        FloatWrapper(const F) -> FloatWrapper<F>;
+    }
+}
+
+namespace fmt {
+    template <typename F>
+    struct formatter<TrenchBroom::IO::FloatWrapper<F>> {
+        constexpr auto parse(format_parse_context& ctx) {
+            return fmt::formatter<F>().parse(ctx);
+        }
+
+        template <typename FormatContext>
+        auto format(const TrenchBroom::IO::FloatWrapper<F>& w, FormatContext& ctx) {
+            std::string buffer;
+            format_to(std::back_inserter(buffer), "{:.17f}", w.value);
+            buffer = kdl::str_trim_decimals(buffer);
+            return format_to(ctx.out(), "{}", buffer);
+        }
+    };
+}
 
 namespace TrenchBroom {
     namespace IO {
@@ -59,15 +91,15 @@ namespace TrenchBroom {
                 const Model::BrushFace::Points& points = face.points();
 
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), "( {} {} {} ) ( {} {} {} ) ( {} {} {} )",
-                               points[0].x(),
-                               points[0].y(),
-                               points[0].z(),
-                               points[1].x(),
-                               points[1].y(),
-                               points[1].z(),
-                               points[2].x(),
-                               points[2].y(),
-                               points[2].z());
+                               FloatWrapper(points[0].x()),
+                               FloatWrapper(points[0].y()),
+                               FloatWrapper(points[0].z()),
+                               FloatWrapper(points[1].x()),
+                               FloatWrapper(points[1].y()),
+                               FloatWrapper(points[1].z()),
+                               FloatWrapper(points[2].x()),
+                               FloatWrapper(points[2].y()),
+                               FloatWrapper(points[2].z()));
             }
 
             void writeTextureInfo(std::ostream& stream, const Model::BrushFace& face) const {
@@ -75,11 +107,11 @@ namespace TrenchBroom {
 
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {} {} {} {}",
                                textureName,
-                               face.attributes().xOffset(),
-                               face.attributes().yOffset(),
-                               face.attributes().rotation(),
-                               face.attributes().xScale(),
-                               face.attributes().yScale());
+                               FloatWrapper(face.attributes().xOffset()),
+                               FloatWrapper(face.attributes().yOffset()),
+                               FloatWrapper(face.attributes().rotation()),
+                               FloatWrapper(face.attributes().xScale()),
+                               FloatWrapper(face.attributes().yScale()));
             }
 
             void writeValveTextureInfo(std::ostream& stream, const Model::BrushFace& face) const {
@@ -90,19 +122,19 @@ namespace TrenchBroom {
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} [ {} {} {} {} ] [ {} {} {} {} ] {} {} {}",
                                textureName,
 
-                               xAxis.x(),
-                               xAxis.y(),
-                               xAxis.z(),
-                               face.attributes().xOffset(),
+                               FloatWrapper(xAxis.x()),
+                               FloatWrapper(xAxis.y()),
+                               FloatWrapper(xAxis.z()),
+                               FloatWrapper(face.attributes().xOffset()),
 
-                               yAxis.x(),
-                               yAxis.y(),
-                               yAxis.z(),
-                               face.attributes().yOffset(),
+                               FloatWrapper(yAxis.x()),
+                               FloatWrapper(yAxis.y()),
+                               FloatWrapper(yAxis.z()),
+                               FloatWrapper(face.attributes().yOffset()),
 
-                               face.attributes().rotation(),
-                               face.attributes().xScale(),
-                               face.attributes().yScale());
+                               FloatWrapper(face.attributes().rotation()),
+                               FloatWrapper(face.attributes().xScale()),
+                               FloatWrapper(face.attributes().yScale()));
             }
         };
 
@@ -126,7 +158,7 @@ namespace TrenchBroom {
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {}",
                                face.attributes().surfaceContents(),
                                face.attributes().surfaceFlags(),
-                               face.attributes().surfaceValue());
+                               FloatWrapper(face.attributes().surfaceValue()));
             }
         };
 
