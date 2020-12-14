@@ -35,10 +35,10 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        const Assets::EntityDefinition* selectEntityDefinition(const std::vector<EntityNodeBase*>& attributables);
-        const Assets::PropertyDefinition* attributeDefinition(const EntityNodeBase* node, const std::string& name);
-        const Assets::PropertyDefinition* selectAttributeDefinition(const std::string& name, const std::vector<EntityNodeBase*>& attributables);
-        std::string selectAttributeValue(const std::string& name, const std::vector<EntityNodeBase*>& attributables);
+        const Assets::EntityDefinition* selectEntityDefinition(const std::vector<EntityNodeBase*>& nodes);
+        const Assets::PropertyDefinition* propertyDefinition(const EntityNodeBase* node, const std::string& key);
+        const Assets::PropertyDefinition* selectPropertyDefinition(const std::string& key, const std::vector<EntityNodeBase*>& nodes);
+        std::string selectPRopertyValue(const std::string& key, const std::vector<EntityNodeBase*>& nodes);
 
         class EntityNodeBase : public Node {
         protected:
@@ -57,30 +57,30 @@ namespace TrenchBroom {
             Entity setEntity(Entity entity);
         public: // definition 
             void setDefinition(Assets::EntityDefinition* definition);
-        private: // attribute management internals
-            class NotifyAttributeChange {
+        private: // property management internals
+            class NotifyPropertyChange {
             private:
                 NotifyNodeChange m_nodeChange;
                 EntityNodeBase* m_node;
                 vm::bbox3 m_oldPhysicalBounds;
             public:
-                NotifyAttributeChange(EntityNodeBase* node);
-                ~NotifyAttributeChange();
+                NotifyPropertyChange(EntityNodeBase* node);
+                ~NotifyPropertyChange();
             };
 
-            void attributesWillChange();
-            void attributesDidChange(const vm::bbox3& oldPhysicalBounds);
-        private: // bulk update after attribute changes
-            void updateIndexAndLinks(const std::vector<EntityProperty>& newAttributes);
-            void updateAttributeIndex(const std::vector<EntityProperty>& oldAttributes, const std::vector<EntityProperty>& newAttributes);
-            void updateLinks(const std::vector<EntityProperty>& oldAttributes, const std::vector<EntityProperty>& newAttributes);
+            void propertiesWillChange();
+            void propertiesDidChange(const vm::bbox3& oldPhysicalBounds);
+        private: // bulk update after property changes
+            void updateIndexAndLinks(const std::vector<EntityProperty>& newProperties);
+            void updatePropertyIndex(const std::vector<EntityProperty>& oldProperties, const std::vector<EntityProperty>& newProperties);
+            void updateLinks(const std::vector<EntityProperty>& oldProperties, const std::vector<EntityProperty>& newProperties);
         private: // search index management
-            void addAttributesToIndex();
-            void removeAttributesFromIndex();
+            void addPropertiesToIndex();
+            void removePropertiesFromIndex();
 
-            void addAttributeToIndex(const std::string& name, const std::string& value);
-            void removeAttributeFromIndex(const std::string& name, const std::string& value);
-            void updateAttributeIndex(const std::string& oldName, const std::string& oldValue, const std::string& newName, const std::string& newValue);
+            void addPropertyToIndex(const std::string& key, const std::string& value);
+            void removePropertyFromIndex(const std::string& key, const std::string& value);
+            void updatePropertyIndex(const std::string& oldKey, const std::string& oldValue, const std::string& newKey, const std::string& newValue);
         public: // link management
             const std::vector<EntityNodeBase*>& linkSources() const;
             const std::vector<EntityNodeBase*>& linkTargets() const;
@@ -125,15 +125,15 @@ namespace TrenchBroom {
             void removeAllLinks();
             void addAllLinks();
 
-            void addLinkSource(EntityNodeBase* attributable);
-            void addLinkTarget(EntityNodeBase* attributable);
-            void addKillSource(EntityNodeBase* attributable);
-            void addKillTarget(EntityNodeBase* attributable);
+            void addLinkSource(EntityNodeBase* node);
+            void addLinkTarget(EntityNodeBase* node);
+            void addKillSource(EntityNodeBase* node);
+            void addKillTarget(EntityNodeBase* node);
 
-            void removeLinkSource(EntityNodeBase* attributable);
-            void removeLinkTarget(EntityNodeBase* attributable);
-            void removeKillSource(EntityNodeBase* attributable);
-            void removeKillTarget(EntityNodeBase* attributable);
+            void removeLinkSource(EntityNodeBase* node);
+            void removeLinkTarget(EntityNodeBase* node);
+            void removeKillSource(EntityNodeBase* node);
+            void removeKillTarget(EntityNodeBase* node);
         protected:
             EntityNodeBase();
         private: // implemenation of node interface
@@ -141,7 +141,7 @@ namespace TrenchBroom {
             virtual void doAncestorWillChange() override;
             virtual void doAncestorDidChange() override;
         private: // subclassing interface
-            virtual void doAttributesDidChange(const vm::bbox3& oldBounds) = 0;
+            virtual void doPropertiesDidChange(const vm::bbox3& oldBounds) = 0;
             virtual vm::vec3 doGetLinkSourceAnchor() const = 0;
             virtual vm::vec3 doGetLinkTargetAnchor() const = 0;
         private: // hide copy constructor and assignment operator

@@ -30,13 +30,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Assets::EntityDefinition* selectEntityDefinition(const std::vector<EntityNodeBase*>& attributables) {
+        const Assets::EntityDefinition* selectEntityDefinition(const std::vector<EntityNodeBase*>& nodes) {
             const Assets::EntityDefinition* definition = nullptr;
 
-            for (EntityNodeBase* attributable : attributables) {
+            for (EntityNodeBase* node : nodes) {
                 if (definition == nullptr) {
-                    definition = attributable->entity().definition();
-                } else if (definition != attributable->entity().definition()) {
+                    definition = node->entity().definition();
+                } else if (definition != node->entity().definition()) {
                     definition = nullptr;
                     break;
                 }
@@ -45,25 +45,25 @@ namespace TrenchBroom {
             return definition;
         }
 
-        const Assets::PropertyDefinition* attributeDefinition(const EntityNodeBase* node, const std::string& name) {
+        const Assets::PropertyDefinition* propertyDefinition(const EntityNodeBase* node, const std::string& key) {
             const auto* definition = node->entity().definition();
-            return definition ? definition->propertyDefinition(name) : nullptr;
+            return definition ? definition->propertyDefinition(key) : nullptr;
         }
 
-        const Assets::PropertyDefinition* selectAttributeDefinition(const std::string& name, const std::vector<EntityNodeBase*>& attributables) {
-            std::vector<EntityNodeBase*>::const_iterator it = std::begin(attributables);
-            std::vector<EntityNodeBase*>::const_iterator end = std::end(attributables);
+        const Assets::PropertyDefinition* selectPropertyDefinition(const std::string& key, const std::vector<EntityNodeBase*>& nodes) {
+            std::vector<EntityNodeBase*>::const_iterator it = std::begin(nodes);
+            std::vector<EntityNodeBase*>::const_iterator end = std::end(nodes);
             if (it == end)
                 return nullptr;
 
-            const EntityNodeBase* attributable = *it;
-            const Assets::PropertyDefinition* definition = attributeDefinition(attributable, name);
+            const EntityNodeBase* node = *it;
+            const Assets::PropertyDefinition* definition = propertyDefinition(node, key);
             if (definition == nullptr)
                 return nullptr;
 
             while (++it != end) {
-                attributable = *it;
-                const Assets::PropertyDefinition* currentDefinition = attributeDefinition(attributable, name);
+                node = *it;
+                const Assets::PropertyDefinition* currentDefinition = propertyDefinition(node, key);
                 if (currentDefinition == nullptr)
                     return nullptr;
 
@@ -74,20 +74,20 @@ namespace TrenchBroom {
             return definition;
         }
 
-        std::string selectAttributeValue(const std::string& name, const std::vector<EntityNodeBase*>& attributables) {
-            std::vector<EntityNodeBase*>::const_iterator it = std::begin(attributables);
-            std::vector<EntityNodeBase*>::const_iterator end = std::end(attributables);
+        std::string selectPRopertyValue(const std::string& key, const std::vector<EntityNodeBase*>& nodes) {
+            std::vector<EntityNodeBase*>::const_iterator it = std::begin(nodes);
+            std::vector<EntityNodeBase*>::const_iterator end = std::end(nodes);
             if (it == end)
                 return "";
 
-            const EntityNodeBase* attributable = *it;
-            const auto* value = attributable->entity().attribute(name);
+            const EntityNodeBase* node = *it;
+            const auto* value = node->entity().attribute(key);
             if (!value)
                 return "";
 
             while (++it != end) {
-                attributable = *it;
-                const auto* itValue = attributable->entity().attribute(name);
+                node = *it;
+                const auto* itValue = node->entity().attribute(key);
                 if (!itValue) {
                     return "";
                 }
@@ -107,7 +107,7 @@ namespace TrenchBroom {
         }
 
         Entity EntityNodeBase::setEntity(Entity entity) {
-            const NotifyAttributeChange notifyChange(this);
+            const NotifyPropertyChange notifyChange(this);
             updateIndexAndLinks(entity.attributes());
 
             using std::swap;
@@ -120,132 +120,132 @@ namespace TrenchBroom {
                 return;
             }
 
-            const NotifyAttributeChange notifyChange(this);
+            const NotifyPropertyChange notifyChange(this);
             m_entity.setDefinition(definition);
         }
 
-        EntityNodeBase::NotifyAttributeChange::NotifyAttributeChange(EntityNodeBase* node) :
+        EntityNodeBase::NotifyPropertyChange::NotifyPropertyChange(EntityNodeBase* node) :
         m_nodeChange(node),
         m_node(node),
         m_oldPhysicalBounds(node->physicalBounds()) {
             ensure(m_node != nullptr, "node is null");
-            m_node->attributesWillChange();
+            m_node->propertiesWillChange();
         }
 
-        EntityNodeBase::NotifyAttributeChange::~NotifyAttributeChange() {
-            m_node->attributesDidChange(m_oldPhysicalBounds);
+        EntityNodeBase::NotifyPropertyChange::~NotifyPropertyChange() {
+            m_node->propertiesDidChange(m_oldPhysicalBounds);
         }
 
-        void EntityNodeBase::attributesWillChange() {}
+        void EntityNodeBase::propertiesWillChange() {}
 
-        void EntityNodeBase::attributesDidChange(const vm::bbox3& oldPhysicalBounds) {
-            doAttributesDidChange(oldPhysicalBounds);
+        void EntityNodeBase::propertiesDidChange(const vm::bbox3& oldPhysicalBounds) {
+            doPropertiesDidChange(oldPhysicalBounds);
         }
 
-        void EntityNodeBase::updateIndexAndLinks(const std::vector<EntityProperty>& newAttributes) {
+        void EntityNodeBase::updateIndexAndLinks(const std::vector<EntityProperty>& newProperties) {
             const auto oldSorted = kdl::vec_sort(m_entity.attributes());
-            const auto newSorted = kdl::vec_sort(newAttributes);
+            const auto newSorted = kdl::vec_sort(newProperties);
 
-            updateAttributeIndex(oldSorted, newSorted);
+            updatePropertyIndex(oldSorted, newSorted);
             updateLinks(oldSorted, newSorted);
         }
 
-        void EntityNodeBase::updateAttributeIndex(const std::vector<EntityProperty>& oldAttributes, const std::vector<EntityProperty>& newAttributes) {
-            auto oldIt = std::begin(oldAttributes);
-            auto oldEnd = std::end(oldAttributes);
-            auto newIt = std::begin(newAttributes);
-            auto newEnd = std::end(newAttributes);
+        void EntityNodeBase::updatePropertyIndex(const std::vector<EntityProperty>& oldProperties, const std::vector<EntityProperty>& newProperties) {
+            auto oldIt = std::begin(oldProperties);
+            auto oldEnd = std::end(oldProperties);
+            auto newIt = std::begin(newProperties);
+            auto newEnd = std::end(newProperties);
 
             while (oldIt != oldEnd && newIt != newEnd) {
-                const EntityProperty& oldAttr = *oldIt;
-                const EntityProperty& newAttr = *newIt;
+                const EntityProperty& oldProp = *oldIt;
+                const EntityProperty& newProp = *newIt;
 
-                const int cmp = oldAttr.compare(newAttr);
+                const int cmp = oldProp.compare(newProp);
                 if (cmp < 0) {
-                    removeAttributeFromIndex(oldAttr.key(), oldAttr.value());
+                    removePropertyFromIndex(oldProp.key(), oldProp.value());
                     ++oldIt;
                 } else if (cmp > 0) {
-                    addAttributeToIndex(newAttr.key(), newAttr.value());
+                    addPropertyToIndex(newProp.key(), newProp.value());
                     ++newIt;
                 } else {
-                    updateAttributeIndex(oldAttr.key(), oldAttr.value(), newAttr.key(), newAttr.value());
+                    updatePropertyIndex(oldProp.key(), oldProp.value(), newProp.key(), newProp.value());
                     ++oldIt; ++newIt;
                 }
             }
 
             while (oldIt != oldEnd) {
-                const EntityProperty& oldAttr = *oldIt;
-                removeAttributeFromIndex(oldAttr.key(), oldAttr.value());
+                const EntityProperty& oldProp = *oldIt;
+                removePropertyFromIndex(oldProp.key(), oldProp.value());
                 ++oldIt;
             }
 
             while (newIt != newEnd) {
-                const EntityProperty& newAttr = *newIt;
-                addAttributeToIndex(newAttr.key(), newAttr.value());
+                const EntityProperty& newProp = *newIt;
+                addPropertyToIndex(newProp.key(), newProp.value());
                 ++newIt;
             }
         }
 
-        void EntityNodeBase::updateLinks(const std::vector<EntityProperty>& oldAttributes, const std::vector<EntityProperty>& newAttributes) {
-            auto oldIt = std::begin(oldAttributes);
-            auto oldEnd = std::end(oldAttributes);
-            auto newIt = std::begin(newAttributes);
-            auto newEnd = std::end(newAttributes);
+        void EntityNodeBase::updateLinks(const std::vector<EntityProperty>& oldProperties, const std::vector<EntityProperty>& newProperties) {
+            auto oldIt = std::begin(oldProperties);
+            auto oldEnd = std::end(oldProperties);
+            auto newIt = std::begin(newProperties);
+            auto newEnd = std::end(newProperties);
 
             while (oldIt != oldEnd && newIt != newEnd) {
-                const EntityProperty& oldAttr = *oldIt;
-                const EntityProperty& newAttr = *newIt;
+                const EntityProperty& oldProp = *oldIt;
+                const EntityProperty& newProp = *newIt;
 
-                const int cmp = oldAttr.compare(newAttr);
+                const int cmp = oldProp.compare(newProp);
                 if (cmp < 0) {
-                    removeLinks(oldAttr.key(), oldAttr.value());
+                    removeLinks(oldProp.key(), oldProp.value());
                     ++oldIt;
                 } else if (cmp > 0) {
-                    addLinks(newAttr.key(), newAttr.value());
+                    addLinks(newProp.key(), newProp.value());
                     ++newIt;
                 } else {
-                    updateLinks(oldAttr.key(), oldAttr.value(), newAttr.key(), newAttr.value());
+                    updateLinks(oldProp.key(), oldProp.value(), newProp.key(), newProp.value());
                     ++oldIt; ++newIt;
                 }
             }
 
             while (oldIt != oldEnd) {
-                const EntityProperty& oldAttr = *oldIt;
-                removeLinks(oldAttr.key(), oldAttr.value());
+                const EntityProperty& oldProp = *oldIt;
+                removeLinks(oldProp.key(), oldProp.value());
                 ++oldIt;
             }
 
             while (newIt != newEnd) {
-                const EntityProperty& newAttr = *newIt;
-                addLinks(newAttr.key(), newAttr.value());
+                const EntityProperty& newProp = *newIt;
+                addLinks(newProp.key(), newProp.value());
                 ++newIt;
             }
         }
         
-        void EntityNodeBase::addAttributesToIndex() {
-            for (const EntityProperty& attribute : m_entity.attributes())
-                addAttributeToIndex(attribute.key(), attribute.value());
+        void EntityNodeBase::addPropertiesToIndex() {
+            for (const EntityProperty& property : m_entity.attributes())
+                addPropertyToIndex(property.key(), property.value());
         }
 
-        void EntityNodeBase::removeAttributesFromIndex() {
-            for (const EntityProperty& attribute : m_entity.attributes())
-                removeAttributeFromIndex(attribute.key(), attribute.value());
+        void EntityNodeBase::removePropertiesFromIndex() {
+            for (const EntityProperty& property : m_entity.attributes())
+                removePropertyFromIndex(property.key(), property.value());
         }
 
-        void EntityNodeBase::addAttributeToIndex(const std::string& name, const std::string& value) {
-            addToIndex(this, name, value);
+        void EntityNodeBase::addPropertyToIndex(const std::string& key, const std::string& value) {
+            addToIndex(this, key, value);
         }
 
-        void EntityNodeBase::removeAttributeFromIndex(const std::string& name, const std::string& value) {
-            removeFromIndex(this, name, value);
+        void EntityNodeBase::removePropertyFromIndex(const std::string& key, const std::string& value) {
+            removeFromIndex(this, key, value);
         }
 
-        void EntityNodeBase::updateAttributeIndex(const std::string& oldName, const std::string& oldValue, const std::string& newName, const std::string& newValue) {
-            if (oldName == newName && oldValue == newValue) {
+        void EntityNodeBase::updatePropertyIndex(const std::string& oldKey, const std::string& oldValue, const std::string& newKey, const std::string& newValue) {
+            if (oldKey == newKey && oldValue == newValue) {
                 return;
             }
-            removeFromIndex(this, oldName, oldValue);
-            addToIndex(this, newName, newValue);
+            removeFromIndex(this, oldKey, oldValue);
+            addToIndex(this, newKey, newValue);
         }
 
         const std::vector<EntityNodeBase*>& EntityNodeBase::linkSources() const {
@@ -291,15 +291,15 @@ namespace TrenchBroom {
         }
 
         void EntityNodeBase::findMissingTargets(const std::string& prefix, std::vector<std::string>& result) const {
-            for (const EntityProperty& attribute : m_entity.numberedAttributes(prefix)) {
-                const std::string& targetname = attribute.value();
+            for (const EntityProperty& property : m_entity.numberedAttributes(prefix)) {
+                const std::string& targetname = property.value();
                 if (targetname.empty()) {
-                    result.push_back(attribute.key());
+                    result.push_back(property.key());
                 } else {
                     std::vector<EntityNodeBase*> linkTargets;
                     findAttributableNodesWithAttribute(PropertyKeys::Targetname, targetname, linkTargets);
                     if (linkTargets.empty())
-                        result.push_back(attribute.key());
+                        result.push_back(property.key());
                 }
             }
         }
@@ -397,8 +397,8 @@ namespace TrenchBroom {
         }
 
         void EntityNodeBase::addAllLinkTargets() {
-            for (const EntityProperty& attribute : m_entity.numberedAttributes(PropertyKeys::Target)) {
-                const std::string& targetname = attribute.value();
+            for (const EntityProperty& property : m_entity.numberedAttributes(PropertyKeys::Target)) {
+                const std::string& targetname = property.value();
                 if (!targetname.empty()) {
                     std::vector<EntityNodeBase*> linkTargets;
                     findAttributableNodesWithAttribute(PropertyKeys::Targetname, targetname, linkTargets);
@@ -416,8 +416,8 @@ namespace TrenchBroom {
         }
 
         void EntityNodeBase::addAllKillTargets() {
-            for (const EntityProperty& attribute : m_entity.numberedAttributes(PropertyKeys::Killtarget)) {
-                const std::string& targetname = attribute.value();
+            for (const EntityProperty& property : m_entity.numberedAttributes(PropertyKeys::Killtarget)) {
+                const std::string& targetname = property.value();
                 if (!targetname.empty()) {
                     std::vector<EntityNodeBase*> killTargets;
                     findAttributableNodesWithAttribute(PropertyKeys::Targetname, targetname, killTargets);
@@ -510,53 +510,53 @@ namespace TrenchBroom {
 
         void EntityNodeBase::doAncestorWillChange() {
             removeAllLinks();
-            removeAttributesFromIndex();
+            removePropertiesFromIndex();
         }
 
         void EntityNodeBase::doAncestorDidChange() {
-            addAttributesToIndex();
+            addPropertiesToIndex();
             addAllLinks();
         }
 
-        void EntityNodeBase::addLinkSource(EntityNodeBase* attributable) {
-            ensure(attributable != nullptr, "attributable is null");
-            m_linkSources.push_back(attributable);
+        void EntityNodeBase::addLinkSource(EntityNodeBase* node) {
+            ensure(node != nullptr, "node is null");
+            m_linkSources.push_back(node);
             invalidateIssues();
         }
 
-        void EntityNodeBase::addLinkTarget(EntityNodeBase* attributable) {
-            ensure(attributable != nullptr, "attributable is null");
-            m_linkTargets.push_back(attributable);
+        void EntityNodeBase::addLinkTarget(EntityNodeBase* node) {
+            ensure(node != nullptr, "node is null");
+            m_linkTargets.push_back(node);
             invalidateIssues();
         }
 
-        void EntityNodeBase::addKillSource(EntityNodeBase* attributable) {
-            ensure(attributable != nullptr, "attributable is null");
-            m_killSources.push_back(attributable);
+        void EntityNodeBase::addKillSource(EntityNodeBase* node) {
+            ensure(node != nullptr, "node is null");
+            m_killSources.push_back(node);
             invalidateIssues();
         }
 
-        void EntityNodeBase::addKillTarget(EntityNodeBase* attributable) {
-            ensure(attributable != nullptr, "attributable is null");
-            m_killTargets.push_back(attributable);
+        void EntityNodeBase::addKillTarget(EntityNodeBase* node) {
+            ensure(node != nullptr, "node is null");
+            m_killTargets.push_back(node);
             invalidateIssues();
         }
 
-        void EntityNodeBase::removeLinkSource(EntityNodeBase* attributable) {
-            ensure(attributable != nullptr, "attributable is null");
-            m_linkSources = kdl::vec_erase(std::move(m_linkSources), attributable);
+        void EntityNodeBase::removeLinkSource(EntityNodeBase* node) {
+            ensure(node != nullptr, "node is null");
+            m_linkSources = kdl::vec_erase(std::move(m_linkSources), node);
             invalidateIssues();
         }
 
-        void EntityNodeBase::removeLinkTarget(EntityNodeBase* attributable) {
-            ensure(attributable != nullptr, "attributable is null");
-            m_linkTargets = kdl::vec_erase(std::move(m_linkTargets), attributable);
+        void EntityNodeBase::removeLinkTarget(EntityNodeBase* node) {
+            ensure(node != nullptr, "node is null");
+            m_linkTargets = kdl::vec_erase(std::move(m_linkTargets), node);
             invalidateIssues();
         }
 
-        void EntityNodeBase::removeKillSource(EntityNodeBase* attributable) {
-            ensure(attributable != nullptr, "attributable is null");
-            m_killSources = kdl::vec_erase(std::move(m_killSources), attributable);
+        void EntityNodeBase::removeKillSource(EntityNodeBase* node) {
+            ensure(node != nullptr, "node is null");
+            m_killSources = kdl::vec_erase(std::move(m_killSources), node);
             invalidateIssues();
         }
 
@@ -567,9 +567,9 @@ namespace TrenchBroom {
             return m_entity.classname();
         }
 
-        void EntityNodeBase::removeKillTarget(EntityNodeBase* attributable) {
-            ensure(attributable != nullptr, "attributable is null");
-            m_killTargets = kdl::vec_erase(std::move(m_killTargets), attributable);
+        void EntityNodeBase::removeKillTarget(EntityNodeBase* node) {
+            ensure(node != nullptr, "node is null");
+            m_killTargets = kdl::vec_erase(std::move(m_killTargets), node);
         }
 
         bool operator==(const EntityNodeBase& lhs, const EntityNodeBase& rhs) {

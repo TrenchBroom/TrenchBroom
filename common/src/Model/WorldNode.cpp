@@ -344,7 +344,7 @@ namespace TrenchBroom {
             m_attributableIndex->removeAttribute(attributable, name, value);
         }
 
-        void WorldNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {}
+        void WorldNode::doPropertiesDidChange(const vm::bbox3& /* oldBounds */) {}
 
         vm::vec3 WorldNode::doGetLinkSourceAnchor() const {
             return vm::vec3::zero();

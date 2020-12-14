@@ -92,7 +92,7 @@ namespace TrenchBroom {
 
             std::vector<Node*> nodesRequiredForViewSelection() override;
         private: // implement AttributableNode interface
-            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
+            void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement Object interface

@@ -213,7 +213,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityNode::doAttributesDidChange(const vm::bbox3& oldBounds) {
+        void EntityNode::doPropertiesDidChange(const vm::bbox3& oldBounds) {
             nodePhysicalBoundsDidChange(oldBounds);
         }
 

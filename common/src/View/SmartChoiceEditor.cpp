@@ -87,7 +87,7 @@ namespace TrenchBroom {
             const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);
             m_comboBox->clear();
 
-            const auto* attrDef = Model::selectAttributeDefinition(name(), attributables);
+            const auto* attrDef = Model::selectPropertyDefinition(name(), attributables);
             if (attrDef == nullptr || attrDef->type() != Assets::PropertyDefinitionType::ChoiceProperty) {
                 m_comboBox->setDisabled(true);
             } else {
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                     m_comboBox->addItem(mapStringToUnicode(document()->encoding(), option.value() + " : " + option.description()));
                 }
 
-                const auto value = Model::selectAttributeValue(name(), attributables);
+                const auto value = Model::selectPRopertyValue(name(), attributables);
                 m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
             }
         }
