@@ -49,6 +49,18 @@ namespace kdl {
         ASSERT_EQ("abc", str_trim("xyxxabczzxzyz", "xyz"));
     }
 
+    TEST_CASE("string_format_test.str_trim_decimals", "[string_format_test]") {
+        ASSERT_EQ("", str_trim_decimals(""));
+        ASSERT_EQ("0", str_trim_decimals("0"));
+        ASSERT_EQ("00", str_trim_decimals("00"));
+        ASSERT_EQ("0", str_trim_decimals("0.0"));
+        ASSERT_EQ("0123", str_trim_decimals("0123."));
+        ASSERT_EQ("0123", str_trim_decimals("0123.0"));
+        ASSERT_EQ("0123.001", str_trim_decimals("0123.001"));
+        ASSERT_EQ("0123.001", str_trim_decimals("0123.0010"));
+        ASSERT_EQ("0123.001", str_trim_decimals("0123.0010000"));
+    }
+
     TEST_CASE("string_format_test.str_to_lower_char", "[string_format_test]") {
         constexpr auto input = " !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         constexpr auto expected = " !\"#$%&\\'()*+,-./0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";

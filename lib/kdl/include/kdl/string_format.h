@@ -104,6 +104,31 @@ namespace kdl {
     }
 
     /**
+     * Trims the longest suffix after the last '.' consisting only the char '0'. If the string ends with a '.' afterwards,
+     * that '.' is trimmed also.
+     *
+     * @param s the string to trim
+     * @return the trimmed string
+     */
+    inline std::string str_trim_decimals(const std::string_view s) {
+        const auto dot = s.find_last_of('.');
+        if (dot == std::string::npos) {
+            return std::string(s);
+        }
+
+        if (dot == s.length() - 1) {
+            return std::string(s.substr(0, s.length() - 1));
+        }
+
+        auto last = s.substr(dot + 1).find_last_not_of('0');
+        if (last == std::string::npos) {
+            return std::string(s.substr(0, dot));
+        }
+
+        return std::string(s.substr(0, dot + last + 2));
+    }
+
+    /**
      * Convers the given ASCII character to lowercase.
      *
      * @param c the character to convert
