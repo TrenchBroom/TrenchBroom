@@ -23,7 +23,6 @@
 #include "Assets/EntityModel.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityPropertiesVariableStore.h"
-#include "Model/EntityRotationPolicy.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"

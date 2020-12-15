@@ -35,20 +35,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        vm::mat4x4 EntityRotationPolicy::getRotation(const EntityNode* entityNode) {
-            return getRotation(entityNode->entity());
-        }
-
-        void EntityRotationPolicy::applyRotation(EntityNode* entityNode, const vm::mat4x4& transformation) {
-            auto entity = entityNode->entity();
-            applyRotation(entity, transformation);
-            entityNode->setEntity(std::move(entity));
-        }
-
-        std::string EntityRotationPolicy::getAttribute(const EntityNode* entityNode) {
-            return getAttribute(entityNode->entity());
-        }
-
         vm::mat4x4 EntityRotationPolicy::getRotation(const Entity& entity) {
             const RotationInfo info = rotationInfo(entity);
             switch (info.type) {
@@ -173,18 +159,6 @@ namespace TrenchBroom {
             const auto info = rotationInfo(entity);
             return info.attribute;
         }
-
-        EntityRotationPolicy::RotationInfo EntityRotationPolicy::rotationInfo(const EntityNode* entityNode) {
-            return rotationInfo(entityNode->entity()); 
-        }
-
-        void EntityRotationPolicy::setAngle(EntityNode* entityNode, const std::string& attribute, const vm::vec3& direction) {
-            auto entity = entityNode->entity();
-            const auto angle = getAngle(direction);
-            entity.addOrUpdateProperty(attribute, kdl::str_to_string(vm::round(angle)));
-            entityNode->setEntity(std::move(entity));
-        }
-
 
         EntityRotationPolicy::RotationInfo EntityRotationPolicy::rotationInfo(const Entity& entity) {
             auto type = RotationType::None;
