@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "Allocator.h"
-
 #include "Polyhedron_Forward.h"
 
 #include <kdl/intrusive_circular_list.h>
@@ -64,7 +62,7 @@ namespace TrenchBroom {
          * The payload of a vertex can be used to store user data.
          */
         template <typename T, typename FP, typename VP>
-        class Polyhedron_Vertex : public Allocator<Polyhedron_Vertex<T,FP,VP>> {
+        class Polyhedron_Vertex {
         private:
             friend class Polyhedron<T,FP,VP>;
             friend class Polyhedron_Edge<T,FP,VP>;
@@ -201,7 +199,7 @@ namespace TrenchBroom {
          * list.
          */
         template <typename T, typename FP, typename VP>
-        class Polyhedron_Edge : public Allocator<Polyhedron_Edge<T,FP,VP>> {
+        class Polyhedron_Edge {
         private:
             friend class Polyhedron<T,FP,VP>;
             friend class Polyhedron_Vertex<T,FP,VP>;
@@ -474,7 +472,7 @@ namespace TrenchBroom {
          * belongs to.
          */
         template <typename T, typename FP, typename VP>
-        class Polyhedron_HalfEdge : public Allocator<Polyhedron_HalfEdge<T,FP,VP>> {
+        class Polyhedron_HalfEdge {
         private:
             friend class Polyhedron<T,FP,VP>;
             friend class Polyhedron_Vertex<T,FP,VP>;
@@ -514,12 +512,6 @@ namespace TrenchBroom {
              * @param origin the origin vertex, must not be null
              */
             Polyhedron_HalfEdge(Vertex* origin);
-        public:
-            /**
-             * The destructor resets the leaving half edge of its origin vertex to null if this is the leading half
-             * edge of the origin vertex.
-             */
-            ~Polyhedron_HalfEdge();
         public:
             /**
              * Returns the origin vertex of this half edge.
@@ -681,7 +673,7 @@ namespace TrenchBroom {
          * list.
          */
         template <typename T, typename FP, typename VP>
-        class Polyhedron_Face : public Allocator<Polyhedron_Face<T,FP,VP>> {
+        class Polyhedron_Face {
         private:
             friend class Polyhedron<T,FP,VP>;
             friend class Polyhedron_Vertex<T,FP,VP>;
