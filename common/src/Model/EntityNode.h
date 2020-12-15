@@ -57,7 +57,7 @@ namespace TrenchBroom {
         public:
             EntityNode();
             explicit EntityNode(Entity entity);
-            explicit EntityNode(std::initializer_list<EntityProperty> attributes);
+            explicit EntityNode(std::initializer_list<EntityProperty> properties);
 
             FloatType area(vm::axis::type axis) const;
         public: // entity model
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const override;
 
             std::vector<Node*> nodesRequiredForViewSelection() override;
-        private: // implement AttributableNode interface
+        private: // implement EntityNodeBase interface
             void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
