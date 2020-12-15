@@ -326,12 +326,12 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void WorldNode::doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<Model::EntityNodeBase*>& result) const {
+        void WorldNode::doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<Model::EntityNodeBase*>& result) const {
             result = kdl::vec_concat(std::move(result),
                 m_attributableIndex->findEntityNodes(EntityNodeIndexQuery::exact(name), value));
         }
 
-        void WorldNode::doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<Model::EntityNodeBase*>& result) const {
+        void WorldNode::doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<Model::EntityNodeBase*>& result) const {
             result = kdl::vec_concat(std::move(result),
                 m_attributableIndex->findEntityNodes(EntityNodeIndexQuery::numbered(prefix), value));
         }

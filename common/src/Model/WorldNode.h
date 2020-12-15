@@ -136,8 +136,8 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-            void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
-            void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
             void doAddToIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) override;
             void doRemoveFromIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) override;
         private: // implement AttributableNode interface

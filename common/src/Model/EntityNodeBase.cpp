@@ -297,7 +297,7 @@ namespace TrenchBroom {
                     result.push_back(property.key());
                 } else {
                     std::vector<EntityNodeBase*> linkTargets;
-                    findAttributableNodesWithAttribute(PropertyKeys::Targetname, targetname, linkTargets);
+                    findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, linkTargets);
                     if (linkTargets.empty())
                         result.push_back(property.key());
                 }
@@ -337,7 +337,7 @@ namespace TrenchBroom {
         void EntityNodeBase::addLinkTargets(const std::string& targetname) {
             if (!targetname.empty()) {
                 std::vector<EntityNodeBase*> targets;
-                findAttributableNodesWithAttribute(PropertyKeys::Targetname, targetname, targets);
+                findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, targets);
                 addLinkTargets(targets);
             }
         }
@@ -345,7 +345,7 @@ namespace TrenchBroom {
         void EntityNodeBase::addKillTargets(const std::string& targetname) {
             if (!targetname.empty()) {
                 std::vector<EntityNodeBase*> targets;
-                findAttributableNodesWithAttribute(PropertyKeys::Targetname, targetname, targets);
+                findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, targets);
                 addKillTargets(targets);
             }
         }
@@ -391,7 +391,7 @@ namespace TrenchBroom {
         void EntityNodeBase::addAllLinkSources(const std::string& targetname) {
             if (!targetname.empty()) {
                 std::vector<EntityNodeBase*> linkSources;
-                findAttributableNodesWithNumberedAttribute(PropertyKeys::Target, targetname, linkSources);
+                findEntityNodesWithNumberedProperty(PropertyKeys::Target, targetname, linkSources);
                 addLinkSources(linkSources);
             }
         }
@@ -401,7 +401,7 @@ namespace TrenchBroom {
                 const std::string& targetname = property.value();
                 if (!targetname.empty()) {
                     std::vector<EntityNodeBase*> linkTargets;
-                    findAttributableNodesWithAttribute(PropertyKeys::Targetname, targetname, linkTargets);
+                    findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, linkTargets);
                     addLinkTargets(linkTargets);
                 }
             }
@@ -410,7 +410,7 @@ namespace TrenchBroom {
         void EntityNodeBase::addAllKillSources(const std::string& targetname) {
             if (!targetname.empty()) {
                 std::vector<EntityNodeBase*> killSources;
-                findAttributableNodesWithNumberedAttribute(PropertyKeys::Killtarget, targetname, killSources);
+                findEntityNodesWithNumberedProperty(PropertyKeys::Killtarget, targetname, killSources);
                 addKillSources(killSources);
             }
         }
@@ -420,7 +420,7 @@ namespace TrenchBroom {
                 const std::string& targetname = property.value();
                 if (!targetname.empty()) {
                     std::vector<EntityNodeBase*> killTargets;
-                    findAttributableNodesWithAttribute(PropertyKeys::Targetname, targetname, killTargets);
+                    findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, killTargets);
                     addKillTargets(killTargets);
                 }
             }

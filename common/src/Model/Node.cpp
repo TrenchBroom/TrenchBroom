@@ -632,20 +632,20 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_issues);
         }
 
-        void Node::findAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const {
-            return doFindAttributableNodesWithAttribute(name, value, result);
+        void Node::findEntityNodesWithProperty(const std::string& key, const std::string& value, std::vector<EntityNodeBase*>& result) const {
+            return doFindEntityNodesWithProperty(key, value, result);
         }
 
-        void Node::findAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const {
-            return doFindAttributableNodesWithNumberedAttribute(prefix, value, result);
+        void Node::findEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const {
+            return doFindEntityNodesWithNumberedProperty(prefix, value, result);
         }
 
-        void Node::addToIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
-            doAddToIndex(attributable, name, value);
+        void Node::addToIndex(EntityNodeBase* node, const std::string& key, const std::string& value) {
+            doAddToIndex(node, key, value);
         }
 
-        void Node::removeFromIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
-            doRemoveFromIndex(attributable, name, value);
+        void Node::removeFromIndex(EntityNodeBase* node, const std::string& key, const std::string& value) {
+            doRemoveFromIndex(node, key, value);
         }
 
         Node* Node::doCloneRecursively(const vm::bbox3& worldBounds) const {
@@ -679,24 +679,24 @@ namespace TrenchBroom {
         void Node::doDescendantWillChange(Node* /* node */) {}
         void Node::doDescendantDidChange(Node* /* node */)  {}
 
-        void Node::doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const {
+        void Node::doFindEntityNodesWithProperty(const std::string& key, const std::string& value, std::vector<EntityNodeBase*>& result) const {
             if (m_parent != nullptr)
-                m_parent->findAttributableNodesWithAttribute(name, value, result);
+                m_parent->findEntityNodesWithProperty(key, value, result);
         }
 
-        void Node::doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const {
+        void Node::doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const {
             if (m_parent != nullptr)
-                m_parent->findAttributableNodesWithNumberedAttribute(prefix, value, result);
+                m_parent->findEntityNodesWithNumberedProperty(prefix, value, result);
         }
 
-        void Node::doAddToIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
+        void Node::doAddToIndex(EntityNodeBase* node, const std::string& key, const std::string& value) {
             if (m_parent != nullptr)
-                m_parent->addToIndex(attributable, name, value);
+                m_parent->addToIndex(node, key, value);
         }
 
-        void Node::doRemoveFromIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
+        void Node::doRemoveFromIndex(EntityNodeBase* node, const std::string& key, const std::string& value) {
             if (m_parent != nullptr)
-                m_parent->removeFromIndex(attributable, name, value);
+                m_parent->removeFromIndex(node, key, value);
         }
     }
 }
