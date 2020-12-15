@@ -31,18 +31,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class LongAttributeNameIssueGenerator::LongAttributeNameIssue : public AttributeIssue {
+        class LongPropertyKeyIssueGenerator::LongPropertyKeyIssue : public AttributeIssue {
         public:
             static const IssueType Type;
         private:
-            const std::string m_attributeName;
+            const std::string m_propertyKey;
         public:
-            LongAttributeNameIssue(EntityNodeBase* node, const std::string& attributeName) :
+            LongPropertyKeyIssue(EntityNodeBase* node, const std::string& propertyKey) :
             AttributeIssue(node),
-            m_attributeName(attributeName) {}
+            m_propertyKey(propertyKey) {}
 
             const std::string& attributeName() const override {
-                return m_attributeName;
+                return m_propertyKey;
             }
         private:
             IssueType doGetType() const override {
@@ -50,23 +50,23 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                return "Entity property key '" + m_attributeName.substr(0, 8) + "...' is too long.";
+                return "Entity property key '" + m_propertyKey.substr(0, 8) + "...' is too long.";
             }
         };
 
-        const IssueType LongAttributeNameIssueGenerator::LongAttributeNameIssue::Type = Issue::freeType();
+        const IssueType LongPropertyKeyIssueGenerator::LongPropertyKeyIssue::Type = Issue::freeType();
 
-        LongAttributeNameIssueGenerator::LongAttributeNameIssueGenerator(const size_t maxLength) :
-        IssueGenerator(LongAttributeNameIssue::Type, "Long entity property keys"),
+        LongPropertyKeyIssueGenerator::LongPropertyKeyIssueGenerator(const size_t maxLength) :
+        IssueGenerator(LongPropertyKeyIssue::Type, "Long entity property keys"),
         m_maxLength(maxLength) {
-            addQuickFix(new RemoveEntityAttributesQuickFix(LongAttributeNameIssue::Type));
+            addQuickFix(new RemoveEntityAttributesQuickFix(LongPropertyKeyIssue::Type));
         }
 
-        void LongAttributeNameIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            for (const EntityProperty& attribute : node->entity().properties()) {
-                const std::string& attributeName = attribute.key();
-                if (attributeName.size() >= m_maxLength) {
-                    issues.push_back(new LongAttributeNameIssue(node, attributeName));
+        void LongPropertyKeyIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+            for (const EntityProperty& property : node->entity().properties()) {
+                const std::string& propertyKey = property.key();
+                if (propertyKey.size() >= m_maxLength) {
+                    issues.push_back(new LongPropertyKeyIssue(node, propertyKey));
                 }
             }
         }
