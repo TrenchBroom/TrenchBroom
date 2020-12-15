@@ -59,7 +59,7 @@ namespace TrenchBroom {
         LongPropertyKeyIssueGenerator::LongPropertyKeyIssueGenerator(const size_t maxLength) :
         IssueGenerator(LongPropertyKeyIssue::Type, "Long entity property keys"),
         m_maxLength(maxLength) {
-            addQuickFix(new RemoveEntityAttributesQuickFix(LongPropertyKeyIssue::Type));
+            addQuickFix(new RemoveEntityPropertiesQuickFix(LongPropertyKeyIssue::Type));
         }
 
         void LongPropertyKeyIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {

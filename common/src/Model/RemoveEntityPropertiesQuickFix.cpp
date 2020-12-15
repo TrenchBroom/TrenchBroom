@@ -25,20 +25,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        RemoveEntityAttributesQuickFix::RemoveEntityAttributesQuickFix(const IssueType issueType) :
+        RemoveEntityPropertiesQuickFix::RemoveEntityPropertiesQuickFix(const IssueType issueType) :
         IssueQuickFix(issueType, "Delete properties") {}
 
-        void RemoveEntityAttributesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
+        void RemoveEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
             const PushSelection push(facade);
 
-            const EntityPropertyIssue* attrIssue = static_cast<const EntityPropertyIssue*>(issue);
+            const EntityPropertyIssue* propIssue = static_cast<const EntityPropertyIssue*>(issue);
 
             // If world node is affected, the selection will fail, but if nothing is selected,
             // the removeAttribute call will correctly affect worldspawn either way.
 
             facade->deselectAll();
             facade->select(issue->node());
-            facade->removeAttribute(attrIssue->propertyKey());
+            facade->removeAttribute(propIssue->propertyKey());
         }
     }
 }

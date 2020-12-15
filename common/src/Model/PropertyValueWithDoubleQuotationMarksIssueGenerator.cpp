@@ -60,7 +60,7 @@ namespace TrenchBroom {
 
         PropertyValueWithDoubleQuotationMarksIssueGenerator::PropertyValueWithDoubleQuotationMarksIssueGenerator() :
         IssueGenerator(PropertyValueWithDoubleQuotationMarksIssue::Type, "Invalid entity property values") {
-            addQuickFix(new RemoveEntityAttributesQuickFix(PropertyValueWithDoubleQuotationMarksIssue::Type));
+            addQuickFix(new RemoveEntityPropertiesQuickFix(PropertyValueWithDoubleQuotationMarksIssue::Type));
             addQuickFix(new TransformEntityAttributesQuickFix(PropertyValueWithDoubleQuotationMarksIssue::Type,
                                                               "Replace \" with '",
                                                               [] (const std::string& key)   { return key; },

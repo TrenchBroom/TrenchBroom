@@ -85,7 +85,7 @@ namespace TrenchBroom {
         LongPropertyValueIssueGenerator::LongPropertyValueIssueGenerator(const size_t maxLength) :
         IssueGenerator(LongPropertyValueIssue::Type, "Long entity property value"),
         m_maxLength(maxLength) {
-            addQuickFix(new RemoveEntityAttributesQuickFix(LongPropertyValueIssue::Type));
+            addQuickFix(new RemoveEntityPropertiesQuickFix(LongPropertyValueIssue::Type));
             addQuickFix(new TruncateLongPropertyValueIssueQuickFix(m_maxLength));
         }
 
