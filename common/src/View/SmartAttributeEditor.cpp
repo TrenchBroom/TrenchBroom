@@ -71,7 +71,7 @@ namespace TrenchBroom {
 
         void SmartAttributeEditor::addOrUpdateAttribute(const std::string& value) {
             assert(m_active);
-            document()->setAttribute(m_name, value);
+            document()->setProperty(m_name, value);
         }
     }
 }

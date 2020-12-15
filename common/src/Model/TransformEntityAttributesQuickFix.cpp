@@ -42,18 +42,18 @@ namespace TrenchBroom {
             const auto newValue = m_valueTransform(oldValue);
 
             // If world node is affected, the selection will fail, but if nothing is selected,
-            // the removeAttribute call will correctly affect worldspawn either way.
+            // the removeProperty call will correctly affect worldspawn either way.
 
             facade->deselectAll();
             facade->select(issue->node());
 
             if (newName.empty()) {
-                facade->removeAttribute(attrIssue->propertyKey());
+                facade->removeProperty(attrIssue->propertyKey());
             } else {
                 if (newName != oldName)
-                    facade->renameAttribute(oldName, newName);
+                    facade->renameProperty(oldName, newName);
                 if (newValue != oldValue)
-                    facade->setAttribute(newName, newValue);
+                    facade->setProperty(newName, newValue);
             }
         }
     }

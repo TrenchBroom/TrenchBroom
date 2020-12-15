@@ -101,12 +101,12 @@ namespace TrenchBroom {
 
         void SmartAttributeEditorManager::selectionDidChange(const Selection&) {
             auto document = kdl::mem_lock(m_document);
-            switchEditor(m_name, document->allSelectedAttributableNodes());
+            switchEditor(m_name, document->allSelectedEntityNodes());
         }
 
         void SmartAttributeEditorManager::nodesDidChange(const std::vector<Model::Node*>&) {
             auto document = kdl::mem_lock(m_document);
-            switchEditor(m_name, document->allSelectedAttributableNodes());
+            switchEditor(m_name, document->allSelectedEntityNodes());
         }
 
         SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const {
@@ -147,7 +147,7 @@ namespace TrenchBroom {
         void SmartAttributeEditorManager::updateEditor() {
             if (activeEditor() != nullptr) {
                 auto document = kdl::mem_lock(m_document);
-                activeEditor()->update(document->allSelectedAttributableNodes());
+                activeEditor()->update(document->allSelectedEntityNodes());
             }
         }
     }

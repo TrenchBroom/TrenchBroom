@@ -1170,7 +1170,7 @@ namespace TrenchBroom {
             
             document->deselectAll();
             document->select(entityNode);
-            document->setAttribute("", "");
+            document->setProperty("", "");
             REQUIRE(entityNode->entity().hasProperty(""));
 
             auto issueGenerators = std::vector<Model::IssueGenerator*>{

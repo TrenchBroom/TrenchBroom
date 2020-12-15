@@ -177,7 +177,7 @@ namespace TrenchBroom {
         void SmartColorEditor::updateColorHistory() {
             m_colorHistory->setColors(collectColors(std::vector<Model::Node*>{document()->world()}, name()));
 
-            const auto selectedColors = collectColors(document()->allSelectedAttributableNodes(), name());
+            const auto selectedColors = collectColors(document()->allSelectedEntityNodes(), name());
             m_colorHistory->setSelection(selectedColors);
             m_colorPicker->setColor(!selectedColors.empty() ? selectedColors.back() : QColor(Qt::black));
         }
@@ -185,7 +185,7 @@ namespace TrenchBroom {
         void SmartColorEditor::setColor(const QColor& color) const {
             const auto colorRange = m_floatRadio->isChecked() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
             const auto value = Model::entityColorAsString(fromQColor(color), colorRange);
-            document()->setAttribute(name(), value);
+            document()->setProperty(name(), value);
         }
 
         void SmartColorEditor::floatRangeRadioButtonClicked() {

@@ -58,19 +58,19 @@ namespace TrenchBroom {
             document->deselectAll();            
             document->select(entityNode);
             REQUIRE(document->selectionBounds().size() == largeEntityDef->bounds().size());
-            
-            document->setAttribute("classname", "point_entity");
+
+            document->setProperty("classname", "point_entity");
             CHECK(entityNode->entity().definition() == m_pointEntityDef);
             CHECK(document->selectionBounds().size() == m_pointEntityDef->bounds().size());
-            
-            document->removeAttribute("classname");
+
+            document->removeProperty("classname");
             CHECK(entityNode->entity().definition() == nullptr);
             CHECK(document->selectionBounds().size() == Model::EntityNode::DefaultBounds.size());
             
             {
                 Transaction transaction(document); // we only want to undo the following changes later
-                document->setAttribute("temp", "large_entity");
-                document->renameAttribute("temp", "classname");
+                document->setProperty("temp", "large_entity");
+                document->renameProperty("temp", "classname");
                 CHECK(entityNode->entity().definition() == largeEntityDef);
                 CHECK(document->selectionBounds().size() == largeEntityDef->bounds().size());
             }

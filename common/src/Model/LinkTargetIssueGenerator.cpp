@@ -68,11 +68,11 @@ namespace TrenchBroom {
                 const std::string& propertyKey = targetIssue->m_name;
 
                 // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeAttribute call will correctly affect worldspawn either way.
+                // the removeProperty call will correctly affect worldspawn either way.
 
                 facade->deselectAll();
                 facade->select(issue->node());
-                facade->removeAttribute(propertyKey);
+                facade->removeProperty(propertyKey);
             }
         };
 

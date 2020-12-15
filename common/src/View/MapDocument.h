@@ -293,7 +293,7 @@ namespace TrenchBroom {
             bool hasSelectedBrushFaces() const override;
             bool hasAnySelectedBrushFaces() const override;
 
-            std::vector<Model::EntityNodeBase*> allSelectedAttributableNodes() const override;
+            std::vector<Model::EntityNodeBase*> allSelectedEntityNodes() const override;
             const Model::NodeCollection& selectedNodes() const override;
             std::vector<Model::BrushFaceHandle> allSelectedBrushFaces() const override;
             std::vector<Model::BrushFaceHandle> selectedBrushFaces() const override;
@@ -415,9 +415,9 @@ namespace TrenchBroom {
         public: // Clipping operations, declared in MapFacade interface
             bool clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface
-            bool setAttribute(const std::string& name, const std::string& value) override;
-            bool renameAttribute(const std::string& oldName, const std::string& newName) override;
-            bool removeAttribute(const std::string& name) override;
+            bool setProperty(const std::string& name, const std::string& value) override;
+            bool renameProperty(const std::string& oldName, const std::string& newName) override;
+            bool removeProperty(const std::string& name) override;
 
             bool convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) override;
             bool updateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) override;

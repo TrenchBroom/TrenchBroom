@@ -682,7 +682,7 @@ namespace TrenchBroom {
             return hasSelectedBrushFaces() || selectedNodes().hasBrushes();
         }
 
-        std::vector<Model::EntityNodeBase*> MapDocument::allSelectedAttributableNodes() const {
+        std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const {
             if (!hasSelection()) {
                 return std::vector<Model::EntityNodeBase*>({ m_world.get() });
             }
@@ -1933,8 +1933,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocument::setAttribute(const std::string& name, const std::string& value) {
-            return applyAndSwap(*this, "Set Property", allSelectedAttributableNodes(), kdl::overload(
+        bool MapDocument::setProperty(const std::string& name, const std::string& value) {
+            return applyAndSwap(*this, "Set Property", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
                 [&](Model::Entity& entity) { entity.addOrUpdateProperty(name, value); return true; },
@@ -1942,8 +1942,8 @@ namespace TrenchBroom {
             ));
         }
 
-        bool MapDocument::renameAttribute(const std::string& oldName, const std::string& newName) {
-            return applyAndSwap(*this, "Rename Property", allSelectedAttributableNodes(), kdl::overload(
+        bool MapDocument::renameProperty(const std::string& oldName, const std::string& newName) {
+            return applyAndSwap(*this, "Rename Property", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
                 [&](Model::Entity& entity) { entity.renameProperty(oldName, newName); return true; },
@@ -1951,8 +1951,8 @@ namespace TrenchBroom {
             ));
         }
 
-        bool MapDocument::removeAttribute(const std::string& name) {
-            return applyAndSwap(*this, "Remove Property", allSelectedAttributableNodes(), kdl::overload(
+        bool MapDocument::removeProperty(const std::string& name) {
+            return applyAndSwap(*this, "Remove Property", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
                 [&](Model::Entity& entity) { entity.removeProperty(name); return true; },
@@ -1961,7 +1961,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) {
-            return applyAndSwap(*this, "Convert Color", allSelectedAttributableNodes(), kdl::overload(
+            return applyAndSwap(*this, "Convert Color", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {

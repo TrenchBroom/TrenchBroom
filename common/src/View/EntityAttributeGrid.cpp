@@ -97,9 +97,10 @@ namespace TrenchBroom {
 
         void EntityAttributeGrid::addAttribute() {
             auto document = kdl::mem_lock(m_document);
-            const std::string newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(document->allSelectedAttributableNodes());
+            const std::string newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(
+                document->allSelectedEntityNodes());
 
-            document->setAttribute(newAttributeName, "");
+            document->setProperty(newAttributeName, "");
 
             // Force an immediate update to the table rows (by default, updates are delayed - see EntityAttributeGrid::updateControls),
             // so we can select the new row.
@@ -136,7 +137,7 @@ namespace TrenchBroom {
 
                 bool success = true;
                 for (const std::string& attribute : attributes) {
-                    success = success && document->removeAttribute(attribute);
+                    success = success && document->removeProperty(attribute);
                 }
 
                 if (!success) {
@@ -354,7 +355,7 @@ namespace TrenchBroom {
 
         void EntityAttributeGrid::updateControlsEnabled() {
             auto document = kdl::mem_lock(m_document);
-            const auto nodes = document->allSelectedAttributableNodes();
+            const auto nodes = document->allSelectedEntityNodes();
             m_table->setEnabled(!nodes.empty());
             m_addAttributeButton->setEnabled(!nodes.empty());
             m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedAttributes());

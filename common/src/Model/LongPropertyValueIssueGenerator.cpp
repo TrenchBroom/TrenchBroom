@@ -74,11 +74,11 @@ namespace TrenchBroom {
                 const auto& propertyValue = propIssue->propertyValue();
 
                 // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeAttribute call will correctly affect worldspawn either way.
+                // the removeProperty call will correctly affect worldspawn either way.
 
                 facade->deselectAll();
                 facade->select(issue->node());
-                facade->setAttribute(propertyName, propertyValue.substr(0, m_maxLength));
+                facade->setProperty(propertyName, propertyValue.substr(0, m_maxLength));
             }
         };
 

@@ -48,12 +48,12 @@ namespace TrenchBroom {
 
             const auto valueDescStr = mapStringFromUnicode(document()->encoding(), m_comboBox->currentText());
             const auto valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
-            document()->setAttribute(name(), valueStr);
+            document()->setProperty(name(), valueStr);
         }
 
         void SmartChoiceEditor::comboBoxEditTextChanged(const QString& text) {
             if (!m_ignoreEditTextChanged) {
-                document()->setAttribute(name(), mapStringFromUnicode(document()->encoding(), text));
+                document()->setProperty(name(), mapStringFromUnicode(document()->encoding(), text));
             }
         }
 

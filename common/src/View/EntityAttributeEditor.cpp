@@ -85,7 +85,8 @@ namespace TrenchBroom {
 
         void EntityAttributeEditor::updateIfSelectedEntityDefinitionChanged() {
             auto document = kdl::mem_lock(m_document);
-            const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(document->allSelectedAttributableNodes());
+            const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(
+                document->allSelectedEntityNodes());
 
             if (entityDefinition != m_currentDefinition) {
                 m_currentDefinition = entityDefinition;
@@ -97,7 +98,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const auto& attributeName = m_attributeGrid->selectedRowName();
 
-            m_smartEditorManager->switchEditor(attributeName, document->allSelectedAttributableNodes());
+            m_smartEditorManager->switchEditor(attributeName, document->allSelectedEntityNodes());
 
             updateDocumentation(attributeName);
 
@@ -163,7 +164,8 @@ namespace TrenchBroom {
 
         void EntityAttributeEditor::updateDocumentation(const std::string& attributeName) {
             auto document = kdl::mem_lock(m_document);
-            const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(document->allSelectedAttributableNodes());
+            const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(
+                document->allSelectedEntityNodes());
 
             m_documentationText->clear();
 

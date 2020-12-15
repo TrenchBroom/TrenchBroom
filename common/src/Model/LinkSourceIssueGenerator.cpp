@@ -59,11 +59,11 @@ namespace TrenchBroom {
                 const PushSelection push(facade);
 
                 // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeAttribute call will correctly affect worldspawn either way.
+                // the removeProperty call will correctly affect worldspawn either way.
 
                 facade->deselectAll();
                 facade->select(issue->node());
-                facade->removeAttribute(PropertyKeys::Targetname);
+                facade->removeProperty(PropertyKeys::Targetname);
             }
         };
 

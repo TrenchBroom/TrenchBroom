@@ -552,7 +552,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             const std::map<std::string, AttributeRow> rowsMap =
-                AttributeRow::rowsForAttributableNodes(document->allSelectedAttributableNodes(), m_showDefaultRows);
+                AttributeRow::rowsForAttributableNodes(document->allSelectedEntityNodes(), m_showDefaultRows);
 
             setRows(rowsMap);
         }
@@ -676,7 +676,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             const size_t rowIndex = static_cast<size_t>(index.row());
-            const std::vector<Model::EntityNodeBase*> attributables = document->allSelectedAttributableNodes();
+            const std::vector<Model::EntityNodeBase*> attributables = document->allSelectedEntityNodes();
             if (attributables.empty()) {
                 return false;
             }
@@ -772,7 +772,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return document->renameAttribute(oldName, newName);
+            return document->renameProperty(oldName, newName);
         }
 
         bool EntityAttributeModel::updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& attributables) {
@@ -795,7 +795,7 @@ namespace TrenchBroom {
                 return true;
 
             auto document = kdl::mem_lock(m_document);
-            return document->setAttribute(name, newValue);
+            return document->setProperty(name, newValue);
         }
 
         bool EntityAttributeModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const {

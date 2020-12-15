@@ -34,11 +34,11 @@ namespace TrenchBroom {
             const EntityPropertyIssue* propIssue = static_cast<const EntityPropertyIssue*>(issue);
 
             // If world node is affected, the selection will fail, but if nothing is selected,
-            // the removeAttribute call will correctly affect worldspawn either way.
+            // the removeProperty call will correctly affect worldspawn either way.
 
             facade->deselectAll();
             facade->select(issue->node());
-            facade->removeAttribute(propIssue->propertyKey());
+            facade->removeProperty(propIssue->propertyKey());
         }
     }
 }

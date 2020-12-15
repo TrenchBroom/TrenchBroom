@@ -545,7 +545,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brushNode->hasTag(tag));
 
             document->select(lightEntityNode);
-            document->setAttribute("classname", "brush_entity");
+            document->setProperty("classname", "brush_entity");
             document->deselectAll();
 
             ASSERT_TRUE(brushNode->hasTag(tag));
