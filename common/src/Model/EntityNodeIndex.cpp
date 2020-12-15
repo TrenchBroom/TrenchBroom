@@ -71,11 +71,11 @@ namespace TrenchBroom {
         bool EntityNodeIndexQuery::execute(const EntityNodeBase* node, const std::string& value) const {
             switch (m_type) {
                 case Type_Exact:
-                    return node->entity().hasAttribute(m_pattern, value);
+                    return node->entity().hasProperty(m_pattern, value);
                 case Type_Prefix:
-                    return node->entity().hasAttributeWithPrefix(m_pattern, value);
+                    return node->entity().hasPropertyWithPrefix(m_pattern, value);
                 case Type_Numbered:
-                    return node->entity().hasNumberedAttribute(m_pattern, value);
+                    return node->entity().hasNumberedProperty(m_pattern, value);
                 case Type_Any:
                     return true;
                 switchDefault()
@@ -86,13 +86,13 @@ namespace TrenchBroom {
             const auto& entity = node->entity();
             switch (m_type) {
                 case Type_Exact:
-                    return entity.attributeWithName(m_pattern);
+                    return entity.propertiesWithKey(m_pattern);
                 case Type_Prefix:
-                    return entity.attributesWithPrefix(m_pattern);
+                    return entity.propertiesWithPrefix(m_pattern);
                 case Type_Numbered:
-                    return entity.numberedAttributes(m_pattern);
+                    return entity.numberedProperties(m_pattern);
                 case Type_Any:
-                    return entity.attributes();
+                    return entity.properties();
                 switchDefault()
             }
         }
@@ -108,12 +108,12 @@ namespace TrenchBroom {
         EntityNodeIndex::~EntityNodeIndex() = default;
 
         void EntityNodeIndex::addEntityNode(EntityNodeBase* node) {
-            for (const EntityProperty& property : node->entity().attributes())
+            for (const EntityProperty& property : node->entity().properties())
                 addProperty(node, property.key(), property.value());
         }
 
         void EntityNodeIndex::removeEntityNode(EntityNodeBase* node) {
-            for (const EntityProperty& property : node->entity().attributes())
+            for (const EntityProperty& property : node->entity().properties())
                 removeProperty(node, property.key(), property.value());
         }
 

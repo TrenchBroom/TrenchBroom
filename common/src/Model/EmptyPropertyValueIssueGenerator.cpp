@@ -83,7 +83,7 @@ namespace TrenchBroom {
         }
 
         void EmptyPropertyValueIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            for (const EntityProperty& property : node->entity().attributes()) {
+            for (const EntityProperty& property : node->entity().properties()) {
                 if (property.value().empty())
                     issues.push_back(new EmptyPropertyValueIssue(node, property.key()));
             }

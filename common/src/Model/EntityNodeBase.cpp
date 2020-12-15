@@ -81,13 +81,13 @@ namespace TrenchBroom {
                 return "";
 
             const EntityNodeBase* node = *it;
-            const auto* value = node->entity().attribute(key);
+            const auto* value = node->entity().property(key);
             if (!value)
                 return "";
 
             while (++it != end) {
                 node = *it;
-                const auto* itValue = node->entity().attribute(key);
+                const auto* itValue = node->entity().property(key);
                 if (!itValue) {
                     return "";
                 }
@@ -108,7 +108,7 @@ namespace TrenchBroom {
 
         Entity EntityNodeBase::setEntity(Entity entity) {
             const NotifyPropertyChange notifyChange(this);
-            updateIndexAndLinks(entity.attributes());
+            updateIndexAndLinks(entity.properties());
 
             using std::swap;
             swap(m_entity, entity);
@@ -143,7 +143,7 @@ namespace TrenchBroom {
         }
 
         void EntityNodeBase::updateIndexAndLinks(const std::vector<EntityProperty>& newProperties) {
-            const auto oldSorted = kdl::vec_sort(m_entity.attributes());
+            const auto oldSorted = kdl::vec_sort(m_entity.properties());
             const auto newSorted = kdl::vec_sort(newProperties);
 
             updatePropertyIndex(oldSorted, newSorted);
@@ -223,12 +223,12 @@ namespace TrenchBroom {
         }
         
         void EntityNodeBase::addPropertiesToIndex() {
-            for (const EntityProperty& property : m_entity.attributes())
+            for (const EntityProperty& property : m_entity.properties())
                 addPropertyToIndex(property.key(), property.value());
         }
 
         void EntityNodeBase::removePropertiesFromIndex() {
-            for (const EntityProperty& property : m_entity.attributes())
+            for (const EntityProperty& property : m_entity.properties())
                 removePropertyFromIndex(property.key(), property.value());
         }
 
@@ -275,7 +275,7 @@ namespace TrenchBroom {
         bool EntityNodeBase::hasMissingSources() const {
             return (m_linkSources.empty() &&
                     m_killSources.empty() &&
-                    m_entity.hasAttribute(PropertyKeys::Targetname));
+                m_entity.hasProperty(PropertyKeys::Targetname));
         }
 
         std::vector<std::string> EntityNodeBase::findMissingLinkTargets() const {
@@ -291,7 +291,7 @@ namespace TrenchBroom {
         }
 
         void EntityNodeBase::findMissingTargets(const std::string& prefix, std::vector<std::string>& result) const {
-            for (const EntityProperty& property : m_entity.numberedAttributes(prefix)) {
+            for (const EntityProperty& property : m_entity.numberedProperties(prefix)) {
                 const std::string& targetname = property.value();
                 if (targetname.empty()) {
                     result.push_back(property.key());
@@ -356,7 +356,7 @@ namespace TrenchBroom {
                 std::vector<EntityNodeBase*>::iterator it = std::begin(m_linkTargets);
                 while (it != rem) {
                     EntityNodeBase* target = *it;
-                    const auto* targetTargetname = target->entity().attribute(PropertyKeys::Targetname);
+                    const auto* targetTargetname = target->entity().property(PropertyKeys::Targetname);
                     if (targetTargetname && *targetTargetname == targetname) {
                         target->removeLinkSource(this);
                         --rem;
@@ -375,7 +375,7 @@ namespace TrenchBroom {
                 std::vector<EntityNodeBase*>::iterator it = std::begin(m_killTargets);
                 while (it != rem) {
                     EntityNodeBase* target = *it;
-                    const auto* targetTargetname = target->entity().attribute(PropertyKeys::Targetname);
+                    const auto* targetTargetname = target->entity().property(PropertyKeys::Targetname);
                     if (targetTargetname && *targetTargetname == targetname) {
                         target->removeKillSource(this);
                         --rem;
@@ -397,7 +397,7 @@ namespace TrenchBroom {
         }
 
         void EntityNodeBase::addAllLinkTargets() {
-            for (const EntityProperty& property : m_entity.numberedAttributes(PropertyKeys::Target)) {
+            for (const EntityProperty& property : m_entity.numberedProperties(PropertyKeys::Target)) {
                 const std::string& targetname = property.value();
                 if (!targetname.empty()) {
                     std::vector<EntityNodeBase*> linkTargets;
@@ -416,7 +416,7 @@ namespace TrenchBroom {
         }
 
         void EntityNodeBase::addAllKillTargets() {
-            for (const EntityProperty& property : m_entity.numberedAttributes(PropertyKeys::Killtarget)) {
+            for (const EntityProperty& property : m_entity.numberedProperties(PropertyKeys::Killtarget)) {
                 const std::string& targetname = property.value();
                 if (!targetname.empty()) {
                     std::vector<EntityNodeBase*> killTargets;
@@ -501,7 +501,7 @@ namespace TrenchBroom {
             addAllLinkTargets();
             addAllKillTargets();
 
-            const std::string* targetname = m_entity.attribute(PropertyKeys::Targetname);
+            const std::string* targetname = m_entity.property(PropertyKeys::Targetname);
             if (targetname != nullptr && !targetname->empty()) {
                 addAllLinkSources(*targetname);
                 addAllKillSources(*targetname);

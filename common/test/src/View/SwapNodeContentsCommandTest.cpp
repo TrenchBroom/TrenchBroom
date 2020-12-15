@@ -105,7 +105,7 @@ namespace TrenchBroom {
             
             const auto& originalEntity = entityNode->entity();
             auto modifiedEntity = originalEntity;
-            modifiedEntity.addOrUpdateAttribute("this", "that");
+            modifiedEntity.addOrUpdateProperty("this", "that");
 
             auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
             nodesToSwap.emplace_back(entityNode, std::move(modifiedEntity));

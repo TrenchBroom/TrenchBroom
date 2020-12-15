@@ -35,12 +35,12 @@ namespace TrenchBroom {
         }
 
         size_t EntityAttributesVariableStore::doGetSize() const {
-            return m_entity.attributes().size();
+            return m_entity.properties().size();
         }
 
         EL::Value EntityAttributesVariableStore::doGetValue(const std::string& name) const {
             static const EL::Value DefaultValue("");
-            const std::string* value = m_entity.attribute(name);
+            const std::string* value = m_entity.property(name);
             if (value == nullptr) {
                 return DefaultValue;
             } else {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> EntityAttributesVariableStore::doGetNames() const {
-            return m_entity.attributeNames();
+            return m_entity.propertyKeys();
         }
 
         void EntityAttributesVariableStore::doDeclare(const std::string& /* name */, const EL::Value& /* value */) {

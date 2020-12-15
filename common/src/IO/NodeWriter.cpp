@@ -55,7 +55,7 @@ namespace TrenchBroom {
                         parentStack.pop_back();
                     },
                     [&](const Model::EntityNode* entityNode) {
-                        serializer.entity(entityNode, entityNode->entity().attributes(), parentAttributes(), entityNode);
+                        serializer.entity(entityNode, entityNode->entity().properties(), parentAttributes(), entityNode);
                     },
                     [] (const Model::BrushNode*) {}
                 ));
@@ -141,13 +141,13 @@ namespace TrenchBroom {
 
         void NodeWriter::writeWorldBrushes(const std::vector<Model::BrushNode*>& brushes) {
             if (!brushes.empty()) {
-                m_serializer->entity(&m_world, m_world.entity().attributes(), {}, brushes);
+                m_serializer->entity(&m_world, m_world.entity().properties(), {}, brushes);
             }
         }
 
         void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
             for (const auto& [entityNode, brushes] : entityBrushes) {
-                m_serializer->entity(entityNode, entityNode->entity().attributes(), {}, brushes);
+                m_serializer->entity(entityNode, entityNode->entity().properties(), {}, brushes);
             }
         }
 

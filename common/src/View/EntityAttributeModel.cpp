@@ -60,10 +60,10 @@ namespace TrenchBroom {
     namespace View {
         // helper functions
         static bool isAttributeNameMutable(const Model::Entity& entity, const std::string& name) {
-            assert(!Model::isGroup(entity.classname(), entity.attributes()));
-            assert(!Model::isLayer(entity.classname(), entity.attributes()));
+            assert(!Model::isGroup(entity.classname(), entity.properties()));
+            assert(!Model::isLayer(entity.classname(), entity.properties()));
 
-            if (Model::isWorldspawn(entity.classname(), entity.attributes())) {
+            if (Model::isWorldspawn(entity.classname(), entity.properties())) {
                 return !(name == Model::PropertyKeys::Classname
                     || name == Model::PropertyKeys::Mods
                     || name == Model::PropertyKeys::EntityDefinitions
@@ -80,10 +80,10 @@ namespace TrenchBroom {
         }
 
         static bool isAttributeValueMutable(const Model::Entity& entity, const std::string& name) {
-            assert(!Model::isGroup(entity.classname(), entity.attributes()));
-            assert(!Model::isLayer(entity.classname(), entity.attributes()));
+            assert(!Model::isGroup(entity.classname(), entity.properties()));
+            assert(!Model::isLayer(entity.classname(), entity.properties()));
 
-            if (Model::isWorldspawn(entity.classname(), entity.attributes())) {
+            if (Model::isWorldspawn(entity.classname(), entity.properties())) {
                 return !(name == Model::PropertyKeys::Mods
                     || name == Model::PropertyKeys::EntityDefinitions
                     || name == Model::PropertyKeys::Wad
@@ -140,7 +140,7 @@ namespace TrenchBroom {
         m_name(name) {
             const Assets::PropertyDefinition* definition = Model::propertyDefinition(node, name);
 
-            if (const auto* value = node->entity().attribute(name)) {
+            if (const auto* value = node->entity().property(name)) {
                 m_value = *value;
                 m_valueType = ValueType::SingleValue;
             } else if (definition != nullptr) {
@@ -160,7 +160,7 @@ namespace TrenchBroom {
         }
 
         void AttributeRow::merge(const Model::EntityNodeBase* other) {
-            const auto* otherValue = other->entity().attribute(m_name);
+            const auto* otherValue = other->entity().property(m_name);
 
             // State transitions
             if (m_valueType == ValueType::Unset) {
@@ -249,7 +249,7 @@ namespace TrenchBroom {
                 }
 
                 // Add explicitly set attributes
-                for (const Model::EntityProperty& attribute : node->entity().attributes()) {
+                for (const Model::EntityProperty& attribute : node->entity().properties()) {
                     result.insert(attribute.key());
                 }
 
@@ -781,7 +781,7 @@ namespace TrenchBroom {
             bool hasChange = false;
             const std::string name = m_rows.at(rowIndex).name();
             for (const Model::EntityNodeBase* attributable : attributables) {
-                if (const auto* oldValue = attributable->entity().attribute(name)) {
+                if (const auto* oldValue = attributable->entity().property(name)) {
                     ensure(isAttributeValueMutable(attributable->entity(), name), "tried to modify immutable attribute value"); // this should be guaranteed by the AttributeRow constructor
                     if (*oldValue != newValue) {
                         hasChange = true;

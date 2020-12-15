@@ -58,42 +58,42 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE("EntityTest.addOrUpdateAttribute") {
+        TEST_CASE("EntityTest.addOrUpdateProperty") {
             Entity entity;
-            REQUIRE(entity.attribute("test") == nullptr);
+            REQUIRE(entity.property("test") == nullptr);
 
-            entity.addOrUpdateAttribute("test", "value");
-            CHECK(*entity.attribute("test") == "value");
+            entity.addOrUpdateProperty("test", "value");
+            CHECK(*entity.property("test") == "value");
 
-            entity.addOrUpdateAttribute("test", "newValue");
-            CHECK(*entity.attribute("test") == "newValue");
+            entity.addOrUpdateProperty("test", "newValue");
+            CHECK(*entity.property("test") == "newValue");
         }
 
-        TEST_CASE("EntityTest.renameAttribute") {
+        TEST_CASE("EntityTest.renameProperty") {
             Entity entity;
 
             SECTION("Rename non existing attribute") {
-                REQUIRE(!entity.hasAttribute("originalName"));
-                entity.renameAttribute("originalName", "newName");
-                CHECK(!entity.hasAttribute("originalName"));
-                CHECK(!entity.hasAttribute("newName"));
+                REQUIRE(!entity.hasProperty("originalName"));
+                entity.renameProperty("originalName", "newName");
+                CHECK(!entity.hasProperty("originalName"));
+                CHECK(!entity.hasProperty("newName"));
             }
 
-            entity.addOrUpdateAttribute("originalName", "originalValue");
-            REQUIRE(*entity.attribute("originalName") == "originalValue");
+            entity.addOrUpdateProperty("originalName", "originalValue");
+            REQUIRE(*entity.property("originalName") == "originalValue");
 
             SECTION("Rename existing attribute") {
-                entity.renameAttribute("originalName", "newName");
-                CHECK(!entity.hasAttribute("originalName"));
-                CHECK(*entity.attribute("newName") == "originalValue");
+                entity.renameProperty("originalName", "newName");
+                CHECK(!entity.hasProperty("originalName"));
+                CHECK(*entity.property("newName") == "originalValue");
             }
 
             SECTION("Rename existing attribute - name conflict") {
-                entity.addOrUpdateAttribute("newName", "newValue");
+                entity.addOrUpdateProperty("newName", "newValue");
 
-                entity.renameAttribute("originalName", "newName");
-                CHECK(!entity.hasAttribute("originalName"));
-                CHECK(*entity.attribute("newName") == "originalValue");
+                entity.renameProperty("originalName", "newName");
+                CHECK(!entity.hasProperty("originalName"));
+                CHECK(*entity.property("newName") == "originalValue");
             }
         }
 
@@ -101,98 +101,98 @@ namespace TrenchBroom {
             Entity entity;
 
             SECTION("Remove non existing attribute") {
-                REQUIRE(!entity.hasAttribute("name"));
-                entity.removeAttribute("name");
-                CHECK(!entity.hasAttribute("name"));
+                REQUIRE(!entity.hasProperty("name"));
+                entity.removeProperty("name");
+                CHECK(!entity.hasProperty("name"));
             }
 
             SECTION("Remove existing attribute") {
-                entity.addOrUpdateAttribute("name", "value");
-                entity.removeAttribute("name");
-                CHECK(!entity.hasAttribute("name"));
+                entity.addOrUpdateProperty("name", "value");
+                entity.removeProperty("name");
+                CHECK(!entity.hasProperty("name"));
             }
         }
 
-        TEST_CASE("EntityTest.hasAttribute") {
+        TEST_CASE("EntityTest.hasProperty") {
             Entity entity;
-            CHECK(!entity.hasAttribute("value"));
-            
-            entity.setAttributes({ EntityProperty("name", "value")});
-            CHECK(entity.hasAttribute("name"));
+            CHECK(!entity.hasProperty("value"));
+
+            entity.setProperties({ EntityProperty("name", "value") });
+            CHECK(entity.hasProperty("name"));
         }
 
         TEST_CASE("EntityTest.originUpdateWithSetAttributes") {
             Entity entity;
-            entity.setAttributes({ EntityProperty("origin", "10 20 30")});
+            entity.setProperties({ EntityProperty("origin", "10 20 30") });
 
             CHECK(entity.origin() == vm::vec3(10, 20, 30));
         }
 
-        TEST_CASE("EntityTest.hasAttributeWithPrefix") {
+        TEST_CASE("EntityTest.hasPropertyWithPrefix") {
             Entity entity;
-            entity.setAttributes({
+            entity.setProperties({
                 EntityProperty("somename", "somevalue"),
                 EntityProperty("someothername", "someothervalue"),
             });
 
-            CHECK(entity.hasAttributeWithPrefix("somename", "somevalue"));
-            CHECK(entity.hasAttributeWithPrefix("some", "somevalue"));
-            CHECK(entity.hasAttributeWithPrefix("some", "someothervalue"));
-            CHECK(entity.hasAttributeWithPrefix("someother", "someothervalue"));
-            CHECK(!entity.hasAttributeWithPrefix("someother", "somevalue"));
-            CHECK(!entity.hasAttributeWithPrefix("sime", ""));
+            CHECK(entity.hasPropertyWithPrefix("somename", "somevalue"));
+            CHECK(entity.hasPropertyWithPrefix("some", "somevalue"));
+            CHECK(entity.hasPropertyWithPrefix("some", "someothervalue"));
+            CHECK(entity.hasPropertyWithPrefix("someother", "someothervalue"));
+            CHECK(!entity.hasPropertyWithPrefix("someother", "somevalue"));
+            CHECK(!entity.hasPropertyWithPrefix("sime", ""));
         }
 
-        TEST_CASE("EntityTest.hasNumberedAttribute") {
+        TEST_CASE("EntityTest.hasNumberedProperty") {
             Entity entity;
-            entity.setAttributes({
+            entity.setProperties({
                 EntityProperty("target", "value"),
                 EntityProperty("target1", "value1"),
                 EntityProperty("target2", "value2"),
             });
 
-            CHECK(entity.hasNumberedAttribute("target", "value"));
-            CHECK(entity.hasNumberedAttribute("target", "value1"));
-            CHECK(entity.hasNumberedAttribute("target", "value2"));
-            CHECK(!entity.hasNumberedAttribute("targe", "value"));
-            CHECK(!entity.hasNumberedAttribute("somename", ""));
+            CHECK(entity.hasNumberedProperty("target", "value"));
+            CHECK(entity.hasNumberedProperty("target", "value1"));
+            CHECK(entity.hasNumberedProperty("target", "value2"));
+            CHECK(!entity.hasNumberedProperty("targe", "value"));
+            CHECK(!entity.hasNumberedProperty("somename", ""));
         }
 
         TEST_CASE("EntityTest.attribute") {
             Entity entity;
 
-            CHECK(entity.attribute("name") == nullptr);
-            
-            entity.addOrUpdateAttribute("name", "value");
-            CHECK(entity.attribute("name") != nullptr);
-            CHECK(*entity.attribute("name") == "value");
+            CHECK(entity.property("name") == nullptr);
+
+            entity.addOrUpdateProperty("name", "value");
+            CHECK(entity.property("name") != nullptr);
+            CHECK(*entity.property("name") == "value");
         }
 
         TEST_CASE("EntityTest.classname") {
             Entity entity;
-            REQUIRE(!entity.hasAttribute(PropertyKeys::Classname));
+            REQUIRE(!entity.hasProperty(PropertyKeys::Classname));
 
             SECTION("Entities without a classname attribute return a default name") {
                 CHECK(entity.classname() == PropertyValues::NoClassname);
             }
 
-            entity.addOrUpdateAttribute(PropertyKeys::Classname, "testclass");
+            entity.addOrUpdateProperty(PropertyKeys::Classname, "testclass");
             SECTION("Entities with a classname attribute return the value") {
-                CHECK(*entity.attribute(PropertyKeys::Classname) == "testclass");
+                CHECK(*entity.property(PropertyKeys::Classname) == "testclass");
                 CHECK(entity.classname() == "testclass");
             }
 
-            SECTION("addOrUpdateAttribute updates cached classname attribute") {
-                entity.addOrUpdateAttribute(PropertyKeys::Classname, "newclass");
-                CHECK(*entity.attribute(PropertyKeys::Classname) == "newclass");
+            SECTION("addOrUpdateProperty updates cached classname attribute") {
+                entity.addOrUpdateProperty(PropertyKeys::Classname, "newclass");
+                CHECK(*entity.property(PropertyKeys::Classname) == "newclass");
                 CHECK(entity.classname() == "newclass");
             }
 
-            SECTION("setAttributes updates cached classname attribute") {
-                entity.setAttributes({
+            SECTION("setProperties updates cached classname attribute") {
+                entity.setProperties({
                     EntityProperty(PropertyKeys::Classname, "newclass")
                 });
-                CHECK(*entity.attribute(PropertyKeys::Classname) == "newclass");
+                CHECK(*entity.property(PropertyKeys::Classname) == "newclass");
                 CHECK(entity.classname() == "newclass");
             }
         }
@@ -202,41 +202,41 @@ namespace TrenchBroom {
             REQUIRE(entity.classname() == PropertyValues::NoClassname);
 
             entity.setClassname("testclass");
-            CHECK(*entity.attribute(PropertyKeys::Classname) == "testclass");
+            CHECK(*entity.property(PropertyKeys::Classname) == "testclass");
             CHECK(entity.classname() == "testclass");
 
             SECTION("Updates cached classname attribute") {
                 entity.setClassname("otherclass");
-                CHECK(*entity.attribute(PropertyKeys::Classname) == "otherclass");
+                CHECK(*entity.property(PropertyKeys::Classname) == "otherclass");
                 CHECK(entity.classname() == "otherclass");
             }
         }
 
         TEST_CASE("EntityTest.origin") {
             Entity entity;
-            REQUIRE(!entity.hasAttribute(PropertyKeys::Origin));
+            REQUIRE(!entity.hasProperty(PropertyKeys::Origin));
 
             SECTION("Entities without an origin attribute return 0,0,0") {
                 CHECK(entity.origin() == vm::vec3::zero());
             }
 
-            entity.addOrUpdateAttribute(PropertyKeys::Origin, "1 2 3");
+            entity.addOrUpdateProperty(PropertyKeys::Origin, "1 2 3");
             SECTION("Entities with an origin attribute return the value") {
-                CHECK(*entity.attribute(PropertyKeys::Origin) == "1 2 3");
+                CHECK(*entity.property(PropertyKeys::Origin) == "1 2 3");
                 CHECK(entity.origin() == vm::vec3(1, 2, 3));
             }
 
-            SECTION("addOrUpdateAttribute updates cached classname attribute") {
-                entity.addOrUpdateAttribute(PropertyKeys::Origin, "1 2 3");
-                CHECK(*entity.attribute(PropertyKeys::Origin) == "1 2 3");
+            SECTION("addOrUpdateProperty updates cached classname attribute") {
+                entity.addOrUpdateProperty(PropertyKeys::Origin, "1 2 3");
+                CHECK(*entity.property(PropertyKeys::Origin) == "1 2 3");
                 CHECK(entity.origin() == vm::vec3(1, 2, 3));
             }
 
-            SECTION("setAttributes updates cached classname attribute") {
-                entity.setAttributes({
+            SECTION("setProperties updates cached classname attribute") {
+                entity.setProperties({
                     EntityProperty(PropertyKeys::Origin, "3 4 5")
                 });
-                CHECK(*entity.attribute(PropertyKeys::Origin) == "3 4 5");
+                CHECK(*entity.property(PropertyKeys::Origin) == "3 4 5");
                 CHECK(entity.origin() == vm::vec3(3, 4, 5));
             }
         }
@@ -246,12 +246,12 @@ namespace TrenchBroom {
             REQUIRE(entity.origin() == vm::vec3::zero());
 
             entity.setOrigin(vm::vec3(1, 2, 3));
-            CHECK(*entity.attribute(PropertyKeys::Origin) == "1 2 3");
+            CHECK(*entity.property(PropertyKeys::Origin) == "1 2 3");
             CHECK(entity.origin() == vm::vec3(1, 2, 3));
 
             SECTION("Updates cached origin attribute") {
                 entity.setOrigin(vm::vec3(3, 4, 5));
-                CHECK(*entity.attribute(PropertyKeys::Origin) == "3 4 5");
+                CHECK(*entity.property(PropertyKeys::Origin) == "3 4 5");
                 CHECK(entity.origin() == vm::vec3(3, 4, 5));
             }
         }

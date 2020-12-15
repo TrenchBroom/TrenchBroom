@@ -132,12 +132,12 @@ namespace TrenchBroom {
         }
 
         Game::SoftMapBounds GameImpl::doExtractSoftMapBounds(const Entity& entity) const {
-            if (!entity.hasAttribute(PropertyKeys::SoftMapBounds)) {
+            if (!entity.hasProperty(PropertyKeys::SoftMapBounds)) {
                 // Not set in map -> use Game value
                 return {SoftMapBoundsType::Game, doSoftMapBounds()};
             }
 
-            if (const auto* mapValue = entity.attribute(PropertyKeys::SoftMapBounds); mapValue && *mapValue != PropertyValues::NoSoftMapBounds) {
+            if (const auto* mapValue = entity.property(PropertyKeys::SoftMapBounds); mapValue && *mapValue != PropertyValues::NoSoftMapBounds) {
                 return {SoftMapBoundsType::Map, IO::parseSoftMapBoundsString(*mapValue)};
             } else {
                 return {SoftMapBoundsType::Map, std::nullopt};
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             } else {
                 auto worldEntity = Model::Entity();
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
-                    worldEntity.addOrUpdateAttribute(PropertyKeys::ValveVersion, "220");
+                    worldEntity.addOrUpdateProperty(PropertyKeys::ValveVersion, "220");
                 }
 
                 auto worldNode = std::make_unique<WorldNode>(std::move(worldEntity), format);
@@ -306,7 +306,7 @@ namespace TrenchBroom {
                 return {};
             }
 
-            const auto* pathsValue = entity.attribute(property);
+            const auto* pathsValue = entity.property(property);
             if (!pathsValue) {
                 return {};
             }
@@ -321,7 +321,7 @@ namespace TrenchBroom {
             }
 
             const auto value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
-            entity.addOrUpdateAttribute(attribute, value);
+            entity.addOrUpdateProperty(attribute, value);
         }
 
         void GameImpl::doReloadShaders() {
@@ -380,7 +380,7 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const Entity& entity) const {
-            if (const auto* defValue = entity.attribute(PropertyKeys::EntityDefinitions)) {
+            if (const auto* defValue = entity.property(PropertyKeys::EntityDefinitions)) {
                 return Assets::EntityDefinitionFileSpec::parse(*defValue);
             } else {
                 return defaultEntityDefinitionFile();
@@ -553,7 +553,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> GameImpl::doExtractEnabledMods(const Entity& entity) const {
-            if (const auto* modStr = entity.attribute(PropertyKeys::Mods)) {
+            if (const auto* modStr = entity.property(PropertyKeys::Mods)) {
                 return kdl::str_split(*modStr, ";");
             } else {
                 return {};
@@ -582,13 +582,13 @@ namespace TrenchBroom {
 
         void GameImpl::writeLongAttribute(EntityNodeBase& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {
             auto entity = node.entity();
-            entity.removeNumberedAttribute(baseName);
+            entity.removeNumberedProperty(baseName);
 
             std::stringstream nameStr;
             for (size_t i = 0; i <= value.size() / maxLength; ++i) {
                 nameStr.str("");
                 nameStr << baseName << i+1;
-                entity.addOrUpdateAttribute(nameStr.str(), value.substr(i * maxLength, maxLength));
+                entity.addOrUpdateProperty(nameStr.str(), value.substr(i * maxLength, maxLength));
             }
 
             node.setEntity(std::move(entity));
@@ -601,8 +601,8 @@ namespace TrenchBroom {
             nameStr << baseName << index;
 
             const auto& entity = node.entity();
-            while (entity.hasAttribute(nameStr.str())) {
-                if (const auto* value = entity.attribute(nameStr.str())) {
+            while (entity.hasProperty(nameStr.str())) {
+                if (const auto* value = entity.property(nameStr.str())) {
                     valueStr << *value;
                 }
                 nameStr.str("");

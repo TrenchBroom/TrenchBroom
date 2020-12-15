@@ -65,7 +65,7 @@ namespace TrenchBroom {
         }
 
         void MissingClassnameIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            if (!node->entity().hasAttribute(PropertyKeys::Classname))
+            if (!node->entity().hasProperty(PropertyKeys::Classname))
                 issues.push_back(new MissingClassnameIssue(node));
         }
     }

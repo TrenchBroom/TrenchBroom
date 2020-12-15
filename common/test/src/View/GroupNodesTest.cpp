@@ -170,11 +170,11 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(document->translateObjects(vm::vec3(16,0,0)));
 
-            ASSERT_FALSE(hasEmptyName(entityNode->entity().attributeNames()));
+            ASSERT_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
 
             document->undoCommand();
 
-            ASSERT_FALSE(hasEmptyName(entityNode->entity().attributeNames()));
+            ASSERT_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
         }
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.rotateGroupContainingBrushEntity", "[GroupNodesTest]") {
@@ -192,13 +192,13 @@ namespace TrenchBroom {
             Model::GroupNode* group = document->groupSelection("test");
             ASSERT_TRUE(group->selected());
 
-            EXPECT_FALSE(entityNode->entity().hasAttribute("origin"));
+            EXPECT_FALSE(entityNode->entity().hasProperty("origin"));
             ASSERT_TRUE(document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), static_cast<FloatType>(10.0)));
-            EXPECT_FALSE(entityNode->entity().hasAttribute("origin"));
+            EXPECT_FALSE(entityNode->entity().hasProperty("origin"));
 
             document->undoCommand();
 
-            EXPECT_FALSE(entityNode->entity().hasAttribute("origin"));
+            EXPECT_FALSE(entityNode->entity().hasProperty("origin"));
         }
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {

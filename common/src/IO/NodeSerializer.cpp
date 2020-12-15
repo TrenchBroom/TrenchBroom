@@ -97,34 +97,38 @@ namespace TrenchBroom {
             const Model::LayerNode* defaultLayerNode = world.defaultLayer();
             const Model::Layer& defaultLayer = defaultLayerNode->layer();
             if (defaultLayer.color()) {
-                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerColor, kdl::str_to_string(*defaultLayer.color()));
+                worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerColor,
+                    kdl::str_to_string(*defaultLayer.color()));
             } else {
-                worldEntity.removeAttribute(Model::PropertyKeys::LayerColor);
+                worldEntity.removeProperty(Model::PropertyKeys::LayerColor);
             }
 
             if (defaultLayerNode->lockState() == Model::LockState::Lock_Locked) {
-                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue);
+                worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerLocked,
+                    Model::PropertyValues::LayerLockedValue);
             } else {
-                worldEntity.removeAttribute(Model::PropertyKeys::LayerLocked);
+                worldEntity.removeProperty(Model::PropertyKeys::LayerLocked);
             }
 
             if (defaultLayerNode->hidden()) {
-                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerHidden, Model::PropertyValues::LayerHiddenValue);
+                worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerHidden,
+                    Model::PropertyValues::LayerHiddenValue);
             } else {
-                worldEntity.removeAttribute(Model::PropertyKeys::LayerHidden);
+                worldEntity.removeProperty(Model::PropertyKeys::LayerHidden);
             }
 
             if (defaultLayer.omitFromExport()) {
-                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue);
+                worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerOmitFromExport,
+                    Model::PropertyValues::LayerOmitFromExportValue);
             } else {
-                worldEntity.removeAttribute(Model::PropertyKeys::LayerOmitFromExport);
+                worldEntity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
             }
 
             if (m_exporting && defaultLayer.omitFromExport()) {
-                beginEntity(&world, worldEntity.attributes(), {});
+                beginEntity(&world, worldEntity.properties(), {});
                 endEntity(&world);
             } else {
-                entity(&world, worldEntity.attributes(), {}, world.defaultLayer());
+                entity(&world, worldEntity.properties(), {}, world.defaultLayer());
             }
         }
 

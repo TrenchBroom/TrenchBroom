@@ -1171,7 +1171,7 @@ namespace TrenchBroom {
             document->deselectAll();
             document->select(entityNode);
             document->setAttribute("", "");
-            REQUIRE(entityNode->entity().hasAttribute(""));
+            REQUIRE(entityNode->entity().hasProperty(""));
 
             auto issueGenerators = std::vector<Model::IssueGenerator*>{
                 new Model::EmptyPropertyKeyIssueGenerator(),
@@ -1210,7 +1210,7 @@ namespace TrenchBroom {
             quickFix->apply(document.get(), std::vector<Model::Issue*>{issue0});
 
             // The fix should have deleted the attribute
-            CHECK(!entityNode->entity().hasAttribute(""));
+            CHECK(!entityNode->entity().hasProperty(""));
 
             kdl::vec_clear_and_delete(issueGenerators);
         }

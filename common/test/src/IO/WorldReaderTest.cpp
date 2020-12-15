@@ -140,9 +140,9 @@ namespace TrenchBroom {
             REQUIRE(defaultLayer != nullptr);
             REQUIRE(!defaultLayer->hasChildren());
 
-            CHECK(worldNode->entity().hasAttribute(Model::PropertyKeys::Classname));
-            CHECK(worldNode->entity().hasAttribute("message"));
-            CHECK(*worldNode->entity().attribute("message") == "yay");
+            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty("message"));
+            CHECK(*worldNode->entity().property("message") == "yay");
 
             CHECK(!defaultLayer->layer().color().has_value());
             CHECK(!defaultLayer->locked());
@@ -200,9 +200,9 @@ namespace TrenchBroom {
             auto worldNode = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
             CHECK(worldNode != nullptr);
-            CHECK(worldNode->entity().hasAttribute(Model::PropertyKeys::Classname));
-            CHECK(worldNode->entity().hasAttribute("message"));
-            CHECK(*worldNode->entity().attribute("message") == "yay");
+            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty("message"));
+            CHECK(*worldNode->entity().property("message") == "yay");
 
             ASSERT_EQ(1u, worldNode->childCount());
             Model::LayerNode* defaultLayerNode = dynamic_cast<Model::LayerNode*>(worldNode->children().front());
@@ -211,12 +211,12 @@ namespace TrenchBroom {
             ASSERT_EQ(Model::Layer::defaultLayerSortIndex(),  defaultLayerNode->layer().sortIndex());
 
             Model::EntityNode* entityNode = static_cast<Model::EntityNode*>(defaultLayerNode->children().front());
-            CHECK(entityNode->entity().hasAttribute("classname"));
-            CHECK(*entityNode->entity().attribute("classname") == "info_player_deathmatch");
-            CHECK(entityNode->entity().hasAttribute("origin"));
-            CHECK(*entityNode->entity().attribute("origin") == "1 22 -3");
-            CHECK(entityNode->entity().hasAttribute("angle"));
-            CHECK(*entityNode->entity().attribute("angle") == " -1 ");
+            CHECK(entityNode->entity().hasProperty("classname"));
+            CHECK(*entityNode->entity().property("classname") == "info_player_deathmatch");
+            CHECK(entityNode->entity().hasProperty("origin"));
+            CHECK(*entityNode->entity().property("origin") == "1 22 -3");
+            CHECK(entityNode->entity().hasProperty("angle"));
+            CHECK(*entityNode->entity().property("angle") == " -1 ");
         }
 
         TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush", "[WorldReaderTest]") {
@@ -1203,9 +1203,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasAttribute(Model::PropertyKeys::Classname));
-            CHECK(worldNode->entity().hasAttribute("message"));
-            CHECK(*worldNode->entity().attribute("message") == "yay \\\"Mr. Robot!\\\"");
+            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty("message"));
+            CHECK(*worldNode->entity().property("message") == "yay \\\"Mr. Robot!\\\"");
         }
 
         TEST_CASE("WorldReaderTest.parseAttributeWithUnescapedPathAndTrailingBackslash", "[WorldReaderTest]") {
@@ -1225,9 +1225,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasAttribute(Model::PropertyKeys::Classname));
-            CHECK(worldNode->entity().hasAttribute("path"));
-            CHECK(*worldNode->entity().attribute("path") == "c:\\a\\b\\c\\");
+            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty("path"));
+            CHECK(*worldNode->entity().property("path") == "c:\\a\\b\\c\\");
         }
 
         TEST_CASE("WorldReaderTest.parseAttributeWithEscapedPathAndTrailingBackslash", "[WorldReaderTest]") {
@@ -1247,9 +1247,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasAttribute(Model::PropertyKeys::Classname));
-            CHECK(worldNode->entity().hasAttribute("path"));
-            CHECK(*worldNode->entity().attribute("path") == "c:\\\\a\\\\b\\\\c\\\\");
+            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty("path"));
+            CHECK(*worldNode->entity().property("path") == "c:\\\\a\\\\b\\\\c\\\\");
         }
 
         TEST_CASE("WorldReaderTest.parseAttributeTrailingEscapedBackslash", "[WorldReaderTest]") {
@@ -1270,9 +1270,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasAttribute(Model::PropertyKeys::Classname));
-            CHECK(worldNode->entity().hasAttribute("message"));
-            CHECK(*worldNode->entity().attribute("message") == "test\\\\");
+            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty("message"));
+            CHECK(*worldNode->entity().property("message") == "test\\\\");
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/1739
@@ -1293,9 +1293,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasAttribute(Model::PropertyKeys::Classname));
-            CHECK(worldNode->entity().hasAttribute("message"));
-            CHECK(*worldNode->entity().attribute("message") == "vm::line1\\nvm::line2");
+            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty("message"));
+            CHECK(*worldNode->entity().property("message") == "vm::line1\\nvm::line2");
         }
 
         /*

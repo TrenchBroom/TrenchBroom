@@ -378,10 +378,10 @@ namespace TrenchBroom {
             auto entity = attributable->entity();
             switch (parentType) {
                 case ParentInfo::Type_Layer:
-                    entity.removeAttribute(Model::PropertyKeys::Layer);
+                    entity.removeProperty(Model::PropertyKeys::Layer);
                     break;
                 case ParentInfo::Type_Group:
-                    entity.removeAttribute(Model::PropertyKeys::Group);
+                    entity.removeProperty(Model::PropertyKeys::Group);
                     break;
                 case ParentInfo::Type_None:
                     break;

@@ -142,7 +142,7 @@ namespace TrenchBroom {
         }
 
         int SmartFlagsEditor::getFlagValue(const Model::EntityNodeBase* attributable) const {
-            if (const auto* value = attributable->entity().attribute(name())) {
+            if (const auto* value = attributable->entity().property(name())) {
                 return kdl::str_to_int(*value).value_or(0);
             } else {
                 return 0;

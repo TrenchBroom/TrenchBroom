@@ -156,7 +156,7 @@ namespace TrenchBroom {
             kdl::vector_set<QColor, ColorCmp> colors;
 
             const auto visitAttributableNode = [&](const auto* node) {
-                if (const auto* value = node->entity().attribute(attributeName)) {
+                if (const auto* value = node->entity().property(attributeName)) {
                     colors.insert(toQColor(Model::parseEntityColor(*value)));
                 }
             };

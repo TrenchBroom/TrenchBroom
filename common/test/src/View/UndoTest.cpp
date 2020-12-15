@@ -92,15 +92,15 @@ namespace TrenchBroom {
             });
 
             document->addNode(entityNode, document->parentForNodes());            
-            CHECK(!entityNode->entity().hasAttribute("angle"));
+            CHECK(!entityNode->entity().hasProperty("angle"));
 
             document->select(entityNode);
             document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), vm::to_radians(15.0));
-            CHECK(entityNode->entity().hasAttribute("angle"));
-            CHECK(*entityNode->entity().attribute("angle") == "15");
+            CHECK(entityNode->entity().hasProperty("angle"));
+            CHECK(*entityNode->entity().property("angle") == "15");
 
             document->undoCommand();
-            CHECK(!entityNode->entity().hasAttribute("angle"));
+            CHECK(!entityNode->entity().hasProperty("angle"));
         }
     }
 }

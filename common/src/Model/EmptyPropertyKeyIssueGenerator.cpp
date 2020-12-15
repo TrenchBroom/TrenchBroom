@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         void EmptyPropertyKeyIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            if (node->entity().hasAttribute(""))
+            if (node->entity().hasProperty(""))
                 issues.push_back(new EmptyPropertyKeyIssue(node));
         }
     }

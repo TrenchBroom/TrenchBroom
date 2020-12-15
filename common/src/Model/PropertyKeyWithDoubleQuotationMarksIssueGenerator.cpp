@@ -68,7 +68,7 @@ namespace TrenchBroom {
         }
 
         void PropertyKeyWithDoubleQuotationMarksIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            for (const EntityProperty& property : node->entity().attributes()) {
+            for (const EntityProperty& property : node->entity().properties()) {
                 const std::string& propertyKey = property.key();
                 if (propertyKey.find('"') != std::string::npos) {
                     issues.push_back(new PropertyKeyWithDoubleQuotationMarksIssue(node, propertyKey));
