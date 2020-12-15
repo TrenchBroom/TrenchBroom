@@ -74,7 +74,7 @@ namespace TrenchBroom {
             void doApply(MapFacade* facade, const IssueList& issues) const override {
                 const PushSelection pushSelection(facade);
 
-                 // If nothing is selected, attribute changes will affect only world.
+                 // If nothing is selected, property changes will affect only world.
                 facade->deselectAll();
 
                 const std::vector<std::string> oldMods = facade->mods();
