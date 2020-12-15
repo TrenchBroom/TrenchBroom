@@ -27,18 +27,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TransformEntityAttributesQuickFix::TransformEntityAttributesQuickFix(const IssueType issueType, const std::string& description, const NameTransform& nameTransform, const ValueTransform& valueTransform) :
+        TransformEntityPropertiesQuickFix::TransformEntityPropertiesQuickFix(const IssueType issueType, const std::string& description, const KeyTransform& keyTransform, const ValueTransform& valueTransform) :
         IssueQuickFix(issueType, description),
-        m_nameTransform(nameTransform),
+        m_keyTransform(keyTransform),
         m_valueTransform(valueTransform) {}
 
-        void TransformEntityAttributesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
+        void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
             const PushSelection push(facade);
 
-            const auto* attrIssue = static_cast<const EntityPropertyIssue*>(issue);
-            const auto& oldName = attrIssue->propertyKey();
-            const auto& oldValue = attrIssue->propertyValue();
-            const auto newName = m_nameTransform(oldName);
+            const auto* propIssue = static_cast<const EntityPropertyIssue*>(issue);
+            const auto& oldkey = propIssue->propertyKey();
+            const auto& oldValue = propIssue->propertyValue();
+            const auto newKey = m_keyTransform(oldkey);
             const auto newValue = m_valueTransform(oldValue);
 
             // If world node is affected, the selection will fail, but if nothing is selected,
@@ -47,13 +47,13 @@ namespace TrenchBroom {
             facade->deselectAll();
             facade->select(issue->node());
 
-            if (newName.empty()) {
-                facade->removeProperty(attrIssue->propertyKey());
+            if (newKey.empty()) {
+                facade->removeProperty(propIssue->propertyKey());
             } else {
-                if (newName != oldName)
-                    facade->renameProperty(oldName, newName);
+                if (newKey != oldkey)
+                    facade->renameProperty(oldkey, newKey);
                 if (newValue != oldValue)
-                    facade->setProperty(newName, newValue);
+                    facade->setProperty(newKey, newValue);
             }
         }
     }

@@ -61,7 +61,7 @@ namespace TrenchBroom {
         PropertyKeyWithDoubleQuotationMarksIssueGenerator::PropertyKeyWithDoubleQuotationMarksIssueGenerator() :
         IssueGenerator(PropertyKeyWithDoubleQuotationMarksIssue::Type, "Invalid entity property keys") {
             addQuickFix(new RemoveEntityPropertiesQuickFix(PropertyKeyWithDoubleQuotationMarksIssue::Type));
-            addQuickFix(new TransformEntityAttributesQuickFix(PropertyKeyWithDoubleQuotationMarksIssue::Type,
+            addQuickFix(new TransformEntityPropertiesQuickFix(PropertyKeyWithDoubleQuotationMarksIssue::Type,
                                                               "Replace \" with '",
                                                               [] (const std::string& key)   { return kdl::str_replace_every(key, "\"", "'"); },
                                                               [] (const std::string& value) { return value; }));

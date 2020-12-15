@@ -26,15 +26,15 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class TransformEntityAttributesQuickFix : public IssueQuickFix {
+        class TransformEntityPropertiesQuickFix : public IssueQuickFix {
         public:
-            using NameTransform = std::function<std::string(const std::string&)>;
+            using KeyTransform = std::function<std::string(const std::string&)>;
             using ValueTransform = std::function<std::string(const std::string&)>;
         private:
-            NameTransform m_nameTransform;
+            KeyTransform m_keyTransform;
             ValueTransform m_valueTransform;
         public:
-            TransformEntityAttributesQuickFix(const IssueType issueType, const std::string& description, const NameTransform& nameTransform, const ValueTransform& valueTransform);
+            TransformEntityPropertiesQuickFix(const IssueType issueType, const std::string& description, const KeyTransform& keyTransform, const ValueTransform& valueTransform);
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override;
         };
