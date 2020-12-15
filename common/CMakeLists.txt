@@ -111,12 +111,12 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyPropertyValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Entity.cpp
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityColor.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityNode.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityNodeBase.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityNodeIndex.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityProperties.cpp
+        ${COMMON_SOURCE_DIR}/Model/EntityPropertiesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.cpp
         ${COMMON_SOURCE_DIR}/Model/Game.cpp
         ${COMMON_SOURCE_DIR}/Model/GameConfig.cpp
@@ -576,12 +576,12 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyPropertyValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Entity.h
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityColor.h
         ${COMMON_SOURCE_DIR}/Model/EntityNode.h
         ${COMMON_SOURCE_DIR}/Model/EntityNodeBase.h
         ${COMMON_SOURCE_DIR}/Model/EntityNodeIndex.h
         ${COMMON_SOURCE_DIR}/Model/EntityProperties.h
+        ${COMMON_SOURCE_DIR}/Model/EntityPropertiesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
         ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
         ${COMMON_SOURCE_DIR}/Model/Game.h

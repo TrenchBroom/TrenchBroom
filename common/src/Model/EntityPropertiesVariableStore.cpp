@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityAttributesVariableStore.h"
+#include "EntityPropertiesVariableStore.h"
 
 #include "EL/ELExceptions.h"
 #include "EL/Value.h"

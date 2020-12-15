@@ -22,7 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Model/BrushNode.h"
-#include "Model/EntityAttributesVariableStore.h"
+#include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
