@@ -33,18 +33,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class LongAttributeValueIssueGenerator::LongAttributeValueIssue : public AttributeIssue {
+        class LongPropertyValueIssueGenerator::LongPropertyValueIssue : public AttributeIssue {
         public:
             static const IssueType Type;
         private:
-            const std::string m_attributeName;
+            const std::string m_propertyKey;
         public:
-            LongAttributeValueIssue(EntityNodeBase* node, const std::string& attributeName) :
+            LongPropertyValueIssue(EntityNodeBase* node, const std::string& propertyKey) :
             AttributeIssue(node),
-            m_attributeName(attributeName) {}
+            m_propertyKey(propertyKey) {}
 
             const std::string& attributeName() const override {
-                return m_attributeName;
+                return m_propertyKey;
             }
         private:
             IssueType doGetType() const override {
@@ -52,49 +52,49 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                return "The value of entity property '" + m_attributeName + "' is too long.";
+                return "The value of entity property '" + m_propertyKey + "' is too long.";
             }
         };
 
-        const IssueType LongAttributeValueIssueGenerator::LongAttributeValueIssue::Type = Issue::freeType();
+        const IssueType LongPropertyValueIssueGenerator::LongPropertyValueIssue::Type = Issue::freeType();
 
-        class LongAttributeValueIssueGenerator::TruncateLongAttributeValueIssueQuickFix : public IssueQuickFix {
+        class LongPropertyValueIssueGenerator::TruncateLongPropertyValueIssueQuickFix : public IssueQuickFix {
         private:
             size_t m_maxLength;
         public:
-            explicit TruncateLongAttributeValueIssueQuickFix(const size_t maxLength) :
-            IssueQuickFix(LongAttributeValueIssue::Type, "Truncate property values"),
+            explicit TruncateLongPropertyValueIssueQuickFix(const size_t maxLength) :
+            IssueQuickFix(LongPropertyValueIssue::Type, "Truncate property values"),
             m_maxLength(maxLength) {}
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override {
                 const PushSelection push(facade);
 
-                const LongAttributeValueIssue* attrIssue = static_cast<const LongAttributeValueIssue*>(issue);
-                const auto& attributeName = attrIssue->attributeName();
-                const auto& attributeValue = attrIssue->attributeValue();
+                const LongPropertyValueIssue* propIssue = static_cast<const LongPropertyValueIssue*>(issue);
+                const auto& propertyName = propIssue->attributeName();
+                const auto& propertyValue = propIssue->attributeValue();
 
                 // If world node is affected, the selection will fail, but if nothing is selected,
                 // the removeAttribute call will correctly affect worldspawn either way.
 
                 facade->deselectAll();
                 facade->select(issue->node());
-                facade->setAttribute(attributeName, attributeValue.substr(0, m_maxLength));
+                facade->setAttribute(propertyName, propertyValue.substr(0, m_maxLength));
             }
         };
 
-        LongAttributeValueIssueGenerator::LongAttributeValueIssueGenerator(const size_t maxLength) :
-        IssueGenerator(LongAttributeValueIssue::Type, "Long entity property value"),
+        LongPropertyValueIssueGenerator::LongPropertyValueIssueGenerator(const size_t maxLength) :
+        IssueGenerator(LongPropertyValueIssue::Type, "Long entity property value"),
         m_maxLength(maxLength) {
-            addQuickFix(new RemoveEntityAttributesQuickFix(LongAttributeValueIssue::Type));
-            addQuickFix(new TruncateLongAttributeValueIssueQuickFix(m_maxLength));
+            addQuickFix(new RemoveEntityAttributesQuickFix(LongPropertyValueIssue::Type));
+            addQuickFix(new TruncateLongPropertyValueIssueQuickFix(m_maxLength));
         }
 
-        void LongAttributeValueIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            for (const EntityProperty& attribute : node->entity().properties()) {
-                const auto& attributeName = attribute.key();
-                const auto& attributeValue = attribute.value();
-                if (attributeValue.size() >= m_maxLength) {
-                    issues.push_back(new LongAttributeValueIssue(node, attributeName));
+        void LongPropertyValueIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+            for (const EntityProperty& property : node->entity().properties()) {
+                const auto& propertyKey = property.key();
+                const auto& propertyValue = property.value();
+                if (propertyValue.size() >= m_maxLength) {
+                    issues.push_back(new LongPropertyValueIssue(node, propertyKey));
                 }
             }
         }

@@ -25,14 +25,14 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class LongAttributeValueIssueGenerator : public IssueGenerator {
+        class LongPropertyValueIssueGenerator : public IssueGenerator {
         private:
-            class LongAttributeValueIssue;
-            class TruncateLongAttributeValueIssueQuickFix;
+            class LongPropertyValueIssue;
+            class TruncateLongPropertyValueIssueQuickFix;
         private:
             size_t m_maxLength;
         public:
-            LongAttributeValueIssueGenerator(size_t maxLength);
+            LongPropertyValueIssueGenerator(size_t maxLength);
         private:
             void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
         };
