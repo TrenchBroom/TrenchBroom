@@ -30,11 +30,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EmptyAttributeNameIssueGenerator::EmptyAttributeNameIssue : public Issue {
+        class EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssue : public Issue {
         public:
             static const IssueType Type;
         public:
-            explicit EmptyAttributeNameIssue(EntityNodeBase* node) :
+            explicit EmptyPropertyKeyIssue(EntityNodeBase* node) :
             Issue(node) {}
 
             IssueType doGetType() const override {
@@ -42,17 +42,17 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const EntityNodeBase* attributableNode = static_cast<EntityNodeBase*>(node());
-                return attributableNode->name() + " has a property with an empty name.";
+                const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+                return entityNode->name() + " has a property with an empty name.";
             }
         };
 
-        const IssueType EmptyAttributeNameIssueGenerator::EmptyAttributeNameIssue::Type = Issue::freeType();
+        const IssueType EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssue::Type = Issue::freeType();
 
-        class EmptyAttributeNameIssueGenerator::EmptyAttributeNameIssueQuickFix : public IssueQuickFix {
+        class EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssueQuickFix : public IssueQuickFix {
         public:
-            EmptyAttributeNameIssueQuickFix() :
-            IssueQuickFix(EmptyAttributeNameIssue::Type, "Delete property") {}
+            EmptyPropertyKeyIssueQuickFix() :
+            IssueQuickFix(EmptyPropertyKeyIssue::Type, "Delete property") {}
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override {
                 const PushSelection push(facade);
@@ -66,14 +66,14 @@ namespace TrenchBroom {
             }
         };
 
-        EmptyAttributeNameIssueGenerator::EmptyAttributeNameIssueGenerator() :
-        IssueGenerator(EmptyAttributeNameIssue::Type, "Empty property name") {
-            addQuickFix(new EmptyAttributeNameIssueQuickFix());
+        EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssueGenerator() :
+        IssueGenerator(EmptyPropertyKeyIssue::Type, "Empty property name") {
+            addQuickFix(new EmptyPropertyKeyIssueQuickFix());
         }
 
-        void EmptyAttributeNameIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+        void EmptyPropertyKeyIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             if (node->entity().hasAttribute(""))
-                issues.push_back(new EmptyAttributeNameIssue(node));
+                issues.push_back(new EmptyPropertyKeyIssue(node));
         }
     }
 }

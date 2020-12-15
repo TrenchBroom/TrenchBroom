@@ -1174,7 +1174,7 @@ namespace TrenchBroom {
             REQUIRE(entityNode->entity().hasAttribute(""));
 
             auto issueGenerators = std::vector<Model::IssueGenerator*>{
-                new Model::EmptyAttributeNameIssueGenerator(),
+                new Model::EmptyPropertyKeyIssueGenerator(),
                 new Model::EmptyAttributeValueIssueGenerator()
             };
 
