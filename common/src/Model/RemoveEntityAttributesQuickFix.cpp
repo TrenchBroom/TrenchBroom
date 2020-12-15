@@ -31,14 +31,14 @@ namespace TrenchBroom {
         void RemoveEntityAttributesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
             const PushSelection push(facade);
 
-            const AttributeIssue* attrIssue = static_cast<const AttributeIssue*>(issue);
+            const EntityPropertyIssue* attrIssue = static_cast<const EntityPropertyIssue*>(issue);
 
             // If world node is affected, the selection will fail, but if nothing is selected,
             // the removeAttribute call will correctly affect worldspawn either way.
 
             facade->deselectAll();
             facade->select(issue->node());
-            facade->removeAttribute(attrIssue->attributeName());
+            facade->removeAttribute(attrIssue->propertyKey());
         }
     }
 }

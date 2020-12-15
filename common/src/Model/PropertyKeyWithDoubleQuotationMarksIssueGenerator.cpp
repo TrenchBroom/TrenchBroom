@@ -33,17 +33,17 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class PropertyKeyWithDoubleQuotationMarksIssueGenerator::PropertyKeyWithDoubleQuotationMarksIssue : public AttributeIssue {
+        class PropertyKeyWithDoubleQuotationMarksIssueGenerator::PropertyKeyWithDoubleQuotationMarksIssue : public EntityPropertyIssue {
         public:
             static const IssueType Type;
         private:
             const std::string m_propertyKey;
         public:
             PropertyKeyWithDoubleQuotationMarksIssue(EntityNodeBase* node, const std::string& propertyKey) :
-                AttributeIssue(node),
+                EntityPropertyIssue(node),
                 m_propertyKey(propertyKey) {}
 
-            const std::string& attributeName() const override {
+            const std::string& propertyKey() const override {
                 return m_propertyKey;
             }
         private:

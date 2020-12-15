@@ -35,9 +35,9 @@ namespace TrenchBroom {
         void TransformEntityAttributesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
             const PushSelection push(facade);
 
-            const auto* attrIssue = static_cast<const AttributeIssue*>(issue);
-            const auto& oldName = attrIssue->attributeName();
-            const auto& oldValue = attrIssue->attributeValue();
+            const auto* attrIssue = static_cast<const EntityPropertyIssue*>(issue);
+            const auto& oldName = attrIssue->propertyKey();
+            const auto& oldValue = attrIssue->propertyValue();
             const auto newName = m_nameTransform(oldName);
             const auto newValue = m_valueTransform(oldValue);
 
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             facade->select(issue->node());
 
             if (newName.empty()) {
-                facade->removeAttribute(attrIssue->attributeName());
+                facade->removeAttribute(attrIssue->propertyKey());
             } else {
                 if (newName != oldName)
                     facade->renameAttribute(oldName, newName);

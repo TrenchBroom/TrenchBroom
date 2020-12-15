@@ -33,17 +33,17 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class LongPropertyValueIssueGenerator::LongPropertyValueIssue : public AttributeIssue {
+        class LongPropertyValueIssueGenerator::LongPropertyValueIssue : public EntityPropertyIssue {
         public:
             static const IssueType Type;
         private:
             const std::string m_propertyKey;
         public:
             LongPropertyValueIssue(EntityNodeBase* node, const std::string& propertyKey) :
-            AttributeIssue(node),
-            m_propertyKey(propertyKey) {}
+                EntityPropertyIssue(node),
+                m_propertyKey(propertyKey) {}
 
-            const std::string& attributeName() const override {
+            const std::string& propertyKey() const override {
                 return m_propertyKey;
             }
         private:
@@ -70,8 +70,8 @@ namespace TrenchBroom {
                 const PushSelection push(facade);
 
                 const LongPropertyValueIssue* propIssue = static_cast<const LongPropertyValueIssue*>(issue);
-                const auto& propertyName = propIssue->attributeName();
-                const auto& propertyValue = propIssue->attributeValue();
+                const auto& propertyName = propIssue->propertyKey();
+                const auto& propertyValue = propIssue->propertyValue();
 
                 // If world node is affected, the selection will fail, but if nothing is selected,
                 // the removeAttribute call will correctly affect worldspawn either way.
