@@ -29,11 +29,11 @@ namespace TrenchBroom {
     namespace Model {
         class Entity;
 
-        class EntityAttributesVariableStore : public EL::VariableStore {
+        class EntityPropertiesVariableStore : public EL::VariableStore {
         private:
             const Entity& m_entity;
         public:
-            explicit EntityAttributesVariableStore(const Entity& entity);
+            explicit EntityPropertiesVariableStore(const Entity& entity);
         private:
             VariableStore* doClone() const override;
             size_t doGetSize() const override;
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             void doDeclare(const std::string& name, const EL::Value& value) override;
             void doAssign(const std::string& name, const EL::Value& value) override;
 
-            deleteCopyAndMove(EntityAttributesVariableStore)
+            deleteCopyAndMove(EntityPropertiesVariableStore)
         };
     }
 }

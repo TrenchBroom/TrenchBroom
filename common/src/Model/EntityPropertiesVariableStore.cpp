@@ -27,18 +27,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        EntityAttributesVariableStore::EntityAttributesVariableStore(const Entity& entity) :
+        EntityPropertiesVariableStore::EntityPropertiesVariableStore(const Entity& entity) :
         m_entity(entity) {}
 
-        EL::VariableStore* EntityAttributesVariableStore::doClone() const {
-            return new EntityAttributesVariableStore(m_entity);
+        EL::VariableStore* EntityPropertiesVariableStore::doClone() const {
+            return new EntityPropertiesVariableStore(m_entity);
         }
 
-        size_t EntityAttributesVariableStore::doGetSize() const {
+        size_t EntityPropertiesVariableStore::doGetSize() const {
             return m_entity.properties().size();
         }
 
-        EL::Value EntityAttributesVariableStore::doGetValue(const std::string& name) const {
+        EL::Value EntityPropertiesVariableStore::doGetValue(const std::string& name) const {
             static const EL::Value DefaultValue("");
             const std::string* value = m_entity.property(name);
             if (value == nullptr) {
@@ -48,16 +48,16 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<std::string> EntityAttributesVariableStore::doGetNames() const {
+        std::vector<std::string> EntityPropertiesVariableStore::doGetNames() const {
             return m_entity.propertyKeys();
         }
 
-        void EntityAttributesVariableStore::doDeclare(const std::string& /* name */, const EL::Value& /* value */) {
-            throw EL::EvaluationError("Declaring attributes directly is unsafe");
+        void EntityPropertiesVariableStore::doDeclare(const std::string& /* name */, const EL::Value& /* value */) {
+            throw EL::EvaluationError("Declaring properties directly is unsafe");
         }
 
-        void EntityAttributesVariableStore::doAssign(const std::string& /* name */, const EL::Value& /* value */) {
-            throw EL::EvaluationError("Changing attributes directly is unsafe");
+        void EntityPropertiesVariableStore::doAssign(const std::string& /* name */, const EL::Value& /* value */) {
+            throw EL::EvaluationError("Changing properties directly is unsafe");
         }
     }
 }

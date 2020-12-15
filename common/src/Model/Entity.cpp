@@ -123,7 +123,7 @@ namespace TrenchBroom {
 
         Assets::ModelSpecification Entity::modelSpecification() const {
             if (const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get())) {
-                const auto variableStore = EntityAttributesVariableStore(*this);
+                const auto variableStore = EntityPropertiesVariableStore(*this);
                 return pointDefinition->model(variableStore);
             } else {
                 return Assets::ModelSpecification();
