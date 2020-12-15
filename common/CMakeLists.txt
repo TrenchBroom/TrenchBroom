@@ -106,10 +106,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.cpp
         ${COMMON_SOURCE_DIR}/Model/EditorContext.cpp
-        ${COMMON_SOURCE_DIR}/Model/EmptyAttributeNameIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Entity.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityColor.cpp
@@ -571,10 +571,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.h
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.h
         ${COMMON_SOURCE_DIR}/Model/EditorContext.h
-        ${COMMON_SOURCE_DIR}/Model/EmptyAttributeNameIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Entity.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityColor.h

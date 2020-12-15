@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EmptyAttributeNameIssueGenerator.h"
+#include "EmptyPropertyKeyIssueGenerator.h"
 
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
