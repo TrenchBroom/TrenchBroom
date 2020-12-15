@@ -43,8 +43,8 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const EntityNodeBase* attributableNode = static_cast<EntityNodeBase*>(node());
-                return attributableNode->name() + " has unused targetname key";
+                const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+                return entityNode->name() + " has unused targetname key";
             }
         };
 
