@@ -31,40 +31,40 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EmptyAttributeValueIssueGenerator::EmptyAttributeValueIssue : public Issue {
+        class EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssue : public Issue {
         public:
             static const IssueType Type;
         private:
-            std::string m_attributeName;
+            std::string m_propertyKey;
         public:
-            EmptyAttributeValueIssue(EntityNodeBase* node, const std::string& attributeName) :
+            EmptyPropertyValueIssue(EntityNodeBase* node, const std::string& propertyKey) :
             Issue(node),
-            m_attributeName(attributeName) {}
+            m_propertyKey(propertyKey) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
             std::string doGetDescription() const override {
-                const EntityNodeBase* attributableNode = static_cast<EntityNodeBase*>(node());
-                return "Attribute '" + m_attributeName + "' of " + attributableNode->name() + " has an empty value.";
+                const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+                return "Property '" + m_propertyKey + "' of " + entityNode->name() + " has an empty value.";
             }
 
             const std::string& attributeName() const {
-                return m_attributeName;
+                return m_propertyKey;
             }
         };
 
-        const IssueType EmptyAttributeValueIssueGenerator::EmptyAttributeValueIssue::Type = Issue::freeType();
+        const IssueType EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssue::Type = Issue::freeType();
 
-        class EmptyAttributeValueIssueGenerator::EmptyAttributeValueIssueQuickFix : public IssueQuickFix {
+        class EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssueQuickFix : public IssueQuickFix {
         public:
-            EmptyAttributeValueIssueQuickFix() :
-            IssueQuickFix(EmptyAttributeValueIssue::Type, "Delete property") {}
+            EmptyPropertyValueIssueQuickFix() :
+            IssueQuickFix(EmptyPropertyValueIssue::Type, "Delete property") {}
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override {
-                const EmptyAttributeValueIssue* actualIssue = static_cast<const EmptyAttributeValueIssue*>(issue);
-                const std::string& attributeName = actualIssue->attributeName();
+                const EmptyPropertyValueIssue* actualIssue = static_cast<const EmptyPropertyValueIssue*>(issue);
+                const std::string& propertyKey = actualIssue->attributeName();
 
                 const PushSelection push(facade);
 
@@ -73,19 +73,19 @@ namespace TrenchBroom {
 
                 facade->deselectAll();
                 facade->select(issue->node());
-                facade->removeAttribute(attributeName);
+                facade->removeAttribute(propertyKey);
             }
         };
 
-        EmptyAttributeValueIssueGenerator::EmptyAttributeValueIssueGenerator() :
-        IssueGenerator(EmptyAttributeValueIssue::Type, "Empty property value") {
-            addQuickFix(new EmptyAttributeValueIssueQuickFix());
+        EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssueGenerator() :
+        IssueGenerator(EmptyPropertyValueIssue::Type, "Empty property value") {
+            addQuickFix(new EmptyPropertyValueIssueQuickFix());
         }
 
-        void EmptyAttributeValueIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            for (const EntityProperty& attribute : node->entity().attributes()) {
-                if (attribute.value().empty())
-                    issues.push_back(new EmptyAttributeValueIssue(node, attribute.key()));
+        void EmptyPropertyValueIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+            for (const EntityProperty& property : node->entity().attributes()) {
+                if (property.value().empty())
+                    issues.push_back(new EmptyPropertyValueIssue(node, property.key()));
             }
         }
     }

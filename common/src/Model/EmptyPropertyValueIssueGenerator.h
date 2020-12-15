@@ -25,12 +25,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EmptyAttributeValueIssueGenerator : public IssueGenerator {
+        class EmptyPropertyValueIssueGenerator : public IssueGenerator {
         private:
-            class EmptyAttributeValueIssue;
-            class EmptyAttributeValueIssueQuickFix;
+            class EmptyPropertyValueIssue;
+            class EmptyPropertyValueIssueQuickFix;
         public:
-            EmptyAttributeValueIssueGenerator();
+            EmptyPropertyValueIssueGenerator();
         private:
             void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
         };

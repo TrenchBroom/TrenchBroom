@@ -2805,7 +2805,7 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(worldBounds()));
             m_world->registerIssueGenerator(new Model::SoftMapBoundsIssueGenerator(m_game, m_world.get()));
             m_world->registerIssueGenerator(new Model::EmptyPropertyKeyIssueGenerator());
-            m_world->registerIssueGenerator(new Model::EmptyAttributeValueIssueGenerator());
+            m_world->registerIssueGenerator(new Model::EmptyPropertyValueIssueGenerator());
             m_world->registerIssueGenerator(new Model::LongAttributeNameIssueGenerator(m_game->maxPropertyLength()));
             m_world->registerIssueGenerator(new Model::LongAttributeValueIssueGenerator(m_game->maxPropertyLength()));
             m_world->registerIssueGenerator(new Model::PropertyKeyWithDoubleQuotationMarksIssueGenerator());

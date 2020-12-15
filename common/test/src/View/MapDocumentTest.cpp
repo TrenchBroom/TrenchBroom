@@ -1175,7 +1175,7 @@ namespace TrenchBroom {
 
             auto issueGenerators = std::vector<Model::IssueGenerator*>{
                 new Model::EmptyPropertyKeyIssueGenerator(),
-                new Model::EmptyAttributeValueIssueGenerator()
+                new Model::EmptyPropertyValueIssueGenerator()
             };
 
             class AcceptAllIssues {
