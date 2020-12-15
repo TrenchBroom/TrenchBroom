@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RemoveEntityAttributesQuickFix.h"
+#include "RemoveEntityPropertiesQuickFix.h"
 
 #include "Model/Issue.h"
 #include "Model/MapFacade.h"

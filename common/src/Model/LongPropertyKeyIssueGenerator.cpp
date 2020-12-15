@@ -20,11 +20,11 @@
 #include "LongPropertyKeyIssueGenerator.h"
 
 #include "Model/BrushNode.h"
-#include "Model/RemoveEntityAttributesQuickFix.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/MapFacade.h"
+#include "Model/RemoveEntityPropertiesQuickFix.h"
 
 #include <string>
 #include <vector>
