@@ -47,7 +47,7 @@ namespace TrenchBroom {
         WorldNode::WorldNode(Entity entity, MapFormat mapFormat) :
         m_factory(std::make_unique<ModelFactoryImpl>(mapFormat)),
         m_defaultLayer(nullptr),
-        m_attributableIndex(std::make_unique<EntityNodeIndex>()),
+        m_entityNodeIndex(std::make_unique<EntityNodeIndex>()),
         m_issueGeneratorRegistry(std::make_unique<IssueGeneratorRegistry>()),
         m_nodeTree(std::make_unique<NodeTree>()),
         m_updateNodeTree(true) {
@@ -132,8 +132,8 @@ namespace TrenchBroom {
             assert(m_defaultLayer->layer().sortIndex() == Layer::defaultLayerSortIndex());
         }
 
-        const EntityNodeIndex& WorldNode::attributableNodeIndex() const {
-            return *m_attributableIndex;
+        const EntityNodeIndex& WorldNode::entityNodeIndex() const {
+            return *m_entityNodeIndex;
         }
 
         const std::vector<IssueGenerator*>& WorldNode::registeredIssueGenerators() const {
@@ -328,20 +328,20 @@ namespace TrenchBroom {
 
         void WorldNode::doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<Model::EntityNodeBase*>& result) const {
             result = kdl::vec_concat(std::move(result),
-                m_attributableIndex->findEntityNodes(EntityNodeIndexQuery::exact(name), value));
+                m_entityNodeIndex->findEntityNodes(EntityNodeIndexQuery::exact(name), value));
         }
 
         void WorldNode::doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<Model::EntityNodeBase*>& result) const {
             result = kdl::vec_concat(std::move(result),
-                m_attributableIndex->findEntityNodes(EntityNodeIndexQuery::numbered(prefix), value));
+                m_entityNodeIndex->findEntityNodes(EntityNodeIndexQuery::numbered(prefix), value));
         }
 
-        void WorldNode::doAddToIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
-            m_attributableIndex->addProperty(attributable, name, value);
+        void WorldNode::doAddToIndex(EntityNodeBase* node, const std::string& key, const std::string& value) {
+            m_entityNodeIndex->addProperty(node, key, value);
         }
 
-        void WorldNode::doRemoveFromIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
-            m_attributableIndex->removeProperty(attributable, name, value);
+        void WorldNode::doRemoveFromIndex(EntityNodeBase* node, const std::string& key, const std::string& value) {
+            m_entityNodeIndex->removeProperty(node, key, value);
         }
 
         void WorldNode::doPropertiesDidChange(const vm::bbox3& /* oldBounds */) {}

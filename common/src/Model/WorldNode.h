@@ -47,7 +47,7 @@ namespace TrenchBroom {
         private:
             std::unique_ptr<ModelFactory> m_factory;
             LayerNode* m_defaultLayer;
-            std::unique_ptr<EntityNodeIndex> m_attributableIndex;
+            std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
             std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
@@ -103,7 +103,7 @@ namespace TrenchBroom {
         private:
             void createDefaultLayer();
         public: // index
-            const EntityNodeIndex& attributableNodeIndex() const;
+            const EntityNodeIndex& entityNodeIndex() const;
         public: // selection
             // issue generator registration
             const std::vector<IssueGenerator*>& registeredIssueGenerators() const;
@@ -138,9 +138,9 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const override;
             void doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
             void doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
-            void doAddToIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) override;
-            void doRemoveFromIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) override;
-        private: // implement AttributableNode interface
+            void doAddToIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
+            void doRemoveFromIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
+        private: // implement EntityNodeBase interface
             void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
