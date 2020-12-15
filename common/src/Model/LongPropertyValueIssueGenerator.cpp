@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LongAttributeValueIssueGenerator.h"
+#include "LongPropertyValueIssueGenerator.h"
 
 #include "Model/BrushNode.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"

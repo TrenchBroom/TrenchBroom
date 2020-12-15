@@ -141,8 +141,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/LayerNode.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/LongAttributeValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFacade.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFormat.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.cpp
@@ -610,8 +610,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LockState.h
-        ${COMMON_SOURCE_DIR}/Model/LongAttributeValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MapFacade.h
         ${COMMON_SOURCE_DIR}/Model/MapFormat.h
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.h
