@@ -81,25 +81,25 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) {
+        void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) {
             ensure(m_comboBox != nullptr, "comboBox is null");
 
             const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);
             m_comboBox->clear();
 
-            const auto* attrDef = Model::selectPropertyDefinition(propertyKey(), attributables);
-            if (attrDef == nullptr || attrDef->type() != Assets::PropertyDefinitionType::ChoiceProperty) {
+            const auto* propDef = Model::selectPropertyDefinition(propertyKey(), nodes);
+            if (propDef == nullptr || propDef->type() != Assets::PropertyDefinitionType::ChoiceProperty) {
                 m_comboBox->setDisabled(true);
             } else {
                 m_comboBox->setDisabled(false);
-                const auto* choiceDef = static_cast<const Assets::ChoicePropertyDefinition*>(attrDef);
+                const auto* choiceDef = static_cast<const Assets::ChoicePropertyDefinition*>(propDef);
                 const auto& options = choiceDef->options();
 
                 for (const Assets::ChoicePropertyOption& option : options) {
                     m_comboBox->addItem(mapStringToUnicode(document()->encoding(), option.value() + " : " + option.description()));
                 }
 
-                const auto value = Model::selectPRopertyValue(propertyKey(), attributables);
+                const auto value = Model::selectPRopertyValue(propertyKey(), nodes);
                 m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
             }
         }

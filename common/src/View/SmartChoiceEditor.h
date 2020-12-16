@@ -49,7 +49,7 @@ namespace TrenchBroom {
             void comboBoxEditTextChanged(const QString& text);
         private:
             void createGui();
-            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) override;
+            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
         };
     }
 }
