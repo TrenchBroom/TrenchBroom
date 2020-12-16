@@ -206,7 +206,7 @@ namespace TrenchBroom {
                     const auto* name = element->Name();
                     if (name) {
                         for (const auto& propertyDeclaration : propertyDeclarations) {
-                            if (!std::strcmp(name, propertyDeclaration->name().c_str())) {
+                            if (!std::strcmp(name, propertyDeclaration->key().c_str())) {
                                 parseDeclaredPropertyDefinition(*element, propertyDeclaration, propertyDefinitions,
                                     status);
                             }

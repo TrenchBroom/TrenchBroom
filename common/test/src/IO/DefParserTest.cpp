@@ -361,12 +361,12 @@ namespace TrenchBroom {
 
             const auto* styleAttribute = definition->propertyDefinition("style");
             CHECK(styleAttribute != nullptr);
-            CHECK(styleAttribute->name() == "style");
+            CHECK(styleAttribute->key() == "style");
             CHECK(styleAttribute->type() == Assets::PropertyDefinitionType::ChoiceProperty);
 
             const auto* spawnflagsAttribute = definition->propertyDefinition(Model::PropertyKeys::Spawnflags);
             CHECK(spawnflagsAttribute != nullptr);
-            CHECK(spawnflagsAttribute->name() == Model::PropertyKeys::Spawnflags);
+            CHECK(spawnflagsAttribute->key() == Model::PropertyKeys::Spawnflags);
             CHECK(spawnflagsAttribute->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
             const Assets::ChoicePropertyDefinition* choice = static_cast<const Assets::ChoicePropertyDefinition*>(styleAttribute);

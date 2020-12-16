@@ -42,16 +42,16 @@ namespace TrenchBroom {
         class PropertyDefinition {
         public:
         private:
-            std::string m_name;
+            std::string m_key;
             PropertyDefinitionType m_type;
             std::string m_shortDescription;
             std::string m_longDescription;
             bool m_readOnly;
         public:
-            PropertyDefinition(const std::string& name, PropertyDefinitionType type, const std::string& shortDescription, const std::string& longDescription, bool readOnly);
+            PropertyDefinition(const std::string& key, PropertyDefinitionType type, const std::string& shortDescription, const std::string& longDescription, bool readOnly);
             virtual ~PropertyDefinition();
 
-            const std::string& name() const;
+            const std::string& key() const;
             PropertyDefinitionType type() const;
             const std::string& shortDescription() const;
             const std::string& longDescription() const;
@@ -62,10 +62,10 @@ namespace TrenchBroom {
 
             static std::string defaultValue(const PropertyDefinition& definition);
 
-            PropertyDefinition* clone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const;
+            PropertyDefinition* clone(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const;
         private:
             virtual bool doEquals(const PropertyDefinition* other) const;
-            virtual PropertyDefinition* doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const;
+            virtual PropertyDefinition* doClone(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const;
         };
 
         template <typename T>
@@ -82,37 +82,37 @@ namespace TrenchBroom {
                 return *m_defaultValue;
             }
         protected:
-            PropertyDefinitionWithDefaultValue(const std::string& name, PropertyDefinitionType type, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<T> defaultValue = std::nullopt) :
-                PropertyDefinition(name, type, shortDescription, longDescription, readOnly),
-                m_defaultValue(std::move(defaultValue)) {}
+            PropertyDefinitionWithDefaultValue(const std::string& key, PropertyDefinitionType type, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<T> defaultValue = std::nullopt) :
+            PropertyDefinition(key, type, shortDescription, longDescription, readOnly),
+            m_defaultValue(std::move(defaultValue)) {}
         };
 
         class StringPropertyDefinition : public PropertyDefinitionWithDefaultValue<std::string> {
         public:
-            StringPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<std::string> defaultValue = std::nullopt);
+            StringPropertyDefinition(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<std::string> defaultValue = std::nullopt);
         private:
-            PropertyDefinition* doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
+            PropertyDefinition* doClone(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
         };
 
         class BooleanPropertyDefinition : public PropertyDefinitionWithDefaultValue<bool> {
         public:
-            BooleanPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<bool> defaultValue = std::nullopt);
+            BooleanPropertyDefinition(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<bool> defaultValue = std::nullopt);
         private:
-            PropertyDefinition* doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
+            PropertyDefinition* doClone(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
         };
 
         class IntegerPropertyDefinition : public PropertyDefinitionWithDefaultValue<int> {
         public:
-            IntegerPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<int> defaultValue = std::nullopt);
+            IntegerPropertyDefinition(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<int> defaultValue = std::nullopt);
         private:
-            PropertyDefinition* doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
+            PropertyDefinition* doClone(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
         };
 
         class FloatPropertyDefinition : public PropertyDefinitionWithDefaultValue<float> {
         public:
-            FloatPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<float> defaultValue = std::nullopt);
+            FloatPropertyDefinition(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<float> defaultValue = std::nullopt);
         private:
-            PropertyDefinition* doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
+            PropertyDefinition* doClone(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
         };
 
         class ChoicePropertyOption {
@@ -135,11 +135,11 @@ namespace TrenchBroom {
         private:
             ChoicePropertyOption::List m_options;
         public:
-            ChoicePropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const ChoicePropertyOption::List& options, bool readOnly, std::optional<std::string> defaultValue = std::nullopt);
+            ChoicePropertyDefinition(const std::string& key, const std::string& shortDescription, const std::string& longDescription, const ChoicePropertyOption::List& options, bool readOnly, std::optional<std::string> defaultValue = std::nullopt);
             const ChoicePropertyOption::List& options() const;
         private:
             bool doEquals(const PropertyDefinition* other) const override;
-            PropertyDefinition* doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
+            PropertyDefinition* doClone(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
         };
 
         class FlagsPropertyOption {
@@ -167,7 +167,7 @@ namespace TrenchBroom {
         private:
             FlagsPropertyOption::List m_options;
         public:
-            explicit FlagsPropertyDefinition(const std::string& name);
+            explicit FlagsPropertyDefinition(const std::string& key);
 
             int defaultValue() const;
             const FlagsPropertyOption::List& options() const;
@@ -175,14 +175,14 @@ namespace TrenchBroom {
             void addOption(int value, const std::string& shortDescription, const std::string& longDescription, bool isDefault);
         private:
             bool doEquals(const PropertyDefinition* other) const override;
-            PropertyDefinition* doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
+            PropertyDefinition* doClone(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
         };
 
         class UnknownPropertyDefinition : public StringPropertyDefinition {
         public:
-            UnknownPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<std::string> defaultValue = std::nullopt);
+            UnknownPropertyDefinition(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<std::string> defaultValue = std::nullopt);
         private:
-            PropertyDefinition* doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
+            PropertyDefinition* doClone(const std::string& key, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const override;
         };
     }
 }

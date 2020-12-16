@@ -265,7 +265,7 @@ namespace TrenchBroom {
             } else if (typeName == "choice") {
                 auto propertyDefinition = parseChoicePropertyDefinition(status);
                 if (!addPropertyDefinition(classInfo.propertyDefinitions, propertyDefinition)) {
-                    status.warn(line, column, "Skipping duplicate property definition: " + propertyDefinition->name());
+                    status.warn(line, column, "Skipping duplicate property definition: " + propertyDefinition->key());
                 }
             } else if (typeName == "model") {
                 classInfo.modelDefinition = parseModelDefinition(status);

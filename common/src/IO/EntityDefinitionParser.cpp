@@ -42,15 +42,15 @@ namespace TrenchBroom {
         EntityDefinitionParser::~EntityDefinitionParser() {}
         
         static std::shared_ptr<Assets::PropertyDefinition> mergeAttributes(const Assets::PropertyDefinition& inheritingClassAttribute, const Assets::PropertyDefinition& superClassAttribute) {
-            assert(inheritingClassAttribute.name() == superClassAttribute.name());
+            assert(inheritingClassAttribute.key() == superClassAttribute.key());
         
             // for now, only merge spawnflags
             if (superClassAttribute.type() == Assets::PropertyDefinitionType::FlagsProperty &&
                 inheritingClassAttribute.type() == Assets::PropertyDefinitionType::FlagsProperty &&
-                superClassAttribute.name() == Model::PropertyKeys::Spawnflags &&
-                inheritingClassAttribute.name() == Model::PropertyKeys::Spawnflags) {
+                superClassAttribute.key() == Model::PropertyKeys::Spawnflags &&
+                inheritingClassAttribute.key() == Model::PropertyKeys::Spawnflags) {
 
-                const auto& name = inheritingClassAttribute.name();
+                const auto& name = inheritingClassAttribute.key();
                 auto result = std::make_shared<Assets::FlagsPropertyDefinition>(name);
                 
                 const auto& baseclassFlags = static_cast<const Assets::FlagsPropertyDefinition&>(superClassAttribute);
@@ -94,7 +94,7 @@ namespace TrenchBroom {
 
             for (const auto& attribute : superClass.propertyDefinitions) {
                 auto it = std::find_if(std::begin(inheritingClass.propertyDefinitions), std::end(inheritingClass.propertyDefinitions),
-                    [&](const auto& a) { return a->name() == attribute->name(); });
+                    [&](const auto& a) { return a->key() == attribute->key(); });
                 if (it == std::end(inheritingClass.propertyDefinitions)) {
                     inheritingClass.propertyDefinitions.push_back(attribute);
                 } else {

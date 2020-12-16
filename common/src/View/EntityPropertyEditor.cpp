@@ -189,7 +189,7 @@ namespace TrenchBroom {
                         // e.g. "Property "delay" (Attenuation formula)", in bold
                         {
                             QString title = tr("Property \"%1\"")
-                                .arg(QString::fromStdString(propertyDefinition->name()));
+                                .arg(QString::fromStdString(propertyDefinition->key()));
                             if (!propertyDefinition->shortDescription().empty()) {
                                 title += tr(" (%1)").arg(QString::fromStdString(propertyDefinition->shortDescription()));
                             }

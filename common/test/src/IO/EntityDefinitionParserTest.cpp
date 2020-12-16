@@ -183,7 +183,7 @@ namespace TrenchBroom {
             CHECK(attribute->type() == Assets::PropertyDefinitionType::FlagsProperty);
             
             const auto& flagsAttribute = static_cast<const Assets::FlagsPropertyDefinition&>(*attribute.get());
-            CHECK(flagsAttribute.name() == Model::PropertyKeys::Spawnflags);
+            CHECK(flagsAttribute.key() == Model::PropertyKeys::Spawnflags);
             
             const auto& options = flagsAttribute.options();
             CHECK_THAT(options, Catch::Equals(std::vector<Assets::FlagsPropertyOption>({

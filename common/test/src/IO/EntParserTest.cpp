@@ -183,7 +183,7 @@ Updated: 2011-03-02
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, angleDefinition->type());
 
             UNSCOPED_INFO("Expected matching attribute definition name");
-            ASSERT_EQ("angle", angleDefinition->name());
+            ASSERT_EQ("angle", angleDefinition->key());
 
             UNSCOPED_INFO("Expected attribute definition's short description to match name");
             ASSERT_EQ("Yaw Angle", angleDefinition->shortDescription());
@@ -199,7 +199,7 @@ Updated: 2011-03-02
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, anglesDefinition->type());
 
             UNSCOPED_INFO("Expected matching attribute definition name");
-            ASSERT_EQ("angles", anglesDefinition->name());
+            ASSERT_EQ("angles", anglesDefinition->key());
 
             UNSCOPED_INFO("Expected attribute definition's short description to match name");
             ASSERT_EQ("Pitch Yaw Roll", anglesDefinition->shortDescription());
@@ -216,7 +216,7 @@ Updated: 2011-03-02
             ASSERT_EQ(Assets::PropertyDefinitionType::FloatProperty, scaleDefinition->type());
 
             UNSCOPED_INFO("Expected matching attribute definition name");
-            ASSERT_EQ("_scale", scaleDefinition->name());
+            ASSERT_EQ("_scale", scaleDefinition->key());
 
             UNSCOPED_INFO("Expected attribute definition's short description to match name");
             ASSERT_EQ("Scale", scaleDefinition->shortDescription());

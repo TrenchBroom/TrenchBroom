@@ -53,7 +53,8 @@ namespace TrenchBroom {
 
         bool addPropertyDefinition(std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions, std::shared_ptr<Assets::PropertyDefinition> propertyDefinition) {
             assert(propertyDefinition != nullptr);
-            if (kdl::vec_contains(propertyDefinitions, [&](const auto& a) { return a->name() == propertyDefinition->name(); })) {
+            if (kdl::vec_contains(propertyDefinitions, [&](const auto& a) { return a->key() ==
+                                                                                   propertyDefinition->key(); })) {
                 return false;
             }
             
@@ -90,7 +91,7 @@ namespace TrenchBroom {
                 << "modelDefinition: " << kdl::opt_to_string(classInfo.modelDefinition) << ", "
                 << "propertyDefinnitions: {";
             for (const auto& propertyDefinition : classInfo.propertyDefinitions) {
-                str << "'" << propertyDefinition->name() << "', ";
+                str << "'" << propertyDefinition->key() << "', ";
             }
             str << "}, "
                 << "superClasses: { ";
