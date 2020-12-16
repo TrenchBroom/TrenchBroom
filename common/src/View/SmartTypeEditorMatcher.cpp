@@ -29,16 +29,16 @@ namespace TrenchBroom {
         SmartTypeEditorMatcher::SmartTypeEditorMatcher(const Assets::PropertyDefinitionType type) :
         m_type(type) {}
 
-        bool SmartTypeEditorMatcher::doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const {
-            if (attributables.empty()) {
+        bool SmartTypeEditorMatcher::doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
+            if (nodes.empty()) {
                 return false;
             }
-            for (const auto* node : attributables) {
-                const auto* attrDef = Model::propertyDefinition(node, name);
-                if (attrDef == nullptr) {
+            for (const auto* node : nodes) {
+                const auto* propDef = Model::propertyDefinition(node, propertyKey);
+                if (propDef == nullptr) {
                     return false;
                 }
-                if (attrDef->type() != m_type) {
+                if (propDef->type() != m_type) {
                     return false;
                 }
             }
@@ -50,9 +50,9 @@ namespace TrenchBroom {
         SmartTypeWithSameDefinitionEditorMatcher::SmartTypeWithSameDefinitionEditorMatcher(const Assets::PropertyDefinitionType type) :
         m_type(type) {}
 
-        bool SmartTypeWithSameDefinitionEditorMatcher::doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const {
-            const Assets::PropertyDefinition* attrDef = Model::selectPropertyDefinition(name, attributables);
-            return attrDef != nullptr && attrDef->type() == m_type;
+        bool SmartTypeWithSameDefinitionEditorMatcher::doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
+            const Assets::PropertyDefinition* propDef = Model::selectPropertyDefinition(propertyKey, nodes);
+            return propDef != nullptr && propDef->type() == m_type;
         }
     }
 }
