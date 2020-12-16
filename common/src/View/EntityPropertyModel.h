@@ -57,38 +57,38 @@ namespace TrenchBroom {
         /**
          * Viewmodel (as in MVVM) for a single row in the table
          */
-        class AttributeRow {
+        class PropertyRow {
         private:
-            std::string m_name;
+            std::string m_key;
             std::string m_value;
             ValueType m_valueType;
 
-            bool m_nameMutable;
+            bool m_keyMutable;
             bool m_valueMutable;
             std::string m_tooltip;
         public:
-            AttributeRow();
-            AttributeRow(const std::string& name, const Model::EntityNodeBase* node);
-            bool operator==(const AttributeRow& other) const;
-            bool operator<(const AttributeRow& other) const;
+            PropertyRow();
+            PropertyRow(const std::string& key, const Model::EntityNodeBase* node);
+            bool operator==(const PropertyRow& other) const;
+            bool operator<(const PropertyRow& other) const;
             void merge(const Model::EntityNodeBase* other);
 
-            const std::string& name() const;
+            const std::string& key() const;
             std::string value() const;
-            bool nameMutable() const;
+            bool keyMutable() const;
             bool valueMutable() const;
             const std::string& tooltip() const;
             bool isDefault() const;
             bool multi() const;
             bool subset() const;
 
-            static AttributeRow rowForAttributableNodes(const std::string& key, const std::vector<Model::EntityNodeBase*>& attributables);
-            static std::vector<std::string> allKeys(const std::vector<Model::EntityNodeBase*>& attributables, bool showDefaultRows);
-            static std::map<std::string, AttributeRow> rowsForAttributableNodes(const std::vector<Model::EntityNodeBase*>& attributables, bool showDefaultRows);
+            static PropertyRow rowForEntityNodes(const std::string& key, const std::vector<Model::EntityNodeBase*>& nodes);
+            static std::vector<std::string> allKeys(const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows);
+            static std::map<std::string, PropertyRow> rowsForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows);
             /**
-             * Suggests a new, unused attribute name of the form "property X".
+             * Suggests a new, unused property name of the form "property X".
              */
-            static std::string newAttributeNameForAttributableNodes(const std::vector<Model::EntityNodeBase*>& attributables);
+            static std::string newPropertyKeyForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes);
         };
 
         /**
@@ -96,40 +96,40 @@ namespace TrenchBroom {
          *
          * Data flow:
          *
-         * 1. MapDocument is modified, or entities are added/removed from the list that EntityAttributeGridTable is observing
-         * 2. EntityAttributeGridTable observes the change, and builds a list of AttributeRow for the new state
+         * 1. MapDocument is modified, or entities are added/removed from the list that EntityPropertyGridTable is observing
+         * 2. EntityPropertyGridTable observes the change, and builds a list of PropertyRow for the new state
          * 3. The new state and old state are diffed, and the necessary QAbstractTableModel methods called
          *    to update the view correctly (preserving selection, etc.)
          *
-         * All edits to the table flow this way; the EntityAttributeGridTable is never modified in response to
+         * All edits to the table flow this way; the EntityPropertyGridTable is never modified in response to
          * a UI action.
          *
          * The order of m_rows is not significant; it's expected that there is a sort proxy model
          * used on top of this model.
          */
-        class EntityAttributeModel : public QAbstractTableModel {
+        class EntityPropertyModel : public QAbstractTableModel {
             Q_OBJECT
         private:
-            std::vector<AttributeRow> m_rows;
+            std::vector<PropertyRow> m_rows;
             bool m_showDefaultRows;
             std::weak_ptr<MapDocument> m_document;
         public:
-            explicit EntityAttributeModel(std::weak_ptr<MapDocument> document, QObject* parent);
+            explicit EntityPropertyModel(std::weak_ptr<MapDocument> document, QObject* parent);
 
             bool showDefaultRows() const;
             void setShowDefaultRows(bool showDefaultRows);
 
-            void setRows(const std::map<std::string, AttributeRow>& newRows);
+            void setRows(const std::map<std::string, PropertyRow>& newRows);
 
-            const AttributeRow* dataForModelIndex(const QModelIndex& index) const;
-            int rowForAttributeName(const std::string& name) const;
+            const PropertyRow* dataForModelIndex(const QModelIndex& index) const;
+            int rowForPropertyKey(const std::string& propertyKey) const;
 
         public: // for autocompletion
             QStringList getCompletions(const QModelIndex& index) const;
         private: // autocompletion helpers
-            std::vector<std::string> attributeNames(int row, int count) const;
-            std::vector<std::string> getAllAttributeNames() const;
-            std::vector<std::string> getAllValuesForAttributeNames(const std::vector<std::string>& names) const;
+            std::vector<std::string> propertyKeys(int row, int count) const;
+            std::vector<std::string> getAllPropertyKeys() const;
+            std::vector<std::string> getAllValuesForPropertyKeys(const std::vector<std::string>& propertyKeys) const;
             std::vector<std::string> getAllClassnames() const;
         public slots:
             void updateFromMapDocument();
@@ -143,12 +143,12 @@ namespace TrenchBroom {
             QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
         private: // helpers
-            bool hasRowWithAttributeName(const std::string& name) const;
-            bool renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::EntityNodeBase*>& attributables);
-            bool updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& attributables);
+            bool hasRowWithPropertyKey(const std::string& propertyKey) const;
+            bool renameProperty(const size_t rowIndex, const std::string& newKey, const std::vector<Model::EntityNodeBase*>& nodes);
+            bool updateProperty(const size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& nodes);
 
-        public: // EntityAttributeGrid helpers
-            std::string attributeName(int row) const;
+        public: // EntityPropertyGrid helpers
+            std::string propertyKey(int row) const;
             bool canRemove(int rowIndexInt);
             /**
              * Return the desired sort order for these two rows.

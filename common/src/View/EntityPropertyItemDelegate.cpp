@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityPropertyItemDelegate::EntityPropertyItemDelegate(EntityAttributeTable* table, const EntityAttributeModel* model, const QSortFilterProxyModel* proxyModel, QWidget* parent) :
+        EntityPropertyItemDelegate::EntityPropertyItemDelegate(EntityAttributeTable* table, const EntityPropertyModel* model, const QSortFilterProxyModel* proxyModel, QWidget* parent) :
         QStyledItemDelegate(parent),
         m_table(table),
         m_model(model),

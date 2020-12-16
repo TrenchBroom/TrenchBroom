@@ -37,7 +37,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class EntityAttributeModel;
+        class EntityPropertyModel;
         class EntityAttributeTable;
         class MapDocument;
         class Selection;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         private:
             std::weak_ptr<MapDocument> m_document;
 
-            EntityAttributeModel* m_model;
+            EntityPropertyModel* m_model;
             QSortFilterProxyModel* m_proxyModel;
             EntityAttributeTable* m_table;
             QAbstractButton* m_addPropertyButton;

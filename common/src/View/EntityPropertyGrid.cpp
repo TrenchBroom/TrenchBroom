@@ -68,7 +68,7 @@ namespace TrenchBroom {
             GRID_LOG(qDebug() << "Backup selection");
             for (const QModelIndex& index : m_table->selectionModel()->selectedIndexes()) {
                 const QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
-                const std::string propertyKey = m_model->attributeName(sourceIndex.row());
+                const std::string propertyKey = m_model->propertyKey(sourceIndex.row());
                 m_selectionBackup.push_back({ propertyKey, sourceIndex.column() });
 
                 GRID_LOG(qDebug() << "Backup selection: " << QString::fromStdString(propertyKey) << "," << sourceIndex.column());
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
             GRID_LOG(qDebug() << "Restore selection");
             for (const auto& selection : m_selectionBackup) {
-                const int row = m_model->rowForAttributeName(selection.propertyKey);
+                const int row = m_model->rowForPropertyKey(selection.propertyKey);
                 if (row == -1) {
                     GRID_LOG(qDebug() << "Restore selection: couldn't find " << QString::fromStdString(selection.propertyKey));
                     continue;
@@ -97,7 +97,7 @@ namespace TrenchBroom {
 
         void EntityPropertyGrid::addProperty() {
             auto document = kdl::mem_lock(m_document);
-            const std::string newPropertyKey = AttributeRow::newAttributeNameForAttributableNodes(
+            const std::string newPropertyKey = PropertyRow::newPropertyKeyForEntityNodes(
                 document->allSelectedEntityNodes());
 
             document->setProperty(newPropertyKey, "");
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             // so we can select the new row.
             m_model->updateFromMapDocument();
 
-            const int row = m_model->rowForAttributeName(newPropertyKey);
+            const int row = m_model->rowForPropertyKey(newPropertyKey);
             ensure(row != -1, "row should have been inserted");
 
             // Select the newly inserted property key
@@ -126,7 +126,7 @@ namespace TrenchBroom {
 
             std::vector<std::string> propertyKeys;
             for (const int row : selectedRows) {
-                propertyKeys.push_back(m_model->attributeName(row));
+                propertyKeys.push_back(m_model->propertyKey(row));
             }
 
             const size_t numRows = propertyKeys.size();
@@ -189,7 +189,7 @@ namespace TrenchBroom {
 
         protected:
             bool lessThan(const QModelIndex& left, const QModelIndex& right) const {
-                const EntityAttributeModel& source = dynamic_cast<const EntityAttributeModel&>(*sourceModel());
+                const EntityPropertyModel& source = dynamic_cast<const EntityPropertyModel&>(*sourceModel());
 
                 return source.lessThan(static_cast<size_t>(left.row()), static_cast<size_t>(right.row()));
             }
@@ -198,7 +198,7 @@ namespace TrenchBroom {
         void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document) {
             m_table = new EntityAttributeTable();
 
-            m_model = new EntityAttributeModel(document, this);
+            m_model = new EntityPropertyModel(document, this);
             m_model->setParent(m_table); // ensure the table takes ownership of the model in setModel // FIXME: why? this looks unnecessary
 
             m_proxyModel = new EntitySortFilterProxyModel(this);
@@ -364,12 +364,12 @@ namespace TrenchBroom {
 
         std::string EntityPropertyGrid::selectedRowName() const {
             QModelIndex current = m_proxyModel->mapToSource(m_table->currentIndex());
-            const AttributeRow* rowModel = m_model->dataForModelIndex(current);
+            const PropertyRow* rowModel = m_model->dataForModelIndex(current);
             if (rowModel == nullptr) {
                 return "";
             }
 
-            return rowModel->name();
+            return rowModel->key();
         }
     }
 }

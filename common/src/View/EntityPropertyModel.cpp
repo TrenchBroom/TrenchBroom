@@ -59,40 +59,40 @@
 namespace TrenchBroom {
     namespace View {
         // helper functions
-        static bool isAttributeNameMutable(const Model::Entity& entity, const std::string& name) {
+        static bool isPropertyKeyMutable(const Model::Entity& entity, const std::string& key) {
             assert(!Model::isGroup(entity.classname(), entity.properties()));
             assert(!Model::isLayer(entity.classname(), entity.properties()));
 
             if (Model::isWorldspawn(entity.classname(), entity.properties())) {
-                return !(name == Model::PropertyKeys::Classname
-                    || name == Model::PropertyKeys::Mods
-                    || name == Model::PropertyKeys::EntityDefinitions
-                    || name == Model::PropertyKeys::Wad
-                    || name == Model::PropertyKeys::Textures
-                    || name == Model::PropertyKeys::SoftMapBounds
-                    || name == Model::PropertyKeys::LayerColor
-                    || name == Model::PropertyKeys::LayerLocked
-                    || name == Model::PropertyKeys::LayerHidden
-                    || name == Model::PropertyKeys::LayerOmitFromExport);
+                return !(key == Model::PropertyKeys::Classname
+                    || key == Model::PropertyKeys::Mods
+                    || key == Model::PropertyKeys::EntityDefinitions
+                    || key == Model::PropertyKeys::Wad
+                    || key == Model::PropertyKeys::Textures
+                    || key == Model::PropertyKeys::SoftMapBounds
+                    || key == Model::PropertyKeys::LayerColor
+                    || key == Model::PropertyKeys::LayerLocked
+                    || key == Model::PropertyKeys::LayerHidden
+                    || key == Model::PropertyKeys::LayerOmitFromExport);
             }
 
             return true;
         }
 
-        static bool isAttributeValueMutable(const Model::Entity& entity, const std::string& name) {
+        static bool isPropertyValueMutable(const Model::Entity& entity, const std::string& key) {
             assert(!Model::isGroup(entity.classname(), entity.properties()));
             assert(!Model::isLayer(entity.classname(), entity.properties()));
 
             if (Model::isWorldspawn(entity.classname(), entity.properties())) {
-                return !(name == Model::PropertyKeys::Mods
-                    || name == Model::PropertyKeys::EntityDefinitions
-                    || name == Model::PropertyKeys::Wad
-                    || name == Model::PropertyKeys::Textures
-                    || name == Model::PropertyKeys::SoftMapBounds
-                    || name == Model::PropertyKeys::LayerColor
-                    || name == Model::PropertyKeys::LayerLocked
-                    || name == Model::PropertyKeys::LayerHidden
-                    || name == Model::PropertyKeys::LayerOmitFromExport);
+                return !(key == Model::PropertyKeys::Mods
+                    || key == Model::PropertyKeys::EntityDefinitions
+                    || key == Model::PropertyKeys::Wad
+                    || key == Model::PropertyKeys::Textures
+                    || key == Model::PropertyKeys::SoftMapBounds
+                    || key == Model::PropertyKeys::LayerColor
+                    || key == Model::PropertyKeys::LayerLocked
+                    || key == Model::PropertyKeys::LayerHidden
+                    || key == Model::PropertyKeys::LayerOmitFromExport);
             }
 
             return true;
@@ -100,23 +100,23 @@ namespace TrenchBroom {
 
         // AttributeRow
 
-        AttributeRow::AttributeRow() :
+        PropertyRow::PropertyRow() :
         m_valueType(ValueType::Unset),
-        m_nameMutable(true),
+        m_keyMutable(true),
         m_valueMutable(true) {}
 
-        bool AttributeRow::operator==(const AttributeRow& other) const {
-            return m_name == other.m_name
+        bool PropertyRow::operator==(const PropertyRow& other) const {
+            return m_key == other.m_key
                 && m_value == other.m_value
                 && m_valueType == other.m_valueType
-                && m_nameMutable == other.m_nameMutable
+                && m_keyMutable == other.m_keyMutable
                 && m_valueMutable == other.m_valueMutable
-                && m_tooltip == other.m_tooltip;
+                   && m_tooltip == other.m_tooltip;
         }
 
-        bool AttributeRow::operator<(const AttributeRow& other) const {
-            if (m_name < other.m_name) return true;
-            if (m_name > other.m_name) return false;
+        bool PropertyRow::operator<(const PropertyRow& other) const {
+            if (m_key < other.m_key) return true;
+            if (m_key > other.m_key) return false;
 
             if (m_value < other.m_value) return true;
             if (m_value > other.m_value) return false;
@@ -124,8 +124,8 @@ namespace TrenchBroom {
             if (m_valueType < other.m_valueType) return true;
             if (m_valueType > other.m_valueType) return false;
 
-            if (m_nameMutable < other.m_nameMutable) return true;
-            if (m_nameMutable > other.m_nameMutable) return false;
+            if (m_keyMutable < other.m_keyMutable) return true;
+            if (m_keyMutable > other.m_keyMutable) return false;
 
             if (m_valueMutable < other.m_valueMutable) return true;
             if (m_valueMutable > other.m_valueMutable) return false;
@@ -136,31 +136,31 @@ namespace TrenchBroom {
             return false;
         }
 
-        AttributeRow::AttributeRow(const std::string& name, const Model::EntityNodeBase* node) :
-        m_name(name) {
-            const Assets::PropertyDefinition* definition = Model::propertyDefinition(node, name);
+        PropertyRow::PropertyRow(const std::string& key, const Model::EntityNodeBase* node) :
+            m_key(key) {
+            const Assets::PropertyDefinition* definition = Model::propertyDefinition(node, key);
 
-            if (const auto* value = node->entity().property(name)) {
+            if (const auto* value = node->entity().property(key)) {
                 m_value = *value;
                 m_valueType = ValueType::SingleValue;
             } else if (definition != nullptr) {
                 m_value = Assets::PropertyDefinition::defaultValue(*definition);
                 m_valueType = ValueType::Unset;
             } else {
-                // this is the case when the name is coming from another entity
+                // this is the case when the key is coming from another entity
                 m_valueType = ValueType::Unset;
             }
 
-            m_nameMutable = isAttributeNameMutable(node->entity(), name);
-            m_valueMutable = isAttributeValueMutable(node->entity(), name);
+            m_keyMutable = isPropertyKeyMutable(node->entity(), key);
+            m_valueMutable = isPropertyValueMutable(node->entity(), key);
             m_tooltip = (definition != nullptr ? definition->shortDescription() : "");
             if (m_tooltip.empty()) {
                 m_tooltip = "No description found";
             }
         }
 
-        void AttributeRow::merge(const Model::EntityNodeBase* other) {
-            const auto* otherValue = other->entity().property(m_name);
+        void PropertyRow::merge(const Model::EntityNodeBase* other) {
+            const auto* otherValue = other->entity().property(m_key);
 
             // State transitions
             if (m_valueType == ValueType::Unset) {
@@ -180,57 +180,57 @@ namespace TrenchBroom {
                 }
             }
 
-            m_nameMutable = (m_nameMutable && isAttributeNameMutable(other->entity(), m_name));
-            m_valueMutable = (m_valueMutable && isAttributeValueMutable(other->entity(), m_name));
+            m_keyMutable = (m_keyMutable && isPropertyKeyMutable(other->entity(), m_key));
+            m_valueMutable = (m_valueMutable && isPropertyValueMutable(other->entity(), m_key));
         }
 
-        const std::string& AttributeRow::name() const {
-            return m_name;
+        const std::string& PropertyRow::key() const {
+            return m_key;
         }
 
-        std::string AttributeRow::value() const {
+        std::string PropertyRow::value() const {
             if (m_valueType == ValueType::MultipleValues) {
                 return "multi";
             }
             return m_value;
         }
 
-        bool AttributeRow::nameMutable() const {
-            return m_nameMutable;
+        bool PropertyRow::keyMutable() const {
+            return m_keyMutable;
         }
 
-        bool AttributeRow::valueMutable() const {
+        bool PropertyRow::valueMutable() const {
             return m_valueMutable;
         }
 
-        const std::string& AttributeRow::tooltip() const {
+        const std::string& PropertyRow::tooltip() const {
             return m_tooltip;
         }
 
-        bool AttributeRow::isDefault() const {
+        bool PropertyRow::isDefault() const {
             return m_valueType == ValueType::Unset;
         }
 
-        bool AttributeRow::multi() const {
+        bool PropertyRow::multi() const {
             return m_valueType == ValueType::MultipleValues;
         }
 
-        bool AttributeRow::subset() const {
+        bool PropertyRow::subset() const {
             return m_valueType == ValueType::SingleValueAndUnset;
         }
 
-        AttributeRow AttributeRow::rowForAttributableNodes(const std::string& key, const std::vector<Model::EntityNodeBase*>& attributables) {
-            ensure(attributables.size() > 0, "rowForAttributableNodes requries a non-empty node list");
+        PropertyRow PropertyRow::rowForEntityNodes(const std::string& key, const std::vector<Model::EntityNodeBase*>& nodes) {
+            ensure(nodes.size() > 0, "rowForEntityNodes requries a non-empty node list");
 
-            std::optional<AttributeRow> result;
-            for (const Model::EntityNodeBase* node : attributables) {
+            std::optional<PropertyRow> result;
+            for (const Model::EntityNodeBase* node : nodes) {
                 // this happens at startup when the world is still null
                 if (node == nullptr) {
                     continue;
                 }
 
                 if (!result.has_value()) {
-                    result = AttributeRow(key, node);
+                    result = PropertyRow(key, node);
                 }  else {
                     result->merge(node);
                 }
@@ -240,25 +240,25 @@ namespace TrenchBroom {
             return result.value();
         }
 
-        std::vector<std::string> AttributeRow::allKeys(const std::vector<Model::EntityNodeBase*>& attributables, const bool showDefaultRows) {
+        std::vector<std::string> PropertyRow::allKeys(const std::vector<Model::EntityNodeBase*>& nodes, const bool showDefaultRows) {
             kdl::vector_set<std::string> result;
-            for (const Model::EntityNodeBase* node : attributables) {
+            for (const Model::EntityNodeBase* node : nodes) {
                 // this happens at startup when the world is still null
                 if (node == nullptr) {
                     continue;
                 }
 
-                // Add explicitly set attributes
-                for (const Model::EntityProperty& attribute : node->entity().properties()) {
-                    result.insert(attribute.key());
+                // Add explicitly set properties
+                for (const Model::EntityProperty& property : node->entity().properties()) {
+                    result.insert(property.key());
                 }
 
-                // Add default attributes from the entity definition
+                // Add default properties from the entity definition
                 if (showDefaultRows) {
                     const Assets::EntityDefinition* entityDefinition = node->entity().definition();
                     if (entityDefinition != nullptr) {
-                       for (auto attributeDefinition : entityDefinition->propertyDefinitions()) {
-                           result.insert(attributeDefinition->name());
+                       for (auto propertyDefinition : entityDefinition->propertyDefinitions()) {
+                           result.insert(propertyDefinition->name());
                        }
                     }
                 }
@@ -266,44 +266,44 @@ namespace TrenchBroom {
             return result.release_data();
         }
 
-        std::map<std::string, AttributeRow> AttributeRow::rowsForAttributableNodes(const std::vector<Model::EntityNodeBase*>& attributables, const bool showDefaultRows) {
-            std::map<std::string, AttributeRow> result;
-            for (const std::string& key : allKeys(attributables, showDefaultRows)) {
-                result[key] = rowForAttributableNodes(key, attributables);
+        std::map<std::string, PropertyRow> PropertyRow::rowsForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows) {
+            std::map<std::string, PropertyRow> result;
+            for (const std::string& key : allKeys(nodes, showDefaultRows)) {
+                result[key] = rowForEntityNodes(key, nodes);
             }
             return result;
         }
 
-        std::string AttributeRow::newAttributeNameForAttributableNodes(const std::vector<Model::EntityNodeBase*>& attributables) {
-            const std::map<std::string, AttributeRow> rows = rowsForAttributableNodes(attributables, true);
+        std::string PropertyRow::newPropertyKeyForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes) {
+            const std::map<std::string, PropertyRow> rows = rowsForEntityNodes(nodes, true);
 
             for (int i = 1; ; ++i) {
-                const std::string newName = kdl::str_to_string("property ", i);
-                if (rows.find(newName) == rows.end()) {
-                    return newName;
+                const std::string newKey = kdl::str_to_string("property ", i);
+                if (rows.find(newKey) == rows.end()) {
+                    return newKey;
                 }
             }
             // unreachable
         }
 
-        // EntityAttributeModel
+        // EntityPropertyModel
 
-        EntityAttributeModel::EntityAttributeModel(std::weak_ptr<MapDocument> document, QObject* parent) :
+        EntityPropertyModel::EntityPropertyModel(std::weak_ptr<MapDocument> document, QObject* parent) :
         QAbstractTableModel(parent),
         m_showDefaultRows(true),
         m_document(std::move(document)) {
             updateFromMapDocument();
         }
 
-        static auto makeNameToAttributeRowMap(const std::vector<AttributeRow>& rows) {
-            std::map<std::string, AttributeRow> result;
+        static auto makeKeyToPropertyRowMap(const std::vector<PropertyRow>& rows) {
+            std::map<std::string, PropertyRow> result;
             for (const auto& row : rows) {
-                result[row.name()] = row;
+                result[row.key()] = row;
             }
             return result;
         }
 
-        using AttributeRowMap = std::map<std::string, AttributeRow>;
+        using PropertyRowMap = std::map<std::string, PropertyRow>;
 
         struct KeyDiff {
             std::vector<std::string> removed;
@@ -312,7 +312,7 @@ namespace TrenchBroom {
             std::vector<std::string> unchanged;
         };
 
-        static KeyDiff compareAttributeMaps(const AttributeRowMap& oldRows, const AttributeRowMap& newRows) {
+        static KeyDiff comparePropertyMaps(const PropertyRowMap& oldRows, const PropertyRowMap& newRows) {
             KeyDiff result;
             result.removed.reserve(oldRows.size());
             result.added.reserve(newRows.size());
@@ -339,11 +339,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool EntityAttributeModel::showDefaultRows() const {
+        bool EntityPropertyModel::showDefaultRows() const {
             return m_showDefaultRows;
         }
 
-        void EntityAttributeModel::setShowDefaultRows(const bool showDefaultRows) {
+        void EntityPropertyModel::setShowDefaultRows(const bool showDefaultRows) {
             if (showDefaultRows == m_showDefaultRows) {
                 return;
             }
@@ -351,16 +351,16 @@ namespace TrenchBroom {
             updateFromMapDocument();
         }
 
-        void EntityAttributeModel::setRows(const std::map<std::string, AttributeRow>& newRowMap) {
+        void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newRowMap) {
             auto document = kdl::mem_lock(m_document);
-            const auto oldRowMap = makeNameToAttributeRowMap(m_rows);
+            const auto oldRowMap = makeKeyToPropertyRowMap(m_rows);
 
             if (newRowMap == oldRowMap) {
-                MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: no change");
+                MODEL_LOG(qDebug() << "EntityPropertyModel::setRows: no change");
                 return;
             }
 
-            const KeyDiff diff = compareAttributeMaps(oldRowMap, newRowMap);
+            const KeyDiff diff = comparePropertyMaps(oldRowMap, newRowMap);
 
             // If exactly one row was changed
             // we can tell Qt the row was edited instead. This allows the selection/current index
@@ -370,10 +370,12 @@ namespace TrenchBroom {
             // to editing the value for the newly renamed key.
 
             if (diff.removed.size() == 1 && diff.added.size() == 1 && diff.updated.empty()) {
-                const AttributeRow& oldDeletion = oldRowMap.at(diff.removed[0]);
-                const AttributeRow& newAddition = newRowMap.at(diff.added[0]);
+                const PropertyRow& oldDeletion = oldRowMap.at(diff.removed[0]);
+                const PropertyRow& newAddition = newRowMap.at(diff.added[0]);
 
-                MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: one row changed: " << mapStringToUnicode(document->encoding(), oldDeletion.name()) << " -> " << mapStringToUnicode(document->encoding(), newAddition.name()));
+                MODEL_LOG(qDebug() << "EntityPropertyModel::setRows: one row changed: " << mapStringToUnicode(document->encoding(),
+                    oldDeletion.key()) << " -> " << mapStringToUnicode(document->encoding(),
+                    newAddition.key()));
 
                 const auto oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
                 ensure(oldIndex, "deleted row must be found");
@@ -389,10 +391,10 @@ namespace TrenchBroom {
 
             // Handle edited rows
 
-            MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: " << diff.updated.size() << " common keys");
+            MODEL_LOG(qDebug() << "EntityPropertyModel::setRows: " << diff.updated.size() << " common keys");
             for (const auto& key : diff.updated) {
-                const AttributeRow& oldRow = oldRowMap.at(key);
-                const AttributeRow& newRow = newRowMap.at(key);
+                const PropertyRow& oldRow = oldRowMap.at(key);
+                const PropertyRow& newRow = newRowMap.at(key);
                 const auto oldIndex = kdl::vec_index_of(m_rows, oldRow);
 
                 MODEL_LOG(qDebug() << "   updating row " << *oldIndex << "(" << QString::fromStdString(key) << ")");
@@ -407,7 +409,7 @@ namespace TrenchBroom {
 
             // Insertions
             if (!diff.added.empty()) {
-                MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: inserting " << diff.added.size() << " rows");
+                MODEL_LOG(qDebug() << "EntityPropertyModel::setRows: inserting " << diff.added.size() << " rows");
 
                 const int firstNewRow = static_cast<int>(m_rows.size());
                 const int lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
@@ -415,7 +417,7 @@ namespace TrenchBroom {
 
                 beginInsertRows(QModelIndex(), firstNewRow, lastNewRow);
                 for (const std::string& key : diff.added) {
-                    const AttributeRow& row = newRowMap.at(key);
+                    const PropertyRow& row = newRowMap.at(key);
                     m_rows.push_back(row);
                 }
                 endInsertRows();
@@ -423,10 +425,10 @@ namespace TrenchBroom {
 
             // Deletions
             if (!diff.removed.empty()) {
-                MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: deleting " << diff.removed.size() << " rows");
+                MODEL_LOG(qDebug() << "EntityPropertyModel::setRows: deleting " << diff.removed.size() << " rows");
 
                 for (const std::string& key : diff.removed) {
-                    const AttributeRow& row = oldRowMap.at(key);
+                    const PropertyRow& row = oldRowMap.at(key);
                     const auto index = kdl::vec_index_of(m_rows, row);
                     assert(index);
 
@@ -437,37 +439,38 @@ namespace TrenchBroom {
             }
         }
 
-        const AttributeRow* EntityAttributeModel::dataForModelIndex(const QModelIndex& index) const {
+        const PropertyRow* EntityPropertyModel::dataForModelIndex(const QModelIndex& index) const {
             if (!index.isValid()) {
                 return nullptr;
             }
             return &m_rows.at(static_cast<size_t>(index.row()));
         }
 
-        int EntityAttributeModel::rowForAttributeName(const std::string& name) const {
+        int EntityPropertyModel::rowForPropertyKey(const std::string& propertyKey) const {
             for (size_t i = 0; i < m_rows.size(); ++i) {
                 auto& row = m_rows.at(i);
 
-                if (row.name() == name) {
+                if (row.key() == propertyKey) {
                     return static_cast<int>(i);
                 }
             }
             return -1;
         }
 
-        QStringList EntityAttributeModel::getCompletions(const QModelIndex& index) const {
-            const auto name = attributeName(index.row());
+        QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const {
+            const auto key = propertyKey(index.row());
 
             std::vector<std::string> result;
             if (index.column() == 0) {
-                result = getAllAttributeNames();
+                result = getAllPropertyKeys();
             } else if (index.column() == 1) {
-                if (name == Model::PropertyKeys::Target ||
-                    name == Model::PropertyKeys::Killtarget) {
-                    result = getAllValuesForAttributeNames({ Model::PropertyKeys::Targetname });
-                } else if (name == Model::PropertyKeys::Targetname) {
-                    result = getAllValuesForAttributeNames({ Model::PropertyKeys::Target, Model::PropertyKeys::Killtarget });
-                } else if (name == Model::PropertyKeys::Classname) {
+                if (key == Model::PropertyKeys::Target ||
+                    key == Model::PropertyKeys::Killtarget) {
+                    result = getAllValuesForPropertyKeys({ Model::PropertyKeys::Targetname });
+                } else if (key == Model::PropertyKeys::Targetname) {
+                    result = getAllValuesForPropertyKeys(
+                        { Model::PropertyKeys::Target, Model::PropertyKeys::Killtarget });
+                } else if (key == Model::PropertyKeys::Classname) {
                     result = getAllClassnames();
                 }
             }
@@ -475,25 +478,25 @@ namespace TrenchBroom {
             return toQStringList(std::begin(result), std::end(result));
         }
 
-        std::string EntityAttributeModel::attributeName(const int row) const {
+        std::string EntityPropertyModel::propertyKey(const int row) const {
             if (row < 0 || row >= static_cast<int>(m_rows.size())) {
                 return "";
             } else {
-                return m_rows[static_cast<size_t>(row)].name();
+                return m_rows[static_cast<size_t>(row)].key();
             }
         }
 
-        std::vector<std::string> EntityAttributeModel::attributeNames(const int row, const int count) const {
+        std::vector<std::string> EntityPropertyModel::propertyKeys(const int row, const int count) const {
             std::vector<std::string> result;
             result.reserve(static_cast<std::size_t>(count));
 
             for (int i = 0; i < count; ++i) {
-                result.push_back(this->attributeName(row + i));
+                result.push_back(this->propertyKey(row + i));
             }
             return result;
         }
 
-        std::vector<std::string> EntityAttributeModel::getAllAttributeNames() const {
+        std::vector<std::string> EntityPropertyModel::getAllPropertyKeys() const {
             auto document = kdl::mem_lock(m_document);
             const auto& index = document->world()->entityNodeIndex();
             auto result = kdl::vector_set<std::string>(index.allKeys());
@@ -510,15 +513,15 @@ namespace TrenchBroom {
             return result.release_data();
         }
 
-        std::vector<std::string> EntityAttributeModel::getAllValuesForAttributeNames(const std::vector<std::string>& names) const {
+        std::vector<std::string> EntityPropertyModel::getAllValuesForPropertyKeys(const std::vector<std::string>& propertyKeys) const {
             auto document = kdl::mem_lock(m_document);
             const auto& index = document->world()->entityNodeIndex();
 
             auto result = std::vector<std::string>();
             auto resultSet = kdl::wrap_set(result);
 
-            for (const auto& name : names) {
-                const auto values = index.allValuesForKeys(Model::EntityNodeIndexQuery::numbered(name));
+            for (const auto& key : propertyKeys) {
+                const auto values = index.allValuesForKeys(Model::EntityNodeIndexQuery::numbered(key));
                 for (const auto& value : values) {
                     resultSet.insert(value);
                 }
@@ -529,11 +532,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<std::string> EntityAttributeModel::getAllClassnames() const {
+        std::vector<std::string> EntityPropertyModel::getAllClassnames() const {
             auto document = kdl::mem_lock(m_document);
 
             // start with currently used classnames
-            auto result = getAllValuesForAttributeNames({ Model::PropertyKeys::Classname });
+            auto result = getAllValuesForPropertyKeys({ Model::PropertyKeys::Classname });
             auto resultSet = kdl::wrap_set(result);
 
             // add keys from all loaded entity definitions
@@ -546,42 +549,42 @@ namespace TrenchBroom {
             return result;
         }
 
-        void EntityAttributeModel::updateFromMapDocument() {
+        void EntityPropertyModel::updateFromMapDocument() {
             MODEL_LOG(qDebug() << "updateFromMapDocument");
 
             auto document = kdl::mem_lock(m_document);
 
-            const std::map<std::string, AttributeRow> rowsMap =
-                AttributeRow::rowsForAttributableNodes(document->allSelectedEntityNodes(), m_showDefaultRows);
+            const std::map<std::string, PropertyRow> rowsMap =
+                PropertyRow::rowsForEntityNodes(document->allSelectedEntityNodes(), m_showDefaultRows);
 
             setRows(rowsMap);
         }
 
-        int EntityAttributeModel::rowCount(const QModelIndex& parent) const {
+        int EntityPropertyModel::rowCount(const QModelIndex& parent) const {
             if (parent.isValid()) {
                 return 0;
             }
             return static_cast<int>(m_rows.size());
         }
 
-        int EntityAttributeModel::columnCount(const QModelIndex& parent) const {
+        int EntityPropertyModel::columnCount(const QModelIndex& parent) const {
             if (parent.isValid()) {
                 return 0;
             }
             return 2;
         }
 
-        Qt::ItemFlags EntityAttributeModel::flags(const QModelIndex &index) const {
+        Qt::ItemFlags EntityPropertyModel::flags(const QModelIndex &index) const {
             if (!index.isValid()) {
                 return Qt::NoItemFlags;
             }
 
-            const AttributeRow& row = m_rows.at(static_cast<size_t>(index.row()));
+            const PropertyRow& row = m_rows.at(static_cast<size_t>(index.row()));
 
             Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
             if (index.column() == 0) {
-                if (row.nameMutable()) {
+                if (row.keyMutable()) {
                     flags |= Qt::ItemIsEditable;
                 }
             } else {
@@ -593,7 +596,7 @@ namespace TrenchBroom {
             return flags;
         }
 
-        QVariant EntityAttributeModel::data(const QModelIndex& index, int role) const {
+        QVariant EntityPropertyModel::data(const QModelIndex& index, int role) const {
             if (!index.isValid()
                 || index.row() < 0
                 || index.row() >= static_cast<int>(m_rows.size())
@@ -603,12 +606,12 @@ namespace TrenchBroom {
             }
 
             auto document = kdl::mem_lock(m_document);
-            const AttributeRow& row = m_rows.at(static_cast<size_t>(index.row()));
+            const PropertyRow& row = m_rows.at(static_cast<size_t>(index.row()));
 
             if (role == Qt::DecorationRole) {
                 // lock icon
                 if (index.column() == 0) {
-                    if (!row.nameMutable()) {
+                    if (!row.keyMutable()) {
                         return QVariant(IO::loadSVGIcon(IO::Path("Locked_small.svg")));
                     }
                 } else if (index.column() == 1) {
@@ -650,7 +653,7 @@ namespace TrenchBroom {
 
             if (role == Qt::DisplayRole || role == Qt::EditRole) {
                 if (index.column() == 0) {
-                    return QVariant(mapStringToUnicode(document->encoding(), row.name()));
+                    return QVariant(mapStringToUnicode(document->encoding(), row.key()));
                 } else {
                     return QVariant(mapStringToUnicode(document->encoding(), row.value()));
                 }
@@ -665,9 +668,9 @@ namespace TrenchBroom {
             return QVariant();
         }
 
-        bool EntityAttributeModel::setData(const QModelIndex &index, const QVariant &value, int role) {
-            const auto& attributeRow = m_rows.at(static_cast<size_t>(index.row()));
-            unused(attributeRow);
+        bool EntityPropertyModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+            const auto& propertyRow = m_rows.at(static_cast<size_t>(index.row()));
+            unused(propertyRow);
 
             if (role != Qt::EditRole) {
                 return false;
@@ -676,24 +679,24 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             const size_t rowIndex = static_cast<size_t>(index.row());
-            const std::vector<Model::EntityNodeBase*> attributables = document->allSelectedEntityNodes();
-            if (attributables.empty()) {
+            const std::vector<Model::EntityNodeBase*> nodes = document->allSelectedEntityNodes();
+            if (nodes.empty()) {
                 return false;
             }
 
             if (index.column() == 0) {
                 // rename key
-                MODEL_LOG(qDebug() << "tried to rename " << mapStringToUnicode(document->encoding(), attributeRow.name()) << " to " << value.toString());
+                MODEL_LOG(qDebug() << "tried to rename " << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to " << value.toString());
 
                 const std::string newName = mapStringFromUnicode(document->encoding(), value.toString());
-                if (renameAttribute(rowIndex, newName, attributables)) {
+                if (renameProperty(rowIndex, newName, nodes)) {
                     return true;
                 }
             } else if (index.column() == 1) {
-                MODEL_LOG(qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), attributeRow.name()) << " to "
+                MODEL_LOG(qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to "
                                    << value.toString());
 
-                if (updateAttribute(rowIndex, mapStringFromUnicode(document->encoding(), value.toString()), attributables)) {
+                if (updateProperty(rowIndex, mapStringFromUnicode(document->encoding(), value.toString()), nodes)) {
                     return true;
                 }
             }
@@ -701,7 +704,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        QVariant EntityAttributeModel::headerData(int section, Qt::Orientation orientation, int role) const {
+        QVariant EntityPropertyModel::headerData(int section, Qt::Orientation orientation, int role) const {
             if (role != Qt::DisplayRole) {
                 return QVariant();
             }
@@ -716,46 +719,46 @@ namespace TrenchBroom {
             return QVariant();
         }
 
-        bool EntityAttributeModel::canRemove(const int rowIndexInt) {
+        bool EntityPropertyModel::canRemove(const int rowIndexInt) {
             if (rowIndexInt < 0 || static_cast<size_t>(rowIndexInt) >= m_rows.size()) {
                 return false;
             }
 
-            const AttributeRow& row = m_rows.at(static_cast<size_t>(rowIndexInt));
+            const PropertyRow& row = m_rows.at(static_cast<size_t>(rowIndexInt));
             if (row.isDefault()) {
                 return false;
             }
-            return row.nameMutable() && row.valueMutable();
+            return row.keyMutable() && row.valueMutable();
         }
 
-        bool EntityAttributeModel::hasRowWithAttributeName(const std::string& name) const {
-            return rowForAttributeName(name) != -1;
+        bool EntityPropertyModel::hasRowWithPropertyKey(const std::string& propertyKey) const {
+            return rowForPropertyKey(propertyKey) != -1;
         }
 
-        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::EntityNodeBase*>& /* attributables */) {
+        bool EntityPropertyModel::renameProperty(const size_t rowIndex, const std::string& newKey, const std::vector<Model::EntityNodeBase*>& /* nodes */) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             auto document = kdl::mem_lock(m_document);
-            const AttributeRow& row = m_rows.at(rowIndex);
-            const std::string& oldName = row.name();
+            const PropertyRow& row = m_rows.at(rowIndex);
+            const std::string& oldKey = row.key();
 
-            if (oldName == newName)
+            if (oldKey == newKey)
                 return true;
 
-            ensure(row.nameMutable(), "tried to rename immutable name"); // EntityAttributeModel::flags prevents us from renaming immutable names
+            ensure(row.keyMutable(), "tried to rename immutable name"); // EntityPropertyModel::flags prevents us from renaming immutable names
 
-            if (hasRowWithAttributeName(newName)) {
-                const AttributeRow& rowToOverwrite = m_rows.at(static_cast<size_t>(rowForAttributeName(newName)));
+            if (hasRowWithPropertyKey(newKey)) {
+                const PropertyRow& rowToOverwrite = m_rows.at(static_cast<size_t>(rowForPropertyKey(newKey)));
                 if (!rowToOverwrite.valueMutable()) {
                     // Prevent changing an immutable value via a rename
-                    // TODO: would this be better checked inside MapDocument::renameAttribute?
+                    // TODO: would this be better checked inside MapDocument::renameProperty?
                     return false;
                 }
 
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("Error"));
                 msgBox.setText(tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
-                    .arg(mapStringToUnicode(document->encoding(), newName)));
+                    .arg(mapStringToUnicode(document->encoding(), newKey)));
                 msgBox.setIcon(QMessageBox::Critical);
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 if (msgBox.exec() == QMessageBox::No) {
@@ -763,17 +766,17 @@ namespace TrenchBroom {
                 }
             }
             
-            return document->renameProperty(oldName, newName);
+            return document->renameProperty(oldKey, newKey);
         }
 
-        bool EntityAttributeModel::updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& attributables) {
+        bool EntityPropertyModel::updateProperty(const size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& nodes) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             bool hasChange = false;
-            const std::string name = m_rows.at(rowIndex).name();
-            for (const Model::EntityNodeBase* attributable : attributables) {
-                if (const auto* oldValue = attributable->entity().property(name)) {
-                    ensure(isAttributeValueMutable(attributable->entity(), name), "tried to modify immutable attribute value"); // this should be guaranteed by the AttributeRow constructor
+            const std::string name = m_rows.at(rowIndex).key();
+            for (const Model::EntityNodeBase* node : nodes) {
+                if (const auto* oldValue = node->entity().property(name)) {
+                    ensure(isPropertyValueMutable(node->entity(), name), "tried to modify immutable property value"); // this should be guaranteed by the PropertyRow constructor
                     if (*oldValue != newValue) {
                         hasChange = true;
                     }
@@ -789,9 +792,9 @@ namespace TrenchBroom {
             return document->setProperty(name, newValue);
         }
 
-        bool EntityAttributeModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const {
-            const AttributeRow& rowA = m_rows.at(rowIndexA);
-            const AttributeRow& rowB = m_rows.at(rowIndexB);
+        bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const {
+            const PropertyRow& rowA = m_rows.at(rowIndexA);
+            const PropertyRow& rowB = m_rows.at(rowIndexB);
 
             // 1. non-default sorts before default
             if (!rowA.isDefault() &&  rowB.isDefault()) {
@@ -802,7 +805,7 @@ namespace TrenchBroom {
             }
 
             // 2. sort by name
-            return rowA.name() < rowB.name();
+            return rowA.key() < rowB.key();
         }
     }
 }
