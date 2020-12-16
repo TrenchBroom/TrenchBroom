@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SmartAttributeEditorManager.h"
+#include "SmartPropertyEditorManager.h"
 
 #include "Macros.h"
 #include "Assets/PropertyDefinition.h"

@@ -24,7 +24,7 @@
 #include "Model/EntityNodeBase.h"
 #include "View/EntityPropertyGrid.h"
 #include "View/MapDocument.h"
-#include "View/SmartAttributeEditorManager.h"
+#include "View/SmartPropertyEditorManager.h"
 #include "View/Splitter.h"
 #include "View/QtUtils.h"
 
