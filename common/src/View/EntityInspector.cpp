@@ -23,7 +23,7 @@
 #include "View/CollapsibleTitledPanel.h"
 #include "View/EntityBrowser.h"
 #include "View/EntityDefinitionFileChooser.h"
-#include "View/EntityAttributeEditor.h"
+#include "View/EntityPropertyEditor.h"
 #include "View/MapDocument.h"
 #include "View/Splitter.h"
 #include "View/TitledPanel.h"

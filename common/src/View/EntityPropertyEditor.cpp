@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityAttributeEditor.h"
+#include "EntityPropertyEditor.h"
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
