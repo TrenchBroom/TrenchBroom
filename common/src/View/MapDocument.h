@@ -414,13 +414,13 @@ namespace TrenchBroom {
             bool csgHollow();
         public: // Clipping operations, declared in MapFacade interface
             bool clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3);
-        public: // modifying entity attributes, declared in MapFacade interface
-            bool setProperty(const std::string& name, const std::string& value) override;
-            bool renameProperty(const std::string& oldName, const std::string& newName) override;
-            bool removeProperty(const std::string& name) override;
+        public: // modifying entity properties, declared in MapFacade interface
+            bool setProperty(const std::string& key, const std::string& value) override;
+            bool renameProperty(const std::string& oldKey, const std::string& newKey) override;
+            bool removeProperty(const std::string& key) override;
 
-            bool convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) override;
-            bool updateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) override;
+            bool convertEntityColorRange(const std::string& key, Assets::ColorRange::Type range) override;
+            bool updateSpawnflag(const std::string& key, const size_t flagIndex, const bool setFlag) override;
         public: // brush resizing, declared in MapFacade interface
             bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
         public:

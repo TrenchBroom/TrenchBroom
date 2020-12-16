@@ -1933,40 +1933,40 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocument::setProperty(const std::string& name, const std::string& value) {
+        bool MapDocument::setProperty(const std::string& key, const std::string& value) {
             return applyAndSwap(*this, "Set Property", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.addOrUpdateProperty(name, value); return true; },
+                [&](Model::Entity& entity) { entity.addOrUpdateProperty(key, value); return true; },
                 [] (Model::Brush&)         { return true; }
             ));
         }
 
-        bool MapDocument::renameProperty(const std::string& oldName, const std::string& newName) {
+        bool MapDocument::renameProperty(const std::string& oldKey, const std::string& newKey) {
             return applyAndSwap(*this, "Rename Property", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.renameProperty(oldName, newName); return true; },
+                [&](Model::Entity& entity) { entity.renameProperty(oldKey, newKey); return true; },
                 [] (Model::Brush&)         { return true; }
             ));
         }
 
-        bool MapDocument::removeProperty(const std::string& name) {
+        bool MapDocument::removeProperty(const std::string& key) {
             return applyAndSwap(*this, "Remove Property", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.removeProperty(name); return true; },
+                [&](Model::Entity& entity) { entity.removeProperty(key); return true; },
                 [] (Model::Brush&)         { return true; }
             ));
         }
 
-        bool MapDocument::convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) {
+        bool MapDocument::convertEntityColorRange(const std::string& key, Assets::ColorRange::Type range) {
             return applyAndSwap(*this, "Convert Color", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
-                    if (const auto* oldValue = entity.property(name)) {
-                        entity.addOrUpdateProperty(name, Model::convertEntityColor(*oldValue, range));
+                    if (const auto* oldValue = entity.property(key)) {
+                        entity.addOrUpdateProperty(key, Model::convertEntityColor(*oldValue, range));
                     }
                     return true;
                 },
@@ -1974,17 +1974,17 @@ namespace TrenchBroom {
             ));
         }
 
-        bool MapDocument::updateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
+        bool MapDocument::updateSpawnflag(const std::string& key, const size_t flagIndex, const bool setFlag) {
             return applyAndSwap(*this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", m_selectedNodes.nodes(), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
-                    const auto* strValue = entity.property(name);
+                    const auto* strValue = entity.property(key);
                     int intValue = strValue ? kdl::str_to_int(*strValue).value_or(0) : 0;
                     const int flagValue = (1 << flagIndex);
 
                     intValue = setFlag ? intValue | flagValue : intValue & ~flagValue;
-                    entity.addOrUpdateProperty(name, kdl::str_to_string(intValue));
+                    entity.addOrUpdateProperty(key, kdl::str_to_string(intValue));
                     
                     return true;
                 },
@@ -2619,9 +2619,9 @@ namespace TrenchBroom {
 
         static auto makeSetEntityDefinitionsVisitor(Assets::EntityDefinitionManager& manager) {
             // this helper lambda must be captured by value
-            const auto setEntityDefinition = [&](auto* attributable) {
-                auto* definition = manager.definition(attributable);
-                attributable->setDefinition(definition);
+            const auto setEntityDefinition = [&](auto* node) {
+                auto* definition = manager.definition(node);
+                node->setDefinition(definition);
             };
 
             return kdl::overload(
@@ -2761,13 +2761,11 @@ namespace TrenchBroom {
             switch (bounds.source) {
                 case Model::Game::SoftMapBoundsType::Map:
                     if (!bounds.bounds.has_value()) {
-                        // Set the worldspawn key AttributeNames::SoftMaxMapSize's value to the empty string
+                        // Set the worldspawn key PropertyKeys::SoftMaxMapSize's value to the empty string
                         // to indicate that we are overriding the Game's bounds with unlimited.
-                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds,
-                            Model::PropertyValues::NoSoftMapBounds);
+                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds, Model::PropertyValues::NoSoftMapBounds);
                     } else {
-                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds,
-                            IO::serializeSoftMapBoundsString(*bounds.bounds));
+                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
                     }
                     break;
                 case Model::Game::SoftMapBoundsType::Game:
