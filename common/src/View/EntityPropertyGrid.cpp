@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityAttributeGrid.h"
+#include "EntityPropertyGrid.h"
 
 #include "Macros.h"
 #include "Model/EntityProperties.h"

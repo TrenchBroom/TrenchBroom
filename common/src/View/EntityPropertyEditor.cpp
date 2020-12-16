@@ -22,7 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
 #include "Model/EntityNodeBase.h"
-#include "View/EntityAttributeGrid.h"
+#include "View/EntityPropertyGrid.h"
 #include "View/MapDocument.h"
 #include "View/SmartAttributeEditorManager.h"
 #include "View/Splitter.h"
