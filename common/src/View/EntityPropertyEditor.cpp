@@ -243,7 +243,7 @@ namespace TrenchBroom {
             // This class has since been renamed, but we leave the old name so as not to reset the users' view settings.
             m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 
-            m_propertyGrid = new EntityAttributeGrid(document);
+            m_propertyGrid = new EntityPropertyGrid(document);
             m_smartEditorManager = new SmartAttributeEditorManager(document);
             m_documentationText = new QTextEdit();
             m_documentationText->setReadOnly(true);
@@ -276,7 +276,7 @@ namespace TrenchBroom {
             layout->addWidget(m_splitter, 1);
             setLayout(layout);
 
-            connect(m_propertyGrid, &EntityAttributeGrid::currentRowChanged, this, &EntityPropertyEditor::OnCurrentRowChanged);
+            connect(m_propertyGrid, &EntityPropertyGrid::currentRowChanged, this, &EntityPropertyEditor::OnCurrentRowChanged);
         }
 
         void EntityPropertyEditor::updateMinimumSize() {

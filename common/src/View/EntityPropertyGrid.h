@@ -42,16 +42,16 @@ namespace TrenchBroom {
         class MapDocument;
         class Selection;
 
-        struct AttributeGridSelection {
-            std::string attributeName;
+        struct PropertyGridSelection {
+            std::string propertyKey;
             int column;
         };
 
         /**
-         * Panel with the entity attribute table, and the toolbar below it (add/remove icons,
+         * Panel with the entity property table, and the toolbar below it (add/remove icons,
          * "show default properties" checkbox, etc.)
          */
-        class EntityAttributeGrid : public QWidget {
+        class EntityPropertyGrid : public QWidget {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
@@ -59,21 +59,21 @@ namespace TrenchBroom {
             EntityAttributeModel* m_model;
             QSortFilterProxyModel* m_proxyModel;
             EntityAttributeTable* m_table;
-            QAbstractButton* m_addAttributeButton;
+            QAbstractButton* m_addPropertyButton;
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;
-            std::vector<AttributeGridSelection> m_selectionBackup;
+            std::vector<PropertyGridSelection> m_selectionBackup;
         public:
-            explicit EntityAttributeGrid(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~EntityAttributeGrid() override;
+            explicit EntityPropertyGrid(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~EntityPropertyGrid() override;
         private:
             void backupSelection();
             void restoreSelection();
 
-            void addAttribute();
-            void removeSelectedAttributes();
+            void addProperty();
+            void removeSelectedProperties();
 
-            bool canRemoveSelectedAttributes() const;
+            bool canRemoveSelectedProperties() const;
             std::vector<int> selectedRowsAndCursorRow() const;
         private:
             void createGui(std::weak_ptr<MapDocument> document);

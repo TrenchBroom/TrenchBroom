@@ -51,38 +51,38 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeGrid::EntityAttributeGrid(std::weak_ptr<MapDocument> document, QWidget* parent) :
+        EntityPropertyGrid::EntityPropertyGrid(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document) {
             createGui(document);
             bindObservers();
         }
 
-        EntityAttributeGrid::~EntityAttributeGrid() {
+        EntityPropertyGrid::~EntityPropertyGrid() {
             unbindObservers();
         }
 
-        void EntityAttributeGrid::backupSelection() {
+        void EntityPropertyGrid::backupSelection() {
             m_selectionBackup.clear();
 
             GRID_LOG(qDebug() << "Backup selection");
             for (const QModelIndex& index : m_table->selectionModel()->selectedIndexes()) {
                 const QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
-                const std::string attributeName = m_model->attributeName(sourceIndex.row());
-                m_selectionBackup.push_back({ attributeName, sourceIndex.column() });
+                const std::string propertyKey = m_model->attributeName(sourceIndex.row());
+                m_selectionBackup.push_back({ propertyKey, sourceIndex.column() });
 
-                GRID_LOG(qDebug() << "Backup selection: " << QString::fromStdString(attributeName) << "," << sourceIndex.column());
+                GRID_LOG(qDebug() << "Backup selection: " << QString::fromStdString(propertyKey) << "," << sourceIndex.column());
             }
         }
 
-        void EntityAttributeGrid::restoreSelection() {
+        void EntityPropertyGrid::restoreSelection() {
             m_table->selectionModel()->clearSelection();
 
             GRID_LOG(qDebug() << "Restore selection");
             for (const auto& selection : m_selectionBackup) {
-                const int row = m_model->rowForAttributeName(selection.attributeName);
+                const int row = m_model->rowForAttributeName(selection.propertyKey);
                 if (row == -1) {
-                    GRID_LOG(qDebug() << "Restore selection: couldn't find " << QString::fromStdString(selection.attributeName));
+                    GRID_LOG(qDebug() << "Restore selection: couldn't find " << QString::fromStdString(selection.propertyKey));
                     continue;
                 }
                 const QModelIndex sourceIndex = m_model->index(row, selection.column);
@@ -90,26 +90,26 @@ namespace TrenchBroom {
                 m_table->selectionModel()->select(proxyIndex, QItemSelectionModel::Select);
                 m_table->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::Current);
 
-                GRID_LOG(qDebug() << "Restore selection: " << QString::fromStdString(selection.attributeName) << "," << selection.column);
+                GRID_LOG(qDebug() << "Restore selection: " << QString::fromStdString(selection.propertyKey) << "," << selection.column);
             }
             GRID_LOG(qDebug() << "Restore selection: current is " << QString::fromStdString(selectedRowName()));
         }
 
-        void EntityAttributeGrid::addAttribute() {
+        void EntityPropertyGrid::addProperty() {
             auto document = kdl::mem_lock(m_document);
-            const std::string newAttributeName = AttributeRow::newAttributeNameForAttributableNodes(
+            const std::string newPropertyKey = AttributeRow::newAttributeNameForAttributableNodes(
                 document->allSelectedEntityNodes());
 
-            document->setProperty(newAttributeName, "");
+            document->setProperty(newPropertyKey, "");
 
-            // Force an immediate update to the table rows (by default, updates are delayed - see EntityAttributeGrid::updateControls),
+            // Force an immediate update to the table rows (by default, updates are delayed - see EntityPropertyGrid::updateControls),
             // so we can select the new row.
             m_model->updateFromMapDocument();
 
-            const int row = m_model->rowForAttributeName(newAttributeName);
+            const int row = m_model->rowForAttributeName(newPropertyKey);
             ensure(row != -1, "row should have been inserted");
 
-            // Select the newly inserted attribute name
+            // Select the newly inserted property key
             const QModelIndex mi = m_proxyModel->mapFromSource(m_model->index(row, 0));
 
             m_table->clearSelection();
@@ -117,27 +117,27 @@ namespace TrenchBroom {
             m_table->setFocus();
         }
 
-        void EntityAttributeGrid::removeSelectedAttributes() {
-            if (!canRemoveSelectedAttributes()) {
+        void EntityPropertyGrid::removeSelectedProperties() {
+            if (!canRemoveSelectedProperties()) {
                 return;
             }
 
             const auto selectedRows = selectedRowsAndCursorRow();
 
-            std::vector<std::string> attributes;
+            std::vector<std::string> propertyKeys;
             for (const int row : selectedRows) {
-                attributes.push_back(m_model->attributeName(row));
+                propertyKeys.push_back(m_model->attributeName(row));
             }
 
-            const size_t numRows = attributes.size();
+            const size_t numRows = propertyKeys.size();
             auto document = kdl::mem_lock(m_document);
 
             {
-                Transaction transaction(document, kdl::str_plural(numRows, "Remove Attribute", "Remove Attributes"));
+                Transaction transaction(document, kdl::str_plural(numRows, "Remove Property", "Remove Properties"));
 
                 bool success = true;
-                for (const std::string& attribute : attributes) {
-                    success = success && document->removeProperty(attribute);
+                for (const std::string& propertyKey : propertyKeys) {
+                    success = success && document->removeProperty(propertyKey);
                 }
 
                 if (!success) {
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
+        bool EntityPropertyGrid::canRemoveSelectedProperties() const {
             const auto rows = selectedRowsAndCursorRow();
             if (rows.empty())
                 return false;
@@ -161,7 +161,7 @@ namespace TrenchBroom {
         /**
          * returns rows indices in the model (not proxy model).
          */
-        std::vector<int> EntityAttributeGrid::selectedRowsAndCursorRow() const {
+        std::vector<int> EntityPropertyGrid::selectedRowsAndCursorRow() const {
             kdl::vector_set<int> result;
 
             QItemSelectionModel* selection = m_table->selectionModel();
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             }
         };
 
-        void EntityAttributeGrid::createGui(std::weak_ptr<MapDocument> document) {
+        void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document) {
             m_table = new EntityAttributeTable();
 
             m_model = new EntityAttributeModel(document, this);
@@ -216,14 +216,14 @@ namespace TrenchBroom {
             m_table->horizontalHeader()->setSectionsClickable(false);
             m_table->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-            m_addAttributeButton = createBitmapButton("Add.svg", tr("Add a new property (%1)").arg(EntityAttributeTable::insertRowShortcutString()), this);
-            connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
-                addAttribute();
+            m_addPropertyButton = createBitmapButton("Add.svg", tr("Add a new property (%1)").arg(EntityAttributeTable::insertRowShortcutString()), this);
+            connect(m_addPropertyButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
+                addProperty();
             });
 
             m_removePropertiesButton = createBitmapButton("Remove.svg", tr("Remove the selected properties (%1)").arg(EntityAttributeTable::removeRowShortcutString()), this);
             connect(m_removePropertiesButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
-                removeSelectedAttributes();
+                removeSelectedProperties();
             });
 
             m_showDefaultPropertiesCheckBox = new QCheckBox(tr("Show default properties"));
@@ -233,10 +233,10 @@ namespace TrenchBroom {
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 
             connect(m_table, &EntityAttributeTable::addRowShortcutTriggered, this, [=](){
-                addAttribute();
+                addProperty();
             });
             connect(m_table, &EntityAttributeTable::removeRowsShortcutTriggered, this, [=](){
-                removeSelectedAttributes();
+                removeSelectedProperties();
             });
 
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
@@ -260,7 +260,7 @@ namespace TrenchBroom {
                 emit currentRowChanged();
             });
 
-            // e.g. handles setting a value of a default attribute so it becomes non-default
+            // e.g. handles setting a value of a default property so it becomes non-default
             connect(m_proxyModel, &QAbstractItemModel::dataChanged, this, [=]() {
                 updateControlsEnabled();
                 emit currentRowChanged();
@@ -275,7 +275,7 @@ namespace TrenchBroom {
             // Shortcuts
 
             auto* toolBar = createMiniToolBarLayout(
-                m_addAttributeButton,
+                m_addPropertyButton,
                 m_removePropertiesButton,
                 LayoutConstants::WideHMargin,
                 m_showDefaultPropertiesCheckBox);
@@ -289,51 +289,51 @@ namespace TrenchBroom {
             setLayout(layout);
 
             // NOTE: Do not use QAbstractItemView::SelectedClicked.
-            // EntityAttributeTable::mousePressEvent() implements its own version.
+            // EntityPropertyTable::mousePressEvent() implements its own version.
             // See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
             m_table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::AnyKeyPressed);
         }
 
-        void EntityAttributeGrid::bindObservers() {
+        void EntityPropertyGrid::bindObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &EntityAttributeGrid::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &EntityAttributeGrid::documentWasLoaded);
-            document->nodesDidChangeNotifier.addObserver(this, &EntityAttributeGrid::nodesDidChange);
-            document->selectionWillChangeNotifier.addObserver(this, &EntityAttributeGrid::selectionWillChange);
-            document->selectionDidChangeNotifier.addObserver(this, &EntityAttributeGrid::selectionDidChange);
+            document->documentWasNewedNotifier.addObserver(this, &EntityPropertyGrid::documentWasNewed);
+            document->documentWasLoadedNotifier.addObserver(this, &EntityPropertyGrid::documentWasLoaded);
+            document->nodesDidChangeNotifier.addObserver(this, &EntityPropertyGrid::nodesDidChange);
+            document->selectionWillChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionWillChange);
+            document->selectionDidChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionDidChange);
         }
 
-        void EntityAttributeGrid::unbindObservers() {
+        void EntityPropertyGrid::unbindObservers() {
             if (!kdl::mem_expired(m_document)) {
                 auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &EntityAttributeGrid::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &EntityAttributeGrid::documentWasLoaded);
-                document->nodesDidChangeNotifier.removeObserver(this, &EntityAttributeGrid::nodesDidChange);
-                document->selectionWillChangeNotifier.removeObserver(this, &EntityAttributeGrid::selectionWillChange);
-                document->selectionDidChangeNotifier.removeObserver(this, &EntityAttributeGrid::selectionDidChange);
+                document->documentWasNewedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasNewed);
+                document->documentWasLoadedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasLoaded);
+                document->nodesDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::nodesDidChange);
+                document->selectionWillChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionWillChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionDidChange);
             }
         }
 
-        void EntityAttributeGrid::documentWasNewed(MapDocument*) {
+        void EntityPropertyGrid::documentWasNewed(MapDocument*) {
             updateControls();
         }
 
-        void EntityAttributeGrid::documentWasLoaded(MapDocument*) {
+        void EntityPropertyGrid::documentWasLoaded(MapDocument*) {
             updateControls();
         }
 
-        void EntityAttributeGrid::nodesDidChange(const std::vector<Model::Node*>&) {
+        void EntityPropertyGrid::nodesDidChange(const std::vector<Model::Node*>&) {
             updateControls();
         }
 
-        void EntityAttributeGrid::selectionWillChange() {
+        void EntityPropertyGrid::selectionWillChange() {
         }
 
-        void EntityAttributeGrid::selectionDidChange(const Selection&) {
+        void EntityPropertyGrid::selectionDidChange(const Selection&) {
             updateControls();
         }
 
-        void EntityAttributeGrid::updateControls() {
+        void EntityPropertyGrid::updateControls() {
             // When you change the selected entity in the map, there's a brief intermediate state where worldspawn
             // is selected. If we call this directly, it'll cause the table to be rebuilt based on that intermediate
             // state. Everything is fine except you lose the selected row in the table, unless it's a key
@@ -349,20 +349,20 @@ namespace TrenchBroom {
             updateControlsEnabled();
         }
 
-        void EntityAttributeGrid::ensureSelectionVisible() {
+        void EntityPropertyGrid::ensureSelectionVisible() {
             m_table->scrollTo(m_table->currentIndex());
         }
 
-        void EntityAttributeGrid::updateControlsEnabled() {
+        void EntityPropertyGrid::updateControlsEnabled() {
             auto document = kdl::mem_lock(m_document);
             const auto nodes = document->allSelectedEntityNodes();
             m_table->setEnabled(!nodes.empty());
-            m_addAttributeButton->setEnabled(!nodes.empty());
-            m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedAttributes());
+            m_addPropertyButton->setEnabled(!nodes.empty());
+            m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedProperties());
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
         }
 
-        std::string EntityAttributeGrid::selectedRowName() const {
+        std::string EntityPropertyGrid::selectedRowName() const {
             QModelIndex current = m_proxyModel->mapToSource(m_table->currentIndex());
             const AttributeRow* rowModel = m_model->dataForModelIndex(current);
             if (rowModel == nullptr) {
