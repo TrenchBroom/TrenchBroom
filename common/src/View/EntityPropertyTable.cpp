@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityAttributeTable.h"
+#include "EntityPropertyTable.h"
 
 #include <QDebug>
 #include <QEvent>

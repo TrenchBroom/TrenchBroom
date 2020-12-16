@@ -19,8 +19,8 @@
 
 #include "EntityPropertyItemDelegate.h"
 
-#include "View/EntityAttributeTable.h"
 #include "View/EntityPropertyModel.h"
+#include "View/EntityPropertyTable.h"
 
 #include <string>
 #include <vector>

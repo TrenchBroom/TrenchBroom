@@ -297,7 +297,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
         ${COMMON_SOURCE_DIR}/View/ElidedLabel.cpp
         ${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.cpp
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeTable.cpp
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
@@ -306,6 +305,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/EntityPropertyGrid.cpp
         ${COMMON_SOURCE_DIR}/View/EntityPropertyItemDelegate.cpp
         ${COMMON_SOURCE_DIR}/View/EntityPropertyModel.cpp
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyTable.cpp
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
         ${COMMON_SOURCE_DIR}/View/FaceTool.cpp
@@ -791,7 +791,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.h
         ${COMMON_SOURCE_DIR}/View/ElidedLabel.h
         ${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.h
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeTable.h
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.h
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.h
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.h
@@ -801,6 +800,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/EntityPropertyItemDelegate.h
         ${COMMON_SOURCE_DIR}/View/EntityPropertyModel.h
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.h
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyTable.h
         ${COMMON_SOURCE_DIR}/View/FaceInspector.h
         ${COMMON_SOURCE_DIR}/View/FaceTool.h
         ${COMMON_SOURCE_DIR}/View/FaceToolController.h
