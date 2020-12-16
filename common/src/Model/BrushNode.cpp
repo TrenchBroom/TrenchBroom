@@ -224,11 +224,11 @@ namespace TrenchBroom {
             return parent();
         }
 
-        LayerNode* BrushNode::doGetLayer() {
+        LayerNode* BrushNode::doGetContainingLayer() {
             return findContainingLayer(this);
         }
 
-        GroupNode* BrushNode::doGetGroup() {
+        GroupNode* BrushNode::doGetContainingGroup() {
             return findContainingGroup(this);
         }
 

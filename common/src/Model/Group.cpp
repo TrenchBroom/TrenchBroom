@@ -17,29 +17,19 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
-
-#include <variant>
+#include "Group.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class NodeContents {
-        private:
-            std::variant<Layer, Group, Entity, Brush> m_contents;
-        public:
-            /** Unsets cached and derived information of the given objects, i.e.
-             *  - for entities, unsets the entity definition and the model
-             *  - for brushes, unsets the textures
-             */
-            explicit NodeContents(std::variant<Layer, Group, Entity, Brush> contents);
+        Group::Group(std::string name) :
+        m_name(std::move(name)) {}
 
-            const std::variant<Layer, Group, Entity, Brush>& get() const;
-            std::variant<Layer, Group, Entity, Brush>& get();
-        };
+        const std::string& Group::name() const {
+            return m_name;
+        }
+
+        void Group::setName(std::string name) {
+            m_name = std::move(name);
+        }
     }
 }

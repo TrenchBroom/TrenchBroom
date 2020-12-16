@@ -27,6 +27,8 @@
 #include "Model/LockState.h"
 #include "Model/WorldNode.h"
 
+#include <vecmath/vec_io.h> // for Color stream output operator
+
 #include <kdl/overload.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -92,33 +94,33 @@ namespace TrenchBroom {
             auto worldEntity = world.entity();
 
             // Transfer the color, locked state, and hidden state from the default layer Layer object to worldspawn
-            const Model::LayerNode* defaultLayer = world.defaultLayer();
-            const Model::Entity& defaultLayerEntity = defaultLayer->entity();
-            if (const auto* layerColor = defaultLayerEntity.attribute(Model::AttributeNames::LayerColor)) {
-                worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerColor, *layerColor);
+            const Model::LayerNode* defaultLayerNode = world.defaultLayer();
+            const Model::Layer& defaultLayer = defaultLayerNode->layer();
+            if (defaultLayer.color()) {
+                worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerColor, kdl::str_to_string(*defaultLayer.color()));
             } else {
                 worldEntity.removeAttribute(Model::AttributeNames::LayerColor);
             }
 
-            if (defaultLayer->lockState() == Model::LockState::Lock_Locked) {
+            if (defaultLayerNode->lockState() == Model::LockState::Lock_Locked) {
                 worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue);
             } else {
                 worldEntity.removeAttribute(Model::AttributeNames::LayerLocked);
             }
 
-            if (defaultLayer->hidden()) {
+            if (defaultLayerNode->hidden()) {
                 worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue);
             } else {
                 worldEntity.removeAttribute(Model::AttributeNames::LayerHidden);
             }
 
-            if (defaultLayer->omitFromExport()) {
+            if (defaultLayer.omitFromExport()) {
                 worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
             } else {
                 worldEntity.removeAttribute(Model::AttributeNames::LayerOmitFromExport);
             }
 
-            if (m_exporting && defaultLayer->omitFromExport()) {
+            if (m_exporting && defaultLayer.omitFromExport()) {
                 beginEntity(&world, worldEntity.attributes(), {});
                 endEntity(&world);
             } else {
@@ -127,7 +129,7 @@ namespace TrenchBroom {
         }
 
         void NodeSerializer::customLayer(const Model::LayerNode* layer) {
-            if (!(m_exporting && layer->omitFromExport())) {
+            if (!(m_exporting && layer->layer().omitFromExport())) {
                 entity(layer, layerAttributes(layer), {}, layer);
             }
         }
@@ -222,25 +224,25 @@ namespace TrenchBroom {
             return attributes;
         }
 
-        std::vector<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::LayerNode* layer) {
+        std::vector<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::LayerNode* layerNode) {
             std::vector<Model::EntityAttribute> result = {
                 Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname),
                 Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer),
-                Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()),
-                Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layer)),
+                Model::EntityAttribute(Model::AttributeNames::LayerName, layerNode->name()),
+                Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layerNode)),
             };
 
-            const auto& layerEntity = layer->entity();
-            if (const auto* layerSortIndex = layerEntity.attribute(Model::AttributeNames::LayerSortIndex)) {
-                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, *layerSortIndex));
+            const auto& layer = layerNode->layer();
+            if (layer.hasSortIndex()) {
+                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
             }
-            if (layer->lockState() == Model::LockState::Lock_Locked) {
+            if (layerNode->lockState() == Model::LockState::Lock_Locked) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue));
             }
-            if (layer->hidden()) {
+            if (layerNode->hidden()) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue));
             }
-            if (layer->omitFromExport()) {
+            if (layer.omitFromExport()) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue));
             }
             return result;

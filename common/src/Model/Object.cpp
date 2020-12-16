@@ -34,29 +34,29 @@ namespace TrenchBroom {
             return const_cast<Object*>(this)->container();
         }
 
-        LayerNode* Object::layer() {
-            return doGetLayer();
+        LayerNode* Object::containingLayer() {
+            return doGetContainingLayer();
         }
 
-        const LayerNode* Object::layer() const {
-            return const_cast<Object*>(this)->layer();
+        const LayerNode* Object::containingLayer() const {
+            return const_cast<Object*>(this)->containingLayer();
         }
 
-        GroupNode* Object::group() {
-            return doGetGroup();
+        GroupNode* Object::containingGroup() {
+            return doGetContainingGroup();
         }
 
-        const GroupNode* Object::group() const {
-            return const_cast<Object*>(this)->group();
+        const GroupNode* Object::containingGroup() const {
+            return const_cast<Object*>(this)->containingGroup();
         }
 
-        bool Object::grouped() const {
-            return group() != nullptr;
+        bool Object::containedInGroup() const {
+            return containingGroup() != nullptr;
         }
 
-        bool Object::groupOpened() const {
-            const auto* containingGroup = group();
-            return containingGroup == nullptr || containingGroup->opened();
+        bool Object::containingGroupOpened() const {
+            const auto* group = containingGroup();
+            return group == nullptr || group->opened();
         }
 
         bool Object::contains(const Node* node) const {

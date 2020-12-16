@@ -19,27 +19,18 @@
 
 #pragma once
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
-
-#include <variant>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        class NodeContents {
+        class Group {
         private:
-            std::variant<Layer, Group, Entity, Brush> m_contents;
+            std::string m_name;
         public:
-            /** Unsets cached and derived information of the given objects, i.e.
-             *  - for entities, unsets the entity definition and the model
-             *  - for brushes, unsets the textures
-             */
-            explicit NodeContents(std::variant<Layer, Group, Entity, Brush> contents);
+            Group(std::string name);
 
-            const std::variant<Layer, Group, Entity, Brush>& get() const;
-            std::variant<Layer, Group, Entity, Brush>& get();
+            const std::string& name() const;
+            void setName(std::string name);
         };
     }
 }

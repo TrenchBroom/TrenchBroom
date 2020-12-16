@@ -58,7 +58,7 @@ namespace TrenchBroom {
 
         LayerNode* ModelFactoryImpl::doCreateLayer(const std::string& name) const {
             assert(m_format != MapFormat::Unknown);
-            return new LayerNode(name);
+            return new LayerNode(false, name);
         }
 
         GroupNode* ModelFactoryImpl::doCreateGroup(const std::string& name) const {

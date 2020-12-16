@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
         void EditorContext::pushGroup(Model::GroupNode* groupNode) {
             ensure(groupNode != nullptr, "group is null");
-            assert(m_currentGroup == nullptr || groupNode->group() == m_currentGroup);
+            assert(m_currentGroup == nullptr || groupNode->containingGroup() == m_currentGroup);
 
             if (m_currentGroup != nullptr) {
                 m_currentGroup->close();
@@ -101,7 +101,7 @@ namespace TrenchBroom {
         void EditorContext::popGroup() {
             ensure(m_currentGroup != nullptr, "currentGroup is null");
             m_currentGroup->close();
-            m_currentGroup = m_currentGroup->group();
+            m_currentGroup = m_currentGroup->containingGroup();
             if (m_currentGroup != nullptr) {
                 m_currentGroup->open();
             }
@@ -222,7 +222,7 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::pickable(const Model::GroupNode* groupNode) const {
-            return visible(groupNode) && !groupNode->opened() && groupNode->groupOpened();
+            return visible(groupNode) && !groupNode->opened() && groupNode->containingGroupOpened();
         }
 
         bool EditorContext::pickable(const Model::EntityNode* entityNode) const {
@@ -280,7 +280,7 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::inOpenGroup(const Model::Object* object) const {
-            return object->groupOpened();
+            return object->containingGroupOpened();
         }
     }
 }

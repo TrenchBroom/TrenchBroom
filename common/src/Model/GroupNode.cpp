@@ -38,39 +38,42 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GroupNode::GroupNode(const std::string& name) :
-        m_editState(Edit_Closed),
-        m_boundsValid(false) {
-            setName(name);
+        GroupNode::GroupNode(std::string name) :
+        m_group(std::move(name)),
+        m_editState(EditState::Closed),
+        m_boundsValid(false) {}
+
+        const Group& GroupNode::group() const {
+            return m_group;
         }
 
-        void GroupNode::setName(const std::string& name) {
-            auto entity = m_entity;
-            entity.addOrUpdateAttribute(AttributeNames::GroupName, name);
-            setEntity(std::move(entity));
+        Group GroupNode::setGroup(Group group) {
+            using std::swap;
+            swap(m_group, group);
+            return group;
         }
 
         bool GroupNode::opened() const {
-            return m_editState == Edit_Open;
+            return m_editState == EditState::Open;
         }
 
         bool GroupNode::hasOpenedDescendant() const {
-            return m_editState == Edit_DescendantOpen;
+            return m_editState == EditState::DescendantOpen;
         }
 
         bool GroupNode::closed() const {
-            return m_editState == Edit_Closed;
+            return m_editState == EditState::Closed;
         }
 
         void GroupNode::open() {
-            assert(m_editState == Edit_Closed);
-            setEditState(Edit_Open);
+            assert(m_editState == EditState::Closed);
+            setEditState(EditState::Open);
             openAncestors();
         }
 
         void GroupNode::close() {
-            assert(m_editState == Edit_Open);
-            setEditState(Edit_Closed);
+            assert(m_editState == EditState::Open);
+            setEditState(EditState::Closed);
             closeAncestors();
         }
 
@@ -89,17 +92,15 @@ namespace TrenchBroom {
         }
 
         void GroupNode::openAncestors() {
-            setAncestorEditState(Edit_DescendantOpen);
+            setAncestorEditState(EditState::DescendantOpen);
         }
 
         void GroupNode::closeAncestors() {
-            setAncestorEditState(Edit_Closed);
+            setAncestorEditState(EditState::Closed);
         }
 
         const std::string& GroupNode::doGetName() const {
-            static const auto NoName = std::string("");
-            const auto* value = entity().attribute(AttributeNames::GroupName);
-            return value ? *value : NoName;
+            return m_group.name();
         }
 
         const vm::bbox3& GroupNode::doGetLogicalBounds() const {
@@ -199,26 +200,15 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void GroupNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {
-        }
-
-        vm::vec3 GroupNode::doGetLinkSourceAnchor() const {
-            return vm::vec3::zero();
-        }
-
-        vm::vec3 GroupNode::doGetLinkTargetAnchor() const {
-            return vm::vec3::zero();
-        }
-
         Node* GroupNode::doGetContainer() {
             return parent();
         }
 
-        LayerNode* GroupNode::doGetLayer() {
+        LayerNode* GroupNode::doGetContainingLayer() {
             return findContainingLayer(this);
         }
 
-        GroupNode* GroupNode::doGetGroup() {
+        GroupNode* GroupNode::doGetContainingGroup() {
             return findContainingGroup(this);
         }
 

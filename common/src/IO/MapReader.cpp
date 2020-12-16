@@ -241,13 +241,13 @@ namespace TrenchBroom {
             }
 
             Model::LayerNode* layerNode = m_factory->createLayer(name);
-            Model::Entity layerEntity = layerNode->entity();
+            Model::Layer layer = layerNode->layer();
 
-            const std::string& layerSortIndex = findAttribute(attributes, Model::AttributeNames::LayerSortIndex);
-            if (!kdl::str_is_blank(layerSortIndex)) {
-                // This is optional (not present on maps saved in TB 2020.1 and earlier)
-                layerEntity.addOrUpdateAttribute(Model::AttributeNames::LayerSortIndex, layerSortIndex);
+            // This is optional (not present on maps saved in TB 2020.1 and earlier)
+            if (const auto layerSortIndex = kdl::str_to_int(findAttribute(attributes, Model::AttributeNames::LayerSortIndex))) {
+                layer.setSortIndex(*layerSortIndex);
             }
+            
             if (findAttribute(attributes, Model::AttributeNames::LayerLocked) == Model::AttributeValues::LayerLockedValue) {
                 layerNode->setLockState(Model::LockState::Lock_Locked);
             }
@@ -255,10 +255,10 @@ namespace TrenchBroom {
                 layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             }
             if (findAttribute(attributes, Model::AttributeNames::LayerOmitFromExport) == Model::AttributeValues::LayerOmitFromExportValue) {
-                layerEntity.addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
+                layer.setOmitFromExport(true);
             }
 
-            layerNode->setEntity(std::move(layerEntity));
+            layerNode->setLayer(std::move(layer));
 
             setExtraAttributes(layerNode, extraAttributes);
             m_layers.insert(std::make_pair(layerId, layerNode));

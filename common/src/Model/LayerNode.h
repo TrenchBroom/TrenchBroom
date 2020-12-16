@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "Color.h"
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/AttributableNode.h"
+#include "Model/Layer.h"
+#include "Model/Node.h"
 
 #include <vecmath/bbox.h>
 
@@ -32,34 +32,26 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class LayerNode : public AttributableNode {
+        class LayerNode : public Node {
         private:
+            Layer m_layer;
+
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            LayerNode(const std::string& name);
+            LayerNode(bool defaultLayer, std::string name);
+            LayerNode(std::string name);
 
-            void setName(const std::string& name);
+            const Layer& layer() const;
+            Layer setLayer(Layer layer);
 
             bool isDefaultLayer() const;
-
-            static int invalidSortIndex();
-            static int defaultLayerSortIndex();
-
-            int sortIndex() const;
-            void setSortIndex(int index);
 
             /**
              * Stable sort the given vector using `sortIndex()` as the sort key.
              */
             static void sortLayers(std::vector<LayerNode*>& layers);
-
-            std::optional<Color> layerColor() const;
-            void setLayerColor(const Color& color);
-
-            bool omitFromExport() const;
-            void setOmitFromExport(bool omitFromExport);
         private: // implement Node interface
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;
@@ -79,10 +71,6 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-        private: // implement AttributableNode interface
-            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
-            vm::vec3 doGetLinkSourceAnchor() const override;
-            vm::vec3 doGetLinkTargetAnchor() const override;
         private:
             void invalidateBounds();
             void validateBounds() const;

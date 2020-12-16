@@ -130,6 +130,12 @@ namespace TrenchBroom {
             checkBoundsIntegral(brush);
         }
 
+        static void setLayerSortIndex(Model::LayerNode& layerNode, int sortIndex) {
+            auto layer = layerNode.layer();
+            layer.setSortIndex(sortIndex);
+            layerNode.setLayer(layer);
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.flip") {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::BrushNode* brush1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(30.0, 31.0, 31.0)), "texture").value());
@@ -1210,10 +1216,10 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.defaultLayerSortIndexImmutable", "[LayerTest]") {
-            Model::LayerNode* defaultLayer = document->world()->defaultLayer();
+            Model::LayerNode* defaultLayerNode = document->world()->defaultLayer();
+            setLayerSortIndex(*defaultLayerNode, 555);
 
-            defaultLayer->setSortIndex(555);
-            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
+            CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.renameLayer", "[LayerTest]") {
@@ -1469,53 +1475,53 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            auto* layer0 = document->world()->createLayer("layer0");
-            auto* layer1 = document->world()->createLayer("layer1");
-            auto* layer2 = document->world()->createLayer("laeyr2");
+            auto* layerNode0 = document->world()->createLayer("layer0");
+            auto* layerNode1 = document->world()->createLayer("layer1");
+            auto* layerNode2 = document->world()->createLayer("layer2");
 
-            document->addNode(layer0, document->world());
-            document->addNode(layer1, document->world());
-            document->addNode(layer2, document->world());
+            setLayerSortIndex(*layerNode0, 0);
+            setLayerSortIndex(*layerNode1, 1);
+            setLayerSortIndex(*layerNode2, 2);
 
-            layer0->setSortIndex(0);
-            layer1->setSortIndex(1);
-            layer2->setSortIndex(2);
+            document->addNode(layerNode0, document->world());
+            document->addNode(layerNode1, document->world());
+            document->addNode(layerNode2, document->world());
 
             SECTION("check canMoveLayer") {
                 // defaultLayer() can never be moved
                 CHECK(!document->canMoveLayer(document->world()->defaultLayer(), 1));
-                CHECK( document->canMoveLayer(layer0,  0));
-                CHECK(!document->canMoveLayer(layer0, -1));
-                CHECK( document->canMoveLayer(layer0,  1));
-                CHECK( document->canMoveLayer(layer0,  2));
-                CHECK(!document->canMoveLayer(layer0,  3));
+                CHECK( document->canMoveLayer(layerNode0,  0));
+                CHECK(!document->canMoveLayer(layerNode0, -1));
+                CHECK( document->canMoveLayer(layerNode0,  1));
+                CHECK( document->canMoveLayer(layerNode0,  2));
+                CHECK(!document->canMoveLayer(layerNode0,  3));
             }
 
             SECTION("moveLayer by 0 has no effect") {
-                document->moveLayer(layer0, 0);
-                CHECK(layer0->sortIndex() == 0);
+                document->moveLayer(layerNode0, 0);
+                CHECK(layerNode0->layer().sortIndex() == 0);
             }
             SECTION("moveLayer by invalid negative amount is clamped") {
-                document->moveLayer(layer0, -1000);
-                CHECK(layer0->sortIndex() == 0);
+                document->moveLayer(layerNode0, -1000);
+                CHECK(layerNode0->layer().sortIndex() == 0);
             }
             SECTION("moveLayer by 1") {
-                document->moveLayer(layer0, 1);
-                CHECK(layer1->sortIndex() == 0);
-                CHECK(layer0->sortIndex() == 1);
-                CHECK(layer2->sortIndex() == 2);
+                document->moveLayer(layerNode0, 1);
+                CHECK(layerNode1->layer().sortIndex() == 0);
+                CHECK(layerNode0->layer().sortIndex() == 1);
+                CHECK(layerNode2->layer().sortIndex() == 2);
             }
             SECTION("moveLayer by 2") {
-                document->moveLayer(layer0, 2);
-                CHECK(layer1->sortIndex() == 0);
-                CHECK(layer2->sortIndex() == 1);
-                CHECK(layer0->sortIndex() == 2);
+                document->moveLayer(layerNode0, 2);
+                CHECK(layerNode1->layer().sortIndex() == 0);
+                CHECK(layerNode2->layer().sortIndex() == 1);
+                CHECK(layerNode0->layer().sortIndex() == 2);
             }
             SECTION("moveLayer by invalid positive amount is clamped") {
-                document->moveLayer(layer0, 1000);
-                CHECK(layer1->sortIndex() == 0);
-                CHECK(layer2->sortIndex() == 1);
-                CHECK(layer0->sortIndex() == 2);
+                document->moveLayer(layerNode0, 1000);
+                CHECK(layerNode1->layer().sortIndex() == 0);
+                CHECK(layerNode2->layer().sortIndex() == 1);
+                CHECK(layerNode0->layer().sortIndex() == 2);
             }
         }
 
