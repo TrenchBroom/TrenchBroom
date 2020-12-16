@@ -75,7 +75,7 @@ namespace TrenchBroom {
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeWithSameDefinitionEditorMatcher(Assets::PropertyDefinitionType::ChoiceProperty)),
                                                   new SmartChoiceEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorDefaultMatcher()),
-                                                  new SmartDefaultAttributeEditor(m_document)));
+                                                  new SmartDefaultPropertyEditor(m_document)));
 
             m_stackedLayout = new QStackedLayout();
             for (auto& [matcherPtr, editor] : m_editors) {

@@ -31,12 +31,12 @@ namespace TrenchBroom {
         /**
          * Placeholder for when there is no smart editor. Just an empty QWidget.
          */
-        class SmartDefaultAttributeEditor : public SmartPropertyEditor {
+        class SmartDefaultPropertyEditor : public SmartPropertyEditor {
             Q_OBJECT
         public:
-            explicit SmartDefaultAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            explicit SmartDefaultPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
-            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) override;
+            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
         };
     }
 }
