@@ -26,9 +26,9 @@
 #include "View/SmartTypeEditorMatcher.h"
 #include "View/SmartColorEditor.h"
 #include "View/SmartDefaultAttributeEditor.h"
-#include "View/SmartAttributeEditor.h"
 #include "View/SmartAttributeEditorMatcher.h"
 #include "View/SmartFlagsEditor.h"
+#include "View/SmartPropertyEditor.h"
 
 #include <kdl/memory_utils.h>
 

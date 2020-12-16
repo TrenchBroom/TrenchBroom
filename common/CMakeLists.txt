@@ -396,7 +396,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.cpp
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.cpp
@@ -404,6 +403,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.cpp
+        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SpinControl.cpp
         ${COMMON_SOURCE_DIR}/View/Splitter.cpp
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.cpp
@@ -893,7 +893,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.h
-        ${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.h
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.h
@@ -901,6 +900,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.h
+        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditor.h
         ${COMMON_SOURCE_DIR}/View/SpinControl.h
         ${COMMON_SOURCE_DIR}/View/Splitter.h
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.h

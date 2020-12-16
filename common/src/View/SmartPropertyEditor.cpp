@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SmartAttributeEditor.h"
+#include "SmartPropertyEditor.h"
 
 #include "Notifier.h"
 #include "Model/Object.h"

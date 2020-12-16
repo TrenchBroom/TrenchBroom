@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "View/SmartAttributeEditor.h"
+#include "View/SmartPropertyEditor.h"
 
 #include <memory>
 #include <vector>
