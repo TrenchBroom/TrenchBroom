@@ -65,22 +65,22 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) {
-            assert(!attributables.empty());
+        void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) {
+            assert(!nodes.empty());
             if (m_ignoreUpdates)
                 return;
 
             QStringList labels;
             QStringList tooltips;
-            getFlags(attributables, labels, tooltips);
+            getFlags(nodes, labels, tooltips);
             m_flagsEditor->setFlags(labels, tooltips);
 
             int set, mixed;
-            getFlagValues(attributables, set, mixed);
+            getFlagValues(nodes, set, mixed);
             m_flagsEditor->setFlagValue(set, mixed);
         }
 
-        void SmartFlagsEditor::getFlags(const std::vector<Model::EntityNodeBase*>& attributables, QStringList& labels, QStringList& tooltips) const {
+        void SmartFlagsEditor::getFlags(const std::vector<Model::EntityNodeBase*>& nodes, QStringList& labels, QStringList& tooltips) const {
             QStringList defaultLabels;
 
             // Initialize the labels and tooltips.
@@ -95,16 +95,15 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < NumFlags; ++i) {
                 bool firstPass = true;
-                for (const Model::EntityNodeBase* attributable : attributables) {
+                for (const Model::EntityNodeBase* node : nodes) {
                     const int indexI = static_cast<int>(i);
                     QString label = defaultLabels[indexI];
                     QString tooltip = "";
 
-                    const Assets::FlagsPropertyDefinition* attrDef = Assets::EntityDefinition::safeGetFlagsPropertyDefinition(
-                        attributable->entity().definition(), propertyKey());
-                    if (attrDef != nullptr) {
+                    const Assets::FlagsPropertyDefinition* propDef = Assets::EntityDefinition::safeGetFlagsPropertyDefinition(node->entity().definition(), propertyKey());
+                    if (propDef != nullptr) {
                         const int flag = static_cast<int>(1 << i);
-                        const Assets::FlagsPropertyOption* flagDef = attrDef->option(flag);
+                        const Assets::FlagsPropertyOption* flagDef = propDef->option(flag);
                         if (flagDef != nullptr) {
                             label = QString::fromStdString(flagDef->shortDescription());
                             tooltip = QString::fromStdString(flagDef->longDescription());
@@ -125,15 +124,15 @@ namespace TrenchBroom {
             }
         }
 
-        void SmartFlagsEditor::getFlagValues(const std::vector<Model::EntityNodeBase*>& attributables, int& setFlags, int& mixedFlags) const {
-            if (attributables.empty()) {
+        void SmartFlagsEditor::getFlagValues(const std::vector<Model::EntityNodeBase*>& nodes, int& setFlags, int& mixedFlags) const {
+            if (nodes.empty()) {
                 setFlags = 0;
                 mixedFlags = 0;
                 return;
             }
 
-            auto it = std::begin(attributables);
-            auto end = std::end(attributables);
+            auto it = std::begin(nodes);
+            auto end = std::end(nodes);
             setFlags = getFlagValue(*it);
             mixedFlags = 0;
 
@@ -141,8 +140,8 @@ namespace TrenchBroom {
                 combineFlags(NumFlags, getFlagValue(*it), setFlags, mixedFlags);
         }
 
-        int SmartFlagsEditor::getFlagValue(const Model::EntityNodeBase* attributable) const {
-            if (const auto* value = attributable->entity().property(propertyKey())) {
+        int SmartFlagsEditor::getFlagValue(const Model::EntityNodeBase* node) const {
+            if (const auto* value = node->entity().property(propertyKey())) {
                 return kdl::str_to_int(*value).value_or(0);
             } else {
                 return 0;
