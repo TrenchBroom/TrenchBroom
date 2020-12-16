@@ -98,18 +98,18 @@ namespace TrenchBroom {
             connect(m_colorHistory, &ColorTable::colorTableSelected, this, &SmartColorEditor::colorTableSelected);
         }
 
-        void SmartColorEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) {
+        void SmartColorEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) {
             ensure(m_floatRadio != nullptr, "floatRadio is null");
             ensure(m_byteRadio != nullptr, "byteRadio is null");
             ensure(m_colorPicker != nullptr, "colorPicker is null");
             ensure(m_colorHistory != nullptr, "colorHistory is null");
 
-            updateColorRange(attributables);
+            updateColorRange(nodes);
             updateColorHistory();
         }
 
-        void SmartColorEditor::updateColorRange(const std::vector<Model::EntityNodeBase*>& attributables) {
-            const auto range = detectColorRange(propertyKey(), attributables);
+        void SmartColorEditor::updateColorRange(const std::vector<Model::EntityNodeBase*>& nodes) {
+            const auto range = detectColorRange(propertyKey(), nodes);
             if (range == Assets::ColorRange::Float) {
                 m_floatRadio->setChecked(true);
                 m_byteRadio->setChecked(false);
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         }
 
         template <typename Node>
-        static std::vector<QColor> collectColors(const std::vector<Node*>& nodes, const std::string& attributeName) {
+        static std::vector<QColor> collectColors(const std::vector<Node*>& nodes, const std::string& propertyKey) {
             struct ColorCmp {
                 bool operator()(const QColor& lhs, const QColor& rhs) const {
                     const auto lr = static_cast<float>(lhs.red()) / 255.0f;
@@ -155,18 +155,18 @@ namespace TrenchBroom {
     
             kdl::vector_set<QColor, ColorCmp> colors;
 
-            const auto visitAttributableNode = [&](const auto* node) {
-                if (const auto* value = node->entity().property(attributeName)) {
+            const auto visitEntityNode = [&](const auto* node) {
+                if (const auto* value = node->entity().property(propertyKey)) {
                     colors.insert(toQColor(Model::parseEntityColor(*value)));
                 }
             };
 
             for (const auto* node : nodes) {
                 node->accept(kdl::overload(
-                    [&](auto&& thisLambda, const Model::WorldNode* world)   { world->visitChildren(thisLambda); visitAttributableNode(world); },
+                    [&](auto&& thisLambda, const Model::WorldNode* world)   { world->visitChildren(thisLambda); visitEntityNode(world); },
                     [] (auto&& thisLambda, const Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, const Model::GroupNode* group)   { group->visitChildren(thisLambda); },
-                    [&](const Model::EntityNode* entity)                    { visitAttributableNode(entity); },
+                    [&](const Model::EntityNode* entity)                    { visitEntityNode(entity); },
                     [] (const Model::BrushNode*)                            {}
                 ));
             }
