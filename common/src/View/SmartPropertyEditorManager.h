@@ -37,12 +37,12 @@ namespace TrenchBroom {
         class MapDocument;
         class Selection;
         class SmartPropertyEditor;
-        class SmartAttributeEditorMatcher;
+        class SmartPropertyEditorMatcher;
 
         class SmartPropertyEditorManager : public QWidget {
         private:
             using EditorPtr = SmartPropertyEditor*;
-            using MatcherPtr = std::shared_ptr<SmartAttributeEditorMatcher>;
+            using MatcherPtr = std::shared_ptr<SmartPropertyEditorMatcher>;
             using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
             using EditorList = std::vector<MatcherEditorPair>;
 

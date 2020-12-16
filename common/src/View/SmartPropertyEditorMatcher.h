@@ -29,27 +29,27 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class SmartAttributeEditorMatcher {
+        class SmartPropertyEditorMatcher {
         public:
-            virtual ~SmartAttributeEditorMatcher();
-            bool matches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const;
+            virtual ~SmartPropertyEditorMatcher();
+            bool matches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const;
         private:
-            virtual bool doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const = 0;
+            virtual bool doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const = 0;
         };
 
-        class SmartAttributeEditorKeyMatcher : public SmartAttributeEditorMatcher {
+        class SmartPropertyEditorKeyMatcher : public SmartPropertyEditorMatcher {
         private:
             std::vector<std::string> m_patterns;
         public:
-            SmartAttributeEditorKeyMatcher(const std::string& pattern);
-            SmartAttributeEditorKeyMatcher(std::initializer_list<std::string> patterns);
+            SmartPropertyEditorKeyMatcher(const std::string& pattern);
+            SmartPropertyEditorKeyMatcher(std::initializer_list<std::string> patterns);
         private:
-            bool doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const override;
+            bool doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const override;
         };
 
-        class SmartAttributeEditorDefaultMatcher : public SmartAttributeEditorMatcher {
+        class SmartPropertyEditorDefaultMatcher : public SmartPropertyEditorMatcher {
         private:
-            bool doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const override;
+            bool doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const override;
         };
     }
 }

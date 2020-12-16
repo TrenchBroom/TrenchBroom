@@ -70,11 +70,11 @@ namespace TrenchBroom {
 
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeEditorMatcher(Assets::PropertyDefinitionType::FlagsProperty)),
                                                   new SmartFlagsEditor(m_document)));
-            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
                                                   new SmartColorEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeWithSameDefinitionEditorMatcher(Assets::PropertyDefinitionType::ChoiceProperty)),
                                                   new SmartChoiceEditor(m_document)));
-            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorDefaultMatcher()),
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartPropertyEditorDefaultMatcher()),
                                                   new SmartDefaultAttributeEditor(m_document)));
 
             m_stackedLayout = new QStackedLayout();

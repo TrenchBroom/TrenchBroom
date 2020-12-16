@@ -38,7 +38,7 @@ namespace TrenchBroom {
          * Matches if all of the nodes have an attribute definition for the give attribute name that is of the
          * type passed to the constructor.
          */
-        class SmartTypeEditorMatcher : public SmartAttributeEditorMatcher {
+        class SmartTypeEditorMatcher : public SmartPropertyEditorMatcher {
         private:
             Assets::PropertyDefinitionType m_type;
         public:
@@ -51,7 +51,7 @@ namespace TrenchBroom {
          * Matches if all of the nodes have an attribute definition for the give attribute name that is of the
          * type passed to the constructor, and these attribute definitions are all equal.
          */
-        class SmartTypeWithSameDefinitionEditorMatcher : public SmartAttributeEditorMatcher {
+        class SmartTypeWithSameDefinitionEditorMatcher : public SmartPropertyEditorMatcher {
         private:
             Assets::PropertyDefinitionType m_type;
         public:

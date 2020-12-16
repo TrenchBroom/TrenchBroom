@@ -26,27 +26,27 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditorMatcher::~SmartAttributeEditorMatcher() {}
+        SmartPropertyEditorMatcher::~SmartPropertyEditorMatcher() {}
 
-        bool SmartAttributeEditorMatcher::matches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const {
-            return doMatches(name, attributables);
+        bool SmartPropertyEditorMatcher::matches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
+            return doMatches(propertyKey, nodes);
         }
 
-        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::string& pattern) :
-        SmartAttributeEditorKeyMatcher({ pattern }) {}
+        SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(const std::string& pattern) :
+            SmartPropertyEditorKeyMatcher({ pattern }) {}
 
-        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<std::string> patterns) :
+        SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(const std::initializer_list<std::string> patterns) :
         m_patterns(patterns) {
             m_patterns = kdl::vec_sort_and_remove_duplicates(std::move(m_patterns));
         }
 
-        bool SmartAttributeEditorKeyMatcher::doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const {
-            if (attributables.empty()) {
+        bool SmartPropertyEditorKeyMatcher::doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
+            if (nodes.empty()) {
                 return false;
             }
 
             for (const std::string& pattern : m_patterns) {
-                if (kdl::cs::str_matches_glob(name, pattern)) {
+                if (kdl::cs::str_matches_glob(propertyKey, pattern)) {
                     return true;
                 }
             }
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SmartAttributeEditorDefaultMatcher::doMatches(const std::string& /* name */, const std::vector<Model::EntityNodeBase*>& /* attributables */) const {
+        bool SmartPropertyEditorDefaultMatcher::doMatches(const std::string& /* propertyKey */, const std::vector<Model::EntityNodeBase*>& /* nodes */) const {
             return true;
         }
     }
