@@ -29,14 +29,14 @@ namespace TrenchBroom {
         class EntityAttributeModel;
         class EntityAttributeTable;
 
-        class EntityAttributeItemDelegate : public QStyledItemDelegate {
+        class EntityPropertyItemDelegate : public QStyledItemDelegate {
             Q_OBJECT
         private:
             EntityAttributeTable* m_table;
             const EntityAttributeModel* m_model;
             const QSortFilterProxyModel* m_proxyModel;
         public:
-            EntityAttributeItemDelegate(EntityAttributeTable* table, const EntityAttributeModel* model, const QSortFilterProxyModel* proxyModel, QWidget* parent = nullptr);
+            EntityPropertyItemDelegate(EntityAttributeTable* table, const EntityAttributeModel* model, const QSortFilterProxyModel* proxyModel, QWidget* parent = nullptr);
 
             QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
             void setEditorData(QWidget* editor, const QModelIndex& index) const override;

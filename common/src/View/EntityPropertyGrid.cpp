@@ -206,7 +206,7 @@ namespace TrenchBroom {
             m_proxyModel->sort(0);
             m_table->setModel(m_proxyModel);
 
-            m_table->setItemDelegate(new EntityAttributeItemDelegate(m_table, m_model, m_proxyModel, m_table));
+            m_table->setItemDelegate(new EntityPropertyItemDelegate(m_table, m_model, m_proxyModel, m_table));
 
             autoResizeRows(m_table);
 

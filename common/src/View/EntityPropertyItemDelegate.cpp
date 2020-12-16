@@ -35,13 +35,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeItemDelegate::EntityAttributeItemDelegate(EntityAttributeTable* table, const EntityAttributeModel* model, const QSortFilterProxyModel* proxyModel, QWidget* parent) :
+        EntityPropertyItemDelegate::EntityPropertyItemDelegate(EntityAttributeTable* table, const EntityAttributeModel* model, const QSortFilterProxyModel* proxyModel, QWidget* parent) :
         QStyledItemDelegate(parent),
         m_table(table),
         m_model(model),
         m_proxyModel(proxyModel) {}
 
-        QWidget* EntityAttributeItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
+        QWidget* EntityPropertyItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
             auto* editor = QStyledItemDelegate::createEditor(parent, option, index);
             auto* lineEdit = dynamic_cast<QLineEdit*>(editor);
             if (lineEdit != nullptr) {
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return editor;
         }
 
-        void EntityAttributeItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const {
+        void EntityPropertyItemDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const {
             QStyledItemDelegate::setEditorData(editor, index);
 
             // show the completions immediately when the editor is opened if the editor's text is empty
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityAttributeItemDelegate::setupCompletions(QLineEdit* lineEdit, const QModelIndex& index) const {
+        void EntityPropertyItemDelegate::setupCompletions(QLineEdit* lineEdit, const QModelIndex& index) const {
             auto* completer = new QCompleter(getCompletions(index), lineEdit);
             completer->setCaseSensitivity(Qt::CaseInsensitive);
             completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             });
         }
 
-        QStringList EntityAttributeItemDelegate::getCompletions(const QModelIndex& index) const {
+        QStringList EntityPropertyItemDelegate::getCompletions(const QModelIndex& index) const {
             auto completions = m_model->getCompletions(m_proxyModel->mapToSource(index));
             completions.sort(Qt::CaseInsensitive);
             return completions;
