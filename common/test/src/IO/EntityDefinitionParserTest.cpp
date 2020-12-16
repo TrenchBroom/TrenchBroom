@@ -32,7 +32,7 @@ namespace TrenchBroom {
     namespace IO {
         TEST_CASE("resolveInheritance.filterBaseClasses", "[resolveInheritance]") {
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name     description   color         size          modelDef      attributes superclasses
+                //type                                   l  c  name     description   color         size          modelDef      properties superclasses
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base",  std::nullopt, std::nullopt, std::nullopt, std::nullopt, {},        {} },
                 { EntityDefinitionClassType::PointClass, 0, 0, "point", std::nullopt, std::nullopt, std::nullopt, std::nullopt, {},        {} },
                 { EntityDefinitionClassType::BrushClass, 0, 0, "brush", std::nullopt, std::nullopt, std::nullopt, std::nullopt, {},        {} },
@@ -50,7 +50,7 @@ namespace TrenchBroom {
 
         TEST_CASE("resolveInheritance.filterRedundantClasses", "[resolveInheritance]") {
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name     description   color         size          modelDef      attributes superclasses
+                //type                                   l  c  name     description   color         size          modelDef      properties superclasses
                 { EntityDefinitionClassType::BaseClass,  0, 0, "a", std::nullopt, std::nullopt, std::nullopt, std::nullopt,     {},        {} },
                 { EntityDefinitionClassType::PointClass, 0, 1, "a", std::nullopt, std::nullopt, std::nullopt, std::nullopt,     {},        {} },
                 { EntityDefinitionClassType::BrushClass, 0, 1, "b", std::nullopt, std::nullopt, std::nullopt, std::nullopt,     {},        {} },
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             const auto baseModelDef = Assets::ModelDefinition(EL::Expression(EL::LiteralExpression(EL::Value("abc")), 0, 0));
             
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name     description    color           size              modelDef      attributes superclasses
+                //type                                   l  c  name     description    color           size              modelDef      properties superclasses
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base",  "description", Color(1, 2, 3), vm::bbox3(-1, 1), baseModelDef, {},        {}       },
                 { EntityDefinitionClassType::PointClass, 0, 0, "point", std::nullopt,  std::nullopt,   std::nullopt,     std::nullopt, {},        {"base"} },
             });
@@ -99,7 +99,7 @@ namespace TrenchBroom {
 
         TEST_CASE("resolveInheritance.skipMembersIfPresent", "[resolveInheritance]") {
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name     description    color           size              modelDef      attributes superclasses
+                //type                                   l  c  name     description    color           size              modelDef      proeprties superclasses
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base",  "description", Color(1, 2, 3), vm::bbox3(-1, 1), std::nullopt, {},        {}       },
                 { EntityDefinitionClassType::PointClass, 0, 0, "point", "blah blah",   Color(2, 3, 4), vm::bbox3(-2, 2), std::nullopt, {},        {"base"} },
             });
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             mergedModelDef.append(baseModelDef);
             
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name     description   color         size          modelDef        attributes superclasses
+                //type                                   l  c  name     description   color         size          modelDef        properties superclasses
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base",  std::nullopt, std::nullopt, std::nullopt, baseModelDef,   {},        {}       },
                 { EntityDefinitionClassType::PointClass, 0, 0, "point", std::nullopt, std::nullopt, std::nullopt, pointModelDef,  {},        {"base"} },
             });
@@ -134,14 +134,14 @@ namespace TrenchBroom {
             CHECK(status.countStatus(LogLevel::Error) == 0u);
         }
 
-        TEST_CASE("resolveInheritance.inheritAttributes", "[resolveInheritance]") {
+        TEST_CASE("resolveInheritance.inheritPropertyDefinitions", "[resolveInheritance]") {
             const auto a1_1 = std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
             const auto a1_2 = std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
             const auto a2 = std::make_shared<Assets::StringPropertyDefinition>("a2", "", "", false);
             const auto a3 = std::make_shared<Assets::StringPropertyDefinition>("a3", "", "", false);
         
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name     description   color         size          modelDef      attributes      superclasses
+                //type                                   l  c  name     description   color         size          modelDef      properties      superclasses
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base",  std::nullopt, std::nullopt, std::nullopt, std::nullopt, {a1_1, a2},     {}       },
                 { EntityDefinitionClassType::PointClass, 0, 0, "point", std::nullopt, std::nullopt, std::nullopt, std::nullopt, {a1_2, a3},     {"base"} },
             });
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             a2->addOption(1 << 4, "a2_4", "", false);
         
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name     description   color         size          modelDef      attributes  superclasses
+                //type                                   l  c  name     description   color         size          modelDef      properties  superclasses
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base",  std::nullopt, std::nullopt, std::nullopt, std::nullopt, {a1},       {}       },
                 { EntityDefinitionClassType::PointClass, 0, 0, "point", std::nullopt, std::nullopt, std::nullopt, std::nullopt, {a2},       {"base"} },
             });
@@ -179,13 +179,13 @@ namespace TrenchBroom {
             const auto& classInfo = output.front();
             CHECK(classInfo.propertyDefinitions.size() == 1u);
             
-            const auto attribute = classInfo.propertyDefinitions.front();
-            CHECK(attribute->type() == Assets::PropertyDefinitionType::FlagsProperty);
+            const auto propertyDefinition = classInfo.propertyDefinitions.front();
+            CHECK(propertyDefinition->type() == Assets::PropertyDefinitionType::FlagsProperty);
             
-            const auto& flagsAttribute = static_cast<const Assets::FlagsPropertyDefinition&>(*attribute.get());
-            CHECK(flagsAttribute.key() == Model::PropertyKeys::Spawnflags);
+            const auto& flagsPropertyDefinition = static_cast<const Assets::FlagsPropertyDefinition&>(*propertyDefinition.get());
+            CHECK(flagsPropertyDefinition.key() == Model::PropertyKeys::Spawnflags);
             
-            const auto& options = flagsAttribute.options();
+            const auto& options = flagsPropertyDefinition.options();
             CHECK_THAT(options, Catch::Equals(std::vector<Assets::FlagsPropertyOption>({
                 { 1 << 1, "a1_1", "", true },
                 { 1 << 2, "a2_2", "", true },
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             mergedModelDef.append(base2ModelDef);
             
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name     description   color         size              modelDef        attributes      superclasses
+                //type                                   l  c  name     description   color         size              modelDef        properties      superclasses
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base1", "base1",      std::nullopt, vm::bbox3(-2, 2), base1ModelDef,  {a1_1, a2},     {}                 },
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base2", "base2",      Color(1,2,3), std::nullopt,     base2ModelDef,  {a1_2, a3},     {}                 },
                 { EntityDefinitionClassType::PointClass, 0, 0, "point", std::nullopt, std::nullopt, std::nullopt,     pointModelDef,  {},             {"base1", "base2"} },
@@ -229,7 +229,7 @@ namespace TrenchBroom {
             const auto a3 = std::make_shared<Assets::StringPropertyDefinition>("a3", "", "", false);
 
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name       description    color         size              modelDef      attributes      superclasses
+                //type                                   l  c  name       description    color         size              modelDef      properties      superclasses
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base1",   "base1",       std::nullopt, vm::bbox3(-2, 2), std::nullopt, {a1},   {}                     },
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base2_1", "base2_1",     Color(1,2,3), std::nullopt,     std::nullopt, {a2_1}, {"base1"}              },
                 { EntityDefinitionClassType::BaseClass,  0, 0, "base2_2", "base2_2",     std::nullopt, vm::bbox3(-1, 1), std::nullopt, {a2_2}, {"base1"}              },
@@ -249,7 +249,7 @@ namespace TrenchBroom {
         
         TEST_CASE("resolveInheritance.overloadedSuperClass", "[resolveInheritance]") {
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name      description   color         size          modelDef      attributes      superclasses
+                //type                                   l  c  name      description   color         size          modelDef      properties      superclasses
                 { EntityDefinitionClassType::PointClass, 0, 0, "base",   "point",      std::nullopt, std::nullopt, std::nullopt, {},             {}       },
                 { EntityDefinitionClassType::BrushClass, 0, 0, "base",   "brush",      std::nullopt, std::nullopt, std::nullopt, {},             {}       },
                 { EntityDefinitionClassType::PointClass, 0, 0, "point",  std::nullopt, std::nullopt, std::nullopt, std::nullopt, {},             {"base"} },
@@ -270,7 +270,7 @@ namespace TrenchBroom {
         
         TEST_CASE("resolveInheritance.indirectOverloadedSuperClass", "[resolveInheritance]") {
             const auto input = std::vector<EntityDefinitionClassInfo>({
-                //type                                   l  c  name      description   color         size          modelDef      attributes      superclasses
+                //type                                   l  c  name      description   color         size          modelDef      properties      superclasses
                 { EntityDefinitionClassType::PointClass, 0, 0, "base",   "point",      std::nullopt, std::nullopt, std::nullopt, {},             {}       },
                 { EntityDefinitionClassType::BrushClass, 0, 0, "base",   "brush",      std::nullopt, std::nullopt, std::nullopt, {},             {}       },
                 { EntityDefinitionClassType::BaseClass,  0, 0, "mid",    std::nullopt, std::nullopt, std::nullopt, std::nullopt, {},             {"base"} },

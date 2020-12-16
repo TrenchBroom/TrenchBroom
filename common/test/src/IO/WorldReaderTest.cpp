@@ -150,7 +150,7 @@ namespace TrenchBroom {
             CHECK(!defaultLayer->layer().omitFromExport());
         }
 
-        TEST_CASE("WorldReaderTest.parseDefaultLayerAttributes", "[WorldReaderTest]") {
+        TEST_CASE("WorldReaderTest.parseDefaultLayerProperties", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -1208,7 +1208,7 @@ common/caulk
             CHECK(*worldNode->entity().property("message") == "yay \\\"Mr. Robot!\\\"");
         }
 
-        TEST_CASE("WorldReaderTest.parseAttributeWithUnescapedPathAndTrailingBackslash", "[WorldReaderTest]") {
+        TEST_CASE("WorldReaderTest.parsePropertyWithUnescapedPathAndTrailingBackslash", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -1230,7 +1230,7 @@ common/caulk
             CHECK(*worldNode->entity().property("path") == "c:\\a\\b\\c\\");
         }
 
-        TEST_CASE("WorldReaderTest.parseAttributeWithEscapedPathAndTrailingBackslash", "[WorldReaderTest]") {
+        TEST_CASE("WorldReaderTest.parsePropertyWithEscapedPathAndTrailingBackslash", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -1252,7 +1252,7 @@ common/caulk
             CHECK(*worldNode->entity().property("path") == "c:\\\\a\\\\b\\\\c\\\\");
         }
 
-        TEST_CASE("WorldReaderTest.parseAttributeTrailingEscapedBackslash", "[WorldReaderTest]") {
+        TEST_CASE("WorldReaderTest.parsePropertyTrailingEscapedBackslash", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -1276,7 +1276,7 @@ common/caulk
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/1739
-        TEST_CASE("WorldReaderTest.parseAttributeNewlineEscapeSequence", "[WorldReaderTest]") {
+        TEST_CASE("WorldReaderTest.parsePropertyNewlineEscapeSequence", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"

@@ -78,7 +78,7 @@ namespace TrenchBroom {
             }
         };
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetAttributes") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties") {
             const vm::vec3 newOrigin(10, 20, 30);
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             EXPECT_EQ(newBounds, m_entity->logicalBounds());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateAttributes") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProperties") {
             const vm::vec3 newOrigin(10, 20, 30);
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));

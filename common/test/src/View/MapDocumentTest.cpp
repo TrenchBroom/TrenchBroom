@@ -1165,7 +1165,7 @@ namespace TrenchBroom {
             CHECK(brush2->hidden());
         }
 
-        TEST_CASE_METHOD(MapDocumentTest, "IssueGenerator.emptyAttribute") {
+        TEST_CASE_METHOD(MapDocumentTest, "IssueGenerator.emptyProperty") {
             Model::EntityNode* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
             
             document->deselectAll();
@@ -1199,7 +1199,7 @@ namespace TrenchBroom {
             Model::Issue* issue0 = issues.at(0);
             Model::Issue* issue1 = issues.at(1);
 
-            // Should be one EmptyAttributeNameIssue and one EmptyAttributeValueIssue
+            // Should be one EmptyPropertyNameIssue and one EmptyPropertyValueIssue
             CHECK(((issue0->type() == issueGenerators[0]->type() && issue1->type() == issueGenerators[1]->type())
                 || (issue0->type() == issueGenerators[1]->type() && issue1->type() == issueGenerators[0]->type())));
             
@@ -1209,7 +1209,7 @@ namespace TrenchBroom {
             Model::IssueQuickFix* quickFix = fixes.at(0);
             quickFix->apply(document.get(), std::vector<Model::Issue*>{issue0});
 
-            // The fix should have deleted the attribute
+            // The fix should have deleted the property
             CHECK(!entityNode->entity().hasProperty(""));
 
             kdl::vec_clear_and_delete(issueGenerators);

@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        void assertAttributeDefinition(const std::string& name, const Assets::PropertyDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition);
+        void assertPropertyDefinition(const std::string& key, const Assets::PropertyDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition);
 
         TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]") {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
@@ -172,59 +172,59 @@ Updated: 2011-03-02
             UNSCOPED_INFO("Expected matching bounds");
             ASSERT_TRUE(vm::is_equal(vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)), pointDefinition->bounds(), 0.01));
 
-            UNSCOPED_INFO("Expected three attribute definitions");
+            UNSCOPED_INFO("Expected three property definitions");
             ASSERT_EQ(3u, pointDefinition->propertyDefinitions().size());
 
             const auto* angleDefinition = pointDefinition->propertyDefinition("angle");
-            UNSCOPED_INFO("Missing attribute definition for 'angle' key");
+            UNSCOPED_INFO("Missing property definition for 'angle' key");
             ASSERT_NE(nullptr, angleDefinition);
 
-            UNSCOPED_INFO("Expected angle attribute definition to be of String type");
+            UNSCOPED_INFO("Expected angle property definition to be of String type");
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, angleDefinition->type());
 
-            UNSCOPED_INFO("Expected matching attribute definition name");
+            UNSCOPED_INFO("Expected matching property definition name");
             ASSERT_EQ("angle", angleDefinition->key());
 
-            UNSCOPED_INFO("Expected attribute definition's short description to match name");
+            UNSCOPED_INFO("Expected property definition's short description to match name");
             ASSERT_EQ("Yaw Angle", angleDefinition->shortDescription());
 
-            UNSCOPED_INFO("Expected attribute definition's long description to match element text");
+            UNSCOPED_INFO("Expected property definition's long description to match element text");
             ASSERT_EQ("Rotation angle of the sky surfaces.", angleDefinition->longDescription());
 
             const auto* anglesDefinition = pointDefinition->propertyDefinition("angles");
-            UNSCOPED_INFO("Missing attribute definition for 'angles' key");
+            UNSCOPED_INFO("Missing property definition for 'angles' key");
             ASSERT_NE(nullptr, anglesDefinition);
             
-            UNSCOPED_INFO("Expected angles attribute definition to be of String type");
+            UNSCOPED_INFO("Expected angles property definition to be of String type");
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, anglesDefinition->type());
 
-            UNSCOPED_INFO("Expected matching attribute definition name");
+            UNSCOPED_INFO("Expected matching property definition name");
             ASSERT_EQ("angles", anglesDefinition->key());
 
-            UNSCOPED_INFO("Expected attribute definition's short description to match name");
+            UNSCOPED_INFO("Expected property definition's short description to match name");
             ASSERT_EQ("Pitch Yaw Roll", anglesDefinition->shortDescription());
 
-            UNSCOPED_INFO("Expected attribute definition's long description to match element text");
+            UNSCOPED_INFO("Expected property definition's long description to match element text");
             ASSERT_EQ("Individual control of PITCH, YAW, and ROLL (default 0 0 0).", anglesDefinition->longDescription());
 
             const auto* scaleDefinition = dynamic_cast<const Assets::FloatPropertyDefinition*>(pointDefinition->propertyDefinition(
                 "_scale"));
-            UNSCOPED_INFO("Missing attribute definition for '_scale' key");
+            UNSCOPED_INFO("Missing property definition for '_scale' key");
             ASSERT_NE(nullptr, scaleDefinition);
 
-            UNSCOPED_INFO("Expected angles attribute definition to be of Float type");
+            UNSCOPED_INFO("Expected angles property definition to be of Float type");
             ASSERT_EQ(Assets::PropertyDefinitionType::FloatProperty, scaleDefinition->type());
 
-            UNSCOPED_INFO("Expected matching attribute definition name");
+            UNSCOPED_INFO("Expected matching property definition name");
             ASSERT_EQ("_scale", scaleDefinition->key());
 
-            UNSCOPED_INFO("Expected attribute definition's short description to match name");
+            UNSCOPED_INFO("Expected property definition's short description to match name");
             ASSERT_EQ("Scale", scaleDefinition->shortDescription());
 
-            UNSCOPED_INFO("Expected correct default value for '_scale' attribute definition");
+            UNSCOPED_INFO("Expected correct default value for '_scale' property definition");
             ASSERT_EQ(64.0f, scaleDefinition->defaultValue());
 
-            UNSCOPED_INFO("Expected attribute definition's long description to match element text");
+            UNSCOPED_INFO("Expected property definition's long description to match element text");
             ASSERT_EQ("Scaling factor (default 64), good values are between 50 and 300, depending on the map.", scaleDefinition->longDescription());
 
             kdl::vec_clear_and_delete(definitions);
@@ -281,15 +281,16 @@ Target this entity with a misc_model to have the model attached to the entity (s
             UNSCOPED_INFO("Expected matching color");
             ASSERT_TRUE(vm::is_equal(Color(0.0f, 0.4f, 1.0f), brushDefinition->color(), 0.01f));
 
-            UNSCOPED_INFO("Expected seven attribute definitions");
+            UNSCOPED_INFO("Expected seven property definitions");
             ASSERT_EQ(7u, brushDefinition->propertyDefinitions().size());
-            assertAttributeDefinition("noise", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
-            assertAttributeDefinition("model2", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
-            assertAttributeDefinition("color", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
-            assertAttributeDefinition("targetname", Assets::PropertyDefinitionType::TargetSourceProperty, brushDefinition);
-            assertAttributeDefinition("_castshadows", Assets::PropertyDefinitionType::IntegerProperty, brushDefinition);
-            assertAttributeDefinition("_celshader", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
-            assertAttributeDefinition("spawnflags", Assets::PropertyDefinitionType::FlagsProperty, brushDefinition);
+            assertPropertyDefinition("noise", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
+            assertPropertyDefinition("model2", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
+            assertPropertyDefinition("color", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
+            assertPropertyDefinition("targetname", Assets::PropertyDefinitionType::TargetSourceProperty,
+                brushDefinition);
+            assertPropertyDefinition("_castshadows", Assets::PropertyDefinitionType::IntegerProperty, brushDefinition);
+            assertPropertyDefinition("_celshader", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
+            assertPropertyDefinition("spawnflags", Assets::PropertyDefinitionType::FlagsProperty, brushDefinition);
 
             UNSCOPED_INFO("Expected matching spawnflag definitions");
             const Assets::FlagsPropertyDefinition* spawnflags = brushDefinition->spawnflags();
@@ -309,7 +310,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST_CASE("EntParserTest.parseListAttributeDefinition", "[EntParserTest]") {
+        TEST_CASE("EntParserTest.parseListPropertyDefinition", "[EntParserTest]") {
             const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -344,18 +345,18 @@ Target this entity with a misc_model to have the model attached to the entity (s
             UNSCOPED_INFO("Definition must be a point entity definition");
             ASSERT_NE(nullptr, pointDefinition);
 
-            UNSCOPED_INFO("Expected one attribute definitions");
+            UNSCOPED_INFO("Expected one property definitions");
             ASSERT_EQ(1u, pointDefinition->propertyDefinitions().size());
 
             const auto* colorIndexDefinition = dynamic_cast<const Assets::ChoicePropertyDefinition*>(pointDefinition->propertyDefinition(
                 "count"));
-            UNSCOPED_INFO("Missing attribute definition for 'count' key");
+            UNSCOPED_INFO("Missing property definition for 'count' key");
             ASSERT_NE(nullptr, colorIndexDefinition);
 
-            UNSCOPED_INFO("Expected count attribute definition to be of choice type");
+            UNSCOPED_INFO("Expected count property definition to be of choice type");
             ASSERT_EQ(Assets::PropertyDefinitionType::ChoiceProperty, colorIndexDefinition->type());
 
-            UNSCOPED_INFO("Expected name value as entity attribute definition short description");
+            UNSCOPED_INFO("Expected name value as entity property definition short description");
             ASSERT_EQ("Text Color", colorIndexDefinition->shortDescription());
 
             const auto expectedDescription = R"(Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
@@ -367,7 +368,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 5 : Cyan
 6 : Magenta
 7 : White)";
-            UNSCOPED_INFO("Expected text value as entity attribute defintion long description");
+            UNSCOPED_INFO("Expected text value as entity property defintion long description");
             ASSERT_EQ(expectedDescription, colorIndexDefinition->longDescription());
 
             const auto& options = colorIndexDefinition->options();
@@ -385,7 +386,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST_CASE("EntParserTest.parseInvalidRealAttributeDefinition", "[EntParserTest]") {
+        TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition", "[EntParserTest]") {
             const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -407,17 +408,17 @@ Target this entity with a misc_model to have the model attached to the entity (s
             UNSCOPED_INFO("Definition must be a point entity definition");
             ASSERT_NE(nullptr, pointDefinition);
 
-            UNSCOPED_INFO("Expected one attribute definitions");
+            UNSCOPED_INFO("Expected one property definitions");
             ASSERT_EQ(1u, pointDefinition->propertyDefinitions().size());
 
             const auto* scaleDefinition = dynamic_cast<const Assets::StringPropertyDefinition*>(pointDefinition->propertyDefinition(
                 "_scale"));
-            UNSCOPED_INFO("Missing attribute definition for '_scale' key");
+            UNSCOPED_INFO("Missing property definition for '_scale' key");
             ASSERT_NE(nullptr, scaleDefinition);
-            UNSCOPED_INFO("Expected angles attribute definition to be of Float type");
+            UNSCOPED_INFO("Expected angles property definition to be of Float type");
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, scaleDefinition->type());
 
-            UNSCOPED_INFO("Expected correct default value for '_scale' attribute definition");
+            UNSCOPED_INFO("Expected correct default value for '_scale' property definition");
             ASSERT_EQ("asdf", scaleDefinition->defaultValue());
 
             kdl::vec_clear_and_delete(definitions);
@@ -475,13 +476,13 @@ Target this entity with a misc_model to have the model attached to the entity (s
             kdl::vec_clear_and_delete(definitions);
         }
 
-        void assertAttributeDefinition(const std::string& name, const Assets::PropertyDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition) {
-            const auto* attrDefinition = entityDefinition->propertyDefinition(name);
-            UNSCOPED_INFO("Missing attribute definition for '" + name + "' key");
-            ASSERT_NE(nullptr, attrDefinition);
+        void assertPropertyDefinition(const std::string& key, const Assets::PropertyDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition) {
+            const auto* propDefinition = entityDefinition->propertyDefinition(key);
+            UNSCOPED_INFO("Missing property definition for '" + key + "' key");
+            ASSERT_NE(nullptr, propDefinition);
 
-            UNSCOPED_INFO("Expected '" + name + "' attribute definition to be of expected type");
-            ASSERT_EQ(expectedType, attrDefinition->type());
+            UNSCOPED_INFO("Expected '" + key + "' property definition to be of expected type");
+            ASSERT_EQ(expectedType, propDefinition->type());
         }
     }
 }

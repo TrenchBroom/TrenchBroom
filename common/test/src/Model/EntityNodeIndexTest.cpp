@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return index.findEntityNodes(EntityNodeIndexQuery::numbered(name), value);
         }
 
-        TEST_CASE("EntityAttributeIndexTest.addEntityNode", "[EntityAttributeIndexTest]") {
+        TEST_CASE("EntityNodeIndexTest.addEntityNode", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
@@ -57,20 +57,20 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
 
-            std::vector<EntityNodeBase*> attributables = findExactExact(index, "test", "somevalue");
-            ASSERT_EQ(2u, attributables.size());
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
+            std::vector<EntityNodeBase*> nodes = findExactExact(index, "test", "somevalue");
+            ASSERT_EQ(2u, nodes.size());
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
 
-            attributables = findExactExact(index, "other", "someothervalue");
-            ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
+            nodes = findExactExact(index, "other", "someothervalue");
+            ASSERT_EQ(1u, nodes.size());
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
 
             delete entity1;
             delete entity2;
         }
 
-        TEST_CASE("EntityAttributeIndexTest.removeEntityNode", "[EntityAttributeIndexTest]") {
+        TEST_CASE("EntityNodeIndexTest.removeEntityNode", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
@@ -87,15 +87,15 @@ namespace TrenchBroom {
 
             index.removeEntityNode(entity2);
 
-            const std::vector<EntityNodeBase*>& attributables = findExactExact(index, "test", "somevalue");
-            ASSERT_EQ(1u, attributables.size());
-            ASSERT_EQ(entity1, attributables.front());
+            const std::vector<EntityNodeBase*>& nodes = findExactExact(index, "test", "somevalue");
+            ASSERT_EQ(1u, nodes.size());
+            ASSERT_EQ(entity1, nodes.front());
 
             delete entity1;
             delete entity2;
         }
 
-        TEST_CASE("EntityAttributeIndexTest.addProperty", "[EntityAttributeIndexTest]") {
+        TEST_CASE("EntityNodeIndexTest.addProperty", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
@@ -117,20 +117,20 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
 
-            std::vector<EntityNodeBase*> attributables = findExactExact(index, "test", "somevalue");
-            ASSERT_EQ(2u, attributables.size());
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
+            std::vector<EntityNodeBase*> nodes = findExactExact(index, "test", "somevalue");
+            ASSERT_EQ(2u, nodes.size());
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
 
-            attributables = findExactExact(index, "other", "someothervalue");
-            ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
+            nodes = findExactExact(index, "other", "someothervalue");
+            ASSERT_EQ(1u, nodes.size());
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
 
             delete entity1;
             delete entity2;
         }
 
-        TEST_CASE("EntityAttributeIndexTest.removeProperty", "[EntityAttributeIndexTest]") {
+        TEST_CASE("EntityNodeIndexTest.removeProperty", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
@@ -147,10 +147,10 @@ namespace TrenchBroom {
 
             index.removeProperty(entity2, "other", "someothervalue");
 
-            const std::vector<EntityNodeBase*>& attributables = findExactExact(index, "test", "somevalue");
-            ASSERT_EQ(2u, attributables.size());
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity2));
+            const std::vector<EntityNodeBase*>& nodes = findExactExact(index, "test", "somevalue");
+            ASSERT_EQ(2u, nodes.size());
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
 
             ASSERT_TRUE(findExactExact(index, "other", "someothervalue").empty());
 
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST_CASE("EntityAttributeIndexTest.addNumberedEntityAttribute", "[EntityAttributeIndexTest]") {
+        TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
@@ -170,15 +170,15 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(findNumberedExact(index, "test", "notfound").empty());
 
-            std::vector<EntityNodeBase*> attributables = findNumberedExact(index, "test", "somevalue");
-            ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
+            std::vector<EntityNodeBase*> nodes = findNumberedExact(index, "test", "somevalue");
+            ASSERT_EQ(1u, nodes.size());
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
 
             delete entity1;
         }
 
 
-        TEST_CASE("EntityAttributeIndexTest.addRemoveFloatProperty", "[EntityAttributeIndexTest]") {
+        TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
@@ -187,16 +187,16 @@ namespace TrenchBroom {
 
             index.addEntityNode(entity1);
 
-            std::vector<EntityNodeBase*> attributables = findExactExact(index, "delay", "3.5");
-            ASSERT_EQ(1u, attributables.size());
-            ASSERT_TRUE(kdl::vec_contains(attributables, entity1));
+            std::vector<EntityNodeBase*> nodes = findExactExact(index, "delay", "3.5");
+            ASSERT_EQ(1u, nodes.size());
+            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
 
             index.removeProperty(entity1, "delay", "3.5");
 
             delete entity1;
         }
 
-        TEST_CASE("EntityAttributeIndexTest.allKeys", "[EntityAttributeIndexTest]") {
+        TEST_CASE("EntityNodeIndexTest.allKeys", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "test", "other" }, index.allKeys());
         }
 
-        TEST_CASE("EntityAttributeIndexTest.allValuesForKeys", "[EntityAttributeIndexTest]") {
+        TEST_CASE("EntityNodeIndexTest.allValuesForKeys", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
             EntityNode* entity1 = new EntityNode({

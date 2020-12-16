@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST_CASE("AttributableNodeLinkTest.testCreateLink", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testCreateLink", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity());
             EntityNode* target = world.createEntity(Model::Entity());
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             ASSERT_EQ(source, sources.front());
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testCreateMultiSourceLink", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source1 = world.createEntity(Model::Entity());
             EntityNode* source2 = world.createEntity(Model::Entity());
@@ -93,7 +93,7 @@ namespace TrenchBroom {
         }
 
 
-        TEST_CASE("AttributableNodeLinkTest.testCreateMultiTargetLink", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity());
             EntityNode* target1 = world.createEntity(Model::Entity());
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             ASSERT_EQ(source, sources2.front());
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testLoadLink", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testLoadLink", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Target, "target_name"}
@@ -152,7 +152,7 @@ namespace TrenchBroom {
             ASSERT_EQ(source, sources.front());
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByChangingSource", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Target, "target_name"}
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(sources.empty());
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByChangingTarget", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Target, "target_name"}
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(sources.empty());
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByRemovingSource", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Target, "target_name"}
@@ -221,7 +221,7 @@ namespace TrenchBroom {
             delete source;
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByRemovingTarget", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Target, "target_name"}
@@ -244,7 +244,7 @@ namespace TrenchBroom {
             delete target;
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testCreateKillLink", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testCreateKillLink", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity());
             EntityNode* target = world.createEntity(Model::Entity());
@@ -268,7 +268,7 @@ namespace TrenchBroom {
             ASSERT_EQ(source, sources.front());
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testLoadKillLink", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testLoadKillLink", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Killtarget, "target_name"}
@@ -289,7 +289,7 @@ namespace TrenchBroom {
             ASSERT_EQ(source, sources.front());
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByChangingSource", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Killtarget, "target_name"}
@@ -312,7 +312,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(sources.empty());
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByChangingTarget", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Killtarget, "target_name"}
@@ -335,7 +335,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(sources.empty());
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByRemovingSource", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Killtarget, "target_name"}
@@ -358,7 +358,7 @@ namespace TrenchBroom {
             delete source;
         }
 
-        TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByRemovingTarget", "[AttributableNodeLinkTest]") {
+        TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget", "[EntityNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 { PropertyKeys::Killtarget, "target_name"}

@@ -35,13 +35,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SetEntityAttributesTest : public MapDocumentTest {
+        class SetEntityPropertiesTest : public MapDocumentTest {
         public:
-            SetEntityAttributesTest() :
+            SetEntityPropertiesTest() :
             MapDocumentTest(Model::MapFormat::Valve) {}
         };
 
-        TEST_CASE_METHOD(SetEntityAttributesTest, "SetEntityAttributesTest.changeClassname") {
+        TEST_CASE_METHOD(SetEntityPropertiesTest, "SetEntityPropertiesTest.changeClassname") {
             // need to recreate these because document->setEntityDefinitions will delete the old ones
             m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {});
 
