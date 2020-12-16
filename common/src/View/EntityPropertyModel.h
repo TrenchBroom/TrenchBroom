@@ -35,9 +35,6 @@ namespace TrenchBroom {
     namespace View {
         class MapDocument;
 
-        using AttribRow = std::tuple<QString, QString>;
-        using RowList = std::vector<AttribRow>;
-
         enum class ValueType {
             /**
              * No entities have this key set; the provided value is the default from the entity definition
