@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class ColorTable;
         class MapDocument;
 
-        class SmartColorEditor : public SmartAttributeEditor {
+        class SmartColorEditor : public SmartPropertyEditor {
             Q_OBJECT
         private:
             static const size_t ColorHistoryCellSize = 15;

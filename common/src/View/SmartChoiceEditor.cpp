@@ -37,9 +37,9 @@
 namespace TrenchBroom {
     namespace View {
         SmartChoiceEditor::SmartChoiceEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
-        SmartAttributeEditor(std::move(document), parent),
-        m_comboBox(nullptr),
-        m_ignoreEditTextChanged(false) {
+            SmartPropertyEditor(std::move(document), parent),
+            m_comboBox(nullptr),
+            m_ignoreEditTextChanged(false) {
             createGui();
         }
 
@@ -48,12 +48,12 @@ namespace TrenchBroom {
 
             const auto valueDescStr = mapStringFromUnicode(document()->encoding(), m_comboBox->currentText());
             const auto valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
-            document()->setProperty(name(), valueStr);
+            document()->setProperty(propertyKey(), valueStr);
         }
 
         void SmartChoiceEditor::comboBoxEditTextChanged(const QString& text) {
             if (!m_ignoreEditTextChanged) {
-                document()->setProperty(name(), mapStringFromUnicode(document()->encoding(), text));
+                document()->setProperty(propertyKey(), mapStringFromUnicode(document()->encoding(), text));
             }
         }
 
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);
             m_comboBox->clear();
 
-            const auto* attrDef = Model::selectPropertyDefinition(name(), attributables);
+            const auto* attrDef = Model::selectPropertyDefinition(propertyKey(), attributables);
             if (attrDef == nullptr || attrDef->type() != Assets::PropertyDefinitionType::ChoiceProperty) {
                 m_comboBox->setDisabled(true);
             } else {
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                     m_comboBox->addItem(mapStringToUnicode(document()->encoding(), option.value() + " : " + option.description()));
                 }
 
-                const auto value = Model::selectPRopertyValue(name(), attributables);
+                const auto value = Model::selectPRopertyValue(propertyKey(), attributables);
                 m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
             }
         }

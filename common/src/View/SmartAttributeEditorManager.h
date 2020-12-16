@@ -36,12 +36,12 @@ namespace TrenchBroom {
     namespace View {
         class MapDocument;
         class Selection;
-        class SmartAttributeEditor;
+        class SmartPropertyEditor;
         class SmartAttributeEditorMatcher;
 
         class SmartAttributeEditorManager : public QWidget {
         private:
-            using EditorPtr = SmartAttributeEditor*;
+            using EditorPtr = SmartPropertyEditor*;
             using MatcherPtr = std::shared_ptr<SmartAttributeEditorMatcher>;
             using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
             using EditorList = std::vector<MatcherEditorPair>;
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             void switchEditor(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables);
             bool isDefaultEditorActive() const;
         private:
-            SmartAttributeEditor* activeEditor() const;
+            SmartPropertyEditor* activeEditor() const;
             void createEditors();
 
             void bindObservers();

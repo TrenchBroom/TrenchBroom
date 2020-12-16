@@ -57,8 +57,8 @@ namespace TrenchBroom {
             updateEditor();
         }
 
-        SmartAttributeEditor* SmartAttributeEditorManager::activeEditor() const {
-            return static_cast<SmartAttributeEditor *>(m_stackedLayout->currentWidget());
+        SmartPropertyEditor* SmartAttributeEditorManager::activeEditor() const {
+            return static_cast<SmartPropertyEditor *>(m_stackedLayout->currentWidget());
         }
 
         bool SmartAttributeEditorManager::isDefaultEditorActive() const {
@@ -127,7 +127,7 @@ namespace TrenchBroom {
         }
 
         void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const std::string& name) {
-            if (m_stackedLayout->currentWidget() != editor || !activeEditor()->usesName(name)) {
+            if (m_stackedLayout->currentWidget() != editor || !activeEditor()->usesPropertyKey(name)) {
                 deactivateEditor();
 
                 m_name = name;

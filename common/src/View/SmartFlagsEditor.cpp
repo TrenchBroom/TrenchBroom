@@ -42,10 +42,10 @@ namespace TrenchBroom {
         class MapDocument;
 
         SmartFlagsEditor::SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
-        SmartAttributeEditor(document, parent),
-        m_scrolledWindow(nullptr),
-        m_flagsEditor(nullptr),
-        m_ignoreUpdates(false) {
+            SmartPropertyEditor(document, parent),
+            m_scrolledWindow(nullptr),
+            m_flagsEditor(nullptr),
+            m_ignoreUpdates(false) {
             createGui();
         }
 
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                     QString tooltip = "";
 
                     const Assets::FlagsPropertyDefinition* attrDef = Assets::EntityDefinition::safeGetFlagsPropertyDefinition(
-                        attributable->entity().definition(), name());
+                        attributable->entity().definition(), propertyKey());
                     if (attrDef != nullptr) {
                         const int flag = static_cast<int>(1 << i);
                         const Assets::FlagsPropertyOption* flagDef = attrDef->option(flag);
@@ -142,7 +142,7 @@ namespace TrenchBroom {
         }
 
         int SmartFlagsEditor::getFlagValue(const Model::EntityNodeBase* attributable) const {
-            if (const auto* value = attributable->entity().property(name())) {
+            if (const auto* value = attributable->entity().property(propertyKey())) {
                 return kdl::str_to_int(*value).value_or(0);
             } else {
                 return 0;
@@ -150,13 +150,13 @@ namespace TrenchBroom {
         }
 
         void SmartFlagsEditor::flagChanged(const size_t index, const int /* value */, const int /* setFlag */, const int /* mixedFlag */) {
-            const std::vector<Model::EntityNodeBase*>& toUpdate = attributables();
+            const std::vector<Model::EntityNodeBase*>& toUpdate = nodes();
             if (toUpdate.empty())
                 return;
 
             const bool set = m_flagsEditor->isFlagSet(index);
             const kdl::set_temp ignoreUpdates(m_ignoreUpdates);
-            document()->updateSpawnflag(name(), index, set);
+            document()->updateSpawnflag(propertyKey(), index, set);
         }
     }
 }

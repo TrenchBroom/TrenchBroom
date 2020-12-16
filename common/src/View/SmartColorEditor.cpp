@@ -47,11 +47,11 @@
 namespace TrenchBroom {
     namespace View {
         SmartColorEditor::SmartColorEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
-        SmartAttributeEditor(document, parent),
-        m_floatRadio(nullptr),
-        m_byteRadio(nullptr),
-        m_colorPicker(nullptr),
-        m_colorHistory(nullptr) {
+            SmartPropertyEditor(document, parent),
+            m_floatRadio(nullptr),
+            m_byteRadio(nullptr),
+            m_colorPicker(nullptr),
+            m_colorHistory(nullptr) {
             createGui();
         }
 
@@ -109,7 +109,7 @@ namespace TrenchBroom {
         }
 
         void SmartColorEditor::updateColorRange(const std::vector<Model::EntityNodeBase*>& attributables) {
-            const auto range = detectColorRange(name(), attributables);
+            const auto range = detectColorRange(propertyKey(), attributables);
             if (range == Assets::ColorRange::Float) {
                 m_floatRadio->setChecked(true);
                 m_byteRadio->setChecked(false);
@@ -175,9 +175,9 @@ namespace TrenchBroom {
         }
 
         void SmartColorEditor::updateColorHistory() {
-            m_colorHistory->setColors(collectColors(std::vector<Model::Node*>{document()->world()}, name()));
+            m_colorHistory->setColors(collectColors(std::vector<Model::Node*>{document()->world()}, propertyKey()));
 
-            const auto selectedColors = collectColors(document()->allSelectedEntityNodes(), name());
+            const auto selectedColors = collectColors(document()->allSelectedEntityNodes(), propertyKey());
             m_colorHistory->setSelection(selectedColors);
             m_colorPicker->setColor(!selectedColors.empty() ? selectedColors.back() : QColor(Qt::black));
         }
@@ -185,15 +185,15 @@ namespace TrenchBroom {
         void SmartColorEditor::setColor(const QColor& color) const {
             const auto colorRange = m_floatRadio->isChecked() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
             const auto value = Model::entityColorAsString(fromQColor(color), colorRange);
-            document()->setProperty(name(), value);
+            document()->setProperty(propertyKey(), value);
         }
 
         void SmartColorEditor::floatRangeRadioButtonClicked() {
-            document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
+            document()->convertEntityColorRange(propertyKey(), Assets::ColorRange::Float);
         }
 
         void SmartColorEditor::byteRangeRadioButtonClicked() {
-            document()->convertEntityColorRange(name(), Assets::ColorRange::Byte);
+            document()->convertEntityColorRange(propertyKey(), Assets::ColorRange::Byte);
         }
 
         void SmartColorEditor::colorPickerChanged(const QColor& color) {

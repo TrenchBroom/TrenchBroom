@@ -33,30 +33,30 @@ namespace TrenchBroom {
     namespace View {
         class MapDocument;
 
-        class SmartAttributeEditor : public QWidget {
+        class SmartPropertyEditor : public QWidget {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
 
-            std::string m_name;
-            std::vector<Model::EntityNodeBase*> m_attributables;
+            std::string m_propertyKey;
+            std::vector<Model::EntityNodeBase*> m_nodes;
             bool m_active;
         public:
-            explicit SmartAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            virtual ~SmartAttributeEditor();
+            explicit SmartPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            virtual ~SmartPropertyEditor();
 
-            bool usesName(const std::string& name) const;
+            bool usesPropertyKey(const std::string& propertyKey) const;
 
-            void activate(const std::string& name);
-            void update(const std::vector<Model::EntityNodeBase*>& attributables);
+            void activate(const std::string& propertyKey);
+            void update(const std::vector<Model::EntityNodeBase*>& nodes);
             void deactivate();
         protected:
             std::shared_ptr<MapDocument> document() const;
-            const std::string& name() const;
-            const std::vector<Model::EntityNodeBase*> attributables() const;
-            void addOrUpdateAttribute(const std::string& value);
+            const std::string& propertyKey() const;
+            const std::vector<Model::EntityNodeBase*> nodes() const;
+            void addOrUpdateProperty(const std::string& value);
         private:
-            virtual void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) = 0;
+            virtual void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) = 0;
         };
     }
 }

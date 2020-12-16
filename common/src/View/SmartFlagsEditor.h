@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class FlagsEditor;
         class MapDocument;
 
-        class SmartFlagsEditor : public SmartAttributeEditor {
+        class SmartFlagsEditor : public SmartPropertyEditor {
             Q_OBJECT
         private:
             static const size_t NumFlags = 24;

@@ -30,48 +30,48 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditor::SmartAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
+        SmartPropertyEditor::SmartPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_active(false) {}
 
-        SmartAttributeEditor::~SmartAttributeEditor() {}
+        SmartPropertyEditor::~SmartPropertyEditor() {}
 
-        void SmartAttributeEditor::activate(const std::string& name) {
+        void SmartPropertyEditor::activate(const std::string& propertyKey) {
             assert(!m_active);
-            m_name = name;
+            m_propertyKey = propertyKey;
             m_active = true;
         }
 
-        void SmartAttributeEditor::update(const std::vector<Model::EntityNodeBase*>& attributables) {
-            m_attributables = attributables;
-            doUpdateVisual(m_attributables);
+        void SmartPropertyEditor::update(const std::vector<Model::EntityNodeBase*>& nodes) {
+            m_nodes = nodes;
+            doUpdateVisual(m_nodes);
         }
 
-        void SmartAttributeEditor::deactivate() {
+        void SmartPropertyEditor::deactivate() {
             m_active = false;
-            m_name = "";
+            m_propertyKey = "";
         }
 
-        bool SmartAttributeEditor::usesName(const std::string& name) const {
-            return m_name == name;
+        bool SmartPropertyEditor::usesPropertyKey(const std::string& propertyKey) const {
+            return m_propertyKey == propertyKey;
         }
 
-        std::shared_ptr<MapDocument> SmartAttributeEditor::document() const {
+        std::shared_ptr<MapDocument> SmartPropertyEditor::document() const {
             return kdl::mem_lock(m_document);
         }
 
-        const std::string& SmartAttributeEditor::name() const {
-            return m_name;
+        const std::string& SmartPropertyEditor::propertyKey() const {
+            return m_propertyKey;
         }
 
-        const std::vector<Model::EntityNodeBase*> SmartAttributeEditor::attributables() const {
-            return m_attributables;
+        const std::vector<Model::EntityNodeBase*> SmartPropertyEditor::nodes() const {
+            return m_nodes;
         }
 
-        void SmartAttributeEditor::addOrUpdateAttribute(const std::string& value) {
+        void SmartPropertyEditor::addOrUpdateProperty(const std::string& value) {
             assert(m_active);
-            document()->setProperty(m_name, value);
+            document()->setProperty(m_propertyKey, value);
         }
     }
 }

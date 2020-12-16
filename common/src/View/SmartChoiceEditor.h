@@ -37,7 +37,7 @@ namespace TrenchBroom {
     namespace View {
         class MapDocument;
 
-        class SmartChoiceEditor : public SmartAttributeEditor {
+        class SmartChoiceEditor : public SmartPropertyEditor {
             Q_OBJECT
         private:
             QComboBox* m_comboBox;

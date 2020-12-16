@@ -31,7 +31,7 @@ namespace TrenchBroom {
         /**
          * Placeholder for when there is no smart editor. Just an empty QWidget.
          */
-        class SmartDefaultAttributeEditor : public SmartAttributeEditor {
+        class SmartDefaultAttributeEditor : public SmartPropertyEditor {
             Q_OBJECT
         public:
             explicit SmartDefaultAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
