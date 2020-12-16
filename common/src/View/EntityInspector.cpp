@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         QWidget* EntityInspector::createAttributeEditor(QWidget* parent, std::weak_ptr<MapDocument> document) {
-            m_attributeEditor = new EntityAttributeEditor(std::move(document), parent);
+            m_attributeEditor = new EntityPropertyEditor(std::move(document), parent);
             return m_attributeEditor;
         }
 

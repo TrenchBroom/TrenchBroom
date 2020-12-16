@@ -40,50 +40,50 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeEditor::EntityAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
+        EntityPropertyEditor::EntityPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
         m_splitter(nullptr),
-        m_attributeGrid(nullptr),
+        m_propertyGrid(nullptr),
         m_smartEditorManager(nullptr),
         m_documentationText(nullptr),
         m_currentDefinition(nullptr) {
-            createGui(document);
-            bindObservers();
+        createGui(document);
+        bindObservers();
         }
 
-        EntityAttributeEditor::~EntityAttributeEditor() {
+        EntityPropertyEditor::~EntityPropertyEditor() {
             unbindObservers();
             saveWindowState(m_splitter);
         }
 
-        void EntityAttributeEditor::OnCurrentRowChanged() {
+        void EntityPropertyEditor::OnCurrentRowChanged() {
             updateDocumentationAndSmartEditor();
         }
 
-        void EntityAttributeEditor::bindObservers() {
+        void EntityPropertyEditor::bindObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &EntityAttributeEditor::selectionDidChange);
-            document->nodesDidChangeNotifier.addObserver(this, &EntityAttributeEditor::nodesDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &EntityPropertyEditor::selectionDidChange);
+            document->nodesDidChangeNotifier.addObserver(this, &EntityPropertyEditor::nodesDidChange);
         }
 
-        void EntityAttributeEditor::unbindObservers() {
+        void EntityPropertyEditor::unbindObservers() {
             if (!kdl::mem_expired(m_document)) {
                 auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::selectionDidChange);
-                document->nodesDidChangeNotifier.removeObserver(this, &EntityAttributeEditor::nodesDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &EntityPropertyEditor::selectionDidChange);
+                document->nodesDidChangeNotifier.removeObserver(this, &EntityPropertyEditor::nodesDidChange);
             }
         }
 
-        void EntityAttributeEditor::selectionDidChange(const Selection&) {
+        void EntityPropertyEditor::selectionDidChange(const Selection&) {
             updateIfSelectedEntityDefinitionChanged();
         }
 
-        void EntityAttributeEditor::nodesDidChange(const std::vector<Model::Node*>&) {
+        void EntityPropertyEditor::nodesDidChange(const std::vector<Model::Node*>&) {
             updateIfSelectedEntityDefinitionChanged();
         }
 
-        void EntityAttributeEditor::updateIfSelectedEntityDefinitionChanged() {
+        void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged() {
             auto document = kdl::mem_lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(
                 document->allSelectedEntityNodes());
@@ -94,13 +94,13 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityAttributeEditor::updateDocumentationAndSmartEditor() {
+        void EntityPropertyEditor::updateDocumentationAndSmartEditor() {
             auto document = kdl::mem_lock(m_document);
-            const auto& attributeName = m_attributeGrid->selectedRowName();
+            const auto& propertyKey = m_propertyGrid->selectedRowName();
 
-            m_smartEditorManager->switchEditor(attributeName, document->allSelectedEntityNodes());
+            m_smartEditorManager->switchEditor(propertyKey, document->allSelectedEntityNodes());
 
-            updateDocumentation(attributeName);
+            updateDocumentation(propertyKey);
 
             // collapse the splitter if needed
             m_documentationText->setHidden(m_documentationText->document()->isEmpty());
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             updateMinimumSize();
         }
 
-        QString EntityAttributeEditor::optionDescriptions(const Assets::PropertyDefinition& definition) {
+        QString EntityPropertyEditor::optionDescriptions(const Assets::PropertyDefinition& definition) {
             const QString bullet = QString(" ") % QChar(0x2022) % QString(" ");
 
             switch (definition.type()) {
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityAttributeEditor::updateDocumentation(const std::string& attributeName) {
+        void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey) {
             auto document = kdl::mem_lock(m_document);
             const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(
                 document->allSelectedEntityNodes());
@@ -175,23 +175,23 @@ namespace TrenchBroom {
             QTextCharFormat normalFormat;
 
             if (entityDefinition != nullptr) {
-                // add attribute documentation, if available
-                const Assets::PropertyDefinition* attributeDefinition = entityDefinition->propertyDefinition(
-                    attributeName);
-                if (attributeDefinition != nullptr) {
-                    const QString optionsDescription = optionDescriptions(*attributeDefinition);
+                // add property documentation, if available
+                const Assets::PropertyDefinition* propertyDefinition = entityDefinition->propertyDefinition(
+                    propertyKey);
+                if (propertyDefinition != nullptr) {
+                    const QString optionsDescription = optionDescriptions(*propertyDefinition);
 
-                    const bool attributeHasDocs = !attributeDefinition->longDescription().empty()
-                                               || !attributeDefinition->shortDescription().empty()
-                                               || !optionsDescription.isEmpty();
+                    const bool propertyHasDocs = !propertyDefinition->longDescription().empty()
+                                                 || !propertyDefinition->shortDescription().empty()
+                                                 || !optionsDescription.isEmpty();
 
-                    if (attributeHasDocs) {
-                        // e.g. "Attribute "delay" (Attenuation formula)", in bold
+                    if (propertyHasDocs) {
+                        // e.g. "Property "delay" (Attenuation formula)", in bold
                         {
-                            QString title = tr("Attribute \"%1\"")
-                                .arg(QString::fromStdString(attributeDefinition->name()));
-                            if (!attributeDefinition->shortDescription().empty()) {
-                                title += tr(" (%1)").arg(QString::fromStdString(attributeDefinition->shortDescription()));
+                            QString title = tr("Property \"%1\"")
+                                .arg(QString::fromStdString(propertyDefinition->name()));
+                            if (!propertyDefinition->shortDescription().empty()) {
+                                title += tr(" (%1)").arg(QString::fromStdString(propertyDefinition->shortDescription()));
                             }
 
                             m_documentationText->setCurrentCharFormat(boldFormat);
@@ -199,9 +199,9 @@ namespace TrenchBroom {
                             m_documentationText->setCurrentCharFormat(normalFormat);
                         }
 
-                        if (!attributeDefinition->longDescription().empty()) {
+                        if (!propertyDefinition->longDescription().empty()) {
                             m_documentationText->append("");
-                            m_documentationText->append(attributeDefinition->longDescription().c_str());
+                            m_documentationText->append(propertyDefinition->longDescription().c_str());
                         }
 
                         if (!optionsDescription.isEmpty()) {
@@ -214,7 +214,7 @@ namespace TrenchBroom {
 
                 // add class description, if available
                 if (!entityDefinition->description().empty()) {
-                    // add space after attribute text
+                    // add space after property text
                     if (!m_documentationText->document()->isEmpty()) {
                         m_documentationText->append("");
                     }
@@ -237,34 +237,36 @@ namespace TrenchBroom {
             m_documentationText->moveCursor(QTextCursor::MoveOperation::Start);
         }
 
-        void EntityAttributeEditor::createGui(std::weak_ptr<MapDocument> document) {
+        void EntityPropertyEditor::createGui(std::weak_ptr<MapDocument> document) {
             m_splitter = new Splitter(Qt::Vertical);
+
+            // This class has since been renamed, but we leave the old name so as not to reset the users' view settings.
             m_splitter->setObjectName("EntityAttributeEditor_Splitter");
 
-            m_attributeGrid = new EntityAttributeGrid(document);
+            m_propertyGrid = new EntityAttributeGrid(document);
             m_smartEditorManager = new SmartAttributeEditorManager(document);
             m_documentationText = new QTextEdit();
             m_documentationText->setReadOnly(true);
 
-            m_splitter->addWidget(m_attributeGrid);
+            m_splitter->addWidget(m_propertyGrid);
             m_splitter->addWidget(m_smartEditorManager);
             m_splitter->addWidget(m_documentationText);
 
-            // give most space to the attribute grid
+            // give most space to the property grid
             m_splitter->setSizes(QList<int>{1'000'000, 1, 1});
 
             // NOTE: this should be done before setChildrenCollapsible() and setMinimumSize()
             // otherwise it can override them.
             restoreWindowState(m_splitter);
 
-            m_attributeGrid->setMinimumSize(100, 100); // should have enough vertical space for at least one row
+            m_propertyGrid->setMinimumSize(100, 100); // should have enough vertical space for at least one row
             m_documentationText->setMinimumSize(100, 50);
             updateMinimumSize();
 
             // don't allow the user to collapse the panels, it's hard to see them
             m_splitter->setChildrenCollapsible(false);
 
-            // resize only the attribute grid when the container resizes
+            // resize only the property grid when the container resizes
             m_splitter->setStretchFactor(0, 1);
             m_splitter->setStretchFactor(1, 0);
             m_splitter->setStretchFactor(2, 0);
@@ -274,13 +276,13 @@ namespace TrenchBroom {
             layout->addWidget(m_splitter, 1);
             setLayout(layout);
 
-            connect(m_attributeGrid, &EntityAttributeGrid::currentRowChanged, this, &EntityAttributeEditor::OnCurrentRowChanged);
+            connect(m_propertyGrid, &EntityAttributeGrid::currentRowChanged, this, &EntityPropertyEditor::OnCurrentRowChanged);
         }
 
-        void EntityAttributeEditor::updateMinimumSize() {
+        void EntityPropertyEditor::updateMinimumSize() {
             QSize size;
-            size.setWidth(m_attributeGrid->minimumWidth());
-            size.setHeight(m_attributeGrid->minimumHeight());
+            size.setWidth(m_propertyGrid->minimumWidth());
+            size.setHeight(m_propertyGrid->minimumHeight());
 
             size.setWidth(std::max(size.width(), m_smartEditorManager->minimumSizeHint().width()));
             size.setHeight(size.height() + m_smartEditorManager->minimumSizeHint().height());

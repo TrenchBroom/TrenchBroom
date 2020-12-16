@@ -27,9 +27,9 @@ class QSplitter;
 
 namespace TrenchBroom {
     namespace View {
-        class EntityAttributeEditor;
         class EntityBrowser;
         class EntityDefinitionFileChooser;
+        class EntityPropertyEditor;
         class GLContextManager;
         class MapDocument;
 
@@ -37,7 +37,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             QSplitter* m_splitter;
-            EntityAttributeEditor* m_attributeEditor;
+            EntityPropertyEditor* m_attributeEditor;
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:

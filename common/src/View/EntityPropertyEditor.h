@@ -45,21 +45,21 @@ namespace TrenchBroom {
         class SmartAttributeEditorManager;
 
         /**
-         * Panel containing the EntityAttributeGrid (the key/value editor table),
+         * Panel containing the EntityPropertyGrid (the key/value editor table),
          * smart editor, and documentation text view.
          */
-        class EntityAttributeEditor : public QWidget {
+        class EntityPropertyEditor : public QWidget {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
             QSplitter* m_splitter;
-            EntityAttributeGrid* m_attributeGrid;
+            EntityAttributeGrid* m_propertyGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
             QTextEdit* m_documentationText;
             const Assets::EntityDefinition* m_currentDefinition;
         public:
-            explicit EntityAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~EntityAttributeEditor() override;
+            explicit EntityPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~EntityPropertyEditor() override;
         private:
             void OnCurrentRowChanged();
 
@@ -73,12 +73,12 @@ namespace TrenchBroom {
             void updateDocumentationAndSmartEditor();
 
             /**
-             * Returns a description of the options for ChoiceAttributeOption and FlagsAttributeDefinition,
+             * Returns a description of the options for ChoicePropertyOption and FlagsPropertyDefinition,
              * other subclasses return an empty string.
              */
             static QString optionDescriptions(const Assets::PropertyDefinition& definition);
 
-            void updateDocumentation(const std::string& attributeName);
+            void updateDocumentation(const std::string& propertyKey);
             void createGui(std::weak_ptr<MapDocument> document);
 
             void updateMinimumSize();
