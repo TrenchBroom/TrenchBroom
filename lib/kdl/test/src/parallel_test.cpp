@@ -21,10 +21,46 @@
 
 #include "kdl/parallel.h"
 
+#include <array>
+#include <atomic>
 #include <string>
 #include <vector>
 
 namespace kdl {
+    TEST_CASE("for 0", "[parallel_test]") {
+        bool ran = false;
+        kdl::parallel_for(0, [&](size_t){ ran = true; });
+        CHECK(!ran);
+    }
+
+    TEST_CASE("for 10000", "[parallel_test]") {
+        constexpr size_t TestSize = 10'000;
+        
+        std::array<std::atomic<size_t>, TestSize> indices;
+        for (size_t i = 0; i < TestSize; ++i) {
+            indices[i] = 0;
+        }
+
+        // fill `indices` with 1, ..., TestSize
+        bool failed = false;
+        kdl::parallel_for(indices.size(), [&](const size_t i) {
+            if (i >= TestSize) {
+                failed = true;
+                return;
+            }
+            const size_t oldValue = std::atomic_fetch_add(&indices[i], i + 1);
+            if (oldValue != 0) {
+                failed = true;
+            }
+        });
+        
+        CHECK(!failed);
+        for (size_t i = 0; i < TestSize; ++i) {
+            const size_t expected = (i + 1);
+            CHECK(indices[i] == expected);
+        }
+    }
+
     TEST_CASE("transform", "[parallel_test]") {
         const auto L = [](const int& v) { return v * 10; };
 

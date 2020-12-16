@@ -35,11 +35,13 @@
 
 #include <kdl/map_utils.h>
 #include <kdl/overload.h>
+#include <kdl/parallel.h>
 #include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <cassert>
 #include <map>
 #include <string>
 #include <vector>
@@ -79,12 +81,14 @@ namespace TrenchBroom {
         void MapReader::readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseEntities(format, status);
+            createNodes(status);
             resolveNodes(status);
         }
 
         void MapReader::readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushes(format, status);
+            createNodes(status);
         }
 
         void MapReader::readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
@@ -92,43 +96,40 @@ namespace TrenchBroom {
             parseBrushFaces(format, status);
         }
 
+        // implement MapParser interface
+
         void MapReader::onFormatSet(const Model::MapFormat format) {
             m_factory = &initialize(format);
         }
 
-        void MapReader::onBeginEntity(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            const EntityType type = entityType(attributes);
-            switch (type) {
-                case EntityType_Layer:
-                    createLayer(line, attributes, extraAttributes, status);
-                    break;
-                case EntityType_Group:
-                    createGroup(line, attributes, extraAttributes, status);
-                    break;
-                case EntityType_Worldspawn:
-                    m_brushParent = onWorldspawn(attributes, extraAttributes, status);
-                    break;
-                case EntityType_Default:
-                    createEntity(line, attributes, extraAttributes, status);
-                    break;
-            }
+        void MapReader::onBeginEntity(const size_t /* line */, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+            const size_t brushesBegin = m_brushInfos.size();
+
+            m_entityInfos.push_back(EntityInfo{0, 0, attributes, extraAttributes, brushesBegin, brushesBegin});
         }
 
-        void MapReader::onEndEntity(const size_t startLine, const size_t lineCount, ParserStatus& status) {
-            if (m_currentNode != nullptr)
-                setFilePosition(m_currentNode, startLine, lineCount);
-            else
-                onWorldspawnFilePosition(startLine, lineCount, status);
-            m_currentNode = nullptr;
-            m_brushParent = nullptr;
+        void MapReader::onEndEntity(const size_t startLine, const size_t lineCount, ParserStatus& /* status */) {
+            EntityInfo& entity = m_entityInfos.back();
+            entity.startLine = startLine;
+            entity.lineCount = lineCount;
         }
 
         void MapReader::onBeginBrush(const size_t /* line */, ParserStatus& /* status */) {
-            assert(m_faces.empty());
+            m_brushInfos.push_back(BrushInfo{{}, 0, 0, {}});
         }
 
-        void MapReader::onEndBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            createBrush(startLine, lineCount, extraAttributes, status);
+        void MapReader::onEndBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+            BrushInfo& brush = m_brushInfos.back();
+            brush.startLine = startLine;
+            brush.lineCount = lineCount;
+            brush.extraAttributes = extraAttributes;
+
+            // if there is an open entity, extend its brushes end
+            if (!m_entityInfos.empty()) {
+                EntityInfo& entity = m_entityInfos.back();
+                ++entity.brushesEnd;
+                assert(entity.brushesEnd == m_brushInfos.size());
+            }
         }
 
         void MapReader::onStandardBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
@@ -157,6 +158,61 @@ namespace TrenchBroom {
                         status.error(line, kdl::str_to_string("Skipping face: ", e));
                     }
                 ));
+        }
+
+        // helper methods
+
+        void MapReader::createNodes(ParserStatus& status) {
+            auto loadedBrushes = loadBrushes(status);
+
+            for (EntityInfo& info : m_entityInfos) {
+                createNode(info, loadedBrushes, status);
+            }
+
+            // handle the case of parsing no entities, but a list of brushes (NodeReader)
+            if (m_entityInfos.empty()) {
+                for (LoadedBrush& loadedBrush : loadedBrushes) {
+                    createBrush(std::move(*loadedBrush.brush), nullptr, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
+                }
+            }
+        }
+
+        void MapReader::createNode(EntityInfo& info, std::vector<LoadedBrush>& loadedBrushes, ParserStatus& status) {
+            const auto& attributes = info.attributes;
+            const auto& extraAttributes = info.extraAttributes;
+            const size_t line = info.startLine;
+            const size_t startLine = info.startLine;
+            const size_t lineCount = info.lineCount;
+
+            const EntityType type = entityType(attributes);
+            switch (type) {
+                case EntityType_Layer:
+                    createLayer(line, attributes, extraAttributes, status);
+                    break;
+                case EntityType_Group:
+                    createGroup(line, attributes, extraAttributes, status);
+                    break;
+                case EntityType_Worldspawn:
+                    m_brushParent = onWorldspawn(attributes, extraAttributes, status);
+                    break;
+                case EntityType_Default:
+                    createEntity(line, attributes, extraAttributes, status);
+                    break;
+            }
+
+            // add brushes
+            for (size_t i = info.brushesBegin; i < info.brushesEnd; ++i) {
+                LoadedBrush& loadedBrush = loadedBrushes.at(i);
+                createBrush(std::move(*loadedBrush.brush), m_brushParent, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
+            }
+
+            // cleanup
+            if (m_currentNode != nullptr)
+                setFilePosition(m_currentNode, startLine, lineCount);
+            else
+                onWorldspawnFilePosition(startLine, lineCount, status);
+            m_currentNode = nullptr;
+            m_brushParent = nullptr;
         }
 
         void MapReader::createLayer(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
@@ -260,23 +316,21 @@ namespace TrenchBroom {
             m_brushParent = entity;
         }
 
-        void MapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            Model::Brush::create(m_worldBounds, std::move(m_faces))
+        void MapReader::createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+            std::move(brush)
                 .and_then(
                     [&](Model::Brush&& b) {
                         Model::BrushNode* brushNode = m_factory->createBrush(std::move(b));
                         setFilePosition(brushNode, startLine, lineCount);
                         setExtraAttributes(brushNode, extraAttributes);
-                        
-                        onBrush(m_brushParent, brushNode, status);
-                        m_faces.clear();
-                        
+
+                        onBrush(parent, brushNode, status);
+
                         return kdl::void_result;
                     }
                 ).handle_errors(
                     [&](const Model::BrushError e) {
                         status.error(startLine, kdl::str_to_string("Skipping brush: ", e));
-                        m_faces.clear();
                     }
                 );
         }
@@ -352,6 +406,25 @@ namespace TrenchBroom {
             }
         }
 
+        /**
+         * Transforms m_brushInfos into a vector of LoadedBrush (leaving m_brushInfos empty).
+         */
+        std::vector<MapReader::LoadedBrush> MapReader::loadBrushes(ParserStatus& /* status */) {
+            // In parallel, create Brush objects (moving faces out of m_brushInfos)
+            auto loadedBrushes = kdl::vec_parallel_transform(std::move(m_brushInfos), [&](BrushInfo&& brushInfo) {
+                LoadedBrush result;
+                result.brush = std::make_optional(Model::Brush::create(m_worldBounds, std::move(brushInfo.faces)));
+                result.extraAttributes = std::move(brushInfo.extraAttributes);
+                result.startLine = brushInfo.startLine;
+                result.lineCount = brushInfo.lineCount;
+                return result;
+            });
+
+            assert(m_brushInfos.empty());
+
+            return loadedBrushes;
+        }
+
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
             if (parentInfo.layer()) {
                 const Model::IdType layerId = parentInfo.id();
@@ -387,8 +460,14 @@ namespace TrenchBroom {
             }
         }
 
+        /**
+         * Default implementation adds it to the current BrushInfo
+         * Overridden in BrushFaceReader (which doesn't use m_brushInfos) to collect the faces directly
+         */
         void MapReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */) {
-            m_faces.push_back(std::move(face));
+            assert(!m_brushInfos.empty());
+            BrushInfo& brush = m_brushInfos.back();
+            brush.faces.push_back(std::move(face));
         }
     }
 }

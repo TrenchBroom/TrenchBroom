@@ -764,7 +764,13 @@ namespace TrenchBroom {
             if (!confirmOrDiscardChanges()) {
                 return false;
             }
+            const auto startTime = std::chrono::high_resolution_clock::now();
             m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);
+            const auto endTime = std::chrono::high_resolution_clock::now();
+
+            logger().info() << "Loaded " << m_document->path() << " in "
+                                         << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
+
             return true;
         }
 

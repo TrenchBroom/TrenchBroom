@@ -26,27 +26,19 @@
 
 namespace kdl {
     /**
-     * Applies the given lambda to each element of the input (passing elements as const lvalue references),
-     * and returns a vector of the resulting values, in their original order.
-     * 
-     * The lambda is executed in parallel, using the number of threads returned by std::thread::hardware_concurrency().
-     * 
+     * Runs the given lambda `count` times, passing it indices `0` through `count - 1`.
+     *
+     * Lambda is executed in parallel, using the number of threads returned by std::thread::hardware_concurrency().
+     *
      * Because the threads are spawned with std::async(std::launch::async, ...) and no thread pool is used,
      * there is a relatively large overhead and this should only be used on large/slow to process data sets.
      *
-     * @tparam T the type of the vector elements
-     * @tparam L the type of the lambda to apply
-     * @param input the vector
-     * @param transform the lambda to apply, must be of type `auto(const T&)`
-     * @return a vector containing the transformed values
+     * @tparam L type of lambda
+     * @param count the maximum value (exclusive) to pass to lambda
+     * @param lambda the lambda to run
      */
-    template<class T, class L>
-    auto vec_parallel_transform(const std::vector<T>& input, L&& transform) {
-        using ResultType = decltype(transform(std::declval<const T&>()));
-
-        std::vector<ResultType> result;
-        result.resize(input.size());
-
+    template<class L>
+    void parallel_for(const size_t count, L&& lambda) {
         size_t numThreads = static_cast<size_t>(std::thread::hardware_concurrency());
         if (numThreads == 0) {
             numThreads = 1;
@@ -61,10 +53,10 @@ namespace kdl {
             threads[i] = std::async(std::launch::async, [&]() {
                 while (true) {
                     const size_t ourIndex = std::atomic_fetch_add(&nextIndex, static_cast<size_t>(1));
-                    if (ourIndex >= input.size()) {
+                    if (ourIndex >= count) {
                         break;
                     }
-                    result[ourIndex] = transform(input[ourIndex]);
+                    lambda(ourIndex);
                 }
             });
         }
@@ -72,6 +64,33 @@ namespace kdl {
         for (size_t i = 0; i < numThreads; ++i) {
             threads[i].wait();
         }
+    }
+
+    /**
+     * Applies the given lambda to each element of the input (passing elements as rvalue references),
+     * and returns a vector of the resulting values, in their original order.
+     * 
+     * The lambda is executed in parallel, using the number of threads returned by std::thread::hardware_concurrency().
+     * 
+     * Because the threads are spawned with std::async(std::launch::async, ...) and no thread pool is used,
+     * there is a relatively large overhead and this should only be used on large/slow to process data sets.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam L the type of the lambda to apply
+     * @param input the vector
+     * @param transform the lambda to apply, must be of type `auto(T&&)`
+     * @return a vector containing the transformed values
+     */
+    template<class T, class L>
+    auto vec_parallel_transform(std::vector<T> input, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T&&>()));
+
+        std::vector<ResultType> result;
+        result.resize(input.size());
+
+        parallel_for(input.size(), [&](const size_t index) {
+            result[index] = transform(std::move(input[index]));
+        });
 
         return result;
     }
