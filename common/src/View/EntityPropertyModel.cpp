@@ -716,15 +716,6 @@ namespace TrenchBroom {
             return QVariant();
         }
 
-        int EntityAttributeModel::rowForName(const std::string& name) const {
-            for (size_t i = 0; i < m_rows.size(); ++i) {
-                if (m_rows[i].name() == name) {
-                    return static_cast<int>(i);
-                }
-            }
-            return -1;
-        }
-
         bool EntityAttributeModel::canRemove(const int rowIndexInt) {
             if (rowIndexInt < 0 || static_cast<size_t>(rowIndexInt) >= m_rows.size()) {
                 return false;

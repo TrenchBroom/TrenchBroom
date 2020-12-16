@@ -143,7 +143,6 @@ namespace TrenchBroom {
             QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
         private: // helpers
-            int rowForName(const std::string& name) const;
             bool hasRowWithAttributeName(const std::string& name) const;
             bool renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::EntityNodeBase*>& attributables);
             bool updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& attributables);
