@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityAttributeItemDelegate.h"
+#include "EntityPropertyItemDelegate.h"
 
 #include "View/EntityAttributeModel.h"
 #include "View/EntityAttributeTable.h"
