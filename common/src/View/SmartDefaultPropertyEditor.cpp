@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SmartDefaultAttributeEditor.h"
+#include "SmartDefaultPropertyEditor.h"
 
 #include "Model/EntityNodeBase.h"
 

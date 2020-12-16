@@ -399,7 +399,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartTypeEditorMatcher.cpp
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
+        ${COMMON_SOURCE_DIR}/View/SmartDefaultPropertyEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartPropertyEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorManager.cpp
@@ -896,7 +896,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartTypeEditorMatcher.h
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
-        ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
+        ${COMMON_SOURCE_DIR}/View/SmartDefaultPropertyEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartPropertyEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorManager.h

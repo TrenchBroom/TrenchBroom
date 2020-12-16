@@ -25,7 +25,7 @@
 #include "View/SmartChoiceEditor.h"
 #include "View/SmartTypeEditorMatcher.h"
 #include "View/SmartColorEditor.h"
-#include "View/SmartDefaultAttributeEditor.h"
+#include "View/SmartDefaultPropertyEditor.h"
 #include "View/SmartFlagsEditor.h"
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartPropertyEditorMatcher.h"
