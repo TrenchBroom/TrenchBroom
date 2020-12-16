@@ -42,7 +42,7 @@ namespace TrenchBroom {
         class EntityPropertyGrid;
         class MapDocument;
         class Selection;
-        class SmartAttributeEditorManager;
+        class SmartPropertyEditorManager;
 
         /**
          * Panel containing the EntityPropertyGrid (the key/value editor table),
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
             QSplitter* m_splitter;
             EntityPropertyGrid* m_propertyGrid;
-            SmartAttributeEditorManager* m_smartEditorManager;
+            SmartPropertyEditorManager* m_smartEditorManager;
             QTextEdit* m_documentationText;
             const Assets::EntityDefinition* m_currentDefinition;
         public:

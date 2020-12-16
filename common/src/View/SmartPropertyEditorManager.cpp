@@ -37,35 +37,35 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditorManager::SmartAttributeEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent) :
-        QWidget(parent),
-        m_document(document),
-        m_name(""),
-        m_stackedLayout(nullptr) {
+        SmartPropertyEditorManager::SmartPropertyEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent) :
+            QWidget(parent),
+            m_document(document),
+            m_propertyKey(""),
+            m_stackedLayout(nullptr) {
             createEditors();
             activateEditor(defaultEditor(), "");
             bindObservers();
         }
 
-        SmartAttributeEditorManager::~SmartAttributeEditorManager() {
+        SmartPropertyEditorManager::~SmartPropertyEditorManager() {
             unbindObservers();
         }
 
-        void SmartAttributeEditorManager::switchEditor(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) {
-            EditorPtr editor = selectEditor(name, attributables);
-            activateEditor(editor, name);
+        void SmartPropertyEditorManager::switchEditor(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) {
+            EditorPtr editor = selectEditor(propertyKey, nodes);
+            activateEditor(editor, propertyKey);
             updateEditor();
         }
 
-        SmartPropertyEditor* SmartAttributeEditorManager::activeEditor() const {
+        SmartPropertyEditor* SmartPropertyEditorManager::activeEditor() const {
             return static_cast<SmartPropertyEditor *>(m_stackedLayout->currentWidget());
         }
 
-        bool SmartAttributeEditorManager::isDefaultEditorActive() const {
+        bool SmartPropertyEditorManager::isDefaultEditorActive() const {
             return activeEditor() == defaultEditor();
         }
 
-        void SmartAttributeEditorManager::createEditors() {
+        void SmartPropertyEditorManager::createEditors() {
             assert(m_editors.empty());
 
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeEditorMatcher(Assets::PropertyDefinitionType::FlagsProperty)),
@@ -85,34 +85,34 @@ namespace TrenchBroom {
             setLayout(m_stackedLayout);
         }
 
-        void SmartAttributeEditorManager::bindObservers() {
+        void SmartPropertyEditorManager::bindObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::selectionDidChange);
-            document->nodesDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::nodesDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::selectionDidChange);
+            document->nodesDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::nodesDidChange);
         }
 
-        void SmartAttributeEditorManager::unbindObservers() {
+        void SmartPropertyEditorManager::unbindObservers() {
             if (!kdl::mem_expired(m_document)) {
                 auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::selectionDidChange);
-                document->nodesDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::nodesDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::selectionDidChange);
+                document->nodesDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::nodesDidChange);
             }
         }
 
-        void SmartAttributeEditorManager::selectionDidChange(const Selection&) {
+        void SmartPropertyEditorManager::selectionDidChange(const Selection&) {
             auto document = kdl::mem_lock(m_document);
-            switchEditor(m_name, document->allSelectedEntityNodes());
+            switchEditor(m_propertyKey, document->allSelectedEntityNodes());
         }
 
-        void SmartAttributeEditorManager::nodesDidChange(const std::vector<Model::Node*>&) {
+        void SmartPropertyEditorManager::nodesDidChange(const std::vector<Model::Node*>&) {
             auto document = kdl::mem_lock(m_document);
-            switchEditor(m_name, document->allSelectedEntityNodes());
+            switchEditor(m_propertyKey, document->allSelectedEntityNodes());
         }
 
-        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const {
+        SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::selectEditor(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
             for (const auto& entry : m_editors) {
                 const MatcherPtr matcher = entry.first;
-                if (matcher->matches(name, attributables))
+                if (matcher->matches(propertyKey, nodes))
                     return entry.second;
             }
 
@@ -122,29 +122,29 @@ namespace TrenchBroom {
         }
 
 
-        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::defaultEditor() const {
+        SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::defaultEditor() const {
             return m_editors.back().second;
         }
 
-        void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const std::string& name) {
-            if (m_stackedLayout->currentWidget() != editor || !activeEditor()->usesPropertyKey(name)) {
+        void SmartPropertyEditorManager::activateEditor(EditorPtr editor, const std::string& propertyKey) {
+            if (m_stackedLayout->currentWidget() != editor || !activeEditor()->usesPropertyKey(propertyKey)) {
                 deactivateEditor();
 
-                m_name = name;
+                m_propertyKey = propertyKey;
                 m_stackedLayout->setCurrentWidget(editor);
-                editor->activate(m_name);
+                editor->activate(m_propertyKey);
             }
         }
 
-        void SmartAttributeEditorManager::deactivateEditor() {
+        void SmartPropertyEditorManager::deactivateEditor() {
             if (activeEditor() != nullptr) {
                 activeEditor()->deactivate();
                 m_stackedLayout->setCurrentIndex(-1);
-                m_name = "";
+                m_propertyKey = "";
             }
         }
 
-        void SmartAttributeEditorManager::updateEditor() {
+        void SmartPropertyEditorManager::updateEditor() {
             if (activeEditor() != nullptr) {
                 auto document = kdl::mem_lock(m_document);
                 activeEditor()->update(document->allSelectedEntityNodes());

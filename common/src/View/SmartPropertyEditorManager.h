@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class SmartPropertyEditor;
         class SmartAttributeEditorMatcher;
 
-        class SmartAttributeEditorManager : public QWidget {
+        class SmartPropertyEditorManager : public QWidget {
         private:
             using EditorPtr = SmartPropertyEditor*;
             using MatcherPtr = std::shared_ptr<SmartAttributeEditorMatcher>;
@@ -49,13 +49,13 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
 
             EditorList m_editors;
-            std::string m_name;
+            std::string m_propertyKey;
             QStackedLayout* m_stackedLayout;
         public:
-            explicit SmartAttributeEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~SmartAttributeEditorManager();
+            explicit SmartPropertyEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~SmartPropertyEditorManager();
 
-            void switchEditor(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables);
+            void switchEditor(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes);
             bool isDefaultEditorActive() const;
         private:
             SmartPropertyEditor* activeEditor() const;
@@ -67,10 +67,10 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
-            EditorPtr selectEditor(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const;
+            EditorPtr selectEditor(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const;
             EditorPtr defaultEditor() const;
 
-            void activateEditor(EditorPtr editor, const std::string& name);
+            void activateEditor(EditorPtr editor, const std::string& propertyKey);
             void deactivateEditor();
             void updateEditor();
         };
