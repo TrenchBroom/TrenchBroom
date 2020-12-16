@@ -28,11 +28,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityAttributeTable::EntityAttributeTable(QWidget* parent) :
+        EntityPropertyTable::EntityPropertyTable(QWidget* parent) :
         QTableView(parent),
         m_mousePressedOnSelectedCell(false) {}
 
-        void EntityAttributeTable::finishEditing(QWidget* editor) {
+        void EntityPropertyTable::finishEditing(QWidget* editor) {
             TABLE_LOG(qDebug() << "finish editing");
             commitData(editor);
             closeEditor(editor, QAbstractItemDelegate::EditNextItem);
@@ -41,14 +41,14 @@ namespace TrenchBroom {
         /**
          * Just for generating tooltips, keep in sync with isInsertRowShortcut
          */
-        QString EntityAttributeTable::insertRowShortcutString() {
+        QString EntityPropertyTable::insertRowShortcutString() {
             return QKeySequence(Qt::Key_Return | Qt::CTRL).toString(QKeySequence::NativeText);
         }
 
         /**
          * Just for generating tooltips, keep in sync with isRemoveRowsShortcut
          */
-        QString EntityAttributeTable::removeRowShortcutString() {
+        QString EntityPropertyTable::removeRowShortcutString() {
             return QObject::tr("%1 or %2")
                 .arg(QKeySequence(Qt::Key_Delete).toString(QKeySequence::NativeText))
                 .arg(QKeySequence(Qt::Key_Backspace).toString(QKeySequence::NativeText));
@@ -63,7 +63,7 @@ namespace TrenchBroom {
                 || (event->key() == Qt::Key_Backspace && event->modifiers() == 0);
         }
 
-        bool EntityAttributeTable::event(QEvent *event) {
+        bool EntityPropertyTable::event(QEvent *event) {
             if (event->type() == QEvent::ShortcutOverride) {
                 QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             return QTableView::event(event);
         }
 
-        void EntityAttributeTable::keyPressEvent(QKeyEvent* event) {
+        void EntityPropertyTable::keyPressEvent(QKeyEvent* event) {
             if (isInsertRowShortcut(event)) {
                 emit addRowShortcutTriggered();
                 return;
@@ -117,7 +117,7 @@ namespace TrenchBroom {
         /**
          * The decorations (padlock icon for locked cells) goes on the right of the text
          */
-        QStyleOptionViewItem EntityAttributeTable::viewOptions() const {
+        QStyleOptionViewItem EntityPropertyTable::viewOptions() const {
             QStyleOptionViewItem options = QTableView::viewOptions();
             options.decorationPosition = QStyleOptionViewItem::Right;
             // Qt high-dpi bug: if we don't specify the size explicitly Qt, sees the larger
@@ -131,18 +131,18 @@ namespace TrenchBroom {
          * Keyboard search was causing selection navigation when typing with a disabled cell selected.
          * See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
          */
-        void EntityAttributeTable::keyboardSearch(const QString& /* search */) {}
+        void EntityPropertyTable::keyboardSearch(const QString& /* search */) {}
 
         /**
          * Implement our own version of the QAbstractItemView::SelectedClicked edit trigger.
          * The Qt one has an undesirable delay during which keyboard input is ignored.
          * See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
          */
-        void EntityAttributeTable::mousePressEvent(QMouseEvent* event) {
+        void EntityPropertyTable::mousePressEvent(QMouseEvent* event) {
             const QModelIndex modelIndex = indexAt(event->pos());
             m_mousePressedOnSelectedCell = selectedIndexes().contains(modelIndex);
 
-            TABLE_LOG(qDebug() << "EntityAttributeTable::mousePressEvent m_mousePressedOnSelectedCell:"
+            TABLE_LOG(qDebug() << "EntityAPropertyTable::mousePressEvent m_mousePressedOnSelectedCell:"
                                << m_mousePressedOnSelectedCell);
 
             QTableView::mousePressEvent(event);
@@ -151,10 +151,10 @@ namespace TrenchBroom {
         /**
          * See mousePressEvent
          */
-        void EntityAttributeTable::mouseReleaseEvent(QMouseEvent* event) {
+        void EntityPropertyTable::mouseReleaseEvent(QMouseEvent* event) {
             QTableView::mouseReleaseEvent(event);
 
-            TABLE_LOG(qDebug() << "EntityAttributeTable::mouseReleaseEvent");
+            TABLE_LOG(qDebug() << "EntityPropertyTable::mouseReleaseEvent");
 
             const QModelIndex modelIndex = indexAt(event->pos());
             if (selectedIndexes().contains(modelIndex) && m_mousePressedOnSelectedCell) {

@@ -29,12 +29,12 @@ namespace TrenchBroom {
          * - Ctrl+Enter emits the `addRowShortcutTriggered` signal
          * - Delete or Backspace emits the `removeRowsShortcutTriggered` signal
          */
-        class EntityAttributeTable : public QTableView {
+        class EntityPropertyTable : public QTableView {
             Q_OBJECT
         private:
             bool m_mousePressedOnSelectedCell;
         public:
-            explicit EntityAttributeTable(QWidget* parent = nullptr);
+            explicit EntityPropertyTable(QWidget* parent = nullptr);
 
             static QString insertRowShortcutString();
             static QString removeRowShortcutString();

@@ -27,16 +27,16 @@ class QSortFilterProxyModel;
 namespace TrenchBroom {
     namespace View {
         class EntityPropertyModel;
-        class EntityAttributeTable;
+        class EntityPropertyTable;
 
         class EntityPropertyItemDelegate : public QStyledItemDelegate {
             Q_OBJECT
         private:
-            EntityAttributeTable* m_table;
+            EntityPropertyTable* m_table;
             const EntityPropertyModel* m_model;
             const QSortFilterProxyModel* m_proxyModel;
         public:
-            EntityPropertyItemDelegate(EntityAttributeTable* table, const EntityPropertyModel* model, const QSortFilterProxyModel* proxyModel, QWidget* parent = nullptr);
+            EntityPropertyItemDelegate(EntityPropertyTable* table, const EntityPropertyModel* model, const QSortFilterProxyModel* proxyModel, QWidget* parent = nullptr);
 
             QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
             void setEditorData(QWidget* editor, const QModelIndex& index) const override;

@@ -196,7 +196,7 @@ namespace TrenchBroom {
         };
 
         void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document) {
-            m_table = new EntityAttributeTable();
+            m_table = new EntityPropertyTable();
 
             m_model = new EntityPropertyModel(document, this);
             m_model->setParent(m_table); // ensure the table takes ownership of the model in setModel // FIXME: why? this looks unnecessary
@@ -216,12 +216,12 @@ namespace TrenchBroom {
             m_table->horizontalHeader()->setSectionsClickable(false);
             m_table->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-            m_addPropertyButton = createBitmapButton("Add.svg", tr("Add a new property (%1)").arg(EntityAttributeTable::insertRowShortcutString()), this);
+            m_addPropertyButton = createBitmapButton("Add.svg", tr("Add a new property (%1)").arg(EntityPropertyTable::insertRowShortcutString()), this);
             connect(m_addPropertyButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
                 addProperty();
             });
 
-            m_removePropertiesButton = createBitmapButton("Remove.svg", tr("Remove the selected properties (%1)").arg(EntityAttributeTable::removeRowShortcutString()), this);
+            m_removePropertiesButton = createBitmapButton("Remove.svg", tr("Remove the selected properties (%1)").arg(EntityPropertyTable::removeRowShortcutString()), this);
             connect(m_removePropertiesButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
                 removeSelectedProperties();
             });
@@ -232,10 +232,10 @@ namespace TrenchBroom {
             });
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 
-            connect(m_table, &EntityAttributeTable::addRowShortcutTriggered, this, [=](){
+            connect(m_table, &EntityPropertyTable::addRowShortcutTriggered, this, [=](){
                 addProperty();
             });
-            connect(m_table, &EntityAttributeTable::removeRowsShortcutTriggered, this, [=](){
+            connect(m_table, &EntityPropertyTable::removeRowsShortcutTriggered, this, [=](){
                 removeSelectedProperties();
             });
 

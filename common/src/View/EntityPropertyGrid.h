@@ -38,7 +38,7 @@ namespace TrenchBroom {
 
     namespace View {
         class EntityPropertyModel;
-        class EntityAttributeTable;
+        class EntityPropertyTable;
         class MapDocument;
         class Selection;
 
@@ -58,7 +58,7 @@ namespace TrenchBroom {
 
             EntityPropertyModel* m_model;
             QSortFilterProxyModel* m_proxyModel;
-            EntityAttributeTable* m_table;
+            EntityPropertyTable* m_table;
             QAbstractButton* m_addPropertyButton;
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;
