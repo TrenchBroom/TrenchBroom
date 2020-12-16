@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityAttributeModel.h"
+#include "EntityPropertyModel.h"
 
 #include "Macros.h"
 #include "Assets/EntityDefinition.h"
