@@ -125,7 +125,7 @@ namespace TrenchBroom {
             brush.extraAttributes = extraAttributes;
 
             // if there is an open entity, extend its brushes end
-            if (m_entityInfos.size() != 0) {
+            if (!m_entityInfos.empty()) {
                 EntityInfo& entity = m_entityInfos.back();
                 ++entity.brushesEnd;
                 assert(entity.brushesEnd == m_brushInfos.size());
@@ -163,21 +163,21 @@ namespace TrenchBroom {
         // helper methods
 
         void MapReader::createNodes(ParserStatus& status) {
-            loadBrushes(status);
+            auto loadedBrushes = loadBrushes(status);
 
             for (EntityInfo& info : m_entityInfos) {
-                createNode(info, status);
+                createNode(info, loadedBrushes, status);
             }
 
             // handle the case of parsing no entities, but a list of brushes (NodeReader)
             if (m_entityInfos.empty()) {
-                for (LoadedBrush& loadedBrush : m_loadedBrushes) {
+                for (LoadedBrush& loadedBrush : loadedBrushes) {
                     createBrush(std::move(*loadedBrush.brush), nullptr, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
                 }
             }
         }
 
-        void MapReader::createNode(EntityInfo& info, ParserStatus& status) {
+        void MapReader::createNode(EntityInfo& info, std::vector<LoadedBrush>& loadedBrushes, ParserStatus& status) {
             const auto& attributes = info.attributes;
             const auto& extraAttributes = info.extraAttributes;
             const size_t line = info.startLine;
@@ -202,7 +202,7 @@ namespace TrenchBroom {
 
             // add brushes
             for (size_t i = info.brushesBegin; i < info.brushesEnd; ++i) {
-                LoadedBrush& loadedBrush = m_loadedBrushes.at(i);
+                LoadedBrush& loadedBrush = loadedBrushes.at(i);
                 createBrush(std::move(*loadedBrush.brush), m_brushParent, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
             }
 
@@ -407,13 +407,11 @@ namespace TrenchBroom {
         }
 
         /**
-         * Transforms m_brushInfos into m_loadedBrushes (leaving m_brushInfos empty).
+         * Transforms m_brushInfos into a vector of LoadedBrush (leaving m_brushInfos empty).
          */
-        void MapReader::loadBrushes(ParserStatus& /* status */) {
-            assert(m_loadedBrushes.empty());
-
+        std::vector<MapReader::LoadedBrush> MapReader::loadBrushes(ParserStatus& /* status */) {
             // In parallel, create Brush objects (moving faces out of m_brushInfos)
-            m_loadedBrushes = kdl::vec_parallel_transform(std::move(m_brushInfos), [&](BrushInfo&& brushInfo) {
+            auto loadedBrushes = kdl::vec_parallel_transform(std::move(m_brushInfos), [&](BrushInfo&& brushInfo) {
                 LoadedBrush result;
                 result.brush = std::make_optional(Model::Brush::create(m_worldBounds, std::move(brushInfo.faces)));
                 result.extraAttributes = std::move(brushInfo.extraAttributes);
@@ -423,6 +421,8 @@ namespace TrenchBroom {
             });
 
             assert(m_brushInfos.empty());
+
+            return loadedBrushes;
         }
 
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
