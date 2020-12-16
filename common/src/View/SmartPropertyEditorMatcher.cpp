@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SmartAttributeEditorMatcher.h"
+#include "SmartPropertyEditorMatcher.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
