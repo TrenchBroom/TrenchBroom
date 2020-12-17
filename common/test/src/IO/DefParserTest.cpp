@@ -18,16 +18,16 @@
  */
 
 #include "TestUtils.h"
-#include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
@@ -156,8 +156,8 @@ namespace TrenchBroom {
                              "Set sounds to the cd track to play. "
                              "\"worldtype\"	type of world"), definition->description());
 
-            const auto& attributes = definition->attributeDefinitions();
-            ASSERT_EQ(1u, attributes.size());
+            const auto& properties = definition->propertyDefinitions();
+            ASSERT_EQ(1u, properties.size());
 
             kdl::vec_clear_and_delete(definitions);
         }
@@ -185,17 +185,17 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
             ASSERT_VEC_EQ(vm::vec3(16.0, 16.0, 32.0), pointDefinition->bounds().max);
 
-            const auto& attributes = definition->attributeDefinitions();
-            ASSERT_EQ(1u, attributes.size()); // spawnflags
+            const auto& properties = definition->propertyDefinitions();
+            ASSERT_EQ(1u, properties.size()); // spawnflags
 
-            const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
+            const auto property = properties[0];
+            ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, property->type());
 
-            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
             ASSERT_EQ(0, spawnflags->defaultValue());
 
-            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
             ASSERT_EQ(2u, options.size());
             ASSERT_EQ(1, options[0].value());
 
@@ -232,17 +232,17 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -16.0), pointDefinition->bounds().min);
             ASSERT_VEC_EQ(vm::vec3(16.0, 16.0, 16.0), pointDefinition->bounds().max);
 
-            const auto& attributes = definition->attributeDefinitions();
-            ASSERT_EQ(1u, attributes.size()); // spawnflags
+            const auto& properties = definition->propertyDefinitions();
+            ASSERT_EQ(1u, properties.size()); // spawnflags
 
-            const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
+            const auto property = properties[0];
+            ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, property->type());
 
-            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
             ASSERT_EQ(0, spawnflags->defaultValue());
 
-            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
             ASSERT_EQ(5u, options.size());
 
             ASSERT_EQ(std::string(""), options[0].shortDescription());
@@ -284,17 +284,17 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
             ASSERT_EQ(std::string("some desc"), definition->description());
 
-            const auto& attributes = definition->attributeDefinitions();
-            ASSERT_EQ(1u, attributes.size()); // spawnflags
+            const auto& properties = definition->propertyDefinitions();
+            ASSERT_EQ(1u, properties.size()); // spawnflags
 
-            const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
+            const auto property = properties[0];
+            ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, property->type());
 
-            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
             ASSERT_EQ(0, spawnflags->defaultValue());
 
-            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
             ASSERT_EQ(4u, options.size());
 
             ASSERT_EQ(std::string("SUSPENDED"), options[0].shortDescription());
@@ -357,19 +357,19 @@ namespace TrenchBroom {
             CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
             CHECK(definition->name() == "light");
 
-            CHECK(definition->attributeDefinitions().size() == 2u);
+            CHECK(definition->propertyDefinitions().size() == 2u);
 
-            const auto* styleAttribute = definition->attributeDefinition("style");
-            CHECK(styleAttribute != nullptr);
-            CHECK(styleAttribute->name() == "style");
-            CHECK(styleAttribute->type() == Assets::AttributeDefinitionType::ChoiceAttribute);
+            const auto* stylePropertyDefinition = definition->propertyDefinition("style");
+            CHECK(stylePropertyDefinition != nullptr);
+            CHECK(stylePropertyDefinition->key() == "style");
+            CHECK(stylePropertyDefinition->type() == Assets::PropertyDefinitionType::ChoiceProperty);
 
-            const auto* spawnflagsAttribute = definition->attributeDefinition(Model::AttributeNames::Spawnflags);
-            CHECK(spawnflagsAttribute != nullptr);
-            CHECK(spawnflagsAttribute->name() == Model::AttributeNames::Spawnflags);
-            CHECK(spawnflagsAttribute->type() == Assets::AttributeDefinitionType::FlagsAttribute);
+            const auto* spawnflagsPropertyDefinition = definition->propertyDefinition(Model::PropertyKeys::Spawnflags);
+            CHECK(spawnflagsPropertyDefinition != nullptr);
+            CHECK(spawnflagsPropertyDefinition->key() == Model::PropertyKeys::Spawnflags);
+            CHECK(spawnflagsPropertyDefinition->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-            const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(styleAttribute);
+            const Assets::ChoicePropertyDefinition* choice = static_cast<const Assets::ChoicePropertyDefinition*>(stylePropertyDefinition);
             CHECK(choice->options().size() == 12u);
 
             kdl::vec_clear_and_delete(definitions);

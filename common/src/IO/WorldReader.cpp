@@ -23,7 +23,7 @@
 #include "Color.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
 #include "Model/WorldNode.h"
@@ -98,24 +98,26 @@ namespace TrenchBroom {
             return *m_world;
         }
 
-        Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
-            m_world->setEntity(Model::Entity(attributes));
+        Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+            m_world->setEntity(Model::Entity(properties));
             setExtraAttributes(m_world.get(), extraAttributes);
 
             // handle default layer attributes, which are stored in worldspawn
             auto* defaultLayerNode = m_world->defaultLayer();
-            for (const Model::EntityAttribute& attribute : attributes) {
-                if (attribute.name() == Model::AttributeNames::LayerColor && Color::canParse(attribute.value())) {
+            for (const Model::EntityProperty& property : properties) {
+                if (property.key() == Model::PropertyKeys::LayerColor && Color::canParse(property.value())) {
                     auto defaultLayer = defaultLayerNode->layer();
-                    defaultLayer.setColor(Color::parse(attribute.value()));
+                    defaultLayer.setColor(Color::parse(property.value()));
                     defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue)) {
+                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue)) {
                     auto defaultLayer = defaultLayerNode->layer();
                     defaultLayer.setOmitFromExport(true);
                     defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue)) {
+                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerLocked,
+                    Model::PropertyValues::LayerLockedValue)) {
                     defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
-                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue)) {
+                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerHidden,
+                    Model::PropertyValues::LayerHiddenValue)) {
                     defaultLayerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
                 }
             }

@@ -30,7 +30,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
@@ -1134,7 +1134,7 @@ namespace TrenchBroom {
 
                 std::vector<Assets::EntityDefinition*> filteredDefinitions;
                 for (auto* definition : definitions) {
-                    if (!kdl::cs::str_is_equal(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
+                    if (!kdl::cs::str_is_equal(definition->name(), Model::PropertyValues::WorldspawnClassname)) {
                         filteredDefinitions.push_back(definition);
                     }
                 }

@@ -26,11 +26,11 @@
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "IO/PathQt.h"
-#include "Model/AttributableNode.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/ExportFormat.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
@@ -417,11 +417,11 @@ namespace TrenchBroom {
             statusBar()->addWidget(m_statusBarLabel);
         }
 
-        static Model::AttributableNode* commonEntityForBrushList(const std::vector<Model::BrushNode*>& list) {
+        static Model::EntityNodeBase* commonEntityForBrushList(const std::vector<Model::BrushNode*>& list) {
             if (list.empty())
                 return nullptr;
 
-            Model::AttributableNode* firstEntity = list.front()->entity();
+            Model::EntityNodeBase* firstEntity = list.front()->entity();
             bool multipleEntities = false;
 
             for (const Model::BrushNode* brush : list) {
@@ -495,7 +495,7 @@ namespace TrenchBroom {
 
             // selected brushes
             if (!selectedNodes.brushes().empty()) {
-                Model::AttributableNode* commonEntityNode = commonEntityForBrushList(selectedNodes.brushes());
+                Model::EntityNodeBase* commonEntityNode = commonEntityForBrushList(selectedNodes.brushes());
 
                 // if all selected brushes are from the same entity, print the entity name
                 std::string token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");

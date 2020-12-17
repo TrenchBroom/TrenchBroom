@@ -21,7 +21,7 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/AttributableNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
 #include "Model/Node.h"
@@ -36,18 +36,18 @@ namespace TrenchBroom {
     template <typename T, size_t S, typename U> class AABBTree;
 
     namespace Model {
-        class AttributableNodeIndex;
+        class EntityNodeIndex;
         enum class BrushError;
         class BrushFace;
         class IssueGeneratorRegistry;
         class IssueQuickFix;
         class PickResult;
 
-        class WorldNode : public AttributableNode, public ModelFactory {
+        class WorldNode : public EntityNodeBase, public ModelFactory {
         private:
             std::unique_ptr<ModelFactory> m_factory;
             LayerNode* m_defaultLayer;
-            std::unique_ptr<AttributableNodeIndex> m_attributableIndex;
+            std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
             std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
@@ -103,7 +103,7 @@ namespace TrenchBroom {
         private:
             void createDefaultLayer();
         public: // index
-            const AttributableNodeIndex& attributableNodeIndex() const;
+            const EntityNodeIndex& entityNodeIndex() const;
         public: // selection
             // issue generator registration
             const std::vector<IssueGenerator*>& registeredIssueGenerators() const;
@@ -136,12 +136,12 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-            void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const override;
-            void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const override;
-            void doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
-            void doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
-        private: // implement AttributableNode interface
-            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
+            void doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doAddToIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
+            void doRemoveFromIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
+        private: // implement EntityNodeBase interface
+            void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface

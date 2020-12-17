@@ -57,7 +57,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool EditorContext::entityDefinitionHidden(const Model::AttributableNode* entityNode) const {
+        bool EditorContext::entityDefinitionHidden(const Model::EntityNodeBase* entityNode) const {
             return entityNode != nullptr && entityDefinitionHidden(entityNode->entity().definition());
         }
 

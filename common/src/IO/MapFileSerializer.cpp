@@ -24,8 +24,8 @@
 #include "Macros.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/EntityAttributes.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -272,10 +272,10 @@ namespace TrenchBroom {
             setFilePosition(node);
         }
 
-        void MapFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {
+        void MapFileSerializer::doEntityProperty(const Model::EntityProperty& attribute) {
             fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\"{}\" \"{}\"\n",
-                           escapeEntityAttribute( attribute.name()),
-                           escapeEntityAttribute(attribute.value()));
+                escapeEntityProperties(attribute.key()),
+                escapeEntityProperties(attribute.value()));
             ++m_line;
         }
 

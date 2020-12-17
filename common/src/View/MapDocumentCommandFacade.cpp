@@ -265,7 +265,7 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        static auto notifySpecialWorldAttributes(const Model::Game& game, const std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap) {
+        static auto notifySpecialWorldProperties(const Model::Game& game, const std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap) {
             for (const auto& [node, contents] : nodesToSwap) {
                 if (const auto* worldNode = dynamic_cast<const Model::WorldNode*>(node)) {
                     const auto& oldEntity = worldNode->entity();
@@ -299,7 +299,7 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
 
-            const auto [notifyTextureCollectionChange, notifyEntityDefinitionsChange, notifyModsChange] = notifySpecialWorldAttributes(*game(), nodesToSwap);
+            const auto [notifyTextureCollectionChange, notifyEntityDefinitionsChange, notifyModsChange] = notifySpecialWorldProperties(*game(), nodesToSwap);
             Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(notifyTextureCollectionChange, textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
             Notifier<>::NotifyBeforeAndAfter notifyEntityDefinitions(notifyEntityDefinitionsChange, entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
             Notifier<>::NotifyBeforeAndAfter notifyMods(notifyModsChange, modsWillChangeNotifier, modsDidChangeNotifier);

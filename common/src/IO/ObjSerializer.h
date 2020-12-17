@@ -39,7 +39,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class BrushFace;
-        class EntityAttribute;
+        class EntityProperty;
         class Node;
     }
 
@@ -136,7 +136,7 @@ namespace TrenchBroom {
 
             void doBeginEntity(const Model::Node* node) override;
             void doEndEntity(const Model::Node* node) override;
-            void doEntityAttribute(const Model::EntityAttribute& attribute) override;
+            void doEntityProperty(const Model::EntityProperty& property) override;
 
             void doBrush(const Model::BrushNode* brush) override;
             void doBrushFace(const Model::BrushFace& face) override;

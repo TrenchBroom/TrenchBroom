@@ -21,7 +21,7 @@
 #include "Model/BrushError.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityRotationPolicy.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/MapFormat.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             EntityNodeTest() {
                 m_worldBounds = vm::bbox3d(8192.0);
                 m_entity = new EntityNode({
-                    {AttributeNames::Classname, TestClassname}
+                    { PropertyKeys::Classname, TestClassname}
                 });
                 m_world = new WorldNode(Model::Entity(), MapFormat::Standard);
             }
@@ -78,17 +78,17 @@ namespace TrenchBroom {
             }
         };
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetAttributes") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties") {
             const vm::vec3 newOrigin(10, 20, 30);
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-            m_entity->setEntity(Entity({EntityAttribute("origin", "10 20 30")}));
+            m_entity->setEntity(Entity({ EntityProperty("origin", "10 20 30")}));
             EXPECT_EQ(newOrigin, m_entity->entity().origin());
             EXPECT_EQ(newBounds, m_entity->logicalBounds());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateAttributes") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProperties") {
             const vm::vec3 newOrigin(10, 20, 30);
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));

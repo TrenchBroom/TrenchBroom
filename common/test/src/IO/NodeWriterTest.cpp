@@ -76,7 +76,7 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
 
-        TEST_CASE("NodeWriterTest.writeDefaultLayerAttributes", "[NodeWriterTest]") {
+        TEST_CASE("NodeWriterTest.writeDefaultLayerProperties", "[NodeWriterTest]") {
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
             map.defaultLayer()->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             map.defaultLayer()->setLockState(Model::LockState::Lock_Locked);

@@ -22,8 +22,8 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Assets/ModelDefinition.h"
-#include "Model/EntityAttributes.h"
-#include "Model/EntityAttributesVariableStore.h"
+#include "Model/EntityProperties.h"
+#include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotationPolicy.h"
 
 #include <kdl/string_utils.h>
@@ -45,18 +45,18 @@ namespace TrenchBroom {
         m_pointEntity(true),
         m_model(nullptr) {}
 
-        Entity::Entity(std::vector<EntityAttribute> attributes) :
-        m_attributes(std::move(attributes)),
+        Entity::Entity(std::vector<EntityProperty> properties) :
+        m_properties(std::move(properties)),
         m_pointEntity(true),
         m_model(nullptr) {}
 
-        Entity::Entity(std::initializer_list<EntityAttribute> attributes) :
-        m_attributes(attributes),
+        Entity::Entity(std::initializer_list<EntityProperty> properties) :
+        m_properties(properties),
         m_pointEntity(true),
         m_model(nullptr) {}
 
-        const std::vector<EntityAttribute>& Entity::attributes() const {
-            return m_attributes;
+        const std::vector<EntityProperty>& Entity::properties() const {
+            return m_properties;
         }
 
         Entity::Entity(const Entity& other) = default;
@@ -67,9 +67,9 @@ namespace TrenchBroom {
 
         Entity::~Entity() = default;
 
-        void Entity::setAttributes(std::vector<EntityAttribute> attributes) {
-            m_attributes = std::move(attributes);
-            invalidateCachedAttributes();
+        void Entity::setProperties(std::vector<EntityProperty> properties) {
+            m_properties = std::move(properties);
+            invalidateCachedProperties();
         }
 
         bool Entity::pointEntity() const {
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             }
 
             m_pointEntity = pointEntity;
-            invalidateCachedAttributes();
+            invalidateCachedProperties();
         }
 
         Assets::EntityDefinition* Entity::definition() {
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             }
 
             m_definition = Assets::AssetReference(definition);
-            invalidateCachedAttributes();
+            invalidateCachedProperties();
         }
 
         const Assets::EntityModelFrame* Entity::model() const {
@@ -118,12 +118,12 @@ namespace TrenchBroom {
             }
 
             m_model = model;
-            invalidateCachedAttributes();
+            invalidateCachedProperties();
         }
 
         Assets::ModelSpecification Entity::modelSpecification() const {
             if (const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get())) {
-                const auto variableStore = EntityAttributesVariableStore(*this);
+                const auto variableStore = EntityPropertiesVariableStore(*this);
                 return pointDefinition->model(variableStore);
             } else {
                 return Assets::ModelSpecification();
@@ -134,123 +134,123 @@ namespace TrenchBroom {
             return vm::translation_matrix(origin()) * rotation();
         }
 
-        void Entity::addOrUpdateAttribute(std::string name, std::string value) {
-            auto it = findAttribute(name);
-            if (it != std::end(m_attributes)) {
+        void Entity::addOrUpdateProperty(std::string key, std::string value) {
+            auto it = findProperty(key);
+            if (it != std::end(m_properties)) {
                 it->setValue(value);
             } else {
-                m_attributes.emplace_back(name, value);
+                m_properties.emplace_back(key, value);
             }
-            invalidateCachedAttributes();
+            invalidateCachedProperties();
         }
 
-        void Entity::renameAttribute(const std::string& oldName, std::string newName) {
-            if (oldName == newName) {
+        void Entity::renameProperty(const std::string& oldKey, std::string newKey) {
+            if (oldKey == newKey) {
                 return;
             }
 
-            const auto oldIt = findAttribute(oldName);
-            if (oldIt != std::end(m_attributes)) {
-                const auto newIt = findAttribute(newName);
-                if (newIt != std::end(m_attributes)) {
-                    m_attributes.erase(newIt);
+            const auto oldIt = findProperty(oldKey);
+            if (oldIt != std::end(m_properties)) {
+                const auto newIt = findProperty(newKey);
+                if (newIt != std::end(m_properties)) {
+                    m_properties.erase(newIt);
                 }
-                
-                oldIt->setName(std::move(newName));
-                invalidateCachedAttributes();
+
+                oldIt->setKey(std::move(newKey));
+                invalidateCachedProperties();
             }
         }
 
-        void Entity::removeAttribute(const std::string& name) {
-            const auto it = findAttribute(name);
-            if (it != std::end(m_attributes)) {
-                m_attributes.erase(it);
-                invalidateCachedAttributes();
+        void Entity::removeProperty(const std::string& key) {
+            const auto it = findProperty(key);
+            if (it != std::end(m_properties)) {
+                m_properties.erase(it);
+                invalidateCachedProperties();
             }
         }
 
-        void Entity::removeNumberedAttribute(const std::string& prefix) {
-            auto it = std::begin(m_attributes);
-            while (it != std::end(m_attributes)) {
+        void Entity::removeNumberedProperty(const std::string& prefix) {
+            auto it = std::begin(m_properties);
+            while (it != std::end(m_properties)) {
                 if (it->hasNumberedPrefix(prefix)) {
-                    it = m_attributes.erase(it);
+                    it = m_properties.erase(it);
                 } else {
                     ++it;
                 }
             }
-            invalidateCachedAttributes();
+            invalidateCachedProperties();
         }
 
-        bool Entity::hasAttribute(const std::string& name) const {
-            return findAttribute(name) != std::end(m_attributes);
+        bool Entity::hasProperty(const std::string& key) const {
+            return findProperty(key) != std::end(m_properties);
         }
 
-        bool Entity::hasAttribute(const std::string& name, const std::string& value) const {
-            const auto it = findAttribute(name);
-            return it != std::end(m_attributes) && it->hasValue(value);
+        bool Entity::hasProperty(const std::string& key, const std::string& value) const {
+            const auto it = findProperty(key);
+            return it != std::end(m_properties) && it->hasValue(value);
         }
 
-        bool Entity::hasAttributeWithPrefix(const std::string& prefix, const std::string& value) const {
-            for (const auto& attribute : m_attributes) {
-                if (attribute.hasPrefixAndValue(prefix, value)) {
+        bool Entity::hasPropertyWithPrefix(const std::string& prefix, const std::string& value) const {
+            for (const auto& property : m_properties) {
+                if (property.hasPrefixAndValue(prefix, value)) {
                     return true;
                 }
             }
             return false;
         }
 
-        bool Entity::hasNumberedAttribute(const std::string& prefix, const std::string& value) const {
-            for (const auto& attribute : m_attributes) {
-                if (attribute.hasNumberedPrefixAndValue(prefix, value)) {
+        bool Entity::hasNumberedProperty(const std::string& prefix, const std::string& value) const {
+            for (const auto& property : m_properties) {
+                if (property.hasNumberedPrefixAndValue(prefix, value)) {
                     return true;
                 }
             }
             return false;
         }
 
-        const std::string* Entity::attribute(const std::string& name) const {
-            const auto it = findAttribute(name);
-            return it != std::end(m_attributes) ? &it->value() : nullptr;
+        const std::string* Entity::property(const std::string& key) const {
+            const auto it = findProperty(key);
+            return it != std::end(m_properties) ? &it->value() : nullptr;
         }
 
-        std::vector<std::string> Entity::attributeNames() const {
-            return kdl::vec_transform(m_attributes, [](const auto& attribute) { return attribute.name(); });
+        std::vector<std::string> Entity::propertyKeys() const {
+            return kdl::vec_transform(m_properties, [](const auto& property) { return property.key(); });
         }
 
 
         const std::string& Entity::classname() const {
-            validateCachedAttributes();
-            return m_cachedAttributes->classname;
+            validateCachedProperties();
+            return m_cachedProperties->classname;
         }
 
         void Entity::setClassname(const std::string& classname) {
-            addOrUpdateAttribute(AttributeNames::Classname, classname);
+            addOrUpdateProperty(PropertyKeys::Classname, classname);
         }
 
         const vm::vec3& Entity::origin() const {
-            validateCachedAttributes();
-            return m_cachedAttributes->origin;
+            validateCachedProperties();
+            return m_cachedProperties->origin;
         }
 
         void Entity::setOrigin(const vm::vec3& origin) {
-            addOrUpdateAttribute(AttributeNames::Origin, kdl::str_to_string(vm::correct(origin)));
+            addOrUpdateProperty(PropertyKeys::Origin, kdl::str_to_string(vm::correct(origin)));
         }
 
         const vm::mat4x4& Entity::rotation() const {
-            validateCachedAttributes();
-            return m_cachedAttributes->rotation;
+            validateCachedProperties();
+            return m_cachedProperties->rotation;
         }
 
-        std::vector<EntityAttribute> Entity::attributeWithName(const std::string& name) const {
-            return kdl::vec_filter(m_attributes, [&](const auto& attribute) { return attribute.hasName(name); });
+        std::vector<EntityProperty> Entity::propertiesWithKey(const std::string& key) const {
+            return kdl::vec_filter(m_properties, [&](const auto& property) { return property.hasKey(key); });
         }
 
-        std::vector<EntityAttribute> Entity::attributesWithPrefix(const std::string& prefix) const {
-            return kdl::vec_filter(m_attributes, [&](const auto& attribute) { return attribute.hasPrefix(prefix); });
+        std::vector<EntityProperty> Entity::propertiesWithPrefix(const std::string& prefix) const {
+            return kdl::vec_filter(m_properties, [&](const auto& property) { return property.hasPrefix(prefix); });
         }
 
-        std::vector<EntityAttribute> Entity::numberedAttributes(const std::string& prefix) const {
-            return kdl::vec_filter(m_attributes, [&](const auto& attribute) { return attribute.hasNumberedPrefix(prefix); });
+        std::vector<EntityProperty> Entity::numberedProperties(const std::string& prefix) const {
+            return kdl::vec_filter(m_properties, [&](const auto& property) { return property.hasNumberedPrefix(prefix); });
         }
 
         void Entity::transform(const vm::mat4x4& transformation) {
@@ -274,33 +274,33 @@ namespace TrenchBroom {
             EntityRotationPolicy::applyRotation(*this, rotation);
         }
 
-        void Entity::invalidateCachedAttributes() {
-            m_cachedAttributes = std::nullopt;
+        void Entity::invalidateCachedProperties() {
+            m_cachedProperties = std::nullopt;
         }
         
-        void Entity::validateCachedAttributes() const {
-            if (!m_cachedAttributes.has_value()) {
-                const auto* classnameValue = attribute(AttributeNames::Classname);
-                const auto* originValue = attribute(AttributeNames::Origin);
+        void Entity::validateCachedProperties() const {
+            if (!m_cachedProperties.has_value()) {
+                const auto* classnameValue = property(PropertyKeys::Classname);
+                const auto* originValue = property(PropertyKeys::Origin);
 
                 // order is important here because EntityRotationPolicy::getRotation accesses classname
-                m_cachedAttributes = CachedAttributes{};
-                m_cachedAttributes->classname = classnameValue ? *classnameValue : AttributeValues::NoClassname;
-                m_cachedAttributes->origin = originValue ? vm::parse<FloatType, 3>(*originValue, vm::vec3::zero()) : vm::vec3::zero();
-                m_cachedAttributes->rotation = EntityRotationPolicy::getRotation(*this);
+                m_cachedProperties = CachedProperties{};
+                m_cachedProperties->classname = classnameValue ? *classnameValue : PropertyValues::NoClassname;
+                m_cachedProperties->origin = originValue ? vm::parse<FloatType, 3>(*originValue, vm::vec3::zero()) : vm::vec3::zero();
+                m_cachedProperties->rotation = EntityRotationPolicy::getRotation(*this);
             }
         }
 
-        std::vector<EntityAttribute>::const_iterator Entity::findAttribute(const std::string& name) const {
-            return std::find_if(std::begin(m_attributes), std::end(m_attributes), [&](const auto& attribute) { return attribute.hasName(name); });
+        std::vector<EntityProperty>::const_iterator Entity::findProperty(const std::string& key) const {
+            return std::find_if(std::begin(m_properties), std::end(m_properties), [&](const auto& property) { return property.hasKey(key); });
         }
 
-        std::vector<EntityAttribute>::iterator Entity::findAttribute(const std::string& name) {
-            return std::find_if(std::begin(m_attributes), std::end(m_attributes), [&](const auto& attribute) { return attribute.hasName(name); });
+        std::vector<EntityProperty>::iterator Entity::findProperty(const std::string& key) {
+            return std::find_if(std::begin(m_properties), std::end(m_properties), [&](const auto& property) { return property.hasKey(key); });
         }
 
         bool operator==(const Entity& lhs, const Entity& rhs) {
-            return lhs.attributes() == rhs.attributes();
+            return lhs.properties() == rhs.properties();
         }
 
         bool operator!=(const Entity& lhs, const Entity& rhs) {

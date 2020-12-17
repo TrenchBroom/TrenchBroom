@@ -20,7 +20,7 @@
 #include "View/MapDocument.h"
 
 #include "Exceptions.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/AssetUtils.h"
@@ -37,8 +37,6 @@
 #include "IO/GameConfigParser.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
-#include "Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
-#include "Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.h"
 #include "Model/Brush.h"
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
@@ -47,10 +45,10 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EditorContext.h"
-#include "Model/EmptyAttributeNameIssueGenerator.h"
-#include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/EmptyGroupIssueGenerator.h"
+#include "Model/EmptyPropertyKeyIssueGenerator.h"
+#include "Model/EmptyPropertyValueIssueGenerator.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Game.h"
@@ -61,8 +59,8 @@
 #include "Model/LinkSourceIssueGenerator.h"
 #include "Model/LinkTargetIssueGenerator.h"
 #include "Model/LockState.h"
-#include "Model/LongAttributeNameIssueGenerator.h"
-#include "Model/LongAttributeValueIssueGenerator.h"
+#include "Model/LongPropertyKeyIssueGenerator.h"
+#include "Model/LongPropertyValueIssueGenerator.h"
 #include "Model/MissingClassnameIssueGenerator.h"
 #include "Model/MissingDefinitionIssueGenerator.h"
 #include "Model/MissingModIssueGenerator.h"
@@ -71,6 +69,8 @@
 #include "Model/Node.h"
 #include "Model/NodeContents.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
+#include "Model/PropertyKeyWithDoubleQuotationMarksIssueGenerator.h"
+#include "Model/PropertyValueWithDoubleQuotationMarksIssueGenerator.h"
 #include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
@@ -537,7 +537,7 @@ namespace TrenchBroom {
                         nodesToAdd[parent].push_back(group);
                     },
                     [&](auto&& thisLambda, Model::EntityNode* entityNode) {
-                        if (Model::isWorldspawn(entityNode->entity().classname(), entityNode->entity().attributes())) {
+                        if (Model::isWorldspawn(entityNode->entity().classname(), entityNode->entity().properties())) {
                             entityNode->visitChildren(thisLambda);
                             nodesToDetach.push_back(entityNode);
                             nodesToDelete.push_back(entityNode);
@@ -682,12 +682,12 @@ namespace TrenchBroom {
             return hasSelectedBrushFaces() || selectedNodes().hasBrushes();
         }
 
-        std::vector<Model::AttributableNode*> MapDocument::allSelectedAttributableNodes() const {
+        std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const {
             if (!hasSelection()) {
-                return std::vector<Model::AttributableNode*>({ m_world.get() });
+                return std::vector<Model::EntityNodeBase*>({ m_world.get() });
             }
 
-            std::vector<Model::AttributableNode*> nodes;
+            std::vector<Model::EntityNodeBase*> nodes;
             for (auto* node : m_selectedNodes) {
                 node->accept(kdl::overload(
                     [&](auto&& thisLambda, Model::WorldNode* world) { nodes.push_back(world); world->visitChildren(thisLambda); },
@@ -1151,7 +1151,7 @@ namespace TrenchBroom {
             ensure(definition != nullptr, "definition is null");
 
             auto* entity = m_world->createEntity(Model::Entity({
-                {Model::AttributeNames::Classname, definition->name()}
+                {Model::PropertyKeys::Classname, definition->name()}
             }));
 
             std::stringstream name;
@@ -1189,7 +1189,7 @@ namespace TrenchBroom {
                 }
             }
 
-            entity.addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+            entity.addOrUpdateProperty(Model::PropertyKeys::Classname, definition->name());
             auto* entityNode = m_world->createEntity(std::move(entity));
 
             std::stringstream name;
@@ -1933,40 +1933,40 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocument::setAttribute(const std::string& name, const std::string& value) {
-            return applyAndSwap(*this, "Set Property", allSelectedAttributableNodes(), kdl::overload(
+        bool MapDocument::setProperty(const std::string& key, const std::string& value) {
+            return applyAndSwap(*this, "Set Property", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.addOrUpdateAttribute(name, value); return true; },
+                [&](Model::Entity& entity) { entity.addOrUpdateProperty(key, value); return true; },
                 [] (Model::Brush&)         { return true; }
             ));
         }
 
-        bool MapDocument::renameAttribute(const std::string& oldName, const std::string& newName) {
-            return applyAndSwap(*this, "Rename Property", allSelectedAttributableNodes(), kdl::overload(
+        bool MapDocument::renameProperty(const std::string& oldKey, const std::string& newKey) {
+            return applyAndSwap(*this, "Rename Property", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.renameAttribute(oldName, newName); return true; },
+                [&](Model::Entity& entity) { entity.renameProperty(oldKey, newKey); return true; },
                 [] (Model::Brush&)         { return true; }
             ));
         }
 
-        bool MapDocument::removeAttribute(const std::string& name) {
-            return applyAndSwap(*this, "Remove Property", allSelectedAttributableNodes(), kdl::overload(
+        bool MapDocument::removeProperty(const std::string& key) {
+            return applyAndSwap(*this, "Remove Property", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.removeAttribute(name); return true; },
+                [&](Model::Entity& entity) { entity.removeProperty(key); return true; },
                 [] (Model::Brush&)         { return true; }
             ));
         }
 
-        bool MapDocument::convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) {
-            return applyAndSwap(*this, "Convert Color", allSelectedAttributableNodes(), kdl::overload(
+        bool MapDocument::convertEntityColorRange(const std::string& key, Assets::ColorRange::Type range) {
+            return applyAndSwap(*this, "Convert Color", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
-                    if (const auto* oldValue = entity.attribute(name)) {
-                        entity.addOrUpdateAttribute(name, Model::convertEntityColor(*oldValue, range));
+                    if (const auto* oldValue = entity.property(key)) {
+                        entity.addOrUpdateProperty(key, Model::convertEntityColor(*oldValue, range));
                     }
                     return true;
                 },
@@ -1974,17 +1974,17 @@ namespace TrenchBroom {
             ));
         }
 
-        bool MapDocument::updateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
+        bool MapDocument::updateSpawnflag(const std::string& key, const size_t flagIndex, const bool setFlag) {
             return applyAndSwap(*this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", m_selectedNodes.nodes(), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
-                    const auto* strValue = entity.attribute(name);
+                    const auto* strValue = entity.property(key);
                     int intValue = strValue ? kdl::str_to_int(*strValue).value_or(0) : 0;
                     const int flagValue = (1 << flagIndex);
 
                     intValue = setFlag ? intValue | flagValue : intValue & ~flagValue;
-                    entity.addOrUpdateAttribute(name, kdl::str_to_string(intValue));
+                    entity.addOrUpdateProperty(key, kdl::str_to_string(intValue));
                     
                     return true;
                 },
@@ -2449,7 +2449,7 @@ namespace TrenchBroom {
             const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
             auto entity = m_world->entity();
-            entity.addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
+            entity.addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, formatted);
             swapNodeContents("Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}});
         }
 
@@ -2619,9 +2619,9 @@ namespace TrenchBroom {
 
         static auto makeSetEntityDefinitionsVisitor(Assets::EntityDefinitionManager& manager) {
             // this helper lambda must be captured by value
-            const auto setEntityDefinition = [&](auto* attributable) {
-                auto* definition = manager.definition(attributable);
-                attributable->setDefinition(definition);
+            const auto setEntityDefinition = [&](auto* node) {
+                auto* definition = manager.definition(node);
+                node->setDefinition(definition);
             };
 
             return kdl::overload(
@@ -2741,10 +2741,10 @@ namespace TrenchBroom {
         void MapDocument::setMods(const std::vector<std::string>& mods) {
             auto entity = m_world->entity();
             if (mods.empty()) {
-                entity.removeAttribute(Model::AttributeNames::Mods);
+                entity.removeProperty(Model::PropertyKeys::Mods);
             } else {
                 const std::string newValue = kdl::str_join(mods, ";");
-                entity.addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
+                entity.addOrUpdateProperty(Model::PropertyKeys::Mods, newValue);
             }
             swapNodeContents("Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}});
         }
@@ -2761,16 +2761,16 @@ namespace TrenchBroom {
             switch (bounds.source) {
                 case Model::Game::SoftMapBoundsType::Map:
                     if (!bounds.bounds.has_value()) {
-                        // Set the worldspawn key AttributeNames::SoftMaxMapSize's value to the empty string
+                        // Set the worldspawn key PropertyKeys::SoftMaxMapSize's value to the empty string
                         // to indicate that we are overriding the Game's bounds with unlimited.
-                        entity.addOrUpdateAttribute(Model::AttributeNames::SoftMapBounds, Model::AttributeValues::NoSoftMapBounds);
+                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds, Model::PropertyValues::NoSoftMapBounds);
                     } else {
-                        entity.addOrUpdateAttribute(Model::AttributeNames::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
+                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
                     }
                     break;
                 case Model::Game::SoftMapBoundsType::Game:
                     // Unset the map's setting
-                    entity.removeAttribute(Model::AttributeNames::SoftMapBounds);
+                    entity.removeProperty(Model::PropertyKeys::SoftMapBounds);
                     break;
                 switchDefault()
             }
@@ -2804,12 +2804,12 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
             m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(worldBounds()));
             m_world->registerIssueGenerator(new Model::SoftMapBoundsIssueGenerator(m_game, m_world.get()));
-            m_world->registerIssueGenerator(new Model::EmptyAttributeNameIssueGenerator());
-            m_world->registerIssueGenerator(new Model::EmptyAttributeValueIssueGenerator());
-            m_world->registerIssueGenerator(new Model::LongAttributeNameIssueGenerator(m_game->maxPropertyLength()));
-            m_world->registerIssueGenerator(new Model::LongAttributeValueIssueGenerator(m_game->maxPropertyLength()));
-            m_world->registerIssueGenerator(new Model::AttributeNameWithDoubleQuotationMarksIssueGenerator());
-            m_world->registerIssueGenerator(new Model::AttributeValueWithDoubleQuotationMarksIssueGenerator());
+            m_world->registerIssueGenerator(new Model::EmptyPropertyKeyIssueGenerator());
+            m_world->registerIssueGenerator(new Model::EmptyPropertyValueIssueGenerator());
+            m_world->registerIssueGenerator(new Model::LongPropertyKeyIssueGenerator(m_game->maxPropertyLength()));
+            m_world->registerIssueGenerator(new Model::LongPropertyValueIssueGenerator(m_game->maxPropertyLength()));
+            m_world->registerIssueGenerator(new Model::PropertyKeyWithDoubleQuotationMarksIssueGenerator());
+            m_world->registerIssueGenerator(new Model::PropertyValueWithDoubleQuotationMarksIssueGenerator());
             m_world->registerIssueGenerator(new Model::InvalidTextureScaleIssueGenerator());
         }
 

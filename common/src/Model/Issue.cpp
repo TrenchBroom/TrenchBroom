@@ -130,12 +130,12 @@ namespace TrenchBroom {
             return face().lineNumber();
         }
 
-        AttributeIssue::~AttributeIssue() = default;
+        EntityPropertyIssue::~EntityPropertyIssue() = default;
 
-        const std::string& AttributeIssue::attributeValue() const {
+        const std::string& EntityPropertyIssue::propertyValue() const {
             static const auto NoValue = std::string("");
-            const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-            const auto* value = attributableNode->entity().attribute(attributeName());
+            const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+            const auto* value = entityNode->entity().property(propertyKey());
             return value ? *value : NoValue;
         }
     }

@@ -19,45 +19,45 @@
 
 #pragma once
 
-#include "View/SmartAttributeEditorMatcher.h"
+#include "View/SmartPropertyEditorMatcher.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
-        enum class AttributeDefinitionType;
+        enum class PropertyDefinitionType;
     }
     
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
     }
 
     namespace View {
         /**
-         * Matches if all of the nodes have an attribute definition for the give attribute name that is of the
+         * Matches if all of the nodes have a property definition for the give property key that is of the
          * type passed to the constructor.
          */
-        class SmartTypeEditorMatcher : public SmartAttributeEditorMatcher {
+        class SmartTypeEditorMatcher : public SmartPropertyEditorMatcher {
         private:
-            Assets::AttributeDefinitionType m_type;
+            Assets::PropertyDefinitionType m_type;
         public:
-            SmartTypeEditorMatcher(Assets::AttributeDefinitionType type);
+            SmartTypeEditorMatcher(Assets::PropertyDefinitionType type);
         private:
-            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+            bool doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const override;
         };
 
         /**
-         * Matches if all of the nodes have an attribute definition for the give attribute name that is of the
-         * type passed to the constructor, and these attribute definitions are all equal.
+         * Matches if all of the nodes have a property definition for the give property key that is of the
+         * type passed to the constructor, and these property definitions are all equal.
          */
-        class SmartTypeWithSameDefinitionEditorMatcher : public SmartAttributeEditorMatcher {
+        class SmartTypeWithSameDefinitionEditorMatcher : public SmartPropertyEditorMatcher {
         private:
-            Assets::AttributeDefinitionType m_type;
+            Assets::PropertyDefinitionType m_type;
         public:
-            SmartTypeWithSameDefinitionEditorMatcher(Assets::AttributeDefinitionType type);
+            SmartTypeWithSameDefinitionEditorMatcher(Assets::PropertyDefinitionType type);
         private:
-            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+            bool doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const override;
         };
     }
 }

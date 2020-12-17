@@ -25,8 +25,8 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/EmptyAttributeNameIssueGenerator.h"
-#include "Model/EmptyAttributeValueIssueGenerator.h"
+#include "Model/EmptyPropertyKeyIssueGenerator.h"
+#include "Model/EmptyPropertyValueIssueGenerator.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -1165,17 +1165,17 @@ namespace TrenchBroom {
             CHECK(brush2->hidden());
         }
 
-        TEST_CASE_METHOD(MapDocumentTest, "IssueGenerator.emptyAttribute") {
+        TEST_CASE_METHOD(MapDocumentTest, "IssueGenerator.emptyProperty") {
             Model::EntityNode* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
             
             document->deselectAll();
             document->select(entityNode);
-            document->setAttribute("", "");
-            REQUIRE(entityNode->entity().hasAttribute(""));
+            document->setProperty("", "");
+            REQUIRE(entityNode->entity().hasProperty(""));
 
             auto issueGenerators = std::vector<Model::IssueGenerator*>{
-                new Model::EmptyAttributeNameIssueGenerator(),
-                new Model::EmptyAttributeValueIssueGenerator()
+                new Model::EmptyPropertyKeyIssueGenerator(),
+                new Model::EmptyPropertyValueIssueGenerator()
             };
 
             class AcceptAllIssues {
@@ -1199,7 +1199,7 @@ namespace TrenchBroom {
             Model::Issue* issue0 = issues.at(0);
             Model::Issue* issue1 = issues.at(1);
 
-            // Should be one EmptyAttributeNameIssue and one EmptyAttributeValueIssue
+            // Should be one EmptyPropertyNameIssue and one EmptyPropertyValueIssue
             CHECK(((issue0->type() == issueGenerators[0]->type() && issue1->type() == issueGenerators[1]->type())
                 || (issue0->type() == issueGenerators[1]->type() && issue1->type() == issueGenerators[0]->type())));
             
@@ -1209,8 +1209,8 @@ namespace TrenchBroom {
             Model::IssueQuickFix* quickFix = fixes.at(0);
             quickFix->apply(document.get(), std::vector<Model::Issue*>{issue0});
 
-            // The fix should have deleted the attribute
-            CHECK(!entityNode->entity().hasAttribute(""));
+            // The fix should have deleted the property
+            CHECK(!entityNode->entity().hasProperty(""));
 
             kdl::vec_clear_and_delete(issueGenerators);
         }

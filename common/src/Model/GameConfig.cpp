@@ -82,13 +82,13 @@ namespace TrenchBroom {
                     rootDirectory == other.rootDirectory);
         }
 
-        TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const std::string& i_attribute, const IO::Path& i_shaderSearchPath, const std::vector<std::string>& i_excludes) :
-        package(i_package),
-        format(i_format),
-        palette(i_palette),
-        attribute(i_attribute),
-        shaderSearchPath(i_shaderSearchPath),
-        excludes(i_excludes) {}
+        TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const std::string& i_property, const IO::Path& i_shaderSearchPath, const std::vector<std::string>& i_excludes) :
+            package(i_package),
+            format(i_format),
+            palette(i_palette),
+            property(i_property),
+            shaderSearchPath(i_shaderSearchPath),
+            excludes(i_excludes) {}
 
         TextureConfig::TextureConfig() = default;
 
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             return (package == other.package &&
                     format == other.format &&
                     palette == other.palette &&
-                    attribute == other.attribute &&
+                    property == other.property &&
                     shaderSearchPath == other.shaderSearchPath &&
                     excludes == other.excludes);
         }

@@ -33,8 +33,8 @@ namespace TrenchBroom {
         public:
             LinkTargetIssueGenerator();
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const override;
-            void processKeys(AttributableNode* node, const std::vector<std::string>& names, IssueList& issues) const;
+            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
+            void processKeys(EntityNodeBase* node, const std::vector<std::string>& keys, IssueList& issues) const;
         };
     }
 }

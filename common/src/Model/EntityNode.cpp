@@ -22,8 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Model/BrushNode.h"
-#include "Model/EntityAttributesVariableStore.h"
-#include "Model/EntityRotationPolicy.h"
+#include "Model/EntityPropertiesVariableStore.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
@@ -51,15 +50,15 @@ namespace TrenchBroom {
         const vm::bbox3 EntityNode::DefaultBounds(8.0);
 
         EntityNode::EntityNode() :
-        AttributableNode(),
-        Object() {}
+            EntityNodeBase(),
+            Object() {}
 
         EntityNode::EntityNode(Entity entity) :
-        AttributableNode(std::move(entity)),
-        Object() {}
+            EntityNodeBase(std::move(entity)),
+            Object() {}
 
-        EntityNode::EntityNode(std::initializer_list<EntityAttribute> attributes) :
-        EntityNode(Entity(std::move(attributes))) {}
+        EntityNode::EntityNode(std::initializer_list<EntityProperty> properties) :
+        EntityNode(Entity(std::move(properties))) {}
 
         FloatType EntityNode::area(vm::axis::type axis) const {
             const vm::vec3 size = physicalBounds().size();
@@ -213,7 +212,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityNode::doAttributesDidChange(const vm::bbox3& oldBounds) {
+        void EntityNode::doPropertiesDidChange(const vm::bbox3& oldBounds) {
             nodePhysicalBoundsDidChange(oldBounds);
         }
 

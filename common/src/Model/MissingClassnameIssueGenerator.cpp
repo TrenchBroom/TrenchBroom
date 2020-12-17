@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit MissingClassnameIssue(AttributableNode* node) :
+            explicit MissingClassnameIssue(EntityNodeBase* node) :
             Issue(node) {}
         private:
             IssueType doGetType() const override {
@@ -64,8 +64,8 @@ namespace TrenchBroom {
             addQuickFix(new MissingClassnameIssueQuickFix());
         }
 
-        void MissingClassnameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            if (!node->entity().hasAttribute(AttributeNames::Classname))
+        void MissingClassnameIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+            if (!node->entity().hasProperty(PropertyKeys::Classname))
                 issues.push_back(new MissingClassnameIssue(node));
         }
     }

@@ -173,7 +173,7 @@ namespace TrenchBroom {
         }
 
         std::vector<IO::Path> TestGame::doExtractTextureCollections(const Entity& entity) const {
-            if (const auto* pathsValue = entity.attribute("wad")) {
+            if (const auto* pathsValue = entity.property("wad")) {
                 return IO::Path::asPaths(kdl::str_split(*pathsValue, ";"));
             } else {
                 return {};
@@ -182,8 +182,8 @@ namespace TrenchBroom {
 
         void TestGame::doUpdateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const {
             const std::string value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
-            
-            entity.addOrUpdateAttribute("wad", value);
+
+            entity.addOrUpdateProperty("wad", value);
         }
 
         void TestGame::doReloadShaders() {}

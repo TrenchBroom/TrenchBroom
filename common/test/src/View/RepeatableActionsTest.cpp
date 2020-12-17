@@ -188,7 +188,7 @@ namespace TrenchBroom {
             CHECK(document->canRepeatCommands());
 
             // this command will not clear the repeat stack
-            document->setAttribute("this", "that");
+            document->setProperty("this", "that");
             CHECK(document->canRepeatCommands());
 
             // this command will replace the command on the repeat stack

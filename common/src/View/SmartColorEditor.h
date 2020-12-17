@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "View/SmartAttributeEditor.h"
+#include "View/SmartPropertyEditor.h"
 
 #include <memory>
 #include <vector>
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class ColorTable;
         class MapDocument;
 
-        class SmartColorEditor : public SmartAttributeEditor {
+        class SmartColorEditor : public SmartPropertyEditor {
             Q_OBJECT
         private:
             static const size_t ColorHistoryCellSize = 15;
@@ -49,9 +49,9 @@ namespace TrenchBroom {
             explicit SmartColorEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
-            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
+            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
 
-            void updateColorRange(const std::vector<Model::AttributableNode*>& attributables);
+            void updateColorRange(const std::vector<Model::EntityNodeBase*>& nodes);
             void updateColorHistory();
 
             void setColor(const QColor& wxColor) const;

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "View/SmartAttributeEditor.h"
+#include "View/SmartPropertyEditor.h"
 
 #include <memory>
 #include <vector>
@@ -37,7 +37,7 @@ namespace TrenchBroom {
     namespace View {
         class MapDocument;
 
-        class SmartChoiceEditor : public SmartAttributeEditor {
+        class SmartChoiceEditor : public SmartPropertyEditor {
             Q_OBJECT
         private:
             QComboBox* m_comboBox;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             void comboBoxEditTextChanged(const QString& text);
         private:
             void createGui();
-            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
+            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
         };
     }
 }

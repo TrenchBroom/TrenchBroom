@@ -77,7 +77,7 @@ namespace TrenchBroom {
             virtual bool hasSelectedBrushFaces() const = 0;
             virtual bool hasAnySelectedBrushFaces() const = 0;
 
-            virtual std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
+            virtual std::vector<EntityNodeBase*> allSelectedEntityNodes() const = 0;
             virtual const NodeCollection& selectedNodes() const = 0;
             virtual std::vector<BrushFaceHandle> allSelectedBrushFaces() const = 0;
             virtual std::vector<BrushFaceHandle> selectedBrushFaces() const = 0;
@@ -133,10 +133,10 @@ namespace TrenchBroom {
             virtual bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) = 0;
             virtual bool shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) = 0;
             virtual bool flipObjects(const vm::vec3& center, vm::axis::type axis) = 0;
-        public: // modifying entity attributes
-            virtual bool setAttribute(const std::string& name, const std::string& value) = 0;
-            virtual bool renameAttribute(const std::string& oldName, const std::string& newName) = 0;
-            virtual bool removeAttribute(const std::string& name) = 0;
+        public: // modifying entity properties
+            virtual bool setProperty(const std::string& key, const std::string& value) = 0;
+            virtual bool renameProperty(const std::string& oldKey, const std::string& newKey) = 0;
+            virtual bool removeProperty(const std::string& key) = 0;
 
             virtual bool convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) = 0;
             virtual bool updateSpawnflag(const std::string& name, size_t flagIndex, bool setFlag) = 0;

@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class BrushFace;
-        class EntityAttribute;
+        class EntityProperty;
         class LayerNode;
         enum class MapFormat;
         class ModelFactory;
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             std::vector<Model::BrushFace> read(const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
             Model::ModelFactory& initialize(Model::MapFormat format) override;
-            Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
+            Model::Node* onWorldspawn(const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::LayerNode* layer, ParserStatus& status) override;
             void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) override;

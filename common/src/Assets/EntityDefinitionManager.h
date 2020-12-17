@@ -33,7 +33,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
     }
 
     namespace Assets {
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             void setDefinitions(const std::vector<EntityDefinition*>& newDefinitions);
             void clear();
 
-            EntityDefinition* definition(const Model::AttributableNode* attributable) const;
+            EntityDefinition* definition(const Model::EntityNodeBase* node) const;
             EntityDefinition* definition(const std::string& classname) const;
             std::vector<EntityDefinition*> definitions(EntityDefinitionType type, EntityDefinitionSortOrder order) const;
             const std::vector<EntityDefinition*>& definitions() const;

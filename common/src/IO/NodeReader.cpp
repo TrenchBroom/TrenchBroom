@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
 #include "Model/WorldNode.h"
@@ -93,9 +93,9 @@ namespace TrenchBroom {
             return m_factory;
         }
 
-        Model::Node* NodeReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+        Model::Node* NodeReader::onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             Model::EntityNode* worldspawn = m_factory.createEntity(Model::Entity());
-            worldspawn->setEntity(Model::Entity(attributes));
+            worldspawn->setEntity(Model::Entity(properties));
             setExtraAttributes(worldspawn, extraAttributes);
 
             m_nodes.insert(std::begin(m_nodes), worldspawn);

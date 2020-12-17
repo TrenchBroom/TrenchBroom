@@ -98,14 +98,14 @@ namespace TrenchBroom {
             constexpr auto Classname = "point_entity";
 
             auto* entityNode = new Model::EntityNode({
-                {Model::AttributeNames::Classname, Classname}
+                {Model::PropertyKeys::Classname, Classname}
             });
 
             document->addNode(entityNode, document->parentForNodes());
             
             const auto& originalEntity = entityNode->entity();
             auto modifiedEntity = originalEntity;
-            modifiedEntity.addOrUpdateAttribute("this", "that");
+            modifiedEntity.addOrUpdateProperty("this", "that");
 
             auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
             nodesToSwap.emplace_back(entityNode, std::move(modifiedEntity));

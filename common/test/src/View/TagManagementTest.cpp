@@ -441,8 +441,8 @@ namespace TrenchBroom {
             ASSERT_NE(oldEntity, newEntityNode);
 
             ASSERT_NE(nullptr, newEntityNode);
-            CHECK(newEntityNode->entity().hasAttribute("some_attr"));
-            CHECK(*newEntityNode->entity().attribute("some_attr") == "some_value");
+            CHECK(newEntityNode->entity().hasProperty("some_attr"));
+            CHECK(*newEntityNode->entity().property("some_attr") == "some_value");
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag") {
@@ -545,7 +545,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brushNode->hasTag(tag));
 
             document->select(lightEntityNode);
-            document->setAttribute("classname", "brush_entity");
+            document->setProperty("classname", "brush_entity");
             document->deselectAll();
 
             ASSERT_TRUE(brushNode->hasTag(tag));

@@ -1,7 +1,6 @@
 set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
-        ${COMMON_SOURCE_DIR}/Assets/AttributeDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.cpp
@@ -11,6 +10,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Palette.cpp
+        ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
         ${COMMON_SOURCE_DIR}/Assets/Texture.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
@@ -91,10 +91,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/AttributableNode.cpp
-        ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.cpp
-        ${COMMON_SOURCE_DIR}/Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Brush.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushError.cpp
@@ -110,15 +106,17 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.cpp
         ${COMMON_SOURCE_DIR}/Model/EditorContext.cpp
-        ${COMMON_SOURCE_DIR}/Model/EmptyAttributeNameIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Entity.cpp
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributes.cpp
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityColor.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityNode.cpp
+        ${COMMON_SOURCE_DIR}/Model/EntityNodeBase.cpp
+        ${COMMON_SOURCE_DIR}/Model/EntityNodeIndex.cpp
+        ${COMMON_SOURCE_DIR}/Model/EntityProperties.cpp
+        ${COMMON_SOURCE_DIR}/Model/EntityPropertiesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.cpp
         ${COMMON_SOURCE_DIR}/Model/Game.cpp
         ${COMMON_SOURCE_DIR}/Model/GameConfig.cpp
@@ -143,8 +141,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/LayerNode.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/LongAttributeNameIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/LongAttributeValueIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFacade.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFormat.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.cpp
@@ -167,8 +165,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/PointFile.cpp
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Instantiation.cpp
         ${COMMON_SOURCE_DIR}/Model/PortalFile.cpp
+        ${COMMON_SOURCE_DIR}/Model/PropertyKeyWithDoubleQuotationMarksIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/PropertyValueWithDoubleQuotationMarksIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/PushSelection.cpp
-        ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.cpp
+        ${COMMON_SOURCE_DIR}/Model/RemoveEntityPropertiesQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Tag.cpp
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.cpp
@@ -176,7 +176,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.cpp
+        ${COMMON_SOURCE_DIR}/Model/TransformEntityPropertiesQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldNode.cpp
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.cpp
@@ -297,15 +297,15 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
         ${COMMON_SOURCE_DIR}/View/ElidedLabel.cpp
         ${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.cpp
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.cpp
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeItemDelegate.cpp
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeModel.cpp
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeTable.cpp
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
         ${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyEditor.cpp
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyGrid.cpp
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyItemDelegate.cpp
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyModel.cpp
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyTable.cpp
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
         ${COMMON_SOURCE_DIR}/View/FaceTool.cpp
@@ -396,14 +396,14 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.cpp
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartTypeEditorMatcher.cpp
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
+        ${COMMON_SOURCE_DIR}/View/SmartDefaultPropertyEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.cpp
+        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditor.cpp
+        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorManager.cpp
+        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorMatcher.cpp
         ${COMMON_SOURCE_DIR}/View/SpinControl.cpp
         ${COMMON_SOURCE_DIR}/View/Splitter.cpp
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.cpp
@@ -460,7 +460,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/AABBTree.h
         ${COMMON_SOURCE_DIR}/Assets/AssetReference.h
         ${COMMON_SOURCE_DIR}/Assets/AssetUtils.h
-        ${COMMON_SOURCE_DIR}/Assets/AttributeDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.h
@@ -471,6 +470,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Palette.h
+        ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h
@@ -555,10 +555,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/WorldReader.h
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.h
-        ${COMMON_SOURCE_DIR}/Model/AttributableNode.h
-        ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.h
-        ${COMMON_SOURCE_DIR}/Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Brush.h
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.h
         ${COMMON_SOURCE_DIR}/Model/BrushError.h
@@ -575,15 +571,17 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.h
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.h
         ${COMMON_SOURCE_DIR}/Model/EditorContext.h
-        ${COMMON_SOURCE_DIR}/Model/EmptyAttributeNameIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Entity.h
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributes.h
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityColor.h
         ${COMMON_SOURCE_DIR}/Model/EntityNode.h
+        ${COMMON_SOURCE_DIR}/Model/EntityNodeBase.h
+        ${COMMON_SOURCE_DIR}/Model/EntityNodeIndex.h
+        ${COMMON_SOURCE_DIR}/Model/EntityProperties.h
+        ${COMMON_SOURCE_DIR}/Model/EntityPropertiesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
         ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
         ${COMMON_SOURCE_DIR}/Model/Game.h
@@ -612,8 +610,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LockState.h
-        ${COMMON_SOURCE_DIR}/Model/LongAttributeNameIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/LongAttributeValueIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MapFacade.h
         ${COMMON_SOURCE_DIR}/Model/MapFormat.h
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.h
@@ -653,8 +651,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Queries.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Vertex.h
         ${COMMON_SOURCE_DIR}/Model/PortalFile.h
+        ${COMMON_SOURCE_DIR}/Model/PropertyKeyWithDoubleQuotationMarksIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/PropertyValueWithDoubleQuotationMarksIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/PushSelection.h
-        ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.h
+        ${COMMON_SOURCE_DIR}/Model/RemoveEntityPropertiesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Tag.h
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.h
@@ -663,7 +663,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
-        ${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.h
+        ${COMMON_SOURCE_DIR}/Model/TransformEntityPropertiesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.h
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/WorldNode.h
@@ -791,16 +791,16 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.h
         ${COMMON_SOURCE_DIR}/View/ElidedLabel.h
         ${COMMON_SOURCE_DIR}/View/EnableDisableTagCallback.h
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeEditor.h
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeGrid.h
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeItemDelegate.h
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeModel.h
-        ${COMMON_SOURCE_DIR}/View/EntityAttributeTable.h
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.h
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.h
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.h
         ${COMMON_SOURCE_DIR}/View/EntityInspector.h
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyEditor.h
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyGrid.h
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyItemDelegate.h
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyModel.h
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.h
+        ${COMMON_SOURCE_DIR}/View/EntityPropertyTable.h
         ${COMMON_SOURCE_DIR}/View/FaceInspector.h
         ${COMMON_SOURCE_DIR}/View/FaceTool.h
         ${COMMON_SOURCE_DIR}/View/FaceToolController.h
@@ -893,14 +893,14 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.h
-        ${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
-        ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
-        ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.h
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartTypeEditorMatcher.h
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
-        ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
+        ${COMMON_SOURCE_DIR}/View/SmartDefaultPropertyEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.h
+        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditor.h
+        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorManager.h
+        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorMatcher.h
         ${COMMON_SOURCE_DIR}/View/SpinControl.h
         ${COMMON_SOURCE_DIR}/View/Splitter.h
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.h

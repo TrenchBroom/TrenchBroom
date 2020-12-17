@@ -35,25 +35,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        vm::mat4x4 EntityRotationPolicy::getRotation(const EntityNode* entityNode) {
-            return getRotation(entityNode->entity());
-        }
-
-        void EntityRotationPolicy::applyRotation(EntityNode* entityNode, const vm::mat4x4& transformation) {
-            auto entity = entityNode->entity();
-            applyRotation(entity, transformation);
-            entityNode->setEntity(std::move(entity));
-        }
-
-        std::string EntityRotationPolicy::getAttribute(const EntityNode* entityNode) {
-            return getAttribute(entityNode->entity());
-        }
-
         vm::mat4x4 EntityRotationPolicy::getRotation(const Entity& entity) {
             const RotationInfo info = rotationInfo(entity);
             switch (info.type) {
                 case RotationType::Angle: {
-                    const auto* angleValue = entity.attribute(info.attribute);
+                    const auto* angleValue = entity.property(info.propertyKey);
                     if (!angleValue || angleValue->empty()) {
                         return vm::mat4x4::identity();
                     } else {
@@ -62,7 +48,7 @@ namespace TrenchBroom {
                     }
                 }
                 case RotationType::AngleUpDown: {
-                    const auto* angleValue = entity.attribute(info.attribute);
+                    const auto* angleValue = entity.property(info.propertyKey);
                     if (!angleValue || angleValue->empty()) {
                         return vm::mat4x4::identity();
                     }
@@ -76,7 +62,7 @@ namespace TrenchBroom {
                     }
                 }
                 case RotationType::Euler: {
-                    const auto* angleValue = entity.attribute(info.attribute);
+                    const auto* angleValue = entity.property(info.propertyKey);
                     const auto angles = angleValue ? vm::parse<FloatType, 3>(*angleValue, vm::vec3::zero()) : vm::vec3::zero();
 
                     // x = -pitch
@@ -90,7 +76,7 @@ namespace TrenchBroom {
                     return vm::rotation_matrix(roll, pitch, yaw);
                 }
                 case RotationType::Euler_PositivePitchDown: {
-                    const auto* angleValue = entity.attribute(info.attribute);
+                    const auto* angleValue = entity.property(info.propertyKey);
                     const auto angles = angleValue ? vm::parse<FloatType, 3>(*angleValue, vm::vec3::zero()) : vm::vec3::zero();
 
                     // x = pitch
@@ -102,7 +88,7 @@ namespace TrenchBroom {
                     return vm::rotation_matrix(roll, pitch, yaw);
                 }
                 case RotationType::Mangle: {
-                    const auto* angleValue = entity.attribute(info.attribute);
+                    const auto* angleValue = entity.property(info.propertyKey);
                     const auto angles = angleValue ? vm::parse<FloatType, 3>(*angleValue, vm::vec3::zero()) : vm::vec3::zero();
 
                     // x = yaw
@@ -131,36 +117,36 @@ namespace TrenchBroom {
             switch (info.type) {
                 case RotationType::Angle: {
                     const auto direction = normalize(transformation * rotation * vm::vec3::pos_x());
-                    setAngle(entity, info.attribute, direction);
+                    setAngle(entity, info.propertyKey, direction);
                     break;
                 }
                 case RotationType::AngleUpDown: {
                     const auto direction = normalize(transformation * rotation * vm::vec3::pos_x());
                     if (direction.z() > 0.9) {
-                        entity.addOrUpdateAttribute(info.attribute, "1.0");
+                        entity.addOrUpdateProperty(info.propertyKey, "1.0");
                     } else if (direction.z() < -0.9) {
-                        entity.addOrUpdateAttribute(info.attribute, "-1.0");
+                        entity.addOrUpdateProperty(info.propertyKey, "-1.0");
                     } else {
-                        setAngle(entity, info.attribute, direction);
+                        setAngle(entity, info.propertyKey, direction);
                     }
                     break;
                 }
                 case RotationType::Euler: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity.addOrUpdateAttribute(info.attribute, kdl::str_to_string(vm::round(nPitchYawRoll)));
+                    entity.addOrUpdateProperty(info.propertyKey, kdl::str_to_string(vm::round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType::Euler_PositivePitchDown: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity.addOrUpdateAttribute(info.attribute, kdl::str_to_string(vm::round(nPitchYawRoll)));
+                    entity.addOrUpdateProperty(info.propertyKey, kdl::str_to_string(vm::round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType::Mangle: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto yawNPitchRoll = vm::vec3(yawPitchRoll.x(), -yawPitchRoll.y(), yawPitchRoll.z());
-                    entity.addOrUpdateAttribute(info.attribute, kdl::str_to_string(vm::round(yawNPitchRoll)));
+                    entity.addOrUpdateProperty(info.propertyKey, kdl::str_to_string(vm::round(yawNPitchRoll)));
                     break;
                 }
                 case RotationType::None:
@@ -169,26 +155,14 @@ namespace TrenchBroom {
             }
         }
 
-        std::string EntityRotationPolicy::getAttribute(const Entity& entity) {
+        std::string EntityRotationPolicy::getPropertyKey(const Entity& entity) {
             const auto info = rotationInfo(entity);
-            return info.attribute;
+            return info.propertyKey;
         }
-
-        EntityRotationPolicy::RotationInfo EntityRotationPolicy::rotationInfo(const EntityNode* entityNode) {
-            return rotationInfo(entityNode->entity()); 
-        }
-
-        void EntityRotationPolicy::setAngle(EntityNode* entityNode, const std::string& attribute, const vm::vec3& direction) {
-            auto entity = entityNode->entity();
-            const auto angle = getAngle(direction);
-            entity.addOrUpdateAttribute(attribute, kdl::str_to_string(vm::round(angle)));
-            entityNode->setEntity(std::move(entity));
-        }
-
 
         EntityRotationPolicy::RotationInfo EntityRotationPolicy::rotationInfo(const Entity& entity) {
             auto type = RotationType::None;
-            std::string attribute;
+            std::string propertyKey;
             RotationUsage usage = RotationUsage::Allowed;
 
             const auto* model = entity.model();
@@ -198,20 +172,20 @@ namespace TrenchBroom {
 
             // determine the type of rotation to apply to this entity
             const auto classname = entity.classname();
-            if (classname != AttributeValues::NoClassname) {
+            if (classname != PropertyValues::NoClassname) {
                 if (kdl::cs::str_is_prefix(classname, "light")) {
-                    if (entity.hasAttribute(AttributeNames::Mangle)) {
+                    if (entity.hasProperty(PropertyKeys::Mangle)) {
                         // spotlight without a target, update mangle
                         type = RotationType::Mangle;
-                        attribute = AttributeNames::Mangle;
-                    } else if (!entity.hasAttribute(AttributeNames::Target)) {
+                        propertyKey = PropertyKeys::Mangle;
+                    } else if (!entity.hasProperty(PropertyKeys::Target)) {
                         // not a spotlight, but might have a rotatable model, so change angle or angles
-                        if (entity.hasAttribute(AttributeNames::Angles)) {
+                        if (entity.hasProperty(PropertyKeys::Angles)) {
                             type = eulerType;
-                            attribute = AttributeNames::Angles;
+                            propertyKey = PropertyKeys::Angles;
                         } else {
                             type = RotationType::Angle;
-                            attribute = AttributeNames::Angle;
+                            propertyKey = PropertyKeys::Angle;
                         }
                     } else {
                         // spotlight with target, don't modify
@@ -221,15 +195,15 @@ namespace TrenchBroom {
 
                     if (!entity.pointEntity()) {
                         // brush entity
-                        if (entity.hasAttribute(AttributeNames::Angles)) {
+                        if (entity.hasProperty(PropertyKeys::Angles)) {
                             type = eulerType;
-                            attribute = AttributeNames::Angles;
-                        } else if (entity.hasAttribute(AttributeNames::Mangle)) {
+                            propertyKey = PropertyKeys::Angles;
+                        } else if (entity.hasProperty(PropertyKeys::Mangle)) {
                             type = eulerType;
-                            attribute = AttributeNames::Mangle;
-                        } else if (entity.hasAttribute(AttributeNames::Angle)) {
+                            propertyKey = PropertyKeys::Mangle;
+                        } else if (entity.hasProperty(PropertyKeys::Angle)) {
                             type = RotationType::AngleUpDown;
-                            attribute = AttributeNames::Angle;
+                            propertyKey = PropertyKeys::Angle;
                         }
                     } else {
                         // point entity
@@ -241,26 +215,26 @@ namespace TrenchBroom {
                             usage = RotationUsage::BlockRotation;
                         }
 
-                        if (entity.hasAttribute(AttributeNames::Angles)) {
+                        if (entity.hasProperty(PropertyKeys::Angles)) {
                             type = eulerType;
-                            attribute = AttributeNames::Angles;
-                        } else if (entity.hasAttribute(AttributeNames::Mangle)) {
+                            propertyKey = PropertyKeys::Angles;
+                        } else if (entity.hasProperty(PropertyKeys::Mangle)) {
                             type = eulerType;
-                            attribute = AttributeNames::Mangle;
+                            propertyKey = PropertyKeys::Mangle;
                         } else {
                             type = RotationType::AngleUpDown;
-                            attribute = AttributeNames::Angle;
+                            propertyKey = PropertyKeys::Angle;
                         }
                     }
                 }
             }
 
-            return RotationInfo{type, attribute, usage};
+            return RotationInfo{ type, propertyKey, usage};
         }
 
-        void EntityRotationPolicy::setAngle(Entity& entity, const std::string& attribute, const vm::vec3& direction) {
+        void EntityRotationPolicy::setAngle(Entity& entity, const std::string& propertyKey, const vm::vec3& direction) {
             const auto angle = getAngle(direction);
-            entity.addOrUpdateAttribute(attribute, kdl::str_to_string(vm::round(angle)));
+            entity.addOrUpdateProperty(propertyKey, kdl::str_to_string(vm::round(angle)));
         }
         
         FloatType EntityRotationPolicy::getAngle(vm::vec3 direction) {

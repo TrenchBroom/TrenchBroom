@@ -21,7 +21,7 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/AttributableNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/HitType.h"
 #include "Model/Object.h"
 
@@ -43,7 +43,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class EntityNode : public AttributableNode, public Object {
+        class EntityNode : public EntityNodeBase, public Object {
         public:
             static const HitType::Type EntityHitType;
             static const vm::bbox3 DefaultBounds;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         public:
             EntityNode();
             explicit EntityNode(Entity entity);
-            explicit EntityNode(std::initializer_list<EntityAttribute> attributes);
+            explicit EntityNode(std::initializer_list<EntityProperty> properties);
 
             FloatType area(vm::axis::type axis) const;
         public: // entity model
@@ -91,8 +91,8 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const override;
 
             std::vector<Node*> nodesRequiredForViewSelection() override;
-        private: // implement AttributableNode interface
-            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
+        private: // implement EntityNodeBase interface
+            void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement Object interface

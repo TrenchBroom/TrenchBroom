@@ -20,9 +20,9 @@
 #include "MissingModIssueGenerator.h"
 
 #include "IO/Path.h"
-#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityNodeBase.h"
+#include "Model/EntityProperties.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/Game.h"
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             std::string m_mod;
             std::string m_message;
         public:
-            MissingModIssue(AttributableNode* node, const std::string& mod, const std::string& message) :
+            MissingModIssue(EntityNodeBase* node, const std::string& mod, const std::string& message) :
             Issue(node),
             m_mod(mod),
             m_message(message) {}
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             void doApply(MapFacade* facade, const IssueList& issues) const override {
                 const PushSelection pushSelection(facade);
 
-                 // If nothing is selected, attribute changes will affect only world.
+                 // If nothing is selected, property changes will affect only world.
                 facade->deselectAll();
 
                 const std::vector<std::string> oldMods = facade->mods();
@@ -100,10 +100,10 @@ namespace TrenchBroom {
             addQuickFix(new MissingModIssueQuickFix());
         }
 
-        void MissingModIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void MissingModIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             assert(node != nullptr);
 
-            if (node->entity().classname() != AttributeValues::WorldspawnClassname) {
+            if (node->entity().classname() != PropertyValues::WorldspawnClassname) {
                 return;
             }
 

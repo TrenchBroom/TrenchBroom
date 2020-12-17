@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
         class BrushNode;
         class EntityNode;
         class GroupNode;
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             virtual void doGenerate(GroupNode* groupNode,           IssueList& issues) const;
             virtual void doGenerate(EntityNode* entityNode,         IssueList& issues) const;
             virtual void doGenerate(BrushNode* brushNode,           IssueList& issues) const;
-            virtual void doGenerate(AttributableNode* node, IssueList& issues) const;
+            virtual void doGenerate(EntityNodeBase* node,           IssueList& issues) const;
         };
     }
 }

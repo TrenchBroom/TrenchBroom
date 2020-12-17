@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
             const Model::WorldNode* world = document->world();
             m_entity = world->createEntity(Model::Entity({
-                {Model::AttributeNames::Classname, definition->name()}
+                {Model::PropertyKeys::Classname, definition->name()}
             }));
 
             m_referenceBounds = document->referenceBounds();
