@@ -35,6 +35,12 @@
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
 
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+#include <vecmath/mat_io.h>
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
+
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -776,6 +782,51 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
                          "\"message3\" \"holy damn\\\\\"\n"
                          "\"classname\" \"worldspawn\"\n"
                          "}\n", result.c_str());
+        }
+
+        TEST_CASE("NodeWriterTest.writeSmallValuesWithoutScientificNotation", "[NodeWriterTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Quake2);
+
+            Model::BrushBuilder builder(&map, worldBounds);
+            auto brush = builder.createCube(64.0, "defaultTexture").value();
+            REQUIRE(brush.transform(worldBounds, vm::rotation_matrix(vm::to_radians(15.0), vm::to_radians(22.0), vm::to_radians(89.0)), false).is_success());
+
+            auto& face = brush.face(0);
+            auto faceAttributes = face.attributes();
+            faceAttributes.setXOffset(0.00001f);
+            faceAttributes.setYOffset(0.000002f);
+            faceAttributes.setRotation(0.003f);
+            faceAttributes.setXScale(0.004f);
+            faceAttributes.setYScale(0.005f);
+            faceAttributes.setSurfaceValue(0.006f);
+            face.setAttributes(std::move(faceAttributes));
+
+            auto* brushNode = map.createBrush(std::move(brush));
+            map.defaultLayer()->addChild(brushNode);
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.writeMap();
+
+            const std::string actual = str.str();
+            const std::string expected = \
+R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( -21.849932013225562 44.73955142106092 24.350626473659066 ) ( -21.833750423753578 45.66659406103575 23.976019880243154 ) ( -21.5848373706685 45.09682147885355 25.24621730450337 ) defaultTexture 1e-05 2e-06 0.003 0.004 0.005 0 0 0.006
+( 21.849932013225562 -44.73955142106092 -24.350626473659066 ) ( 21.866113602697553 -43.81250878108611 -24.725233067074978 ) ( 20.885845405783215 -44.62575313692022 -24.110653633785617 ) defaultTexture 0 0 0 1 1 0 0 0
+( 21.849932013225562 -44.73955142106092 -24.350626473659066 ) ( 20.885845405783215 -44.62575313692022 -24.110653633785617 ) ( 22.11502665578263 -44.3822813632683 -23.45503564281476 ) defaultTexture 0 0 0 1 1 0 0 0
+( -21.849932013225562 44.73955142106092 24.350626473659066 ) ( -21.5848373706685 45.09682147885355 25.24621730450337 ) ( -22.814018620667916 44.85334970520164 24.59059931353252 ) defaultTexture 0 0 0 1 1 0 0 0
+( -21.849932013225562 44.73955142106092 24.350626473659066 ) ( -22.814018620667916 44.85334970520164 24.59059931353252 ) ( -21.833750423753578 45.66659406103575 23.976019880243154 ) defaultTexture 0 0 0 1 1 0 0 0
+( 21.849932013225562 -44.73955142106092 -24.350626473659066 ) ( 22.11502665578263 -44.3822813632683 -23.45503564281476 ) ( 21.866113602697553 -43.81250878108611 -24.725233067074978 ) defaultTexture 0 0 0 1 1 0 0 0
+}
+}
+)";
+            CHECK(actual == expected);
         }
     }
 }
