@@ -37,7 +37,14 @@
 
 namespace TrenchBroom {
     namespace IO {
-        void assertPropertyDefinition(const std::string& key, const Assets::PropertyDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition);
+        static void assertPropertyDefinition(const std::string& key, const Assets::PropertyDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition) {
+            const auto* propDefinition = entityDefinition->propertyDefinition(key);
+            UNSCOPED_INFO("Missing property definition for '" + key + "' key");
+            ASSERT_NE(nullptr, propDefinition);
+
+            UNSCOPED_INFO("Expected '" + key + "' property definition to be of expected type");
+            ASSERT_EQ(expectedType, propDefinition->type());
+        }
 
         TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]") {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
@@ -474,15 +481,6 @@ Target this entity with a misc_model to have the model attached to the entity (s
             ASSERT_EQ(Path("models/powerups/ammo/bfgam2.md3"), modelDefinition.defaultModelSpecification().path);
 
             kdl::vec_clear_and_delete(definitions);
-        }
-
-        void assertPropertyDefinition(const std::string& key, const Assets::PropertyDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition) {
-            const auto* propDefinition = entityDefinition->propertyDefinition(key);
-            UNSCOPED_INFO("Missing property definition for '" + key + "' key");
-            ASSERT_NE(nullptr, propDefinition);
-
-            UNSCOPED_INFO("Expected '" + key + "' property definition to be of expected type");
-            ASSERT_EQ(expectedType, propDefinition->type());
         }
     }
 }
