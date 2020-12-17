@@ -28,9 +28,7 @@
 
 namespace TrenchBroom {
     namespace EL {
-
-        void ASSERT_EL(const std::string& expected, const std::string& expression, const EvaluationContext& context = EvaluationContext());
-        void ASSERT_EL(const std::string& expected, const std::string& expression, const EvaluationContext& context) {
+        static void ASSERT_EL(const std::string& expected, const std::string& expression, const EvaluationContext& context = EvaluationContext()) {
             ASSERT_EQ(expected, Interpolator(expression).interpolate(context));
         }
 
