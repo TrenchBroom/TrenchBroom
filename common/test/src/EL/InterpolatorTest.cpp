@@ -24,12 +24,11 @@
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace EL {
         void interpolateAndCheck(const std::string& expression, const std::string& expected, const EvaluationContext& context = EvaluationContext()) {
-            ASSERT_EQ(expected, Interpolator(expression).interpolate(context));
+            CHECK(Interpolator(expression).interpolate(context) == expected);
         }
 
         TEST_CASE("ELInterpolatorTest.interpolateEmptyString", "[ELInterpolatorTest]") {
