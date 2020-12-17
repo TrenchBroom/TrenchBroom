@@ -29,22 +29,21 @@
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace EL {
         using V = Value;
 
         static void assertOptimizable(const std::string& expression) {
-            ASSERT_TRUE(IO::ELParser::parseStrict(expression).optimize());
+            CHECK(IO::ELParser::parseStrict(expression).optimize());
         }
 
         static void assertNotOptimizable(const std::string& expression) {
-            ASSERT_FALSE(IO::ELParser::parseStrict(expression).optimize());
+            CHECK_FALSE(IO::ELParser::parseStrict(expression).optimize());
         }
 
         static void evaluateAndAssert(const std::string& expression, const Value& result, const EvaluationContext& context) {
-            ASSERT_EQ(result, IO::ELParser::parseStrict(expression).evaluate(context));
+            CHECK(IO::ELParser::parseStrict(expression).evaluate(context) == result);
         }
 
         template <typename T>
@@ -68,7 +67,7 @@ namespace TrenchBroom {
         
         template <typename E>
         static void evaluateAndThrow(const std::string& expression, const EvaluationContext& context = EvaluationContext()) {
-            ASSERT_THROW(IO::ELParser::parseStrict(expression).evaluate(context), E);
+            CHECK_THROWS_AS(IO::ELParser::parseStrict(expression).evaluate(context), E);
         }
 
         template <typename T1>
