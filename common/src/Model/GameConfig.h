@@ -43,8 +43,10 @@ namespace TrenchBroom {
             MapFormatConfig(const std::string& i_format, const IO::Path& i_initialMap);
             MapFormatConfig();
 
-            bool operator==(const MapFormatConfig& other) const;
         };
+
+        bool operator==(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
+        bool operator!=(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
 
         struct PackageFormatConfig {
             std::vector<std::string> extensions;
@@ -53,9 +55,10 @@ namespace TrenchBroom {
             PackageFormatConfig(const std::string& i_extension, const std::string& i_format);
             PackageFormatConfig(const std::vector<std::string>& i_extensions, const std::string& i_format);
             PackageFormatConfig();
-
-            bool operator==(const PackageFormatConfig& other) const;
         };
+
+        bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
+        bool operator!=(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
 
         struct FileSystemConfig {
             IO::Path searchPath;
@@ -63,9 +66,10 @@ namespace TrenchBroom {
 
             FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat);
             FileSystemConfig();
-
-            bool operator==(const FileSystemConfig& other) const;
         };
+
+        bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
+        bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
 
         struct TexturePackageConfig {
             typedef enum {
@@ -81,9 +85,10 @@ namespace TrenchBroom {
             explicit TexturePackageConfig(const PackageFormatConfig& i_format);
             explicit TexturePackageConfig(const IO::Path& directoryRoot);
             TexturePackageConfig();
-
-            bool operator==(const TexturePackageConfig& other) const;
         };
+
+        bool operator==(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs);
+        bool operator!=(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs);
 
         struct TextureConfig {
             TexturePackageConfig package;
@@ -95,9 +100,10 @@ namespace TrenchBroom {
 
             TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const std::string& i_property, const IO::Path& i_shaderSearchPath, const std::vector<std::string>& i_excludes);
             TextureConfig();
-
-            bool operator==(const TextureConfig& other) const;
         };
+
+        bool operator==(const TextureConfig& lhs, const TextureConfig& rhs);
+        bool operator!=(const TextureConfig& lhs, const TextureConfig& rhs);
 
         struct EntityConfig {
             std::vector<IO::Path> defFilePaths;
@@ -107,9 +113,10 @@ namespace TrenchBroom {
             EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor);
             EntityConfig(const std::vector<IO::Path>& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor);
             EntityConfig();
-
-            bool operator==(const EntityConfig& other) const;
         };
+
+        bool operator==(const EntityConfig& lhs, const EntityConfig& rhs);
+        bool operator!=(const EntityConfig& lhs, const EntityConfig& rhs);
 
         struct FlagConfig {
             std::string name;
@@ -118,9 +125,10 @@ namespace TrenchBroom {
 
             FlagConfig(const std::string& i_name, const std::string& i_description, const int i_value);
             FlagConfig();
-
-            bool operator==(const FlagConfig& other) const;
         };
+
+        bool operator==(const FlagConfig& lhs, const FlagConfig& rhs);
+        bool operator!=(const FlagConfig& lhs, const FlagConfig& rhs);
 
         struct FlagsConfig {
             std::vector<FlagConfig> flags;
@@ -131,9 +139,10 @@ namespace TrenchBroom {
             int flagValue(const std::string& flagName) const;
             std::string flagName(size_t index) const;
             std::vector<std::string> flagNames(int mask = ~0) const;
-
-            bool operator==(const FlagsConfig& other) const;
         };
+
+        bool operator==(const FlagsConfig& lhs, const FlagsConfig& rhs);
+        bool operator!=(const FlagsConfig& lhs, const FlagsConfig& rhs);
 
         struct FaceAttribsConfig {
             FlagsConfig surfaceFlags;
@@ -143,13 +152,17 @@ namespace TrenchBroom {
             FaceAttribsConfig();
             FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags, const BrushFaceAttributes& i_defaults);
             FaceAttribsConfig(const FlagsConfig& i_surfaceFlags, const FlagsConfig& i_contentFlags, const BrushFaceAttributes& i_defaults);
-
-            bool operator==(const FaceAttribsConfig& other) const;
         };
+
+        bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
+        bool operator!=(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
 
         struct CompilationTool {
             std::string name;
         };
+
+        bool operator==(const CompilationTool& lhs, const CompilationTool& rhs);
+        bool operator!=(const CompilationTool& lhs, const CompilationTool& rhs);
 
         class GameConfig {
         private:
@@ -213,6 +226,9 @@ namespace TrenchBroom {
 
             IO::Path findInitialMap(const std::string& formatName) const;
             IO::Path findConfigFile(const IO::Path& filePath) const;
+
+            friend bool operator==(const GameConfig& lhs, const GameConfig& rhs);
+            friend bool operator!=(const GameConfig& lhs, const GameConfig& rhs);
         };
     }
 }

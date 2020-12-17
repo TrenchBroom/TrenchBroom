@@ -36,8 +36,12 @@ namespace TrenchBroom {
 
         MapFormatConfig::MapFormatConfig() = default;
 
-        bool MapFormatConfig::operator==(const MapFormatConfig& other) const {
-            return format == other.format && initialMap == other.initialMap;
+        bool operator==(const MapFormatConfig& lhs, const MapFormatConfig& rhs) {
+            return lhs.format == rhs.format && lhs.initialMap == rhs.initialMap;
+        }
+
+        bool operator!=(const MapFormatConfig& lhs, const MapFormatConfig& rhs) {
+            return !(lhs == rhs);
         }
 
         PackageFormatConfig::PackageFormatConfig(const std::string& i_extension, const std::string& i_format) :
@@ -50,8 +54,12 @@ namespace TrenchBroom {
 
         PackageFormatConfig::PackageFormatConfig() = default;
 
-        bool PackageFormatConfig::operator==(const PackageFormatConfig& other) const {
-            return (extensions == other.extensions && format == other.format);
+        bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs) {
+            return lhs.extensions == rhs.extensions && lhs.format == rhs.format;
+        }
+
+        bool operator!=(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs) {
+            return !(lhs == rhs);
         }
 
         FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :
@@ -60,9 +68,12 @@ namespace TrenchBroom {
 
         FileSystemConfig::FileSystemConfig() = default;
 
-        bool FileSystemConfig::operator==(const FileSystemConfig& other) const {
-            return (searchPath == other.searchPath &&
-                    packageFormat == other.packageFormat);
+        bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs) {
+            return lhs.searchPath == rhs.searchPath && lhs.packageFormat == rhs.packageFormat;
+        }
+
+        bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs) {
+            return !(lhs == rhs);
         }
 
         TexturePackageConfig::TexturePackageConfig(const PackageFormatConfig& i_fileFormat) :
@@ -76,10 +87,14 @@ namespace TrenchBroom {
         TexturePackageConfig::TexturePackageConfig() :
         type(PT_Unset) {}
 
-        bool TexturePackageConfig::operator==(const TexturePackageConfig& other) const {
-            return (type == other.type &&
-                    fileFormat == other.fileFormat &&
-                    rootDirectory == other.rootDirectory);
+        bool operator==(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs) {
+            return lhs.type == rhs.type &&
+                   lhs.fileFormat == rhs.fileFormat &&
+                   lhs.rootDirectory == rhs.rootDirectory;
+        }
+
+        bool operator!=(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs) {
+            return !(lhs == rhs);
         }
 
         TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const std::string& i_property, const IO::Path& i_shaderSearchPath, const std::vector<std::string>& i_excludes) :
@@ -92,13 +107,17 @@ namespace TrenchBroom {
 
         TextureConfig::TextureConfig() = default;
 
-        bool TextureConfig::operator==(const TextureConfig& other) const {
-            return (package == other.package &&
-                    format == other.format &&
-                    palette == other.palette &&
-                    property == other.property &&
-                    shaderSearchPath == other.shaderSearchPath &&
-                    excludes == other.excludes);
+        bool operator==(const TextureConfig& lhs, const TextureConfig& rhs) {
+            return lhs.package == rhs.package &&
+                   lhs.format == rhs.format &&
+                   lhs.palette == rhs.palette &&
+                   lhs.property == rhs.property &&
+                   lhs.shaderSearchPath == rhs.shaderSearchPath &&
+                   lhs.excludes == rhs.excludes;
+        }
+
+        bool operator!=(const TextureConfig& lhs, const TextureConfig& rhs) {
+            return !(lhs == rhs);
         }
 
         EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
@@ -114,10 +133,14 @@ namespace TrenchBroom {
 
         EntityConfig::EntityConfig() = default;
 
-        bool EntityConfig::operator==(const EntityConfig& other) const {
-            return (defFilePaths == other.defFilePaths &&
-                    modelFormats == other.modelFormats &&
-                    defaultColor == other.defaultColor);
+        bool operator==(const EntityConfig& lhs, const EntityConfig& rhs) {
+            return lhs.defFilePaths == rhs.defFilePaths &&
+                   lhs.modelFormats == rhs.modelFormats &&
+                   lhs.defaultColor == rhs.defaultColor;
+        }
+
+        bool operator!=(const EntityConfig& lhs, const EntityConfig& rhs) {
+            return !(lhs == rhs);
         }
 
         FlagConfig::FlagConfig(const std::string& i_name, const std::string& i_description, const int i_value) :
@@ -127,10 +150,14 @@ namespace TrenchBroom {
 
         FlagConfig::FlagConfig() = default;
 
-        bool FlagConfig::operator==(const FlagConfig& other) const {
-            return (name == other.name &&
-                    description == other.description &&
-                    value == other.value);
+        bool operator==(const FlagConfig& lhs, const FlagConfig& rhs) {
+            return lhs.name == rhs.name &&
+                   lhs.description == rhs.description &&
+                   lhs.value == rhs.value;
+        }
+
+        bool operator!=(const FlagConfig& lhs, const FlagConfig& rhs) {
+            return !(lhs == rhs);
         }
 
         FlagsConfig::FlagsConfig() = default;
@@ -166,8 +193,12 @@ namespace TrenchBroom {
             return names;
         }
 
-        bool FlagsConfig::operator==(const FlagsConfig& other) const {
-            return flags == other.flags;
+        bool operator==(const FlagsConfig& lhs, const FlagsConfig& rhs) {
+            return lhs.flags == rhs.flags;
+        }
+
+        bool operator!=(const FlagsConfig& lhs, const FlagsConfig& rhs) {
+            return !(lhs == rhs);
         }
 
         FaceAttribsConfig::FaceAttribsConfig() :
@@ -183,10 +214,22 @@ namespace TrenchBroom {
         contentFlags(i_contentFlags),
         defaults(i_defaults) {}
 
-        bool FaceAttribsConfig::operator==(const FaceAttribsConfig& other) const {
-            return (surfaceFlags == other.surfaceFlags &&
-                    contentFlags == other.contentFlags &&
-                    defaults == other.defaults);
+        bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs) {
+            return lhs.surfaceFlags == rhs.surfaceFlags &&
+                   lhs.contentFlags == rhs.contentFlags &&
+                   lhs.defaults == rhs.defaults;
+        }
+
+        bool operator!=(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs) {
+            return !(lhs == rhs);
+        }
+
+        bool operator==(const CompilationTool& lhs, const CompilationTool& rhs) {
+            return lhs.name == rhs.name;
+        }
+
+        bool operator!=(const CompilationTool& lhs, const CompilationTool& rhs) {
+            return !(lhs == rhs);
         }
 
         GameConfig::GameConfig() :
@@ -325,6 +368,30 @@ namespace TrenchBroom {
 
         IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
             return path().deleteLastComponent() + filePath;
+        }
+
+        bool operator==(const GameConfig& lhs, const GameConfig& rhs) {
+            return lhs.m_name == rhs.m_name &&
+                   lhs.m_path == rhs.m_path &&
+                   lhs.m_icon == rhs.m_icon &&
+                   lhs.m_experimental == rhs.m_experimental &&
+                   lhs.m_fileFormats == rhs.m_fileFormats &&
+                   lhs.m_fileSystemConfig == rhs.m_fileSystemConfig &&
+                   lhs.m_textureConfig == rhs.m_textureConfig &&
+                   lhs.m_entityConfig == rhs.m_entityConfig &&
+                   lhs.m_faceAttribsConfig == rhs.m_faceAttribsConfig &&
+                   lhs.m_smartTags == rhs.m_smartTags &&
+                   lhs.m_compilationConfig == rhs.m_compilationConfig &&
+                   lhs.m_gameEngineConfig == rhs.m_gameEngineConfig &&
+                   lhs.m_maxPropertyLength == rhs.m_maxPropertyLength &&
+                   lhs.m_softMapBounds == rhs.m_softMapBounds &&
+                   lhs.m_compilationConfigParseFailed == rhs.m_compilationConfigParseFailed &&
+                   lhs.m_gameEngineConfigParseFailed == rhs.m_gameEngineConfigParseFailed &&
+                   lhs.m_compilationTools == rhs.m_compilationTools;
+        }
+
+        bool operator!=(const GameConfig& lhs, const GameConfig& rhs) {
+            return !(lhs == rhs);
         }
     }
 }
