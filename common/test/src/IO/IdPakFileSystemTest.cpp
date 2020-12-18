@@ -25,7 +25,6 @@
 #include <algorithm>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -33,111 +32,110 @@ namespace TrenchBroom {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
 
             const IdPakFileSystem fs(pakPath);
-            ASSERT_THROW(fs.directoryExists(Path("/asdf")), FileSystemException);
-            ASSERT_THROW(fs.directoryExists(Path("/gfx")), FileSystemException);
+            CHECK_THROWS_AS(fs.directoryExists(Path("/asdf")), FileSystemException);
+            CHECK_THROWS_AS(fs.directoryExists(Path("/gfx")), FileSystemException);
 
-            ASSERT_TRUE(fs.directoryExists(Path("gfx")));
-            ASSERT_TRUE(fs.directoryExists(Path("GFX")));
-            ASSERT_FALSE(fs.directoryExists(Path("gfx/palette.lmp")));
+            CHECK(fs.directoryExists(Path("gfx")));
+            CHECK(fs.directoryExists(Path("GFX")));
+            CHECK_FALSE(fs.directoryExists(Path("gfx/palette.lmp")));
         }
 
         TEST_CASE("IdPakFileSystemTest.fileExists", "[IdPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
 
             const IdPakFileSystem fs(pakPath);
-            ASSERT_THROW(fs.fileExists(Path("/asdf.blah")), FileSystemException);
-            ASSERT_THROW(fs.fileExists(Path("/gfx/palette.lmp")), FileSystemException);
+            CHECK_THROWS_AS(fs.fileExists(Path("/asdf.blah")), FileSystemException);
+            CHECK_THROWS_AS(fs.fileExists(Path("/gfx/palette.lmp")), FileSystemException);
 
-            ASSERT_TRUE(fs.fileExists(Path("gfx/palette.lmp")));
-            ASSERT_TRUE(fs.fileExists(Path("GFX/Palette.LMP")));
+            CHECK(fs.fileExists(Path("gfx/palette.lmp")));
+            CHECK(fs.fileExists(Path("GFX/Palette.LMP")));
         }
 
         TEST_CASE("IdPakFileSystemTest.findItems", "[IdPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
 
             const IdPakFileSystem fs(pakPath);
-            ASSERT_THROW(fs.findItems(Path("/")), FileSystemException);
-            ASSERT_THROW(fs.findItems(Path("/pics/")), FileSystemException);
-            ASSERT_THROW(fs.findItems(Path("pics/tag1.pcx")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItems(Path("/")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItems(Path("/pics/")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItems(Path("pics/tag1.pcx")), FileSystemException);
 
-            std::vector<Path> items = fs.findItems(Path(""));
-            ASSERT_EQ(4u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("amnet.cfg")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("bear.cfg")) != std::end(items));
+            CHECK_THAT(fs.findItems(Path("")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("pics"),
+                Path("textures"),
+                Path("amnet.cfg"),
+                Path("bear.cfg")
+            }));
 
-            items = fs.findItems(Path(""), FileExtensionMatcher("cfg"));
-            ASSERT_EQ(2u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("amnet.cfg")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("bear.cfg")) != std::end(items));
+            CHECK_THAT(fs.findItems(Path(""), FileExtensionMatcher("cfg")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("amnet.cfg"),
+                Path("bear.cfg")
+            }));
 
-            items = fs.findItems(Path("pics"), FileExtensionMatcher("cfg"));
-            ASSERT_TRUE(items.empty());
+            CHECK_THAT(fs.findItems(Path("pics"), FileExtensionMatcher("cfg")), Catch::UnorderedEquals(std::vector<Path>{}));
 
-            items = fs.findItems(Path("pics"));
-            ASSERT_EQ(2u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag1.pcx")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag2.pcx")) != std::end(items));
+            CHECK_THAT(fs.findItems(Path("pics")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("pics/tag1.pcx"),
+                Path("pics/tag2.pcx")
+            }));
         }
 
         TEST_CASE("IdPakFileSystemTest.findItemsRecursively", "[IdPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
 
             const IdPakFileSystem fs(pakPath);
-            ASSERT_THROW(fs.findItemsRecursively(Path("/")), FileSystemException);
-            ASSERT_THROW(fs.findItemsRecursively(Path("/pics/")), FileSystemException);
-            ASSERT_THROW(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItemsRecursively(Path("/")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItemsRecursively(Path("/pics/")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
 
-            std::vector<Path> items = fs.findItemsRecursively(Path(""));
-            ASSERT_EQ(16u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag1.pcx")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag2.pcx")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/box1_3.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/brlava.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_1.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_2.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/basic1_7.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stairs1_3.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("amnet.cfg")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("bear.cfg")) != std::end(items));
+            CHECK_THAT(fs.findItemsRecursively(Path("")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("pics"),
+                Path("pics/tag1.pcx"),
+                Path("pics/tag2.pcx"),
+                Path("textures/e1u1"),
+                Path("textures/e1u1/box1_3.wal"),
+                Path("textures/e1u1/brlava.wal"),
+                Path("textures/e1u2"),
+                Path("textures/e1u2/angle1_1.wal"),
+                Path("textures/e1u2/angle1_2.wal"),
+                Path("textures/e1u2/basic1_7.wal"),
+                Path("textures/e1u3"),
+                Path("textures/e1u3/stairs1_3.wal"),
+                Path("textures/e1u3/stflr1_5.wal"),
+                Path("textures"),
+                Path("amnet.cfg"),
+                Path("bear.cfg"),
+            }));
 
-            items = fs.findItemsRecursively(Path(""), FileExtensionMatcher("wal"));
-            ASSERT_EQ(7u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/box1_3.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/brlava.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_1.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_2.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/basic1_7.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stairs1_3.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
+            CHECK_THAT(fs.findItemsRecursively(Path(""), FileExtensionMatcher("wal")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("textures/e1u1/box1_3.wal"),
+                Path("textures/e1u1/brlava.wal"),
+                Path("textures/e1u2/angle1_1.wal"),
+                Path("textures/e1u2/angle1_2.wal"),
+                Path("textures/e1u2/basic1_7.wal"),
+                Path("textures/e1u3/stairs1_3.wal"),
+                Path("textures/e1u3/stflr1_5.wal"),
+            }));
 
-            items = fs.findItemsRecursively(Path("textures"), FileExtensionMatcher("WAL"));
-            ASSERT_EQ(7u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/box1_3.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u1/brlava.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_1.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/angle1_2.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u2/basic1_7.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stairs1_3.wal")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
+            CHECK_THAT(fs.findItemsRecursively(Path("textures"), FileExtensionMatcher("WAL")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("textures/e1u1/box1_3.wal"),
+                Path("textures/e1u1/brlava.wal"),
+                Path("textures/e1u2/angle1_1.wal"),
+                Path("textures/e1u2/angle1_2.wal"),
+                Path("textures/e1u2/basic1_7.wal"),
+                Path("textures/e1u3/stairs1_3.wal"),
+                Path("textures/e1u3/stflr1_5.wal"),
+            }));
         }
 
         TEST_CASE("IdPakFileSystemTest.openFile", "[IdPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
 
             const IdPakFileSystem fs(pakPath);
-            ASSERT_THROW(fs.openFile(Path("")), FileSystemException);
-            ASSERT_THROW(fs.openFile(Path("/amnet.cfg")), FileSystemException);
-            ASSERT_THROW(fs.openFile(Path("/textures")), FileSystemException);
+            CHECK_THROWS_AS(fs.openFile(Path("")), FileSystemException);
+            CHECK_THROWS_AS(fs.openFile(Path("/amnet.cfg")), FileSystemException);
+            CHECK_THROWS_AS(fs.openFile(Path("/textures")), FileSystemException);
 
-            ASSERT_TRUE(fs.openFile(Path("amnet.cfg")) != nullptr);
+            CHECK(fs.openFile(Path("amnet.cfg")) != nullptr);
         }
     }
 }
