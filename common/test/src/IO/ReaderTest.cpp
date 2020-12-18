@@ -30,26 +30,17 @@
 
 namespace TrenchBroom {
     namespace IO {
-        const char* buff();
-        std::shared_ptr<File> file();
-        void createEmpty(Reader&& r);
-        void createNonEmpty(Reader&& r);
-        void seekFromBegin(Reader&& r);
-        void seekFromEnd(Reader&& r);
-        void seekForward(Reader&& r);
-        void subReader(Reader&& r);
-
-        const char* buff() {
+        static const char* buff() {
             static const auto* result = "abcdefghij_";
             return result;
         }
 
-        std::shared_ptr<File> file() {
+        static std::shared_ptr<File> file() {
             static auto result = Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/10byte"));
             return result;
         }
 
-        void createEmpty(Reader&& r) {
+        static void createEmpty(Reader&& r) {
             EXPECT_EQ(0U, r.size());
             EXPECT_EQ(0U, r.position());
             EXPECT_NO_THROW(r.seekFromBegin(0U));
@@ -70,7 +61,7 @@ namespace TrenchBroom {
             createEmpty(emptyFile->reader());
         }
 
-        void createNonEmpty(Reader&& r) {
+        static void createNonEmpty(Reader&& r) {
             EXPECT_EQ(10U, r.size());
             EXPECT_EQ(0U, r.position());
             EXPECT_TRUE(r.canRead(0U));
@@ -102,7 +93,7 @@ namespace TrenchBroom {
             createNonEmpty(file()->reader());
         }
 
-        void seekFromBegin(Reader&& r) {
+        static void seekFromBegin(Reader&& r) {
             r.seekFromBegin(0U);
             EXPECT_EQ(0U, r.position());
 
@@ -125,7 +116,7 @@ namespace TrenchBroom {
             seekFromBegin(file()->reader());
         }
 
-        void seekFromEnd(Reader&& r) {
+        static void seekFromEnd(Reader&& r) {
             r.seekFromEnd(0U);
             EXPECT_EQ(10U, r.position());
 
@@ -147,7 +138,7 @@ namespace TrenchBroom {
             seekFromEnd(file()->reader());
         }
 
-        void seekForward(Reader&& r) {
+        static void seekForward(Reader&& r) {
             r.seekForward(1U);
             EXPECT_EQ(1U, r.position());
 
@@ -166,7 +157,7 @@ namespace TrenchBroom {
             seekForward(file()->reader());
         }
 
-        void subReader(Reader&& r) {
+        static void subReader(Reader&& r) {
             auto s = r.subReaderFromBegin(5, 3);
 
             EXPECT_EQ(3U, s.size());
