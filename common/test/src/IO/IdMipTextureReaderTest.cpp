@@ -33,19 +33,36 @@
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
-        static void assertTexture(const std::string& name, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& loader) {
-
-            const Assets::Texture texture = loader.readTexture(fs.openFile(Path(name + ".D")));
-            ASSERT_EQ(name, texture.name());
-            ASSERT_EQ(width, texture.width());
-            ASSERT_EQ(height, texture.height());
-        }
-
         TEST_CASE("IdMipTextureReaderTest.testLoadWad", "[IdMipTextureReaderTest]") {
+            using TexInfo = std::tuple<std::string, size_t, size_t>;
+
+            const auto [textureName, width, height] = GENERATE(values<TexInfo>({
+                { "cr8_czg_1",          64,  64 },
+                { "cr8_czg_2",          64,  64 },
+                { "cr8_czg_3",          64, 128 },
+                { "cr8_czg_4",          64, 128 },
+                { "cr8_czg_5",          64, 128 },
+                { "speedM_1",          128, 128 },
+                { "cap4can-o-jam",      64,  64 },
+                { "can-o-jam",          64,  64 },
+                { "eat_me",             64,  64 },
+                { "coffin1",           128, 128 },
+                { "coffin2",           128, 128 },
+                { "czg_fronthole",     128, 128 },
+                { "czg_backhole",      128, 128 },
+                { "u_get_this",         64,  64 },
+                { "for_sux-m-ass",      64,  64 },
+                { "dex_5",             128, 128 },
+                { "polished_turd",      64,  64 },
+                { "crackpipes",        128, 128 },
+                { "bongs2",            128, 128 },
+                { "blowjob_machine",   128, 128 },
+                { "lasthopeofhuman",   128, 128 },
+            }));
+
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
@@ -56,27 +73,10 @@ namespace TrenchBroom {
             const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
             WadFileSystem wadFS(wadPath, logger);
 
-            assertTexture("cr8_czg_1",          64,  64, wadFS, textureLoader);
-            assertTexture("cr8_czg_2",          64,  64, wadFS, textureLoader);
-            assertTexture("cr8_czg_3",          64, 128, wadFS, textureLoader);
-            assertTexture("cr8_czg_4",          64, 128, wadFS, textureLoader);
-            assertTexture("cr8_czg_5",          64, 128, wadFS, textureLoader);
-            assertTexture("speedM_1",          128, 128, wadFS, textureLoader);
-            assertTexture("cap4can-o-jam",      64,  64, wadFS, textureLoader);
-            assertTexture("can-o-jam",          64,  64, wadFS, textureLoader);
-            assertTexture("eat_me",             64,  64, wadFS, textureLoader);
-            assertTexture("coffin1",           128, 128, wadFS, textureLoader);
-            assertTexture("coffin2",           128, 128, wadFS, textureLoader);
-            assertTexture("czg_fronthole",     128, 128, wadFS, textureLoader);
-            assertTexture("czg_backhole",      128, 128, wadFS, textureLoader);
-            assertTexture("u_get_this",         64,  64, wadFS, textureLoader);
-            assertTexture("for_sux-m-ass",      64,  64, wadFS, textureLoader);
-            assertTexture("dex_5",             128, 128, wadFS, textureLoader);
-            assertTexture("polished_turd",      64,  64, wadFS, textureLoader);
-            assertTexture("crackpipes",        128, 128, wadFS, textureLoader);
-            assertTexture("bongs2",            128, 128, wadFS, textureLoader);
-            assertTexture("blowjob_machine",   128, 128, wadFS, textureLoader);
-            assertTexture("lasthopeofhuman",   128, 128, wadFS, textureLoader);
+            const Assets::Texture texture = textureLoader.readTexture(wadFS.openFile(Path(textureName + ".D")));
+            CHECK(texture.name() == textureName);
+            CHECK(texture.width() == width);
+            CHECK(texture.height() == height);
         }
     }
 }
