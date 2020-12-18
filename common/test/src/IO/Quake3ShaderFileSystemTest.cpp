@@ -28,12 +28,9 @@
 #include <memory>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
-        void assertShader(const std::vector<Path>& paths, const Path& path);
-
         TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking", "[Quake3ShaderFileSystemTest]") {
             NullLogger logger;
 
@@ -50,14 +47,13 @@ namespace TrenchBroom {
             fs = std::make_shared<DiskFileSystem>(fs, testDir);
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
-            const auto items = fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher(""));
-            ASSERT_EQ(5u, items.size());
-
-            assertShader(items, texturePrefix + Path("test/editor_image"));
-            assertShader(items, texturePrefix + Path("test/test"));
-            assertShader(items, texturePrefix + Path("test/test2"));
-            assertShader(items, texturePrefix + Path("test/not_existing"));
-            assertShader(items, texturePrefix + Path("test/not_existing2"));
+            CHECK_THAT(fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher("")), Catch::UnorderedEquals(std::vector<Path>{
+                texturePrefix + Path("test/editor_image"),
+                texturePrefix + Path("test/test"),
+                texturePrefix + Path("test/test2"),
+                texturePrefix + Path("test/not_existing"),
+                texturePrefix + Path("test/not_existing2"),
+            }));
         }
 
         TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles", "[Quake3ShaderFileSystemTest]") {
@@ -78,18 +74,13 @@ namespace TrenchBroom {
             fs = std::make_shared<DiskFileSystem>(fs, testDir);
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
-            const auto items = fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher(""));
-            ASSERT_EQ(5u, items.size());
-
-            assertShader(items, texturePrefix + Path("test/editor_image"));
-            assertShader(items, texturePrefix + Path("test/test"));
-            assertShader(items, texturePrefix + Path("test/test2"));
-            assertShader(items, texturePrefix + Path("test/not_existing"));
-            assertShader(items, texturePrefix + Path("test/not_existing2"));
-        }
-
-        void assertShader(const std::vector<Path>& paths, const Path& path) {
-            ASSERT_EQ(1, std::count_if(std::begin(paths), std::end(paths), [&path](const auto& item) { return item == path; }));
+            CHECK_THAT(fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher("")), Catch::UnorderedEquals(std::vector<Path>{
+                texturePrefix + Path("test/editor_image"),
+                texturePrefix + Path("test/test"),
+                texturePrefix + Path("test/test2"),
+                texturePrefix + Path("test/not_existing"),
+                texturePrefix + Path("test/not_existing2"),
+            }));
         }
     }
 }
