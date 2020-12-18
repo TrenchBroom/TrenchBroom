@@ -26,7 +26,6 @@
 #include "IO/Reader.h"
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -38,21 +37,21 @@ namespace TrenchBroom {
 
             const auto mdlPath = Path("pointyship.obj");
             const auto mdlFile = fs.openFile(mdlPath);
-            ASSERT_NE(nullptr, mdlFile);
+            REQUIRE(mdlFile != nullptr);
 
             auto reader = mdlFile->reader().buffer();
             auto parser = NvObjParser(mdlPath, std::begin(reader), std::end(reader), fs);
             auto model = parser.initializeModel(logger);
             parser.loadFrame(0, *model, logger);
 
-            EXPECT_NE(nullptr, model);
-            EXPECT_EQ(1u, model->surfaceCount());
-            EXPECT_EQ(1u, model->frameCount());
+            CHECK(model != nullptr);
+            CHECK(model->surfaceCount() == 1u);
+            CHECK(model->frameCount() == 1u);
 
             const auto surfaces = model->surfaces();
             const auto& surface = *surfaces.front();
-            EXPECT_EQ(1u, surface.skinCount());
-            EXPECT_EQ(1u, surface.frameCount());
+            CHECK(surface.skinCount() == 1u);
+            CHECK(surface.frameCount() == 1u);
         }
     }
 }
