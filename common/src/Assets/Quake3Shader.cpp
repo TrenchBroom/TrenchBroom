@@ -122,10 +122,6 @@ namespace TrenchBroom {
         bool operator!=(const Quake3Shader& lhs, const Quake3Shader& rhs) {
             return !(lhs == rhs);
         }
-
-        bool isEqual(const Quake3Shader& lhs, const Quake3Shader& rhs) {
-            return lhs == rhs;
-        }
     }
 }
 
