@@ -32,7 +32,16 @@
 
 namespace TrenchBroom {
     namespace IO {
-        void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual);
+        static void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual) {
+            ASSERT_EQ(expected.size(), actual.size());
+            for (const auto& expectedShader : expected) {
+                auto it = std::find(std::begin(actual), std::end(actual), expectedShader);
+                ASSERT_TRUE(it != std::end(actual));
+
+                const auto& actualShader = *it;
+                ASSERT_TRUE(isEqual(expectedShader, actualShader));
+            }
+        }
 
         TEST_CASE("Quake3ShaderParserTest.parseEmptyShader", "[Quake3ShaderParserTest]") {
             const std::string data("");
@@ -564,17 +573,6 @@ textures/evil3_floors/cemtiledrk_mhbrk
             Quake3ShaderParser parser(data);
             TestParserStatus status;
             ASSERT_NO_THROW(parser.parse(status));
-        }
-
-        void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual) {
-            ASSERT_EQ(expected.size(), actual.size());
-            for (const auto& expectedShader : expected) {
-                auto it = std::find(std::begin(actual), std::end(actual), expectedShader);
-                ASSERT_TRUE(it != std::end(actual));
-
-                const auto& actualShader = *it;
-                ASSERT_TRUE(isEqual(expectedShader, actualShader));
-            }
         }
     }
 }
