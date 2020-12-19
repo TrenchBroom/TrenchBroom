@@ -49,17 +49,76 @@ namespace TrenchBroom {
         using EdgeInfo = std::pair<vm::vec3d, vm::vec3d>;
         using EdgeInfoList = std::vector<EdgeInfo>;
 
-        bool hasVertex(const Polyhedron3d& p, const vm::vec3d& point, double epsilon = 0.0);
-        bool hasVertices(const Polyhedron3d& p, const std::vector<vm::vec3d>& points, double epsilon = 0.0);
-        bool hasEdge(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, double epsilon = 0.0);
-        bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos, double epsilon = 0.0);
-        bool hasTriangleOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, double epsilon = 0.0);
-        bool hasQuadOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const vm::vec3d& p4, double epsilon = 0.0);
-        bool hasPolygonOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const vm::vec3d& p4, const vm::vec3d& p5, double epsilon = 0.0);
+        static bool hasVertex(const Polyhedron3d& p, const vm::vec3d& point, const double epsilon = 0.0) {
+            return p.hasVertex(point, epsilon);
+        }
 
-        void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs);
-        void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs);
+        static bool hasVertices(const Polyhedron3d& p, const std::vector<vm::vec3d>& points, const double epsilon = 0.0) {
+            if (p.vertexCount() != points.size())
+                return false;
 
+            for (size_t i = 0; i < points.size(); ++i) {
+                if (!hasVertex(p, points[i], epsilon))
+                    return false;
+            }
+            return true;
+        }
+
+        static bool hasEdge(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const double epsilon = 0.0) {
+            return p.hasEdge(p1, p2, epsilon);
+        }
+
+        static bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos, const double epsilon = 0.0) {
+            if (p.edgeCount() != edgeInfos.size())
+                return false;
+
+            for (size_t i = 0; i < edgeInfos.size(); ++i) {
+                if (!hasEdge(p, edgeInfos[i].first, edgeInfos[i].second, epsilon))
+                    return false;
+            }
+            return true;
+        }
+
+        static bool hasTriangleOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const double epsilon = 0.0) {
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+            points.push_back(p2);
+            points.push_back(p3);
+            return p.hasFace(points, epsilon);
+        }
+
+        static bool hasQuadOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const vm::vec3d& p4, const double epsilon = 0.0) {
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+            points.push_back(p2);
+            points.push_back(p3);
+            points.push_back(p4);
+            return p.hasFace(points, epsilon);
+        }
+
+        static bool hasPolygonOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const vm::vec3d& p4, const vm::vec3d& p5, const double epsilon = 0.0) {
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+            points.push_back(p2);
+            points.push_back(p3);
+            points.push_back(p4);
+            points.push_back(p5);
+            return p.hasFace(points, epsilon);
+        }
+
+        void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+            const auto b1 = lhs.intersects(rhs);
+            const auto b2 = rhs.intersects(lhs);
+            ASSERT_TRUE(b1);
+            ASSERT_TRUE(b2);
+        }
+
+        void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+            const auto b1 = lhs.intersects(rhs);
+            const auto b2 = rhs.intersects(lhs);
+            ASSERT_FALSE(b1);
+            ASSERT_FALSE(b2);
+        }
 
         TEST_CASE("PolyhedronTest.initWith4Points", "[PolyhedronTest]") {
             const vm::vec3d p1( 0.0, 0.0, 8.0);
@@ -1961,78 +2020,6 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
                 vm::vec3d(+2.0, -2.0, 0.0),
                 vm::vec3d(+2.0, +2.0, 0.0),
             }, cube);
-        }
-
-        bool hasVertex(const Polyhedron3d& p, const vm::vec3d& point, const double epsilon) {
-            return p.hasVertex(point, epsilon);
-        }
-
-        bool hasVertices(const Polyhedron3d& p, const std::vector<vm::vec3d>& points, const double epsilon) {
-            if (p.vertexCount() != points.size())
-                return false;
-
-            for (size_t i = 0; i < points.size(); ++i) {
-                if (!hasVertex(p, points[i], epsilon))
-                    return false;
-            }
-            return true;
-        }
-
-        bool hasEdge(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const double epsilon) {
-            return p.hasEdge(p1, p2, epsilon);
-        }
-
-        bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos, const double epsilon) {
-            if (p.edgeCount() != edgeInfos.size())
-                return false;
-
-            for (size_t i = 0; i < edgeInfos.size(); ++i) {
-                if (!hasEdge(p, edgeInfos[i].first, edgeInfos[i].second, epsilon))
-                    return false;
-            }
-            return true;
-        }
-
-        bool hasTriangleOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const double epsilon) {
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-            points.push_back(p2);
-            points.push_back(p3);
-            return p.hasFace(points, epsilon);
-        }
-
-        bool hasQuadOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const vm::vec3d& p4, const double epsilon) {
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-            points.push_back(p2);
-            points.push_back(p3);
-            points.push_back(p4);
-            return p.hasFace(points, epsilon);
-        }
-
-        bool hasPolygonOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const vm::vec3d& p4, const vm::vec3d& p5, const double epsilon) {
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-            points.push_back(p2);
-            points.push_back(p3);
-            points.push_back(p4);
-            points.push_back(p5);
-            return p.hasFace(points, epsilon);
-        }
-
-
-        void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
-            const auto b1 = lhs.intersects(rhs);
-            const auto b2 = rhs.intersects(lhs);
-            ASSERT_TRUE(b1);
-            ASSERT_TRUE(b2);
-        }
-
-        void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
-            const auto b1 = lhs.intersects(rhs);
-            const auto b2 = rhs.intersects(lhs);
-            ASSERT_FALSE(b1);
-            ASSERT_FALSE(b2);
         }
     }
 }
