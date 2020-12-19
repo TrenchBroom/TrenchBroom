@@ -40,7 +40,6 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 #include "TestGame.h"
 
