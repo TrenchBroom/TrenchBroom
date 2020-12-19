@@ -13,13 +13,16 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [ubuntu-16.04, macos-10.15]
+        os: [windows-2019] #[ubuntu-16.04, macos-10.15, windows-2019]
         tbdebug: [false]
         # Placeholder value since we can't have an empty array here
-        gcc-package: ['']        
+        gcc-package: ['']
+        tb-arch: ['']
         exclude:
           - os: ubuntu-16.04
             gcc-package: ['']
+          - os: windows-2019
+            tb-arch: ['']
         include:
           - os: ubuntu-16.04
             gcc-package: g++-7
@@ -27,6 +30,10 @@ jobs:
             gcc-package: g++-8
           - os: macos-10.15
             tbdebug: true
+          - os: windows-2019
+            tb-arch: x64
+          - os: windows-2019
+            tb-arch: Win32
 
     steps:
       # See: https://github.com/actions/checkout
@@ -35,6 +42,8 @@ jobs:
         with:
           submodules: 'recursive'
 
+      # Dependencies
+
       - name: Install Linux dependencies
         if: ${{ matrix.os == 'ubuntu-16.04' }}
         run: |
@@ -42,6 +51,27 @@ jobs:
           sudo add-apt-repository ppa:beineri/opt-qt595-xenial
           sudo apt update
           sudo apt install ${{ matrix.gcc-package }} qt59base qt59svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+
+      - name: Install Windows dependencies
+        if: ${{ matrix.os == 'windows-2019' }}
+        run: |
+          choco install pandoc
+
+      - name: Install Qt on Windows (x64)
+        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          arch: 'win64_msvc2017'
+
+      - name: Install Qt on Windows (Win32)
+        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          arch: 'win32_msvc2017'
+
+      # Run build script
 
       - name: Linux build (GCC8)
         if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-8' }}
@@ -59,11 +89,27 @@ jobs:
         env:
           TB_DEBUG_BUILD: ${{ matrix.tbdebug }}
 
+      - name: Windows build
+        if: ${{ matrix.os == 'windows-2019' }}
+        # NOTE: docs at https://github.com/jurplel/install-qt-action
+        # mention that it sets a Qt5_DIR environment variable.
+        # Our script expects it in QT5_INSTALL_DIR
+        # NOTE: cmd.exe /c = run a command and terminate
+        run: |
+          $Env:QT5_INSTALL_DIR = $env:Qt5_DIR
+          cmd.exe /c appveyor.bat
+        env:
+          TB_ARCH: ${{ matrix.tb-arch }}
+
+      # Upload artifacts / create release
+
       - uses: actions/upload-artifact@v2
         with:
-          name: my-artifact # FIXME: uploads may collide between matrix entries
+          name: my-artifact # FIXME: don't group all of these into one zip
           path: |
             build/*.deb
             build/*.rpm
             build/*.dmg
             build/*.md5
+            cmakebuild/*.7z
+            cmakebuild/*.7z.md5
