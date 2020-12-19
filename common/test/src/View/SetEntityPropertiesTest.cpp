@@ -30,8 +30,6 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace View {
