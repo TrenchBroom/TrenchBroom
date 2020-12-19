@@ -45,8 +45,8 @@
 #include <vecmath/mat_io.h>
 #include <vecmath/mat_ext.h>
 
-#include <vector>
 #include <variant>
+#include <vector>
 
 #include "Catch2.h"
 #include "GTestCompat.h"
