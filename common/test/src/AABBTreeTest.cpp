@@ -34,10 +34,51 @@ namespace TrenchBroom {
     using RAY = vm::ray<AABB::FloatType, AABB::Components>;
     using VEC = vm::vec<AABB::FloatType, AABB::Components>;
 
-    void assertTree(const std::string& exp, const AABB& actual);
-    void assertIntersectors(const AABB& tree, const RAY& ray, std::initializer_list<AABB::DataType> items);
-    void assertTreeContains(const AABB& tree, const BOX& box, AABB::DataType data);
-    void assertTreeDoesNotContain(const AABB& tree, const BOX& box, AABB::DataType data);
+
+    static void assertTree(const std::string& exp, const AABB& actual) {
+        std::stringstream str;
+        actual.print(str);
+        ASSERT_EQ(exp, "\n" + str.str());
+    }
+
+    static void assertIntersectors(const AABB& tree, const RAY& ray, std::initializer_list<AABB::DataType> items) {
+        const std::set<AABB::DataType> expected(items);
+        std::set<AABB::DataType> actual;
+
+        tree.findIntersectors(ray, std::inserter(actual, std::end(actual)));
+
+        ASSERT_EQ(expected, actual);
+    }
+
+    static void assertTreeContains(const AABB& tree, const BOX& box, AABB::DataType data) {
+        ASSERT_TRUE(tree.contains(data));
+
+        // Check that the the AABB tree can retrieve `data` by doing a spatial search
+        bool found = false;
+        for (const AABB::DataType dataAtBoxCenter : tree.findContainers(box.center())) {
+            if (dataAtBoxCenter == data) {
+                found = true;
+                break;
+            }
+        }
+        ASSERT_TRUE(found);
+
+        // Check that a spatial search of a point outside `box` doesn't return `data`
+        const auto pointOutsideBox = box.center() + box.size();
+        ASSERT_FALSE(box.contains(pointOutsideBox));
+        for (const AABB::DataType dataOutsideBox : tree.findContainers(pointOutsideBox)) {
+            ASSERT_FALSE(dataOutsideBox == data);
+        }
+    }
+
+    static void assertTreeDoesNotContain(const AABB& tree, const BOX& box, AABB::DataType data) {
+        ASSERT_FALSE(tree.contains(data));
+
+        // Check that a spatial search doesn't return `data`
+        for (const AABB::DataType dataAtBoxCenter : tree.findContainers(box.center())) {
+            ASSERT_NE(dataAtBoxCenter, data);
+        }
+    }
 
     TEST_CASE("AABBTreeTest.createEmptyTree", "[AABBTreeTest]") {
         AABB tree;
@@ -487,50 +528,5 @@ L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
         tree.insert(BOX(VEC(+2.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)), 2u);
 
         assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::pos_x()), { 2u });
-    }
-
-    void assertTree(const std::string& exp, const AABB& actual) {
-        std::stringstream str;
-        actual.print(str);
-        ASSERT_EQ(exp, "\n" + str.str());
-    }
-
-    void assertIntersectors(const AABB& tree, const RAY& ray, std::initializer_list<AABB::DataType> items) {
-        const std::set<AABB::DataType> expected(items);
-        std::set<AABB::DataType> actual;
-
-        tree.findIntersectors(ray, std::inserter(actual, std::end(actual)));
-
-        ASSERT_EQ(expected, actual);
-    }
-
-    void assertTreeContains(const AABB& tree, const BOX& box, AABB::DataType data) {
-        ASSERT_TRUE(tree.contains(data));
-
-        // Check that the the AABB tree can retrieve `data` by doing a spatial search
-        bool found = false;
-        for (const AABB::DataType dataAtBoxCenter : tree.findContainers(box.center())) {
-            if (dataAtBoxCenter == data) {
-                found = true;
-                break;
-            }
-        }
-        ASSERT_TRUE(found);
-
-        // Check that a spatial search of a point outside `box` doesn't return `data`
-        const auto pointOutsideBox = box.center() + box.size();
-        ASSERT_FALSE(box.contains(pointOutsideBox));
-        for (const AABB::DataType dataOutsideBox : tree.findContainers(pointOutsideBox)) {
-            ASSERT_FALSE(dataOutsideBox == data);
-        }
-    }
-
-    void assertTreeDoesNotContain(const AABB& tree, const BOX& box, AABB::DataType data) {
-        ASSERT_FALSE(tree.contains(data));
-
-        // Check that a spatial search doesn't return `data`
-        for (const AABB::DataType dataAtBoxCenter : tree.findContainers(box.center())) {
-            ASSERT_NE(dataAtBoxCenter, data);
-        }
     }
 }
