@@ -25,7 +25,8 @@ jobs:
       # See: https://github.com/actions/checkout
       - name: Checkout code
         uses: actions/checkout@v2
-        submodules: 'recursive'
+        with:
+          submodules: 'recursive'
 
       - name: Linux build
         run: ./travis-linux.sh
