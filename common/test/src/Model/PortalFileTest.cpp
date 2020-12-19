@@ -33,7 +33,7 @@ namespace TrenchBroom {
         TEST_CASE("PortalFileTest.parseInvalidPRT1", "[PortalFileTest]") {
             const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt");
 
-            EXPECT_ANY_THROW([&](){
+            CHECK_THROWS([&](){
                 const Model::PortalFile p = Model::PortalFile(path);
             }());
         }
