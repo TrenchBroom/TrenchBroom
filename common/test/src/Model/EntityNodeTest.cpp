@@ -33,13 +33,13 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 #include <vecmath/mat_ext.h>
+#include "vecmath/util.h"
 
 #include <memory>
 #include <string>
 
 #include "Catch2.h"
 #include "GTestCompat.h"
-#include "vecmath/util.h"
 
 namespace TrenchBroom {
     namespace Model {
