@@ -10,14 +10,15 @@ jobs:
     # Set the type of machine to run on
     runs-on: ${{ matrix.os }}
     strategy:
+      # Don't cancel the macOS build if the Linux build fails, etc.
+      fail-fast: false
       matrix:
         os: [ubuntu-16.04, macos-10.15]
         tbdebug: [false]
-        gcc8: [false]
         # Add extra variants to the build matrix
         include:
           - os: ubuntu-16.04
-            gcc8: true
+            gcc-package: [ g++-7, g++-8 ]
           - os: macos-10.15
             tbdebug: true
 
@@ -28,14 +29,26 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Linux build
-        run: ./travis-linux.sh
+      - name: Install Linux dependencies
         if: ${{ matrix.os == 'ubuntu-16.04' }}
+        run: |
+          sudo apt install software-properties-common
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo add-apt-repository ppa:beineri/opt-qt595-xenial
+          sudo apt install ${{ matrix.gcc-package }} qt59base qt59svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+
+      - name: Linux build (GCC8)
+        if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-8' }}
+        run: ./travis-linux.sh
         env:
-          TB_GCC8: ${{ matrix.gcc8 }}
+          TB_GCC8: 'true'
+
+      - name: Linux build (GCC7)
+        if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-7' }}
+        run: ./travis-linux.sh
 
       - name: macOS build
-        run: ./travis-macos.sh
         if: ${{ matrix.os == 'macos-10.15' }}
+        run: ./travis-macos.sh
         env:
           TB_DEBUG_BUILD: ${{ matrix.tbdebug }}
