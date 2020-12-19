@@ -13,7 +13,7 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [windows-2019] #[ubuntu-16.04, macos-10.15, windows-2019]
+        os: [windows-2019, ubuntu-16.04, macos-10.15, windows-2019]
         tbdebug: [false]
         # Placeholder value since we can't have an empty array here
         gcc-package: ['']
@@ -24,12 +24,12 @@ jobs:
           - os: windows-2019
             tb-arch: ['']
         include:
-          # - os: ubuntu-16.04
-          #   gcc-package: g++-7
-          # - os: ubuntu-16.04
-          #   gcc-package: g++-8
-          # - os: macos-10.15
-          #   tbdebug: true
+          - os: ubuntu-16.04
+            gcc-package: g++-7
+          - os: ubuntu-16.04
+            gcc-package: g++-8
+          - os: macos-10.15
+            tbdebug: true
           - os: windows-2019
             tb-arch: x64
           - os: windows-2019
