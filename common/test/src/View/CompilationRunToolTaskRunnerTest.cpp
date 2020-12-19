@@ -29,7 +29,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 #include "MapDocumentTest.h"
 
@@ -80,9 +79,9 @@ namespace TrenchBroom {
             ExecuteTask exec(runner);
             exec.executeAndWait(500);
             
-            ASSERT_TRUE(exec.started);
-            ASSERT_TRUE(exec.errored);
-            ASSERT_FALSE(exec.ended);
+            CHECK(exec.started);
+            CHECK(exec.errored);
+            CHECK_FALSE(exec.ended);
         }
     }
 }
