@@ -22,7 +22,9 @@ jobs:
             gcc-package: ['']
         include:
           - os: ubuntu-16.04
-            gcc-package: [ g++-7, g++-8 ]
+            gcc-package: g++-7
+          - os: ubuntu-16.04
+            gcc-package: g++-8
           - os: macos-10.15
             tbdebug: true
 
