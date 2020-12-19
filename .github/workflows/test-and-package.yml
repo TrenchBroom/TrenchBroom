@@ -62,14 +62,14 @@ jobs:
         uses: jurplel/install-qt-action@v2
         with:
           version: '5.15.2'
-          arch: 'win64_msvc2017'
+          arch: 'win64_msvc2019'
 
       - name: Install Qt on Windows (Win32)
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
         uses: jurplel/install-qt-action@v2
         with:
           version: '5.15.2'
-          arch: 'win32_msvc2017'
+          arch: 'win32_msvc2019'
 
       # Run build script
 
