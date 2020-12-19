@@ -26,9 +26,6 @@
 #include <memory>
 #include <string>
 
-#include "Catch2.h"
-#include "GTestCompat.h"
-
 namespace TrenchBroom {
     namespace Assets {
         class BrushEntityDefinition;
