@@ -1,0 +1,40 @@
+# Run this workflow every time a new commit pushed to your repository
+on: push
+
+jobs:
+  # Set the job key. The key is displayed as the job name
+  # when a job name is not provided
+  test-and-package:
+    # Name the Job
+    name: Test and package
+    # Set the type of machine to run on
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04, macos-10.15]
+        tbdebug: [false]
+        gcc8: [false]
+        # Add extra variants to the build matrix
+        include:
+          - os: ubuntu-16.04
+            gcc8: true
+          - os: macos-10.15
+            tbdebug: true
+
+    steps:
+      # See: https://github.com/actions/checkout
+      - name: Checkout code
+        uses: actions/checkout@v2
+        submodules: 'recursive'
+
+      - name: Linux build
+        run: ./travis-linux.sh
+        if: ${{ matrix.os == 'ubuntu-16.04' }}
+        env:
+          TB_GCC8: ${{ matrix.gcc8 }}
+
+      - name: macOS build
+        run: ./travis-macos.sh
+        if: ${{ matrix.os == 'macos-10.15' }}
+        env:
+          TB_DEBUG_BUILD: ${{ matrix.tbdebug }}
