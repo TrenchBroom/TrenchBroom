@@ -15,7 +15,11 @@ jobs:
       matrix:
         os: [ubuntu-16.04, macos-10.15]
         tbdebug: [false]
-        # Add extra variants to the build matrix
+        # Placeholder value since we can't have an empty array here
+        gcc-package: ['']        
+        exclude:
+          - os: ubuntu-16.04
+            gcc-package: ['']
         include:
           - os: ubuntu-16.04
             gcc-package: [ g++-7, g++-8 ]
@@ -32,9 +36,9 @@ jobs:
       - name: Install Linux dependencies
         if: ${{ matrix.os == 'ubuntu-16.04' }}
         run: |
-          sudo apt install software-properties-common
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo add-apt-repository ppa:beineri/opt-qt595-xenial
+          sudo apt update
           sudo apt install ${{ matrix.gcc-package }} qt59base qt59svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
 
       - name: Linux build (GCC8)
