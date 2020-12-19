@@ -39,7 +39,6 @@
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -84,8 +83,8 @@ namespace TrenchBroom {
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
             m_entity->setEntity(Entity({ EntityProperty("origin", "10 20 30")}));
-            EXPECT_EQ(newOrigin, m_entity->entity().origin());
-            EXPECT_EQ(newBounds, m_entity->logicalBounds());
+            CHECK(m_entity->entity().origin() == newOrigin);
+            CHECK(m_entity->logicalBounds() == newBounds);
         }
 
         TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProperties") {
@@ -94,8 +93,8 @@ namespace TrenchBroom {
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
             m_entity->setEntity(Entity({{"origin", "10 20 30"}}));
-            EXPECT_EQ(newOrigin, m_entity->entity().origin());
-            EXPECT_EQ(newBounds, m_entity->logicalBounds());
+            CHECK(m_entity->entity().origin() == newOrigin);
+            CHECK(m_entity->logicalBounds() == newBounds);
         }
 
         // Same as above, but add the entity to a world
@@ -107,8 +106,8 @@ namespace TrenchBroom {
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
             m_entity->setEntity(Entity({{"origin", "10 20 30"}}));
-            EXPECT_EQ(newOrigin, m_entity->entity().origin());
-            EXPECT_EQ(newBounds, m_entity->logicalBounds());
+            CHECK(m_entity->entity().origin() == newOrigin);
+            CHECK(m_entity->logicalBounds() == newBounds);
         }
     }
 }
