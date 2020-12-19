@@ -55,14 +55,14 @@ jobs:
       - name: Install Windows dependencies
         if: ${{ matrix.os == 'windows-2019' }}
         run: |
-          choco install --limitoutput --yes pandoc
+          choco install --no-progress --yes pandoc
 
       - name: Install Qt on Windows (x64)
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
         uses: jurplel/install-qt-action@v2
         with:
           version: '5.15.2'
-          arch: 'win64_msvc2019'
+          arch: 'win64_msvc2019_64'
 
       - name: Install Qt on Windows (Win32)
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
