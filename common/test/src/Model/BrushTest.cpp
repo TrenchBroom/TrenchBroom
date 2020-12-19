@@ -38,6 +38,7 @@
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
+#include <vecmath/approx.h>
 #include <vecmath/polygon.h>
 #include <vecmath/ray.h>
 #include <vecmath/segment.h>
@@ -476,9 +477,11 @@ namespace TrenchBroom {
             CHECK(brush1.expand(worldBounds, 6, true).is_success());
 
             const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
+            const auto expectedVerticesArray = expandedBBox.vertices();
+            const auto expectedVertices = std::vector<vm::vec3>(std::begin(expectedVerticesArray), std::end(expectedVerticesArray));
             
-            EXPECT_EQ(expandedBBox, brush1.bounds());
-            EXPECT_COLLECTIONS_EQUIVALENT(expandedBBox.vertices(), brush1.vertexPositions());
+            CHECK(brush1.bounds() == expandedBBox);
+            CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
         }
 
         TEST_CASE("BrushTest.contract", "[BrushTest]") {
@@ -490,9 +493,11 @@ namespace TrenchBroom {
             CHECK(brush1.expand(worldBounds, -32, true).is_success());
 
             const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
+            const auto expectedVerticesArray = expandedBBox.vertices();
+            const auto expectedVertices = std::vector<vm::vec3>(std::begin(expectedVerticesArray), std::end(expectedVerticesArray));
 
-            EXPECT_EQ(expandedBBox, brush1.bounds());
-            EXPECT_COLLECTIONS_EQUIVALENT(expandedBBox.vertices(), brush1.vertexPositions());
+            CHECK(brush1.bounds() == expandedBBox);
+            CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
         }
 
         TEST_CASE("BrushTest.contractToZero", "[BrushTest]") {
@@ -525,8 +530,8 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, p9 - p8).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + (p9 - p8));
             
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p9));
 
             assertTexture("left", brush, p1, p2, p4, p3);
             assertTexture("right", brush, p5, p7, p6);
@@ -541,8 +546,8 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, p8 - p9).is_success());
             newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + (p8 - p9));
             
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p8, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p8));
 
             assertTexture("left", brush, p1, p2, p4, p3);
             assertTexture("right", brush, p5, p7, p8, p6);
@@ -572,9 +577,9 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(vm::vec3(0.0, 0.0, -16.0), newVertexPositions[0]);
-            ASSERT_TRUE(brush.fullySpecified());
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(vm::vec3(0.0, 0.0, -16.0)));
+            CHECK(brush.fullySpecified());
         }
 
         TEST_CASE("BrushTest.moveVertexInwardWithoutMerges", "[BrushTest]") {
@@ -609,48 +614,48 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p9));
 
-            ASSERT_EQ(8u, brush.vertexCount());
-            ASSERT_EQ(15u, brush.edgeCount());
-            ASSERT_EQ(9u, brush.faceCount());
+            CHECK(brush.vertexCount() == 8u);
+            CHECK(brush.edgeCount() == 15u);
+            CHECK(brush.faceCount() == 9u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
-            ASSERT_TRUE(brush.hasVertex(p9));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p9));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p7, p9)));
 
 
-            ASSERT_TRUE(brush.hasFace({p1, p5, p6, p2}));
-            ASSERT_TRUE(brush.hasFace({p1, p2, p4, p3}));
-            ASSERT_TRUE(brush.hasFace({p1, p3, p7, p5}));
-            ASSERT_TRUE(brush.hasFace({p2, p6, p4}));
-            ASSERT_TRUE(brush.hasFace({p5, p7, p6}));
-            ASSERT_TRUE(brush.hasFace({p3, p4, p7}));
-            ASSERT_TRUE(brush.hasFace({p9, p6, p7}));
-            ASSERT_TRUE(brush.hasFace({p9, p4, p6}));
-            ASSERT_TRUE(brush.hasFace({p9, p7, p4}));
+            CHECK(brush.hasFace({p1, p5, p6, p2}));
+            CHECK(brush.hasFace({p1, p2, p4, p3}));
+            CHECK(brush.hasFace({p1, p3, p7, p5}));
+            CHECK(brush.hasFace({p2, p6, p4}));
+            CHECK(brush.hasFace({p5, p7, p6}));
+            CHECK(brush.hasFace({p3, p4, p7}));
+            CHECK(brush.hasFace({p9, p6, p7}));
+            CHECK(brush.hasFace({p9, p4, p6}));
+            CHECK(brush.hasFace({p9, p7, p4}));
         }
 
         TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges", "[BrushTest]") {
@@ -685,47 +690,47 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p9));
 
-            ASSERT_EQ(8u, brush.vertexCount());
-            ASSERT_EQ(15u, brush.edgeCount());
-            ASSERT_EQ(9u, brush.faceCount());
+            CHECK(brush.vertexCount() == 8u);
+            CHECK(brush.edgeCount() == 15u);
+            CHECK(brush.faceCount() == 9u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
-            ASSERT_TRUE(brush.hasVertex(p9));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p9));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p9})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p9, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p9, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p9, p6})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p9})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p9, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p9})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p9, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p9, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9})));
         }
 
         TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge", "[BrushTest]") {
@@ -760,45 +765,45 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p9));
 
-            ASSERT_EQ(8u, brush.vertexCount());
-            ASSERT_EQ(14u, brush.edgeCount());
-            ASSERT_EQ(8u, brush.faceCount());
+            CHECK(brush.vertexCount() == 8u);
+            CHECK(brush.edgeCount() == 14u);
+            CHECK(brush.faceCount() == 8u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
-            ASSERT_TRUE(brush.hasVertex(p9));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p9));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p9, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p6})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p9, p6, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p9, p7, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p9, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p9, p6, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p9, p7, p4})));
         }
 
         TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges", "[BrushTest]") {
@@ -833,43 +838,43 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p9));
 
-            ASSERT_EQ(8u, brush.vertexCount());
-            ASSERT_EQ(13u, brush.edgeCount());
-            ASSERT_EQ(7u, brush.faceCount());
+            CHECK(brush.vertexCount() == 8u);
+            CHECK(brush.edgeCount() == 13u);
+            CHECK(brush.faceCount() == 7u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
-            ASSERT_TRUE(brush.hasVertex(p9));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p9));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p9, p4, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p9, p4, p6})));
         }
 
         TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges", "[BrushTest]") {
@@ -904,41 +909,41 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p9));
 
-            ASSERT_EQ(8u, brush.vertexCount());
-            ASSERT_EQ(12u, brush.edgeCount());
-            ASSERT_EQ(6u, brush.faceCount());
+            CHECK(brush.vertexCount() == 8u);
+            CHECK(brush.edgeCount() == 12u);
+            CHECK(brush.faceCount() == 6u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
-            ASSERT_TRUE(brush.hasVertex(p9));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p9));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p9, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p9, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
         }
 
         TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge", "[BrushTest]") {
@@ -973,40 +978,40 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(0u, newVertexPositions.size());
+            CHECK(newVertexPositions.size() == 0u);
 
-            ASSERT_EQ(7u, brush.vertexCount());
-            ASSERT_EQ(12u, brush.edgeCount());
-            ASSERT_EQ(7u, brush.faceCount());
+            CHECK(brush.vertexCount() == 7u);
+            CHECK(brush.edgeCount() == 12u);
+            CHECK(brush.faceCount() == 7u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p7)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p6})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p4, p6, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p4, p6, p7})));
         }
 
         TEST_CASE("BrushTest.moveVertexUpThroughPlane", "[BrushTest]") {
@@ -1041,43 +1046,43 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p9));
 
-            ASSERT_EQ(8u, brush.vertexCount());
-            ASSERT_EQ(13u, brush.edgeCount());
-            ASSERT_EQ(7u, brush.faceCount());
+            CHECK(brush.vertexCount() == 8u);
+            CHECK(brush.edgeCount() == 13u);
+            CHECK(brush.faceCount() == 7u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
-            ASSERT_TRUE(brush.hasVertex(p9));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p9));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p9, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p9})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p9, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p9})));
         }
 
         TEST_CASE("BrushTest.moveVertexOntoEdge", "[BrushTest]") {
@@ -1112,40 +1117,40 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(0u, newVertexPositions.size());
+            CHECK(newVertexPositions.size() == 0u);
 
-            ASSERT_EQ(7u, brush.vertexCount());
-            ASSERT_EQ(12u, brush.edgeCount());
-            ASSERT_EQ(7u, brush.faceCount());
+            CHECK(brush.vertexCount() == 7u);
+            CHECK(brush.edgeCount() == 12u);
+            CHECK(brush.faceCount() == 7u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p7)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p6})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p4, p6, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p4, p6, p7})));
         }
 
         TEST_CASE("BrushTest.moveVertexOntoIncidentVertex", "[BrushTest]") {
@@ -1179,41 +1184,41 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p7, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p7));
 
-            ASSERT_EQ(7u, brush.vertexCount());
-            ASSERT_EQ(12u, brush.edgeCount());
-            ASSERT_EQ(7u, brush.faceCount());
+            CHECK(brush.vertexCount() == 7u);
+            CHECK(brush.edgeCount() == 12u);
+            CHECK(brush.faceCount() == 7u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p7)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p6})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p4, p6, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p4, p6, p7})));
         }
 
         TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection", "[BrushTest]") {
@@ -1247,41 +1252,41 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p8, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p8));
 
-            ASSERT_EQ(7u, brush.vertexCount());
-            ASSERT_EQ(12u, brush.edgeCount());
-            ASSERT_EQ(7u, brush.faceCount());
+            CHECK(brush.vertexCount() == 7u);
+            CHECK(brush.edgeCount() == 12u);
+            CHECK(brush.faceCount() == 7u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p8));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p8));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p8)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p8)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p8)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p8)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p8)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p8)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p8)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p8)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p8, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p8})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p8, p6})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p8, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p8, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p8})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p8, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p8, p5})));
         }
 
         TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex", "[BrushTest]") {
@@ -1316,41 +1321,41 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p9));
 
-            ASSERT_EQ(7u, brush.vertexCount());
-            ASSERT_EQ(12u, brush.edgeCount());
-            ASSERT_EQ(7u, brush.faceCount());
+            CHECK(brush.vertexCount() == 7u);
+            CHECK(brush.edgeCount() == 12u);
+            CHECK(brush.faceCount() == 7u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p7));
-            ASSERT_TRUE(brush.hasVertex(p9));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p9));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p5, p9})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p9, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p5, p9})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p9, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9})));
         }
 
         TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex2", "[BrushTest]") {
@@ -1385,41 +1390,41 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions[0] == vm::approx(p9));
 
-            ASSERT_EQ(7u, brush.vertexCount());
-            ASSERT_EQ(12u, brush.edgeCount());
-            ASSERT_EQ(7u, brush.faceCount());
+            CHECK(brush.vertexCount() == 7u);
+            CHECK(brush.edgeCount() == 12u);
+            CHECK(brush.faceCount() == 7u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p7));
-            ASSERT_TRUE(brush.hasVertex(p9));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p9));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p9)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p9)));
+            CHECK(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p9, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p9, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p4, p9, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p9, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p9, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p4, p9, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9})));
         }
 
         TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex", "[BrushTest]") {
@@ -1456,40 +1461,40 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(0u, newVertexPositions.size());
+            CHECK(newVertexPositions.size() == 0u);
 
-            ASSERT_EQ(8u, brush.vertexCount());
-            ASSERT_EQ(12u, brush.edgeCount());
-            ASSERT_EQ(6u, brush.faceCount());
+            CHECK(brush.vertexCount() == 8u);
+            CHECK(brush.edgeCount() == 12u);
+            CHECK(brush.faceCount() == 6u);
 
-            ASSERT_TRUE(brush.hasVertex(p1));
-            ASSERT_TRUE(brush.hasVertex(p2));
-            ASSERT_TRUE(brush.hasVertex(p3));
-            ASSERT_TRUE(brush.hasVertex(p4));
-            ASSERT_TRUE(brush.hasVertex(p5));
-            ASSERT_TRUE(brush.hasVertex(p6));
-            ASSERT_TRUE(brush.hasVertex(p7));
-            ASSERT_TRUE(brush.hasVertex(p8));
+            CHECK(brush.hasVertex(p1));
+            CHECK(brush.hasVertex(p2));
+            CHECK(brush.hasVertex(p3));
+            CHECK(brush.hasVertex(p4));
+            CHECK(brush.hasVertex(p5));
+            CHECK(brush.hasVertex(p6));
+            CHECK(brush.hasVertex(p7));
+            CHECK(brush.hasVertex(p8));
 
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p2)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p3)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p1, p5)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p2, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p4)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p3, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p4, p8)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p6)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p8)));
-            ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p8)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p2)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p3)));
+            CHECK(brush.hasEdge(vm::segment3d(p1, p5)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p2, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p4)));
+            CHECK(brush.hasEdge(vm::segment3d(p3, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p4, p8)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p6)));
+            CHECK(brush.hasEdge(vm::segment3d(p5, p7)));
+            CHECK(brush.hasEdge(vm::segment3d(p6, p8)));
+            CHECK(brush.hasEdge(vm::segment3d(p7, p8)));
 
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p8, p4})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p8, p7})));
-            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p8, p6})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            CHECK(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            CHECK(brush.hasFace(vm::polygon3d({p2, p6, p8, p4})));
+            CHECK(brush.hasFace(vm::polygon3d({p3, p4, p8, p7})));
+            CHECK(brush.hasFace(vm::polygon3d({p5, p7, p8, p6})));
         }
 
         TEST_CASE("BrushTest.moveVerticesPastWorldBounds", "[BrushTest]") {
@@ -1504,14 +1509,14 @@ namespace TrenchBroom {
                 allVertexPositions.push_back(vertex->position());
             }
 
-            EXPECT_TRUE(brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3(16, 0, 0)));
-            EXPECT_FALSE(brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3(8192, 0, 0)));
+            CHECK(brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3(16, 0, 0)));
+            CHECK_FALSE(brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3(8192, 0, 0)));
         }
 
         static void assertCanMoveVertices(Brush brush, const std::vector<vm::vec3> vertexPositions, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
 
-            ASSERT_TRUE(brush.canMoveVertices(worldBounds, vertexPositions, delta));
+            CHECK(brush.canMoveVertices(worldBounds, vertexPositions, delta));
 
             REQUIRE(brush.moveVertices(worldBounds, vertexPositions, delta).is_success());
 
@@ -1521,7 +1526,7 @@ namespace TrenchBroom {
             auto expectedVertexPositions = vertexPositions + delta;
             expectedVertexPositions = kdl::vec_sort_and_remove_duplicates(std::move(expectedVertexPositions));
 
-            ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
+            CHECK(movedVertexPositions == expectedVertexPositions);
         }
 
         // "Move point" tests
@@ -1529,16 +1534,16 @@ namespace TrenchBroom {
         static void assertMovingVerticesDeletes(Brush brush, const std::vector<vm::vec3> vertexPositions, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
 
-            ASSERT_TRUE(brush.canMoveVertices(worldBounds, vertexPositions, delta));
+            CHECK(brush.canMoveVertices(worldBounds, vertexPositions, delta));
 
             REQUIRE(brush.moveVertices(worldBounds, vertexPositions, delta).is_success());
             const std::vector<vm::vec3> movedVertexPositions = brush.findClosestVertexPositions(vertexPositions + delta);
-            ASSERT_TRUE(movedVertexPositions.empty());
+            CHECK(movedVertexPositions.empty());
         }
 
         static void assertCanNotMoveVertices(const Brush& brush, const std::vector<vm::vec3> vertexPositions, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
-            ASSERT_FALSE(brush.canMoveVertices(worldBounds, vertexPositions, delta));
+            CHECK_FALSE(brush.canMoveVertices(worldBounds, vertexPositions, delta));
         }
 
         static void assertCanMoveVertex(const Brush& brush, const vm::vec3 vertexPosition, const vm::vec3 delta) {
@@ -1585,23 +1590,23 @@ namespace TrenchBroom {
 
                 const vm::vec3 delta(0.0, 0.0, -129.0);
 
-                ASSERT_EQ(5u, brushCopy.faceCount());
-                ASSERT_TRUE(brushCopy.findFace(vm::polygon3(baseQuadVertexPositions)));
-                ASSERT_FALSE(brushCopy.findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
-                ASSERT_TRUE(brushCopy.findFace(vm::vec3::neg_z()));
-                ASSERT_FALSE(brushCopy.findFace(vm::vec3::pos_z()));
+                CHECK(brushCopy.faceCount() == 5u);
+                CHECK(brushCopy.findFace(vm::polygon3(baseQuadVertexPositions)));
+                CHECK_FALSE(brushCopy.findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
+                CHECK(brushCopy.findFace(vm::vec3::neg_z()));
+                CHECK_FALSE(brushCopy.findFace(vm::vec3::pos_z()));
 
                 const auto oldVertexPositions = std::vector<vm::vec3>({peakPosition});
-                ASSERT_TRUE(brushCopy.canMoveVertices(worldBounds, oldVertexPositions, delta));
+                CHECK(brushCopy.canMoveVertices(worldBounds, oldVertexPositions, delta));
                 REQUIRE(brushCopy.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
                 const auto newVertexPositions = brushCopy.findClosestVertexPositions(oldVertexPositions + delta);
-                ASSERT_EQ(oldVertexPositions + delta, newVertexPositions);
+                CHECK(newVertexPositions == oldVertexPositions + delta);
 
-                ASSERT_EQ(5u, brushCopy.faceCount());
-                ASSERT_FALSE(brushCopy.findFace(vm::polygon3(baseQuadVertexPositions)));
-                ASSERT_TRUE(brushCopy.findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
-                ASSERT_FALSE(brushCopy.findFace(vm::vec3::neg_z()));
-                ASSERT_TRUE(brushCopy.findFace(vm::vec3::pos_z()));
+                CHECK(brushCopy.faceCount() == 5u);
+                CHECK_FALSE(brushCopy.findFace(vm::polygon3(baseQuadVertexPositions)));
+                CHECK(brushCopy.findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
+                CHECK_FALSE(brushCopy.findFace(vm::vec3::neg_z()));
+                CHECK(brushCopy.findFace(vm::vec3::pos_z()));
             }
 
             assertCanMoveVertex(brush, peakPosition, vm::vec3(256.0, 0.0, -127.0));
@@ -1650,60 +1655,60 @@ namespace TrenchBroom {
 
             CHECK(brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, +32.0))).is_success());
 
-            ASSERT_EQ(7u, brush.vertexCount());
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
+            CHECK(brush.vertexCount() == 7u);
+            CHECK (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            CHECK (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            CHECK (brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            CHECK_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
             CHECK(brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, -32.0))).is_success());
 
-            ASSERT_EQ(6u, brush.vertexCount());
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
+            CHECK(brush.vertexCount() == 6u);
+            CHECK (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            CHECK (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            CHECK_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            CHECK_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
             CHECK(brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, +32.0))).is_success());
 
-            ASSERT_EQ(5u, brush.vertexCount());
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
+            CHECK(brush.vertexCount() == 5u);
+            CHECK (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            CHECK (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            CHECK_FALSE(brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            CHECK_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            CHECK_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
             CHECK(brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, -32.0, -32.0))).is_success());
 
-            ASSERT_EQ(4u, brush.vertexCount());
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
+            CHECK(brush.vertexCount() == 4u);
+            CHECK_FALSE(brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            CHECK (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            CHECK (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            CHECK_FALSE(brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            CHECK_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            CHECK_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
-            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, -32.0, +32.0))));
-            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, -32.0))));
-            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, +32.0))));
-            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, -32.0))));
+            CHECK_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, -32.0, +32.0))));
+            CHECK_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, -32.0))));
+            CHECK_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, +32.0))));
+            CHECK_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, -32.0))));
         }
 
 
@@ -1731,12 +1736,12 @@ namespace TrenchBroom {
                         toRemove.push_back(vertices[k]);
 
                         Brush brush = builder.createBrush(vertices, "asdf").value();
-                        ASSERT_TRUE(brush.canRemoveVertices(worldBounds, toRemove));
+                        CHECK(brush.canRemoveVertices(worldBounds, toRemove));
                         CHECK(brush.removeVertices(worldBounds, toRemove).is_success());
 
                         for (size_t l = 0; l < 8; ++l) {
                             if (l != i && l != j && l != k) {
-                                ASSERT_TRUE(brush.hasVertex(vertices[l]));
+                                CHECK(brush.hasVertex(vertices[l]));
                             }
                         }
                     }
@@ -1753,10 +1758,10 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            EXPECT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
-            ASSERT_FALSE(brush.canSnapVertices(worldBounds, gridSize));
+            CHECK_FALSE(brush.canSnapVertices(worldBounds, gridSize));
 
             kdl::col_delete_all(nodes);
         }
@@ -1772,19 +1777,19 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            EXPECT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
-            ASSERT_TRUE(brush.canSnapVertices(worldBounds, gridSize));
+            CHECK(brush.canSnapVertices(worldBounds, gridSize));
 
             CHECK(brush.snapVertices(worldBounds, gridSize).is_success());
-            ASSERT_TRUE(brush.fullySpecified());
+            CHECK(brush.fullySpecified());
 
             // Ensure they were actually snapped
             {
                 for (const Model::BrushVertex* vertex : brush.vertices()) {
                     const vm::vec3& pos = vertex->position();
-                    ASSERT_TRUE(vm::is_integral(pos, 0.001));
+                    CHECK(vm::is_integral(pos, 0.001));
                 }
             }
 
@@ -1832,8 +1837,8 @@ namespace TrenchBroom {
                 return s.translate(delta);
             }));
 
-            ASSERT_EQ(1u, newEdgePositions.size());
-            ASSERT_EQ(vm::segment3(p1_2, p2_2), newEdgePositions[0]);
+            CHECK(newEdgePositions.size() == 1u);
+            CHECK(newEdgePositions[0] == vm::segment3(p1_2, p2_2));
 
             assertTexture("left", brush, p1_2, p2_2, p4, p3);
             assertTexture("right", brush, p5, p7, p8, p6);
@@ -1844,7 +1849,7 @@ namespace TrenchBroom {
             assertTexture("bottom", brush, p1_2, p3, p5);
             assertTexture("bottom", brush, p3, p7, p5);
 
-            ASSERT_TRUE(brush.canMoveEdges(worldBounds, newEdgePositions, p1 - p1_2));
+            CHECK(brush.canMoveEdges(worldBounds, newEdgePositions, p1 - p1_2));
 
             oldEdgePositions = std::move(newEdgePositions);
             delta = p1 - p1_2;
@@ -1853,8 +1858,8 @@ namespace TrenchBroom {
                 return s.translate(delta);
             }));
 
-            ASSERT_EQ(1u, newEdgePositions.size());
-            ASSERT_EQ(originalEdge, newEdgePositions[0]);
+            CHECK(newEdgePositions.size() == 1u);
+            CHECK(newEdgePositions[0] == originalEdge);
 
             assertTexture("left", brush, p1, p2, p4, p3);
             assertTexture("right", brush, p5, p7, p8, p6);
@@ -1872,15 +1877,15 @@ namespace TrenchBroom {
                 expectedMovedEdges.push_back(vm::segment3(edge.start() + delta, edge.end() + delta));
             }
 
-            ASSERT_TRUE(brush.canMoveEdges(worldBounds, edges, delta));
+            CHECK(brush.canMoveEdges(worldBounds, edges, delta));
             CHECK(brush.moveEdges(worldBounds, edges, delta).is_success());
             const auto movedEdges = brush.findClosestEdgePositions(kdl::vec_transform(edges, [&](const auto& s) { return s.translate(delta); }));
-            ASSERT_EQ(expectedMovedEdges, movedEdges);
+            CHECK(movedEdges == expectedMovedEdges);
         }
 
         static void assertCanNotMoveEdges(const Brush& brush, const std::vector<vm::segment3> edges, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
-            ASSERT_FALSE(brush.canMoveEdges(worldBounds, edges, delta));
+            CHECK_FALSE(brush.canMoveEdges(worldBounds, edges, delta));
         }
 
         TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron", "[BrushTest]") {
@@ -1895,7 +1900,7 @@ namespace TrenchBroom {
             CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
             CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 
-            ASSERT_EQ(10u, brush.vertexCount());
+            CHECK(brush.vertexCount() == 10u);
 
             assertCanMoveEdges(brush, std::vector<vm::segment3>{edge}, vm::vec3(+63, 0, 0));
             assertCanNotMoveEdges(brush, std::vector<vm::segment3>{edge}, vm::vec3(+64, 0, 0)); // On the side of the cube
@@ -1923,7 +1928,7 @@ namespace TrenchBroom {
             CHECK(brush.addVertex(worldBounds, edge2.start()).is_success());
             CHECK(brush.addVertex(worldBounds, edge2.end()).is_success());
 
-            ASSERT_EQ(12u, brush.vertexCount());
+            CHECK(brush.vertexCount() == 12u);
 
             assertCanMoveEdges(brush, movingEdges, vm::vec3(+63, 0, 0));
             assertCanNotMoveEdges(brush, movingEdges, vm::vec3(+64, 0, 0)); // On the side of the cube
@@ -1951,28 +1956,28 @@ namespace TrenchBroom {
 
             const vm::polygon3 face(vertexPositions);
 
-            ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(-16.0, -16.0, 0.0)));
+            CHECK(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(-16.0, -16.0, 0.0)));
 
             auto oldFacePositions = std::vector<vm::polygon3>({face});
             auto delta = vm::vec3(-16.0, -16.0, 0.0);
             CHECK(brush.moveFaces(worldBounds, oldFacePositions, delta).is_success());
             auto newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(oldFacePositions, [&](const auto& f) { return f.translate(delta); }));
 
-            ASSERT_EQ(1u, newFacePositions.size());
-            ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(-48.0, -48.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(-48.0, +16.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(+16.0, +16.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(+16.0, -48.0, +32.0)));
+            CHECK(newFacePositions.size() == 1u);
+            CHECK(newFacePositions[0].hasVertex(vm::vec3(-48.0, -48.0, +32.0)));
+            CHECK(newFacePositions[0].hasVertex(vm::vec3(-48.0, +16.0, +32.0)));
+            CHECK(newFacePositions[0].hasVertex(vm::vec3(+16.0, +16.0, +32.0)));
+            CHECK(newFacePositions[0].hasVertex(vm::vec3(+16.0, -48.0, +32.0)));
 
             oldFacePositions = std::move(newFacePositions);
             delta = vm::vec3(16.0, 16.0, 0.0);
             CHECK(brush.moveFaces(worldBounds, oldFacePositions, delta).is_success());
             newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(oldFacePositions, [&](const auto& f) { return f.translate(delta); }));
 
-            ASSERT_EQ(1u, newFacePositions.size());
-            ASSERT_EQ(4u, newFacePositions[0].vertices().size());
+            CHECK(newFacePositions.size() == 1u);
+            CHECK(newFacePositions[0].vertices().size() == 4u);
             for (size_t i = 0; i < 4; ++i)
-                ASSERT_TRUE(newFacePositions[0].hasVertex(face.vertices()[i]));
+                CHECK(newFacePositions[0].hasVertex(face.vertices()[i]));
         }
 
         TEST_CASE("BrushNodeTest.cannotMoveFace", "[BrushNodeTest]") {
@@ -1990,7 +1995,7 @@ namespace TrenchBroom {
 
             const vm::polygon3 face(vertexPositions);
 
-            ASSERT_FALSE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(0.0, 128.0, 0.0)));
+            CHECK_FALSE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(0.0, 128.0, 0.0)));
         }
 
         static void assertCanMoveFaces(Brush brush, const std::vector<vm::polygon3> movingFaces, const vm::vec3 delta) {
@@ -2001,15 +2006,15 @@ namespace TrenchBroom {
                 expectedMovedFaces.push_back(vm::polygon3(polygon.vertices() + delta));
             }
 
-            ASSERT_TRUE(brush.canMoveFaces(worldBounds, movingFaces, delta));
+            CHECK(brush.canMoveFaces(worldBounds, movingFaces, delta));
             CHECK(brush.moveFaces(worldBounds, movingFaces, delta).is_success());
             const auto movedFaces = brush.findClosestFacePositions(kdl::vec_transform(movingFaces, [&](const auto& f) { return f.translate(delta); }));
-            ASSERT_EQ(expectedMovedFaces, movedFaces);
+            CHECK(movedFaces == expectedMovedFaces);
         }
 
         static void assertCanNotMoveFaces(const Brush& brush, const std::vector<vm::polygon3> movingFaces, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
-            ASSERT_FALSE(brush.canMoveFaces(worldBounds, movingFaces, delta));
+            CHECK_FALSE(brush.canMoveFaces(worldBounds, movingFaces, delta));
         }
 
         static void assertCanMoveFace(const Brush& brush, const std::optional<size_t>& topFaceIndex, const vm::vec3 delta) {
@@ -2023,7 +2028,7 @@ namespace TrenchBroom {
 
             REQUIRE(topFaceIndex);
             const BrushFace& topFace = brush.face(*topFaceIndex);
-            ASSERT_FALSE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>{topFace.polygon()}, delta));
+            CHECK_FALSE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>{topFace.polygon()}, delta));
         }
 
         static void assertCanMoveTopFace(const Brush& brush, const vm::vec3 delta) {
@@ -2111,7 +2116,7 @@ namespace TrenchBroom {
 
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
-            ASSERT_EQ(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), brush.bounds());
+            CHECK(brush.bounds() == vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)));
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
         }
@@ -2244,9 +2249,9 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
 
-            EXPECT_TRUE(brush.hasFace(vm::polygon3(leftPolygon)));
-            EXPECT_TRUE(brush.hasFace(vm::polygon3(bottomPolygon)));
-            EXPECT_TRUE(brush.hasFace(vm::polygon3(bottomRightPolygon)));
+            CHECK(brush.hasFace(vm::polygon3(leftPolygon)));
+            CHECK(brush.hasFace(vm::polygon3(bottomPolygon)));
+            CHECK(brush.hasFace(vm::polygon3(bottomRightPolygon)));
 
             assertCanMoveFaces(brush, std::vector<vm::polygon3>{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 63));
             assertCanNotMoveFaces(brush, std::vector<vm::polygon3>{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 64)); // Merges B and C
@@ -2266,7 +2271,7 @@ namespace TrenchBroom {
             CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
             CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 
-            ASSERT_EQ(10u, brush.vertexCount());
+            CHECK(brush.vertexCount() == 10u);
 
             const auto cubeTopIndex = brush.findFace(vm::vec3::pos_z());
             const auto cubeBottomIndex = brush.findFace(vm::vec3::neg_z());
@@ -2275,12 +2280,12 @@ namespace TrenchBroom {
             const auto cubeBackIndex = brush.findFace(vm::vec3::pos_y());
             const auto cubeFrontIndex = brush.findFace(vm::vec3::neg_y());
 
-            EXPECT_TRUE(cubeTopIndex);
-            EXPECT_FALSE(cubeBottomIndex);  // no face here, part of the wedge connecting to `edge`
-            EXPECT_TRUE(cubeRightIndex);
-            EXPECT_FALSE(cubeLeftIndex); // no face here, part of the wedge connecting to `edge`
-            EXPECT_TRUE(cubeFrontIndex);
-            EXPECT_TRUE(cubeBackIndex);
+            CHECK(cubeTopIndex);
+            CHECK_FALSE(cubeBottomIndex);  // no face here, part of the wedge connecting to `edge`
+            CHECK(cubeRightIndex);
+            CHECK_FALSE(cubeLeftIndex); // no face here, part of the wedge connecting to `edge`
+            CHECK(cubeFrontIndex);
+            CHECK(cubeBackIndex);
 
             const BrushFace& cubeTop = brush.face(*cubeTopIndex);
             const BrushFace& cubeRight = brush.face(*cubeRightIndex);
@@ -2332,7 +2337,7 @@ namespace TrenchBroom {
 
             const auto delta = vm::vec3(+8.0, 0.0, 0.0);
             const auto polygonToMove = vm::polygon3(brush.face(*brush.findFace(vm::vec3::pos_z())).vertexPositions());
-            ASSERT_TRUE(brush.canMoveFaces(worldBounds, {polygonToMove}, delta));
+            CHECK(brush.canMoveFaces(worldBounds, {polygonToMove}, delta));
 
             // move top face by x=+8
             auto changed = brush;
@@ -2363,10 +2368,10 @@ namespace TrenchBroom {
                     if (normal == vm::vec3::pos_z()
                         || normal == vm::vec3::pos_y()
                         || normal == vm::vec3::neg_y()) {
-                        EXPECT_FALSE(UVListsEqual(oldTexCoords, newTexCoords));
+                        CHECK_FALSE(UVListsEqual(oldTexCoords, newTexCoords));
                         // TODO: actually check the UV's
                     } else {
-                        EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoords));
+                        CHECK(UVListsEqual(oldTexCoords, newTexCoords));
                     }
                 }
 
@@ -2380,7 +2385,7 @@ namespace TrenchBroom {
                         return newFaceWithUVLock.textureCoords(x);
                     });
                     if (normal == vm::vec3d::pos_z() || (format == MapFormat::Valve)) {
-                        EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
+                        CHECK(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
                     }
                 }
             }
@@ -2409,7 +2414,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < oldPositions.size(); ++i) {
                 for (size_t j = 0; j < oldPositions.size(); ++j) {
                     if (i != j) {
-                        ASSERT_FALSE(brush.canMoveVertices(worldBounds, std::vector<vm::vec3d>(1, oldPositions[i]), oldPositions[j] - oldPositions[i]));
+                        CHECK_FALSE(brush.canMoveVertices(worldBounds, std::vector<vm::vec3d>(1, oldPositions[i]), oldPositions[j] - oldPositions[i]));
                     }
                 }
             }
@@ -2436,7 +2441,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            EXPECT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
             const vm::vec3 p(192.0, 128.0, 352.0);
@@ -2446,8 +2451,8 @@ namespace TrenchBroom {
             CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
             auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
-            ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(p + delta, newVertexPositions.front());
+            CHECK(newVertexPositions.size() == 1u);
+            CHECK(newVertexPositions.front() == vm::approx(p + delta));
 
             kdl::col_delete_all(nodes);
         }
@@ -2502,7 +2507,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             auto nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            EXPECT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
 
@@ -2513,8 +2518,8 @@ namespace TrenchBroom {
                 brush.findClosestVertexPosition(vm::vec3(1120.5128684458623, -1855.3192739534061, 574.53563498325116))
             };
 
-            ASSERT_TRUE(brush.canMoveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
-            ASSERT_NO_THROW(brush.moveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
+            CHECK(brush.canMoveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
+            CHECK_NOTHROW(brush.moveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
 
             kdl::col_delete_all(nodes);
         }
@@ -2544,7 +2549,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
 
@@ -2581,7 +2586,7 @@ namespace TrenchBroom {
             assertTexture("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
 
             // delete the vertex
-            ASSERT_TRUE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3d>{p7}));
+            CHECK(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3d>{p7}));
             CHECK(brush.removeVertices(worldBounds, std::vector<vm::vec3d>{p7}).is_success());
 
             // assert the structure and textures
@@ -2887,8 +2892,8 @@ namespace TrenchBroom {
             const auto vertex2 = brush.findClosestVertexPosition(vm::vec3(-5730.730280440197,  486.0, 1108.0));
             const auto segment = vm::segment3(vertex1, vertex2);
 
-            ASSERT_TRUE(brush.canMoveEdges(worldBounds, std::vector<vm::segment3>{ segment }, vm::vec3(0.0, -4.0, 0.0)));
-            ASSERT_NO_THROW(brush.moveEdges(worldBounds, std::vector<vm::segment3>{ segment }, vm::vec3(0.0, -4.0, 0.0)));
+            CHECK(brush.canMoveEdges(worldBounds, std::vector<vm::segment3>{ segment }, vm::vec3(0.0, -4.0, 0.0)));
+            CHECK_NOTHROW(brush.moveEdges(worldBounds, std::vector<vm::segment3>{ segment }, vm::vec3(0.0, -4.0, 0.0)));
 
             kdl::col_delete_all(nodes);
         }
@@ -2939,12 +2944,12 @@ namespace TrenchBroom {
 
             const vm::polygon3 topFace(topFacePos);
 
-            ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(+16.0, 0.0, 0.0)));
-            ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(-16.0, 0.0, 0.0)));
-            ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, +16.0, 0.0)));
-            ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, -16.0, 0.0)));
-            ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, +16.0)));
-            ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
+            CHECK(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(+16.0, 0.0, 0.0)));
+            CHECK(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(-16.0, 0.0, 0.0)));
+            CHECK(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, +16.0, 0.0)));
+            CHECK(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, -16.0, 0.0)));
+            CHECK(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, +16.0)));
+            CHECK(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
         }
         
         TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]") {
@@ -3130,7 +3135,7 @@ namespace TrenchBroom {
             const Brush subtrahend = builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture).value();
 
             const std::vector<Brush> result = minuend.subtract(world, worldBounds, defaultTexture, subtrahend).value();
-            ASSERT_EQ(3u, result.size());
+            CHECK(result.size() == 3u);
 
             const Brush* left = nullptr;
             const Brush* top = nullptr;
@@ -3146,60 +3151,60 @@ namespace TrenchBroom {
                 }
             }
 
-            ASSERT_TRUE(left != nullptr);
-            ASSERT_TRUE(top != nullptr);
-            ASSERT_TRUE(right != nullptr);
+            CHECK(left != nullptr);
+            CHECK(top != nullptr);
+            CHECK(right != nullptr);
 
             // left brush faces
-            ASSERT_EQ(6u, left->faceCount());
-            ASSERT_TRUE(left->findFace(vm::plane3(-16.0, vm::vec3::pos_x())));
-            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_x())));
-            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::pos_y())));
-            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::neg_y())));
-            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::pos_z())));
-            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_z())));
+            CHECK(left->faceCount() == 6u);
+            CHECK(left->findFace(vm::plane3(-16.0, vm::vec3::pos_x())));
+            CHECK(left->findFace(vm::plane3(+32.0, vm::vec3::neg_x())));
+            CHECK(left->findFace(vm::plane3(+16.0, vm::vec3::pos_y())));
+            CHECK(left->findFace(vm::plane3(+16.0, vm::vec3::neg_y())));
+            CHECK(left->findFace(vm::plane3(+32.0, vm::vec3::pos_z())));
+            CHECK(left->findFace(vm::plane3(+32.0, vm::vec3::neg_z())));
 
             // left brush textures
-            ASSERT_EQ(subtrahendTexture, left->face(*left->findFace(vm::vec3::pos_x())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, left->face(*left->findFace(vm::vec3::neg_x())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, left->face(*left->findFace(vm::vec3::pos_y())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, left->face(*left->findFace(vm::vec3::neg_y())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, left->face(*left->findFace(vm::vec3::pos_z())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, left->face(*left->findFace(vm::vec3::neg_z())).attributes().textureName());
+            CHECK(left->face(*left->findFace(vm::vec3::pos_x())).attributes().textureName() == subtrahendTexture);
+            CHECK(left->face(*left->findFace(vm::vec3::neg_x())).attributes().textureName() == minuendTexture);
+            CHECK(left->face(*left->findFace(vm::vec3::pos_y())).attributes().textureName() == minuendTexture);
+            CHECK(left->face(*left->findFace(vm::vec3::neg_y())).attributes().textureName() == minuendTexture);
+            CHECK(left->face(*left->findFace(vm::vec3::pos_z())).attributes().textureName() == minuendTexture);
+            CHECK(left->face(*left->findFace(vm::vec3::neg_z())).attributes().textureName() == minuendTexture);
 
             // top brush faces
-            ASSERT_EQ(6u, top->faceCount());
-            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_x())));
-            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_x())));
-            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_y())));
-            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_y())));
-            ASSERT_TRUE(top->findFace(vm::plane3(+32.0, vm::vec3::pos_z())));
-            ASSERT_TRUE(top->findFace(vm::plane3(0.0, vm::vec3::neg_z())));
+            CHECK(top->faceCount() == 6u);
+            CHECK(top->findFace(vm::plane3(+16.0, vm::vec3::pos_x())));
+            CHECK(top->findFace(vm::plane3(+16.0, vm::vec3::neg_x())));
+            CHECK(top->findFace(vm::plane3(+16.0, vm::vec3::pos_y())));
+            CHECK(top->findFace(vm::plane3(+16.0, vm::vec3::neg_y())));
+            CHECK(top->findFace(vm::plane3(+32.0, vm::vec3::pos_z())));
+            CHECK(top->findFace(vm::plane3(0.0, vm::vec3::neg_z())));
 
             // top brush textures
-            ASSERT_EQ(defaultTexture, top->face(*top->findFace(vm::vec3::pos_x())).attributes().textureName());
-            ASSERT_EQ(defaultTexture, top->face(*top->findFace(vm::vec3::neg_x())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, top->face(*top->findFace(vm::vec3::pos_y())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, top->face(*top->findFace(vm::vec3::neg_y())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, top->face(*top->findFace(vm::vec3::pos_z())).attributes().textureName());
-            ASSERT_EQ(subtrahendTexture, top->face(*top->findFace(vm::vec3::neg_z())).attributes().textureName());
+            CHECK(top->face(*top->findFace(vm::vec3::pos_x())).attributes().textureName() == defaultTexture);
+            CHECK(top->face(*top->findFace(vm::vec3::neg_x())).attributes().textureName() == defaultTexture);
+            CHECK(top->face(*top->findFace(vm::vec3::pos_y())).attributes().textureName() == minuendTexture);
+            CHECK(top->face(*top->findFace(vm::vec3::neg_y())).attributes().textureName() == minuendTexture);
+            CHECK(top->face(*top->findFace(vm::vec3::pos_z())).attributes().textureName() == minuendTexture);
+            CHECK(top->face(*top->findFace(vm::vec3::neg_z())).attributes().textureName() == subtrahendTexture);
 
             // right brush faces
-            ASSERT_EQ(6u, right->faceCount());
-            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_x())));
-            ASSERT_TRUE(right->findFace(vm::plane3(-16.0, vm::vec3::neg_x())));
-            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::pos_y())));
-            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::neg_y())));
-            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_z())));
-            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::neg_z())));
+            CHECK(right->faceCount() == 6u);
+            CHECK(right->findFace(vm::plane3(+32.0, vm::vec3::pos_x())));
+            CHECK(right->findFace(vm::plane3(-16.0, vm::vec3::neg_x())));
+            CHECK(right->findFace(vm::plane3(+16.0, vm::vec3::pos_y())));
+            CHECK(right->findFace(vm::plane3(+16.0, vm::vec3::neg_y())));
+            CHECK(right->findFace(vm::plane3(+32.0, vm::vec3::pos_z())));
+            CHECK(right->findFace(vm::plane3(+32.0, vm::vec3::neg_z())));
 
             // right brush textures
-            ASSERT_EQ(minuendTexture, right->face(*right->findFace(vm::vec3::pos_x())).attributes().textureName());
-            ASSERT_EQ(subtrahendTexture, right->face(*right->findFace(vm::vec3::neg_x())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, right->face(*right->findFace(vm::vec3::pos_y())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, right->face(*right->findFace(vm::vec3::neg_y())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, right->face(*right->findFace(vm::vec3::pos_z())).attributes().textureName());
-            ASSERT_EQ(minuendTexture, right->face(*right->findFace(vm::vec3::neg_z())).attributes().textureName());
+            CHECK(right->face(*right->findFace(vm::vec3::pos_x())).attributes().textureName() == minuendTexture);
+            CHECK(right->face(*right->findFace(vm::vec3::neg_x())).attributes().textureName() == subtrahendTexture);
+            CHECK(right->face(*right->findFace(vm::vec3::pos_y())).attributes().textureName() == minuendTexture);
+            CHECK(right->face(*right->findFace(vm::vec3::neg_y())).attributes().textureName() == minuendTexture);
+            CHECK(right->face(*right->findFace(vm::vec3::pos_z())).attributes().textureName() == minuendTexture);
+            CHECK(right->face(*right->findFace(vm::vec3::neg_z())).attributes().textureName() == minuendTexture);
         }
 
         TEST_CASE("BrushTest.subtractDisjoint", "[BrushTest]") {
@@ -3208,17 +3213,17 @@ namespace TrenchBroom {
 
             const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
             const vm::bbox3 brush2Bounds(vm::vec3(124.0, 124.0, -4.0), vm::vec3(132.0, 132.0, +4.0));
-            ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
+            CHECK_FALSE(brush1Bounds.intersects(brush2Bounds));
 
             BrushBuilder builder(&world, worldBounds);
             const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
             const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
 
             const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2).value();
-            ASSERT_EQ(1u, result.size());
+            CHECK(result.size() == 1u);
 
             const Brush& subtraction = result.at(0);
-            ASSERT_COLLECTIONS_EQUIVALENT(brush1.vertexPositions(), subtraction.vertexPositions());
+            CHECK_THAT(subtraction.vertexPositions(), Catch::UnorderedEquals(brush1.vertexPositions()));
         }
 
         TEST_CASE("BrushTest.subtractEnclosed", "[BrushTest]") {
@@ -3227,14 +3232,14 @@ namespace TrenchBroom {
 
             const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
             const vm::bbox3 brush2Bounds(vm::vec3::fill(-9.0), vm::vec3::fill(+9.0));
-            ASSERT_TRUE(brush1Bounds.intersects(brush2Bounds));
+            CHECK(brush1Bounds.intersects(brush2Bounds));
 
             BrushBuilder builder(&world, worldBounds);
             const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
             const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
 
             const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2).value();
-            ASSERT_EQ(0u, result.size());
+            CHECK(result.size() == 0u);
         }
 
         TEST_CASE("BrushTest.subtractTruncatedCones", "[BrushTest]") {
@@ -3309,7 +3314,7 @@ namespace TrenchBroom {
             const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
             const std::vector<Brush> result = minuend.subtract(world, worldBounds, "some_texture", subtrahend).value();
-            ASSERT_FALSE(result.empty());
+            CHECK_FALSE(result.empty());
 
             kdl::col_delete_all(minuendNodes);
             kdl::col_delete_all(subtrahendNodes);
@@ -3387,7 +3392,7 @@ namespace TrenchBroom {
             const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
             const std::vector<Brush> result = minuend.subtract(world, worldBounds, "some_texture", subtrahend).value();
-            ASSERT_EQ(8u, result.size());
+            CHECK(result.size() == 8u);
 
             kdl::col_delete_all(minuendNodes);
             kdl::col_delete_all(subtrahendNodes);
