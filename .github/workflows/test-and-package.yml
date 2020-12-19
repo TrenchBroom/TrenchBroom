@@ -58,3 +58,12 @@ jobs:
         run: ./travis-macos.sh
         env:
           TB_DEBUG_BUILD: ${{ matrix.tbdebug }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact # FIXME: uploads may collide between matrix entries
+          path: |
+            build/*.deb
+            build/*.rpm
+            build/*.dmg
+            build/*.md5
