@@ -55,7 +55,7 @@ jobs:
       - name: Install Windows dependencies
         if: ${{ matrix.os == 'windows-2019' }}
         run: |
-          choco install pandoc
+          choco install --limitoutput --yes pandoc
 
       - name: Install Qt on Windows (x64)
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
