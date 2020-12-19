@@ -2,15 +2,16 @@
 
 set -o verbose
 
-brew update > /dev/null # Discard stdout, otherwise this spams ~3000 lines to the log
+#brew update > /dev/null # Discard stdout, otherwise this spams ~3000 lines to the log
 brew install cmake p7zip pandoc qt5 ninja
 
 # Sometimes homebrew complains that cmake is already installed, but we need the latest version.
-brew upgrade cmake
+#brew upgrade cmake
 
 # Check versions
 qmake -v
 cmake --version
+pandoc --version
 
 # Build TB
 
