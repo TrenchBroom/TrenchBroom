@@ -27,7 +27,6 @@
 #include <memory>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -50,19 +49,19 @@ namespace TrenchBroom {
         TEST_CASE("PortalFileTest.parsePRT1", "[PortalFileTest]") {
             const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1.prt");
             const Model::PortalFile portalFile(path);
-            ASSERT_EQ(ExpectedPortals, portalFile.portals());
+            CHECK(portalFile.portals() == ExpectedPortals);
         }
 
         TEST_CASE("PortalFileTest.parsePRT1AM", "[PortalFileTest]") {
             const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1am.prt");
             const Model::PortalFile portalFile(path);
-            ASSERT_EQ(ExpectedPortals, portalFile.portals());
+            CHECK(portalFile.portals() == ExpectedPortals);
         }
 
         TEST_CASE("PortalFileTest.parsePRT2", "[PortalFileTest]") {
             const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt2.prt");
             const Model::PortalFile portalFile(path);
-            ASSERT_EQ(ExpectedPortals, portalFile.portals());
+            CHECK(portalFile.portals() == ExpectedPortals);
         }
     }
 }
