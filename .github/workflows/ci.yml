@@ -14,11 +14,15 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [windows-2019, ubuntu-16.04, macos-10.15, windows-2019]
-        # Placeholder value since we can't have empty arrays here
-        tb-build-type: ['']
-        gcc-package: ['']
-        tb-arch: ['']
+        os: [ubuntu-16.04, macos-10.15, windows-2019]
+        tb-build-type: [release]
+        gcc-package: [default-compiler]
+        tb-arch: [default-arch]
+        exclude:
+          - os: ubuntu-16.04
+            gcc-package: default-compiler
+          - os: windows-2019
+            tb-arch: default-arch
         include:
           - os: ubuntu-16.04
             gcc-package: g++-7
@@ -29,7 +33,7 @@ jobs:
           - os: windows-2019
             tb-arch: x64
           - os: windows-2019
-            tb-arch: Win32
+            tb-arch: x86
 
     steps:
       # See: https://github.com/actions/checkout
@@ -61,7 +65,7 @@ jobs:
           arch: 'win64_msvc2019_64'
 
       - name: Install Qt on Windows (Win32)
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
+        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x86' }}
         uses: jurplel/install-qt-action@v2
         with:
           version: '5.15.2'
@@ -97,6 +101,8 @@ jobs:
           $Env:QT5_INSTALL_DIR = $env:Qt5_DIR
           cmd.exe /c appveyor.bat
         env:
+          # From: https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
+          TB_VS_DIR: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
           TB_ARCH: ${{ matrix.tb-arch }}
 
       # Upload artifacts.
@@ -114,7 +120,7 @@ jobs:
 
       # win32
       - uses: actions/upload-artifact@v2
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
+        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x86' }}
         with:
           name: win32
           path: |
