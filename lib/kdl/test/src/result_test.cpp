@@ -23,8 +23,6 @@
 #include <iostream>
 #include <string>
 
-#include "GTestCompat.h"
-
 #include <catch2/catch.hpp>
 
 namespace kdl {
@@ -97,9 +95,9 @@ namespace kdl {
     template <typename ResultType, typename... V>
     void test_construct_success(V&&... v) {
         auto result = ResultType::success(std::forward<V>(v)...);
-        ASSERT_TRUE(result.is_success());
-        ASSERT_FALSE(result.is_error());
-        ASSERT_EQ(result.is_success(), result);
+        CHECK(result.is_success());
+        CHECK_FALSE(result.is_error());
+        CHECK(result == result.is_success());
     }
     
     /**
@@ -108,9 +106,9 @@ namespace kdl {
     template <typename ResultType, typename E>
     void test_construct_error(E&& e) {
         auto result = ResultType::error(std::forward<E>(e));
-        ASSERT_FALSE(result.is_success());
-        ASSERT_TRUE(result.is_error());
-        ASSERT_EQ(result.is_success(), result);
+        CHECK_FALSE(result.is_success());
+        CHECK(result.is_error());
+        CHECK(result == result.is_success());
     }
     
     /**
@@ -120,7 +118,7 @@ namespace kdl {
     void test_visit_success_const_lvalue_ref(V&& v) {
         auto result = ResultType::success(std::forward<V>(v));
 
-        ASSERT_TRUE(result.visit(overload(
+        CHECK(result.visit(overload(
             [&] (const auto& x) { return x == v; },
             []  (const Error1&) { return false; },
             []  (const Error2&) { return false; }
@@ -134,7 +132,7 @@ namespace kdl {
     void test_visit_success_rvalue_ref(V&& v) {
         auto result = ResultType::success(std::forward<V>(v));
 
-        ASSERT_TRUE(std::move(result).visit(overload(
+        CHECK(std::move(result).visit(overload(
             [&] (auto&&)   { return true; },
             []  (Error1&&) { return false; },
             []  (Error2&&) { return false; }
@@ -147,7 +145,7 @@ namespace kdl {
             []  (Error2&&) {}
         ));
         
-        ASSERT_EQ(0u, y.copies);
+        CHECK(y.copies == 0u);
     }
 
     /**
@@ -157,7 +155,7 @@ namespace kdl {
     void test_visit_error_const_lvalue_ref(E&& e) {
         auto result = ResultType::error(std::forward<E>(e));
 
-        ASSERT_TRUE(result.visit(overload(
+        CHECK(result.visit(overload(
             []  (const auto&)   { return false; },
             [&] (const E& x)    { return x == e; },
             []  (const Error2&) { return false; }
@@ -171,7 +169,7 @@ namespace kdl {
     void test_visit_error_rvalue_ref(E&& e) {
         auto result = ResultType::error(std::forward<E>(e));
 
-        ASSERT_TRUE(std::move(result).visit(overload(
+        CHECK(std::move(result).visit(overload(
             []  (auto&&)   { return false; },
             [&] (E&&)      { return true; },
             []  (Error2&&) { return false; }
@@ -184,7 +182,7 @@ namespace kdl {
             []  (Error2&&) {}
         ));
         
-        ASSERT_EQ(0u, y.copies);
+        CHECK(y.copies == 0u);
     }
     
     /**
@@ -197,11 +195,11 @@ namespace kdl {
         const auto to = from.and_then([](const typename FromResult::value_type& x) {
             return kdl::result<ToValueType, Error3>::success(static_cast<ToValueType>(x));
         });
-        ASSERT_TRUE(to.is_success());
-        ASSERT_FALSE(to.is_error());
-        ASSERT_EQ(to.is_success(), to);
+        CHECK(to.is_success());
+        CHECK_FALSE(to.is_error());
+        CHECK(to == to.is_success());
 
-        ASSERT_TRUE(to.visit(overload(
+        CHECK(to.visit(overload(
             [](const ToValueType&) { return true; },
             [](const auto&) { return false; }
         )));
@@ -216,11 +214,11 @@ namespace kdl {
         const auto to = std::move(from).and_then([](typename FromResult::value_type&& x) {
             return kdl::result<ToValueType, Error3>::success(std::move(static_cast<ToValueType>(x)));
         });
-        ASSERT_TRUE(to.is_success());
-        ASSERT_FALSE(to.is_error());
-        ASSERT_EQ(to.is_success(), to);
+        CHECK(to.is_success());
+        CHECK_FALSE(to.is_error());
+        CHECK(to == to.is_success());
 
-        ASSERT_TRUE(to.visit(overload(
+        CHECK(to.visit(overload(
             [](const ToValueType&) { return true; },
             [](const auto&) { return false; }
         )));
@@ -231,7 +229,7 @@ namespace kdl {
             [] (auto&&) {}
         ));
         
-        ASSERT_EQ(0u, y.copies);
+        CHECK(y.copies == 0u);
     }
     
     /**
@@ -241,7 +239,7 @@ namespace kdl {
     void test_visit_success_with_opt_value() {
         auto result = ResultType::success();
         
-        ASSERT_TRUE(result.visit(overload(
+        CHECK(result.visit(overload(
             []()            { return true; },
             [](const auto&) { return false; }
         )));
@@ -255,7 +253,7 @@ namespace kdl {
     void test_visit_success_const_lvalue_ref_with_opt_value(V&& v) {
         auto result = ResultType::success(std::forward<V>(v));
         
-        ASSERT_TRUE(result.visit(overload(
+        CHECK(result.visit(overload(
             []  ()              { return false; },
             [&] (const auto& x) { return x == v; },
             []  (const Error1&) { return false; },
@@ -271,7 +269,7 @@ namespace kdl {
     void test_visit_success_rvalue_ref_with_opt_value(V&& v) {
         auto result = ResultType::success(std::forward<V>(v));
 
-        ASSERT_TRUE(std::move(result).visit(overload(
+        CHECK(std::move(result).visit(overload(
             []  ()         { return false; },
             [&] (auto&&)   { return true; },
             []  (Error1&&) { return false; },
@@ -286,7 +284,7 @@ namespace kdl {
             []  (Error2&&) {}
         ));
         
-        ASSERT_EQ(0u, y.copies);
+        CHECK(y.copies == 0u);
     }
 
     /**
@@ -297,7 +295,7 @@ namespace kdl {
     void test_visit_error_const_lvalue_ref_with_opt_value(E&& e) {
         auto result = ResultType::error(std::forward<E>(e));
         
-        ASSERT_TRUE(result.visit(overload(
+        CHECK(result.visit(overload(
             []  ()            { return false; },
             []  (const auto&) { return false; },
             [&] (const E& x)  { return x == e; }
@@ -312,7 +310,7 @@ namespace kdl {
     void test_visit_error_rvalue_ref_with_opt_value(E&& e) {
         auto result = ResultType::error(std::forward<E>(e));
 
-        ASSERT_TRUE(std::move(result).visit(overload(
+        CHECK(std::move(result).visit(overload(
             [] ()       { return false; },
             []  (auto&&) { return false; },
             [&] (E&&)    { return true; }
@@ -325,7 +323,7 @@ namespace kdl {
             [&] (E&& x)  { y = std::move(x); }
         ));
         
-        ASSERT_EQ(0u, y.copies);
+        CHECK(y.copies == 0u);
     }
 
     TEST_CASE("result_test.void_result", "[result_test]") {
@@ -339,9 +337,9 @@ namespace kdl {
     }
 
     TEST_CASE("result_test.constructor", "[result_test]") {
-        ASSERT_TRUE((result<int, float, std::string>::success(1).is_success()));
-        ASSERT_TRUE((result<int, float, std::string>::error(1.0f).is_error()));
-        ASSERT_TRUE((result<int, float, std::string>::error("").is_error()));
+        CHECK((result<int, float, std::string>::success(1).is_success()));
+        CHECK((result<int, float, std::string>::error(1.0f).is_error()));
+        CHECK((result<int, float, std::string>::error("").is_error()));
 
         test_construct_success<const result<int, Error1, Error2>>(1);
         test_construct_success<result<int, Error1, Error2>>(1);
@@ -382,9 +380,9 @@ namespace kdl {
     }
     
     TEST_CASE("void_result_test.constructor", "[void_result_test]") {
-        ASSERT_TRUE((result<void, float, std::string>::success().is_success()));
-        ASSERT_TRUE((result<void, float, std::string>::error(1.0f).is_error()));
-        ASSERT_TRUE((result<void, float, std::string>::error("").is_error()));
+        CHECK((result<void, float, std::string>::success().is_success()));
+        CHECK((result<void, float, std::string>::error(1.0f).is_error()));
+        CHECK((result<void, float, std::string>::error("").is_error()));
 
         test_construct_success<const result<void, Error1, Error2>>();
         test_construct_success<result<void, Error1, Error2>>();
