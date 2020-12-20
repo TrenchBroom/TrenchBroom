@@ -17,8 +17,6 @@
 
 #include "kdl/set_temp.h"
 
-#include "GTestCompat.h"
-
 #include <catch2/catch.hpp>
 
 namespace kdl {
@@ -26,30 +24,30 @@ namespace kdl {
         int value = 0;
         {
             set_temp s(value, 1);
-            ASSERT_EQ(1, value);
+            CHECK(value == 1);
         }
-        ASSERT_EQ(0, value);
+        CHECK(value == 0);
     }
 
     TEST_CASE("set_temp_test.set_unset_bool", "[set_temp_test]") {
         bool value = false;
         {
             set_temp s(value, true);
-            ASSERT_TRUE(value);
+            CHECK(value);
         }
-        ASSERT_FALSE(value);
+        CHECK_FALSE(value);
 
         {
             set_temp s(value);
-            ASSERT_TRUE(value);
+            CHECK(value);
 
             {
                 set_temp t(value, false);
-                ASSERT_FALSE(value);
+                CHECK_FALSE(value);
             }
-            ASSERT_TRUE(value);
+            CHECK(value);
         }
-        ASSERT_FALSE(value);
+        CHECK_FALSE(value);
     }
 
     TEST_CASE("set_later_test.set", "[set_later_test]") {
@@ -57,9 +55,9 @@ namespace kdl {
 
         {
             set_later s(value, 1);
-            ASSERT_EQ(0, value);
+            CHECK(value == 0);
         }
-        ASSERT_EQ(1, value);
+        CHECK(value == 1);
     }
 
     TEST_CASE("inc_temp.inc_dec", "[inc_temp]") {
@@ -67,17 +65,17 @@ namespace kdl {
 
         {
             inc_temp i(value);
-            ASSERT_EQ(1, value);
+            CHECK(value == 1);
         }
-        ASSERT_EQ(0, value);
+        CHECK(value == 0);
     }
 
     TEST_CASE("dec_temp.dec_inc", "[dec_temp]") {
         int value = 0;
         {
             dec_temp d(value);
-            ASSERT_EQ(-1, value);
+            CHECK(value == -1);
         }
-        ASSERT_EQ(0, value);
+        CHECK(value == 0);
     }
 }
