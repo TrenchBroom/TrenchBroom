@@ -20,8 +20,6 @@
 
 #include <iterator>
 
-#include "GTestCompat.h"
-
 #include <catch2/catch.hpp>
 
 namespace kdl {
@@ -80,27 +78,27 @@ namespace kdl {
 
         assertMatches(index, "*", { "value", "value", "value2", "value3", "value4" });
 
-        ASSERT_FALSE(index.remove("andrary", "value2"));
+        CHECK_FALSE(index.remove("andrary", "value2"));
 
-        ASSERT_TRUE(index.remove("andrary", "value3"));
+        CHECK(index.remove("andrary", "value3"));
         assertMatches(index, "andrary*", {});
 
         assertMatches(index, "andrar*", { "value2" });
-        ASSERT_TRUE(index.remove("andrar", "value2"));
+        CHECK(index.remove("andrar", "value2"));
         assertMatches(index, "andrar*", {});
 
         assertMatches(index, "andy", { "value4" });
-        ASSERT_TRUE(index.remove("andy", "value4"));
+        CHECK(index.remove("andy", "value4"));
         assertMatches(index, "andy", {});
 
         assertMatches(index, "andre*", { "value", "value" });
         assertMatches(index, "andreas", { "value" });
-        ASSERT_TRUE(index.remove("andreas", "value"));
+        CHECK(index.remove("andreas", "value"));
         assertMatches(index, "andre*", { "value" });
         assertMatches(index, "andreas", {});
 
         assertMatches(index, "andrew", { "value" });
-        ASSERT_TRUE(index.remove("andrew", "value"));
+        CHECK(index.remove("andrew", "value"));
         assertMatches(index, "andrew", {});
 
         assertMatches(index, "*", {});
@@ -189,11 +187,9 @@ namespace kdl {
         index.insert("key22bs", "value4");
         index.insert("k1", "value3");
 
-        std::vector<std::string> actual;
-        index.get_keys(std::back_inserter(actual));
-        actual = kdl::col_sort(std::move(actual));
+        std::vector<std::string> keys;
+        index.get_keys(std::back_inserter(keys));
 
-        const auto expected = kdl::col_sort(std::vector<std::string>{ "key", "key2", "key22", "key22bs", "k1" });
-        ASSERT_EQ(expected, actual);
+        CHECK_THAT(keys, Catch::UnorderedEquals(std::vector<std::string>{ "key", "key2", "key22", "key22bs", "k1" }));
     }
 }
