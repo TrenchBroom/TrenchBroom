@@ -33,7 +33,7 @@ jobs:
           - os: windows-2019
             tb-arch: x64
           - os: windows-2019
-            tb-arch: x86
+            tb-arch: Win32
 
     steps:
       # See: https://github.com/actions/checkout
@@ -65,7 +65,7 @@ jobs:
           arch: 'win64_msvc2019_64'
 
       - name: Install Qt on Windows (Win32)
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x86' }}
+        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
         uses: jurplel/install-qt-action@v2
         with:
           version: '5.15.2'
@@ -101,8 +101,6 @@ jobs:
           $Env:QT5_INSTALL_DIR = $env:Qt5_DIR
           cmd.exe /c appveyor.bat
         env:
-          # From: https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
-          TB_VS_DIR: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise
           TB_ARCH: ${{ matrix.tb-arch }}
 
       # Upload artifacts.
@@ -120,7 +118,7 @@ jobs:
 
       # win32
       - uses: actions/upload-artifact@v2
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x86' }}
+        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
         with:
           name: win32
           path: |
