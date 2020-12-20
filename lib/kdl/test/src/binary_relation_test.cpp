@@ -25,8 +25,8 @@
 
 namespace kdl {
     template <typename L, typename R>
-    void assertRelation(const std::vector<std::pair<L, R>>& exp, const binary_relation<L, R>& act) {
-        ASSERT_TRUE(std::equal(std::begin(exp), std::end(exp), std::begin(act), std::end(act)));
+    bool checkRelation(const binary_relation <L, R>& act, const std::vector<std::pair<L, R>>& exp) {
+        return std::equal(std::begin(act), std::end(act), std::begin(exp), std::end(exp));
     }
 
     TEST_CASE("binary_relation_test.constructor_default", "[binary_relation_test]") {
@@ -48,13 +48,13 @@ namespace kdl {
             { 4, "c" },
         });
 
-        assertRelation({
+        CHECK(checkRelation(r, {
             { 1, "a" },
             { 1, "b" },
             { 2, "b" },
             { 3, "b" },
             { 4, "c" },
-        }, r);
+        }));
     }
 
     TEST_CASE("binary_relation_test.empty", "[binary_relation_test]") {
@@ -178,13 +178,13 @@ namespace kdl {
         }));
 
 
-        assertRelation({
+        CHECK(checkRelation(r, {
             { 1, "a" },
             { 1, "b" },
             { 2, "b" },
             { 3, "b" },
             { 4, "c" },
-        }, r);
+        }));
     }
 
 
