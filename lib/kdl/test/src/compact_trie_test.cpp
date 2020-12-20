@@ -15,14 +15,14 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "kdl/compact_trie.h"
 #include "kdl/vector_utils.h"
 
 #include <iterator>
+
+#include "GTestCompat.h"
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
     using test_index = compact_trie<std::string>;

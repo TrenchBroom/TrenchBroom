@@ -15,13 +15,13 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "kdl/set_adapter.h"
 
 #include <vector>
+
+#include "GTestCompat.h"
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
     TEST_CASE("const_set_adapter_test.wrap_set", "[const_set_adapter_test]") {

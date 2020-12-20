@@ -15,11 +15,11 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
+#include "kdl/set_temp.h"
 
 #include "GTestCompat.h"
 
-#include "kdl/set_temp.h"
+#include <catch2/catch.hpp>
 
 namespace kdl {
     TEST_CASE("set_temp_test.set_unset", "[set_temp_test]") {

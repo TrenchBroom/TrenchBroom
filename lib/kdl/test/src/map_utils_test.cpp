@@ -15,17 +15,17 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
-#include "test_utils.h"
-
 #include "kdl/map_utils.h"
 
 #include <map>
 #include <string>
 #include <vector>
+
+#include "test_utils.h"
+
+#include "GTestCompat.h"
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
     template<typename K, typename V>

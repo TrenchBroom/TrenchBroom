@@ -15,10 +15,6 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "kdl/overload.h"
 #include "kdl/result.h"
 #include "kdl/result_combine.h"
@@ -26,6 +22,10 @@
 
 #include <iostream>
 #include <string>
+
+#include "GTestCompat.h"
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
     struct Error1 {};

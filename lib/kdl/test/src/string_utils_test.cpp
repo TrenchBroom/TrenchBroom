@@ -15,15 +15,14 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include <kdl/string_utils.h>
 
 #include <optional>
 #include <ostream>
 
+#include "GTestCompat.h"
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
     TEST_CASE("string_utils_test.str_split", "[string_utils_test]") {

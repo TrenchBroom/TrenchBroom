@@ -15,11 +15,11 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
+#include "kdl/vector_set.h"
 
 #include "GTestCompat.h"
 
-#include "kdl/vector_set.h"
+#include <catch2/catch.hpp>
 
 namespace kdl {
     using vec = std::vector<int>;

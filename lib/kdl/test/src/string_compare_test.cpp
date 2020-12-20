@@ -15,12 +15,12 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
+#include "kdl/collection_utils.h"
+#include "kdl/string_compare.h"
 
 #include "GTestCompat.h"
 
-#include "kdl/collection_utils.h"
-#include "kdl/string_compare.h"
+#include <catch2/catch.hpp>
 
 namespace kdl {
     namespace cs {

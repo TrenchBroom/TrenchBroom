@@ -15,11 +15,11 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
+#include <kdl/string_format.h>
 
 #include "GTestCompat.h"
 
-#include <kdl/string_format.h>
+#include <catch2/catch.hpp>
 
 namespace kdl {
     TEST_CASE("string_format_test.str_select", "[string_format_test]") {
