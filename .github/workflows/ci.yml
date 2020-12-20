@@ -5,9 +5,9 @@ name: CI
 jobs:
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
-  test-and-package:
+  ci:
     # Name the Job
-    name: Test and package
+    name: CI
     # Set the type of machine to run on
     runs-on: ${{ matrix.os }}
     strategy:
