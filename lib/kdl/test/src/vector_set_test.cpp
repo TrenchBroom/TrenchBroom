@@ -25,16 +25,34 @@ namespace kdl {
     using vec = std::vector<int>;
     using vset = vector_set<int>;
 
-    vset create_vset_from_range(const vec& v);
-    vset create_vset_from_range(const vset::size_type capacity, const vec& v);
+    static vset create_vset_from_range(const vec& v) {
+        return vset(std::begin(v), std::end(v));
+    }
 
-    vset create_vset_from_list(std::initializer_list<int> l);
-    vset create_vset_from_list(const vset::size_type capacity, std::initializer_list<int> l);
+    static vset create_vset_from_range(const vset::size_type capacity, const vec& v) {
+        return vset(capacity, std::begin(v), std::end(v));
+    }
 
-    vset create_vset_from_vector(std::initializer_list<int> l);
+    static vset create_vset_from_list(std::initializer_list<int> l) {
+        return vset(std::move(l));
+    }
 
-    void ASSERT_VSET_EQ(const vec& expected, const vset& actual);
-    void ASSERT_VSET_EQ(const vset::size_type capacity, const vec& expected, const vset& actual);
+    static vset create_vset_from_list(const vset::size_type capacity, std::initializer_list<int> l) {
+        return vset(capacity, std::move(l));
+    }
+
+    static vset create_vset_from_vector(std::initializer_list<int> l) {
+        return vset(std::vector<int>(l));
+    }
+
+    static void ASSERT_VSET_EQ(const vec& expected, const vset& actual) {
+        ASSERT_EQ(create_vset_from_range(expected), actual);
+    }
+
+    static void ASSERT_VSET_EQ(const vset::size_type capacity, const vec& expected, const vset& actual) {
+        ASSERT_EQ(capacity, actual.capacity());
+        ASSERT_EQ(create_vset_from_range(expected), actual);
+    }
 
     TEST_CASE("vector_set_test.constructor_default", "[vector_set_test]") {
         vset s;
@@ -134,34 +152,5 @@ namespace kdl {
     TEST_CASE("vector_set_test.deduction_guide_range_and_capacity", "[vector_set_test]") {
         std::vector<int> v({ 1, 2, 3 });
         vector_set s(3u, std::begin(v), std::end(v));
-    }
-
-    vset create_vset_from_range(const vec& v) {
-        return vset(std::begin(v), std::end(v));
-    }
-
-    vset create_vset_from_range(const vset::size_type capacity, const vec& v) {
-        return vset(capacity, std::begin(v), std::end(v));
-    }
-
-    vset create_vset_from_list(std::initializer_list<int> l) {
-        return vset(std::move(l));
-    }
-
-    vset create_vset_from_list(const vset::size_type capacity, std::initializer_list<int> l) {
-        return vset(capacity, std::move(l));
-    }
-
-    vset create_vset_from_vector(std::initializer_list<int> l) {
-        return vset(std::vector<int>(l));
-    }
-
-    void ASSERT_VSET_EQ(const vec& expected, const vset& actual) {
-        ASSERT_EQ(create_vset_from_range(expected), actual);
-    }
-
-    void ASSERT_VSET_EQ(const vset::size_type capacity, const vec& expected, const vset& actual) {
-        ASSERT_EQ(capacity, actual.capacity());
-        ASSERT_EQ(create_vset_from_range(expected), actual);
     }
 }
