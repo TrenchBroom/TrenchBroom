@@ -1,6 +1,10 @@
 # Run this workflow every time a new commit pushed to your repository
 on: push
 
+env:
+  # FIXME: replace 'test-github-actions-' with 'v'
+  TB_CREATE_RELEASE: ${{ startsWith(github.ref, 'refs/tags/test-github-actions-') }}
+
 jobs:
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
@@ -101,15 +105,74 @@ jobs:
         env:
           TB_ARCH: ${{ matrix.tb-arch }}
 
-      # Upload artifacts / create release
+      # Upload artifacts
 
+      # win64
       - uses: actions/upload-artifact@v2
+        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
         with:
-          name: my-artifact # FIXME: don't group all of these into one zip
+          name: win64
+          path: |
+            cmakebuild/*.7z
+            cmakebuild/*.7z.md5
+
+      # win32
+      - uses: actions/upload-artifact@v2
+        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
+        with:
+          name: win32
+          path: |
+            cmakebuild/*.7z
+            cmakebuild/*.7z.md5
+
+      # Linux
+      - uses: actions/upload-artifact@v2
+        if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-7' }}
+        with:
+          name: linux
           path: |
             build/*.deb
             build/*.rpm
+            build/*.md5
+
+      # macOS
+      - uses: actions/upload-artifact@v2
+        if: ${{ matrix.os == 'macos-10.15' && matrix.tbdebug == false }}
+        with:
+          name: macos
+          path: |
             build/*.dmg
             build/*.md5
-            cmakebuild/*.7z
-            cmakebuild/*.7z.md5
+
+      # Create release
+
+      - name: Create Release
+        if: ${{ env.TB_CREATE_RELEASE }}
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Github Actions Test Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: true
+          prerelease: true
+
+      # Upload release assets
+
+      # - name: Upload Release Asset
+      #   if: ${{ env.TB_CREATE_RELEASE }}
+      #   id: upload-release-asset 
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./my-artifact.zip
+      #     asset_name: my-artifact.zip
+      #     asset_content_type: application/zip
