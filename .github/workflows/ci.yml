@@ -146,21 +146,38 @@ jobs:
 
       # Create release
 
-      - name: Create Release
+      # Official action upload-release-asset doesn't support uploading files
+      # based on a glob, so use https://github.com/softprops/action-gh-release
+      - name: Release
+        uses: softprops/action-gh-release@v1
         if: ${{ env.TB_CREATE_RELEASE == true }}
-        id: create_release
-        uses: actions/create-release@v1
+        with:
+          draft: true
+          files: |
+            build/*.deb
+            build/*.rpm
+            build/*.dmg
+            build/*.md5
+            cmakebuild/*.7z
+            cmakebuild/*.7z.md5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Github Actions Test Release ${{ github.ref }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-          draft: true
-          prerelease: true
+
+      # - name: Create Release
+      #   if: ${{ env.TB_CREATE_RELEASE == true }}
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ github.ref }}
+      #     release_name: Github Actions Test Release ${{ github.ref }}
+      #     body: |
+      #       Changes in this Release
+      #       - First Change
+      #       - Second Change
+      #     draft: true
+      #     prerelease: true
 
       # Upload release assets
 
