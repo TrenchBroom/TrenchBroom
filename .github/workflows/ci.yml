@@ -1,14 +1,18 @@
-# Run this workflow every time a new commit pushed to your repository
-on: push
+on:
+  # Run on pushes to tags, the "master" branch, and PR's
+  push:
+    tags-ignore:
+    branches:
+      - master
+  pull_request:
+
 name: CI
 
 jobs:
-  # Set the job key. The key is displayed as the job name
-  # when a job name is not provided
+  # Job key
   ci:
-    # Name the Job
+    # Label displayed in UI
     name: CI
-    # Set the type of machine to run on
     runs-on: ${{ matrix.os }}
     strategy:
       # Don't cancel the macOS build if the Linux build fails, etc.
@@ -156,8 +160,7 @@ jobs:
       # based on a glob, so use https://github.com/softprops/action-gh-release
       - name: Release
         uses: softprops/action-gh-release@v1
-        # FIXME: replace 'test-github-actions-' with 'v'
-        if: ${{ startsWith(github.ref, 'refs/tags/test-github-actions-') && !(matrix.tb-build-type == 'asan' || matrix.gcc-package == 'g++-8') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/') && !(matrix.tb-build-type == 'asan' || matrix.gcc-package == 'g++-8') }}
         with:
           draft: true
           files: |
