@@ -37,7 +37,6 @@
 
 #include "BenchmarkUtils.h"
 #include "../../test/src/Catch2.h"
-#include "../../test/src/GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Renderer {
