@@ -1,6 +1,6 @@
 # Run this workflow every time a new commit pushed to your repository
 on: push
-
+name: CI
 env:
   # FIXME: replace 'test-github-actions-' with 'v'
   TB_CREATE_RELEASE: ${{ startsWith(github.ref, 'refs/tags/test-github-actions-') }}
