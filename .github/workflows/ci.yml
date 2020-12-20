@@ -55,6 +55,7 @@ jobs:
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
         run: |
+          # Chocolatey was taking 3 minutes to install pandoc; just install it directly
           Invoke-WebRequest 'https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-windows-x86_64.zip' -OutFile 'pandoc.zip'
           if ("668A62A8990DEB2753753DF0C8D3F1BE567026FE" -ne (Get-FileHash -Path 'pandoc.zip' -Algorithm SHA1).Hash) { exit }
           7z x pandoc.zip -o'.'
