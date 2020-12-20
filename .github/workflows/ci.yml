@@ -1,9 +1,6 @@
 # Run this workflow every time a new commit pushed to your repository
 on: push
 name: CI
-env:
-  # FIXME: replace 'test-github-actions-' with 'v'
-  TB_CREATE_RELEASE: ${{ startsWith(github.ref, 'refs/tags/test-github-actions-') }}
 
 jobs:
   # Set the job key. The key is displayed as the job name
@@ -18,22 +15,17 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2019, ubuntu-16.04, macos-10.15, windows-2019]
-        tbdebug: [false]
-        # Placeholder value since we can't have an empty array here
+        # Placeholder value since we can't have empty arrays here
+        tb-build-type: ['']
         gcc-package: ['']
         tb-arch: ['']
-        exclude:
-          - os: ubuntu-16.04
-            gcc-package: ['']
-          - os: windows-2019
-            tb-arch: ['']
         include:
           - os: ubuntu-16.04
             gcc-package: g++-7
           - os: ubuntu-16.04
             gcc-package: g++-8
           - os: macos-10.15
-            tbdebug: true
+            tb-build-type: asan
           - os: windows-2019
             tb-arch: x64
           - os: windows-2019
@@ -89,9 +81,11 @@ jobs:
 
       - name: macOS build
         if: ${{ matrix.os == 'macos-10.15' }}
-        run: ./travis-macos.sh
-        env:
-          TB_DEBUG_BUILD: ${{ matrix.tbdebug }}
+        run: |
+          if [ '${{ matrix.tb-build-type }}' = 'asan' ]; then
+            export TB_DEBUG_BUILD=true
+          fi
+          ./travis-macos.sh
 
       - name: Windows build
         if: ${{ matrix.os == 'windows-2019' }}
@@ -105,7 +99,9 @@ jobs:
         env:
           TB_ARCH: ${{ matrix.tb-arch }}
 
-      # Upload artifacts
+      # Upload artifacts.
+      # These need to be separate, otherwise all of the artifacts are bundled into
+      # one .zip file.
 
       # win64
       - uses: actions/upload-artifact@v2
@@ -137,7 +133,7 @@ jobs:
 
       # macOS
       - uses: actions/upload-artifact@v2
-        if: ${{ matrix.os == 'macos-10.15' && matrix.tbdebug == false }}
+        if: ${{ matrix.os == 'macos-10.15' && matrix.tb-build-type != 'asan' }}
         with:
           name: macos
           path: |
@@ -150,7 +146,8 @@ jobs:
       # based on a glob, so use https://github.com/softprops/action-gh-release
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: ${{ env.TB_CREATE_RELEASE == true }}
+        # FIXME: replace 'test-github-actions-' with 'v'
+        if: ${{ startsWith(github.ref, 'refs/tags/test-github-actions-') && !(matrix.tb-build-type == 'asan' || matrix.gcc-package == 'g++-8') }}
         with:
           draft: true
           files: |
