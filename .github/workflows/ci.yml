@@ -52,10 +52,15 @@ jobs:
           sudo apt update
           sudo apt install ${{ matrix.gcc-package }} qt59base qt59svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
 
-      - name: Install Windows dependencies
+      - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
         run: |
-          choco install --no-progress --yes pandoc
+          Invoke-WebRequest 'https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-windows-x86_64.zip' -OutFile 'pandoc.zip'
+          if ("668A62A8990DEB2753753DF0C8D3F1BE567026FE" -ne (Get-FileHash -Path 'pandoc.zip' -Algorithm SHA1).Hash) { exit }
+          7z x pandoc.zip -o'.'
+          $tb_pandoc_path = "$(pwd)\pandoc-2.11.3.1"
+          # add this to the system path
+          echo "$tb_pandoc_path" >> $GITHUB_PATH
 
       - name: Install Qt on Windows (x64)
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
