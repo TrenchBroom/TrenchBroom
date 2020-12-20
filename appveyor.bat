@@ -1,9 +1,8 @@
-PATH=%PATH%;C:\Program Files (x86)\Pandoc
-
 REM Check versions
 qmake -v
 cmake --version
 pandoc --version
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 mkdir cmakebuild
 cd cmakebuild
