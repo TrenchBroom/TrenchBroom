@@ -13,7 +13,7 @@ REM See: https://stackoverflow.com/a/31589526
 REM
 REM We need a 142 (VS2019) toolset, doesn't need to be this version in particular
 REM but might as well pin a specific version
-call "%TB_VS_DIR%\VC\Auxiliary\Build\vcvarsall.bat" %TB_ARCH% -vcvars_ver="14.28"
+call "%TB_VS_DIR%\VC\Auxiliary\Build\vcvarsall.bat" %TB_ARCH% -vcvars_ver=14.28
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 PATH=%PATH%;C:\Program Files (x86)\Pandoc
