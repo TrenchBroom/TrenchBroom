@@ -55,6 +55,7 @@ jobs:
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
         run: |
+          # Chocolatey was taking 3 minutes to install pandoc; just install it directly
           Invoke-WebRequest 'https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-windows-x86_64.zip' -OutFile 'pandoc.zip'
           if ("668A62A8990DEB2753753DF0C8D3F1BE567026FE" -ne (Get-FileHash -Path 'pandoc.zip' -Algorithm SHA1).Hash) { exit }
           7z x pandoc.zip -o'.'
@@ -80,13 +81,13 @@ jobs:
 
       - name: Linux build (GCC8)
         if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-8' }}
-        run: ./travis-linux.sh
+        run: ./ci-linux.sh
         env:
           TB_GCC8: 'true'
 
       - name: Linux build (GCC7)
         if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-7' }}
-        run: ./travis-linux.sh
+        run: ./ci-linux.sh
 
       - name: macOS build
         if: ${{ matrix.os == 'macos-10.15' }}
@@ -94,7 +95,7 @@ jobs:
           if [ '${{ matrix.tb-build-type }}' = 'asan' ]; then
             export TB_DEBUG_BUILD=true
           fi
-          ./travis-macos.sh
+          ./ci-macos.sh
 
       - name: Windows build
         if: ${{ matrix.os == 'windows-2019' }}
@@ -104,7 +105,7 @@ jobs:
         # NOTE: cmd.exe /c = run a command and terminate
         run: |
           $Env:QT5_INSTALL_DIR = $env:Qt5_DIR
-          cmd.exe /c appveyor.bat
+          cmd.exe /c ci-windows.bat
         env:
           TB_ARCH: ${{ matrix.tb-arch }}
 
