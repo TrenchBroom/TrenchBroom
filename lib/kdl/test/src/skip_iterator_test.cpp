@@ -19,8 +19,6 @@
 
 #include <vector>
 
-#include "GTestCompat.h"
-
 #include <catch2/catch.hpp>
 
 namespace kdl {
@@ -28,53 +26,53 @@ namespace kdl {
         std::vector<int> vec({ 1, 2, 3, 4, 5 });
         auto it = skip_iterator(std::begin(vec), std::end(vec), 1, 2);
 
-        ASSERT_EQ(it, std::next(std::begin(vec), 1));
-        ASSERT_EQ(++it, std::next(std::begin(vec), 3));
-        ASSERT_EQ(++it, std::end(vec));
+        CHECK(std::next(std::begin(vec), 1) == it);
+        CHECK(std::next(std::begin(vec), 3) == ++it);
+        CHECK(std::end(vec) == ++it);
     }
 
     TEST_CASE("skip_iterator_test.postfix_increment", "[skip_iterator_test]") {
         std::vector<int> vec({ 1, 2, 3, 4, 5 });
         auto it = skip_iterator(std::begin(vec), std::end(vec), 1, 2);
 
-        ASSERT_EQ(it++, std::next(std::begin(vec), 1));
-        ASSERT_EQ(it++, std::next(std::begin(vec), 3));
-        ASSERT_EQ(it, std::end(vec));
+        CHECK(std::next(std::begin(vec), 1) == it++);
+        CHECK(std::next(std::begin(vec), 3) == it++);
+        CHECK(std::end(vec) == it);
     }
 
     TEST_CASE("skip_iterator_test.empty_sequence", "[skip_iterator_test]") {
         std::vector<size_t> vec;
 
-        ASSERT_EQ(std::begin(vec), skip_iterator(std::begin(vec), std::end(vec)));
-        ASSERT_EQ(std::end(vec), skip_iterator(std::begin(vec), std::end(vec)));
-        ASSERT_EQ(std::begin(vec), skip_iterator(std::begin(vec), std::end(vec), 1));
-        ASSERT_EQ(std::end(vec), skip_iterator(std::begin(vec), std::end(vec), 1));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec)) == std::begin(vec));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec)) == std::end(vec));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec), 1) == std::begin(vec));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec), 1) == std::end(vec));
     }
 
     TEST_CASE("skip_iterator_test.zero_stride", "[skip_iterator_test]") {
         std::vector<size_t> vec({ 1 });
 
-        ASSERT_EQ(std::begin(vec), skip_iterator(std::begin(vec), std::end(vec), 0, 0));
-        ASSERT_EQ(std::begin(vec), std::next(skip_iterator(std::begin(vec), std::end(vec), 0, 0)));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec), 0, 0) == std::begin(vec));
+        CHECK(std::next(skip_iterator(std::begin(vec), std::end(vec), 0, 0)) == std::begin(vec));
     }
 
     TEST_CASE("skip_iterator_test.oneElement_sequence", "[skip_iterator_test]") {
         std::vector<size_t> vec({ 1 });
 
-        ASSERT_EQ(std::begin(vec), skip_iterator(std::begin(vec), std::end(vec)));
-        ASSERT_EQ(std::end(vec), skip_iterator(std::begin(vec), std::end(vec), 1));
-        ASSERT_EQ(std::end(vec), skip_iterator(std::begin(vec), std::end(vec), 2));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec)) == std::begin(vec));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec), 1) == std::end(vec));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec), 2) == std::end(vec));
 
-        ASSERT_EQ(std::begin(vec), skip_iterator(std::begin(vec), std::end(vec), 0, 2));
-        ASSERT_EQ(std::end(vec), skip_iterator(std::begin(vec), std::end(vec), 1, 2));
-        ASSERT_EQ(std::end(vec), skip_iterator(std::begin(vec), std::end(vec), 2, 2));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec), 0, 2) == std::begin(vec));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec), 1, 2) == std::end(vec));
+        CHECK(skip_iterator(std::begin(vec), std::end(vec), 2, 2) == std::end(vec));
 
-        ASSERT_EQ(std::end(vec), std::next(skip_iterator(std::begin(vec), std::end(vec), 0)));
-        ASSERT_EQ(std::end(vec), std::next(skip_iterator(std::begin(vec), std::end(vec), 1)));
-        ASSERT_EQ(std::end(vec), std::next(skip_iterator(std::begin(vec), std::end(vec), 2)));
+        CHECK(std::next(skip_iterator(std::begin(vec), std::end(vec), 0)) == std::end(vec));
+        CHECK(std::next(skip_iterator(std::begin(vec), std::end(vec), 1)) == std::end(vec));
+        CHECK(std::next(skip_iterator(std::begin(vec), std::end(vec), 2)) == std::end(vec));
 
-        ASSERT_EQ(std::end(vec), std::next(skip_iterator(std::begin(vec), std::end(vec), 0, 2)));
-        ASSERT_EQ(std::end(vec), std::next(skip_iterator(std::begin(vec), std::end(vec), 1, 2)));
-        ASSERT_EQ(std::end(vec), std::next(skip_iterator(std::begin(vec), std::end(vec), 2, 2)));
+        CHECK(std::next(skip_iterator(std::begin(vec), std::end(vec), 0, 2)) == std::end(vec));
+        CHECK(std::next(skip_iterator(std::begin(vec), std::end(vec), 1, 2)) == std::end(vec));
+        CHECK(std::next(skip_iterator(std::begin(vec), std::end(vec), 2, 2)) == std::end(vec));
     }
 }
