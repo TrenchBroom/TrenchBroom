@@ -17,8 +17,6 @@
 
 #include "kdl/vector_set.h"
 
-#include "GTestCompat.h"
-
 #include <catch2/catch.hpp>
 
 namespace kdl {
@@ -46,25 +44,25 @@ namespace kdl {
     }
 
     static void assertVset(const vset& actual, const vec& expected) {
-        ASSERT_EQ(create_vset_from_range(expected), actual);
+        CHECK(actual == create_vset_from_range(expected));
     }
 
     static void assertVset(const vset& actual, const vec& expected, const vset::size_type expectedCapacity) {
-        ASSERT_EQ(expectedCapacity, actual.capacity());
-        ASSERT_EQ(create_vset_from_range(expected), actual);
+        CHECK(actual.capacity() == expectedCapacity);
+        CHECK(actual == create_vset_from_range(expected));
     }
 
     TEST_CASE("vector_set_test.constructor_default", "[vector_set_test]") {
         vset s;
-        ASSERT_TRUE(s.empty());
-        ASSERT_EQ(0u, s.size());
+        CHECK(s.empty());
+        CHECK(s.size() == 0u);
     }
 
     TEST_CASE("vector_set_test.constructor_default_with_capacity", "[vector_set_test]") {
         vset s(7u);
-        ASSERT_TRUE(s.empty());
-        ASSERT_EQ(0u, s.size());
-        ASSERT_EQ(7u, s.capacity());
+        CHECK(s.empty());
+        CHECK(s.size() == 0u);
+        CHECK(s.capacity() == 7u);
     }
 
     TEST_CASE("vector_set_test.constructor_with_range", "[vector_set_test]") {
