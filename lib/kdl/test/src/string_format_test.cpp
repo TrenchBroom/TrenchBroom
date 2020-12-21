@@ -15,45 +15,43 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include <kdl/string_format.h>
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
     TEST_CASE("string_format_test.str_select", "[string_format_test]") {
-        ASSERT_EQ("yes", str_select(true, "yes", "no"));
-        ASSERT_EQ("no", str_select(false, "yes", "no"));
+        CHECK(str_select(true, "yes", "no") == "yes");
+        CHECK(str_select(false, "yes", "no") == "no");
     }
 
     TEST_CASE("string_format_test.str_plural", "[string_format_test]") {
-        ASSERT_EQ("many", str_plural(0, "one", "many"));
-        ASSERT_EQ("one", str_plural(1, "one", "many"));
-        ASSERT_EQ("many", str_plural(2, "one", "many"));
+        CHECK(str_plural(0, "one", "many") == "many");
+        CHECK(str_plural(1, "one", "many") == "one");
+        CHECK(str_plural(2, "one", "many") == "many");
     }
 
     TEST_CASE("string_format_test.str_plural_with_prefix_suffix", "[string_format_test]") {
-        ASSERT_EQ("prefix many suffix", str_plural("prefix ", 0, "one", "many", " suffix"));
-        ASSERT_EQ("prefix one suffix", str_plural("prefix ", 1, "one", "many", " suffix"));
-        ASSERT_EQ("prefix many suffix", str_plural("prefix ", 2, "one", "many", " suffix"));
+        CHECK(str_plural("prefix ", 0, "one", "many", " suffix") == "prefix many suffix");
+        CHECK(str_plural("prefix ", 1, "one", "many", " suffix") == "prefix one suffix");
+        CHECK(str_plural("prefix ", 2, "one", "many", " suffix") == "prefix many suffix");
     }
 
     TEST_CASE("string_format_test.str_trim", "[string_format_test]") {
-        ASSERT_EQ("", str_trim(""));
-        ASSERT_EQ("abc", str_trim("abc"));
-        ASSERT_EQ("abc", str_trim(" abc"));
-        ASSERT_EQ("abc", str_trim("abc  "));
-        ASSERT_EQ("abc", str_trim("  abc   "));
-        ASSERT_EQ("abc", str_trim("  abc   "));
-        ASSERT_EQ("abc", str_trim("xyxxabczzxzyz", "xyz"));
+        CHECK(str_trim("") == "");
+        CHECK(str_trim("abc") == "abc");
+        CHECK(str_trim(" abc") == "abc");
+        CHECK(str_trim("abc  ") == "abc");
+        CHECK(str_trim("  abc   ") == "abc");
+        CHECK(str_trim("  abc   ") == "abc");
+        CHECK(str_trim("xyxxabczzxzyz", "xyz") == "abc");
     }
 
     TEST_CASE("string_format_test.str_to_lower_char", "[string_format_test]") {
         constexpr auto input = " !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         constexpr auto expected = " !\"#$%&\\'()*+,-./0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         for (std::size_t i = 0u; i < 98u; ++i) {
-            ASSERT_EQ(expected[i], str_to_lower(input[i]));
+            CHECK(str_to_lower(input[i]) == expected[i]);
         }
     }
 
@@ -61,77 +59,77 @@ namespace kdl {
         constexpr auto input = " !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         constexpr auto expected = " !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
         for (std::size_t i = 0u; i < 98u; ++i) {
-            ASSERT_EQ(expected[i], str_to_upper(input[i]));
+            CHECK(str_to_upper(input[i]) == expected[i]);
         }
     }
 
     TEST_CASE("string_format_test.str_to_lower", "[string_format_test]") {
-        ASSERT_EQ("", str_to_lower(""));
-        ASSERT_EQ("#?\"abc73474", str_to_lower("#?\"abc73474"));
-        ASSERT_EQ("#?\"abc73474", str_to_lower("#?\"abC73474"));
-        ASSERT_EQ("#?\"abc73474", str_to_lower("#?\"ABC73474"));
-        ASSERT_EQ("xyz", str_to_lower("XYZ"));
+        CHECK(str_to_lower("") == "");
+        CHECK(str_to_lower("#?\"abc73474") == "#?\"abc73474");
+        CHECK(str_to_lower("#?\"abC73474") == "#?\"abc73474");
+        CHECK(str_to_lower("#?\"ABC73474") == "#?\"abc73474");
+        CHECK(str_to_lower("XYZ") == "xyz");
     }
 
     TEST_CASE("string_format_test.str_to_upper", "[string_format_test]") {
-        ASSERT_EQ("", str_to_lower(""));
-        ASSERT_EQ("#?\"ABC73474", str_to_upper("#?\"ABC73474"));
-        ASSERT_EQ("#?\"ABC73474", str_to_upper("#?\"ABc73474"));
-        ASSERT_EQ("#?\"ABC73474", str_to_upper("#?\"ABC73474"));
-        ASSERT_EQ("XYZ", str_to_upper("xyz"));
+        CHECK(str_to_lower("") == "");
+        CHECK(str_to_upper("#?\"ABC73474") == "#?\"ABC73474");
+        CHECK(str_to_upper("#?\"ABc73474") == "#?\"ABC73474");
+        CHECK(str_to_upper("#?\"ABC73474") == "#?\"ABC73474");
+        CHECK(str_to_upper("xyz") == "XYZ");
     }
 
     TEST_CASE("string_format_test.str_capitalize", "[string_format_test]") {
-        ASSERT_EQ("The Quick Brown FOX, .he Jumped!", str_capitalize("the quick brown fOX, .he jumped!"));
+        CHECK(str_capitalize("the quick brown fOX, .he jumped!") == "The Quick Brown FOX, .he Jumped!");
     }
 
     TEST_CASE("string_format_test.str_escape", "[string_format_test]") {
-        ASSERT_EQ("", str_escape("", ""));
-        ASSERT_EQ("", str_escape("", ";"));
-        ASSERT_EQ("asdf", str_escape("asdf", ""));
-        ASSERT_EQ("\\\\", str_escape("\\", ""));
+        CHECK(str_escape("", "") == "");
+        CHECK(str_escape("", ";") == "");
+        CHECK(str_escape("asdf", "") == "asdf");
+        CHECK(str_escape("\\", "") == "\\\\");
 
-        ASSERT_EQ("c:\\\\blah\\\\fasel\\\\test.jpg", str_escape("c:\\blah\\fasel\\test.jpg", "\\"));
-        ASSERT_EQ("c\\:\\\\blah\\\\fasel\\\\test\\.jpg", str_escape("c:\\blah\\fasel\\test.jpg", "\\:."));
-        ASSERT_EQ("\\asdf", str_escape("asdf", "a"));
-        ASSERT_EQ("asd\\f", str_escape("asdf", "f"));
+        CHECK(str_escape("c:\\blah\\fasel\\test.jpg", "\\") == "c:\\\\blah\\\\fasel\\\\test.jpg");
+        CHECK(str_escape("c:\\blah\\fasel\\test.jpg", "\\:.") == "c\\:\\\\blah\\\\fasel\\\\test\\.jpg");
+        CHECK(str_escape("asdf", "a") == "\\asdf");
+        CHECK(str_escape("asdf", "f") == "asd\\f");
     }
 
     TEST_CASE("string_format_test.str_escape_if_necessary", "[string_format_test]") {
-        ASSERT_EQ("this \\# should be escaped, but not this \\#; this \\\\\\# however, should!", str_escape_if_necessary("this # should be escaped, but not this \\#; this \\\\# however, should!", "#"));
+        CHECK(str_escape_if_necessary("this # should be escaped, but not this \\#; this \\\\# however, should!", "#") == "this \\# should be escaped, but not this \\#; this \\\\\\# however, should!");
     }
 
     TEST_CASE("string_format_test.str_unescape", "[string_format_test]") {
-        ASSERT_EQ("", str_unescape("", ""));
-        ASSERT_EQ("", str_unescape("", ";"));
-        ASSERT_EQ("asdf", str_unescape("asdf", ""));
+        CHECK(str_unescape("", "") == "");
+        CHECK(str_unescape("", ";") == "");
+        CHECK(str_unescape("asdf", "") == "asdf");
 
-        ASSERT_EQ("c:\\blah\\fasel\\test.jpg", str_unescape("c:\\\\blah\\\\fasel\\\\test.jpg", "\\"));
-        ASSERT_EQ("c:\\blah\\fasel\\test.jpg", str_unescape("c\\:\\\\blah\\\\fasel\\\\test\\.jpg", "\\:."));
-        ASSERT_EQ("asdf", str_unescape("\\asdf", "a"));
-        ASSERT_EQ("asdf", str_unescape("asd\\f", "f"));
-        ASSERT_EQ("asdf", str_unescape("\\asdf", "a"));
-        ASSERT_EQ("asdf\\", str_unescape("asdf\\", ""));
-        ASSERT_EQ("asdf\\", str_unescape("asdf\\\\", ""));
-        ASSERT_EQ("asdf\\\\", str_unescape("asdf\\\\\\\\", ""));
+        CHECK(str_unescape("c:\\\\blah\\\\fasel\\\\test.jpg", "\\") == "c:\\blah\\fasel\\test.jpg");
+        CHECK(str_unescape("c\\:\\\\blah\\\\fasel\\\\test\\.jpg", "\\:.") == "c:\\blah\\fasel\\test.jpg");
+        CHECK(str_unescape("\\asdf", "a") == "asdf");
+        CHECK(str_unescape("asd\\f", "f") == "asdf");
+        CHECK(str_unescape("\\asdf", "a") == "asdf");
+        CHECK(str_unescape("asdf\\", "") == "asdf\\");
+        CHECK(str_unescape("asdf\\\\", "") == "asdf\\");
+        CHECK(str_unescape("asdf\\\\\\\\", "") == "asdf\\\\");
     }
 
     TEST_CASE("string_format_test.str_is_blank", "[string_format_test]") {
-        ASSERT_TRUE(str_is_blank(""));
-        ASSERT_TRUE(str_is_blank(" "));
-        ASSERT_TRUE(str_is_blank(" \n\r\t"));
-        ASSERT_FALSE(str_is_blank("a \n\r\t"));
-        ASSERT_FALSE(str_is_blank("  a \n\r\t"));
-        ASSERT_FALSE(str_is_blank(" another one bites    "));
+        CHECK(str_is_blank(""));
+        CHECK(str_is_blank(" "));
+        CHECK(str_is_blank(" \n\r\t"));
+        CHECK_FALSE(str_is_blank("a \n\r\t"));
+        CHECK_FALSE(str_is_blank("  a \n\r\t"));
+        CHECK_FALSE(str_is_blank(" another one bites    "));
     }
 
     TEST_CASE("string_format_test.str_is_numeric", "[string_format_test]") {
-        ASSERT_TRUE(str_is_numeric(""));
-        ASSERT_FALSE(str_is_numeric("a"));
-        ASSERT_FALSE(str_is_numeric("66a"));
-        ASSERT_FALSE(str_is_numeric("66a33"));
-        ASSERT_FALSE(str_is_numeric("a33"));
-        ASSERT_TRUE(str_is_numeric("1"));
-        ASSERT_TRUE(str_is_numeric("1234567890"));
+        CHECK(str_is_numeric(""));
+        CHECK_FALSE(str_is_numeric("a"));
+        CHECK_FALSE(str_is_numeric("66a"));
+        CHECK_FALSE(str_is_numeric("66a33"));
+        CHECK_FALSE(str_is_numeric("a33"));
+        CHECK(str_is_numeric("1"));
+        CHECK(str_is_numeric("1234567890"));
     }
 }

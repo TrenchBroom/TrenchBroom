@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <iterator>
 #include <utility>
 #include <type_traits>
 

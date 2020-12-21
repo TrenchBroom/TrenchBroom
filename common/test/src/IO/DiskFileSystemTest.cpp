@@ -33,7 +33,6 @@
 #include <QString>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -73,44 +72,44 @@ namespace TrenchBroom {
 
             // Existing files should be resolved against the first file system in the chain that contains them:
             const auto absPathExisting = fs->makeAbsolute(Path("test3.map"));
-            ASSERT_EQ(env.dir() + Path("anotherDir/test3.map"), absPathExisting);
+            CHECK(absPathExisting == env.dir() + Path("anotherDir/test3.map"));
 
             // Non existing files should be resolved against the first filesystem in the fs chain:
             const auto absPathNotExisting = fs->makeAbsolute(Path("asdf.map"));
-            ASSERT_EQ(env.dir() + Path("dir1/asdf.map"), absPathNotExisting);
+            CHECK(absPathNotExisting == env.dir() + Path("dir1/asdf.map"));
         }
 
         TEST_CASE("DiskTest.fixPath", "[DiskTest]") {
             FSTestEnvironment env;
 
-            ASSERT_THROW(Disk::fixPath(Path("asdf/blah")), FileSystemException);
-            ASSERT_THROW(Disk::fixPath(Path("/../../test")), FileSystemException);
+            CHECK_THROWS_AS(Disk::fixPath(Path("asdf/blah")), FileSystemException);
+            CHECK_THROWS_AS(Disk::fixPath(Path("/../../test")), FileSystemException);
             if (Disk::isCaseSensitive()) {
                 // FIXME: behaviour should be made consistent between case-sensitive/case-insensitive filesystems
                 // fixPath should probably also never throw?
-                ASSERT_THROW(Disk::fixPath(env.dir() + Path("anotherDir/test3.map/asdf")), FileSystemException);
+                CHECK_THROWS_AS(Disk::fixPath(env.dir() + Path("anotherDir/test3.map/asdf")), FileSystemException);
                 CHECK(env.dir() + Path("anotherDir/test3.map") == Disk::fixPath(env.dir() + Path("ANOTHERdir/TEST3.MAP")));
             }
 
             CHECK(env.dir() + Path("anotherDir/test3.map") == Disk::fixPath(env.dir() + Path("anotherDir/subDirTest/../test3.map")));
 
             // on case sensitive file systems, this should also work
-            ASSERT_TRUE(QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("TEST.txt")))));
-            ASSERT_TRUE(QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")))));
+            CHECK(QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("TEST.txt")))));
+            CHECK(QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")))));
         }
 
         TEST_CASE("DiskTest.directoryExists", "[DiskTest]") {
             FSTestEnvironment env;
 
-            ASSERT_THROW(Disk::directoryExists(Path("asdf/bleh")), FileSystemException);
+            CHECK_THROWS_AS(Disk::directoryExists(Path("asdf/bleh")), FileSystemException);
             if (Disk::isCaseSensitive()) {
                 // FIXME: behaviour should be made consistent between case-sensitive/case-insensitive filesystems
                 // directoryExists should probably also never throw?
-                ASSERT_THROW(Disk::directoryExists(env.dir() + Path("anotherDir/test3.map/asdf")), FileSystemException); // test3.map is a file
+                CHECK_THROWS_AS(Disk::directoryExists(env.dir() + Path("anotherDir/test3.map/asdf")), FileSystemException); // test3.map is a file
             }
 
-            ASSERT_TRUE(Disk::directoryExists(env.dir() + Path("anotherDir")));
-            ASSERT_TRUE(Disk::directoryExists(env.dir() + Path("anotherDir/subDirTest")));
+            CHECK(Disk::directoryExists(env.dir() + Path("anotherDir")));
+            CHECK(Disk::directoryExists(env.dir() + Path("anotherDir/subDirTest")));
             CHECK(!Disk::directoryExists(env.dir() + Path("anotherDir/test3.map"))); // not a directory
             CHECK(!Disk::directoryExists(env.dir() + Path("anotherDir/asdf"))); // asdf directory doesn't exist
         }
@@ -118,36 +117,36 @@ namespace TrenchBroom {
         TEST_CASE("DiskTest.fileExists", "[DiskTest]") {
             FSTestEnvironment env;
 
-            ASSERT_THROW(Disk::fileExists(Path("asdf/bleh")), FileSystemException);
+            CHECK_THROWS_AS(Disk::fileExists(Path("asdf/bleh")), FileSystemException);
 
-            ASSERT_TRUE(Disk::fileExists(env.dir() + Path("test.txt")));
-            ASSERT_TRUE(Disk::fileExists(env.dir() + Path("anotherDir/subDirTest/test2.map")));
+            CHECK(Disk::fileExists(env.dir() + Path("test.txt")));
+            CHECK(Disk::fileExists(env.dir() + Path("anotherDir/subDirTest/test2.map")));
         }
 
         TEST_CASE("DiskTest.getDirectoryContents", "[DiskTest]") {
             FSTestEnvironment env;
 
-            ASSERT_THROW(Disk::getDirectoryContents(Path("asdf/bleh")), FileSystemException);
-            ASSERT_THROW(Disk::getDirectoryContents(env.dir() + Path("does/not/exist")), FileSystemException);
+            CHECK_THROWS_AS(Disk::getDirectoryContents(Path("asdf/bleh")), FileSystemException);
+            CHECK_THROWS_AS(Disk::getDirectoryContents(env.dir() + Path("does/not/exist")), FileSystemException);
 
-            const std::vector<Path> contents = Disk::getDirectoryContents(env.dir());
-            ASSERT_EQ(5u, contents.size());
-            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("dir1")) != std::end(contents));
-            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("dir2")) != std::end(contents));
-            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("anotherDir")) != std::end(contents));
-            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("test.txt")) != std::end(contents));
-            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("test2.map")) != std::end(contents));
+            CHECK_THAT(Disk::getDirectoryContents(env.dir()), Catch::UnorderedEquals(std::vector<Path>{
+                Path("dir1"),
+                Path("dir2"),
+                Path("anotherDir"),
+                Path("test.txt"),
+                Path("test2.map"),
+            }));
         }
 
         TEST_CASE("DiskTest.openFile", "[DiskTest]") {
             FSTestEnvironment env;
 
-            ASSERT_THROW(Disk::openFile(Path("asdf/bleh")), FileSystemException);
-            ASSERT_THROW(Disk::openFile(env.dir() + Path("does/not/exist")), FileNotFoundException);
+            CHECK_THROWS_AS(Disk::openFile(Path("asdf/bleh")), FileSystemException);
+            CHECK_THROWS_AS(Disk::openFile(env.dir() + Path("does/not/exist")), FileNotFoundException);
 
-            ASSERT_THROW(Disk::openFile(env.dir() + Path("does_not_exist.txt")), FileNotFoundException);
-            ASSERT_TRUE(Disk::openFile(env.dir() + Path("test.txt")) != nullptr);
-            ASSERT_TRUE(Disk::openFile(env.dir() + Path("anotherDir/subDirTest/test2.map")) != nullptr);
+            CHECK_THROWS_AS(Disk::openFile(env.dir() + Path("does_not_exist.txt")), FileNotFoundException);
+            CHECK(Disk::openFile(env.dir() + Path("test.txt")) != nullptr);
+            CHECK(Disk::openFile(env.dir() + Path("anotherDir/subDirTest/test2.map")) != nullptr);
         }
 
         TEST_CASE("DiskTest.resolvePath", "[DiskTest]") {
@@ -164,25 +163,25 @@ namespace TrenchBroom {
             paths.push_back(Path("/asfd/blah"));
             paths.push_back(Path("adk3kdk/bhb"));
 
-            ASSERT_EQ(env.dir() + Path("test.txt"), Disk::resolvePath(rootPaths, paths[0]));
-            ASSERT_EQ(env.dir() + Path("anotherDir/test3.map"), Disk::resolvePath(rootPaths, paths[1]));
-            ASSERT_EQ(env.dir() + Path("anotherDir/subDirTest/test2.map"), Disk::resolvePath(rootPaths, paths[2]));
-            ASSERT_EQ(Path(""), Disk::resolvePath(rootPaths, paths[3]));
-            ASSERT_EQ(Path(""), Disk::resolvePath(rootPaths, paths[4]));
+            CHECK(Disk::resolvePath(rootPaths, paths[0]) == env.dir() + Path("test.txt"));
+            CHECK(Disk::resolvePath(rootPaths, paths[1]) == env.dir() + Path("anotherDir/test3.map"));
+            CHECK(Disk::resolvePath(rootPaths, paths[2]) == env.dir() + Path("anotherDir/subDirTest/test2.map"));
+            CHECK(Disk::resolvePath(rootPaths, paths[3]) == Path(""));
+            CHECK(Disk::resolvePath(rootPaths, paths[4]) == Path(""));
         }
 
         TEST_CASE("DiskFileSystemTest.createDiskFileSystem", "[DiskFileSystemTest]") {
             FSTestEnvironment env;
 
-            ASSERT_THROW(DiskFileSystem(env.dir() + Path("asdf"), true), FileSystemException);
-            ASSERT_NO_THROW(DiskFileSystem(env.dir() + Path("asdf"), false));
-            ASSERT_NO_THROW(DiskFileSystem(env.dir(), true));
+            CHECK_THROWS_AS(DiskFileSystem(env.dir() + Path("asdf"), true), FileSystemException);
+            CHECK_NOTHROW(DiskFileSystem(env.dir() + Path("asdf"), false));
+            CHECK_NOTHROW(DiskFileSystem(env.dir(), true));
 
             // for case sensitive file systems
-            ASSERT_NO_THROW(DiskFileSystem(env.dir() + Path("ANOTHERDIR"), true));
+            CHECK_NOTHROW(DiskFileSystem(env.dir() + Path("ANOTHERDIR"), true));
 
             const DiskFileSystem fs(env.dir() + Path("anotherDir/.."), true);
-            ASSERT_EQ(fs.root(), fs.makeAbsolute(Path("")));
+            CHECK(fs.makeAbsolute(Path("")) == fs.root());
         }
 
         TEST_CASE("DiskFileSystemTest.directoryExists", "[DiskFileSystemTest]") {
@@ -190,19 +189,19 @@ namespace TrenchBroom {
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
-            ASSERT_THROW(fs.directoryExists(Path("c:\\")), FileSystemException);
+            CHECK_THROWS_AS(fs.directoryExists(Path("c:\\")), FileSystemException);
 #else
-            ASSERT_THROW(fs.directoryExists(Path("/")), FileSystemException);
+            CHECK_THROWS_AS(fs.directoryExists(Path("/")), FileSystemException);
 #endif
-            ASSERT_THROW(fs.directoryExists(Path("..")), FileSystemException);
+            CHECK_THROWS_AS(fs.directoryExists(Path("..")), FileSystemException);
 
-            ASSERT_TRUE(fs.directoryExists(Path(".")));
-            ASSERT_TRUE(fs.directoryExists(Path("anotherDir")));
-            ASSERT_TRUE(fs.directoryExists(Path("anotherDir/subDirTest")));
-            ASSERT_TRUE(fs.directoryExists(Path("anotherDir/./subDirTest/..")));
-            ASSERT_TRUE(fs.directoryExists(Path("ANOTHerDir")));
-            ASSERT_FALSE(fs.directoryExists(Path("test.txt")));
-            ASSERT_FALSE(fs.directoryExists(Path("fasdf")));
+            CHECK(fs.directoryExists(Path(".")));
+            CHECK(fs.directoryExists(Path("anotherDir")));
+            CHECK(fs.directoryExists(Path("anotherDir/subDirTest")));
+            CHECK(fs.directoryExists(Path("anotherDir/./subDirTest/..")));
+            CHECK(fs.directoryExists(Path("ANOTHerDir")));
+            CHECK_FALSE(fs.directoryExists(Path("test.txt")));
+            CHECK_FALSE(fs.directoryExists(Path("fasdf")));
         }
 
         TEST_CASE("DiskFileSystemTest.fileExists", "[DiskFileSystemTest]") {
@@ -210,31 +209,31 @@ namespace TrenchBroom {
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
-            ASSERT_THROW(fs.fileExists(Path("C:\\does_not_exist_i_hope.txt")), FileSystemException);
+            CHECK_THROWS_AS(fs.fileExists(Path("C:\\does_not_exist_i_hope.txt")), FileSystemException);
 #else
-            ASSERT_THROW(fs.fileExists(Path("/does_not_exist_i_hope.txt")), FileSystemException);
+            CHECK_THROWS_AS(fs.fileExists(Path("/does_not_exist_i_hope.txt")), FileSystemException);
 #endif
-            ASSERT_THROW(fs.fileExists(Path("../test.txt")), FileSystemException);
+            CHECK_THROWS_AS(fs.fileExists(Path("../test.txt")), FileSystemException);
 
-            ASSERT_TRUE(fs.fileExists(Path("test.txt")));
-            ASSERT_TRUE(fs.fileExists(Path("./test.txt")));
-            ASSERT_TRUE(fs.fileExists(Path("anotherDir/test3.map")));
-            ASSERT_TRUE(fs.fileExists(Path("anotherDir/./subDirTest/../subDirTest/test2.map")));
-            ASSERT_TRUE(fs.fileExists(Path("ANOtherDir/test3.MAP")));
-            ASSERT_FALSE(fs.fileExists(Path("anotherDir/whatever.txt")));
-            ASSERT_FALSE(fs.fileExists(Path("fdfdf.blah")));
+            CHECK(fs.fileExists(Path("test.txt")));
+            CHECK(fs.fileExists(Path("./test.txt")));
+            CHECK(fs.fileExists(Path("anotherDir/test3.map")));
+            CHECK(fs.fileExists(Path("anotherDir/./subDirTest/../subDirTest/test2.map")));
+            CHECK(fs.fileExists(Path("ANOtherDir/test3.MAP")));
+            CHECK_FALSE(fs.fileExists(Path("anotherDir/whatever.txt")));
+            CHECK_FALSE(fs.fileExists(Path("fdfdf.blah")));
         }
 
         TEST_CASE("DiskFileSystemTest.getDirectoryContents", "[DiskFileSystemTest]") {
             FSTestEnvironment env;
             const DiskFileSystem fs(env.dir());
 
-            ASSERT_THROW(fs.getDirectoryContents(Path("asdf/bleh")), FileSystemException);
+            CHECK_THROWS_AS(fs.getDirectoryContents(Path("asdf/bleh")), FileSystemException);
 
-            const std::vector<Path> contents = fs.getDirectoryContents(Path("anotherDir"));
-            ASSERT_EQ(2u, contents.size());
-            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("subDirTest")) != std::end(contents));
-            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("test3.map")) != std::end(contents));
+            CHECK_THAT(fs.getDirectoryContents(Path("anotherDir")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("subDirTest"),
+                Path("test3.map"),
+            }));
         }
 
         TEST_CASE("DiskFileSystemTest.findItems", "[DiskFileSystemTest]") {
@@ -242,28 +241,28 @@ namespace TrenchBroom {
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
-            ASSERT_THROW(fs.findItems(Path("c:\\")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItems(Path("c:\\")), FileSystemException);
 #else
-            ASSERT_THROW(fs.findItems(Path("/")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItems(Path("/")), FileSystemException);
 #endif
-            ASSERT_THROW(fs.findItems(Path("..")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItems(Path("..")), FileSystemException);
 
-            std::vector<Path> items = fs.findItems(Path("."));
-            ASSERT_EQ(5u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir1")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir2")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./test.txt")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./test2.map")) != std::end(items));
+            CHECK_THAT(fs.findItems(Path(".")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("./dir1"),
+                Path("./dir2"),
+                Path("./anotherDir"),
+                Path("./test.txt"),
+                Path("./test2.map"),
+            }));
 
-            items = fs.findItems(Path(""), FileExtensionMatcher("TXT"));
-            ASSERT_EQ(1u, items.size());
-            ASSERT_EQ(Path("test.txt"), items.front());
+            CHECK_THAT(fs.findItems(Path(""), FileExtensionMatcher("TXT")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("test.txt"),
+            }));
 
-            items = fs.findItems(Path("anotherDir"));
-            ASSERT_EQ(2u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/subDirTest")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/test3.map")) != std::end(items));
+            CHECK_THAT(fs.findItems(Path("anotherDir")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("anotherDir/subDirTest"),
+                Path("anotherDir/test3.map"),
+            }));
         }
 
         TEST_CASE("DiskFileSystemTest.findItemsRecursively", "[DiskFileSystemTest]") {
@@ -271,34 +270,34 @@ namespace TrenchBroom {
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
-            ASSERT_THROW(fs.findItemsRecursively(Path("c:\\")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItemsRecursively(Path("c:\\")), FileSystemException);
 #else
-            ASSERT_THROW(fs.findItemsRecursively(Path("/")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItemsRecursively(Path("/")), FileSystemException);
 #endif
-            ASSERT_THROW(fs.findItemsRecursively(Path("..")), FileSystemException);
+            CHECK_THROWS_AS(fs.findItemsRecursively(Path("..")), FileSystemException);
 
-            std::vector<Path> items = fs.findItemsRecursively(Path("."));
-            ASSERT_EQ(8u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir1")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./dir2")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir/test3.map")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir/subDirTest")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./anotherDir/subDirTest/test2.map")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./test.txt")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("./test2.map")) != std::end(items));
+            CHECK_THAT(fs.findItemsRecursively(Path(".")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("./dir1"),
+                Path("./dir2"),
+                Path("./anotherDir"),
+                Path("./anotherDir/subDirTest"),
+                Path("./anotherDir/subDirTest/test2.map"),
+                Path("./anotherDir/test3.map"),
+                Path("./test.txt"),
+                Path("./test2.map"),
+            }));
 
-            items = fs.findItemsRecursively(Path(""), FileExtensionMatcher("MAP"));
-            ASSERT_EQ(3u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/test3.map")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/subDirTest/test2.map")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("test2.map")) != std::end(items));
+            CHECK_THAT(fs.findItemsRecursively(Path(""), FileExtensionMatcher("MAP")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("anotherDir/subDirTest/test2.map"),
+                Path("anotherDir/test3.map"),
+                Path("test2.map"),
+            }));
 
-            items = fs.findItemsRecursively(Path("anotherDir"));
-            ASSERT_EQ(3u, items.size());
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/test3.map")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/subDirTest")) != std::end(items));
-            ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/subDirTest/test2.map")) != std::end(items));
+            CHECK_THAT(fs.findItemsRecursively(Path("anotherDir")), Catch::UnorderedEquals(std::vector<Path>{
+                Path("anotherDir/subDirTest"),
+                Path("anotherDir/subDirTest/test2.map"),
+                Path("anotherDir/test3.map"),
+            }));
         }
 
         // getDirectoryContents gets tested thoroughly by the tests for the find* methods
@@ -308,13 +307,13 @@ namespace TrenchBroom {
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
-            ASSERT_THROW(fs.openFile(Path("c:\\hopefully_nothing.here")), FileSystemException);
+            CHECK_THROWS_AS(fs.openFile(Path("c:\\hopefully_nothing.here")), FileSystemException);
 #else
-            ASSERT_THROW(fs.openFile(Path("/hopefully_nothing.here")), FileSystemException);
+            CHECK_THROWS_AS(fs.openFile(Path("/hopefully_nothing.here")), FileSystemException);
 #endif
-            ASSERT_THROW(fs.openFile(Path("..")), FileSystemException);
-            ASSERT_THROW(fs.openFile(Path(".")), FileSystemException);
-            ASSERT_THROW(fs.openFile(Path("anotherDir")), FileSystemException);
+            CHECK_THROWS_AS(fs.openFile(Path("..")), FileSystemException);
+            CHECK_THROWS_AS(fs.openFile(Path(".")), FileSystemException);
+            CHECK_THROWS_AS(fs.openFile(Path("anotherDir")), FileSystemException);
 
             const auto checkOpenFile = [&](const auto& path) {
                 const auto file = fs.openFile(path);
@@ -330,15 +329,15 @@ namespace TrenchBroom {
         TEST_CASE("WritableDiskFileSystemTest.createWritableDiskFileSystem", "[WritableDiskFileSystemTest]") {
             FSTestEnvironment env;
 
-            ASSERT_THROW(WritableDiskFileSystem(env.dir() + Path("asdf"), false), FileSystemException);
-            ASSERT_NO_THROW(WritableDiskFileSystem(env.dir() + Path("asdf"), true));
-            ASSERT_NO_THROW(WritableDiskFileSystem(env.dir(), true));
+            CHECK_THROWS_AS(WritableDiskFileSystem(env.dir() + Path("asdf"), false), FileSystemException);
+            CHECK_NOTHROW(WritableDiskFileSystem(env.dir() + Path("asdf"), true));
+            CHECK_NOTHROW(WritableDiskFileSystem(env.dir(), true));
 
             // for case sensitive file systems
-            ASSERT_NO_THROW(WritableDiskFileSystem(env.dir() + Path("ANOTHERDIR"), false));
+            CHECK_NOTHROW(WritableDiskFileSystem(env.dir() + Path("ANOTHERDIR"), false));
 
             const WritableDiskFileSystem fs(env.dir() + Path("anotherDir/.."), false);
-            ASSERT_EQ(env.dir(), fs.makeAbsolute(Path("")));
+            CHECK(fs.makeAbsolute(Path("")) == env.dir());
         }
 
         TEST_CASE("WritableDiskFileSystemTest.createDirectory", "[WritableDiskFileSystemTest]") {
@@ -346,24 +345,24 @@ namespace TrenchBroom {
             WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32
-            ASSERT_THROW(fs.createDirectory(Path("c:\\hopefully_nothing_here")), FileSystemException);
+            CHECK_THROWS_AS(fs.createDirectory(Path("c:\\hopefully_nothing_here")), FileSystemException);
 #else
-            ASSERT_THROW(fs.createDirectory(Path("/hopefully_nothing_here")), FileSystemException);
+            CHECK_THROWS_AS(fs.createDirectory(Path("/hopefully_nothing_here")), FileSystemException);
 #endif
-            ASSERT_THROW(fs.createDirectory(Path("")), FileSystemException);
-            ASSERT_THROW(fs.createDirectory(Path(".")), FileSystemException);
-            ASSERT_THROW(fs.createDirectory(Path("..")), FileSystemException);
-            ASSERT_THROW(fs.createDirectory(Path("dir1")), FileSystemException);
-            ASSERT_THROW(fs.createDirectory(Path("test.txt")), FileSystemException);
+            CHECK_THROWS_AS(fs.createDirectory(Path("")), FileSystemException);
+            CHECK_THROWS_AS(fs.createDirectory(Path(".")), FileSystemException);
+            CHECK_THROWS_AS(fs.createDirectory(Path("..")), FileSystemException);
+            CHECK_THROWS_AS(fs.createDirectory(Path("dir1")), FileSystemException);
+            CHECK_THROWS_AS(fs.createDirectory(Path("test.txt")), FileSystemException);
 
             fs.createDirectory(Path("newDir"));
-            ASSERT_TRUE(fs.directoryExists(Path("newDir")));
+            CHECK(fs.directoryExists(Path("newDir")));
 
             fs.createDirectory(Path("newDir/someOtherDir"));
-            ASSERT_TRUE(fs.directoryExists(Path("newDir/someOtherDir")));
+            CHECK(fs.directoryExists(Path("newDir/someOtherDir")));
 
             fs.createDirectory(Path("newDir/someOtherDir/.././yetAnotherDir/."));
-            ASSERT_TRUE(fs.directoryExists(Path("newDir/yetAnotherDir")));
+            CHECK(fs.directoryExists(Path("newDir/yetAnotherDir")));
         }
 
         TEST_CASE("WritableDiskFileSystemTest.deleteFile", "[WritableDiskFileSystemTest]") {
@@ -371,25 +370,25 @@ namespace TrenchBroom {
             WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32
-            ASSERT_THROW(fs.deleteFile(Path("c:\\hopefully_nothing_here.txt")), FileSystemException);
+            CHECK_THROWS_AS(fs.deleteFile(Path("c:\\hopefully_nothing_here.txt")), FileSystemException);
 #else
-            ASSERT_THROW(fs.deleteFile(Path("/hopefully_nothing_here.txt")), FileSystemException);
+            CHECK_THROWS_AS(fs.deleteFile(Path("/hopefully_nothing_here.txt")), FileSystemException);
 #endif
-            ASSERT_THROW(fs.deleteFile(Path("")), FileSystemException);
-            ASSERT_THROW(fs.deleteFile(Path(".")), FileSystemException);
-            ASSERT_THROW(fs.deleteFile(Path("..")), FileSystemException);
-            ASSERT_THROW(fs.deleteFile(Path("dir1")), FileSystemException);
-            ASSERT_THROW(fs.deleteFile(Path("asdf.txt")), FileSystemException);
-            ASSERT_THROW(fs.deleteFile(Path("/dir1/asdf.txt")), FileSystemException);
+            CHECK_THROWS_AS(fs.deleteFile(Path("")), FileSystemException);
+            CHECK_THROWS_AS(fs.deleteFile(Path(".")), FileSystemException);
+            CHECK_THROWS_AS(fs.deleteFile(Path("..")), FileSystemException);
+            CHECK_THROWS_AS(fs.deleteFile(Path("dir1")), FileSystemException);
+            CHECK_THROWS_AS(fs.deleteFile(Path("asdf.txt")), FileSystemException);
+            CHECK_THROWS_AS(fs.deleteFile(Path("/dir1/asdf.txt")), FileSystemException);
 
             fs.deleteFile(Path("test.txt"));
-            ASSERT_FALSE(fs.fileExists(Path("test.txt")));
+            CHECK_FALSE(fs.fileExists(Path("test.txt")));
 
             fs.deleteFile(Path("anotherDir/test3.map"));
-            ASSERT_FALSE(fs.fileExists(Path("anotherDir/test3.map")));
+            CHECK_FALSE(fs.fileExists(Path("anotherDir/test3.map")));
 
             fs.deleteFile(Path("anotherDir/subDirTest/.././subDirTest/./test2.map"));
-            ASSERT_FALSE(fs.fileExists(Path("anotherDir/subDirTest/test2.map")));
+            CHECK_FALSE(fs.fileExists(Path("anotherDir/subDirTest/test2.map")));
         }
 
         TEST_CASE("WritableDiskFileSystemTest.moveFile", "[WritableDiskFileSystemTest]") {
@@ -397,39 +396,39 @@ namespace TrenchBroom {
             WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32
-            ASSERT_THROW(fs.moveFile(Path("c:\\hopefully_nothing_here.txt"),
+            CHECK_THROWS_AS(fs.moveFile(Path("c:\\hopefully_nothing_here.txt"),
                                      Path("dest.txt"), false), FileSystemException);
-            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.moveFile(Path("test.txt"),
                                      Path("C:\\dest.txt"), false), FileSystemException);
 #else
-            ASSERT_THROW(fs.moveFile(Path("/hopefully_nothing_here.txt"),
+            CHECK_THROWS_AS(fs.moveFile(Path("/hopefully_nothing_here.txt"),
                                      Path("dest.txt"), false), FileSystemException);
-            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.moveFile(Path("test.txt"),
                                      Path("/dest.txt"), false), FileSystemException);
 #endif
 
-            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.moveFile(Path("test.txt"),
                                      Path("test2.map"), false), FileSystemException);
-            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.moveFile(Path("test.txt"),
                                      Path("anotherDir/test3.map"), false), FileSystemException);
-            ASSERT_THROW(fs.moveFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.moveFile(Path("test.txt"),
                                      Path("anotherDir/../anotherDir/./test3.map"), false), FileSystemException);
 
             fs.moveFile(Path("test.txt"),
                         Path("test2.txt"), true);
-            ASSERT_FALSE(fs.fileExists(Path("test.txt")));
-            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
+            CHECK_FALSE(fs.fileExists(Path("test.txt")));
+            CHECK(fs.fileExists(Path("test2.txt")));
 
             fs.moveFile(Path("test2.txt"),
                         Path("test2.map"), true);
-            ASSERT_FALSE(fs.fileExists(Path("test2.txt")));
-            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
+            CHECK_FALSE(fs.fileExists(Path("test2.txt")));
+            CHECK(fs.fileExists(Path("test2.map")));
             // we're trusting that the file is actually overwritten (should really test the contents here...)
 
             fs.moveFile(Path("test2.map"),
                         Path("dir1/test2.map"), true);
-            ASSERT_FALSE(fs.fileExists(Path("test2.map")));
-            ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
+            CHECK_FALSE(fs.fileExists(Path("test2.map")));
+            CHECK(fs.fileExists(Path("dir1/test2.map")));
         }
 
         TEST_CASE("WritableDiskFileSystemTest.copyFile", "[WritableDiskFileSystemTest]") {
@@ -437,39 +436,39 @@ namespace TrenchBroom {
             WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32
-            ASSERT_THROW(fs.copyFile(Path("c:\\hopefully_nothing_here.txt"),
+            CHECK_THROWS_AS(fs.copyFile(Path("c:\\hopefully_nothing_here.txt"),
                                      Path("dest.txt"), false), FileSystemException);
-            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.copyFile(Path("test.txt"),
                                      Path("C:\\dest.txt"), false), FileSystemException);
 #else
-            ASSERT_THROW(fs.copyFile(Path("/hopefully_nothing_here.txt"),
+            CHECK_THROWS_AS(fs.copyFile(Path("/hopefully_nothing_here.txt"),
                                      Path("dest.txt"), false), FileSystemException);
-            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.copyFile(Path("test.txt"),
                                      Path("/dest.txt"), false), FileSystemException);
 #endif
 
-            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.copyFile(Path("test.txt"),
                                      Path("test2.map"), false), FileSystemException);
-            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.copyFile(Path("test.txt"),
                                      Path("anotherDir/test3.map"), false), FileSystemException);
-            ASSERT_THROW(fs.copyFile(Path("test.txt"),
+            CHECK_THROWS_AS(fs.copyFile(Path("test.txt"),
                                      Path("anotherDir/../anotherDir/./test3.map"), false), FileSystemException);
 
             fs.copyFile(Path("test.txt"),
                         Path("test2.txt"), true);
-            ASSERT_TRUE(fs.fileExists(Path("test.txt")));
-            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
+            CHECK(fs.fileExists(Path("test.txt")));
+            CHECK(fs.fileExists(Path("test2.txt")));
 
             fs.copyFile(Path("test2.txt"),
                         Path("test2.map"), true);
-            ASSERT_TRUE(fs.fileExists(Path("test2.txt")));
-            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
+            CHECK(fs.fileExists(Path("test2.txt")));
+            CHECK(fs.fileExists(Path("test2.map")));
             // we're trusting that the file is actually overwritten (should really test the contents here...)
 
             fs.copyFile(Path("test2.map"),
                         Path("dir1/test2.map"), true);
-            ASSERT_TRUE(fs.fileExists(Path("test2.map")));
-            ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
+            CHECK(fs.fileExists(Path("test2.map")));
+            CHECK(fs.fileExists(Path("dir1/test2.map")));
         }
     }
 }

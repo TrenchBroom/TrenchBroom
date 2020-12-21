@@ -23,7 +23,6 @@
 #include <tuple>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     class Observed {
@@ -71,36 +70,36 @@ namespace TrenchBroom {
         Observer o2;
 
         Observed obs;
-        ASSERT_TRUE(obs.noArgNotifier.addObserver(&o1, &Observer::notify0));
-        ASSERT_TRUE(obs.noArgNotifier.addObserver(&o2, &Observer::notify0));
-        ASSERT_FALSE(obs.noArgNotifier.addObserver(&o1, &Observer::notify0));
-        ASSERT_FALSE(obs.noArgNotifier.addObserver(&o2, &Observer::notify0));
+        CHECK(obs.noArgNotifier.addObserver(&o1, &Observer::notify0));
+        CHECK(obs.noArgNotifier.addObserver(&o2, &Observer::notify0));
+        CHECK_FALSE(obs.noArgNotifier.addObserver(&o1, &Observer::notify0));
+        CHECK_FALSE(obs.noArgNotifier.addObserver(&o2, &Observer::notify0));
 
-        ASSERT_TRUE(obs.oneArgNotifier.addObserver(&o1, &Observer::notify1));
-        ASSERT_TRUE(obs.oneArgNotifier.addObserver(&o2, &Observer::notify1));
-        ASSERT_FALSE(obs.oneArgNotifier.addObserver(&o1, &Observer::notify1));
-        ASSERT_FALSE(obs.oneArgNotifier.addObserver(&o2, &Observer::notify1));
+        CHECK(obs.oneArgNotifier.addObserver(&o1, &Observer::notify1));
+        CHECK(obs.oneArgNotifier.addObserver(&o2, &Observer::notify1));
+        CHECK_FALSE(obs.oneArgNotifier.addObserver(&o1, &Observer::notify1));
+        CHECK_FALSE(obs.oneArgNotifier.addObserver(&o2, &Observer::notify1));
 
-        ASSERT_TRUE(obs.twoArgNotifier.addObserver(&o1, &Observer::notify2));
-        ASSERT_TRUE(obs.twoArgNotifier.addObserver(&o2, &Observer::notify2));
-        ASSERT_FALSE(obs.twoArgNotifier.addObserver(&o1, &Observer::notify2));
-        ASSERT_FALSE(obs.twoArgNotifier.addObserver(&o2, &Observer::notify2));
+        CHECK(obs.twoArgNotifier.addObserver(&o1, &Observer::notify2));
+        CHECK(obs.twoArgNotifier.addObserver(&o2, &Observer::notify2));
+        CHECK_FALSE(obs.twoArgNotifier.addObserver(&o1, &Observer::notify2));
+        CHECK_FALSE(obs.twoArgNotifier.addObserver(&o2, &Observer::notify2));
 
 
-        ASSERT_TRUE(obs.noArgNotifier.removeObserver(&o1, &Observer::notify0));
-        ASSERT_TRUE(obs.noArgNotifier.removeObserver(&o2, &Observer::notify0));
-        ASSERT_FALSE(obs.noArgNotifier.removeObserver(&o1, &Observer::notify0));
-        ASSERT_FALSE(obs.noArgNotifier.removeObserver(&o2, &Observer::notify0));
+        CHECK(obs.noArgNotifier.removeObserver(&o1, &Observer::notify0));
+        CHECK(obs.noArgNotifier.removeObserver(&o2, &Observer::notify0));
+        CHECK_FALSE(obs.noArgNotifier.removeObserver(&o1, &Observer::notify0));
+        CHECK_FALSE(obs.noArgNotifier.removeObserver(&o2, &Observer::notify0));
 
-        ASSERT_TRUE(obs.oneArgNotifier.removeObserver(&o1, &Observer::notify1));
-        ASSERT_TRUE(obs.oneArgNotifier.removeObserver(&o2, &Observer::notify1));
-        ASSERT_FALSE(obs.oneArgNotifier.removeObserver(&o1, &Observer::notify1));
-        ASSERT_FALSE(obs.oneArgNotifier.removeObserver(&o2, &Observer::notify1));
+        CHECK(obs.oneArgNotifier.removeObserver(&o1, &Observer::notify1));
+        CHECK(obs.oneArgNotifier.removeObserver(&o2, &Observer::notify1));
+        CHECK_FALSE(obs.oneArgNotifier.removeObserver(&o1, &Observer::notify1));
+        CHECK_FALSE(obs.oneArgNotifier.removeObserver(&o2, &Observer::notify1));
 
-        ASSERT_TRUE(obs.twoArgNotifier.removeObserver(&o1, &Observer::notify2));
-        ASSERT_TRUE(obs.twoArgNotifier.removeObserver(&o2, &Observer::notify2));
-        ASSERT_FALSE(obs.twoArgNotifier.removeObserver(&o1, &Observer::notify2));
-        ASSERT_FALSE(obs.twoArgNotifier.removeObserver(&o2, &Observer::notify2));
+        CHECK(obs.twoArgNotifier.removeObserver(&o1, &Observer::notify2));
+        CHECK(obs.twoArgNotifier.removeObserver(&o2, &Observer::notify2));
+        CHECK_FALSE(obs.twoArgNotifier.removeObserver(&o1, &Observer::notify2));
+        CHECK_FALSE(obs.twoArgNotifier.removeObserver(&o2, &Observer::notify2));
     }
 
     TEST_CASE("NotifierTest.testNotifyObservers", "[NotifierTest]") {

@@ -89,32 +89,38 @@ namespace TrenchBroom {
             srcFactor = destFactor = "";
         }
 
-        bool Quake3ShaderStage::BlendFunc::operator==(const BlendFunc& other) const {
-            return (srcFactor == other.srcFactor && destFactor == other.destFactor);
+        bool operator==(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs) {
+            return lhs.srcFactor == rhs.srcFactor && lhs.destFactor == rhs.destFactor;
         }
 
-        bool Quake3ShaderStage::operator==(const Quake3ShaderStage& other) const {
-            return map == other.map && blendFunc == other.blendFunc;
+        bool operator!=(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs) {
+            return !(lhs == rhs);
+        }
+        
+        bool operator==(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs) {
+            return lhs.map == rhs.map && lhs.blendFunc == rhs.blendFunc;
         }
 
-        bool Quake3Shader::operator==(const Quake3Shader& other) const {
-            return shaderPath == other.shaderPath;
-        }
-
-        bool isEqual(const Quake3Shader& lhs, const Quake3Shader& rhs) {
-            return (
-                lhs.shaderPath == rhs.shaderPath &&
-                lhs.editorImage == rhs.editorImage &&
-                lhs.lightImage == rhs.lightImage &&
-                lhs.culling == rhs.culling &&
-                lhs.surfaceParms == rhs.surfaceParms &&
-                lhs.stages == rhs.stages
-            );
+        bool operator!=(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs) {
+            return !(lhs == rhs);
         }
 
         Quake3ShaderStage& Quake3Shader::addStage() {
             stages.emplace_back();
             return stages.back();
+        }
+
+        bool operator==(const Quake3Shader& lhs, const Quake3Shader& rhs) {
+            return lhs.shaderPath == rhs.shaderPath &&
+                   lhs.editorImage == rhs.editorImage &&
+                   lhs.lightImage == rhs.lightImage &&
+                   lhs.culling == rhs.culling &&
+                   lhs.surfaceParms == rhs.surfaceParms &&
+                   lhs.stages == rhs.stages;
+        }
+
+        bool operator!=(const Quake3Shader& lhs, const Quake3Shader& rhs) {
+            return !(lhs == rhs);
         }
     }
 }

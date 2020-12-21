@@ -34,17 +34,16 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Assets {
         void assertModelDefinition(const ModelSpecification& expected, IO::EntityDefinitionParser& parser, const std::string& entityPropertiesStr) {
             IO::TestParserStatus status;
             std::vector<EntityDefinition*> definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
+            CHECK(definitions.size() == 1u);
 
             EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(EntityDefinitionType::PointEntity, definition->type());
+            CHECK(definition->type() == EntityDefinitionType::PointEntity);
 
             assertModelDefinition(expected, definition, entityPropertiesStr);
 
@@ -62,7 +61,7 @@ namespace TrenchBroom {
         void assertModelDefinition(const ModelSpecification& expected, const ModelDefinition& actual, const std::string& entityPropertiesStr) {
             const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr).evaluate(EL::EvaluationContext()).mapValue();
             const auto variableStore = EL::VariableTable(entityPropertiesMap);
-            ASSERT_EQ(expected, actual.modelSpecification(variableStore));
+            CHECK(actual.modelSpecification(variableStore) == expected);
         }
     }
 }

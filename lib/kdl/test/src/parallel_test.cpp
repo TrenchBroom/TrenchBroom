@@ -15,16 +15,16 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "test_utils.h"
-
 #include "kdl/parallel.h"
 
 #include <array>
 #include <atomic>
 #include <string>
 #include <vector>
+
+#include "test_utils.h"
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
     TEST_CASE("for 0", "[parallel_test]") {

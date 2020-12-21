@@ -34,7 +34,6 @@
 #include <cassert>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -47,19 +46,19 @@ namespace TrenchBroom {
             document->addNode(brushNode, document->parentForNodes());
 
             const Assets::Texture* texture = document->textureManager().texture("coffin1");
-            ASSERT_NE(nullptr, texture);
-            ASSERT_EQ(6u, texture->usageCount());
+            CHECK(texture != nullptr);
+            CHECK(texture->usageCount() == 6u);
 
             for (const Model::BrushFace& face : brushNode->brush().faces()) {
-                ASSERT_EQ(texture, face.texture());
+                CHECK(face.texture() == texture);
             }
             
             SECTION("translate brush") {
                 document->translateObjects(vm::vec3(1, 1, 1));
-                ASSERT_EQ(6u, texture->usageCount());
+                CHECK(texture->usageCount() == 6u);
 
                 document->undoCommand();
-                ASSERT_EQ(6u, texture->usageCount());
+                CHECK(texture->usageCount() == 6u);
             }
 
             SECTION("select top face, move texture") {
@@ -73,16 +72,16 @@ namespace TrenchBroom {
                 REQUIRE(document->setFaceAttributes(request));
 
                 document->undoCommand(); // undo move
-                ASSERT_EQ(6u, texture->usageCount());
+                CHECK(texture->usageCount() == 6u);
                 REQUIRE(document->hasSelectedBrushFaces());
 
                 document->undoCommand(); // undo select
-                ASSERT_EQ(6u, texture->usageCount());
+                CHECK(texture->usageCount() == 6u);
                 REQUIRE(!document->hasSelectedBrushFaces());
             }            
 
             for (const Model::BrushFace& face : brushNode->brush().faces()) {
-                ASSERT_EQ(texture, face.texture());
+                CHECK(face.texture() == texture);
             }
         }
 

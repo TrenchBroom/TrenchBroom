@@ -19,7 +19,6 @@
 
 #include "TestLogger.h"
 
-#include "Ensure.h"
 #include "Assets/Texture.h"
 #include "IO/DiskIO.h"
 #include "IO/DiskFileSystem.h"
@@ -32,7 +31,6 @@
 #include "TestUtils.h"
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -50,11 +48,11 @@ namespace TrenchBroom {
         static void assertTexture(const std::string& name, const size_t width, const size_t height) {
             const auto texture = loadTexture(name);
 
-            ASSERT_EQ(name, texture.name());
-            ASSERT_EQ(width, texture.width());
-            ASSERT_EQ(height, texture.height());
-            ASSERT_TRUE((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-            ASSERT_EQ(Assets::TextureType::Opaque, texture.type());
+            CHECK(texture.name() == name);
+            CHECK(texture.width() == width);
+            CHECK(texture.height() == height);
+            CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
+            CHECK(texture.type() == Assets::TextureType::Opaque);
         }
 
         TEST_CASE("FreeImageTextureReaderTest.testLoadPngs", "[FreeImageTextureReaderTest]") {
@@ -66,18 +64,18 @@ namespace TrenchBroom {
             const auto texture = loadTexture("corruptPngTest.png");
 
             // TextureReader::readTexture is supposed to return a placeholder for corrupt textures
-            ASSERT_EQ("corruptPngTest.png", texture.name());
-            ASSERT_NE(0u, texture.width());
-            ASSERT_NE(0u, texture.height());
+            CHECK(texture.name() == "corruptPngTest.png");
+            CHECK(texture.width() != 0u);
+            CHECK(texture.height() != 0u);
         }
 
         TEST_CASE("FreeImageTextureReaderTest.testLoad16BitPng", "[FreeImageTextureReaderTest]") {
             const auto texture = loadTexture("16bitGrayscale.png");
 
             // we don't support this format currently
-            ASSERT_EQ("16bitGrayscale.png", texture.name());
-            ASSERT_NE(0u, texture.width());
-            ASSERT_NE(0u, texture.height());
+            CHECK(texture.name() == "16bitGrayscale.png");
+            CHECK(texture.width() != 0u);
+            CHECK(texture.height() != 0u);
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/2474
@@ -85,11 +83,11 @@ namespace TrenchBroom {
             const std::size_t w = 64u;
             const std::size_t h = 64u;
 
-            ASSERT_EQ(w, texture.width());
-            ASSERT_EQ(h, texture.height());
-            ASSERT_EQ(1u, texture.buffersIfUnprepared().size());
-            ASSERT_TRUE((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-            ASSERT_EQ(Assets::TextureType::Opaque, texture.type());
+            CHECK(texture.width() == w);
+            CHECK(texture.height() == h);
+            CHECK(texture.buffersIfUnprepared().size() == 1u);
+            CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
+            CHECK(texture.type() == Assets::TextureType::Opaque);
 
             for (std::size_t y = 0; y < h; ++y) {
                 for (std::size_t x = 0; x < w; ++x) {
@@ -120,26 +118,26 @@ namespace TrenchBroom {
             const std::size_t w = 25u;
             const std::size_t h = 10u;
 
-            ASSERT_EQ(w, texture.width());
-            ASSERT_EQ(h, texture.height());
-            ASSERT_EQ(1u, texture.buffersIfUnprepared().size());
-            ASSERT_TRUE((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-            ASSERT_EQ(Assets::TextureType::Masked, texture.type());
+            CHECK(texture.width() == w);
+            CHECK(texture.height() == h);
+            CHECK(texture.buffersIfUnprepared().size() == 1u);
+            CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
+            CHECK(texture.type() == Assets::TextureType::Masked);
 
             auto& mip0Data = texture.buffersIfUnprepared().at(0);
-            ASSERT_EQ(w * h * 4, mip0Data.size());
+            CHECK(mip0Data.size() == w * h * 4);
 
             for (std::size_t y = 0; y < h; ++y) {
                 for (std::size_t x = 0; x < w; ++x) {
                     if (x == 0 && y == 0) {
                         // top left pixel is green opaque
-                        ASSERT_EQ(0   /* R */, getComponentOfPixel(texture, x, y, Component::R));
-                        ASSERT_EQ(255 /* G */, getComponentOfPixel(texture, x, y, Component::G));
-                        ASSERT_EQ(0   /* B */, getComponentOfPixel(texture, x, y, Component::B));
-                        ASSERT_EQ(255 /* A */, getComponentOfPixel(texture, x, y, Component::A));
+                        CHECK(getComponentOfPixel(texture, x, y, Component::R) == 0   /* R */);
+                        CHECK(getComponentOfPixel(texture, x, y, Component::G) == 255 /* G */);
+                        CHECK(getComponentOfPixel(texture, x, y, Component::B) == 0   /* B */);
+                        CHECK(getComponentOfPixel(texture, x, y, Component::A) == 255 /* A */);
                     } else {
                         // others are fully transparent (RGB values are unknown)
-                        ASSERT_EQ(0   /* A */, getComponentOfPixel(texture, x, y, Component::A));
+                        CHECK(getComponentOfPixel(texture, x, y, Component::A) == 0   /* A */);
                     }
                 }
             }

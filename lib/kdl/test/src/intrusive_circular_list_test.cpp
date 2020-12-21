@@ -15,13 +15,11 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "kdl/intrusive_circular_list.h"
 
 #include <vector>
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
     class element;
@@ -75,7 +73,7 @@ namespace kdl {
 
     template <typename Item>
     void assertLinks(Item* head, const std::vector<Item*>& items) {
-        ASSERT_TRUE((head == nullptr) == (items.empty()));
+        CHECK((head == nullptr) == (items.empty()));
 
         if (head != nullptr) {
             const auto get_link = kdl::get_link();
@@ -84,31 +82,29 @@ namespace kdl {
             auto list_first = head;
             while (list_first != items.front()) {
                 list_first = get_link(list_first).next();
-                if (list_first == head) {
-                    UNSCOPED_INFO("list head is not an item");
-                    FAIL();
-                }
+                UNSCOPED_INFO("list head is not an item");
+                CHECK(list_first != head);
             }
             auto list_cur = list_first;
             auto list_previous = get_link(list_cur).previous();
 
             for (std::size_t i = 0u; i < items.size(); ++i) {
                 auto items_cur = items[i];
-                ASSERT_EQ(list_cur, items_cur);
-                ASSERT_EQ(list_cur, get_link(list_previous).next());
+                CHECK(items_cur == list_cur);
+                CHECK(get_link(list_previous).next() == list_cur);
 
                 list_previous = list_cur;
                 list_cur = get_link(list_cur).next();
             }
 
-            ASSERT_EQ(list_first, list_cur);
+            CHECK(list_cur == list_first);
         }
     }
 
     template <typename List>
     void assertList(const std::vector<typename List::value_type*>& expected, const List& actual) {
-        ASSERT_EQ(actual.empty(), expected.empty());
-        ASSERT_EQ(actual.size(), expected.size());
+        CHECK(expected.empty() == actual.empty());
+        CHECK(expected.size() == actual.size());
 
         if (!actual.empty()) {
             assertLinks(actual.front(), expected);
@@ -148,88 +144,88 @@ namespace kdl {
             // l falls out of scope and destroys the elements
         }
 
-        ASSERT_TRUE(t1_deleted);
-        ASSERT_TRUE(t2_deleted);
-        ASSERT_TRUE(t3_deleted);
+        CHECK(t1_deleted);
+        CHECK(t2_deleted);
+        CHECK(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.iterators", "[intrusive_circular_list_test]") {
         list l;
 
         // empty list
-        ASSERT_EQ(l.begin(), l.end());
+        CHECK(l.end() == l.begin());
 
         auto* e1 = l.emplace_back();
 
         auto it = l.begin();
         auto end = l.end();
-        ASSERT_NE(it, end);
+        CHECK(end != it);
 
-        ASSERT_EQ(e1, *it);
-        ASSERT_EQ(e1, *it++);
-        ASSERT_EQ(it, end);
+        CHECK(*it == e1);
+        CHECK(*it++ == e1);
+        CHECK(end == it);
 
         auto* e2 = l.emplace_back();
 
         it = l.begin();
         end = l.end();
-        ASSERT_NE(it, end);
+        CHECK(end != it);
 
-        ASSERT_EQ(e1, *it);
-        ASSERT_EQ(e1, *it++);
-        ASSERT_EQ(e2, *it);
-        ASSERT_EQ(e2, *it++);
-        ASSERT_EQ(it, end);
+        CHECK(*it == e1);
+        CHECK(*it++ == e1);
+        CHECK(*it == e2);
+        CHECK(*it++ == e2);
+        CHECK(end == it);
     }
 
     TEST_CASE("intrusive_circular_list_test.reverse_iterators", "[intrusive_circular_list_test]") {
         list l;
 
         // empty list
-        ASSERT_EQ(l.rbegin(), l.rend());
+        CHECK(l.rend() == l.rbegin());
 
         auto* e1 = l.emplace_back();
 
         auto it = l.rbegin();
         auto end = l.rend();
-        ASSERT_NE(it, end);
+        CHECK(end != it);
 
-        ASSERT_EQ(e1, *it);
-        ASSERT_EQ(e1, *it++);
-        ASSERT_EQ(it, end);
+        CHECK(*it == e1);
+        CHECK(*it++ == e1);
+        CHECK(end == it);
 
         auto* e2 = l.emplace_back();
         auto* e3 = l.emplace_back();
 
         it = l.rbegin();
         end = l.rend();
-        ASSERT_NE(it, end);
+        CHECK(end != it);
 
-        ASSERT_EQ(e3, *it);
-        ASSERT_EQ(e3, *it++);
-        ASSERT_EQ(e2, *it);
-        ASSERT_EQ(e2, *it++);
-        ASSERT_EQ(e1, *it);
-        ASSERT_EQ(e1, *it++);
-        ASSERT_EQ(it, end);
+        CHECK(*it == e3);
+        CHECK(*it++ == e3);
+        CHECK(*it == e2);
+        CHECK(*it++ == e2);
+        CHECK(*it == e1);
+        CHECK(*it++ == e1);
+        CHECK(end == it);
     }
 
     TEST_CASE("intrusive_circular_list_test.empty", "[intrusive_circular_list_test]") {
         list l;
-        ASSERT_TRUE(l.empty());
+        CHECK(l.empty());
 
         auto* e1 = new element();
         l.push_back(e1);
-        ASSERT_FALSE(l.empty());
+        CHECK_FALSE(l.empty());
     }
 
     TEST_CASE("intrusive_circular_list_test.size", "[intrusive_circular_list_test]") {
         list l;
-        ASSERT_EQ(0u, l.size());
+        CHECK(l.size() == 0u);
 
         auto* e1 = new element();
         l.push_back(e1);
-        ASSERT_EQ(1u, l.size());
+        CHECK(l.size() == 1u);
     }
 
     TEST_CASE("intrusive_circular_list_test.front", "[intrusive_circular_list_test]") {
@@ -239,16 +235,16 @@ namespace kdl {
         auto* e2 = new element();
         auto* e3 = new element();
 
-        ASSERT_EQ(nullptr, l.front());
+        CHECK(l.front() == nullptr);
 
         l.push_back(e1);
-        ASSERT_EQ(e1, l.front());
+        CHECK(l.front() == e1);
 
         l.push_back(e2);
-        ASSERT_EQ(e1, l.front());
+        CHECK(l.front() == e1);
 
         l.push_back(e3);
-        ASSERT_EQ(e1, l.front());
+        CHECK(l.front() == e1);
     }
 
     TEST_CASE("intrusive_circular_list_test.back", "[intrusive_circular_list_test]") {
@@ -258,16 +254,16 @@ namespace kdl {
         auto* e2 = new element();
         auto* e3 = new element();
 
-        ASSERT_EQ(nullptr, l.back());
+        CHECK(l.back() == nullptr);
 
         l.push_back(e1);
-        ASSERT_EQ(e1, l.back());
+        CHECK(l.back() == e1);
 
         l.push_back(e2);
-        ASSERT_EQ(e2, l.back());
+        CHECK(l.back() == e2);
 
         l.push_back(e3);
-        ASSERT_EQ(e3, l.back());
+        CHECK(l.back() == e3);
     }
 
     TEST_CASE("intrusive_circular_list_test.contains", "[intrusive_circular_list_test]") {
@@ -280,12 +276,12 @@ namespace kdl {
         l.push_back(e1);
         l.push_back(e2);
 
-        ASSERT_TRUE(l.contains(e1));
-        ASSERT_TRUE(l.contains(e2));
-        ASSERT_FALSE(l.contains(e3));
+        CHECK(l.contains(e1));
+        CHECK(l.contains(e2));
+        CHECK_FALSE(l.contains(e3));
 
         l.push_back(e3);
-        ASSERT_TRUE(l.contains(e3));
+        CHECK(l.contains(e3));
     }
 
     TEST_CASE("intrusive_circular_list_test.push_back", "[intrusive_circular_list_test]") {
@@ -357,34 +353,34 @@ namespace kdl {
 
         // mid element
         l.remove(list::iter(e2), std::next(list::iter(e2)), 1u);
-        ASSERT_FALSE(e1_deleted);
-        ASSERT_TRUE(e2_deleted);
-        ASSERT_FALSE(e3_deleted);
-        ASSERT_FALSE(e4_deleted);
+        CHECK_FALSE(e1_deleted);
+        CHECK(e2_deleted);
+        CHECK_FALSE(e3_deleted);
+        CHECK_FALSE(e4_deleted);
         assertList({ e1, e3, e4 }, l);
 
         // front element
         l.remove(list::iter(e3), std::next(list::iter(e3)), 1u);
-        ASSERT_FALSE(e1_deleted);
-        ASSERT_TRUE(e2_deleted);
-        ASSERT_TRUE(e3_deleted);
-        ASSERT_FALSE(e4_deleted);
+        CHECK_FALSE(e1_deleted);
+        CHECK(e2_deleted);
+        CHECK(e3_deleted);
+        CHECK_FALSE(e4_deleted);
         assertList({ e1, e4 }, l);
 
         // back element
         l.remove(list::iter(e1), std::next(list::iter(e1)), 1u);
-        ASSERT_TRUE(e1_deleted);
-        ASSERT_TRUE(e2_deleted);
-        ASSERT_TRUE(e3_deleted);
-        ASSERT_FALSE(e4_deleted);
+        CHECK(e1_deleted);
+        CHECK(e2_deleted);
+        CHECK(e3_deleted);
+        CHECK_FALSE(e4_deleted);
         assertList({ e4 }, l);
 
         // single element
         l.remove(list::iter(e4), std::next(list::iter(e4)), 1u);
-        ASSERT_TRUE(e1_deleted);
-        ASSERT_TRUE(e2_deleted);
-        ASSERT_TRUE(e3_deleted);
-        ASSERT_TRUE(e4_deleted);
+        CHECK(e1_deleted);
+        CHECK(e2_deleted);
+        CHECK(e3_deleted);
+        CHECK(e4_deleted);
         assertList({}, l);
     }
 
@@ -407,10 +403,10 @@ namespace kdl {
         l.push_back(e4);
 
         l.remove(list::iter(e4), std::next(list::iter(e1)), 2u);
-        ASSERT_TRUE(e1_deleted);
-        ASSERT_FALSE(e2_deleted);
-        ASSERT_FALSE(e3_deleted);
-        ASSERT_TRUE(e4_deleted);
+        CHECK(e1_deleted);
+        CHECK_FALSE(e2_deleted);
+        CHECK_FALSE(e3_deleted);
+        CHECK(e4_deleted);
         assertList({ e2, e3 }, l);
     }
 
@@ -428,8 +424,8 @@ namespace kdl {
         l.push_back(e2);
 
         l.remove(list::iter(e1), std::next(list::iter(e2)), 2u);
-        ASSERT_TRUE(e1_deleted);
-        ASSERT_TRUE(e2_deleted);
+        CHECK(e1_deleted);
+        CHECK(e2_deleted);
         assertList({}, l);
     }
 
@@ -454,37 +450,37 @@ namespace kdl {
 
         // mid element
         l.release(list::iter(e2), std::next(list::iter(e2)), 1u);
-        ASSERT_FALSE(e1_deleted);
-        ASSERT_FALSE(e2_deleted);
-        ASSERT_FALSE(e3_deleted);
-        ASSERT_FALSE(e4_deleted);
+        CHECK_FALSE(e1_deleted);
+        CHECK_FALSE(e2_deleted);
+        CHECK_FALSE(e3_deleted);
+        CHECK_FALSE(e4_deleted);
         assertList({ e1, e3, e4 }, l);
         assertLinks(e2, { e2 });
 
         // front element
         l.release(list::iter(e3), std::next(list::iter(e3)), 1u);
-        ASSERT_FALSE(e1_deleted);
-        ASSERT_FALSE(e2_deleted);
-        ASSERT_FALSE(e3_deleted);
-        ASSERT_FALSE(e4_deleted);
+        CHECK_FALSE(e1_deleted);
+        CHECK_FALSE(e2_deleted);
+        CHECK_FALSE(e3_deleted);
+        CHECK_FALSE(e4_deleted);
         assertList({ e1, e4 }, l);
         assertLinks(e3, { e3 });
 
         // back element
         l.release(list::iter(e1), std::next(list::iter(e1)), 1u);
-        ASSERT_FALSE(e1_deleted);
-        ASSERT_FALSE(e2_deleted);
-        ASSERT_FALSE(e3_deleted);
-        ASSERT_FALSE(e4_deleted);
+        CHECK_FALSE(e1_deleted);
+        CHECK_FALSE(e2_deleted);
+        CHECK_FALSE(e3_deleted);
+        CHECK_FALSE(e4_deleted);
         assertList({ e4 }, l);
         assertLinks(e1, { e1 });
 
         // single element
         l.release(list::iter(e4), std::next(list::iter(e4)), 1u);
-        ASSERT_FALSE(e1_deleted);
-        ASSERT_FALSE(e2_deleted);
-        ASSERT_FALSE(e3_deleted);
-        ASSERT_FALSE(e4_deleted);
+        CHECK_FALSE(e1_deleted);
+        CHECK_FALSE(e2_deleted);
+        CHECK_FALSE(e3_deleted);
+        CHECK_FALSE(e4_deleted);
         assertList({}, l);
         assertLinks(e4, { e4 });
     }
@@ -508,10 +504,10 @@ namespace kdl {
         l.push_back(e4);
 
         l.release(list::iter(e4), std::next(list::iter(e1)), 2u);
-        ASSERT_FALSE(e1_deleted);
-        ASSERT_FALSE(e2_deleted);
-        ASSERT_FALSE(e3_deleted);
-        ASSERT_FALSE(e4_deleted);
+        CHECK_FALSE(e1_deleted);
+        CHECK_FALSE(e2_deleted);
+        CHECK_FALSE(e3_deleted);
+        CHECK_FALSE(e4_deleted);
         assertList({ e2, e3 }, l);
         assertLinks(e4, { e1, e4 });
     }
@@ -529,8 +525,8 @@ namespace kdl {
         l.push_back(e2);
 
         l.release(list::iter(e1), std::next(list::iter(e2)), 2u);
-        ASSERT_FALSE(e1_deleted);
-        ASSERT_FALSE(e2_deleted);
+        CHECK_FALSE(e1_deleted);
+        CHECK_FALSE(e2_deleted);
         assertList({}, l);
         assertLinks(e1, { e1, e2 });
     }
@@ -555,7 +551,7 @@ namespace kdl {
             auto* e1 = l.emplace_back<delete_tracking_element>(e1_deleted);
             assertList({ e1 }, l);
         }
-        ASSERT_TRUE(e1_deleted);
+        CHECK(e1_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.reverse", "[intrusive_circular_list_test]") {
@@ -1012,9 +1008,9 @@ namespace kdl {
         assertList({ f2, t2, t3 }, to);
         assertList({ f1, f3 }, from);
 
-        ASSERT_TRUE(t1_deleted);
-        ASSERT_FALSE(t2_deleted);
-        ASSERT_FALSE(t3_deleted);
+        CHECK(t1_deleted);
+        CHECK_FALSE(t2_deleted);
+        CHECK_FALSE(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_mid_item_with_one_item", "[intrusive_circular_list_test]") {
@@ -1045,9 +1041,9 @@ namespace kdl {
         assertList({ t1, f2, t3 }, to);
         assertList({ f1, f3 }, from);
 
-        ASSERT_FALSE(t1_deleted);
-        ASSERT_TRUE(t2_deleted);
-        ASSERT_FALSE(t3_deleted);
+        CHECK_FALSE(t1_deleted);
+        CHECK(t2_deleted);
+        CHECK_FALSE(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_last_item_with_one_item", "[intrusive_circular_list_test]") {
@@ -1078,9 +1074,9 @@ namespace kdl {
         assertList({ t1, t2, f2 }, to);
         assertList({ f1, f3 }, from);
 
-        ASSERT_FALSE(t1_deleted);
-        ASSERT_FALSE(t2_deleted);
-        ASSERT_TRUE(t3_deleted);
+        CHECK_FALSE(t1_deleted);
+        CHECK_FALSE(t2_deleted);
+        CHECK(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_first_item_with_two_items", "[intrusive_circular_list_test]") {
@@ -1111,9 +1107,9 @@ namespace kdl {
         assertList({ t2, t3, f3, f1 }, to);
         assertList({ f2 }, from);
 
-        ASSERT_TRUE(t1_deleted);
-        ASSERT_FALSE(t2_deleted);
-        ASSERT_FALSE(t3_deleted);
+        CHECK(t1_deleted);
+        CHECK_FALSE(t2_deleted);
+        CHECK_FALSE(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_mid_item_with_two_items", "[intrusive_circular_list_test]") {
@@ -1144,9 +1140,9 @@ namespace kdl {
         assertList({ t1, f3, f1, t3 }, to);
         assertList({ f2 }, from);
 
-        ASSERT_FALSE(t1_deleted);
-        ASSERT_TRUE(t2_deleted);
-        ASSERT_FALSE(t3_deleted);
+        CHECK_FALSE(t1_deleted);
+        CHECK(t2_deleted);
+        CHECK_FALSE(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_last_item_with_two_items", "[intrusive_circular_list_test]") {
@@ -1177,9 +1173,9 @@ namespace kdl {
         assertList({ t1, t2, f3, f1 }, to);
         assertList({ f2 }, from);
 
-        ASSERT_FALSE(t1_deleted);
-        ASSERT_FALSE(t2_deleted);
-        ASSERT_TRUE(t3_deleted);
+        CHECK_FALSE(t1_deleted);
+        CHECK_FALSE(t2_deleted);
+        CHECK(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_mid_item_with_all_items", "[intrusive_circular_list_test]") {
@@ -1210,9 +1206,9 @@ namespace kdl {
         assertList({ t1, f3, f1, f2, t3 }, to);
         assertList({}, from);
 
-        ASSERT_FALSE(t1_deleted);
-        ASSERT_TRUE(t2_deleted);
-        ASSERT_FALSE(t3_deleted);
+        CHECK_FALSE(t1_deleted);
+        CHECK(t2_deleted);
+        CHECK_FALSE(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_first_two_items_with_two_items", "[intrusive_circular_list_test]") {
@@ -1243,9 +1239,9 @@ namespace kdl {
         assertList({ f1, f2, t3 }, to);
         assertList({ f3 }, from);
 
-        ASSERT_TRUE(t1_deleted);
-        ASSERT_TRUE(t2_deleted);
-        ASSERT_FALSE(t3_deleted);
+        CHECK(t1_deleted);
+        CHECK(t2_deleted);
+        CHECK_FALSE(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_last_two_items_with_two_items", "[intrusive_circular_list_test]") {
@@ -1276,9 +1272,9 @@ namespace kdl {
         assertList({ t1, f1, f2 }, to);
         assertList({ f3 }, from);
 
-        ASSERT_FALSE(t1_deleted);
-        ASSERT_TRUE(t2_deleted);
-        ASSERT_TRUE(t3_deleted);
+        CHECK_FALSE(t1_deleted);
+        CHECK(t2_deleted);
+        CHECK(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_last_and_first_items_with_two_items", "[intrusive_circular_list_test]") {
@@ -1309,9 +1305,9 @@ namespace kdl {
         assertList({ t2, f1, f2 }, to);
         assertList({ f3 }, from);
 
-        ASSERT_TRUE(t1_deleted);
-        ASSERT_FALSE(t2_deleted);
-        ASSERT_TRUE(t3_deleted);
+        CHECK(t1_deleted);
+        CHECK_FALSE(t2_deleted);
+        CHECK(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_all_items_with_two_items", "[intrusive_circular_list_test]") {
@@ -1342,9 +1338,9 @@ namespace kdl {
         assertList({ f1, f2 }, to);
         assertList({ f3 }, from);
 
-        ASSERT_TRUE(t1_deleted);
-        ASSERT_TRUE(t2_deleted);
-        ASSERT_TRUE(t3_deleted);
+        CHECK(t1_deleted);
+        CHECK(t2_deleted);
+        CHECK(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_all_items_with_one_item", "[intrusive_circular_list_test]") {
@@ -1375,9 +1371,9 @@ namespace kdl {
         assertList({ f1 }, to);
         assertList({ f2, f3 }, from);
 
-        ASSERT_TRUE(t1_deleted);
-        ASSERT_TRUE(t2_deleted);
-        ASSERT_TRUE(t3_deleted);
+        CHECK(t1_deleted);
+        CHECK(t2_deleted);
+        CHECK(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.splice_replace_all_items_with_all_items", "[intrusive_circular_list_test]") {
@@ -1408,9 +1404,9 @@ namespace kdl {
         assertList({ f1, f2, f3 }, to);
         assertList({}, from);
 
-        ASSERT_TRUE(t1_deleted);
-        ASSERT_TRUE(t2_deleted);
-        ASSERT_TRUE(t3_deleted);
+        CHECK(t1_deleted);
+        CHECK(t2_deleted);
+        CHECK(t3_deleted);
     }
 
     TEST_CASE("intrusive_circular_list_test.release", "[intrusive_circular_list_test]") {
@@ -1426,8 +1422,8 @@ namespace kdl {
         l.push_back(e2);
 
         l.release();
-        ASSERT_FALSE(e1_deleted);
-        ASSERT_FALSE(e2_deleted);
+        CHECK_FALSE(e1_deleted);
+        CHECK_FALSE(e2_deleted);
         assertList({}, l);
         assertLinks(e1, { e1, e2 });
     }
@@ -1452,8 +1448,8 @@ namespace kdl {
         l.push_back(e2);
 
         l.clear();
-        ASSERT_TRUE(e1_deleted);
-        ASSERT_TRUE(e2_deleted);
+        CHECK(e1_deleted);
+        CHECK(e2_deleted);
         assertList({}, l);
     }
 }

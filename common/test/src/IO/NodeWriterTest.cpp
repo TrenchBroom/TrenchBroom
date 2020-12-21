@@ -47,7 +47,6 @@
 
 #include "Catch2.h"
 #include "TestUtils.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -58,11 +57,14 @@ namespace TrenchBroom {
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const std::string result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n", result.c_str());
+            const std::string actual = str.str();
+            const std::string expected =
+R"(// entity 0
+{
+"classname" "worldspawn"
+}
+)";
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawn", "[NodeWriterTest]") {
@@ -74,12 +76,15 @@ namespace TrenchBroom {
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const std::string result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"message\" \"holy damn\"\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n", result.c_str());
+            const std::string actual = str.str();
+            const std::string expected =
+R"(// entity 0
+{
+"message" "holy damn"
+"classname" "worldspawn"
+}
+)";
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeDefaultLayerProperties", "[NodeWriterTest]") {
@@ -97,7 +102,7 @@ namespace TrenchBroom {
             writer.writeMap();
 
             const std::string actual = str.str();
-            const std::string expected = \
+            const std::string expected =
 R"(// entity 0
 {
 "classname" "worldspawn"
@@ -132,6 +137,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -156,9 +162,7 @@ R"(// entity 0
 }
 }
 )";
-
-            const std::string actual = str.str();
-            ASSERT_EQ(actual, expected);
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeQuake2ValveMap", "[NodeWriterTest]") {
@@ -181,6 +185,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -197,8 +202,7 @@ R"(// entity 0
 }
 )";
 
-            const std::string actual = str.str();
-            ASSERT_EQ(actual, expected);
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeQuake3ValveMap", "[NodeWriterTest]") {
@@ -214,6 +218,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -230,8 +235,7 @@ R"(// entity 0
 }
 )";
 
-            const std::string actual = str.str();
-            ASSERT_EQ(actual, expected);
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer", "[NodeWriterTest]") {
@@ -247,6 +251,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -262,8 +267,7 @@ R"(// entity 0
 }
 }
 )";
-            const std::string actual = str.str();
-            ASSERT_EQ(expected, actual);
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer", "[NodeWriterTest]") {
@@ -288,6 +292,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -311,7 +316,7 @@ R"(// entity 0
 }
 }
 )";
-            CHECK_THAT(str.str(), MatchesGlob(expected));
+            CHECK_THAT(actual, MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
@@ -332,6 +337,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -349,7 +355,7 @@ R"(// entity 0
 "_tb_layer_omit_from_export" "1"
 }
 )";
-            CHECK_THAT(str.str(), MatchesGlob(expected));
+            CHECK_THAT(actual, MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer", "[NodeWriterTest]") {
@@ -368,6 +374,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -390,7 +397,7 @@ R"(// entity 0
 }
 }
 )";
-            CHECK_THAT(str.str(), MatchesGlob(expected));
+            CHECK_THAT(actual, MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer", "[NodeWriterTest]") {
@@ -412,6 +419,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -442,7 +450,7 @@ R"(// entity 0
 }
 }
 )";
-            CHECK_THAT(str.str(), MatchesGlob(expected));
+            CHECK_THAT(actual, MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer", "[NodeWriterTest]") {
@@ -467,6 +475,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -505,7 +514,7 @@ R"(// entity 0
 }
 }
 )";
-            CHECK_THAT(str.str(), MatchesGlob(expected));
+            CHECK_THAT(actual, MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers", "[NodeWriterTest]") {
@@ -560,6 +569,7 @@ R"(// entity 0
             writer.setExporting(true);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -588,7 +598,7 @@ R"(// entity 0
 "_tb_layer" "*"
 }
 )";
-            CHECK_THAT(str.str(), MatchesGlob(expected));
+            CHECK_THAT(actual, MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithInheritedLock", "[NodeWriterTest]") {
@@ -609,6 +619,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeMap();
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -622,7 +633,7 @@ R"(// entity 0
 "_tb_id" "*"
 }
 )";
-            CHECK_THAT(str.str(), MatchesGlob(expected));
+            CHECK_THAT(actual, MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup", "[NodeWriterTest]") {
@@ -650,6 +661,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeNodes(nodes);
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(// entity 0
 {
@@ -681,7 +693,7 @@ R"(// entity 0
 }
 }
 )";
-            CHECK_THAT(str.str(), MatchesGlob(expected));
+            CHECK_THAT(actual, MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]") {
@@ -695,6 +707,7 @@ R"(// entity 0
             NodeWriter writer(map, str);
             writer.writeBrushFaces(brushNode->brush().faces());
 
+            const std::string actual = str.str();
             const std::string expected =
 R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
@@ -704,8 +717,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 )";
 
-            const std::string actual = str.str();
-            ASSERT_EQ(expected, actual);
+            CHECK(actual == expected);
 
             delete brushNode;
         }
@@ -719,12 +731,16 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const std::string result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"message\" \"\\\"holy damn\\\", he said\"\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n", result.c_str());
+            const auto actual = str.str();
+            const auto expected =
+R"(// entity 0
+{
+"message" "\"holy damn\", he said"
+"classname" "worldspawn"
+}
+)";
+
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writePropertiesWithEscapedQuotationMarks", "[NodeWriterTest]") {
@@ -736,12 +752,16 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const std::string result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"message\" \"\\\"holy damn\\\", he said\"\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n", result.c_str());
+            const auto actual = str.str();
+            const auto expected =
+R"(// entity 0
+{
+"message" "\"holy damn\", he said"
+"classname" "worldspawn"
+}
+)";
+
+            CHECK(actual == expected);
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/1739
@@ -754,12 +774,16 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const std::string result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"message\" \"holy damn\\nhe said\"\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n", result.c_str());
+            const auto actual = str.str();
+            const auto expected =
+R"(// entity 0
+{
+"message" "holy damn\nhe said"
+"classname" "worldspawn"
+}
+)";
+
+            CHECK(actual == expected);
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/2556
@@ -774,14 +798,18 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             NodeWriter writer(map, str);
             writer.writeMap();
 
-            const std::string result = str.str();
-            ASSERT_STREQ("// entity 0\n"
-                         "{\n"
-                         "\"message\" \"holy damn\"\n"
-                         "\"message2\" \"holy damn\\\\\"\n"
-                         "\"message3\" \"holy damn\\\\\"\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n", result.c_str());
+            const auto actual = str.str();
+            const auto expected =
+R"(// entity 0
+{
+"message" "holy damn"
+"message2" "holy damn\\"
+"message3" "holy damn\\"
+"classname" "worldspawn"
+}
+)";
+
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeSmallValuesWithoutScientificNotation", "[NodeWriterTest]") {

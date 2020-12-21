@@ -71,7 +71,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/GridTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/GroupNodesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/InputEventTest.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/View/KeyboardShortcutTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/MapDocumentTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/MapDocumentTest.h"
         "${COMMON_TEST_SOURCE_DIR}/View/MoveToolControllerTest.cpp"

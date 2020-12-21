@@ -26,7 +26,6 @@
 #include <vecmath/vec.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -40,11 +39,11 @@ namespace TrenchBroom {
             BrushFaceAttributes attribs("");
 
             ParaxialTexCoordSystem paraxial(vm::vec3::pos_z(), attribs);
-            ASSERT_EQ(nullptr, paraxial.takeSnapshot());
+            CHECK(paraxial.takeSnapshot() == nullptr);
 
             ParallelTexCoordSystem parallel(vm::vec3::pos_y(), vm::vec3::pos_x());
             auto parallelSnapshot = parallel.takeSnapshot();
-            ASSERT_NE(nullptr, parallelSnapshot);
+            CHECK(parallelSnapshot != nullptr);
 
 #if 0 // not supported with Catch2
             ASSERT_DEATH(parallelSnapshot->restore(paraxial), "");

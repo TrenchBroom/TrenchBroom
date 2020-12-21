@@ -20,7 +20,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "TrenchBroomStackWalker.h"
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     TEST_CASE("StackWalkerTest.testStackTraceSymbols", "[StackWalkerTest]") {

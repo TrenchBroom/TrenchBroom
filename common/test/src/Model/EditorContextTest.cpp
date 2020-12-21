@@ -34,7 +34,6 @@
 #include <kdl/result.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -141,22 +140,22 @@ namespace TrenchBroom {
 
             void assertVisible(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.visible(node));
+                CHECK(context.visible(node) == expected);
             }
 
             void assertEditable(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.editable(node));
+                CHECK(context.editable(node) == expected);
             }
 
             void assertPickable(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.pickable(node));
+                CHECK(context.pickable(node) == expected);
             }
 
             void assertSelectable(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.selectable(node));
+                CHECK(context.selectable(node) == expected);
             }
         private:
             void setState(Node* node, const VisibilityState visibilityState, const LockState lockState) {

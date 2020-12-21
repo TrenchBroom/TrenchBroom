@@ -24,7 +24,6 @@
 #include "View/Grid.h"
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -53,8 +52,8 @@ namespace TrenchBroom {
             document->paste(brush);
             document->selectAllNodes();
 
-            ASSERT_EQ(1u, document->selectedNodes().brushCount());
-            ASSERT_NO_THROW(document->snapVertices(document->grid().actualSize()));
+            CHECK(document->selectedNodes().brushCount() == 1u);
+            CHECK_NOTHROW(document->snapVertices(document->grid().actualSize()));
         }
     }
 }

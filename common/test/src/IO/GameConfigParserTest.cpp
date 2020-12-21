@@ -29,7 +29,6 @@
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -42,25 +41,20 @@ namespace TrenchBroom {
                 auto reader = file->reader().buffer();
 
                 GameConfigParser parser(reader.stringView(), path);
-                try {
-                    parser.parse();
-                } catch (const std::exception& e) {
-                    UNSCOPED_INFO("Parsing game config " << path.asString() << " failed: " << e.what());
-                    REQUIRE(false);
-                }
+                CHECK_NOTHROW(parser.parse());
             }
         }
 
         TEST_CASE("GameConfigParserTest.parseBlankConfig", "[GameConfigParserTest]") {
             const std::string config("   ");
             GameConfigParser parser(config);
-            ASSERT_THROW(parser.parse(), ParserException);
+            CHECK_THROWS_AS(parser.parse(), ParserException);
         }
 
         TEST_CASE("GameConfigParserTest.parseEmptyConfig", "[GameConfigParserTest]") {
             const std::string config("  {  } ");
             GameConfigParser parser(config);
-            ASSERT_THROW(parser.parse(), ParserException);
+            CHECK_THROWS_AS(parser.parse(), ParserException);
         }
 
         TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]") {
@@ -127,12 +121,7 @@ namespace TrenchBroom {
 }
 )");
 
-            GameConfigParser parser(config);
-
-            using Model::GameConfig;
-            const GameConfig actual = parser.parse();
-
-            const GameConfig expected("Quake",
+            CHECK(GameConfigParser(config).parse() == Model::GameConfig("Quake",
                 Path(),
                 Path("Icon.png"),
                 false,
@@ -162,18 +151,7 @@ namespace TrenchBroom {
                 }, // smart tags
                 std::nullopt, // soft map bounds
                 {} // compilation tools
-            );
-
-            ASSERT_EQ(expected.name(), actual.name());
-            ASSERT_EQ(expected.path(), actual.path());
-            ASSERT_EQ(expected.icon(), actual.icon());
-            ASSERT_EQ(expected.experimental(), actual.experimental());
-            ASSERT_EQ(expected.fileFormats(), actual.fileFormats());
-            ASSERT_EQ(expected.fileSystemConfig(), actual.fileSystemConfig());
-            ASSERT_EQ(expected.textureConfig(), actual.textureConfig());
-            ASSERT_EQ(expected.entityConfig(), actual.entityConfig());
-            ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
-            ASSERT_EQ(expected.smartTags(), actual.smartTags());
+            ));
         }
 
         TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
@@ -387,12 +365,7 @@ namespace TrenchBroom {
 }
 )%");
 
-            GameConfigParser parser(config);
-
-            using Model::GameConfig;
-            const GameConfig actual = parser.parse();
-
-            const GameConfig expected(
+            CHECK(GameConfigParser(config).parse() == Model::GameConfig(
                 "Quake 2",
                 Path(),
                 Path("Icon.png"),
@@ -460,18 +433,7 @@ namespace TrenchBroom {
                 }, // smart tags
                 std::nullopt, // soft map bounds
                 {} // compilation tools
-            );
-
-            ASSERT_EQ(expected.name(), actual.name());
-            ASSERT_EQ(expected.path(), actual.path());
-            ASSERT_EQ(expected.icon(), actual.icon());
-            ASSERT_EQ(expected.experimental(), actual.experimental());
-            ASSERT_EQ(expected.fileFormats(), actual.fileFormats());
-            ASSERT_EQ(expected.fileSystemConfig(), actual.fileSystemConfig());
-            ASSERT_EQ(expected.textureConfig(), actual.textureConfig());
-            ASSERT_EQ(expected.entityConfig(), actual.entityConfig());
-            ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
-            ASSERT_EQ(expected.smartTags(), actual.smartTags());
+            ));
         }
 
         TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
@@ -692,10 +654,6 @@ namespace TrenchBroom {
 }
 )%");
 
-            GameConfigParser parser(config);
-
-            using Model::GameConfig;
-            const GameConfig actual = parser.parse();
 
             Model::BrushFaceAttributes expectedBrushFaceAttributes("defaultTexture");
             expectedBrushFaceAttributes.setOffset(vm::vec2f(0.0f, 0.0f));
@@ -706,7 +664,7 @@ namespace TrenchBroom {
             expectedBrushFaceAttributes.setSurfaceValue(0.0f);
             expectedBrushFaceAttributes.setColor(Color(255, 255, 255, 255));
 
-            const GameConfig expected(
+            CHECK(GameConfigParser(config).parse() == Model::GameConfig(
                 "Extras",
                 Path(),
                 Path(),
@@ -776,18 +734,7 @@ namespace TrenchBroom {
                 }, // smart tags
                 std::nullopt, // soft map bounds
                 {} // compilation tools
-            );
-
-            ASSERT_EQ(expected.name(), actual.name());
-            ASSERT_EQ(expected.path(), actual.path());
-            ASSERT_EQ(expected.icon(), actual.icon());
-            ASSERT_EQ(expected.experimental(), actual.experimental());
-            ASSERT_EQ(expected.fileFormats(), actual.fileFormats());
-            ASSERT_EQ(expected.fileSystemConfig(), actual.fileSystemConfig());
-            ASSERT_EQ(expected.textureConfig(), actual.textureConfig());
-            ASSERT_EQ(expected.entityConfig(), actual.entityConfig());
-            ASSERT_EQ(expected.faceAttribsConfig(), actual.faceAttribsConfig());
-            ASSERT_EQ(expected.smartTags(), actual.smartTags());
+            ));
         }
 
         TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]") {
@@ -836,7 +783,7 @@ namespace TrenchBroom {
 )");
 
             GameConfigParser parser(config);
-            ASSERT_THROW(parser.parse(), ParserException);
+            REQUIRE_THROWS_AS(parser.parse(), ParserException);
         }
     }
 }

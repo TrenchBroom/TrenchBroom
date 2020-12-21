@@ -90,7 +90,8 @@ namespace kdl {
         pointer   operator->() const { return *m_cur; }
     private:
         void advance(const difference_type distance) {
-            std::advance(m_cur, std::min(distance, std::distance(m_cur, m_end)));
+            const auto maxDistance = std::distance(m_cur, m_end);
+            std::advance(m_cur, distance < maxDistance ? distance : maxDistance);
         }
     };
 

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestUtils.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityNodeIndex.h"
@@ -28,7 +27,6 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -55,16 +53,16 @@ namespace TrenchBroom {
             index.addEntityNode(entity1);
             index.addEntityNode(entity2);
 
-            ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
+            CHECK(findExactExact(index, "test", "notfound").empty());
 
             std::vector<EntityNodeBase*> nodes = findExactExact(index, "test", "somevalue");
-            ASSERT_EQ(2u, nodes.size());
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
+            CHECK(nodes.size() == 2u);
+            CHECK(kdl::vec_contains(nodes, entity1));
+            CHECK(kdl::vec_contains(nodes, entity2));
 
             nodes = findExactExact(index, "other", "someothervalue");
-            ASSERT_EQ(1u, nodes.size());
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
+            CHECK(nodes.size() == 1u);
+            CHECK(kdl::vec_contains(nodes, entity2));
 
             delete entity1;
             delete entity2;
@@ -88,8 +86,8 @@ namespace TrenchBroom {
             index.removeEntityNode(entity2);
 
             const std::vector<EntityNodeBase*>& nodes = findExactExact(index, "test", "somevalue");
-            ASSERT_EQ(1u, nodes.size());
-            ASSERT_EQ(entity1, nodes.front());
+            CHECK(nodes.size() == 1u);
+            CHECK(nodes.front() == entity1);
 
             delete entity1;
             delete entity2;
@@ -115,16 +113,16 @@ namespace TrenchBroom {
             }));
             index.addProperty(entity2, "other", "someothervalue");
 
-            ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
+            CHECK(findExactExact(index, "test", "notfound").empty());
 
             std::vector<EntityNodeBase*> nodes = findExactExact(index, "test", "somevalue");
-            ASSERT_EQ(2u, nodes.size());
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
+            CHECK(nodes.size() == 2u);
+            CHECK(kdl::vec_contains(nodes, entity1));
+            CHECK(kdl::vec_contains(nodes, entity2));
 
             nodes = findExactExact(index, "other", "someothervalue");
-            ASSERT_EQ(1u, nodes.size());
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
+            CHECK(nodes.size() == 1u);
+            CHECK(kdl::vec_contains(nodes, entity2));
 
             delete entity1;
             delete entity2;
@@ -148,11 +146,11 @@ namespace TrenchBroom {
             index.removeProperty(entity2, "other", "someothervalue");
 
             const std::vector<EntityNodeBase*>& nodes = findExactExact(index, "test", "somevalue");
-            ASSERT_EQ(2u, nodes.size());
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity2));
+            CHECK(nodes.size() == 2u);
+            CHECK(kdl::vec_contains(nodes, entity1));
+            CHECK(kdl::vec_contains(nodes, entity2));
 
-            ASSERT_TRUE(findExactExact(index, "other", "someothervalue").empty());
+            CHECK(findExactExact(index, "other", "someothervalue").empty());
 
             delete entity1;
             delete entity2;
@@ -168,11 +166,11 @@ namespace TrenchBroom {
 
             index.addEntityNode(entity1);
 
-            ASSERT_TRUE(findNumberedExact(index, "test", "notfound").empty());
+            CHECK(findNumberedExact(index, "test", "notfound").empty());
 
             std::vector<EntityNodeBase*> nodes = findNumberedExact(index, "test", "somevalue");
-            ASSERT_EQ(1u, nodes.size());
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
+            CHECK(nodes.size() == 1u);
+            CHECK(kdl::vec_contains(nodes, entity1));
 
             delete entity1;
         }
@@ -188,8 +186,8 @@ namespace TrenchBroom {
             index.addEntityNode(entity1);
 
             std::vector<EntityNodeBase*> nodes = findExactExact(index, "delay", "3.5");
-            ASSERT_EQ(1u, nodes.size());
-            ASSERT_TRUE(kdl::vec_contains(nodes, entity1));
+            CHECK(nodes.size() == 1u);
+            CHECK(kdl::vec_contains(nodes, entity1));
 
             index.removeProperty(entity1, "delay", "3.5");
 
@@ -211,7 +209,7 @@ namespace TrenchBroom {
             index.addEntityNode(entity1);
             index.addEntityNode(entity2);
 
-            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "test", "other" }, index.allKeys());
+            CHECK_THAT(index.allKeys(), Catch::UnorderedEquals(std::vector<std::string>{ "test", "other" }));
         }
 
         TEST_CASE("EntityNodeIndexTest.allValuesForKeys", "[EntityNodeIndexTest]") {
@@ -229,8 +227,8 @@ namespace TrenchBroom {
             index.addEntityNode(entity1);
             index.addEntityNode(entity2);
 
-            ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "somevalue", "somevalue2" },
-                index.allValuesForKeys(EntityNodeIndexQuery::exact("test")));
+            CHECK_THAT(index.allValuesForKeys(EntityNodeIndexQuery::exact("test")), 
+                Catch::UnorderedEquals(std::vector<std::string>{ "somevalue", "somevalue2" }));
         }
     }
 }

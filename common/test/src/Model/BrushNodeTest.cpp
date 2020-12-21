@@ -36,6 +36,7 @@
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
+#include <vecmath/approx.h>
 #include <vecmath/vec.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
@@ -46,7 +47,6 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
         }
 
         TEST_CASE("BrushNodeTest.buildBrushFail2", "[BrushNodeTest]") {
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
         }
 
         TEST_CASE("BrushNodeTest.buildBrushFail3", "[BrushNodeTest]") {
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
         }
 
         TEST_CASE("BrushNodeTest.buildBrushWithShortEdges", "[BrushNodeTest]") {
@@ -223,7 +223,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_TRUE(nodes.empty());
+            CHECK(nodes.empty());
         }
 
         TEST_CASE("BrushTest.selectedFaceCount", "[BrushNodeTest]") {
@@ -369,15 +369,15 @@ namespace TrenchBroom {
 
             PickResult hits1;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
-            ASSERT_EQ(1u, hits1.size());
+            CHECK(hits1.size() == 1u);
 
             Hit hit1 = hits1.all().front();
-            ASSERT_DOUBLE_EQ(8.0, hit1.distance());
-            ASSERT_EQ(vm::vec3::neg_y(), hitToFaceHandle(hit1)->face().boundary().normal);
+            CHECK(hit1.distance() == vm::approx(8.0));
+            CHECK(hitToFaceHandle(hit1)->face().boundary().normal == vm::vec3::neg_y());
 
             PickResult hits2;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);
-            ASSERT_TRUE(hits2.empty());
+            CHECK(hits2.empty());
         }
 
         TEST_CASE("BrushNodeTest.clone", "[BrushNodeTest]") {
@@ -419,13 +419,13 @@ namespace TrenchBroom {
 
             BrushNode* clone = original.clone(worldBounds);
             
-            ASSERT_EQ(original.brush().faceCount(), clone->brush().faceCount());
+            CHECK(clone->brush().faceCount() == original.brush().faceCount());
             for (const auto& originalFace : original.brush().faces()) {
                 const auto cloneFaceIndex = clone->brush().findFace(originalFace.boundary());
-                ASSERT_TRUE(cloneFaceIndex.has_value());
+                CHECK(cloneFaceIndex.has_value());
                 
                 const auto& cloneFace = clone->brush().face(*cloneFaceIndex);
-                ASSERT_EQ(originalFace, cloneFace);
+                CHECK(cloneFace == originalFace);
             }
             
             delete clone;
@@ -449,7 +449,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(0u, nodes.size());
+            CHECK(nodes.size() == 0u);
         }
 
         TEST_CASE("BrushNodeTest.invalidBrush1332", "[BrushNodeTest]") {
@@ -607,15 +607,15 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
-            ASSERT_TRUE(nodes.at(0)->hasChildren());
-            ASSERT_EQ(2u, nodes.at(0)->children().size());
+            CHECK(nodes.size() == 1u);
+            CHECK(nodes.at(0)->hasChildren());
+            CHECK(nodes.at(0)->children().size() == 2u);
 
             BrushNode* pipe = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
             BrushNode* cube = static_cast<BrushNode*>(nodes.at(0)->children().at(1));
 
-            ASSERT_TRUE(pipe->intersects(cube));
-            ASSERT_TRUE(cube->intersects(pipe));
+            CHECK(pipe->intersects(cube));
+            CHECK(cube->intersects(pipe));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2361", "[BrushNodeTest]") {
@@ -704,7 +704,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            ASSERT_NO_THROW(IO::NodeReader::read(data, world, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, world, worldBounds, status));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2491", "[BrushNodeTest]") {
@@ -726,7 +726,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            ASSERT_NO_THROW(IO::NodeReader::read(data, world, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, world, worldBounds, status));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2686", "[BrushNodeTest]") {
@@ -766,7 +766,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            ASSERT_NO_THROW(IO::NodeReader::read(data, world, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, world, worldBounds, status));
         }
     }
 }

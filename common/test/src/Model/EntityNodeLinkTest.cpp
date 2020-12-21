@@ -29,7 +29,6 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -49,12 +48,12 @@ namespace TrenchBroom {
             }));
 
             const std::vector<EntityNodeBase*>& targets = source->linkTargets();
-            ASSERT_EQ(1u, targets.size());
-            ASSERT_EQ(target, targets.front());
+            CHECK(targets.size() == 1u);
+            CHECK(targets.front() == target);
 
             const std::vector<EntityNodeBase*>& sources = target->linkSources();
-            ASSERT_EQ(1u, sources.size());
-            ASSERT_EQ(source, sources.front());
+            CHECK(sources.size() == 1u);
+            CHECK(sources.front() == source);
         }
 
         TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink", "[EntityNodeLinkTest]") {
@@ -79,17 +78,17 @@ namespace TrenchBroom {
             }));
 
             const std::vector<EntityNodeBase*>& targets1 = source1->linkTargets();
-            ASSERT_EQ(1u, targets1.size());
-            ASSERT_EQ(target, targets1.front());
+            CHECK(targets1.size() == 1u);
+            CHECK(targets1.front() == target);
 
             const std::vector<EntityNodeBase*>& targets2 = source2->linkTargets();
-            ASSERT_EQ(1u, targets2.size());
-            ASSERT_EQ(target, targets2.front());
+            CHECK(targets2.size() == 1u);
+            CHECK(targets2.front() == target);
 
             const std::vector<EntityNodeBase*>& sources = target->linkSources();
-            ASSERT_EQ(2u, sources.size());
-            ASSERT_TRUE(kdl::vec_contains(sources, source1));
-            ASSERT_TRUE(kdl::vec_contains(sources, source2));
+            CHECK(sources.size() == 2u);
+            CHECK(kdl::vec_contains(sources, source1));
+            CHECK(kdl::vec_contains(sources, source2));
         }
 
 
@@ -118,17 +117,17 @@ namespace TrenchBroom {
             }));
 
             const std::vector<EntityNodeBase*>& targets = source->linkTargets();
-            ASSERT_EQ(2u, targets.size());
-            ASSERT_TRUE(kdl::vec_contains(targets, target1));
-            ASSERT_TRUE(kdl::vec_contains(targets, target2));
+            CHECK(targets.size() == 2u);
+            CHECK(kdl::vec_contains(targets, target1));
+            CHECK(kdl::vec_contains(targets, target2));
 
             const std::vector<EntityNodeBase*>& sources1 = target1->linkSources();
-            ASSERT_EQ(1u, sources1.size());
-            ASSERT_EQ(source, sources1.front());
+            CHECK(sources1.size() == 1u);
+            CHECK(sources1.front() == source);
 
             const std::vector<EntityNodeBase*>& sources2 = target2->linkSources();
-            ASSERT_EQ(1u, sources2.size());
-            ASSERT_EQ(source, sources2.front());
+            CHECK(sources2.size() == 1u);
+            CHECK(sources2.front() == source);
         }
 
         TEST_CASE("EntityNodeLinkTest.testLoadLink", "[EntityNodeLinkTest]") {
@@ -144,12 +143,12 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(target);
 
             const std::vector<EntityNodeBase*>& targets = source->linkTargets();
-            ASSERT_EQ(1u, targets.size());
-            ASSERT_EQ(target, targets.front());
+            CHECK(targets.size() == 1u);
+            CHECK(targets.front() == target);
 
             const std::vector<EntityNodeBase*>& sources = target->linkSources();
-            ASSERT_EQ(1u, sources.size());
-            ASSERT_EQ(source, sources.front());
+            CHECK(sources.size() == 1u);
+            CHECK(sources.front() == source);
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource", "[EntityNodeLinkTest]") {
@@ -169,10 +168,10 @@ namespace TrenchBroom {
             }));
 
             const std::vector<EntityNodeBase*>& targets = source->linkTargets();
-            ASSERT_TRUE(targets.empty());
+            CHECK(targets.empty());
 
             const std::vector<EntityNodeBase*>& sources = target->linkSources();
-            ASSERT_TRUE(sources.empty());
+            CHECK(sources.empty());
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget", "[EntityNodeLinkTest]") {
@@ -192,10 +191,10 @@ namespace TrenchBroom {
             }));
 
             const std::vector<EntityNodeBase*>& targets = source->linkTargets();
-            ASSERT_TRUE(targets.empty());
+            CHECK(targets.empty());
 
             const std::vector<EntityNodeBase*>& sources = target->linkSources();
-            ASSERT_TRUE(sources.empty());
+            CHECK(sources.empty());
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource", "[EntityNodeLinkTest]") {
@@ -213,10 +212,10 @@ namespace TrenchBroom {
             world.defaultLayer()->removeChild(source);
 
             const std::vector<EntityNodeBase*>& targets = source->linkTargets();
-            ASSERT_TRUE(targets.empty());
+            CHECK(targets.empty());
 
             const std::vector<EntityNodeBase*>& sources = target->linkSources();
-            ASSERT_TRUE(sources.empty());
+            CHECK(sources.empty());
 
             delete source;
         }
@@ -236,10 +235,10 @@ namespace TrenchBroom {
             world.defaultLayer()->removeChild(target);
 
             const std::vector<EntityNodeBase*>& targets = source->linkTargets();
-            ASSERT_TRUE(targets.empty());
+            CHECK(targets.empty());
 
             const std::vector<EntityNodeBase*>& sources = target->linkSources();
-            ASSERT_TRUE(sources.empty());
+            CHECK(sources.empty());
 
             delete target;
         }
@@ -260,12 +259,12 @@ namespace TrenchBroom {
             }));
 
             const std::vector<EntityNodeBase*>& targets = source->killTargets();
-            ASSERT_EQ(1u, targets.size());
-            ASSERT_EQ(target, targets.front());
+            CHECK(targets.size() == 1u);
+            CHECK(targets.front() == target);
 
             const std::vector<EntityNodeBase*>& sources = target->killSources();
-            ASSERT_EQ(1u, sources.size());
-            ASSERT_EQ(source, sources.front());
+            CHECK(sources.size() == 1u);
+            CHECK(sources.front() == source);
         }
 
         TEST_CASE("EntityNodeLinkTest.testLoadKillLink", "[EntityNodeLinkTest]") {
@@ -281,12 +280,12 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(target);
 
             const std::vector<EntityNodeBase*>& targets = source->killTargets();
-            ASSERT_EQ(1u, targets.size());
-            ASSERT_EQ(target, targets.front());
+            CHECK(targets.size() == 1u);
+            CHECK(targets.front() == target);
 
             const std::vector<EntityNodeBase*>& sources = target->killSources();
-            ASSERT_EQ(1u, sources.size());
-            ASSERT_EQ(source, sources.front());
+            CHECK(sources.size() == 1u);
+            CHECK(sources.front() == source);
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource", "[EntityNodeLinkTest]") {
@@ -306,10 +305,10 @@ namespace TrenchBroom {
             }));
 
             const std::vector<EntityNodeBase*>& targets = source->killTargets();
-            ASSERT_TRUE(targets.empty());
+            CHECK(targets.empty());
 
             const std::vector<EntityNodeBase*>& sources = target->killSources();
-            ASSERT_TRUE(sources.empty());
+            CHECK(sources.empty());
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget", "[EntityNodeLinkTest]") {
@@ -329,10 +328,10 @@ namespace TrenchBroom {
             }));
 
             const std::vector<EntityNodeBase*>& targets = source->killTargets();
-            ASSERT_TRUE(targets.empty());
+            CHECK(targets.empty());
 
             const std::vector<EntityNodeBase*>& sources = target->killSources();
-            ASSERT_TRUE(sources.empty());
+            CHECK(sources.empty());
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource", "[EntityNodeLinkTest]") {
@@ -350,10 +349,10 @@ namespace TrenchBroom {
             world.defaultLayer()->removeChild(source);
 
             const std::vector<EntityNodeBase*>& targets = source->killTargets();
-            ASSERT_TRUE(targets.empty());
+            CHECK(targets.empty());
 
             const std::vector<EntityNodeBase*>& sources = target->killSources();
-            ASSERT_TRUE(sources.empty());
+            CHECK(sources.empty());
 
             delete source;
         }
@@ -373,10 +372,10 @@ namespace TrenchBroom {
             world.defaultLayer()->removeChild(target);
 
             const std::vector<EntityNodeBase*>& targets = source->killTargets();
-            ASSERT_TRUE(targets.empty());
+            CHECK(targets.empty());
 
             const std::vector<EntityNodeBase*>& sources = target->killSources();
-            ASSERT_TRUE(sources.empty());
+            CHECK(sources.empty());
 
             delete target;
         }

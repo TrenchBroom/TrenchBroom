@@ -36,8 +36,6 @@ namespace TrenchBroom {
             GameEngineProfile(const std::string& name, const IO::Path& path, const std::string& parameterSpec);
 
             std::unique_ptr<GameEngineProfile> clone() const;
-            bool operator==(const GameEngineProfile& other) const;
-            bool operator!=(const GameEngineProfile& other) const;
 
             const std::string& name() const;
             const IO::Path& path() const;
@@ -46,6 +44,9 @@ namespace TrenchBroom {
             void setName(const std::string& name);
             void setPath(const IO::Path& path);
             void setParameterSpec(const std::string& parameterSpec);
+
+            friend bool operator==(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
+            friend bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
 
             deleteCopyAndMove(GameEngineProfile)
         };
