@@ -120,7 +120,8 @@ jobs:
       # one .zip file.
 
       # win64
-      - uses: actions/upload-artifact@v2
+      - name: Upload win64 artifact
+        uses: actions/upload-artifact@v2
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
         with:
           name: win64
@@ -128,9 +129,13 @@ jobs:
             cmakebuild/*.7z
             cmakebuild/*.7z.md5
 
+      # The other OS'es are disabled to save storage space. Can remove the `false` if necessary
+      # to re-enable them.
+
       # win32
-      - uses: actions/upload-artifact@v2
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
+      - name: Upload win32 artifact
+        uses: actions/upload-artifact@v2
+        if: ${{ false && matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
         with:
           name: win32
           path: |
@@ -138,8 +143,9 @@ jobs:
             cmakebuild/*.7z.md5
 
       # Linux
-      - uses: actions/upload-artifact@v2
-        if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-7' }}
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v2
+        if: ${{ false && matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-7' }}
         with:
           name: linux
           path: |
@@ -148,8 +154,9 @@ jobs:
             build/*.md5
 
       # macOS
-      - uses: actions/upload-artifact@v2
-        if: ${{ matrix.os == 'macos-10.15' && matrix.tb-build-type != 'asan' }}
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v2
+        if: ${{ false && matrix.os == 'macos-10.15' && matrix.tb-build-type != 'asan' }}
         with:
           name: macos
           path: |
