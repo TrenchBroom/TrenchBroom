@@ -87,13 +87,13 @@ jobs:
 
       - name: Linux build (GCC8)
         if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-8' }}
-        run: ./travis-linux.sh
+        run: ./CI-linux.sh
         env:
           TB_GCC8: 'true'
 
       - name: Linux build (GCC7)
         if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-7' }}
-        run: ./travis-linux.sh
+        run: ./CI-linux.sh
 
       - name: macOS build
         if: ${{ matrix.os == 'macos-10.15' }}
@@ -101,7 +101,7 @@ jobs:
           if [ '${{ matrix.tb-build-type }}' = 'asan' ]; then
             export TB_DEBUG_BUILD=true
           fi
-          ./travis-macos.sh
+          ./CI-macos.sh
 
       - name: Windows build
         if: ${{ matrix.os == 'windows-2019' }}
@@ -111,7 +111,7 @@ jobs:
         # NOTE: cmd.exe /c = run a command and terminate
         run: |
           $Env:QT5_INSTALL_DIR = $env:Qt5_DIR
-          cmd.exe /c appveyor.bat
+          cmd.exe /c CI-windows.bat
         env:
           TB_ARCH: ${{ matrix.tb-arch }}
 
