@@ -118,6 +118,10 @@ set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 find_package(OpenGL REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Svg REQUIRED)
+# Qt will warn about API's that were deprecated after 5.9.5.
+# Since we're not raising our minimum Qt version, and can't use the replacement
+# API's, disable these warnings.
+add_compile_definitions(QT_NO_DEPRECATED_WARNINGS=1)
 
 # Find threads lib, needed to work around a gtest bug, see: https://stackoverflow.com/questions/21116622/undefined-reference-to-pthread-key-create-linker-error
 # The googletest target links to this

@@ -17,6 +17,7 @@ export PATH=/opt/qt59/bin:${PATH}
 # Check versions
 qmake -v
 cmake --version
+pandoc --version
 
 # Build TB
 

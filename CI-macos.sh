@@ -2,15 +2,12 @@
 
 set -o verbose
 
-brew update > /dev/null # Discard stdout, otherwise this spams ~3000 lines to the log
 brew install cmake p7zip pandoc qt5 ninja
-
-# Sometimes homebrew complains that cmake is already installed, but we need the latest version.
-brew upgrade cmake
 
 # Check versions
 qmake -v
 cmake --version
+pandoc --version
 
 # Build TB
 
@@ -27,7 +24,7 @@ echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror -DQT_NO_DEPRECATED_WARNINGS=1" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DTB_SUPPRESS_PCH=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1
+cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DTB_SUPPRESS_PCH=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1
 
 cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 
