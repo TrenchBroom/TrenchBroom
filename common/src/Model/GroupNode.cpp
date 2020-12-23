@@ -19,6 +19,7 @@
 
 #include "GroupNode.h"
 
+#include "Ensure.h"
 #include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
@@ -29,7 +30,8 @@
 #include "Model/TagVisitor.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/result.h>
+#include <kdl/overload.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/ray.h>
 
@@ -38,10 +40,22 @@
 
 namespace TrenchBroom {
     namespace Model {
+        struct GroupNode::LinkSet {
+            std::vector<GroupNode*> members;
+        };
+
         GroupNode::GroupNode(Group group) :
         m_group(std::move(group)),
+        m_linkSet(std::make_shared<LinkSet>()),
         m_editState(EditState::Closed),
         m_boundsValid(false) {}
+
+        std::unique_ptr<GroupNode> GroupNode::cloneRecursivelyWithoutLinking(const vm::bbox3& worldBounds) const {
+            auto group = std::make_unique<GroupNode>(m_group);
+            cloneAttributes(group.get());
+            group->addChildren(Node::cloneRecursively(worldBounds, children()));
+            return group;
+        }
 
         const Group& GroupNode::group() const {
             return m_group;
@@ -83,6 +97,39 @@ namespace TrenchBroom {
 
         void GroupNode::setPersistentId(const IdType persistentId) {
             m_persistentId = persistentId;
+        }
+
+        const std::vector<GroupNode*> GroupNode::linkedGroups() const {
+            return m_linkSet->members;
+        }
+
+        bool inSameLinkSet(const GroupNode& lhs, const GroupNode& rhs) {
+            return lhs.m_linkSet == rhs.m_linkSet;
+        }
+
+        void GroupNode::addToLinkSet(GroupNode& groupNode) {
+            ensure(!groupNode.connectedToLinkSet(), "Group node is disconnected from its link set");
+
+            if (inSameLinkSet(*this, groupNode)) {
+                return;
+            }
+
+            groupNode.m_linkSet = m_linkSet;
+        }
+
+        bool GroupNode::connectedToLinkSet() const {
+            return kdl::vec_contains(m_linkSet->members, this);
+        }
+
+        void GroupNode::connectToLinkSet() {
+            ensure(!connectedToLinkSet(), "Group node is disconnected from its link set");
+            m_linkSet->members.push_back(this);
+        }
+
+        void GroupNode::disconnectFromLinkSet() {
+            const auto it = std::find(std::begin(m_linkSet->members), std::end(m_linkSet->members), this);
+            ensure(it != std::end(m_linkSet->members), "Group node is connected to its link set");
+            m_linkSet->members.erase(it);
         }
 
         void GroupNode::setEditState(const EditState editState) {
@@ -128,6 +175,9 @@ namespace TrenchBroom {
         Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) {
             GroupNode* group = new GroupNode(m_group);
             cloneAttributes(group);
+            if (linkedGroups().size() > 1u) {
+                addToLinkSet(*group);
+            }
             return group;
         }
 
