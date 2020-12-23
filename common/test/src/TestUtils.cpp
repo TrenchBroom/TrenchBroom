@@ -23,6 +23,8 @@
 #include "Ensure.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
 #include <kdl/result.h>
@@ -184,6 +186,32 @@ namespace TrenchBroom {
 
             const BrushFace& face = brush.face(*faceIndex);
             CHECK(face.attributes().textureName() == expected);
+        }
+
+        void transformNode(Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds) {
+            node.accept(kdl::overload(
+                [](const WorldNode*) {},
+                [](const LayerNode*) {},
+                [&](auto&& thisLambda, GroupNode* groupNode) {
+                    auto group = groupNode->group();
+                    group.transform(transformation);
+                    groupNode->setGroup(std::move(group));
+
+                    groupNode->visitChildren(thisLambda);
+                },
+                [&](auto&& thisLambda, EntityNode* entityNode) {
+                    auto entity = entityNode->entity();
+                    entity.transform(transformation);
+                    entityNode->setEntity(std::move(entity));
+
+                    entityNode->visitChildren(thisLambda);
+                },
+                [&](BrushNode* brushNode) {
+                    auto brush = brushNode->brush();
+                    REQUIRE(brush.transform(worldBounds, transformation, false).is_success());
+                    brushNode->setBrush(std::move(brush));
+                }
+            ));
         }
     }
 

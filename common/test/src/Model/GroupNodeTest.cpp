@@ -17,11 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestUtils.h"
+
+#include "Model/Brush.h"
+#include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/Group.h"
 #include "Model/GroupNode.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+#include <vecmath/mat_io.h>
+
+#include <kdl/result.h>
 
 #include <memory>
 #include <vector>
@@ -159,6 +170,28 @@ namespace TrenchBroom {
             groupNode.disconnectFromLinkSet();
             CHECK_FALSE(groupNode.connectedToLinkSet());
             CHECK_THAT(groupNode.linkedGroups(), Catch::UnorderedEquals(std::vector<GroupNode*>{}));
+        }
+
+        TEST_CASE("GroupNodeTest.transform", "[GroupNodeTest]") {
+            const auto worldBounds = vm::bbox3(8192.0);
+
+            auto groupNode = GroupNode(Group("name"));
+            groupNode.connectToLinkSet();
+            REQUIRE(groupNode.group().transformation() == vm::mat4x4());
+
+            auto* entityNode = new EntityNode();
+            groupNode.addChild(entityNode);
+            
+            transformNode(groupNode, vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)), worldBounds);
+            CHECK(groupNode.group().transformation() == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+
+            transformNode(groupNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0)), worldBounds);
+            CHECK(groupNode.group().transformation() == vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0)) * vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+
+            auto testEntityNode = EntityNode();
+            transformNode(testEntityNode, groupNode.group().transformation(), worldBounds);
+
+            CHECK(testEntityNode.entity() == entityNode->entity());
         }
     }
 }

@@ -19,6 +19,10 @@
 
 #pragma once
 
+#include "FloatType.h"
+
+#include <vecmath/mat.h>
+
 #include <string>
 
 namespace TrenchBroom {
@@ -26,11 +30,16 @@ namespace TrenchBroom {
         class Group {
         private:
             std::string m_name;
+            vm::mat4x4 m_transformation;
         public:
             explicit Group(std::string name);
 
             const std::string& name() const;
             void setName(std::string name);
+
+            const vm::mat4x4& transformation() const;
+            void setTransformation(const vm::mat4x4& transformation);
+            void transform(const vm::mat4x4& transformation);
 
             friend bool operator==(const Group& lhs, const Group& rhs);
             friend bool operator!=(const Group& lhs, const Group& rhs);

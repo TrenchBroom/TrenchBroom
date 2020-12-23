@@ -47,6 +47,7 @@ namespace TrenchBroom {
         class Brush;
         class BrushFace;
         class BrushNode;
+        class Node;
 
         BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
 
@@ -64,6 +65,8 @@ namespace TrenchBroom {
         void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);
         void assertTexture(const std::string& expected, const Brush& brush, const std::vector<vm::vec3d>& vertices);
         void assertTexture(const std::string& expected, const Brush& brush, const vm::polygon3d& vertices);
+
+        void transformNode(Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds);
     }
 
     enum class Component {

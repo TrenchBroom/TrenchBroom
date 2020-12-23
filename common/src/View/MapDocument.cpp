@@ -1661,7 +1661,10 @@ namespace TrenchBroom {
                 node->accept(kdl::overload(
                     [&](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-                    [&](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::GroupNode* group) { 
+                        nodesToTransform.push_back(group);
+                        group->visitChildren(thisLambda); 
+                    },
                     [&](auto&& thisLambda, Model::EntityNode* entity) { 
                         if (!entity->hasChildren()) {
                             nodesToTransform.push_back(entity);
@@ -1677,7 +1680,10 @@ namespace TrenchBroom {
 
             const auto success = applyAndSwap(*this, commandName, nodesToTransform, kdl::overload(
                 [] (Model::Layer&) { return true; },
-                [] (Model::Group&) { return true; },
+                [&](Model::Group& group) { 
+                    group.transform(transformation);
+                    return true;
+                },
                 [&](Model::Entity& entity) {
                     entity.transform(transformation);
                     return true;
