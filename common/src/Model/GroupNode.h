@@ -26,8 +26,6 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 
-#include <kdl/result_forward.h>
-
 #include <vecmath/bbox.h>
 
 #include <optional>
