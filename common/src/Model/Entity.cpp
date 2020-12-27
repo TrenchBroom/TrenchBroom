@@ -258,7 +258,10 @@ namespace TrenchBroom {
                 const auto offset = definitionBounds().center();
                 const auto center = origin() + offset;
                 const auto transformedCenter = transformation * center;
-                setOrigin(transformedCenter - offset);
+                const auto newOrigin = transformedCenter - offset;
+                if (origin() != newOrigin) {
+                    setOrigin(transformedCenter - offset);
+                }
 
                 // applying rotation has side effects (e.g. normalizing "angles")
                 // so only do it if there is actually some rotation.
