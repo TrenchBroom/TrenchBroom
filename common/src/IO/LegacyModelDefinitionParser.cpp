@@ -77,6 +77,10 @@ namespace TrenchBroom {
         LegacyModelDefinitionParser::LegacyModelDefinitionParser(std::string_view str) :
         m_tokenizer(std::move(str)) {}
 
+        const LegacyModelDefinitionTokenizer& LegacyModelDefinitionParser::tokenizer() const {
+            return m_tokenizer;
+        }
+
         EL::Expression LegacyModelDefinitionParser::parse(ParserStatus& status) {
             return parseModelDefinition(status);
         }

@@ -106,13 +106,6 @@ namespace TrenchBroom {
             Tokenizer(std::string_view str, const std::string& escapableChars, const char escapeChar) :
             m_state(std::make_shared<TokenizerState>(str.data(), str.data() + str.size(), escapableChars, escapeChar)) {}
 
-            template <typename OtherType>
-            explicit Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :
-            m_state(nestedTokenizer.m_state) {}
-
-            Tokenizer(const Tokenizer& other) :
-            m_state(other.m_state) {}
-
             virtual ~Tokenizer() = default;
 
             Token nextToken(const TokenType skipTokens = 0u) {
@@ -196,6 +189,14 @@ namespace TrenchBroom {
             size_t length() const {
                 return m_state->length();
             }
+
+            std::string_view remainder() const {
+                return std::string_view(curPos(), length());
+            }
+
+            size_t curOffset() const {
+                return offset(curPos());
+            }
         public:
             TokenizerState snapshot() const {
                 return m_state->snapshot();
@@ -228,11 +229,11 @@ namespace TrenchBroom {
             char lookAhead(const size_t offset = 1) const {
                 return m_state->lookAhead(offset);
             }
-
+        public:
             void advance(const size_t offset) {
                 m_state->advance(offset);
             }
-
+        protected:
             void advance() {
                 m_state->advance();
             }
