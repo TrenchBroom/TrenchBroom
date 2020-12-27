@@ -357,7 +357,7 @@ namespace TrenchBroom {
             if (token.type() == DefToken::CDefinition) {
                 return "";
             }
-            return m_tokenizer.readRemainder(DefToken::CDefinition);
+            return std::string(m_tokenizer.readRemainder(DefToken::CDefinition));
         }
 
         vm::vec3 DefParser::parseVector(ParserStatus& status) {

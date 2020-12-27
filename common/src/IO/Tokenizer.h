@@ -139,9 +139,9 @@ namespace TrenchBroom {
                 discardWhile("\n");
             }
 
-            std::string readRemainder(const TokenType delimiterType) {
+            std::string_view readRemainder(const TokenType delimiterType) {
                 if (eof()) {
-                    return "";
+                    return std::string_view();
                 }
 
                 Token token = peekToken();
@@ -152,7 +152,7 @@ namespace TrenchBroom {
                     endPos = std::end(token);
                 } while (peekToken().hasType(delimiterType) == 0 && !eof());
 
-                return std::string(startPos, static_cast<size_t>(endPos - startPos));
+                return std::string_view(startPos, static_cast<size_t>(endPos - startPos));
             }
 
             std::string readAnyString(const std::string& delims) {
