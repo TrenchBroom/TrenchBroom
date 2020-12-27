@@ -38,8 +38,8 @@ namespace TrenchBroom {
         m_column(1),
         m_escaped(false) {}
 
-        TokenizerState* TokenizerState::clone(const char* begin, const char* end) const {
-            return new TokenizerState(begin, end, m_escapableChars, m_escapeChar);
+        TokenizerState TokenizerState::clone(const char* begin, const char* end) const {
+            return TokenizerState(begin, end, m_escapableChars, m_escapeChar);
         }
 
         size_t TokenizerState::length() const {
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             return !eof() && m_escaped && m_escapableChars.find(curChar()) != std::string::npos;
         }
 
-        std::string TokenizerState::unescape(const std::string& str) {
+        std::string TokenizerState::unescape(const std::string& str) const {
             return kdl::str_unescape(str, m_escapableChars, m_escapeChar);
         }
 
