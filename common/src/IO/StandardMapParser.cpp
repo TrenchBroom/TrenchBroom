@@ -208,7 +208,7 @@ namespace TrenchBroom {
                         break;
                     case QuakeMapToken::OBrace:
                         if (!beginEntityCalled) {
-                            beginEntity(startLine, properties, extraAttributes, status);
+                            onBeginEntity(startLine, properties, extraAttributes, status);
                             beginEntityCalled = true;
                         }
                         parseBrushOrBrushPrimitiveOrPatch(status);
@@ -216,9 +216,9 @@ namespace TrenchBroom {
                     case QuakeMapToken::CBrace:
                         m_tokenizer.nextToken();
                         if (!beginEntityCalled) {
-                            beginEntity(startLine, properties, extraAttributes, status);
+                            onBeginEntity(startLine, properties, extraAttributes, status);
                         }
-                        endEntity(startLine, token.line() - startLine, status);
+                        onEndEntity(startLine, token.line() - startLine, status);
                         return;
                     default:
                         expect(QuakeMapToken::Comment | QuakeMapToken::String | QuakeMapToken::OBrace | QuakeMapToken::CBrace, token);
@@ -312,7 +312,7 @@ namespace TrenchBroom {
                     case QuakeMapToken::OParenthesis:
                         // TODO 2427: handle brush primitives
                         if (!beginBrushCalled && !primitive) {
-                            beginBrush(startLine, status);
+                            onBeginBrush(startLine, status);
                             beginBrushCalled = true;
                         }
                         parseFace(status, primitive);
@@ -321,9 +321,9 @@ namespace TrenchBroom {
                         // TODO 2427: handle brush primitives
                         if (!primitive) {
                             if (!beginBrushCalled) {
-                                beginBrush(startLine, status);
+                                onBeginBrush(startLine, status);
                             }
-                            endBrush(startLine, token.line() - startLine, extraAttributes, status);
+                            onEndBrush(startLine, token.line() - startLine, extraAttributes, status);
                         } else {
                             status.warn(startLine, "Skipping brush primitive: currently not supported");
                         }
@@ -386,7 +386,7 @@ namespace TrenchBroom {
             attribs.setXScale(parseFloat());
             attribs.setYScale(parseFloat());
 
-            standardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+            onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
         }
 
         void StandardMapParser::parseQuake2Face(ParserStatus& status) {
@@ -409,7 +409,7 @@ namespace TrenchBroom {
                 attribs.setSurfaceValue(parseFloat());
             }
 
-            standardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+            onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
         }
 
         void StandardMapParser::parseQuake2ValveFace(ParserStatus& status) {
@@ -434,7 +434,7 @@ namespace TrenchBroom {
                 attribs.setSurfaceValue(parseFloat());
             }
 
-            valveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
+            onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
         }
 
         void StandardMapParser::parseHexen2Face(ParserStatus& status) {
@@ -455,7 +455,7 @@ namespace TrenchBroom {
                 m_tokenizer.nextToken(); // noone seems to know what the extra value does in Hexen 2
             }
 
-            standardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+            onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
         }
 
         void StandardMapParser::parseDaikatanaFace(ParserStatus& status) {
@@ -484,7 +484,7 @@ namespace TrenchBroom {
                 }
             }
 
-            standardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+            onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
         }
 
         void StandardMapParser::parseValveFace(ParserStatus& status) {
@@ -502,7 +502,7 @@ namespace TrenchBroom {
             attribs.setXScale(parseFloat());
             attribs.setYScale(parseFloat());
 
-            valveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
+            onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
         }
 
         void StandardMapParser::parsePrimitiveFace(ParserStatus& status) {
