@@ -350,20 +350,18 @@ namespace TrenchBroom {
         }
 
         Node::NotifyPhysicalBoundsChange::NotifyPhysicalBoundsChange(Node* node) :
-        m_node(node),
-        m_oldBounds(m_node->physicalBounds()) {
+        m_node(node) {
             ensure(m_node != nullptr, "node is null");
         }
         
         Node::NotifyPhysicalBoundsChange::~NotifyPhysicalBoundsChange() {
-            m_node->nodePhysicalBoundsDidChange(m_oldBounds);
+            m_node->nodePhysicalBoundsDidChange();
         }
 
-        // notice that we take a copy here so that we can safely propagate the old bounds up
-        void Node::nodePhysicalBoundsDidChange(const vm::bbox3 oldBounds) {
+        void Node::nodePhysicalBoundsDidChange() {
             doNodePhysicalBoundsDidChange();
             if (m_parent != nullptr)
-                m_parent->childPhysicalBoundsDidChange(this, oldBounds);
+                m_parent->childPhysicalBoundsDidChange(this);
         }
 
         void Node::childWillChange(Node* node) {
@@ -392,21 +390,16 @@ namespace TrenchBroom {
             invalidateIssues();
         }
 
-        void Node::childPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
-            const vm::bbox3 myOldBounds = physicalBounds();
-            if (!myOldBounds.encloses(oldBounds) && !myOldBounds.encloses(node->physicalBounds())) {
-                // Our bounds will change only if the child's bounds potentially contributed to our own bounds.
-                nodePhysicalBoundsDidChange(myOldBounds);
-            }
-
+        void Node::childPhysicalBoundsDidChange(Node* node) {
+            nodePhysicalBoundsDidChange();
             doChildPhysicalBoundsDidChange();
-            descendantPhysicalBoundsDidChange(node, oldBounds, 1);
+            descendantPhysicalBoundsDidChange(node, 1);
         }
 
-        void Node::descendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
+        void Node::descendantPhysicalBoundsDidChange(Node* node, const size_t depth) {
             doDescendantPhysicalBoundsDidChange(node);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr) {
-                m_parent->descendantPhysicalBoundsDidChange(node, oldBounds, depth + 1);
+                m_parent->descendantPhysicalBoundsDidChange(node, depth + 1);
             }
         }
 
