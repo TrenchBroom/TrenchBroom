@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace IO {
         class TokenizerState {
-        private:
+        public:
             const char* m_begin;
             const char* m_cur;
             const char* m_end;
@@ -42,11 +42,6 @@ namespace TrenchBroom {
 
             TokenizerState clone(const char* begin, const char* end) const;
 
-            size_t length() const;
-            const char* begin() const;
-            const char* end() const;
-
-            const char* curPos() const;
             char curChar() const;
 
             char lookAhead(size_t offset = 1) const;
@@ -185,7 +180,7 @@ namespace TrenchBroom {
             }
 
             size_t length() const {
-                return m_state.length();
+                return static_cast<size_t>(m_state.m_end - m_state.m_begin);
             }
 
             std::string_view remainder() const {
@@ -213,7 +208,7 @@ namespace TrenchBroom {
             }
 
             const char* curPos() const {
-                return m_state.curPos();
+                return m_state.m_cur;
             }
 
             char curChar() const {
@@ -378,7 +373,7 @@ namespace TrenchBroom {
                 }
 
                 if (eof()) {
-                    return m_state.end();
+                    return m_state.m_end;
                 }
 
                 return curPos();

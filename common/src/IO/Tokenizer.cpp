@@ -42,22 +42,6 @@ namespace TrenchBroom {
             return TokenizerState(begin, end, m_escapableChars, m_escapeChar);
         }
 
-        size_t TokenizerState::length() const {
-            return static_cast<size_t>(m_end - m_begin);
-        }
-
-        const char* TokenizerState::begin() const {
-            return m_begin;
-        }
-
-        const char* TokenizerState::end() const {
-            return m_end;
-        }
-
-        const char* TokenizerState::curPos() const {
-            return m_cur;
-        }
-
         char TokenizerState::curChar() const {
             return *m_cur;
         }
