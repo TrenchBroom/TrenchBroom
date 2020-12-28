@@ -154,11 +154,11 @@ namespace TrenchBroom {
         }
 
         void GroupNode::doChildWasAdded(Node* /* node */) {
-            nodePhysicalBoundsDidChange(physicalBounds());
+            nodePhysicalBoundsDidChange();
         }
 
         void GroupNode::doChildWasRemoved(Node* /* node */) {
-            nodePhysicalBoundsDidChange(physicalBounds());
+            nodePhysicalBoundsDidChange();
         }
 
         void GroupNode::doNodePhysicalBoundsDidChange() {
@@ -166,11 +166,8 @@ namespace TrenchBroom {
         }
 
         void GroupNode::doChildPhysicalBoundsDidChange() {
-            const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
-            if (physicalBounds() != myOldBounds) {
-                nodePhysicalBoundsDidChange(myOldBounds);
-            }
+            nodePhysicalBoundsDidChange();
         }
 
         bool GroupNode::doSelectable() const {

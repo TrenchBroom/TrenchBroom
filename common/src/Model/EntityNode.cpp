@@ -80,9 +80,8 @@ namespace TrenchBroom {
         }
 
         void EntityNode::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
-            const auto oldBounds = physicalBounds();
             m_entity.setModel(modelFrame);
-            nodePhysicalBoundsDidChange(oldBounds);
+            nodePhysicalBoundsDidChange();
         }
 
         const vm::bbox3& EntityNode::doGetLogicalBounds() const {
@@ -125,12 +124,12 @@ namespace TrenchBroom {
 
         void EntityNode::doChildWasAdded(Node* /* node */) {
             m_entity.setPointEntity(!hasChildren());
-            nodePhysicalBoundsDidChange(physicalBounds());
+            nodePhysicalBoundsDidChange();
         }
 
         void EntityNode::doChildWasRemoved(Node* /* node */) {
             m_entity.setPointEntity(hasChildren());
-            nodePhysicalBoundsDidChange(physicalBounds());
+            nodePhysicalBoundsDidChange();
         }
 
         void EntityNode::doNodePhysicalBoundsDidChange() {
@@ -138,11 +137,8 @@ namespace TrenchBroom {
         }
 
         void EntityNode::doChildPhysicalBoundsDidChange() {
-            const vm::bbox3 myOldBounds = physicalBounds();
             invalidateBounds();
-            if (physicalBounds() != myOldBounds) {
-                nodePhysicalBoundsDidChange(myOldBounds);
-            }
+            nodePhysicalBoundsDidChange();
         }
 
         bool EntityNode::doSelectable() const {
@@ -212,8 +208,8 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityNode::doPropertiesDidChange(const vm::bbox3& oldBounds) {
-            nodePhysicalBoundsDidChange(oldBounds);
+        void EntityNode::doPropertiesDidChange(const vm::bbox3& /* oldBounds */) {
+            nodePhysicalBoundsDidChange();
         }
 
         vm::vec3 EntityNode::doGetLinkSourceAnchor() const {
