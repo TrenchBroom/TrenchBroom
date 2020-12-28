@@ -21,27 +21,39 @@
 
 #include "Token.h"
 
-#include <memory>
 #include <string>
 #include <string_view>
 
 namespace TrenchBroom {
     namespace IO {
-        class TokenizerState {
-        public:
+        struct TokenizerState {
+            const char* cur;
+            size_t line;
+            size_t column;
+            bool escaped;
+        };
+
+        struct TokenizerStateAndSource {
+            TokenizerState state;
+            const char* begin;
+            const char* end;
+        };
+
+        class TokenizerBase {
+        protected:
             const char* m_begin;
-            const char* m_cur;
             const char* m_end;
             std::string m_escapableChars;
             char m_escapeChar;
-            size_t m_line;
-            size_t m_column;
-            bool m_escaped;
+            TokenizerState m_state;
         public:
-            TokenizerState(const char* begin, const char* end, const std::string& escapableChars, char escapeChar);
+            TokenizerBase(const char* begin, const char* end, const std::string& escapableChars, char escapeChar);
 
-            TokenizerState clone(const char* begin, const char* end) const;
+            void replaceState(std::string_view str);
 
+            TokenizerStateAndSource snapshotStateAndSource() const;
+            void restoreStateAndSource(const TokenizerStateAndSource& snapshot);
+        protected:
             char curChar() const;
 
             char lookAhead(size_t offset = 1) const;
@@ -69,7 +81,7 @@ namespace TrenchBroom {
         };
 
         template <typename TokenType>
-        class Tokenizer {
+        class Tokenizer : public TokenizerBase {
         public:
             using Token = TokenTemplate<TokenType>;
         private:
@@ -80,14 +92,12 @@ namespace TrenchBroom {
             public:
                 explicit SaveState(TokenizerState* target) :
                 m_target(target),
-                m_snapshot(target->snapshot()) {}
+                m_snapshot(*target) {}
 
                 ~SaveState() {
-                    m_target->restore(m_snapshot);
+                    *m_target = m_snapshot;
                 }
             };
-
-            TokenizerState m_state;
 
             template <typename T> friend class Tokenizer;
         public:
@@ -97,7 +107,7 @@ namespace TrenchBroom {
             }
         public:
             Tokenizer(std::string_view str, const std::string& escapableChars, const char escapeChar) :
-            m_state(str.data(), str.data() + str.size(), escapableChars, escapeChar) {}
+            TokenizerBase(str.data(), str.data() + str.size(), escapableChars, escapeChar) {}
 
             virtual ~Tokenizer() = default;
 
@@ -151,11 +161,11 @@ namespace TrenchBroom {
             }
 
             std::string unescapeString(const std::string& str) const {
-                return m_state.unescape(str);
+                return unescape(str);
             }
 
             void reset() {
-                m_state.reset();
+                TokenizerBase::reset();
             }
 
             double progress() const {
@@ -168,19 +178,19 @@ namespace TrenchBroom {
             }
 
             bool eof() const {
-                return m_state.eof();
+                return TokenizerBase::eof();
             }
         public:
             size_t line() const {
-                return m_state.line();
+                return TokenizerBase::line();
             }
 
             size_t column() const {
-                return m_state.column();
+                return TokenizerBase::column();
             }
 
             size_t length() const {
-                return static_cast<size_t>(m_state.m_end - m_state.m_begin);
+                return static_cast<size_t>(m_end - m_begin);
             }
 
             std::string_view remainder() const {
@@ -192,23 +202,15 @@ namespace TrenchBroom {
             }
         public:
             TokenizerState snapshot() const {
-                return m_state.snapshot();
-            }
-
-            void replaceState(std::string_view str) {
-                m_state = m_state.clone(str.data(), str.data() + str.size());
+                return m_state;
             }
 
             void restore(const TokenizerState& snapshot) {
-                m_state.restore(snapshot);
+                m_state = snapshot;
             }
         protected:
-            size_t offset(const char* ptr) const {
-                return m_state.offset(ptr);
-            }
-
             const char* curPos() const {
-                return m_state.m_cur;
+                return m_state.cur;
             }
 
             char curChar() const {
@@ -218,17 +220,13 @@ namespace TrenchBroom {
 
                 return *curPos();
             }
-
-            char lookAhead(const size_t offset = 1) const {
-                return m_state.lookAhead(offset);
-            }
         public:
             void advance(const size_t offset) {
-                m_state.advance(offset);
+                TokenizerBase::advance(offset);
             }
         protected:
             void advance() {
-                m_state.advance();
+                advance(1);
             }
 
             bool isDigit(const char c) const {
@@ -244,7 +242,7 @@ namespace TrenchBroom {
             }
 
             bool isEscaped() const {
-                return m_state.escaped();
+                return escaped();
             }
 
             const char* readInteger(const std::string& delims) {
@@ -326,7 +324,7 @@ namespace TrenchBroom {
                 while (!eof() && (curChar() != delim || isEscaped())) {
                     // This is a hack to handle paths with trailing backslashes that get misinterpreted as escaped double quotation marks.
                     if (!hackDelims.empty() && curChar() == '"' && isEscaped() && hackDelims.find(lookAhead()) != std::string::npos) {
-                        m_state.resetEscaped();
+                        resetEscaped();
                         break;
                     }
                     advance();
@@ -373,7 +371,7 @@ namespace TrenchBroom {
                 }
 
                 if (eof()) {
-                    return m_state.m_end;
+                    return m_end;
                 }
 
                 return curPos();
@@ -390,10 +388,6 @@ namespace TrenchBroom {
 
                 advance(str.size());
                 return curPos();
-            }
-
-            void errorIfEof() const {
-                m_state.errorIfEof();
             }
         protected:
             bool isAnyOf(const char c, const std::string& allow) const {

@@ -28,119 +28,129 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TokenizerState::TokenizerState(const char* begin, const char* end, const std::string& escapableChars, const char escapeChar) :
+        TokenizerBase::TokenizerBase(const char* begin, const char* end, const std::string& escapableChars, const char escapeChar) :
         m_begin(begin),
-        m_cur(m_begin),
         m_end(end),
         m_escapableChars(escapableChars),
         m_escapeChar(escapeChar),
-        m_line(1),
-        m_column(1),
-        m_escaped(false) {}
+        m_state{begin, 1, 1, false} {}
 
-        TokenizerState TokenizerState::clone(const char* begin, const char* end) const {
-            return TokenizerState(begin, end, m_escapableChars, m_escapeChar);
+        void TokenizerBase::replaceState(std::string_view str) {
+            m_begin = str.data();
+            m_end = str.data() + str.length();
+            // preserve m_escapableChars and m_escapeChar
+            reset();
         }
 
-        char TokenizerState::curChar() const {
-            return *m_cur;
+        TokenizerStateAndSource TokenizerBase::snapshotStateAndSource() const {
+            return { m_state, m_begin, m_end };
         }
 
-        char TokenizerState::lookAhead(const size_t offset) const {
-            if (eof(m_cur + offset)) {
+        void TokenizerBase::restoreStateAndSource(const TokenizerStateAndSource& snapshot) {
+            m_state = snapshot.state;
+            m_begin = snapshot.begin;
+            m_end = snapshot.end;
+        }
+
+        char TokenizerBase::curChar() const {
+            return *m_state.cur;
+        }
+
+        char TokenizerBase::lookAhead(const size_t offset) const {
+            if (eof(m_state.cur + offset)) {
                 return 0;
             } else {
-                return *(m_cur + offset);
+                return *(m_state.cur + offset);
             }
         }
 
-        size_t TokenizerState::line() const {
-            return m_line;
+        size_t TokenizerBase::line() const {
+            return m_state.line;
         }
 
-        size_t TokenizerState::column() const {
-            return m_column;
+        size_t TokenizerBase::column() const {
+            return m_state.column;
         }
 
-        bool TokenizerState::escaped() const {
-            return !eof() && m_escaped && m_escapableChars.find(curChar()) != std::string::npos;
+        bool TokenizerBase::escaped() const {
+            return !eof() && m_state.escaped && m_escapableChars.find(curChar()) != std::string::npos;
         }
 
-        std::string TokenizerState::unescape(const std::string& str) const {
+        std::string TokenizerBase::unescape(const std::string& str) const {
             return kdl::str_unescape(str, m_escapableChars, m_escapeChar);
         }
 
-        void TokenizerState::resetEscaped() {
-            m_escaped = false;
+        void TokenizerBase::resetEscaped() {
+            m_state.escaped = false;
         }
 
-        bool TokenizerState::eof() const {
-            return eof(m_cur);
+        bool TokenizerBase::eof() const {
+            return eof(m_state.cur);
         }
 
-        bool TokenizerState::eof(const char* ptr) const {
+        bool TokenizerBase::eof(const char* ptr) const {
             return ptr >= m_end;
         }
 
-        size_t TokenizerState::offset(const char* ptr) const {
+        size_t TokenizerBase::offset(const char* ptr) const {
             assert(ptr >= m_begin);
             return static_cast<size_t>(ptr - m_begin);
         }
 
-        void TokenizerState::advance(const size_t offset) {
+        void TokenizerBase::advance(const size_t offset) {
             for (size_t i = 0; i < offset; ++i) {
                 advance();
             }
         }
 
-        void TokenizerState::advance() {
+        void TokenizerBase::advance() {
             errorIfEof();
 
             switch (curChar()) {
                 case '\r':
                     if (lookAhead() == '\n') {
-                        ++m_column;
+                        ++m_state.column;
                         break;
                     }
                     // handle carriage return without consecutive line feed
                     // by falling through into the line feed case
                     switchFallthrough();
                 case '\n':
-                    ++m_line;
-                    m_column = 1;
-                    m_escaped = false;
+                    ++m_state.line;
+                    m_state.column = 1;
+                    m_state.escaped = false;
                     break;
                 default:
-                    ++m_column;
+                    ++m_state.column;
                     if (curChar() == m_escapeChar) {
-                        m_escaped = !m_escaped;
+                        m_state.escaped = !m_state.escaped;
                     } else {
-                        m_escaped = false;
+                        m_state.escaped = false;
                     }
                     break;
             }
-            ++m_cur;
+            ++m_state.cur;
         }
 
-        void TokenizerState::reset() {
-            m_cur = m_begin;
-            m_line = 1;
-            m_column = 1;
-            m_escaped = false;
+        void TokenizerBase::reset() {
+            m_state.cur = m_begin;
+            m_state.line = 1;
+            m_state.column = 1;
+            m_state.escaped = false;
         }
 
-        void TokenizerState::errorIfEof() const {
+        void TokenizerBase::errorIfEof() const {
             if (eof()) {
                 throw ParserException("Unexpected end of file");
             }
         }
 
-        TokenizerState TokenizerState::snapshot() const {
-            return TokenizerState(*this);
+        TokenizerState TokenizerBase::snapshot() const {
+            return m_state;
         }
 
-        void TokenizerState::restore(const TokenizerState& snapshot) {
-            *this = snapshot;
+        void TokenizerBase::restore(const TokenizerState& snapshot) {
+            m_state = snapshot;
         }
     }
 }

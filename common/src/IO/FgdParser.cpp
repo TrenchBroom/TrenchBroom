@@ -715,7 +715,7 @@ namespace TrenchBroom {
                 return {};
             }
         
-            const auto snapshot = m_tokenizer.snapshot();
+            const auto snapshot = m_tokenizer.snapshotStateAndSource();
             auto result = std::vector<EntityDefinitionClassInfo>();
             try {
                 status.debug(m_tokenizer.line(), "Parsing included file '" + path.asString() + "'");
@@ -735,7 +735,7 @@ namespace TrenchBroom {
                 status.error(m_tokenizer.line(), kdl::str_to_string("Failed to parse included file: ", e.what()));
             }
 
-            m_tokenizer.restore(snapshot);
+            m_tokenizer.restoreStateAndSource(snapshot);
             return result;
         }
     }
