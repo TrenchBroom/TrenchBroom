@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TokenizerBase::TokenizerBase(const char* begin, const char* end, const std::string& escapableChars, const char escapeChar) :
+        TokenizerBase::TokenizerBase(const char* begin, const char* end, std::string_view escapableChars, const char escapeChar) :
         m_begin(begin),
         m_end(end),
         m_escapableChars(escapableChars),
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             return !eof() && m_state.escaped && m_escapableChars.find(curChar()) != std::string::npos;
         }
 
-        std::string TokenizerBase::unescape(const std::string& str) const {
+        std::string TokenizerBase::unescape(std::string_view str) const {
             return kdl::str_unescape(str, m_escapableChars, m_escapeChar);
         }
 

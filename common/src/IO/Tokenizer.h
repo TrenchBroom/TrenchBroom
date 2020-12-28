@@ -47,7 +47,7 @@ namespace TrenchBroom {
             char m_escapeChar;
             TokenizerState m_state;
         public:
-            TokenizerBase(const char* begin, const char* end, const std::string& escapableChars, char escapeChar);
+            TokenizerBase(const char* begin, const char* end, std::string_view escapableChars, char escapeChar);
 
             void replaceState(std::string_view str);
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             size_t column() const;
 
             bool escaped() const;
-            std::string unescape(const std::string& str) const;
+            std::string unescape(std::string_view str) const;
             void resetEscaped();
 
             bool eof() const;
@@ -106,7 +106,7 @@ namespace TrenchBroom {
                 return whitespace;
             }
         public:
-            Tokenizer(std::string_view str, const std::string& escapableChars, const char escapeChar) :
+            Tokenizer(std::string_view str, std::string_view escapableChars, const char escapeChar) :
             TokenizerBase(str.data(), str.data() + str.size(), escapableChars, escapeChar) {}
 
             virtual ~Tokenizer() = default;
@@ -151,16 +151,16 @@ namespace TrenchBroom {
                 return std::string_view(startPos, static_cast<size_t>(endPos - startPos));
             }
 
-            std::string readAnyString(const std::string& delims) {
+            std::string_view readAnyString(std::string_view delims) {
                 while (isWhitespace(curChar())) {
                     advance();
                 }
                 const char* startPos = curPos();
                 const char* endPos = (curChar() == '"' ? readQuotedString() : readUntil(delims));
-                return std::string(startPos, static_cast<size_t>(endPos - startPos));
+                return std::string_view(startPos, static_cast<size_t>(endPos - startPos));
             }
 
-            std::string unescapeString(const std::string& str) const {
+            std::string unescapeString(std::string_view str) const {
                 return unescape(str);
             }
 
@@ -245,7 +245,7 @@ namespace TrenchBroom {
                 return escaped();
             }
 
-            const char* readInteger(const std::string& delims) {
+            const char* readInteger(std::string_view delims) {
                 if (curChar() != '+' && curChar() != '-' && !isDigit(curChar())) {
                     return nullptr;
                 }
@@ -265,7 +265,7 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            const char* readDecimal(const std::string& delims) {
+            const char* readDecimal(std::string_view delims) {
                 if (curChar() != '+' && curChar() != '-' && curChar() != '.' && !isDigit(curChar())) {
                     return nullptr;
                 }
@@ -304,7 +304,7 @@ namespace TrenchBroom {
                 }
             }
         protected:
-            const char* readUntil(const std::string& delims) {
+            const char* readUntil(std::string_view delims) {
                 if (!eof()) {
                     do {
                         advance();
@@ -313,17 +313,17 @@ namespace TrenchBroom {
                 return curPos();
             }
 
-            const char* readWhile(const std::string& allow) {
+            const char* readWhile(std::string_view allow) {
                 while (!eof() && isAnyOf(curChar(), allow)) {
                     advance();
                 }
                 return curPos();
             }
 
-            const char* readQuotedString(const char delim = '"', const std::string& hackDelims = "") {
+            const char* readQuotedString(const char delim = '"', std::string_view hackDelims = std::string_view()) {
                 while (!eof() && (curChar() != delim || isEscaped())) {
                     // This is a hack to handle paths with trailing backslashes that get misinterpreted as escaped double quotation marks.
-                    if (!hackDelims.empty() && curChar() == '"' && isEscaped() && hackDelims.find(lookAhead()) != std::string::npos) {
+                    if (!hackDelims.empty() && curChar() == '"' && isEscaped() && hackDelims.find(lookAhead()) != std::string_view::npos) {
                         resetEscaped();
                         break;
                     }
@@ -335,21 +335,21 @@ namespace TrenchBroom {
                 return end;
             }
 
-            const char* discardWhile(const std::string& allow) {
+            const char* discardWhile(std::string_view allow) {
                 while (!eof() && isAnyOf(curChar(), allow)) {
                     advance();
                 }
                 return curPos();
             }
 
-            const char* discardUntil(const std::string& delims) {
+            const char* discardUntil(std::string_view delims) {
                 while (!eof() && !isAnyOf(curChar(), delims)) {
                     advance();
                 }
                 return curPos();
             }
 
-            bool matchesPattern(const std::string& pattern) const {
+            bool matchesPattern(std::string_view pattern) const {
                 if (pattern.empty() || isEscaped() || curChar() != pattern[0]) {
                     return false;
                 }
@@ -361,7 +361,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            const char* discardUntilPattern(const std::string& pattern) {
+            const char* discardUntilPattern(std::string_view pattern) {
                 if (pattern.empty()) {
                     return curPos();
                 }
@@ -377,7 +377,7 @@ namespace TrenchBroom {
                 return curPos();
             }
 
-            const char* discard(const std::string& str) {
+            const char* discard(std::string_view str) {
                 for (size_t i = 0; i < str.size(); ++i) {
                     const char c = lookAhead(i);
                     if (c == 0 || c != str[i]) {
@@ -390,7 +390,7 @@ namespace TrenchBroom {
                 return curPos();
             }
         protected:
-            bool isAnyOf(const char c, const std::string& allow) const {
+            bool isAnyOf(const char c, std::string_view allow) const {
                 for (const auto& a : allow) {
                     if (c == a) {
                         return true;

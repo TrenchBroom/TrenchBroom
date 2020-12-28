@@ -24,6 +24,7 @@
 #include <vecmath/forward.h>
 
 #include <string>
+#include <string_view>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -47,9 +48,9 @@ namespace TrenchBroom {
 
             Color m_color;
         public:
-            BrushFaceAttributes(const std::string& textureName);
+            explicit BrushFaceAttributes(std::string_view textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
-            BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other);
+            BrushFaceAttributes(std::string_view textureName, const BrushFaceAttributes& other);
 
             BrushFaceAttributes& operator=(BrushFaceAttributes other);
             

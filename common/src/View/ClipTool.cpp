@@ -751,7 +751,7 @@ namespace TrenchBroom {
 
             const auto clip = [&](auto* node, const auto& p1, const auto& p2, const auto& p3, auto& brushMap) {
                 auto brush = node->brush();
-                world->createFace(p1, p2, p3, document->currentTextureName())
+                world->createFace(p1, p2, p3, Model::BrushFaceAttributes(document->currentTextureName()))
                     .and_then([&](Model::BrushFace&& clipFace) {
                             setFaceAttributes(brush.faces(), clipFace);
                             return brush.clip(worldBounds, std::move(clipFace));

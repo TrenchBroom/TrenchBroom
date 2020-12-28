@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Model {
         const std::string BrushFaceAttributes::NoTextureName = "__TB_empty";
 
-        BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName) :
+        BrushFaceAttributes::BrushFaceAttributes(std::string_view textureName) :
         m_textureName(textureName),
         m_offset(vm::vec2f::zero()),
         m_scale(vm::vec2f(1.0f, 1.0f)),
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         m_surfaceValue(other.m_surfaceValue),
         m_color(other.m_color) {}
 
-        BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other) :
+        BrushFaceAttributes::BrushFaceAttributes(std::string_view textureName, const BrushFaceAttributes& other) :
         m_textureName(textureName),
         m_offset(other.m_offset),
         m_scale(other.m_scale),

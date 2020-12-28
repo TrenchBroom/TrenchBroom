@@ -644,7 +644,7 @@ namespace TrenchBroom {
             return std::make_tuple(p1, p2, p3);
         }
 
-        std::string StandardMapParser::parseTextureName(ParserStatus& /* status */) {
+        std::string_view StandardMapParser::parseTextureName(ParserStatus& /* status */) {
             return m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
         }
 
