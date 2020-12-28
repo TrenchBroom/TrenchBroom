@@ -488,7 +488,7 @@ namespace TrenchBroom {
             Brush
         };
 
-        std::ostream& operator<<(std::ostream& str, const Visited visited) {
+        static std::ostream& operator<<(std::ostream& str, const Visited visited) {
             switch (visited) {
                 case Visited::World:
                     return str << "World";

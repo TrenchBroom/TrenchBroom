@@ -69,11 +69,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool mutuallyIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+        static bool mutuallyIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
             return lhs.intersects(rhs) && rhs.intersects(lhs);
         }
 
-        bool mutuallyNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+        static bool mutuallyNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
             return !lhs.intersects(rhs) && !rhs.intersects(lhs);
         }
 

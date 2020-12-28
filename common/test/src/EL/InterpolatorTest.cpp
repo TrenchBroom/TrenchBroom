@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace EL {
-        void interpolateAndCheck(const std::string& expression, const std::string& expected, const EvaluationContext& context = EvaluationContext()) {
+        static void interpolateAndCheck(const std::string& expression, const std::string& expected, const EvaluationContext& context = EvaluationContext()) {
             CHECK(Interpolator(expression).interpolate(context) == expected);
         }
 

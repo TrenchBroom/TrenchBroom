@@ -59,7 +59,7 @@ namespace TrenchBroom {
             evaluateAndAssert(expression, result, EvaluationContext(table));
         }
 
-        void evalutateComparisonAndAssert(const std::string& op, bool result) {
+        static void evalutateComparisonAndAssert(const std::string& op, bool result) {
             const std::string expression = "4 " + op + " 5";
             evaluateAndAssert(expression, result);
             assertOptimizable(expression);
