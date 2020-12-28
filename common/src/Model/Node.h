@@ -220,20 +220,19 @@ namespace TrenchBroom {
             class NotifyPhysicalBoundsChange {
             private:
                 Node* m_node;
-                vm::bbox3 m_oldBounds;
             public:
                 explicit NotifyPhysicalBoundsChange(Node* node);
                 ~NotifyPhysicalBoundsChange();
             };
-            void nodePhysicalBoundsDidChange(vm::bbox3 oldBounds);
+            void nodePhysicalBoundsDidChange();
         private:
             void childWillChange(Node* node);
             void childDidChange(Node* node);
             void descendantWillChange(Node* node);
             void descendantDidChange(Node* node);
 
-            void childPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds);
-            void descendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth);
+            void childPhysicalBoundsDidChange(Node* node);
+            void descendantPhysicalBoundsDidChange(Node* node, size_t depth);
         public: // selection
             bool selected() const;
             void select();
