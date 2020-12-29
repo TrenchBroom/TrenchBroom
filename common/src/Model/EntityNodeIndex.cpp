@@ -128,16 +128,15 @@ namespace TrenchBroom {
         }
 
         std::vector<EntityNodeBase*> EntityNodeIndex::findEntityNodes(const EntityNodeIndexQuery& keyQuery, const std::string& value) const {
-            const std::set<EntityNodeBase*> nameResult = keyQuery.execute(*m_keyIndex);
-
+            // first, find Nodes which have `value` as the value for any key
             std::set<EntityNodeBase*> valueResult;
             m_valueIndex->find_matches(value, std::inserter(valueResult, std::end(valueResult)));
-            if (nameResult.empty() || valueResult.empty()) {
+            if (valueResult.empty()) {
                 return {};
             }
 
-            std::vector<EntityNodeBase*> result = kdl::set_intersection(nameResult, valueResult);
-
+            // next, remove results from the result set that don't match `keyQuery`
+            auto result = std::vector<EntityNodeBase*>(std::begin(valueResult), std::end(valueResult));
             auto it = std::begin(result);
             while (it != std::end(result)) {
                 const EntityNodeBase* node = *it;
