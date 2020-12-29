@@ -52,26 +52,6 @@ namespace TrenchBroom {
             m_end = snapshot.end;
         }
 
-        char TokenizerBase::curChar() const {
-            return *m_state.cur;
-        }
-
-        char TokenizerBase::lookAhead(const size_t offset) const {
-            if (eof(m_state.cur + offset)) {
-                return 0;
-            } else {
-                return *(m_state.cur + offset);
-            }
-        }
-
-        size_t TokenizerBase::line() const {
-            return m_state.line;
-        }
-
-        size_t TokenizerBase::column() const {
-            return m_state.column;
-        }
-
         bool TokenizerBase::escaped() const {
             return !eof() && m_state.escaped && m_escapableChars.find(curChar()) != std::string::npos;
         }
@@ -82,19 +62,6 @@ namespace TrenchBroom {
 
         void TokenizerBase::resetEscaped() {
             m_state.escaped = false;
-        }
-
-        bool TokenizerBase::eof() const {
-            return eof(m_state.cur);
-        }
-
-        bool TokenizerBase::eof(const char* ptr) const {
-            return ptr >= m_end;
-        }
-
-        size_t TokenizerBase::offset(const char* ptr) const {
-            assert(ptr >= m_begin);
-            return static_cast<size_t>(ptr - m_begin);
         }
 
         void TokenizerBase::advance(const size_t offset) {

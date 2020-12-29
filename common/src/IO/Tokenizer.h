@@ -54,21 +54,45 @@ namespace TrenchBroom {
             TokenizerStateAndSource snapshotStateAndSource() const;
             void restoreStateAndSource(const TokenizerStateAndSource& snapshot);
         protected:
-            char curChar() const;
+            /**
+             * Returns current character; caller must ensure eof() is false before calling.
+             */
+            inline char curChar() const {
+                return *m_state.cur;
+            }
 
-            char lookAhead(size_t offset = 1) const;
+            inline char lookAhead(size_t offset = 1) const {
+                if (eof(m_state.cur + offset)) {
+                    return 0;
+                } else {
+                    return *(m_state.cur + offset);
+                }
+            }
 
-            size_t line() const;
-            size_t column() const;
+            inline size_t line() const {
+                return m_state.line;
+            }
+
+            inline size_t column() const {
+                return m_state.column;
+            }
 
             bool escaped() const;
             std::string unescape(std::string_view str) const;
             void resetEscaped();
 
-            bool eof() const;
-            bool eof(const char* ptr) const;
+            inline bool eof() const  {
+                return eof(m_state.cur);
+            }
 
-            size_t offset(const char* ptr) const;
+            inline bool eof(const char* ptr) const {
+                return ptr >= m_end;
+            }
+
+            inline size_t offset(const char* ptr) const {
+                assert(ptr >= m_begin);
+                return static_cast<size_t>(ptr - m_begin);
+            }
 
             void advance(size_t offset);
             void advance();
