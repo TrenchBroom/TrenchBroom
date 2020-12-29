@@ -19,10 +19,6 @@
 
 #include "Tokenizer.h"
 
-#include "Exceptions.h"
-#include "Macros.h"
-
-#include <kdl/string_format.h>
 
 #include <string>
 
@@ -34,90 +30,5 @@ namespace TrenchBroom {
         m_escapableChars(escapableChars),
         m_escapeChar(escapeChar),
         m_state{begin, 1, 1, false} {}
-
-        void TokenizerBase::replaceState(std::string_view str) {
-            m_begin = str.data();
-            m_end = str.data() + str.length();
-            // preserve m_escapableChars and m_escapeChar
-            reset();
-        }
-
-        TokenizerStateAndSource TokenizerBase::snapshotStateAndSource() const {
-            return { m_state, m_begin, m_end };
-        }
-
-        void TokenizerBase::restoreStateAndSource(const TokenizerStateAndSource& snapshot) {
-            m_state = snapshot.state;
-            m_begin = snapshot.begin;
-            m_end = snapshot.end;
-        }
-
-        bool TokenizerBase::escaped() const {
-            return !eof() && m_state.escaped && m_escapableChars.find(curChar()) != std::string::npos;
-        }
-
-        std::string TokenizerBase::unescape(std::string_view str) const {
-            return kdl::str_unescape(str, m_escapableChars, m_escapeChar);
-        }
-
-        void TokenizerBase::resetEscaped() {
-            m_state.escaped = false;
-        }
-
-        void TokenizerBase::advance(const size_t offset) {
-            for (size_t i = 0; i < offset; ++i) {
-                advance();
-            }
-        }
-
-        void TokenizerBase::advance() {
-            errorIfEof();
-
-            switch (curChar()) {
-                case '\r':
-                    if (lookAhead() == '\n') {
-                        ++m_state.column;
-                        break;
-                    }
-                    // handle carriage return without consecutive line feed
-                    // by falling through into the line feed case
-                    switchFallthrough();
-                case '\n':
-                    ++m_state.line;
-                    m_state.column = 1;
-                    m_state.escaped = false;
-                    break;
-                default:
-                    ++m_state.column;
-                    if (curChar() == m_escapeChar) {
-                        m_state.escaped = !m_state.escaped;
-                    } else {
-                        m_state.escaped = false;
-                    }
-                    break;
-            }
-            ++m_state.cur;
-        }
-
-        void TokenizerBase::reset() {
-            m_state.cur = m_begin;
-            m_state.line = 1;
-            m_state.column = 1;
-            m_state.escaped = false;
-        }
-
-        void TokenizerBase::errorIfEof() const {
-            if (eof()) {
-                throw ParserException("Unexpected end of file");
-            }
-        }
-
-        TokenizerState TokenizerBase::snapshot() const {
-            return m_state;
-        }
-
-        void TokenizerBase::restore(const TokenizerState& snapshot) {
-            m_state = snapshot;
-        }
     }
 }

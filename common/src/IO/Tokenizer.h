@@ -21,6 +21,11 @@
 
 #include "Token.h"
 
+#include "Exceptions.h"
+#include "Macros.h"
+
+#include <kdl/string_format.h>
+
 #include <string>
 #include <string_view>
 
@@ -49,10 +54,21 @@ namespace TrenchBroom {
         public:
             TokenizerBase(const char* begin, const char* end, std::string_view escapableChars, char escapeChar);
 
-            void replaceState(std::string_view str);
+            inline void replaceState(std::string_view str) {
+                m_begin = str.data();
+                m_end = str.data() + str.length();
+                // preserve m_escapableChars and m_escapeChar
+                reset();
+            }
 
-            TokenizerStateAndSource snapshotStateAndSource() const;
-            void restoreStateAndSource(const TokenizerStateAndSource& snapshot);
+            inline TokenizerStateAndSource snapshotStateAndSource() const {
+                return { m_state, m_begin, m_end };
+            }
+            inline void restoreStateAndSource(const TokenizerStateAndSource& snapshot) {
+                m_state = snapshot.state;
+                m_begin = snapshot.begin;
+                m_end = snapshot.end;
+            }
         protected:
             /**
              * Returns current character; caller must ensure eof() is false before calling.
@@ -77,9 +93,15 @@ namespace TrenchBroom {
                 return m_state.column;
             }
 
-            bool escaped() const;
-            std::string unescape(std::string_view str) const;
-            void resetEscaped();
+            inline bool escaped() const {
+                return !eof() && m_state.escaped && m_escapableChars.find(curChar()) != std::string::npos;
+            }
+            inline std::string unescape(std::string_view str) const {
+                return kdl::str_unescape(str, m_escapableChars, m_escapeChar);
+            }
+            inline void resetEscaped() {
+                m_state.escaped = false;
+            }
 
             inline bool eof() const  {
                 return eof(m_state.cur);
@@ -94,14 +116,58 @@ namespace TrenchBroom {
                 return static_cast<size_t>(ptr - m_begin);
             }
 
-            void advance(size_t offset);
-            void advance();
-            void reset();
+            inline void advance(size_t offset)  {
+                for (size_t i = 0; i < offset; ++i) {
+                    advance();
+                }
+            }
+            inline void advance() {
+                errorIfEof();
 
-            void errorIfEof() const;
+                switch (curChar()) {
+                    case '\r':
+                        if (lookAhead() == '\n') {
+                            ++m_state.column;
+                            break;
+                        }
+                        // handle carriage return without consecutive line feed
+                        // by falling through into the line feed case
+                        switchFallthrough();
+                    case '\n':
+                        ++m_state.line;
+                        m_state.column = 1;
+                        m_state.escaped = false;
+                        break;
+                    default:
+                        ++m_state.column;
+                        if (curChar() == m_escapeChar) {
+                            m_state.escaped = !m_state.escaped;
+                        } else {
+                            m_state.escaped = false;
+                        }
+                        break;
+                }
+                ++m_state.cur;
+            }
+            inline void reset() {
+                m_state.cur = m_begin;
+                m_state.line = 1;
+                m_state.column = 1;
+                m_state.escaped = false;
+            }
 
-            TokenizerState snapshot() const;
-            void restore(const TokenizerState& snapshot);
+            inline void errorIfEof() const {
+                if (eof()) {
+                    throw ParserException("Unexpected end of file");
+                }
+            }
+
+            inline TokenizerState snapshot() const {
+                return m_state;
+            }
+            inline void restore(const TokenizerState& snapshot) {
+                m_state = snapshot;
+            }
         };
 
         template <typename TokenType>
