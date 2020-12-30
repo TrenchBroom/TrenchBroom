@@ -26,6 +26,7 @@
 
 #include <kdl/string_format.h>
 
+#include <cassert>
 #include <string>
 #include <string_view>
 
@@ -168,6 +169,17 @@ namespace TrenchBroom {
             inline void restore(const TokenizerState& snapshot) {
                 m_state = snapshot;
             }
+
+        public:
+            inline void adoptState(const TokenizerState& state) {
+                assert(state.cur >= m_begin);
+                assert(state.cur <= m_end);
+
+                m_state.cur = state.cur;
+                m_state.line = state.line;
+                m_state.column = state.column;
+                // m_state.escaped is not updated
+            }
         };
 
         template <typename TokenType>
@@ -287,9 +299,6 @@ namespace TrenchBroom {
                 return std::string_view(curPos(), length());
             }
 
-            size_t curOffset() const {
-                return offset(curPos());
-            }
         public:
             TokenizerState snapshot() const {
                 return m_state;
@@ -310,11 +319,11 @@ namespace TrenchBroom {
 
                 return *curPos();
             }
-        public:
+
             void advance(const size_t offset) {
                 TokenizerBase::advance(offset);
             }
-        protected:
+
             void advance() {
                 advance(1);
             }

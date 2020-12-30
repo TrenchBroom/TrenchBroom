@@ -104,7 +104,7 @@ namespace TrenchBroom {
             using Token = ELTokenizer::Token;
         public:
             ELParser(ELParser::Mode mode, std::string_view str);
-            const ELTokenizer& tokenizer() const;
+            TokenizerState tokenizerState() const;
 
             static EL::Expression parseStrict(const std::string& str);
             static EL::Expression parseLenient(const std::string& str);

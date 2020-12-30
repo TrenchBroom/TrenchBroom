@@ -54,7 +54,7 @@ namespace TrenchBroom {
             LegacyModelDefinitionTokenizer m_tokenizer;
         public:
             explicit LegacyModelDefinitionParser(std::string_view str);
-            const LegacyModelDefinitionTokenizer& tokenizer() const;
+            TokenizerState tokenizerState() const;
         public:
             EL::Expression parse(ParserStatus& status);
         private:

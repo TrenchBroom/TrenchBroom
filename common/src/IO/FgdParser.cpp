@@ -361,7 +361,7 @@ namespace TrenchBroom {
                 auto expression = parser.parse();
 
                 // advance our tokenizer by the amount that `parser` parsed
-                m_tokenizer.advance(parser.tokenizer().curOffset());
+                m_tokenizer.adoptState(parser.tokenizerState());
                 expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
                 expression.optimize();
@@ -374,7 +374,7 @@ namespace TrenchBroom {
                     auto expression = parser.parse(status);
 
                     // advance our tokenizer by the amount that `parser` parsed
-                    m_tokenizer.advance(parser.tokenizer().curOffset());
+                    m_tokenizer.adoptState(parser.tokenizerState());
                     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
                     expression.optimize();
