@@ -26,15 +26,22 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 
+#include <kdl/result_forward.h>
+
 #include <vecmath/bbox.h>
 
+#include <iosfwd>
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        enum class UpdateLinkedGroupsError;
+        using UpdateLinkedGroupsResult = std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>;
+
         /**
          * A node that groups other nodes to make them editable as one. Multiple groups can form a
          * link set; a link set is a set of groups such that changes to the children of of one of the
@@ -133,6 +140,26 @@ namespace TrenchBroom {
              * Expects that this group node is connected to its link set.
              */
             void disconnectFromLinkSet();
+
+            /**
+             * Updates all connected members of this groups' link set.
+             *
+             * The children of this node are copied (recursively) and transformed into the linked nodes by means of the
+             * recorded transformations of this group and the linked groups.
+             *
+             * If this operation fails for any child and linked group, then an error is returned. The operation can fail
+             * if any of the following conditions arises:
+             *
+             * - the transformation of this group node is not invertible
+             * - transforming any of this node's children fails
+             * - any of the transformed children is no longer within the world bounds
+             *
+             * If this operation succeeds, a vector of pairs is returned where each pair consists of the linked node that
+             * should be updated, and a replacement group node.
+             *
+             * Expects that this group is currently connected to its link set.
+             */
+            kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroups(const vm::bbox3& worldBounds);
         private:
             void setEditState(EditState editState);
             void setAncestorEditState(EditState editState);
