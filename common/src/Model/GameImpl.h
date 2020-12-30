@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GameImpl
-#define TrenchBroom_GameImpl
+#pragma once
 
 #include "FloatType.h"
 #include "IO/Path.h"
@@ -60,7 +59,7 @@ namespace TrenchBroom {
             size_t doMaxPropertyLength() const override;
 
             std::optional<vm::bbox3> doSoftMapBounds() const override;
-            SoftMapBounds doExtractSoftMapBounds(const AttributableNode& node) const override;
+            SoftMapBounds doExtractSoftMapBounds(const Entity& entity) const override;
 
             const std::vector<SmartTag>& doSmartTags() const override;
 
@@ -77,20 +76,20 @@ namespace TrenchBroom {
             void doWriteBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const override;
 
             TexturePackageType doTexturePackageType() const override;
-            void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;
+            void doLoadTextureCollections(const Entity& entity, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;
             std::vector<IO::Path> textureCollectionSearchPaths(const IO::Path& documentPath) const;
 
             bool doIsTextureCollection(const IO::Path& path) const override;
             std::vector<IO::Path> doFindTextureCollections() const override;
             std::vector<std::string> doFileTextureCollectionExtensions() const override;
-            std::vector<IO::Path> doExtractTextureCollections(const AttributableNode& node) const override;
-            void doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const override;
+            std::vector<IO::Path> doExtractTextureCollections(const Entity& entity) const override;
+            void doUpdateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const override;
             void doReloadShaders() override;
 
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
             std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
             std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const override;
-            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
+            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Entity& entity) const override;
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const override;
 
@@ -100,17 +99,17 @@ namespace TrenchBroom {
             Assets::Palette loadTexturePalette() const;
 
             std::vector<std::string> doAvailableMods() const override;
-            std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
+            std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
             std::string doDefaultMod() const override;
 
             const FlagsConfig& doSurfaceFlags() const override;
             const FlagsConfig& doContentFlags() const override;
             const BrushFaceAttributes& doDefaultFaceAttribs() const override;
+            const std::vector<CompilationTool>& doCompilationTools() const override;
         private:
-            void writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, size_t maxLength) const;
-            std::string readLongAttribute(const AttributableNode& node, const std::string& baseName) const;
+            void writeLongAttribute(EntityNodeBase& node, const std::string& baseName, const std::string& value, size_t maxLength) const;
+            std::string readLongAttribute(const EntityNodeBase& node, const std::string& baseName) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_GameImpl) */

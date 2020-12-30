@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_NodeWriter
-#define TrenchBroom_NodeWriter
+#pragma once
 
 #include <cstdio> // FILE*
 #include <map>
@@ -41,13 +40,10 @@ namespace TrenchBroom {
         class NodeWriter {
         private:
             using EntityBrushesMap = std::map<Model::EntityNode*, std::vector<Model::BrushNode*>>;
-            class CollectEntityBrushesStrategy;
-            class WriteNode;
 
             const Model::WorldNode& m_world;
             std::unique_ptr<NodeSerializer> m_serializer;
         public:
-            NodeWriter(const Model::WorldNode& world, FILE* stream);
             NodeWriter(const Model::WorldNode& world, std::ostream& stream);
             NodeWriter(const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
             ~NodeWriter();
@@ -69,4 +65,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_NodeWriter) */

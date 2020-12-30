@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ViewConstants_h
-#define TrenchBroom_ViewConstants_h
+#pragma once
 
 class QColor;
 class QFont;
@@ -109,5 +108,3 @@ namespace TrenchBroom {
         }
     }
 }
-
-#endif

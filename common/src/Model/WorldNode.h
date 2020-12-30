@@ -17,12 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_WorldNode
-#define TrenchBroom_WorldNode
+#pragma once
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/AttributableNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
 #include "Model/Node.h"
@@ -37,65 +36,85 @@ namespace TrenchBroom {
     template <typename T, size_t S, typename U> class AABBTree;
 
     namespace Model {
-        class AttributableNodeIndex;
+        class EntityNodeIndex;
         enum class BrushError;
         class BrushFace;
         class IssueGeneratorRegistry;
         class IssueQuickFix;
         class PickResult;
 
-        class WorldNode : public AttributableNode, public ModelFactory {
+        class WorldNode : public EntityNodeBase, public ModelFactory {
         private:
             std::unique_ptr<ModelFactory> m_factory;
             LayerNode* m_defaultLayer;
-            std::unique_ptr<AttributableNodeIndex> m_attributableIndex;
+            std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
             std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
             std::unique_ptr<NodeTree> m_nodeTree;
             bool m_updateNodeTree;
         public:
-            WorldNode(MapFormat mapFormat);
+            WorldNode(Entity entity, MapFormat mapFormat);
             ~WorldNode() override;
         public: // layer management
-            LayerNode* defaultLayer() const;
+            LayerNode* defaultLayer();
+
+            const LayerNode* defaultLayer() const;
+
             /**
              * Returns defaultLayer() plus customLayers()
              */
-            std::vector<LayerNode*> allLayers() const;
+            std::vector<LayerNode*> allLayers();
+
+            /**
+             * Returns defaultLayer() plus customLayers()
+             */
+            std::vector<const LayerNode*> allLayers() const;
+
             /**
              * Returns the custom layers in file order
              */
-            std::vector<LayerNode*> customLayers() const;
+            std::vector<LayerNode*> customLayers();
+
+            /**
+             * Returns the custom layers in file order
+             */
+            std::vector<const LayerNode*> customLayers() const;
+
             /**
              * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer is always first.
              */
-            std::vector<LayerNode*> allLayersUserSorted() const;
+            std::vector<LayerNode*> allLayersUserSorted();
+
+            /**
+             * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer is always first.
+             */
+            std::vector<const LayerNode*> allLayersUserSorted() const;
+
             /**
              * Returns customLayers() ordered by LayerNode::sortIndex()
              */
-            std::vector<LayerNode*> customLayersUserSorted() const;
+            std::vector<LayerNode*> customLayersUserSorted();
+
+            /**
+             * Returns customLayers() ordered by LayerNode::sortIndex()
+             */
+            std::vector<const LayerNode*> customLayersUserSorted() const;
         private:
             void createDefaultLayer();
         public: // index
-            const AttributableNodeIndex& attributableNodeIndex() const;
+            const EntityNodeIndex& entityNodeIndex() const;
         public: // selection
             // issue generator registration
             const std::vector<IssueGenerator*>& registeredIssueGenerators() const;
             std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
             void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
-        private:
-            class AddNodeToNodeTree;
-            class RemoveNodeFromNodeTree;
-            class UpdateNodeInNodeTree;
         public: // node tree bulk updating
-            class MatchTreeNodes;
             void disableNodeTreeUpdates();
             void enableNodeTreeUpdates();
             void rebuildNodeTree();
         private:
-            class InvalidateAllIssuesVisitor;
             void invalidateAllIssues();
         private: // implement Node interface
             const vm::bbox3& doGetLogicalBounds() const override;
@@ -117,22 +136,20 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-            void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const override;
-            void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const override;
-            void doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
-            void doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
-        private: // implement AttributableNode interface
-            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
-            bool doIsAttributeNameMutable(const std::string& name) const override;
-            bool doIsAttributeValueMutable(const std::string& name) const override;
+            void doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doAddToIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
+            void doRemoveFromIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
+        private: // implement EntityNodeBase interface
+            void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
-            WorldNode* doCreateWorld() const override;
+            WorldNode* doCreateWorld(Entity entity) const override;
             LayerNode* doCreateLayer(const std::string& name) const override;
             GroupNode* doCreateGroup(const std::string& name) const override;
-            EntityNode* doCreateEntity() const override;
+            EntityNode* doCreateEntity(Entity entity) const override;
             kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
             kdl::result<BrushFace, BrushError> doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
             kdl::result<BrushFace, BrushError> doCreateFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
@@ -145,4 +162,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_WorldNode) */

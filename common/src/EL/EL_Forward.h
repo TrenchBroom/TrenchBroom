@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_EL_FORWARD_H
-#define TRENCHBROOM_EL_FORWARD_H
+#pragma once
 
 namespace TrenchBroom {
     namespace EL {
@@ -34,4 +33,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_EL_FORWARD_H

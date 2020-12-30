@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FontGlyphBuilder
-#define TrenchBroom_FontGlyphBuilder
+#pragma once
 
 #include <cstddef>
 
@@ -47,4 +46,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FontGlyphBuilder) */

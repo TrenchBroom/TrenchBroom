@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FileSystem
-#define TrenchBroom_FileSystem
+#pragma once
 
 #include "Exceptions.h"
 #include "Macros.h"
@@ -148,8 +147,7 @@ namespace TrenchBroom {
 
                     std::vector<Path> result;
                     _findItems(searchPath, matcher, recurse, result);
-                    kdl::vec_sort_and_remove_duplicates(result);
-                    return result;
+                    return kdl::vec_sort_and_remove_duplicates(std::move(result));
                 } catch (const PathException& e) {
                     throw FileSystemException("Invalid path: '" + searchPath.asString() + "'", e);
                 }
@@ -239,4 +237,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FileSystem) */

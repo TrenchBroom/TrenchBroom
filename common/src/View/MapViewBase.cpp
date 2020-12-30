@@ -28,17 +28,15 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
-#include "Model/FindGroupVisitor.h"
-#include "Model/FindLayerVisitor.h"
+#include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/LayerNode.h"
+#include "Model/ModelUtils.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
 #include "Model/WorldNode.h"
@@ -63,6 +61,7 @@
 #include "View/MapViewToolBox.h"
 #include "View/SelectionTool.h"
 #include "View/QtUtils.h"
+#include "kdl/vector_utils.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
@@ -952,21 +951,6 @@ namespace TrenchBroom {
             ToolBoxConnector::processEvent(event);
         }
 
-        static bool isEntity(const Model::Node* node) {
-            class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
-            private:
-                void doVisit(const Model::WorldNode*) override  { setResult(false); }
-                void doVisit(const Model::LayerNode*) override  { setResult(false); }
-                void doVisit(const Model::GroupNode*) override  { setResult(false); }
-                void doVisit(const Model::EntityNode*) override { setResult(true); }
-                void doVisit(const Model::BrushNode*) override  { setResult(false); }
-            };
-
-            IsEntity visitor;
-            node->accept(visitor);
-            return visitor.result();
-        }
-
         void MapViewBase::doShowPopupMenu() {
             // We process input events during paint event processing, but we cannot show a popup menu
             // during paint processing, so we enqueue an event for later.
@@ -1003,7 +987,7 @@ namespace TrenchBroom {
             }
             mergeGroupAction->setEnabled(canMergeGroups());
 
-            QAction* renameAction = menu.addAction(tr("Rename"), mapFrame, &MapFrame::renameSelectedGroups);
+            QAction* renameAction = menu.addAction(tr("Rename Groups"), mapFrame, &MapFrame::renameSelectedGroups);
             renameAction->setEnabled(mapFrame->canRenameSelectedGroups());
 
             if (newGroup != nullptr && newGroup != currentGroup) {
@@ -1018,7 +1002,7 @@ namespace TrenchBroom {
 
             // Layer operations
 
-            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(nodes);
+            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findContainingLayersUserSorted(nodes);
 
             QMenu* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
             for (Model::LayerNode* layer : document->world()->allLayersUserSorted()) {
@@ -1065,7 +1049,15 @@ namespace TrenchBroom {
                 QAction* moveToWorldAction = menu.addAction(tr("Make Structural"), this, &MapViewBase::makeStructural);
                 moveToWorldAction->setEnabled(canMakeStructural());
 
-                if (isEntity(newBrushParent)) {
+                const auto isEntity = newBrushParent->accept(kdl::overload(
+                    [](const Model::WorldNode*)  { return false; },
+                    [](const Model::LayerNode*)  { return false; },
+                    [](const Model::GroupNode*)  { return false; },
+                    [](const Model::EntityNode*) { return true; },
+                    [](const Model::BrushNode*)  { return false; }
+                ));
+
+                if (isEntity) {
                     menu.addAction(tr("Move Brushes to Entity %1").arg(QString::fromStdString(newBrushParent->name())), this,
                         &MapViewBase::moveSelectedBrushesToEntity);
                 }
@@ -1142,7 +1134,7 @@ namespace TrenchBroom {
 
                 std::vector<Assets::EntityDefinition*> filteredDefinitions;
                 for (auto* definition : definitions) {
-                    if (!kdl::cs::str_is_equal(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
+                    if (!kdl::cs::str_is_equal(definition->name(), Model::PropertyValues::WorldspawnClassname)) {
                         filteredDefinitions.push_back(definition);
                     }
                 }
@@ -1211,7 +1203,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch())
-                newGroup = findOutermostClosedGroup(Model::hitToNode(hit));
+                newGroup = Model::findOutermostClosedGroup(Model::hitToNode(hit));
 
             if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
                 return newGroup;
@@ -1281,7 +1273,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                const Model::BrushNode* brush = faceHandle->node();
+                Model::BrushNode* brush = faceHandle->node();
                 newParent = brush->entity();
             }
 
@@ -1292,12 +1284,12 @@ namespace TrenchBroom {
             if (!nodes.empty()) {
                 Model::Node* lastNode = nodes.back();
 
-                Model::GroupNode* group = Model::findGroup(lastNode);
+                Model::GroupNode* group = Model::findContainingGroup(lastNode);
                 if (group != nullptr) {
                     return group;
                 }
 
-                Model::LayerNode* layer = Model::findLayer(lastNode);
+                Model::LayerNode* layer = Model::findContainingLayer(lastNode);
                 if (layer != nullptr) {
                     return layer;
             }
@@ -1315,25 +1307,25 @@ namespace TrenchBroom {
             return false;
         }
 
-        class BrushesToEntities {
-        private:
-            const Model::WorldNode* m_world;
-        public:
-            explicit BrushesToEntities(const Model::WorldNode* world) : m_world(world) {}
-        public:
-            bool operator()(const Model::WorldNode*) const       { return false; }
-            bool operator()(const Model::LayerNode*) const       { return false; }
-            bool operator()(const Model::GroupNode*) const       { return true;  }
-            bool operator()(const Model::EntityNode*) const      { return true; }
-            bool operator()(const Model::BrushNode* brush) const { return brush->entity() == m_world; }
-        };
-
+        /**
+         * Return the given nodes, but replace all entity brushes with the parent entity (with duplicates removed).
+         */
         static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::WorldNode* world) {
-            using BrushesToEntitiesVisitor = Model::CollectMatchingNodesVisitor<BrushesToEntities, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
-
-            BrushesToEntitiesVisitor collect((BrushesToEntities(world)));
-            Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
-            return collect.nodes();
+            std::vector<Model::Node*> result;
+            Model::Node::visitAll(selectedNodes, kdl::overload(
+                [] (Model::WorldNode*)         {},
+                [] (Model::LayerNode*)         {},
+                [&](Model::GroupNode* group)   { result.push_back(group); },
+                [&](Model::EntityNode* entity) { result.push_back(entity); },
+                [&](auto&& thisLambda, Model::BrushNode* brush) {
+                    if (brush->entity() == world) {
+                        result.push_back(brush);
+                    } else {
+                        brush->visitParent(thisLambda);
+                    }
+                }
+            ));
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         void MapViewBase::reparentNodes(const std::vector<Model::Node*>& nodes, Model::Node* newParent, const bool preserveEntities) {

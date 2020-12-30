@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ObjSerializer_h
-#define ObjSerializer_h
+#pragma once
 
 #include "FloatType.h"
 #include "IO/NodeSerializer.h"
@@ -33,10 +32,14 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace Model {
         class BrushNode;
         class BrushFace;
-        class EntityAttribute;
+        class EntityProperty;
         class Node;
     }
 
@@ -86,9 +89,10 @@ namespace TrenchBroom {
 
             struct Face {
                 IndexedVertexList verts;
-                std::string texture;
+                std::string textureName;
+                const Assets::Texture* texture;
 
-                Face(IndexedVertexList i_verts, std::string i_texture);
+                Face(IndexedVertexList i_verts, std::string i_textureName, const Assets::Texture* i_texture);
             };
 
             using FaceList = std::vector<Face>;
@@ -119,7 +123,7 @@ namespace TrenchBroom {
         public:
             explicit ObjFileSerializer(const Path& path);
         private:
-            void doBeginFile() override;
+            void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
             void doEndFile() override;
 
             void writeMtlFile();
@@ -132,13 +136,11 @@ namespace TrenchBroom {
 
             void doBeginEntity(const Model::Node* node) override;
             void doEndEntity(const Model::Node* node) override;
-            void doEntityAttribute(const Model::EntityAttribute& attribute) override;
+            void doEntityProperty(const Model::EntityProperty& property) override;
 
-            void doBeginBrush(const Model::BrushNode* brush) override;
-            void doEndBrush(const Model::BrushNode* brush) override;
+            void doBrush(const Model::BrushNode* brush) override;
             void doBrushFace(const Model::BrushFace& face) override;
         };
     }
 }
 
-#endif /* ObjSerializer_h */

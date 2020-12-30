@@ -27,7 +27,6 @@
 #include <variant>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -49,7 +48,7 @@ namespace TrenchBroom {
         private:
             template <class T>
             T popCall() const {
-                ASSERT_FALSE(m_expectedCalls.empty());
+                CHECK_FALSE(m_expectedCalls.empty());
                 const ExpectedCall variant = kdl::vec_pop_front(m_expectedCalls);
                 const T call = std::get<T>(variant);
                 return call;
@@ -76,7 +75,7 @@ namespace TrenchBroom {
             m_tool() {}
 
             ~MockMoveToolController() {
-                ASSERT_TRUE(m_expectedCalls.empty());
+                CHECK(m_expectedCalls.empty());
             }
         protected:
             MoveInfo doStartMove(const InputState&) override {
@@ -88,8 +87,8 @@ namespace TrenchBroom {
 
                 // Only validate the arguments if requested when the expectation was set
                 if (expectedCall.checkArgs == CheckMoveArgs::Yes) {
-                    ASSERT_EQ(expectedCall.expectedLastHandlePosition, lastHandlePosition);
-                    ASSERT_EQ(expectedCall.nextHandlePosition, nextHandlePosition);
+                    CHECK(lastHandlePosition == expectedCall.expectedLastHandlePosition);
+                    CHECK(nextHandlePosition == expectedCall.nextHandlePosition);
                 }
 
                 return expectedCall.dragResult;

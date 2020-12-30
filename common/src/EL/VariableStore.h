@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VariableStore_h
-#define VariableStore_h
+#pragma once
 
 #include "EL/Value.h" // required by VariableTable::Table declaration
 
@@ -83,4 +82,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* VariableStore_h */

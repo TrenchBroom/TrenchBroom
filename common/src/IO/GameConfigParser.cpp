@@ -80,6 +80,7 @@ namespace TrenchBroom {
             auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
             auto tags = parseTags(root["tags"], faceAttribsConfig);
             auto softMapBounds = parseSoftMapBounds(root["softMapBounds"]);
+            auto compilationTools = parseCompilationTools(root["compilationTools"]);
 
             return GameConfig(
                 std::move(name),
@@ -92,7 +93,8 @@ namespace TrenchBroom {
                 std::move(entityConfig),
                 std::move(faceAttribsConfig),
                 std::move(tags),
-                std::move(softMapBounds));
+                std::move(softMapBounds),
+                std::move(compilationTools));
         }
 
         std::vector<Model::MapFormatConfig> GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
@@ -163,11 +165,11 @@ namespace TrenchBroom {
             const Model::TexturePackageConfig packageConfig = parseTexturePackageConfig(value["package"]);
             const Model::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
             const Path palette(value["palette"].stringValue());
-            const std::string attribute = value["attribute"].stringValue();
+            const std::string property = value["attribute"].stringValue();
             const Path shaderSearchPath(value["shaderSearchPath"].stringValue());
             const std::vector<std::string> excludes = std::vector<std::string>(value["excludes"].asStringList());
 
-            return Model::TextureConfig(packageConfig, formatConfig, palette, attribute, shaderSearchPath, excludes);
+            return Model::TextureConfig(packageConfig, formatConfig, palette, property, shaderSearchPath, excludes);
         }
 
         Model::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const EL::Value& value) const {
@@ -480,6 +482,30 @@ namespace TrenchBroom {
                 throw ParserException(value.line(), value.column(), "Can't parse soft map bounds '" + value.asString() + "'");
             }
             return bounds;
+        }
+
+        std::vector<Model::CompilationTool> GameConfigParser::parseCompilationTools(const EL::Value& value) const {
+            if (value.null()) {
+                return {};
+            }
+
+            expectType(value, EL::typeForName("Array"));
+
+            std::vector<Model::CompilationTool> result;
+            for (size_t i = 0; i < value.length(); ++i) {
+                expectStructure(
+                        value[i],
+                        "["
+                        "{'name': 'String'},"
+                        "{}"
+                        "]");
+
+                const std::string name = value[i]["name"].stringValue();
+
+                result.push_back(Model::CompilationTool{name});
+            }
+
+            return result;
         }
 
         std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string) {

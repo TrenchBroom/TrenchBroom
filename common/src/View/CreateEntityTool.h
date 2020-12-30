@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateEntityTool
-#define TrenchBroom_CreateEntityTool
+#pragma once
 
 #include "FloatType.h"
 #include "View/Tool.h"
@@ -55,4 +54,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CreateEntityTool) */

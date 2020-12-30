@@ -19,13 +19,12 @@
 
 #include "DuplicateNodesCommand.h"
 
-#include "Model/FindLayerVisitor.h"
 #include "Model/Node.h"
-#include "Model/NodeVisitor.h"
 #include "Model/LayerNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/overload.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -97,26 +96,19 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        class DuplicateNodesCommand::CloneParentQuery : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
-        private:
-            void doVisit(const Model::WorldNode*) override  { setResult(false); }
-            void doVisit(const Model::LayerNode*) override  { setResult(false); }
-            void doVisit(const Model::GroupNode*) override  { setResult(false);  }
-            void doVisit(const Model::EntityNode*) override { setResult(true);  }
-            void doVisit(const Model::BrushNode*) override  { setResult(false); }
-        };
-
         /**
          * Returns whether, for UI reasons, duplicating the given node should also cause its parent to be duplicated.
          *
          * Applies when duplicating a brush inside a brush entity.
          */
         bool DuplicateNodesCommand::shouldCloneParentWhenCloningNode(const Model::Node* node) const {
-            Model::Node* parent = node->parent();
-
-            CloneParentQuery query;
-            parent->accept(query);
-            return query.result();
+            return node->parent()->accept(kdl::overload(
+                [] (const Model::WorldNode*)  { return false; },
+                [] (const Model::LayerNode*)  { return false; },
+                [] (const Model::GroupNode*)  { return false; },
+                [&](const Model::EntityNode*) { return true; },
+                [] (const Model::BrushNode*)  { return false; }
+            ));
         }
 
         bool DuplicateNodesCommand::doCollateWith(UndoableCommand*) {

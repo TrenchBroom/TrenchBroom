@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationProfileEditor_h
-#define CompilationProfileEditor_h
+#pragma once
 
 #include <QWidget>
 
@@ -31,6 +30,7 @@ class QStackedWidget;
 namespace TrenchBroom {
     namespace Model {
         class CompilationProfile;
+        class CompilationTask;
     }
 
     namespace View {
@@ -65,8 +65,12 @@ namespace TrenchBroom {
 
             void addTask();
             void removeTask();
+            void removeTask(int index);
+            void duplicateTask(int index);
             void moveTaskUp();
+            void moveTaskUp(int index);
             void moveTaskDown();
+            void moveTaskDown(int index);
 
             void taskSelectionChanged();
         public:
@@ -82,4 +86,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationProfileEditor_h */

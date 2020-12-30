@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapViewId_h
-#define TrenchBroom_MapViewId_h
+#pragma once
 
 namespace TrenchBroom {
     namespace View {
@@ -30,5 +29,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

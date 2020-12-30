@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EmptyBrushEntityIssueGenerator
-#define TrenchBroom_EmptyBrushEntityIssueGenerator
+#pragma once
 
 #include "Model/IssueGenerator.h"
 
@@ -33,9 +32,8 @@ namespace TrenchBroom {
         public:
             EmptyBrushEntityIssueGenerator();
         private:
-            void doGenerate(EntityNode* entity, IssueList& issues) const override;
+            void doGenerate(EntityNode* entityNode, IssueList& issues) const override;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_EmptyBrushEntityIssueGenerator) */

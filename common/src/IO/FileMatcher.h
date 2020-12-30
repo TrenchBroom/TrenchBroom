@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FileMatcher_h
-#define FileMatcher_h
+#pragma once
 
 #include <string>
 #include <vector>
@@ -69,4 +68,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* FileMatcher_h */

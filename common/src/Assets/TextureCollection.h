@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureCollection
-#define TrenchBroom_TextureCollection
+#pragma once
 
 #include "Assets/Texture.h"
 #include "IO/Path.h"
@@ -76,4 +75,3 @@ namespace TrenchBroom {
 }
 
 
-#endif /* defined(TrenchBroom_TextureCollection) */

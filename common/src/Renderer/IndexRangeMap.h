@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IndexRangeMap_h
-#define IndexRangeMap_h
+#pragma once
 
 #include "Renderer/GL.h"
 #include "Renderer/PrimType.h"
@@ -156,4 +155,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* IndexRangeMap_h */

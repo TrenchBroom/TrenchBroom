@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Compass2D
-#define TrenchBroom_Compass2D
+#pragma once
 
 #include "Renderer/Compass.h"
 
@@ -31,4 +30,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Compass2D) */

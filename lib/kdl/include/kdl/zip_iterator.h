@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_ZIP_ITERATOR_H
-#define KDL_ZIP_ITERATOR_H
+#pragma once
 
 #include <iterator>
 #include <tuple>
@@ -154,4 +153,3 @@ namespace kdl {
     }
 }
 
-#endif //KDL_ZIP_ITERATOR_H

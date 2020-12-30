@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapView3D
-#define TrenchBroom_MapView3D
+#pragma once
 
 #include "View/MapViewBase.h"
 
@@ -82,8 +81,6 @@ namespace TrenchBroom {
 
             void doFocusCameraOnSelection(bool animate) override;
 
-            class ComputeCameraCenterPositionVisitor;
-            class ComputeCameraCenterOffsetVisitor;
             vm::vec3 focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes);
 
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
@@ -114,4 +111,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapView3D) */

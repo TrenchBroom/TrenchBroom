@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Sphere
-#define TrenchBroom_Sphere
+#pragma once
 
 #include "Renderer/VertexArray.h"
 
@@ -39,4 +38,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Sphere) */

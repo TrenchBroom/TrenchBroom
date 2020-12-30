@@ -15,320 +15,318 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "kdl/collection_utils.h"
 #include "kdl/string_compare.h"
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
     namespace cs {
         TEST_CASE("string_utils_cs_test.str_mismatch", "[string_utils_cs_test]") {
-            ASSERT_EQ(0u, str_mismatch("", ""));
-            ASSERT_EQ(4u, str_mismatch("asdf", "asdf"));
-            ASSERT_EQ(0u, str_mismatch("ssdf", "asdf"));
-            ASSERT_EQ(0u, str_mismatch("asdf", "ssdf"));
-            ASSERT_EQ(1u, str_mismatch("aadf", "asdf"));
-            ASSERT_EQ(1u, str_mismatch("asdf", "aadf"));
-            ASSERT_EQ(2u, str_mismatch("asaf", "asdf"));
-            ASSERT_EQ(2u, str_mismatch("asdf", "asaf"));
-            ASSERT_EQ(3u, str_mismatch("asda", "asdf"));
-            ASSERT_EQ(3u, str_mismatch("asdf", "asda"));
+            CHECK(str_mismatch("", "") == 0u);
+            CHECK(str_mismatch("asdf", "asdf") == 4u);
+            CHECK(str_mismatch("ssdf", "asdf") == 0u);
+            CHECK(str_mismatch("asdf", "ssdf") == 0u);
+            CHECK(str_mismatch("aadf", "asdf") == 1u);
+            CHECK(str_mismatch("asdf", "aadf") == 1u);
+            CHECK(str_mismatch("asaf", "asdf") == 2u);
+            CHECK(str_mismatch("asdf", "asaf") == 2u);
+            CHECK(str_mismatch("asda", "asdf") == 3u);
+            CHECK(str_mismatch("asdf", "asda") == 3u);
 
-            ASSERT_EQ(0u, str_mismatch("asdf", "Asdf"));
-            ASSERT_EQ(2u, str_mismatch("asDf", "asdf"));
+            CHECK(str_mismatch("asdf", "Asdf") == 0u);
+            CHECK(str_mismatch("asDf", "asdf") == 2u);
         }
 
         TEST_CASE("string_utils_cs_test.str_contains", "[string_utils_cs_test]") {
-            ASSERT_FALSE(str_contains("", ""));
-            ASSERT_TRUE(str_contains("asdf", ""));
-            ASSERT_TRUE(str_contains("asdf", "a"));
-            ASSERT_TRUE(str_contains("asdf", "s"));
-            ASSERT_TRUE(str_contains("asdf", "d"));
-            ASSERT_TRUE(str_contains("asdf", "f"));
-            ASSERT_TRUE(str_contains("asdf", "as"));
-            ASSERT_TRUE(str_contains("asdf", "sd"));
-            ASSERT_TRUE(str_contains("asdf", "df"));
-            ASSERT_TRUE(str_contains("asdf", "asd"));
-            ASSERT_TRUE(str_contains("asdf", "asdf"));
+            CHECK_FALSE(str_contains("", ""));
+            CHECK(str_contains("asdf", ""));
+            CHECK(str_contains("asdf", "a"));
+            CHECK(str_contains("asdf", "s"));
+            CHECK(str_contains("asdf", "d"));
+            CHECK(str_contains("asdf", "f"));
+            CHECK(str_contains("asdf", "as"));
+            CHECK(str_contains("asdf", "sd"));
+            CHECK(str_contains("asdf", "df"));
+            CHECK(str_contains("asdf", "asd"));
+            CHECK(str_contains("asdf", "asdf"));
 
-            ASSERT_FALSE(str_contains("asdf", "m"));
-            ASSERT_FALSE(str_contains("asdf", "sdf2"));
-            ASSERT_FALSE(str_contains("asdf", "asf"));
-            ASSERT_FALSE(str_contains("asdf", "sde"));
-            ASSERT_FALSE(str_contains("asdf", "esd"));
+            CHECK_FALSE(str_contains("asdf", "m"));
+            CHECK_FALSE(str_contains("asdf", "sdf2"));
+            CHECK_FALSE(str_contains("asdf", "asf"));
+            CHECK_FALSE(str_contains("asdf", "sde"));
+            CHECK_FALSE(str_contains("asdf", "esd"));
 
-            ASSERT_FALSE(str_contains("asdf", "Asdf"));
-            ASSERT_FALSE(str_contains("asdf", "A"));
-            ASSERT_FALSE(str_contains("asdf", "S"));
-            ASSERT_FALSE(str_contains("asdf", "D"));
-            ASSERT_FALSE(str_contains("asdf", "F"));
-            ASSERT_FALSE(str_contains("asdf", "ASDF"));
+            CHECK_FALSE(str_contains("asdf", "Asdf"));
+            CHECK_FALSE(str_contains("asdf", "A"));
+            CHECK_FALSE(str_contains("asdf", "S"));
+            CHECK_FALSE(str_contains("asdf", "D"));
+            CHECK_FALSE(str_contains("asdf", "F"));
+            CHECK_FALSE(str_contains("asdf", "ASDF"));
         }
 
         TEST_CASE("string_utils_cs_test.str_is_prefix", "[string_utils_cs_test]") {
-            ASSERT_TRUE(str_is_prefix("asdf", ""));
-            ASSERT_TRUE(str_is_prefix("asdf", "a"));
-            ASSERT_TRUE(str_is_prefix("asdf", "as"));
-            ASSERT_TRUE(str_is_prefix("asdf", "asd"));
-            ASSERT_TRUE(str_is_prefix("asdf", "asdf"));
-            ASSERT_FALSE(str_is_prefix("asdf", "sdf"));
-            ASSERT_FALSE(str_is_prefix("asdf", "aasdf"));
-            ASSERT_FALSE(str_is_prefix("asdf", "df"));
+            CHECK(str_is_prefix("asdf", ""));
+            CHECK(str_is_prefix("asdf", "a"));
+            CHECK(str_is_prefix("asdf", "as"));
+            CHECK(str_is_prefix("asdf", "asd"));
+            CHECK(str_is_prefix("asdf", "asdf"));
+            CHECK_FALSE(str_is_prefix("asdf", "sdf"));
+            CHECK_FALSE(str_is_prefix("asdf", "aasdf"));
+            CHECK_FALSE(str_is_prefix("asdf", "df"));
 
-            ASSERT_FALSE(str_is_prefix("asdf", "A"));
-            ASSERT_FALSE(str_is_prefix("asdf", "aS"));
-            ASSERT_FALSE(str_is_prefix("asdf", "Asd"));
-            ASSERT_FALSE(str_is_prefix("asdf", "asDF"));
+            CHECK_FALSE(str_is_prefix("asdf", "A"));
+            CHECK_FALSE(str_is_prefix("asdf", "aS"));
+            CHECK_FALSE(str_is_prefix("asdf", "Asd"));
+            CHECK_FALSE(str_is_prefix("asdf", "asDF"));
         }
 
         TEST_CASE("string_utils_cs_test.str_is_suffix", "[string_utils_cs_test]") {
-            ASSERT_TRUE(str_is_suffix("asdf", ""));
-            ASSERT_TRUE(str_is_suffix("asdf", "f"));
-            ASSERT_TRUE(str_is_suffix("asdf", "df"));
-            ASSERT_TRUE(str_is_suffix("asdf", "sdf"));
-            ASSERT_TRUE(str_is_suffix("asdf", "asdf"));
-            ASSERT_FALSE(str_is_suffix("asdf", "ff"));
-            ASSERT_FALSE(str_is_suffix("asdf", "aasdf"));
+            CHECK(str_is_suffix("asdf", ""));
+            CHECK(str_is_suffix("asdf", "f"));
+            CHECK(str_is_suffix("asdf", "df"));
+            CHECK(str_is_suffix("asdf", "sdf"));
+            CHECK(str_is_suffix("asdf", "asdf"));
+            CHECK_FALSE(str_is_suffix("asdf", "ff"));
+            CHECK_FALSE(str_is_suffix("asdf", "aasdf"));
 
-            ASSERT_FALSE(str_is_suffix("asdf", "F"));
-            ASSERT_FALSE(str_is_suffix("asdf", "Df"));
-            ASSERT_FALSE(str_is_suffix("asdf", "Sdf"));
-            ASSERT_FALSE(str_is_suffix("asdf", "ASDf"));
+            CHECK_FALSE(str_is_suffix("asdf", "F"));
+            CHECK_FALSE(str_is_suffix("asdf", "Df"));
+            CHECK_FALSE(str_is_suffix("asdf", "Sdf"));
+            CHECK_FALSE(str_is_suffix("asdf", "ASDf"));
         }
 
         TEST_CASE("string_utils_cs_test.str_compare", "[string_utils_cs_test]") {
-            ASSERT_EQ(0, str_compare("", ""));
-            ASSERT_EQ(0, str_compare("a", "a"));
-            ASSERT_EQ(-1, str_compare("", "a"));
-            ASSERT_EQ(+1, str_compare("a", ""));
-            ASSERT_EQ(-1, str_compare("as", "asd"));
-            ASSERT_EQ(+1, str_compare("asdf", "asd"));
-            ASSERT_EQ(-1, str_compare("asdf", "wxyt"));
-            ASSERT_EQ(+1, str_compare("asdf", "Wxyt"));
-            ASSERT_EQ(-1, str_compare("Asdf", "Wxyt"));
+            CHECK(str_compare("", "") == 0);
+            CHECK(str_compare("a", "a") == 0);
+            CHECK(str_compare("", "a") == -1);
+            CHECK(str_compare("a", "") == +1);
+            CHECK(str_compare("as", "asd") == -1);
+            CHECK(str_compare("asdf", "asd") == +1);
+            CHECK(str_compare("asdf", "wxyt") == -1);
+            CHECK(str_compare("asdf", "Wxyt") == +1);
+            CHECK(str_compare("Asdf", "Wxyt") == -1);
         }
 
         TEST_CASE("string_utils_cs_test.str_is_equal", "[string_utils_cs_test]") {
-            ASSERT_TRUE(str_is_equal("", ""));
-            ASSERT_TRUE(str_is_equal("asdf", "asdf"));
-            ASSERT_FALSE(str_is_equal("asdf", "asdF"));
-            ASSERT_FALSE(str_is_equal("AsdF", "Asdf"));
+            CHECK(str_is_equal("", ""));
+            CHECK(str_is_equal("asdf", "asdf"));
+            CHECK_FALSE(str_is_equal("asdf", "asdF"));
+            CHECK_FALSE(str_is_equal("AsdF", "Asdf"));
         }
 
         TEST_CASE("string_utils_cs_test.str_matches_glob", "[string_utils_cs_test]") {
-            ASSERT_TRUE(str_matches_glob("", ""));
-            ASSERT_TRUE(str_matches_glob("", "*"));
-            ASSERT_FALSE(str_matches_glob("", "?"));
-            ASSERT_TRUE(str_matches_glob("asdf", "asdf"));
-            ASSERT_TRUE(str_matches_glob("asdf", "*"));
-            ASSERT_TRUE(str_matches_glob("asdf", "a??f"));
-            ASSERT_FALSE(str_matches_glob("asdf", "a?f"));
-            ASSERT_TRUE(str_matches_glob("asdf", "*f"));
-            ASSERT_TRUE(str_matches_glob("asdf", "a*f"));
-            ASSERT_TRUE(str_matches_glob("asdf", "?s?f"));
-            ASSERT_TRUE(str_matches_glob("asdfjkl", "a*f*l"));
-            ASSERT_TRUE(str_matches_glob("asdfjkl", "*a*f*l*"));
-            ASSERT_TRUE(str_matches_glob("asd*fjkl", "*a*f*l*"));
-            ASSERT_TRUE(str_matches_glob("asd*fjkl", "asd\\*fjkl"));
-            ASSERT_TRUE(str_matches_glob("asd*?fj\\kl", "asd\\*\\?fj\\\\kl"));
-            ASSERT_FALSE(str_matches_glob("asdf", "*F"));
-            ASSERT_FALSE(str_matches_glob("asdF", "a*f"));
-            ASSERT_FALSE(str_matches_glob("ASDF", "?S?f"));
+            CHECK(str_matches_glob("", ""));
+            CHECK(str_matches_glob("", "*"));
+            CHECK_FALSE(str_matches_glob("", "?"));
+            CHECK(str_matches_glob("asdf", "asdf"));
+            CHECK(str_matches_glob("asdf", "*"));
+            CHECK(str_matches_glob("asdf", "a??f"));
+            CHECK_FALSE(str_matches_glob("asdf", "a?f"));
+            CHECK(str_matches_glob("asdf", "*f"));
+            CHECK(str_matches_glob("asdf", "a*f"));
+            CHECK(str_matches_glob("asdf", "?s?f"));
+            CHECK(str_matches_glob("asdfjkl", "a*f*l"));
+            CHECK(str_matches_glob("asdfjkl", "*a*f*l*"));
+            CHECK(str_matches_glob("asd*fjkl", "*a*f*l*"));
+            CHECK(str_matches_glob("asd*fjkl", "asd\\*fjkl"));
+            CHECK(str_matches_glob("asd*?fj\\kl", "asd\\*\\?fj\\\\kl"));
+            CHECK_FALSE(str_matches_glob("asdf", "*F"));
+            CHECK_FALSE(str_matches_glob("asdF", "a*f"));
+            CHECK_FALSE(str_matches_glob("ASDF", "?S?f"));
 
-            ASSERT_FALSE(str_matches_glob("classname", "*_color"));
+            CHECK_FALSE(str_matches_glob("classname", "*_color"));
 
-            ASSERT_FALSE(str_matches_glob("", "%"));
-            ASSERT_TRUE(str_matches_glob("", "%*"));
-            ASSERT_TRUE(str_matches_glob("0", "%"));
-            ASSERT_TRUE(str_matches_glob("1", "%"));
-            ASSERT_TRUE(str_matches_glob("2", "%"));
-            ASSERT_TRUE(str_matches_glob("9", "%"));
-            ASSERT_FALSE(str_matches_glob("99", "%"));
-            ASSERT_FALSE(str_matches_glob("a", "%"));
-            ASSERT_FALSE(str_matches_glob("Z", "%"));
-            ASSERT_FALSE(str_matches_glob("3Z", "%*"));
-            ASSERT_FALSE(str_matches_glob("Zasdf", "*%"));
-            ASSERT_TRUE(str_matches_glob("Zasdf3", "*%"));
-            ASSERT_TRUE(str_matches_glob("Zasdf33", "*%"));
-            ASSERT_TRUE(str_matches_glob("Zasdf33", "Z*%%"));
-            ASSERT_TRUE(str_matches_glob("Zasdf3376", "Z*%*"));
-            ASSERT_TRUE(str_matches_glob("Zasdf3376bdc", "Z*%*"));
-            ASSERT_FALSE(str_matches_glob("Zasdf3376bdc", "Zasdf%*"));
-            ASSERT_TRUE(str_matches_glob("Zasdf3376bdc", "Z*%*bdc"));
-            ASSERT_TRUE(str_matches_glob("Zasdf3376bdc", "Z*%**"));
-            ASSERT_TRUE(str_matches_glob("78777Zasdf3376bdc", "%*Z*%**"));
+            CHECK_FALSE(str_matches_glob("", "%"));
+            CHECK(str_matches_glob("", "%*"));
+            CHECK(str_matches_glob("0", "%"));
+            CHECK(str_matches_glob("1", "%"));
+            CHECK(str_matches_glob("2", "%"));
+            CHECK(str_matches_glob("9", "%"));
+            CHECK_FALSE(str_matches_glob("99", "%"));
+            CHECK_FALSE(str_matches_glob("a", "%"));
+            CHECK_FALSE(str_matches_glob("Z", "%"));
+            CHECK_FALSE(str_matches_glob("3Z", "%*"));
+            CHECK_FALSE(str_matches_glob("Zasdf", "*%"));
+            CHECK(str_matches_glob("Zasdf3", "*%"));
+            CHECK(str_matches_glob("Zasdf33", "*%"));
+            CHECK(str_matches_glob("Zasdf33", "Z*%%"));
+            CHECK(str_matches_glob("Zasdf3376", "Z*%*"));
+            CHECK(str_matches_glob("Zasdf3376bdc", "Z*%*"));
+            CHECK_FALSE(str_matches_glob("Zasdf3376bdc", "Zasdf%*"));
+            CHECK(str_matches_glob("Zasdf3376bdc", "Z*%*bdc"));
+            CHECK(str_matches_glob("Zasdf3376bdc", "Z*%**"));
+            CHECK(str_matches_glob("78777Zasdf3376bdc", "%*Z*%**"));
 
-            ASSERT_TRUE(str_matches_glob("34dkadj%773", "*\\%%*"));
+            CHECK(str_matches_glob("34dkadj%773", "*\\%%*"));
         }
 
         template <typename C>
         C sorted(C c) {
-            kdl::sort(c, string_less());
-            return c;
+            return kdl::col_sort(std::move(c), string_less());
         }
 
         TEST_CASE("string_utils_cs_test.sort", "[string_utils_cs_test]") {
-            ASSERT_EQ(std::vector<std::string>({}), sorted(std::vector<std::string>({})));
-            ASSERT_EQ(std::vector<std::string>({
-                "Ab",
-                "Zasdf",
-                "a",
-                "aab",
-                "c",
-                "def",
-            }), sorted(std::vector<std::string>({
+            CHECK_THAT(sorted(std::vector<std::string>{}), Catch::Equals(std::vector<std::string>{}));
+
+            CHECK_THAT(sorted(std::vector<std::string>{
                 "Zasdf",
                 "Ab",
                 "c",
                 "a",
                 "def",
                 "aab",
-            })));
+            }), Catch::Equals(std::vector<std::string>{
+                "Ab",
+                "Zasdf",
+                "a",
+                "aab",
+                "c",
+                "def",
+            }));
         }
     }
 
     namespace ci {
         TEST_CASE("string_utils_ci_test.str_mismatch", "[string_utils_ci_test]") {
-            ASSERT_EQ(0u, str_mismatch("", ""));
-            ASSERT_EQ(4u, str_mismatch("asdf", "asdf"));
-            ASSERT_EQ(0u, str_mismatch("ssdf", "asdf"));
-            ASSERT_EQ(0u, str_mismatch("asdf", "ssdf"));
-            ASSERT_EQ(1u, str_mismatch("aadf", "asdf"));
-            ASSERT_EQ(1u, str_mismatch("asdf", "aadf"));
-            ASSERT_EQ(2u, str_mismatch("asaf", "asdf"));
-            ASSERT_EQ(2u, str_mismatch("asdf", "asaf"));
-            ASSERT_EQ(3u, str_mismatch("asda", "asdf"));
-            ASSERT_EQ(3u, str_mismatch("asdf", "asda"));
+            CHECK(str_mismatch("", "") == 0u);
+            CHECK(str_mismatch("asdf", "asdf") == 4u);
+            CHECK(str_mismatch("ssdf", "asdf") == 0u);
+            CHECK(str_mismatch("asdf", "ssdf") == 0u);
+            CHECK(str_mismatch("aadf", "asdf") == 1u);
+            CHECK(str_mismatch("asdf", "aadf") == 1u);
+            CHECK(str_mismatch("asaf", "asdf") == 2u);
+            CHECK(str_mismatch("asdf", "asaf") == 2u);
+            CHECK(str_mismatch("asda", "asdf") == 3u);
+            CHECK(str_mismatch("asdf", "asda") == 3u);
 
-            ASSERT_EQ(4u, str_mismatch("asdf", "Asdf"));
-            ASSERT_EQ(4u, str_mismatch("asDf", "asdf"));
+            CHECK(str_mismatch("asdf", "Asdf") == 4u);
+            CHECK(str_mismatch("asDf", "asdf") == 4u);
         }
 
         TEST_CASE("string_utils_ci_test.str_contains", "[string_utils_ci_test]") {
-            ASSERT_FALSE(str_contains("", ""));
-            ASSERT_TRUE(str_contains("asdf", ""));
-            ASSERT_TRUE(str_contains("asdf", "a"));
-            ASSERT_TRUE(str_contains("asdf", "s"));
-            ASSERT_TRUE(str_contains("asdf", "d"));
-            ASSERT_TRUE(str_contains("asdf", "f"));
-            ASSERT_TRUE(str_contains("asdf", "as"));
-            ASSERT_TRUE(str_contains("asdf", "sd"));
-            ASSERT_TRUE(str_contains("asdf", "df"));
-            ASSERT_TRUE(str_contains("asdf", "asd"));
-            ASSERT_TRUE(str_contains("asdf", "asdf"));
+            CHECK_FALSE(str_contains("", ""));
+            CHECK(str_contains("asdf", ""));
+            CHECK(str_contains("asdf", "a"));
+            CHECK(str_contains("asdf", "s"));
+            CHECK(str_contains("asdf", "d"));
+            CHECK(str_contains("asdf", "f"));
+            CHECK(str_contains("asdf", "as"));
+            CHECK(str_contains("asdf", "sd"));
+            CHECK(str_contains("asdf", "df"));
+            CHECK(str_contains("asdf", "asd"));
+            CHECK(str_contains("asdf", "asdf"));
 
-            ASSERT_FALSE(str_contains("asdf", "m"));
-            ASSERT_FALSE(str_contains("asdf", "sdf2"));
-            ASSERT_FALSE(str_contains("asdf", "asf"));
-            ASSERT_FALSE(str_contains("asdf", "sde"));
-            ASSERT_FALSE(str_contains("asdf", "esd"));
+            CHECK_FALSE(str_contains("asdf", "m"));
+            CHECK_FALSE(str_contains("asdf", "sdf2"));
+            CHECK_FALSE(str_contains("asdf", "asf"));
+            CHECK_FALSE(str_contains("asdf", "sde"));
+            CHECK_FALSE(str_contains("asdf", "esd"));
 
-            ASSERT_TRUE(str_contains("asdf", "Asdf"));
-            ASSERT_TRUE(str_contains("asdf", "A"));
-            ASSERT_TRUE(str_contains("asdf", "S"));
-            ASSERT_TRUE(str_contains("asdf", "D"));
-            ASSERT_TRUE(str_contains("asdf", "F"));
-            ASSERT_TRUE(str_contains("asdf", "ASDF"));
+            CHECK(str_contains("asdf", "Asdf"));
+            CHECK(str_contains("asdf", "A"));
+            CHECK(str_contains("asdf", "S"));
+            CHECK(str_contains("asdf", "D"));
+            CHECK(str_contains("asdf", "F"));
+            CHECK(str_contains("asdf", "ASDF"));
         }
 
 
         TEST_CASE("string_utils_ci_test.str_is_prefix", "[string_utils_ci_test]") {
-            ASSERT_TRUE(str_is_prefix("asdf", ""));
-            ASSERT_TRUE(str_is_prefix("asdf", "a"));
-            ASSERT_TRUE(str_is_prefix("asdf", "as"));
-            ASSERT_TRUE(str_is_prefix("asdf", "asd"));
-            ASSERT_TRUE(str_is_prefix("asdf", "asdf"));
-            ASSERT_FALSE(str_is_prefix("asdf", "sdf"));
-            ASSERT_FALSE(str_is_prefix("asdf", "aasdf"));
-            ASSERT_FALSE(str_is_prefix("asdf", "df"));
+            CHECK(str_is_prefix("asdf", ""));
+            CHECK(str_is_prefix("asdf", "a"));
+            CHECK(str_is_prefix("asdf", "as"));
+            CHECK(str_is_prefix("asdf", "asd"));
+            CHECK(str_is_prefix("asdf", "asdf"));
+            CHECK_FALSE(str_is_prefix("asdf", "sdf"));
+            CHECK_FALSE(str_is_prefix("asdf", "aasdf"));
+            CHECK_FALSE(str_is_prefix("asdf", "df"));
 
-            ASSERT_TRUE(str_is_prefix("asdf", "A"));
-            ASSERT_TRUE(str_is_prefix("asdf", "aS"));
-            ASSERT_TRUE(str_is_prefix("asdf", "Asd"));
-            ASSERT_TRUE(str_is_prefix("asdf", "asDF"));
-            ASSERT_FALSE(str_is_prefix("asdf", "aAsdf"));
-            ASSERT_FALSE(str_is_prefix("asdf", "DF"));
+            CHECK(str_is_prefix("asdf", "A"));
+            CHECK(str_is_prefix("asdf", "aS"));
+            CHECK(str_is_prefix("asdf", "Asd"));
+            CHECK(str_is_prefix("asdf", "asDF"));
+            CHECK_FALSE(str_is_prefix("asdf", "aAsdf"));
+            CHECK_FALSE(str_is_prefix("asdf", "DF"));
         }
 
 
         TEST_CASE("string_utils_ci_test.str_is_suffix", "[string_utils_ci_test]") {
-            ASSERT_TRUE(str_is_suffix("asdf", ""));
-            ASSERT_TRUE(str_is_suffix("asdf", "f"));
-            ASSERT_TRUE(str_is_suffix("asdf", "df"));
-            ASSERT_TRUE(str_is_suffix("asdf", "sdf"));
-            ASSERT_TRUE(str_is_suffix("asdf", "asdf"));
-            ASSERT_FALSE(str_is_suffix("asdf", "ff"));
-            ASSERT_FALSE(str_is_suffix("asdf", "aasdf"));
-            ASSERT_FALSE(str_is_suffix("asdf", "FF"));
-            ASSERT_FALSE(str_is_suffix("asdf", "aSDdf"));
+            CHECK(str_is_suffix("asdf", ""));
+            CHECK(str_is_suffix("asdf", "f"));
+            CHECK(str_is_suffix("asdf", "df"));
+            CHECK(str_is_suffix("asdf", "sdf"));
+            CHECK(str_is_suffix("asdf", "asdf"));
+            CHECK_FALSE(str_is_suffix("asdf", "ff"));
+            CHECK_FALSE(str_is_suffix("asdf", "aasdf"));
+            CHECK_FALSE(str_is_suffix("asdf", "FF"));
+            CHECK_FALSE(str_is_suffix("asdf", "aSDdf"));
 
-            ASSERT_TRUE(str_is_suffix("asdf", "F"));
-            ASSERT_TRUE(str_is_suffix("asdf", "Df"));
-            ASSERT_TRUE(str_is_suffix("asdf", "Sdf"));
-            ASSERT_TRUE(str_is_suffix("asdf", "ASDf"));
+            CHECK(str_is_suffix("asdf", "F"));
+            CHECK(str_is_suffix("asdf", "Df"));
+            CHECK(str_is_suffix("asdf", "Sdf"));
+            CHECK(str_is_suffix("asdf", "ASDf"));
         }
 
         TEST_CASE("string_utils_ci_test.str_compare", "[string_utils_ci_test]") {
-            ASSERT_EQ(0, str_compare("", ""));
-            ASSERT_EQ(0, str_compare("a", "a"));
-            ASSERT_EQ(-1, str_compare("", "a"));
-            ASSERT_EQ(+1, str_compare("a", ""));
-            ASSERT_EQ(-1, str_compare("as", "asd"));
-            ASSERT_EQ(+1, str_compare("asdf", "asd"));
-            ASSERT_EQ(-1, str_compare("asdf", "wxyt"));
-            ASSERT_EQ(-1, str_compare("asdf", "Wxyt"));
-            ASSERT_EQ(-1, str_compare("Asdf", "Wxyt"));
+            CHECK(str_compare("", "") == 0);
+            CHECK(str_compare("a", "a") == 0);
+            CHECK(str_compare("", "a") == -1);
+            CHECK(str_compare("a", "") == +1);
+            CHECK(str_compare("as", "asd") == -1);
+            CHECK(str_compare("asdf", "asd") == +1);
+            CHECK(str_compare("asdf", "wxyt") == -1);
+            CHECK(str_compare("asdf", "Wxyt") == -1);
+            CHECK(str_compare("Asdf", "Wxyt") == -1);
         }
 
         TEST_CASE("string_utils_ci_test.str_is_equal", "[string_utils_ci_test]") {
-            ASSERT_TRUE(str_is_equal("", ""));
-            ASSERT_TRUE(str_is_equal("asdf", "asdf"));
-            ASSERT_TRUE(str_is_equal("asdf", "asdF"));
-            ASSERT_TRUE(str_is_equal("AsdF", "Asdf"));
-            ASSERT_FALSE(str_is_equal("asdff", "asdF"));
-            ASSERT_FALSE(str_is_equal("dfdd", "Asdf"));
+            CHECK(str_is_equal("", ""));
+            CHECK(str_is_equal("asdf", "asdf"));
+            CHECK(str_is_equal("asdf", "asdF"));
+            CHECK(str_is_equal("AsdF", "Asdf"));
+            CHECK_FALSE(str_is_equal("asdff", "asdF"));
+            CHECK_FALSE(str_is_equal("dfdd", "Asdf"));
         }
 
         TEST_CASE("string_utils_ci_test.str_matches_glob", "[string_utils_ci_test]") {
-            ASSERT_TRUE(str_matches_glob("ASdf", "asdf"));
-            ASSERT_TRUE(str_matches_glob("AsdF", "*"));
-            ASSERT_TRUE(str_matches_glob("ASdf", "a??f"));
-            ASSERT_FALSE(str_matches_glob("AsDF", "a?f"));
-            ASSERT_TRUE(str_matches_glob("asdF", "*f"));
-            ASSERT_TRUE(str_matches_glob("aSDF", "a*f"));
-            ASSERT_TRUE(str_matches_glob("ASDF", "?s?f"));
-            ASSERT_TRUE(str_matches_glob("AsDfjkl", "a*f*l"));
-            ASSERT_TRUE(str_matches_glob("AsDfjkl", "*a*f*l*"));
-            ASSERT_TRUE(str_matches_glob("ASd*fjKl", "*a*f*l*"));
-            ASSERT_TRUE(str_matches_glob("ASd*fjKl", "asd\\*fjkl"));
-            ASSERT_TRUE(str_matches_glob("aSD*?fJ\\kL", "asd\\*\\?fj\\\\kl"));
+            CHECK(str_matches_glob("ASdf", "asdf"));
+            CHECK(str_matches_glob("AsdF", "*"));
+            CHECK(str_matches_glob("ASdf", "a??f"));
+            CHECK_FALSE(str_matches_glob("AsDF", "a?f"));
+            CHECK(str_matches_glob("asdF", "*f"));
+            CHECK(str_matches_glob("aSDF", "a*f"));
+            CHECK(str_matches_glob("ASDF", "?s?f"));
+            CHECK(str_matches_glob("AsDfjkl", "a*f*l"));
+            CHECK(str_matches_glob("AsDfjkl", "*a*f*l*"));
+            CHECK(str_matches_glob("ASd*fjKl", "*a*f*l*"));
+            CHECK(str_matches_glob("ASd*fjKl", "asd\\*fjkl"));
+            CHECK(str_matches_glob("aSD*?fJ\\kL", "asd\\*\\?fj\\\\kl"));
         }
 
         template <typename C>
         C sorted(C c) {
-            kdl::sort(c, string_less());
-            return c;
+            return kdl::col_sort(std::move(c), string_less());
         }
 
         TEST_CASE("string_utils_ci_test.sort", "[string_utils_ci_test]") {
-            ASSERT_EQ(std::vector<std::string>({}), sorted(std::vector<std::string>({})));
-            ASSERT_EQ(std::vector<std::string>({
-                "a",
-                "aab",
-                "Ab",
-                "c",
-                "def",
-                "Zasdf",
-            }), sorted(std::vector<std::string>({
+            CHECK_THAT(sorted(std::vector<std::string>{}), Catch::Equals(std::vector<std::string>{}));
+
+            CHECK_THAT(sorted(std::vector<std::string>{
                 "Zasdf",
                 "Ab",
                 "c",
                 "a",
                 "def",
                 "aab",
-            })));
+            }), Catch::Equals(std::vector<std::string>{
+                "a",
+                "aab",
+                "Ab",
+                "c",
+                "def",
+                "Zasdf",
+            }));
         }
     }
 }

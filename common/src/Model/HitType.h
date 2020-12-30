@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_HITTYPE_H
-#define TRENCHBROOM_HITTYPE_H
+#pragma once
 
 #include <cstdint>
 
@@ -34,4 +33,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_HITTYPE_H

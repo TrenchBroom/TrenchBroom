@@ -23,7 +23,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "FloatType.h"
-#include "Model/AssortNodesVisitor.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
@@ -40,6 +39,7 @@
 
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
+#include <kdl/overload.h>
 #include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -221,7 +221,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
-                    kdl::vec_append(result, helpVectors);
+                    result = kdl::vec_concat(std::move(result), helpVectors);
                 }
 
                 return result;
@@ -750,22 +750,17 @@ namespace TrenchBroom {
             const auto& worldBounds = document->worldBounds();
 
             const auto clip = [&](auto* node, const auto& p1, const auto& p2, const auto& p3, auto& brushMap) {
+                auto brush = node->brush();
                 world->createFace(p1, p2, p3, document->currentTextureName())
-                    .and_then(
-                        [&](Model::BrushFace&& clipFace) {
-                            setFaceAttributes(node->brush().faces(), clipFace);
-                            return node->brush().clip(worldBounds, std::move(clipFace));
-                        }
-                    ).and_then(
-                        [&](Model::Brush&& brush) {
+                    .and_then([&](Model::BrushFace&& clipFace) {
+                            setFaceAttributes(brush.faces(), clipFace);
+                            return brush.clip(worldBounds, std::move(clipFace));
+                    }).and_then([&]() {
                             brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
                             return kdl::void_result;
-                        }
-                    ).handle_errors(
-                        [&](const Model::BrushError e) {
+                    }).handle_errors([&](const Model::BrushError e) {
                             document->error() << "Could not clip brush: " << e;
-                        }
-                    );
+                    });
             };
 
             if (canClip()) {
@@ -832,14 +827,22 @@ namespace TrenchBroom {
         }
 
         void ClipTool::addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer& renderer) {
-            Model::CollectBrushesVisitor collect;
+            std::vector<Model::BrushNode*> brushes;
 
             for (const auto& entry : map) {
-                const auto& brushes = entry.second;
-                Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
+                const auto& nodes = entry.second;
+                for (auto* node : nodes) {
+                    node->accept(kdl::overload(
+                        [] (const Model::WorldNode*)  {},
+                        [] (const Model::LayerNode*)  {},
+                        [] (const Model::GroupNode*)  {},
+                        [] (const Model::EntityNode*) {},
+                        [&](Model::BrushNode* brush) { brushes.push_back(brush); }
+                    ));
+                }
             }
-
-            renderer.addBrushes(collect.brushes());
+            
+            renderer.addBrushes(brushes);
         }
 
         bool ClipTool::keepFrontBrushes() const {

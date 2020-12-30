@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_HitAdapter
-#define TrenchBroom_HitAdapter
+#pragma once
 
 #include <optional>
 
@@ -37,4 +36,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_HitAdapter) */

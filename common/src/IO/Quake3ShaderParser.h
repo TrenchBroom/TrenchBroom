@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_Q3SHADERPARSER_H
-#define TRENCHBROOM_Q3SHADERPARSER_H
+#pragma once
 
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
@@ -80,4 +79,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_Q3SHADERPARSER_H

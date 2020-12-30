@@ -20,13 +20,14 @@
 #include "ObjSerializer.h"
 
 #include "Ensure.h"
+#include "Assets/Texture.h"
 #include "IO/Path.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Polyhedron.h"
 
-#include <set>
+#include <map>
 
 namespace TrenchBroom {
     namespace IO {
@@ -35,9 +36,10 @@ namespace TrenchBroom {
         texCoords(i_texCoords),
         normal(i_normal) {}
 
-        ObjFileSerializer::Face::Face(IndexedVertexList i_verts, std::string i_texture) :
+        ObjFileSerializer::Face::Face(IndexedVertexList i_verts, std::string i_textureName, const Assets::Texture* i_texture) :
         verts(std::move(i_verts)),
-        texture(std::move(i_texture)) {}
+        textureName(std::move(i_textureName)),
+        texture(i_texture) {}
 
         ObjFileSerializer::ObjFileSerializer(const Path& path) :
         m_objPath(path),
@@ -51,7 +53,7 @@ namespace TrenchBroom {
             ensure(m_mtlStream != nullptr, "mtl stream is null");
         }
 
-        void ObjFileSerializer::doBeginFile() {}
+        void ObjFileSerializer::doBeginFile(const std::vector<const Model::Node*>& /* rootNodes */) {}
 
         void ObjFileSerializer::doEndFile() {
             writeMtlFile();
@@ -67,16 +69,19 @@ namespace TrenchBroom {
         }
 
         void ObjFileSerializer::writeMtlFile() {
-            std::set<std::string> textureNames;
+            std::map<std::string, const Assets::Texture*> usedTextures;
 
             for (const Object& object : m_objects) {
                 for (const Face& face : object.faces) {
-                    textureNames.insert(face.texture);
+                    usedTextures[face.textureName] = face.texture;
                 }
             }
 
-            for (const std::string& texture : textureNames) {
-                std::fprintf(m_mtlStream, "newmtl %s\n", texture.c_str());
+            for (const auto& [textureName, texture] : usedTextures) {
+                std::fprintf(m_mtlStream, "newmtl %s\n", textureName.c_str());
+                if (texture != nullptr && !texture->relativePath().isEmpty()) {
+                    std::fprintf(m_mtlStream, "map_Kd %s\n\n", texture->relativePath().asString().c_str());
+                }
             }
         }
 
@@ -116,7 +121,7 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::writeFaces(const FaceList& faces) {
             for (const Face& face : faces) {
-                std::fprintf(m_stream, "usemtl %s\n", face.texture.c_str());
+                std::fprintf(m_stream, "usemtl %s\n", face.textureName.c_str());
                 std::fprintf(m_stream, "f");
                 for (const IndexedVertex& vertex : face.verts) {
                     std::fprintf(m_stream, " %lu/%lu/%lu",
@@ -130,16 +135,18 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::doBeginEntity(const Model::Node* /* node */) {}
         void ObjFileSerializer::doEndEntity(const Model::Node* /* node */) {}
-        void ObjFileSerializer::doEntityAttribute(const Model::EntityAttribute& /* attribute */) {}
+        void ObjFileSerializer::doEntityProperty(const Model::EntityProperty& /* property */) {}
 
-        void ObjFileSerializer::doBeginBrush(const Model::BrushNode* /* brush */) {
+        void ObjFileSerializer::doBrush(const Model::BrushNode* brush) {
             m_currentObject.entityNo = entityNo();
             m_currentObject.brushNo = brushNo();
             // Vertex positions inserted from now on should get new indices
             m_vertices.clearIndices();
-        }
 
-        void ObjFileSerializer::doEndBrush(const Model::BrushNode* /* brush */) {
+            for (const Model::BrushFace& face : brush->brush().faces()) {
+                doBrushFace(face);
+            }
+
             m_objects.push_back(m_currentObject);
             m_currentObject.faces.clear();
         }
@@ -161,7 +168,7 @@ namespace TrenchBroom {
                 indexedVertices.push_back(IndexedVertex(vertexIndex, texCoordsIndex, normalIndex));
             }
 
-            m_currentObject.faces.push_back(Face(indexedVertices, face.attributes().textureName()));
+            m_currentObject.faces.push_back(Face(indexedVertices, face.attributes().textureName(), face.texture()));
         }
     }
 }

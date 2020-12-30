@@ -31,7 +31,6 @@
 #include <kdl/result.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -64,7 +63,7 @@ namespace TrenchBroom {
             document->select(selectionBrush);
             document->selectTouching(true);
 
-            ASSERT_EQ(1u, document->selectedNodes().nodeCount());
+            CHECK(document->selectedNodes().nodeCount() == 1u);
         }
 
         TEST_CASE_METHOD(SelectionTest, "SelectionTest.selectInsideWithGroup") {
@@ -94,12 +93,13 @@ namespace TrenchBroom {
             document->select(selectionBrush);
             document->selectInside(true);
 
-            ASSERT_EQ(1u, document->selectedNodes().nodeCount());
+            CHECK(document->selectedNodes().nodeCount() == 1u);
         }
         
         TEST_CASE_METHOD(SelectionTest, "SelectionTest.updateLastSelectionBounds") {
-            auto* entityNode = new Model::EntityNode();
-            entityNode->addOrUpdateAttribute("classname", "point_entity");
+            auto* entityNode = new Model::EntityNode({
+                {"classname", "point_entity"}
+            });
             document->addNode(entityNode, document->parentForNodes());
             REQUIRE(!entityNode->logicalBounds().is_empty());
             

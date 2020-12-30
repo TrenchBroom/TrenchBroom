@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SoftMapBoundsIssueGenerator
-#define TrenchBroom_SoftMapBoundsIssueGenerator
+#pragma once
 
 #include "FloatType.h"
 #include "Model/IssueGenerator.h"
@@ -51,4 +50,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_SoftMapBoundsIssueGenerator) */

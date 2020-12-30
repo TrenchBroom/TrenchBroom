@@ -20,20 +20,14 @@
 #include "GroupNode.h"
 
 #include "FloatType.h"
-#include "Model/BoundsContainsNodeVisitor.h"
-#include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/BrushNode.h"
-#include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EntityNode.h"
-#include "Model/FindContainerVisitor.h"
-#include "Model/FindGroupVisitor.h"
-#include "Model/FindLayerVisitor.h"
-#include "Model/GroupSnapshot.h"
 #include "Model/IssueGenerator.h"
-#include "Model/NodeVisitor.h"
+#include "Model/LayerNode.h"
+#include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
-#include "Model/TransformObjectVisitor.h"
 #include "Model/TagVisitor.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/result.h>
 
@@ -44,29 +38,42 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GroupNode::GroupNode(const std::string& name) :
-        m_editState(Edit_Closed),
-        m_boundsValid(false) {
-            setName(name);
+        GroupNode::GroupNode(std::string name) :
+        m_group(std::move(name)),
+        m_editState(EditState::Closed),
+        m_boundsValid(false) {}
+
+        const Group& GroupNode::group() const {
+            return m_group;
         }
 
-        void GroupNode::setName(const std::string& name) {
-            addOrUpdateAttribute(AttributeNames::GroupName, name);
+        Group GroupNode::setGroup(Group group) {
+            using std::swap;
+            swap(m_group, group);
+            return group;
         }
 
         bool GroupNode::opened() const {
-            return m_editState == Edit_Open;
+            return m_editState == EditState::Open;
+        }
+
+        bool GroupNode::hasOpenedDescendant() const {
+            return m_editState == EditState::DescendantOpen;
+        }
+
+        bool GroupNode::closed() const {
+            return m_editState == EditState::Closed;
         }
 
         void GroupNode::open() {
-            assert(m_editState == Edit_Closed);
-            setEditState(Edit_Open);
+            assert(m_editState == EditState::Closed);
+            setEditState(EditState::Open);
             openAncestors();
         }
 
         void GroupNode::close() {
-            assert(m_editState == Edit_Open);
-            setEditState(Edit_Closed);
+            assert(m_editState == EditState::Open);
+            setEditState(EditState::Closed);
             closeAncestors();
         }
 
@@ -74,35 +81,26 @@ namespace TrenchBroom {
             m_editState = editState;
         }
 
-        class GroupNode::SetEditStateVisitor : public NodeVisitor {
-        private:
-            EditState m_editState;
-        public:
-            SetEditStateVisitor(const EditState editState) : m_editState(editState) {}
-        private:
-            void doVisit(WorldNode*) override       {}
-            void doVisit(LayerNode*) override       {}
-            void doVisit(GroupNode* group) override { group->setEditState(m_editState); }
-            void doVisit(EntityNode*) override      {}
-            void doVisit(BrushNode*) override       {}
-        };
+        void GroupNode::setAncestorEditState(const EditState editState) {
+            visitParent(kdl::overload(
+                [=](auto&& thisLambda, WorldNode* world)   -> void { world->visitParent(thisLambda); },
+                [=](auto&& thisLambda, LayerNode* layer)   -> void { layer->visitParent(thisLambda); },
+                [=](auto&& thisLambda, GroupNode* group)   -> void { group->setEditState(editState); group->visitParent(thisLambda); },
+                [=](auto&& thisLambda, EntityNode* entity) -> void { entity->visitParent(thisLambda); },
+                [=](auto&& thisLambda, BrushNode* brush)   -> void { brush->visitParent(thisLambda); }
+            ));
+        }
 
         void GroupNode::openAncestors() {
-            SetEditStateVisitor visitor(Edit_DescendantOpen);
-            escalate(visitor);
+            setAncestorEditState(EditState::DescendantOpen);
         }
 
         void GroupNode::closeAncestors() {
-            SetEditStateVisitor visitor(Edit_Closed);
-            escalate(visitor);
-        }
-
-        bool GroupNode::hasOpenedDescendant() const {
-            return m_editState == Edit_DescendantOpen;
+            setAncestorEditState(EditState::Closed);
         }
 
         const std::string& GroupNode::doGetName() const {
-            return attribute(AttributeNames::GroupName);
+            return m_group.name();
         }
 
         const vm::bbox3& GroupNode::doGetLogicalBounds() const {
@@ -125,23 +123,14 @@ namespace TrenchBroom {
             return group;
         }
 
-        NodeSnapshot* GroupNode::doTakeSnapshot() {
-            return new GroupSnapshot(this);
-        }
-
-        class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            void doVisit(const WorldNode*) override  { setResult(false); }
-            void doVisit(const LayerNode*) override  { setResult(false); }
-            void doVisit(const GroupNode*) override  { setResult(true); }
-            void doVisit(const EntityNode*) override { setResult(true); }
-            void doVisit(const BrushNode*) override  { setResult(true); }
-        };
-
         bool GroupNode::doCanAddChild(const Node* child) const {
-            CanAddChildToGroup visitor;
-            child->accept(visitor);
-            return visitor.result();
+            return child->accept(kdl::overload(
+                [](const WorldNode*)  { return false; },
+                [](const LayerNode*)  { return false; },
+                [](const GroupNode*)  { return true;  },
+                [](const EntityNode*) { return true;  },
+                [](const BrushNode*)  { return true;  }
+            ));
         }
 
         bool GroupNode::doCanRemoveChild(const Node* /* child */) const {
@@ -211,65 +200,24 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void GroupNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {
+        Node* GroupNode::doGetContainer() {
+            return parent();
         }
 
-        bool GroupNode::doIsAttributeNameMutable(const std::string& /* name */) const {
-            return false;
+        LayerNode* GroupNode::doGetContainingLayer() {
+            return findContainingLayer(this);
         }
 
-        bool GroupNode::doIsAttributeValueMutable(const std::string& /* name */) const {
-            return false;
-        }
-
-        vm::vec3 GroupNode::doGetLinkSourceAnchor() const {
-            return vm::vec3::zero();
-        }
-
-        vm::vec3 GroupNode::doGetLinkTargetAnchor() const {
-            return vm::vec3::zero();
-        }
-
-        Node* GroupNode::doGetContainer() const {
-            FindContainerVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
-        }
-
-        LayerNode* GroupNode::doGetLayer() const {
-            FindLayerVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
-        }
-
-        GroupNode* GroupNode::doGetGroup() const {
-            FindGroupVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
-        }
-
-        kdl::result<void, TransformError> GroupNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {
-            TransformObjectVisitor visitor(worldBounds, transformation, lockTextures);
-            iterate(visitor);
-            if (visitor.error()) {
-                return kdl::result<void, TransformError>::error(*visitor.error());
-            } else {
-                return kdl::result<void, TransformError>::success();
-            }
+        GroupNode* GroupNode::doGetContainingGroup() {
+            return findContainingGroup(this);
         }
 
         bool GroupNode::doContains(const Node* node) const {
-            BoundsContainsNodeVisitor contains(logicalBounds());
-            node->accept(contains);
-            assert(contains.hasResult());
-            return contains.result();
+            return boundsContainNode(logicalBounds(), node);
         }
 
         bool GroupNode::doIntersects(const Node* node) const {
-            BoundsIntersectsNodeVisitor intersects(logicalBounds());
-            node->accept(intersects);
-            assert(intersects.hasResult());
-            return intersects.result();
+            return boundsIntersectNode(logicalBounds(), node);
         }
 
         void GroupNode::invalidateBounds() {
@@ -277,14 +225,8 @@ namespace TrenchBroom {
         }
 
         void GroupNode::validateBounds() const {
-            ComputeNodeBoundsVisitor visitor(BoundsType::Logical, vm::bbox3(0.0));
-            iterate(visitor);
-            m_logicalBounds = visitor.bounds();
-
-            ComputeNodeBoundsVisitor physicalBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
-            iterate(physicalBoundsVisitor);
-            m_physicalBounds = physicalBoundsVisitor.bounds();
-
+            m_logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
+            m_physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
             m_boundsValid = true;
         }
 

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_WorldReader
-#define TrenchBroom_WorldReader
+#pragma once
 
 #include "IO/MapReader.h"
 
@@ -47,7 +46,7 @@ namespace TrenchBroom {
             void sanitizeLayerSortIndicies(ParserStatus& status);            
         private: // implement MapReader interface
             Model::ModelFactory& initialize(Model::MapFormat format) override;
-            Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
+            Model::Node* onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::LayerNode* layer, ParserStatus& status) override;
             void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) override;
@@ -57,4 +56,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_WorldReader) */

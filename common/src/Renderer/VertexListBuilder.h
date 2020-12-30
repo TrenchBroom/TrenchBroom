@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VertexListBuilder_h
-#define VertexListBuilder_h
+#pragma once
 
 #include <kdl/vector_utils.h>
 
@@ -163,7 +162,7 @@ namespace TrenchBroom {
 
                 const size_t index = currentIndex();
                 const size_t count = vertices.size();
-                kdl::vec_append(m_vertices, vertices);
+                m_vertices = kdl::vec_concat(std::move(m_vertices), vertices);
 
                 return Range(index, count);
             }
@@ -179,4 +178,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* VertexListBuilder_h */

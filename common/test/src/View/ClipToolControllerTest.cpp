@@ -28,7 +28,6 @@
 #include "View/Tool.h"
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 #include "MapDocumentTest.h"
 
@@ -67,12 +66,12 @@ namespace TrenchBroom {
 }
 }
             )";
-            ASSERT_EQ(PasteType::Node, document->paste(data));
+            REQUIRE(document->paste(data) == PasteType::Node);
 
             ClipTool tool(document);
             ClipToolController3D controller(&tool);
 
-            ASSERT_TRUE(tool.activate());
+            CHECK(tool.activate());
 
             document->grid().setSize(2); // 2^2, so this sets it to grid 4
 
@@ -92,44 +91,44 @@ namespace TrenchBroom {
             clipPoint1ScreenSpace = vm::vec2i(clipPoint1ScreenSpace.x(), viewport.height - clipPoint1ScreenSpace.y());
             clipPoint2ScreenSpace = vm::vec2i(clipPoint2ScreenSpace.x(), viewport.height - clipPoint2ScreenSpace.y());
 
-            ASSERT_FALSE(tool.canClip());
-            ASSERT_TRUE(tool.canAddPoint( clipPoint1));
+            CHECK_FALSE(tool.canClip());
+            CHECK(tool.canAddPoint( clipPoint1));
 
             // HACK: bias the points towards the center of the screen a bit
             // There's no way around this unless the clip tool allowed the mouse to be slightly outside of the brush
             InputState inputState(clipPoint1ScreenSpace.x() + 2, clipPoint1ScreenSpace.y());
             updatePickState(inputState, camera, *document);
-            ASSERT_EQ(1u, inputState.pickResult().size());
+            REQUIRE(inputState.pickResult().size() == 1u);
 
             inputState.mouseDown(MouseButtons::MBLeft);
-            ASSERT_TRUE(controller.mouseClick(inputState));
+            CHECK(controller.mouseClick(inputState));
             inputState.mouseUp(MouseButtons::MBLeft);
 
-            ASSERT_FALSE(tool.canClip());
-            ASSERT_TRUE(tool.canAddPoint(clipPoint2));
+            CHECK_FALSE(tool.canClip());
+            CHECK(tool.canAddPoint(clipPoint2));
 
             // HACK: bias the points towards the center of the screen a bit
             inputState.mouseMove(clipPoint2ScreenSpace.x() - 2, clipPoint2ScreenSpace.y(), 0, 0);
             updatePickState(inputState, camera, *document);
-            ASSERT_EQ(1u, inputState.pickResult().size());
+            REQUIRE(inputState.pickResult().size() == 1u);
 
             inputState.mouseDown(MouseButtons::MBLeft);
-            ASSERT_TRUE(controller.mouseClick(inputState));
+            CHECK(controller.mouseClick(inputState));
             inputState.mouseUp(MouseButtons::MBLeft);
 
-            ASSERT_TRUE(tool.canClip());
+            CHECK(tool.canClip());
 
             tool.performClip();
 
             // Check the clip result
             // TODO: would be better to check the clip plane but it's not public
             const std::vector<Model::Node*>& objects = document->world()->defaultLayer()->children();
-            ASSERT_EQ(1u, objects.size());
+            REQUIRE(objects.size() == 1u);
 
             auto* brush = dynamic_cast<Model::BrushNode*>(objects.at(0));
-            ASSERT_NE(nullptr, brush);
+            REQUIRE(brush != nullptr);
 
-            ASSERT_EQ(vm::bbox3(vm::vec3(-16, -16, 52), vm::vec3(20, 16, 72)), brush->logicalBounds());
+            CHECK(brush->logicalBounds() == vm::bbox3(vm::vec3(-16, -16, 52), vm::vec3(20, 16, 72)));
         }
     }
 }

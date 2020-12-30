@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Polyhedron_Clip_h
-#define TrenchBroom_Polyhedron_Clip_h
+#pragma once
 
 #include "Ensure.h"
 #include "Macros.h"
@@ -413,5 +412,3 @@ namespace TrenchBroom {
         }
     }
 }
-
-#endif

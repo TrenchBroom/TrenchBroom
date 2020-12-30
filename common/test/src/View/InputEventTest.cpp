@@ -31,7 +31,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QKeyEvent>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -42,7 +41,7 @@ namespace TrenchBroom {
                 for (std::size_t j = 0; j < 2; ++j) {
                     auto lhs = KeyEvent(eventTypes[i]);
                     const auto rhs = KeyEvent(eventTypes[j]);
-                    ASSERT_FALSE(lhs.collateWith(rhs));
+                    CHECK_FALSE(lhs.collateWith(rhs));
                 }
             }
         }
@@ -77,7 +76,7 @@ namespace TrenchBroom {
                     auto lhs = MouseEvent(eventTypes[i], MouseEvent::Button::None, MouseEvent::WheelAxis::None, 0, 0, 0.0f);
                     const auto rhs = MouseEvent(eventTypes[j], MouseEvent::Button::None, MouseEvent::WheelAxis::None, 0, 0, 0.0f);
                     
-                    ASSERT_EQ(collationMatrix[i][j], lhs.collateWith(rhs));
+                    CHECK(lhs.collateWith(rhs) == collationMatrix[i][j]);
                 }
             }
             
@@ -85,42 +84,42 @@ namespace TrenchBroom {
                 // motion collation
                 auto lhs = MouseEvent(MouseEvent::Type::Motion, MouseEvent::Button::None, MouseEvent::WheelAxis::None, 2, 3, 0.0f);
                 const auto rhs = MouseEvent(MouseEvent::Type::Motion, MouseEvent::Button::None, MouseEvent::WheelAxis::None, 5, 5, 0.0f);
-                ASSERT_TRUE(lhs.collateWith(rhs));
-                ASSERT_EQ(5, lhs.posX);
-                ASSERT_EQ(5, lhs.posY);
+                CHECK(lhs.collateWith(rhs));
+                CHECK(lhs.posX == 5);
+                CHECK(lhs.posY == 5);
             }
             
             {
                 // drag collation
                 auto lhs = MouseEvent(MouseEvent::Type::Drag, MouseEvent::Button::None, MouseEvent::WheelAxis::None, 2, 3, 0.0f);
                 const auto rhs = MouseEvent(MouseEvent::Type::Drag, MouseEvent::Button::None, MouseEvent::WheelAxis::None, 5, 5, 0.0f);
-                ASSERT_TRUE(lhs.collateWith(rhs));
-                ASSERT_EQ(5, lhs.posX);
-                ASSERT_EQ(5, lhs.posY);
+                CHECK(lhs.collateWith(rhs));
+                CHECK(lhs.posX == 5);
+                CHECK(lhs.posY == 5);
             }
             
             {
                 // horizontal wheel collation
                 auto lhs = MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, 3.0f);
                 const auto rhs = MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, -5.0f);
-                ASSERT_TRUE(lhs.collateWith(rhs));
-                ASSERT_EQ(-2.0f, lhs.scrollDistance);
+                CHECK(lhs.collateWith(rhs));
+                CHECK(lhs.scrollDistance == -2.0f);
             }
             
             {
                 // vertical wheel collation
                 auto lhs = MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical, 0, 0, 3.0f);
                 const auto rhs = MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical, 0, 0, -5.0f);
-                ASSERT_TRUE(lhs.collateWith(rhs));
-                ASSERT_EQ(-2.0f, lhs.scrollDistance);
+                CHECK(lhs.collateWith(rhs));
+                CHECK(lhs.scrollDistance == -2.0f);
             }
             
             {
                 // unmatched axis wheel collation
                 auto lhs = MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, 3.0f);
                 const auto rhs = MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical, 0, 0, -5.0f);
-                ASSERT_FALSE(lhs.collateWith(rhs));
-                ASSERT_EQ(3.0f, lhs.scrollDistance);
+                CHECK_FALSE(lhs.collateWith(rhs));
+                CHECK(lhs.scrollDistance == 3.0f);
             }
         }
         
@@ -135,17 +134,17 @@ namespace TrenchBroom {
             }
             
             void processEvent(const KeyEvent& act) override {
-                ASSERT_FALSE(m_expectedEvents.empty());
-                std::visit(kdl::overload{
-                    [&](const KeyEvent& exp) { ASSERT_EQ(exp, act); },
-                    [&](const auto&)       { ASSERT_TRUE(false); }
-                }, m_expectedEvents.front());
+                CHECK_FALSE(m_expectedEvents.empty());
+                std::visit(kdl::overload(
+                    [&](const KeyEvent& exp) { CHECK(act == exp); },
+                    [&](const auto&)       { CHECK(false); }
+                ), m_expectedEvents.front());
                 m_expectedEvents.pop_front();
             }
             
             void processEvent(const MouseEvent& act) override {
-                ASSERT_FALSE(m_expectedEvents.empty());
-                std::visit(kdl::overload{
+                CHECK_FALSE(m_expectedEvents.empty());
+                std::visit(kdl::overload(
                     [&](const MouseEvent& exp) {
                         CHECK(exp.type == act.type);
                         CHECK(exp.button == act.button);
@@ -154,17 +153,17 @@ namespace TrenchBroom {
                         CHECK(exp.posY == act.posY);
                         CHECK(exp.scrollDistance == Approx(act.scrollDistance));
                     },
-                    [&](const auto&) { ASSERT_TRUE(false); }
-                }, m_expectedEvents.front());
+                    [&](const auto&) { CHECK(false); }
+                ), m_expectedEvents.front());
                 m_expectedEvents.pop_front();
             }
             
             void processEvent(const CancelEvent& act) override {
-                ASSERT_FALSE(m_expectedEvents.empty());
-                std::visit(kdl::overload{
-                    [&](const CancelEvent& exp) { ASSERT_EQ(exp, act); },
-                    [&](const auto&)        { ASSERT_TRUE(false); }
-                }, m_expectedEvents.front());
+                CHECK_FALSE(m_expectedEvents.empty());
+                std::visit(kdl::overload(
+                    [&](const CancelEvent& exp) { CHECK(act == exp); },
+                    [&](const auto&)        { CHECK(false); }
+                ), m_expectedEvents.front());
                 m_expectedEvents.pop_front();
             }
             
@@ -177,7 +176,7 @@ namespace TrenchBroom {
         void checkEventQueue(InputEventRecorder& r, Args&&... args) {
             TestEventProcessor p(std::forward<Args>(args)...);
             r.processEvents(p);
-            ASSERT_TRUE(p.allConsumed());
+            CHECK(p.allConsumed());
         }
         
         inline QWheelEvent makeWheelEvent(const QPoint& angleDelta) {
@@ -285,7 +284,7 @@ namespace TrenchBroom {
             const float expectedScrollLines = \
                 static_cast<float>((InputEventRecorder::scrollLinesForEvent(&qWheel1) +
                                     InputEventRecorder::scrollLinesForEvent(&qWheel2)).x());
-            EXPECT_GT(expectedScrollLines, 0.0f);
+            CHECK(expectedScrollLines > 0.0f);
 
             using namespace std::chrono_literals;
             r.recordEvent(&qWheel1);
@@ -303,7 +302,7 @@ namespace TrenchBroom {
             const float expectedScrollLines = \
                 static_cast<float>((InputEventRecorder::scrollLinesForEvent(&qWheel1) +
                                     InputEventRecorder::scrollLinesForEvent(&qWheel2)).y());
-            EXPECT_GT(expectedScrollLines, 0.0f);
+            CHECK(expectedScrollLines > 0.0f);
 
             using namespace std::chrono_literals;
             r.recordEvent(&qWheel1);
@@ -319,12 +318,12 @@ namespace TrenchBroom {
             const auto qWheel2 = makeWheelEvent({ 3, 0 });
 
             const QPointF expectedScrollLines1 = InputEventRecorder::scrollLinesForEvent(&qWheel1);
-            EXPECT_GT(expectedScrollLines1.x(), 0.0f);
-            EXPECT_GT(expectedScrollLines1.y(), 0.0f);
+            CHECK(expectedScrollLines1.x() > 0.0f);
+            CHECK(expectedScrollLines1.y() > 0.0f);
 
             const QPointF expectedScrollLines2 = InputEventRecorder::scrollLinesForEvent(&qWheel2);
-            EXPECT_GT(expectedScrollLines2.x(), 0.0f);
-            EXPECT_EQ(expectedScrollLines2.y(), 0.0f);
+            CHECK(expectedScrollLines2.x() > 0.0f);
+            CHECK(0.0f == expectedScrollLines2.y());
 
             using namespace std::chrono_literals;
             r.recordEvent(&qWheel1);

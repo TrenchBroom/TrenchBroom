@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Polyhedron_HalfEdge_h
-#define TrenchBroom_Polyhedron_HalfEdge_h
+#pragma once
 
 #include "Polyhedron.h"
 
@@ -51,12 +50,6 @@ m_link(this)
         {
             assert(m_origin != nullptr);
             setAsLeaving();
-        }
-
-        template <typename T, typename FP, typename VP>
-        Polyhedron_HalfEdge<T,FP,VP>::~Polyhedron_HalfEdge() {
-            if (m_origin->leaving() == this)
-                m_origin->setLeaving(nullptr);
         }
 
         template <typename T, typename FP, typename VP>
@@ -182,5 +175,3 @@ m_link(this)
         }
     }
 }
-
-#endif

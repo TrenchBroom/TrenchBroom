@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapViewContainer
-#define TrenchBroom_MapViewContainer
+#pragma once
 
 #include <QWidget>
 
@@ -58,4 +57,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapViewContainer) */

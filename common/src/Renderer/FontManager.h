@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FontManager
-#define TrenchBroom_FontManager
+#pragma once
 
 #include "Macros.h"
 
@@ -49,4 +48,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FontManager) */

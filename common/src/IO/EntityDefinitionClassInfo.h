@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinitionClassInfo
-#define TrenchBroom_EntityDefinitionClassInfo
+#pragma once
 
 #include "FloatType.h"
 #include "Color.h"
@@ -34,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class AttributeDefinition;
+        class PropertyDefinition;
     }
 
     namespace IO {
@@ -57,11 +56,11 @@ namespace TrenchBroom {
             std::optional<vm::bbox3> size;
             std::optional<Assets::ModelDefinition> modelDefinition;
 
-            std::vector<std::shared_ptr<Assets::AttributeDefinition>> attributes;
+            std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
             std::vector<std::string> superClasses;
         };
 
-        bool addAttribute(std::vector<std::shared_ptr<Assets::AttributeDefinition>>& attributes, std::shared_ptr<Assets::AttributeDefinition> attribute);
+        bool addPropertyDefinition(std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions, std::shared_ptr<Assets::PropertyDefinition> propertyDefinition);
 
         bool operator==(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
         bool operator!=(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
@@ -70,4 +69,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityDefinitionClassInfo) */

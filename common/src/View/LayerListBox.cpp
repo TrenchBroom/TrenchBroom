@@ -126,7 +126,7 @@ namespace TrenchBroom {
             m_activeButton->setChecked(document->currentLayer() == m_layer);
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
-            m_omitFromExportButton->setVisible(m_layer->omitFromExport());
+            m_omitFromExportButton->setVisible(m_layer->layer().omitFromExport());
         }
 
         Model::LayerNode* LayerListBoxWidget::layer() const {
@@ -234,7 +234,7 @@ namespace TrenchBroom {
 
         ControlListBoxItemRenderer* LayerListBox::createItemRenderer(QWidget* parent, const size_t index) {
             auto document = kdl::mem_lock(m_document);
-            const auto* world = document->world();
+            auto* world = document->world();
 
             Model::LayerNode* layer;
             if (index == 0) {

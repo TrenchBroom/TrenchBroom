@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VertexToolBase_h
-#define VertexToolBase_h
+#pragma once
 
 #include "Exceptions.h"
 #include "FloatType.h"
@@ -29,24 +28,16 @@
 #include "Model/BrushBuilder.h"
 #include "Model/Game.h"
 #include "Model/Hit.h"
-#include "Model/NodeVisitor.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
 #include "Model/WorldNode.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
-#include "View/AddBrushVerticesCommand.h"
+#include "View/BrushVertexCommands.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
-#include "View/MoveBrushVerticesCommand.h"
-#include "View/MoveBrushEdgesCommand.h"
-#include "View/MoveBrushFacesCommand.h"
-#include "View/RemoveBrushVerticesCommand.h"
-#include "View/RemoveBrushEdgesCommand.h"
-#include "View/RemoveBrushFacesCommand.h"
 #include "View/Selection.h"
 #include "View/Tool.h"
-#include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
 
 #include <kdl/memory_utils.h>
@@ -194,6 +185,7 @@ namespace TrenchBroom {
                     handleManager().deselectAll();
                 }
                 handleManager().toggle(std::begin(selectedHandles), std::end(selectedHandles));
+                refreshViews();
                 notifyToolHandleSelectionChanged();
             }
 
@@ -281,7 +273,7 @@ namespace TrenchBroom {
                 
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
                 builder.createBrush(polyhedron, document->currentTextureName())
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& b) {
                             for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
                                 b.cloneFaceAttributesFrom(selectedBrushNode->brush());
@@ -294,8 +286,8 @@ namespace TrenchBroom {
                         },
                         [&](const Model::BrushError e) {
                             document->error() << "Could not create brush: " << e;
-                        },
-                    });
+                        }
+                    ));
             }
 
             virtual H getHandlePosition(const Model::Hit& hit) const {
@@ -449,8 +441,7 @@ namespace TrenchBroom {
             }
 
             void commandDoOrUndo(Command* command) {
-                if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command);
+                if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(command)) {
                     deselectHandles();
                     removeHandles(vertexCommand);
                     ++m_ignoreChangeNotifications;
@@ -458,8 +449,7 @@ namespace TrenchBroom {
             }
 
             void commandDoneOrUndoFailed(Command* command) {
-                if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command);
+                if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(command)) {
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
                     --m_ignoreChangeNotifications;
@@ -467,24 +457,11 @@ namespace TrenchBroom {
             }
 
             void commandDoFailedOrUndone(Command* command) {
-                if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command);
+                if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(command)) {
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
                     --m_ignoreChangeNotifications;
                 }
-            }
-
-            bool isVertexCommand(const Command* command) const {
-                return command->isType(
-                        AddBrushVerticesCommand::Type,
-                        RemoveBrushVerticesCommand::Type,
-                        RemoveBrushEdgesCommand::Type,
-                        RemoveBrushFacesCommand::Type,
-                        MoveBrushVerticesCommand::Type,
-                        MoveBrushEdgesCommand::Type,
-                        MoveBrushFacesCommand::Type
-                );
             }
 
             void selectionDidChange(const Selection& selection) {
@@ -504,71 +481,64 @@ namespace TrenchBroom {
                 }
             }
         protected:
-            virtual void addHandles(VertexCommand* command) {
-                command->addHandles(handleManager());
-            }
-
-            virtual void removeHandles(VertexCommand* command) {
-                command->removeHandles(handleManager());
-            }
-
             virtual void deselectHandles() {
                 handleManager().deselectAll();
             }
 
-            virtual void selectNewHandlePositions(VertexCommand* command) {
+            virtual void addHandles(BrushVertexCommandBase* command) {
+                command->addHandles(handleManager());
+            }
+
+            virtual void removeHandles(BrushVertexCommandBase* command) {
+                command->removeHandles(handleManager());
+            }
+
+            virtual void selectNewHandlePositions(BrushVertexCommandBase* command) {
                 command->selectNewHandlePositions(handleManager());
             }
 
-            virtual void selectOldHandlePositions(VertexCommand* command) {
+            virtual void selectOldHandlePositions(BrushVertexCommandBase* command) {
                 command->selectOldHandlePositions(handleManager());
             }
 
             template <typename HT>
-            class AddHandles : public Model::NodeVisitor {
-            private:
-                VertexHandleManagerBaseT<HT>& m_handles;
-            public:
-                explicit AddHandles(VertexHandleManagerBaseT<HT>& handles) :
-                m_handles(handles) {}
-            private:
-                void doVisit(Model::WorldNode*) override  {}
-                void doVisit(Model::LayerNode*) override  {}
-                void doVisit(Model::GroupNode*) override  {}
-                void doVisit(Model::EntityNode*) override {}
-                void doVisit(Model::BrushNode* brush) override   {
-                    m_handles.addHandles(brush);
+            void addHandles(const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager) {
+                for (const auto* node : nodes) {
+                    node->accept(kdl::overload(
+                        [] (const Model::WorldNode*)  {},
+                        [] (const Model::LayerNode*)  {},
+                        [] (const Model::GroupNode*)  {},
+                        [] (const Model::EntityNode*) {},
+                        [&](const Model::BrushNode* brush) {
+                            handleManager.addHandles(brush);
+                        }
+                    ));
                 }
-            };
+            }
 
             template <typename HT>
-            class RemoveHandles : public Model::NodeVisitor {
-            private:
-                VertexHandleManagerBaseT<HT>& m_handles;
-            public:
-                explicit RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
-                m_handles(handles) {}
-            private:
-                void doVisit(Model::WorldNode*) override  {}
-                void doVisit(Model::LayerNode*) override  {}
-                void doVisit(Model::GroupNode*) override  {}
-                void doVisit(Model::EntityNode*) override {}
-                void doVisit(Model::BrushNode* brush) override   {
-                    m_handles.removeHandles(brush);
+            void removeHandles(const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager) {
+                for (const auto* node : nodes) {
+                    node->accept(kdl::overload(
+                        [] (const Model::WorldNode*)  {},
+                        [] (const Model::LayerNode*)  {},
+                        [] (const Model::GroupNode*)  {},
+                        [] (const Model::EntityNode*) {},
+                        [&](const Model::BrushNode* brush) {
+                            handleManager.removeHandles(brush);
+                        }
+                    ));
                 }
-            };
+            }
 
             virtual void addHandles(const std::vector<Model::Node*>& nodes) {
-                AddHandles<H> addVisitor(handleManager());
-                Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
+                addHandles(nodes, handleManager());
             }
 
             virtual void removeHandles(const std::vector<Model::Node*>& nodes) {
-                RemoveHandles<H> removeVisitor(handleManager());
-                Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
+                removeHandles(nodes, handleManager());
             }
         };
     }
 }
 
-#endif /* VertexToolBase_h */

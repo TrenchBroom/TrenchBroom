@@ -22,8 +22,9 @@
 
 #include <string>
 
+#include <vecmath/approx.h>
+
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -89,13 +90,13 @@ namespace TrenchBroom {
         TEST_CASE("TokenizerTest.simpleLanguageEmptyString", "[TokenizerTest]") {
             const std::string testString("");
             SimpleTokenizer tokenizer(testString);
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguageBlankString", "[TokenizerTest]") {
             const std::string testString("\n  \t ");
             SimpleTokenizer tokenizer(testString);
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguageEmptyBlock", "[TokenizerTest]") {
@@ -103,9 +104,9 @@ namespace TrenchBroom {
                                     "}");
 
             SimpleTokenizer tokenizer(testString);
-            ASSERT_EQ(SimpleToken::OBrace, tokenizer.nextToken().type());
-            ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK(tokenizer.nextToken().type() == SimpleToken::OBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::CBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguagePushPeekPopToken", "[TokenizerTest]") {
@@ -114,12 +115,12 @@ namespace TrenchBroom {
 
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.peekToken()).type());
-            ASSERT_EQ(1u, token.line());
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(1u, token.line());
-            ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK((token = tokenizer.peekToken()).type() == SimpleToken::OBrace);
+            CHECK(token.line() == 1u);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+            CHECK(token.line() == 1u);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::CBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace", "[TokenizerTest]") {
@@ -127,9 +128,9 @@ namespace TrenchBroom {
                                     " }  ");
 
             SimpleTokenizer tokenizer(testString);
-            ASSERT_EQ(SimpleToken::OBrace, tokenizer.nextToken().type());
-            ASSERT_EQ(SimpleToken::CBrace, tokenizer.nextToken().type());
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK(tokenizer.nextToken().type() == SimpleToken::OBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::CBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguageBlockWithStringAttribute", "[TokenizerTest]") {
@@ -139,17 +140,17 @@ namespace TrenchBroom {
 
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("attribute", token.data().c_str());
-            ASSERT_EQ(2u, token.line());
-            ASSERT_EQ(5u, token.column());
-            ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("value", token.data().c_str());
-            ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+            CHECK(token.data() == "attribute");
+            CHECK(token.line() == 2u);
+            CHECK(token.column() == 5u);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+            CHECK(token.data() == "value");
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguageBlockWithIntegerAttribute", "[TokenizerTest]") {
@@ -159,15 +160,15 @@ namespace TrenchBroom {
 
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("attribute", token.data().c_str());
-            ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Integer, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(12328, token.toInteger<int>());
-            ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+            CHECK(token.data() == "attribute");
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Integer);
+            CHECK(token.toInteger<int>() == 12328);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeIntegerAttribute", "[TokenizerTest]") {
@@ -177,15 +178,15 @@ namespace TrenchBroom {
 
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("attribute", token.data().c_str());
-            ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Integer, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(-12328, token.toInteger<int>());
-            ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+            CHECK(token.data() == "attribute");
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Integer);
+            CHECK(token.toInteger<int>() == -12328);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttribute", "[TokenizerTest]") {
@@ -195,15 +196,15 @@ namespace TrenchBroom {
 
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("attribute", token.data().c_str());
-            ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Decimal, (token = tokenizer.nextToken()).type());
-            ASSERT_DOUBLE_EQ(12328.38283, token.toFloat<double>());
-            ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+            CHECK(token.data() == "attribute");
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
+            CHECK(token.toFloat<double>() == vm::approx(12328.38283));
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttributeStartingWithDot", "[TokenizerTest]") {
@@ -213,15 +214,15 @@ namespace TrenchBroom {
 
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("attribute", token.data().c_str());
-            ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Decimal, (token = tokenizer.nextToken()).type());
-            ASSERT_DOUBLE_EQ(0.38283, token.toFloat<double>());
-            ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+            CHECK(token.data() == "attribute");
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
+            CHECK(token.toFloat<double>() == vm::approx(0.38283));
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
 
         TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeDecimalAttribute", "[TokenizerTest]") {
@@ -231,15 +232,15 @@ namespace TrenchBroom {
 
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
-            ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("attribute", token.data().c_str());
-            ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Decimal, (token = tokenizer.nextToken()).type());
-            ASSERT_DOUBLE_EQ(-343.38283, token.toFloat<double>());
-            ASSERT_EQ(SimpleToken::Semicolon, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::CBrace, (token = tokenizer.nextToken()).type());
-            ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+            CHECK(token.data() == "attribute");
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
+            CHECK(token.toFloat<double>() == vm::approx(-343.38283));
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+            CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+            CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
         }
     }
 }

@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef result_combine_h
-#define result_combine_h
+#pragma once
 
 #include "kdl/meta_utils.h"
 #include "kdl/overload.h"
@@ -54,7 +53,7 @@ namespace kdl {
         using result_type = typename detail::tuple_wrap<std::remove_reference_t<Result>>::result;
         using value_type = typename std::remove_reference_t<Result>::value_type;
         
-        return result.visit(kdl::overload {
+        return result.visit(kdl::overload(
             [](value_type&& v) {
                 return result_type::success(std::make_tuple(std::move(v)));
             },
@@ -64,7 +63,7 @@ namespace kdl {
             [](auto&& e) {
                 return result_type::error(std::forward<decltype(e)>(e));
             }
-        });
+        ));
     }
 
     /**
@@ -96,9 +95,9 @@ namespace kdl {
         using combined_more_result_type = decltype(combine_results(std::forward<MoreResults>(moreResults)...));
         using result_type = typename detail::combine_tuple_results<std::remove_reference_t<FirstResult>, combined_more_result_type>::result;
         
-        return std::forward<FirstResult>(firstResult).visit(kdl::overload {
+        return std::forward<FirstResult>(firstResult).visit(kdl::overload(
             [&](first_value_type&& firstValue) {
-                return combine_results(std::forward<MoreResults>(moreResults)...).visit(kdl::overload {
+                return combine_results(std::forward<MoreResults>(moreResults)...).visit(kdl::overload(
                     [&](typename combined_more_result_type::value_type&& remainingValues) {
                         return result_type::success(std::tuple_cat(
                             std::make_tuple(std::move(firstValue)),
@@ -112,10 +111,10 @@ namespace kdl {
                     [](auto&& combinedError) {
                         return result_type::error(std::forward<decltype(combinedError)>(combinedError));
                     }
-                });
+                ));
             },
             [&](const first_value_type& firstValue) {
-                return combine_results(std::forward<MoreResults>(moreResults)...).visit(kdl::overload {
+                return combine_results(std::forward<MoreResults>(moreResults)...).visit(kdl::overload(
                     [&](typename combined_more_result_type::value_type&& remainingValues) {
                         return result_type::success(std::tuple_cat(
                             std::make_tuple(firstValue),
@@ -129,13 +128,11 @@ namespace kdl {
                     [](auto&& combinedError) {
                         return result_type::error(std::forward<decltype(combinedError)>(combinedError));
                     }
-                });
+                ));
             },
             [&](auto&& firstError) {
                 return result_type::error(std::forward<decltype(firstError)>(firstError));
-            },
-        });
+            }
+        ));
     }
 }
-
-#endif /* result_combine_h */

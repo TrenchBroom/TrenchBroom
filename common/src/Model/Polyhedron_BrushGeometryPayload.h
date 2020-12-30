@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Polyhedron_BrushGeometryPayload_h
-#define Polyhedron_BrushGeometryPayload_h
+#pragma once
 
 //#include "Renderer/GL.h"
 
@@ -46,4 +45,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Polyhedron_BrushGeometryPayload_h */

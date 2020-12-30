@@ -17,23 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestUtils.h"
-#include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -84,9 +82,9 @@ namespace TrenchBroom {
                 DefParser parser(reader.stringView(), defaultColor);
 
                 TestParserStatus status;
-                ASSERT_NO_THROW(parser.parseDefinitions(status));
-                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn));
-                ASSERT_EQ(0u, status.countStatus(LogLevel::Error));
+                CHECK_NOTHROW(parser.parseDefinitions(status));
+                CHECK(status.countStatus(LogLevel::Warn) == 0u);
+                CHECK(status.countStatus(LogLevel::Error) == 0u);
             }
         }
 
@@ -97,7 +95,7 @@ namespace TrenchBroom {
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_TRUE(definitions.empty());
+            CHECK(definitions.empty());
             kdl::vec_clear_and_delete(definitions);
         }
 
@@ -108,7 +106,7 @@ namespace TrenchBroom {
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_TRUE(definitions.empty());
+            CHECK(definitions.empty());
             kdl::vec_clear_and_delete(definitions);
         }
 
@@ -119,7 +117,7 @@ namespace TrenchBroom {
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_TRUE(definitions.empty());
+            CHECK(definitions.empty());
             kdl::vec_clear_and_delete(definitions);
         }
 
@@ -145,19 +143,19 @@ namespace TrenchBroom {
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
+            CHECK(definitions.size() == 1u);
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinitionType::BrushEntity, definition->type());
-            ASSERT_EQ(std::string("worldspawn"), definition->name());
-            ASSERT_VEC_EQ(Color(0.0f, 0.0f, 0.0f, 1.0f), definition->color());
-            ASSERT_EQ(std::string("Only used for the world entity. "
-                             "Set message to the level name. "
-                             "Set sounds to the cd track to play. "
-                             "\"worldtype\"	type of world"), definition->description());
+            CHECK(definition->type() == Assets::EntityDefinitionType::BrushEntity);
+            CHECK(definition->name() == std::string("worldspawn"));
+            CHECK(definition->color() == Color(0.0f, 0.0f, 0.0f, 1.0f));
+            CHECK(definition->description() == std::string("Only used for the world entity. "
+                                                           "Set message to the level name. "
+                                                           "Set sounds to the cd track to play. "
+                                                           "\"worldtype\"	type of world"));
 
-            const auto& attributes = definition->attributeDefinitions();
-            ASSERT_EQ(1u, attributes.size());
+            const auto& properties = definition->propertyDefinitions();
+            CHECK(properties.size() == 1u);
 
             kdl::vec_clear_and_delete(definitions);
         }
@@ -173,37 +171,37 @@ namespace TrenchBroom {
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
+            CHECK(definitions.size() == 1u);
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
-            ASSERT_EQ(std::string("monster_zombie"), definition->name());
-            ASSERT_VEC_EQ(Color(1.0f, 0.0f, 0.0f, 1.0f), definition->color());
-            ASSERT_EQ(std::string("If crucified, stick the bounding box 12 pixels back into a wall to look right."), definition->description());
+            CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
+            CHECK(definition->name() == std::string("monster_zombie"));
+            CHECK(definition->color() == Color(1.0f, 0.0f, 0.0f, 1.0f));
+            CHECK(definition->description() == std::string("If crucified, stick the bounding box 12 pixels back into a wall to look right."));
 
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
-            ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
-            ASSERT_VEC_EQ(vm::vec3(16.0, 16.0, 32.0), pointDefinition->bounds().max);
+            CHECK(pointDefinition->bounds().min == vm::vec3(-16.0, -16.0, -24.0));
+            CHECK(pointDefinition->bounds().max == vm::vec3(16.0, 16.0, 32.0));
 
-            const auto& attributes = definition->attributeDefinitions();
-            ASSERT_EQ(1u, attributes.size()); // spawnflags
+            const auto& properties = definition->propertyDefinitions();
+            CHECK(properties.size() == 1u); // spawnflags
 
-            const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
+            const auto property = properties[0];
+            CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
-            ASSERT_TRUE(spawnflags != nullptr);
-            ASSERT_EQ(0, spawnflags->defaultValue());
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+            CHECK(spawnflags != nullptr);
+            CHECK(spawnflags->defaultValue() == 0);
 
-            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
-            ASSERT_EQ(2u, options.size());
-            ASSERT_EQ(1, options[0].value());
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
+            CHECK(options.size() == 2u);
+            CHECK(options[0].value() == 1);
 
-            ASSERT_EQ(std::string("Crucified"), options[0].shortDescription());
-            ASSERT_FALSE(options[0].isDefault());
-            ASSERT_EQ(2, options[1].value());
-            ASSERT_EQ(std::string("ambush"), options[1].shortDescription());
-            ASSERT_FALSE(options[1].isDefault());
+            CHECK(options[0].shortDescription() == std::string("Crucified"));
+            CHECK_FALSE(options[0].isDefault());
+            CHECK(options[1].value() == 2);
+            CHECK(options[1].shortDescription() == std::string("ambush"));
+            CHECK_FALSE(options[1].isDefault());
 
 
             kdl::vec_clear_and_delete(definitions);
@@ -220,46 +218,46 @@ namespace TrenchBroom {
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
+            CHECK(definitions.size() == 1u);
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
-            ASSERT_EQ(std::string("item_health"), definition->name());
-            ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
-            ASSERT_EQ(std::string("some desc"), definition->description());
+            CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
+            CHECK(definition->name() == std::string("item_health"));
+            CHECK(definition->color() == Color(0.3f, 0.3f, 1.0f, 1.0f));
+            CHECK(definition->description() == std::string("some desc"));
 
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
-            ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -16.0), pointDefinition->bounds().min);
-            ASSERT_VEC_EQ(vm::vec3(16.0, 16.0, 16.0), pointDefinition->bounds().max);
+            CHECK(pointDefinition->bounds().min == vm::vec3(-16.0, -16.0, -16.0));
+            CHECK(pointDefinition->bounds().max == vm::vec3(16.0, 16.0, 16.0));
 
-            const auto& attributes = definition->attributeDefinitions();
-            ASSERT_EQ(1u, attributes.size()); // spawnflags
+            const auto& properties = definition->propertyDefinitions();
+            CHECK(properties.size() == 1u); // spawnflags
 
-            const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
+            const auto property = properties[0];
+            CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
-            ASSERT_TRUE(spawnflags != nullptr);
-            ASSERT_EQ(0, spawnflags->defaultValue());
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+            CHECK(spawnflags != nullptr);
+            CHECK(spawnflags->defaultValue() == 0);
 
-            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
-            ASSERT_EQ(5u, options.size());
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
+            CHECK(options.size() == 5u);
 
-            ASSERT_EQ(std::string(""), options[0].shortDescription());
-            ASSERT_FALSE(options[0].isDefault());
-            ASSERT_EQ(1, options[0].value());
-            ASSERT_EQ(std::string("SUSPENDED"), options[1].shortDescription());
-            ASSERT_FALSE(options[1].isDefault());
-            ASSERT_EQ(2, options[1].value());
-            ASSERT_EQ(std::string("SPIN"), options[2].shortDescription());
-            ASSERT_FALSE(options[2].isDefault());
-            ASSERT_EQ(4, options[2].value());
-            ASSERT_EQ(std::string(""), options[3].shortDescription());
-            ASSERT_FALSE(options[3].isDefault());
-            ASSERT_EQ(8, options[3].value());
-            ASSERT_EQ(std::string("RESPAWN"), options[4].shortDescription());
-            ASSERT_FALSE(options[4].isDefault());
-            ASSERT_EQ(16, options[4].value());
+            CHECK(options[0].shortDescription() == std::string(""));
+            CHECK_FALSE(options[0].isDefault());
+            CHECK(options[0].value() == 1);
+            CHECK(options[1].shortDescription() == std::string("SUSPENDED"));
+            CHECK_FALSE(options[1].isDefault());
+            CHECK(options[1].value() == 2);
+            CHECK(options[2].shortDescription() == std::string("SPIN"));
+            CHECK_FALSE(options[2].isDefault());
+            CHECK(options[2].value() == 4);
+            CHECK(options[3].shortDescription() == std::string(""));
+            CHECK_FALSE(options[3].isDefault());
+            CHECK(options[3].value() == 8);
+            CHECK(options[4].shortDescription() == std::string("RESPAWN"));
+            CHECK_FALSE(options[4].isDefault());
+            CHECK(options[4].value() == 16);
 
 
             kdl::vec_clear_and_delete(definitions);
@@ -276,39 +274,39 @@ namespace TrenchBroom {
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
+            CHECK(definitions.size() == 1u);
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinitionType::BrushEntity, definition->type());
-            ASSERT_EQ(std::string("item_health"), definition->name());
-            ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
-            ASSERT_EQ(std::string("some desc"), definition->description());
+            CHECK(definition->type() == Assets::EntityDefinitionType::BrushEntity);
+            CHECK(definition->name() == std::string("item_health"));
+            CHECK(definition->color() == Color(0.3f, 0.3f, 1.0f, 1.0f));
+            CHECK(definition->description() == std::string("some desc"));
 
-            const auto& attributes = definition->attributeDefinitions();
-            ASSERT_EQ(1u, attributes.size()); // spawnflags
+            const auto& properties = definition->propertyDefinitions();
+            CHECK(properties.size() == 1u); // spawnflags
 
-            const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
+            const auto property = properties[0];
+            CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
-            ASSERT_TRUE(spawnflags != nullptr);
-            ASSERT_EQ(0, spawnflags->defaultValue());
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+            CHECK(spawnflags != nullptr);
+            CHECK(spawnflags->defaultValue() == 0);
 
-            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
-            ASSERT_EQ(4u, options.size());
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
+            CHECK(options.size() == 4u);
 
-            ASSERT_EQ(std::string("SUSPENDED"), options[0].shortDescription());
-            ASSERT_FALSE(options[0].isDefault());
-            ASSERT_EQ(1, options[0].value());
-            ASSERT_EQ(std::string("SPIN"), options[1].shortDescription());
-            ASSERT_FALSE(options[1].isDefault());
-            ASSERT_EQ(2, options[1].value());
-            ASSERT_EQ(std::string(""), options[2].shortDescription());
-            ASSERT_FALSE(options[2].isDefault());
-            ASSERT_EQ(4, options[2].value());
-            ASSERT_EQ(std::string("RESPAWN"), options[3].shortDescription());
-            ASSERT_FALSE(options[3].isDefault());
-            ASSERT_EQ(8, options[3].value());
+            CHECK(options[0].shortDescription() == std::string("SUSPENDED"));
+            CHECK_FALSE(options[0].isDefault());
+            CHECK(options[0].value() == 1);
+            CHECK(options[1].shortDescription() == std::string("SPIN"));
+            CHECK_FALSE(options[1].isDefault());
+            CHECK(options[1].value() == 2);
+            CHECK(options[2].shortDescription() == std::string(""));
+            CHECK_FALSE(options[2].isDefault());
+            CHECK(options[2].value() == 4);
+            CHECK(options[3].shortDescription() == std::string("RESPAWN"));
+            CHECK_FALSE(options[3].isDefault());
+            CHECK(options[3].value() == 8);
 
 
             kdl::vec_clear_and_delete(definitions);
@@ -357,19 +355,19 @@ namespace TrenchBroom {
             CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
             CHECK(definition->name() == "light");
 
-            CHECK(definition->attributeDefinitions().size() == 2u);
+            CHECK(definition->propertyDefinitions().size() == 2u);
 
-            const auto* styleAttribute = definition->attributeDefinition("style");
-            CHECK(styleAttribute != nullptr);
-            CHECK(styleAttribute->name() == "style");
-            CHECK(styleAttribute->type() == Assets::AttributeDefinitionType::ChoiceAttribute);
+            const auto* stylePropertyDefinition = definition->propertyDefinition("style");
+            CHECK(stylePropertyDefinition != nullptr);
+            CHECK(stylePropertyDefinition->key() == "style");
+            CHECK(stylePropertyDefinition->type() == Assets::PropertyDefinitionType::ChoiceProperty);
 
-            const auto* spawnflagsAttribute = definition->attributeDefinition(Model::AttributeNames::Spawnflags);
-            CHECK(spawnflagsAttribute != nullptr);
-            CHECK(spawnflagsAttribute->name() == Model::AttributeNames::Spawnflags);
-            CHECK(spawnflagsAttribute->type() == Assets::AttributeDefinitionType::FlagsAttribute);
+            const auto* spawnflagsPropertyDefinition = definition->propertyDefinition(Model::PropertyKeys::Spawnflags);
+            CHECK(spawnflagsPropertyDefinition != nullptr);
+            CHECK(spawnflagsPropertyDefinition->key() == Model::PropertyKeys::Spawnflags);
+            CHECK(spawnflagsPropertyDefinition->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-            const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(styleAttribute);
+            const Assets::ChoicePropertyDefinition* choice = static_cast<const Assets::ChoicePropertyDefinition*>(stylePropertyDefinition);
             CHECK(choice->options().size() == 12u);
 
             kdl::vec_clear_and_delete(definitions);
@@ -455,10 +453,10 @@ namespace TrenchBroom {
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
+            CHECK(definitions.size() == 1u);
 
             const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
-            ASSERT_EQ(vm::bbox3d(8.0), definition->bounds());
+            CHECK(definition->bounds() == vm::bbox3d(8.0));
 
             kdl::vec_clear_and_delete(definitions);
         }

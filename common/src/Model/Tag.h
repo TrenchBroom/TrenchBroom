@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_TAG_H
-#define TRENCHBROOM_TAG_H
+#pragma once
 
 #include "Macros.h"
 #include "Model/TagType.h"
@@ -405,4 +404,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_TAG_H

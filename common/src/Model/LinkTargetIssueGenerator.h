@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_LinkTargetIssueGenerator
-#define TrenchBroom_LinkTargetIssueGenerator
+#pragma once
 
 #include "Model/IssueGenerator.h"
 
@@ -34,10 +33,9 @@ namespace TrenchBroom {
         public:
             LinkTargetIssueGenerator();
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const override;
-            void processKeys(AttributableNode* node, const std::vector<std::string>& names, IssueList& issues) const;
+            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
+            void processKeys(EntityNodeBase* node, const std::vector<std::string>& keys, IssueList& issues) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_LinkTargetIssueGenerator) */

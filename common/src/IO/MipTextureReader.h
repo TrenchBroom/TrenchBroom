@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MipTextureReader_h
-#define MipTextureReader_h
+#pragma once
 
 #include "IO/TextureReader.h"
 
@@ -57,4 +56,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* MipTextureReader_h */

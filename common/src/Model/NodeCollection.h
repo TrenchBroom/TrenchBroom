@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_NodeCollection
-#define TrenchBroom_NodeCollection
+#pragma once
 
 #include <vector>
 
@@ -31,11 +30,6 @@ namespace TrenchBroom {
         class Node;
 
         class NodeCollection {
-        private:
-            class AddNode;
-            class RemoveNode;
-            class FindBrushes;
-            class HasBrush;
         private:
             std::vector<Node*> m_nodes;
             std::vector<LayerNode*> m_layers;
@@ -83,4 +77,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_NodeCollection) */

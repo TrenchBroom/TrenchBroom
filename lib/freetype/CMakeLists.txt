@@ -12,7 +12,7 @@ set(LIB_FREETYPE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 if(APPLE)
     # Must set the path manually because otherwise it will find a 64bit only freetype lib that comes with OS X
-    find_path(FREETYPE_INCLUDE_PATH ft2build.h "${LIB_FREETYPE_INCLUDE_DIR}" DOC "Freetype includes")
+    set(FREETYPE_INCLUDE_PATH "${LIB_FREETYPE_INCLUDE_DIR}")
     set(FREETYPE_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/osx/libfreetype.a")
 
     set(BZ2_LIBRARY "${LIB_FREETYPE_BINARY_DIR}/osx/libbz2.a")

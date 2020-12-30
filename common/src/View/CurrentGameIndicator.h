@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CurrentGameIndicator_h
-#define CurrentGameIndicator_h
+#pragma once
 
 #include <string>
 
@@ -34,4 +33,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CurrentGameIndicator_h */

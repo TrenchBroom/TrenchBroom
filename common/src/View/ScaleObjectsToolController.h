@@ -18,8 +18,7 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TrenchBroom_ScaleObjectsToolController
-#define TrenchBroom_ScaleObjectsToolController
+#pragma once
 
 #include "View/ToolController.h"
 
@@ -88,5 +87,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ScaleObjectsToolController) */
 

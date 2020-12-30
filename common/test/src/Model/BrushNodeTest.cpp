@@ -25,7 +25,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/BrushSnapshot.h"
+#include "Model/Entity.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
@@ -36,6 +36,7 @@
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
+#include <vecmath/approx.h>
 #include <vecmath/vec.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
@@ -46,7 +47,6 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
@@ -66,12 +66,12 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
         }
 
         TEST_CASE("BrushNodeTest.buildBrushFail2", "[BrushNodeTest]") {
@@ -90,12 +90,12 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
         }
 
         TEST_CASE("BrushNodeTest.buildBrushFail3", "[BrushNodeTest]") {
@@ -196,12 +196,12 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
+            CHECK(nodes.size() == 1u);
         }
 
         TEST_CASE("BrushNodeTest.buildBrushWithShortEdges", "[BrushNodeTest]") {
@@ -218,12 +218,12 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_TRUE(nodes.empty());
+            CHECK(nodes.empty());
         }
 
         TEST_CASE("BrushTest.selectedFaceCount", "[BrushNodeTest]") {
@@ -369,15 +369,15 @@ namespace TrenchBroom {
 
             PickResult hits1;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
-            ASSERT_EQ(1u, hits1.size());
+            CHECK(hits1.size() == 1u);
 
             Hit hit1 = hits1.all().front();
-            ASSERT_DOUBLE_EQ(8.0, hit1.distance());
-            ASSERT_EQ(vm::vec3::neg_y(), hitToFaceHandle(hit1)->face().boundary().normal);
+            CHECK(hit1.distance() == vm::approx(8.0));
+            CHECK(hitToFaceHandle(hit1)->face().boundary().normal == vm::vec3::neg_y());
 
             PickResult hits2;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);
-            ASSERT_TRUE(hits2.empty());
+            CHECK(hits2.empty());
         }
 
         TEST_CASE("BrushNodeTest.clone", "[BrushNodeTest]") {
@@ -419,13 +419,13 @@ namespace TrenchBroom {
 
             BrushNode* clone = original.clone(worldBounds);
             
-            ASSERT_EQ(original.brush().faceCount(), clone->brush().faceCount());
+            CHECK(clone->brush().faceCount() == original.brush().faceCount());
             for (const auto& originalFace : original.brush().faces()) {
                 const auto cloneFaceIndex = clone->brush().findFace(originalFace.boundary());
-                ASSERT_TRUE(cloneFaceIndex.has_value());
+                CHECK(cloneFaceIndex.has_value());
                 
                 const auto& cloneFace = clone->brush().face(*cloneFaceIndex);
-                ASSERT_EQ(originalFace, cloneFace);
+                CHECK(cloneFace == originalFace);
             }
             
             delete clone;
@@ -444,12 +444,12 @@ namespace TrenchBroom {
             // This brush is almost degenerate. It should be rejected by the map loader.
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(0u, nodes.size());
+            CHECK(nodes.size() == 0u);
         }
 
         TEST_CASE("BrushNodeTest.invalidBrush1332", "[BrushNodeTest]") {
@@ -475,7 +475,7 @@ namespace TrenchBroom {
                               "}");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -525,7 +525,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -551,55 +551,12 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
             std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
-        }
-
-        TEST_CASE("BrushNodeTest.snapshotTextureTest", "[BrushNodeTest]") {
-            const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
-            const BrushBuilder builder(&world, worldBounds);
-
-            BrushNode* cube = world.createBrush(builder.createCube(128.0, "testTexture").value());
-            BrushSnapshot* snapshot = nullptr;
-
-            // Temporarily set a texture on `cube`, take a snapshot, then clear the texture
-            {
-                Assets::Texture texture("testTexture", 64, 64);
-                for (size_t i = 0u; i < cube->brush().faceCount(); ++i) {
-                    cube->setFaceTexture(i, &texture);
-                }
-                ASSERT_EQ(6U, texture.usageCount());
-
-                snapshot = dynamic_cast<BrushSnapshot*>(cube->takeSnapshot());
-                ASSERT_NE(nullptr, snapshot);
-                ASSERT_EQ(6U, texture.usageCount());
-
-                for (size_t i = 0u; i < cube->brush().faceCount(); ++i) {
-                    cube->setFaceTexture(i, nullptr);
-                }
-                ASSERT_EQ(0U, texture.usageCount());
-            }
-
-            // Check all textures are cleared
-            for (const BrushFace& face : cube->brush().faces()) {
-                EXPECT_EQ(nullptr, face.texture());
-            }
-
-            CHECK(snapshot->restore(worldBounds).is_success());
-
-            // Check just the texture names are restored
-            for (const BrushFace& face : cube->brush().faces()) {
-                EXPECT_EQ("testTexture", face.attributes().textureName());
-                EXPECT_EQ(nullptr, face.texture());
-            }
-
-            delete snapshot;
-            delete cube;
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/1893
@@ -645,27 +602,27 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Model::MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
             std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
-            ASSERT_EQ(1u, nodes.size());
-            ASSERT_TRUE(nodes.at(0)->hasChildren());
-            ASSERT_EQ(2u, nodes.at(0)->children().size());
+            CHECK(nodes.size() == 1u);
+            CHECK(nodes.at(0)->hasChildren());
+            CHECK(nodes.at(0)->children().size() == 2u);
 
             BrushNode* pipe = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
             BrushNode* cube = static_cast<BrushNode*>(nodes.at(0)->children().at(1));
 
-            ASSERT_TRUE(pipe->intersects(cube));
-            ASSERT_TRUE(cube->intersects(pipe));
+            CHECK(pipe->intersects(cube));
+            CHECK(cube->intersects(pipe));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2361", "[BrushNodeTest]") {
             // see https://github.com/TrenchBroom/TrenchBroom/pull/2372#issuecomment-432893836
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             const std::string data = R"(
 {
@@ -747,14 +704,14 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            ASSERT_NO_THROW(IO::NodeReader::read(data, world, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, world, worldBounds, status));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2491", "[BrushNodeTest]") {
             // see https://github.com/TrenchBroom/TrenchBroom/issues/2491
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             const std::string data = R"(
             {
@@ -769,14 +726,14 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            ASSERT_NO_THROW(IO::NodeReader::read(data, world, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, world, worldBounds, status));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2686", "[BrushNodeTest]") {
             // see https://github.com/TrenchBroom/TrenchBroom/issues/2686
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Model::MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             const std::string data = R"(
 {
@@ -809,7 +766,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            ASSERT_NO_THROW(IO::NodeReader::read(data, world, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, world, worldBounds, status));
         }
     }
 }

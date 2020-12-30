@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapRenderer
-#define TrenchBroom_MapRenderer
+#pragma once
 
 #include "Macros.h"
 
@@ -108,8 +107,6 @@ namespace TrenchBroom {
                 Renderer_All                = Renderer_Default | Renderer_Selection | Renderer_Locked
             } Renderer;
 
-            class CollectRenderableNodes;
-
             /**
              * This moves nodes between default / selection / locked renderers as needed,
              * but doesn't otherwise invalidate them.
@@ -153,4 +150,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapRenderer) */

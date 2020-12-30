@@ -284,6 +284,10 @@ namespace TrenchBroom {
     }
 
     void PreferenceManager::saveChanges() {
+        if (m_unsavedPreferences.empty()) {
+            return;
+        }
+
         for (auto* pref : m_unsavedPreferences) {
             savePreferenceToCache(pref);
             preferenceDidChangeNotifier(pref->path());
@@ -365,7 +369,7 @@ namespace TrenchBroom {
 
         // Reload m_cache
         readV2SettingsFromPath(m_preferencesFilePath)
-            .visit(kdl::overload {
+            .visit(kdl::overload(
                 [&](std::map<IO::Path, QJsonValue>&& prefs) {
                     m_cache = std::move(prefs);
                 },
@@ -379,7 +383,7 @@ namespace TrenchBroom {
                 [&] (const PreferenceErrors::NoFilePresent&) {
                     m_cache = {};
                 }
-            });
+            ));
 
         invalidatePreferences();
 

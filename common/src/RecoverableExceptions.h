@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_RECOVERABLEEXCEPTIONS_H
-#define TRENCHBROOM_RECOVERABLEEXCEPTIONS_H
+#pragma once
 
 #include "Exceptions.h"
 
@@ -47,4 +46,3 @@ namespace TrenchBroom {
     };
 }
 
-#endif //TRENCHBROOM_RECOVERABLEEXCEPTIONS_H

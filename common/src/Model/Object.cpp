@@ -21,43 +21,42 @@
 
 #include "Model/GroupNode.h"
 
-#include <kdl/result.h>
-
-#include <iostream>
-
 namespace TrenchBroom {
     namespace Model {
-        std::ostream& operator<<(std::ostream& str, const TransformError& e) {
-            str << e.msg;
-            return str;
-        }
-
         Object::Object() {}
         Object::~Object() {}
 
-        Node* Object::container() const {
+        Node* Object::container() {
             return doGetContainer();
         }
 
-        LayerNode* Object::layer() const {
-            return doGetLayer();
+        const Node* Object::container() const {
+            return const_cast<Object*>(this)->container();
         }
 
-        GroupNode* Object::group() const {
-            return doGetGroup();
+        LayerNode* Object::containingLayer() {
+            return doGetContainingLayer();
         }
 
-        bool Object::grouped() const {
-            return group() != nullptr;
+        const LayerNode* Object::containingLayer() const {
+            return const_cast<Object*>(this)->containingLayer();
         }
 
-        bool Object::groupOpened() const {
-            const auto* containingGroup = group();
-            return containingGroup == nullptr || containingGroup->opened();
+        GroupNode* Object::containingGroup() {
+            return doGetContainingGroup();
         }
 
-        kdl::result<void, TransformError> Object::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
-            return doTransform(worldBounds, transformation, lockTextures);
+        const GroupNode* Object::containingGroup() const {
+            return const_cast<Object*>(this)->containingGroup();
+        }
+
+        bool Object::containedInGroup() const {
+            return containingGroup() != nullptr;
+        }
+
+        bool Object::containingGroupOpened() const {
+            const auto* group = containingGroup();
+            return group == nullptr || group->opened();
         }
 
         bool Object::contains(const Node* node) const {

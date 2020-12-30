@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GameEngineDialog_h
-#define GameEngineDialog_h
+#pragma once
 
 #include <string>
 
@@ -50,4 +49,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* GameEngineDialog_h */

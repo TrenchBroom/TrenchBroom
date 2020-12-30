@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef M8TextureReader_h
-#define M8TextureReader_h
+#pragma once
 
 #include "IO/TextureReader.h"
 
@@ -41,4 +40,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* M8TextureReader_h */

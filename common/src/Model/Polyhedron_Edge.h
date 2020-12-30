@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Polyhedron_Edge_h
-#define TrenchBroom_Polyhedron_Edge_h
+#pragma once
 
 #include "Polyhedron.h"
 #include "Macros.h"
@@ -293,5 +292,3 @@ m_link(this)
         }
     }
 }
-
-#endif

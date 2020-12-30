@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GameEngineProfileEditor_h
-#define GameEngineProfileEditor_h
+#pragma once
 
 #include <QWidget>
 
@@ -65,4 +64,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* GameEngineProfileEditor_h */

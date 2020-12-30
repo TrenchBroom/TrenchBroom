@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_OBJPARSER_H
-#define TRENCHBROOM_OBJPARSER_H
+#pragma once
 
 #include "IO/EntityModelParser.h"
 #include "IO/Path.h"
@@ -104,4 +103,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_ASEPARSER_H

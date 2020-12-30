@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
                 
                 builder.createBrush(*m_polyhedron, document->currentTextureName())
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& b) {
                             updateBrush(document->world()->createBrush(std::move(b)));
                         },
@@ -59,7 +59,7 @@ namespace TrenchBroom {
                             updateBrush(nullptr);
                             document->error() << "Could not update brush: " << e;
                         }
-                    });
+                    ));
             } else {
                 updateBrush(nullptr);
             }

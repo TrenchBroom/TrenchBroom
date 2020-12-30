@@ -20,12 +20,12 @@
 #include "EntityColor.h"
 
 #include "Color.h"
-#include "Model/AttributableNode.h"
 #include "Assets/ColorRange.h"
 #include "Model/EntityNode.h"
-#include "Model/NodeVisitor.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/overload.h>
 #include <kdl/string_utils.h>
 
 #include <cassert>
@@ -35,40 +35,26 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class DetectColorRangeVisitor : public ConstNodeVisitor {
-        private:
-            const std::string& m_name;
-            Assets::ColorRange::Type m_range;
-        public:
-            DetectColorRangeVisitor(const std::string& name) :
-            m_name(name),
-            m_range(Assets::ColorRange::Unset) {}
-
-            Assets::ColorRange::Type result() const { return m_range; }
-        private:
-            void doVisit(const WorldNode* world) override   { visitAttributableNode(world); }
-            void doVisit(const LayerNode*) override         {}
-            void doVisit(const GroupNode*) override         {}
-            void doVisit(const EntityNode* entity) override { visitAttributableNode(entity); }
-            void doVisit(const BrushNode*) override         {}
-
-            void visitAttributableNode(const AttributableNode* attributable) {
-                static const auto NullValue("");
-                const auto& value = attributable->attribute(m_name, NullValue);
-                if (value != NullValue) {
-                    const Assets::ColorRange::Type attrRange = Assets::detectColorRange(value);
-                    if (m_range == Assets::ColorRange::Unset)
-                        m_range = attrRange;
-                    else if (m_range != attrRange)
-                        m_range = Assets::ColorRange::Mixed;
-                }
+        Assets::ColorRange::Type detectColorRange(const std::string& propertyKey, const std::vector<EntityNodeBase*>& nodes) {
+            auto result = Assets::ColorRange::Unset;
+            for (auto* node : nodes) {
+                node->accept(kdl::overload(
+                    [&](const EntityNodeBase* entityNode) {
+                        if (const auto* value = entityNode->entity().property(propertyKey)) {
+                            const auto range = Assets::detectColorRange(*value);
+                            if (result == Assets::ColorRange::Unset) {
+                                result = range;
+                            } else if (result != range) {
+                                result = Assets::ColorRange::Mixed;
+                            }
+                        }
+                    },
+                    [](const LayerNode*) {},
+                    [](const GroupNode*) {},
+                    [](const BrushNode*) {}
+                ));
             }
-        };
-
-        Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<AttributableNode*>& attributables) {
-            DetectColorRangeVisitor visitor(name);
-            Node::accept(std::begin(attributables), std::end(attributables), visitor);
-            return visitor.result();
+            return result;
         }
 
         const std::string convertEntityColor(const std::string& str, const Assets::ColorRange::Type colorRange) {

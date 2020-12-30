@@ -299,7 +299,7 @@ namespace TrenchBroom {
         }
 
         const Assets::Texture* BrushFace::texture() const {
-            return m_textureReference.texture();
+            return m_textureReference.get();
         }
 
         vm::vec2f BrushFace::textureSize() const {
@@ -320,7 +320,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_textureReference = Assets::TextureReference(texture);
+            m_textureReference = Assets::AssetReference(texture);
             return true;
         }
 

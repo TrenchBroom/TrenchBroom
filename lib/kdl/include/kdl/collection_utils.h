@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_COLLECTION_UTILS_H
-#define KDL_COLLECTION_UTILS_H
+#pragma once
 
 #include <algorithm> // for std::remove
 #include <functional> // for std::less
@@ -248,9 +247,9 @@ namespace kdl {
      * @param cmp the comparator to use for comparisons
      */
     template<typename C, typename Compare = std::less<typename C::value_type>>
-    void sort(C& c, const Compare& cmp = Compare()) {
+    C col_sort(C c, const Compare& cmp = Compare()) {
         std::sort(std::begin(c), std::end(c), cmp);
+        return c;
     }
 }
 
-#endif //KDL_COLLECTION_UTILS_H

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ViewEffectsService
-#define TrenchBroom_ViewEffectsService
+#pragma once
 
 namespace TrenchBroom {
     namespace View {
@@ -32,4 +31,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ViewEffectsService) */

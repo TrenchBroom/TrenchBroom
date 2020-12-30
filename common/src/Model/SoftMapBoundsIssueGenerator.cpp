@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
         void SoftMapBoundsIssueGenerator::generateInternal(Node* node, IssueList& issues) const {
             auto game = kdl::mem_lock(m_game);
-            const Game::SoftMapBounds bounds = game->extractSoftMapBounds(*m_world);
+            const Game::SoftMapBounds bounds = game->extractSoftMapBounds(m_world->entity());
 
             if (!bounds.bounds.has_value()) {
                 return;

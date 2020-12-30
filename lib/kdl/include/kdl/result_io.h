@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef result_io_h
-#define result_io_h
+#pragma once
 
 #include "kdl/overload.h"
 #include "kdl/result.h"
@@ -32,12 +31,10 @@ namespace kdl {
 
     template <typename... Errors>
     std::ostream& operator<<(std::ostream& str, const result<void, Errors...>& result) {
-        result.visit(kdl::overload {
+        result.visit(kdl::overload(
             [&]()              { str << "void"; },
             [&](const auto& e) { str << e; }
-        });
+        ));
         return str;
     }
 }
-
-#endif /* result_io_h */

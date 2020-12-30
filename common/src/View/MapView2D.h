@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapView2D
-#define TrenchBroom_MapView2D
+#pragma once
 
 #include "View/MapViewBase.h"
 
@@ -102,4 +101,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapView2D) */

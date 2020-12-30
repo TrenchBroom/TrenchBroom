@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FontGlyph
-#define TrenchBroom_FontGlyph
+#pragma once
 
 #include <vecmath/forward.h>
 
@@ -42,4 +41,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FontGlyph) */

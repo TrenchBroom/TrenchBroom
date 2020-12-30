@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Selection
-#define TrenchBroom_Selection
+#pragma once
 
 #include "Model/BrushFaceHandle.h"
 
@@ -50,4 +49,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Selection) */

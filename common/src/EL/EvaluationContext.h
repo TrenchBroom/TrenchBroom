@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EvaluationContext_h
-#define EvaluationContext_h
+#pragma once
 
 #include "Macros.h"
 #include "EL/EL_Forward.h"
@@ -55,4 +54,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* EvaluationContext_h */

@@ -27,53 +27,44 @@
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
-#define ASSERT_EL_THROW(str, exception) ASSERT_THROW(ELParser::parseStrict(str).evaluate(EL::EvaluationContext()), exception)
-
-        template <typename Exp>
-        void ASSERT_EL_EQ(const Exp& expected, const std::string& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
-            const EL::Expression expression = ELParser::parseStrict(str);
-            ASSERT_EQ(EL::Value(expected), expression.evaluate(context));
-        }
-
-        void ASSERT_ELS_EQ(const std::string& lhs, const std::string& rhs, const EL::EvaluationContext& context = EL::EvaluationContext());
-        void ASSERT_ELS_EQ(const std::string& lhs, const std::string& rhs, const EL::EvaluationContext& context) {
-            const EL::Expression expression1 = ELParser::parseStrict(lhs);
-            const EL::Expression expression2 = ELParser::parseStrict(rhs);
-            ASSERT_EQ(expression1.evaluate(context), expression2.evaluate(context));
+        static auto evaluate(const std::string& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
+            return ELParser::parseStrict(str).evaluate(context);
         }
 
         TEST_CASE("ELParserTest.parseEmptyExpression", "[ELParserTest]") {
-            ASSERT_EL_THROW("", ParserException);
-            ASSERT_EL_THROW("    ", ParserException);
-            ASSERT_EL_THROW("\n", ParserException);
+            CHECK_THROWS_AS(evaluate(""), ParserException);
+            CHECK_THROWS_AS(evaluate("    "), ParserException);
+            CHECK_THROWS_AS(evaluate("\n"), ParserException);
         }
 
         TEST_CASE("ELParserTest.parseStringLiteral", "[ELParserTest]") {
-            ASSERT_EL_THROW("\"asdf", ParserException);
-            ASSERT_EL_EQ("asdf", "\"asdf\"");
+            CHECK_THROWS_AS(evaluate("\"asdf"), ParserException);
+
+            const auto context = EL::EvaluationContext();
+            CHECK(evaluate("\"asdf\"") == EL::Value("asdf"));
         }
 
         TEST_CASE("ELParserTest.parseStringLiteralWithDoubleQuotationMarks", "[ELParserTest]") {
-            ASSERT_EL_EQ(R"(asdf" "asdf)", R"("asdf\" \"asdf")");
+            // MSVC complains about an illegal escape sequence if we use a raw string literal for the expression
+            CHECK(evaluate("\"asdf\\\" \\\"asdf\"") == EL::Value(R"(asdf" "asdf)"));
         }
 
         TEST_CASE("ELParserTest.parseNumberLiteral", "[ELParserTest]") {
-            ASSERT_EL_THROW("1.123.34", ParserException);
+            CHECK_THROWS_AS(evaluate("1.123.34"), ParserException);
 
-            ASSERT_EL_EQ(1.0, "1");
-            ASSERT_EL_EQ(1.0, "1.0");
-            ASSERT_EL_EQ(1.0, "01.00");
-            ASSERT_EL_EQ(0.0, ".0");
-            ASSERT_EL_EQ(0.0, "0");
+            CHECK(evaluate("1") == EL::Value(1.0));
+            CHECK(evaluate("1.0") == EL::Value(1.0));
+            CHECK(evaluate("01.00") == EL::Value(1.0));
+            CHECK(evaluate(".0") == EL::Value(0.0));
+            CHECK(evaluate("0") == EL::Value(0.0));
         }
 
         TEST_CASE("ELParserTest.parseBooleanLiteral", "[ELParserTest]") {
-            ASSERT_EL_EQ(true, "true");
-            ASSERT_EL_EQ(false, "false");
+            CHECK(evaluate("true") == EL::Value(true));
+            CHECK(evaluate("false") == EL::Value(false));
         }
 
         TEST_CASE("ELParserTest.parseArrayLiteral", "[ELParserTest]") {
@@ -83,14 +74,14 @@ namespace TrenchBroom {
             nestedArray.push_back(EL::Value(true));
             array.push_back(EL::Value(nestedArray));
 
-            ASSERT_EL_EQ(EL::ArrayType(), "[]");
-            ASSERT_EL_EQ(array, "[ 1.0 , \"test\",[ true] ]");
+            CHECK(evaluate("[]") == EL::Value(EL::ArrayType()));
+            CHECK(evaluate("[ 1.0 , \"test\",[ true] ]") == EL::Value(array));
 
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value(3.0) }), "[1..3]");
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(3.0), EL::Value(2.0), EL::Value(1.0) }), "[3..1]");
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0) }), "[1..1]");
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(0.0) }), "[1..0]");
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(-2.0), EL::Value(-1.0), EL::Value(0.0), EL::Value(1.0) }), "[-2..1]");
+            CHECK(evaluate("[1..3]") == EL::Value(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value(3.0) })));
+            CHECK(evaluate("[3..1]") == EL::Value(EL::ArrayType({ EL::Value(3.0), EL::Value(2.0), EL::Value(1.0) })));
+            CHECK(evaluate("[1..1]") == EL::Value(EL::ArrayType({ EL::Value(1.0) })));
+            CHECK(evaluate("[1..0]") == EL::Value(EL::ArrayType({ EL::Value(1.0), EL::Value(0.0) })));
+            CHECK(evaluate("[-2..1]") == EL::Value(EL::ArrayType({ EL::Value(-2.0), EL::Value(-1.0), EL::Value(0.0), EL::Value(1.0) })));
         }
 
         TEST_CASE("ELParserTest.parseMapLiteral", "[ELParserTest]") {
@@ -100,8 +91,8 @@ namespace TrenchBroom {
             nestedMap.insert(std::make_pair("nestedKey", EL::Value(true)));
             map.insert(std::make_pair("testkey3", EL::Value(nestedMap)));
 
-            ASSERT_EL_EQ(EL::MapType(), "{}");
-            ASSERT_EL_EQ(map, " { \"testkey1\": 1, \"testkey2\"   :\"asdf\", \"testkey3\":{\"nestedKey\":true} }");
+            CHECK(evaluate("{}") == EL::Value(EL::MapType()));
+            CHECK(evaluate(" { \"testkey1\": 1, \"testkey2\"   :\"asdf\", \"testkey3\":{\"nestedKey\":true} }") == EL::Value(map));
         }
 
         TEST_CASE("ELParserTest.parseMapLiteralNestedInArray", "[ELParserTest]") {
@@ -111,7 +102,7 @@ namespace TrenchBroom {
             EL::ArrayType array;
             array.push_back(EL::Value(map));
 
-            ASSERT_EL_EQ(array, R"([ { "key": "value" } ])");
+            CHECK(evaluate(R"([ { "key": "value" } ])") == EL::Value(array));
         }
 
         TEST_CASE("ELParserTest.parseMapLiteralNestedInArrayNestedInMap", "[ELParserTest]") {
@@ -125,203 +116,207 @@ namespace TrenchBroom {
             outer.insert(std::make_pair("outerkey1", EL::Value(array)));
             outer.insert(std::make_pair("outerkey2", EL::Value("asdf")));
 
-            ASSERT_EL_EQ(outer, R"({ "outerkey1": [ { "key": "value" } ], "outerkey2": "asdf" })");
+            CHECK(evaluate(R"({ "outerkey1": [ { "key": "value" } ], "outerkey2": "asdf" })") == EL::Value(outer));
         }
 
         TEST_CASE("ELParserTest.parseMapLiteralWithTrailingGarbage", "[ELParserTest]") {
-            ASSERT_EL_THROW("{\n"
-                            "\t\"profiles\": [],\n"
-                            "\t\"version\": 1\n"
-                            "}\n"
-                            "asdf", ParserException);
+            CHECK_THROWS_AS(evaluate("{\n"
+                                     "\t\"profiles\": [],\n"
+                                     "\t\"version\": 1\n"
+                                     "}\n"
+                                     "asdf"), ParserException);
         }
 
         TEST_CASE("ELParserTest.parseVariable", "[ELParserTest]") {
             EL::EvaluationContext context;
             context.declareVariable("test", EL::Value(1.0));
 
-            ASSERT_EL_EQ(1.0, "test", context);
+            CHECK(evaluate("test", context) == EL::Value(1.0));
         }
 
         TEST_CASE("ELParserTest.parseUnaryPlus", "[ELParserTest]") {
-            ASSERT_EL_EQ(1.0, "+1.0");
+            CHECK(evaluate("+1.0") == EL::Value(1.0));
         }
 
         TEST_CASE("ELParserTest.parseUnaryMinus", "[ELParserTest]") {
-            ASSERT_EL_EQ(-1.0, "-1.0");
+            CHECK(evaluate("-1.0") == EL::Value(-1.0));
         }
 
         TEST_CASE("ELParserTest.parseLogicalNegation", "[ELParserTest]") {
-            ASSERT_EL_EQ(false, "!true");
-            ASSERT_EL_EQ(true, "!false");
-            ASSERT_EL_THROW("!0", EL::ConversionError);
-            ASSERT_EL_THROW("!1", EL::ConversionError);
-            ASSERT_EL_THROW("!'true'", EL::ConversionError);
+            CHECK(evaluate("!true") == EL::Value(false));
+            CHECK(evaluate("!false") == EL::Value(true));
+            CHECK_THROWS_AS(evaluate("!0"), EL::ConversionError);
+            CHECK_THROWS_AS(evaluate("!1"), EL::ConversionError);
+            CHECK_THROWS_AS(evaluate("!'true'"), EL::ConversionError);
         }
 
         TEST_CASE("ELParserTest.parseBitwiseNegation", "[ELParserTest]") {
-            ASSERT_EL_EQ(~393, "~393");
-            ASSERT_EL_THROW("~", ParserException);
-            ASSERT_EL_THROW("~~", ParserException);
+            CHECK(evaluate("~393") == EL::Value(~393));
+            CHECK_THROWS_AS(evaluate("~"), ParserException);
+            CHECK_THROWS_AS(evaluate("~~"), ParserException);
         }
 
         TEST_CASE("ELParserTest.parseAddition", "[ELParserTest]") {
-            ASSERT_EL_EQ(5.0, "2 + 3");
-            ASSERT_EL_EQ("asdf", "\"as\"+\"df\"");
-            ASSERT_EL_EQ(9.0, "2 + 3 + 4");
+            CHECK(evaluate("2 + 3") == EL::Value(5.0));
+            CHECK(evaluate("\"as\"+\"df\"") == EL::Value("asdf"));
+            CHECK(evaluate("2 + 3 + 4") == EL::Value(9.0));
         }
 
         TEST_CASE("ELParserTest.parseSubtraction", "[ELParserTest]") {
-            ASSERT_EL_EQ(-1.0, "2 - 3.0");
-            ASSERT_EL_EQ(-5.0, "2 - 3 - 4");
-            ASSERT_EL_EQ(-7.0, "2 - 3 - 4 - 2");
+            CHECK(evaluate("2 - 3.0") == EL::Value(-1.0));
+            CHECK(evaluate("2 - 3 - 4") == EL::Value(-5.0));
+            CHECK(evaluate("2 - 3 - 4 - 2") == EL::Value(-7.0));
         }
 
         TEST_CASE("ELParserTest.parseMultiplication", "[ELParserTest]") {
-            ASSERT_EL_EQ(6.0, "2 * 3.0");
+            CHECK(evaluate("2 * 3.0") == EL::Value(6.0));
 
-            ASSERT_EL_EQ(24.0, "2 * 3 * 4");
-            ASSERT_EL_EQ(48.0, "2 * 3 * 4 * 2");
+            CHECK(evaluate("2 * 3 * 4") == EL::Value(24.0));
+            CHECK(evaluate("2 * 3 * 4 * 2") == EL::Value(48.0));
         }
 
         TEST_CASE("ELParserTest.parseDivision", "[ELParserTest]") {
-            ASSERT_EL_EQ(6.0, "12 / 2.0");
-            ASSERT_EL_EQ(3.0, "12 / 2 / 2");
-            ASSERT_EL_EQ(1.0, "12 / 2 / 2 / 3");
+            CHECK(evaluate("12 / 2.0") == EL::Value(6.0));
+            CHECK(evaluate("12 / 2 / 2") == EL::Value(3.0));
+            CHECK(evaluate("12 / 2 / 2 / 3") == EL::Value(1.0));
         }
 
         TEST_CASE("ELParserTest.parseModulus", "[ELParserTest]") {
-            ASSERT_EL_EQ(0.0, "12 % 2.0");
-            ASSERT_EL_EQ(2.0, "12 % 5 % 3");
-            ASSERT_EL_EQ(2.0, "12 % 5 % 3 % 3");
+            CHECK(evaluate("12 % 2.0") == EL::Value(0.0));
+            CHECK(evaluate("12 % 5 % 3") == EL::Value(2.0));
+            CHECK(evaluate("12 % 5 % 3 % 3") == EL::Value(2.0));
         }
 
         TEST_CASE("ELParserTest.parseLogicalAnd", "[ELParserTest]") {
-            ASSERT_EL_EQ(true, "true && true");
-            ASSERT_EL_EQ(false, "false && true");
-            ASSERT_EL_EQ(false, "true && false");
-            ASSERT_EL_EQ(false, "false && false");
+            CHECK(evaluate("true && true") == EL::Value(true));
+            CHECK(evaluate("false && true") == EL::Value(false));
+            CHECK(evaluate("true && false") == EL::Value(false));
+            CHECK(evaluate("false && false") == EL::Value(false));
         }
 
         TEST_CASE("ELParserTest.parseLogicalOr", "[ELParserTest]") {
-            ASSERT_EL_EQ(true, "true || true");
-            ASSERT_EL_EQ(true, "false || true");
-            ASSERT_EL_EQ(true, "true || false");
-            ASSERT_EL_EQ(false, "false || false");
+            CHECK(evaluate("true || true") == EL::Value(true));
+            CHECK(evaluate("false || true") == EL::Value(true));
+            CHECK(evaluate("true || false") == EL::Value(true));
+            CHECK(evaluate("false || false") == EL::Value(false));
         }
 
         TEST_CASE("ELParserTest.parseBitwiseAnd", "[ELParserTest]") {
-            ASSERT_EL_EQ(23 & 24, "23 & 24");
+            CHECK(evaluate("23 & 24") == EL::Value(23 & 24));
         }
 
         TEST_CASE("ELParserTest.parseBitwiseOr", "[ELParserTest]") {
-            ASSERT_EL_EQ(23 | 24, "23 | 24");
+            CHECK(evaluate("23 | 24") == EL::Value(23 | 24));
         }
 
         TEST_CASE("ELParserTest.parseBitwiseXor", "[ELParserTest]") {
-            ASSERT_EL_EQ(23 ^ 24, "23 ^ 24");
-            ASSERT_EL_THROW("23 ^^ 23", ParserException);
+            CHECK(evaluate("23 ^ 24") == EL::Value((23 ^ 24)));
+            CHECK_THROWS_AS(evaluate("23 ^^ 23"), ParserException);
         }
 
         TEST_CASE("ELParserTest.parseBitwiseShiftLeft", "[ELParserTest]") {
-            ASSERT_EL_EQ(1 << 7, "1 << 7");
+            CHECK(evaluate("1 << 7") == EL::Value(1 << 7));
         }
 
         TEST_CASE("ELParserTest.parseBitwiseShiftRight", "[ELParserTest]") {
-            ASSERT_EL_EQ(8 >> 2, "8 >> 2");
+            CHECK(evaluate("8 >> 2") == EL::Value(8 >> 2));
         }
 
         TEST_CASE("ELParserTest.parseSubscript", "[ELParserTest]") {
-            ASSERT_EL_EQ(1.0, "[ 1.0, 2.0, \"test\" ][0]");
-            ASSERT_EL_EQ(2.0, "[ 1.0, 2.0, \"test\" ][1]");
-            ASSERT_EL_EQ("test", "[ 1.0, 2.0, \"test\" ][2]");
-            ASSERT_EL_EQ("test", "[ 1.0, 2.0, \"test\" ][-1]");
-            ASSERT_EL_EQ(2.0, "[ 1.0, 2.0, \"test\" ][-2]");
-            ASSERT_EL_EQ(1.0, "[ 1.0, 2.0, \"test\" ][-3]");
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][0]") == EL::Value(1.0));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][1]") == EL::Value(2.0));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][2]") == EL::Value("test"));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][-1]") == EL::Value("test"));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][-2]") == EL::Value(2.0));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][-3]") == EL::Value(1.0));
 
-            ASSERT_EL_EQ("test", "[ 1.0, 2.0, \"test\" ][1 + 1]");
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][1 + 1]") == EL::Value("test"));
 
-            ASSERT_EL_EQ(1.0, "{ \"key1\":1, \"key2\":2, \"key3\":\"test\"}[\"key1\"]");
-            ASSERT_EL_EQ(2.0, "{ \"key1\":1, \"key2\":2, \"key3\":\"test\"}[\"key2\"]");
-            ASSERT_EL_EQ("test", "{ \"key1\":1, \"key2\":2, \"key3\":\"test\"}[\"key3\"]");
+            CHECK(evaluate("{ \"key1\":1, \"key2\":2, \"key3\":\"test\"}[\"key1\"]") == EL::Value(1.0));
+            CHECK(evaluate("{ \"key1\":1, \"key2\":2, \"key3\":\"test\"}[\"key2\"]") == EL::Value(2.0));
+            CHECK(evaluate("{ \"key1\":1, \"key2\":2, \"key3\":\"test\"}[\"key3\"]") == EL::Value("test"));
 
-            ASSERT_EL_EQ(1.0, "[ 1.0, [ 2.0, \"test\"] ][0]");
-            ASSERT_EL_EQ(2.0, "[ 1.0, [ 2.0, \"test\"] ][1][0]");
-            ASSERT_EL_EQ("test", "[ 1.0, [ 2.0, \"test\"] ][1][1]");
+            CHECK(evaluate("[ 1.0, [ 2.0, \"test\"] ][0]") == EL::Value(1.0));
+            CHECK(evaluate("[ 1.0, [ 2.0, \"test\"] ][1][0]") == EL::Value(2.0));
+            CHECK(evaluate("[ 1.0, [ 2.0, \"test\"] ][1][1]") == EL::Value("test"));
 
-            ASSERT_EL_EQ(2.0, "{ \"key1\":1, \"key2\":2, \"key3\":[ 1, 2]}[\"key3\"][1]");
+            CHECK(evaluate("{ \"key1\":1, \"key2\":2, \"key3\":[ 1, 2]}[\"key3\"][1]") == EL::Value(2.0));
 
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value("test") }), "[ 1.0, 2.0, \"test\" ][0,1,2]");
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value("test") }), "[ 1.0, 2.0, \"test\" ][0..2]");
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value("test"), EL::Value(2.0), EL::Value(1.0) }), "[ 1.0, 2.0, \"test\" ][2..0]");
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value("test") }), "[ 1.0, 2.0, \"test\" ][0,1..2]");
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value(2.0), EL::Value("test") }), "[ 1.0, 2.0, \"test\" ][1..]");
-            ASSERT_EL_EQ(EL::ArrayType({ EL::Value("test"), EL::Value(2.0) }), "[ 1.0, 2.0, \"test\" ][..1]");
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][0,1,2]") ==
+                           EL::Value(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value("test") })));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][0..2]") ==
+                           EL::Value(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value("test") })));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][2..0]") ==
+                           EL::Value(EL::ArrayType({ EL::Value("test"), EL::Value(2.0), EL::Value(1.0) })));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][0,1..2]") ==
+                           EL::Value(EL::ArrayType({ EL::Value(1.0), EL::Value(2.0), EL::Value("test") })));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][1..]") == EL::Value(EL::ArrayType({ EL::Value(2.0), EL::Value("test") })));
+            CHECK(evaluate("[ 1.0, 2.0, \"test\" ][..1]") == EL::Value(EL::ArrayType({ EL::Value("test"), EL::Value(2.0) })));
 
-            ASSERT_EL_EQ("tset", "\"test\"[3,2,1,0]");
-            ASSERT_EL_EQ("set", "\"test\"[2,1,0]");
-            ASSERT_EL_EQ("se", "\"test\"[2..1]");
+            CHECK(evaluate("\"test\"[3,2,1,0]") == EL::Value("tset"));
+            CHECK(evaluate("\"test\"[2,1,0]") == EL::Value("set"));
+            CHECK(evaluate("\"test\"[2..1]") == EL::Value("se"));
 
-            ASSERT_EL_EQ("tset", "\"test\"[..0]");
-            ASSERT_EL_EQ("est", "\"test\"[1..]");
+            CHECK(evaluate("\"test\"[..0]") == EL::Value("tset"));
+            CHECK(evaluate("\"test\"[1..]") == EL::Value("est"));
         }
 
         TEST_CASE("ELParserTest.parseCaseOperator", "[ELParserTest]") {
-            ASSERT_EL_EQ(false, "true -> false");
-            ASSERT_EL_EQ(true, "true -> true && true");
-            ASSERT_EL_EQ(5, "1 < 3 -> 2 + 3");
-            ASSERT_EL_EQ(EL::Value::Undefined, "false -> true");
+            CHECK(evaluate("true -> false") == EL::Value(false));
+            CHECK(evaluate("true -> true && true") == EL::Value(true));
+            CHECK(evaluate("1 < 3 -> 2 + 3") == EL::Value(5));
+            CHECK(evaluate("false -> true") == EL::Value(EL::Value::Undefined));
         }
 
         TEST_CASE("ELParserTest.parseBinaryNegation", "[ELParserTest]") {
-            ASSERT_EL_EQ(~1l, "~1");
+            CHECK(evaluate("~1") == EL::Value(~1l));
         }
 
         TEST_CASE("ELParserTest.parseSwitchExpression", "[ELParserTest]") {
-            ASSERT_EL_EQ(EL::Value::Undefined, "{{}}");
-            ASSERT_EL_EQ("asdf", "{{'asdf'}}");
-            ASSERT_EL_EQ("fdsa", "{{'fdsa', 'asdf'}}");
-            ASSERT_EL_EQ("asdf", "{{false -> 'fdsa', 'asdf'}}");
-            ASSERT_EL_EQ(EL::Value::Undefined, "{{false -> false}}");
+            CHECK(evaluate("{{}}") == EL::Value::Undefined);
+            CHECK(evaluate("{{'asdf'}}") == EL::Value("asdf"));
+            CHECK(evaluate("{{'fdsa', 'asdf'}}") == EL::Value("fdsa"));
+            CHECK(evaluate("{{false -> 'fdsa', 'asdf'}}") == EL::Value("asdf"));
+            CHECK(evaluate("{{false -> false}}") == EL::Value::Undefined);
         }
 
         TEST_CASE("ELParserTest.testComparisonOperators", "[ELParserTest]") {
-            ASSERT_EL_EQ(true, "1 < 2");
-            ASSERT_EL_EQ(false, "2 < 2");
-            ASSERT_EL_EQ(true, "1 <= 2");
-            ASSERT_EL_EQ(true, "2 <= 2");
-            ASSERT_EL_EQ(false, "3 <= 2");
+            CHECK(evaluate("1 < 2") == EL::Value(true));
+            CHECK(evaluate("2 < 2") == EL::Value(false));
+            CHECK(evaluate("1 <= 2") == EL::Value(true));
+            CHECK(evaluate("2 <= 2") == EL::Value(true));
+            CHECK(evaluate("3 <= 2") == EL::Value(false));
 
-            ASSERT_EL_EQ(true, "\"test\" == \"test\"");
-            ASSERT_EL_EQ(false, "\"test1\" == \"test\"");
-            ASSERT_EL_EQ(false, "\"test\" != \"test\"");
-            ASSERT_EL_EQ(true, "\"test1\" != \"test\"");
+            CHECK(evaluate("\"test\" == \"test\"") == EL::Value(true));
+            CHECK(evaluate("\"test1\" == \"test\"") == EL::Value(false));
+            CHECK(evaluate("\"test\" != \"test\"") == EL::Value(false));
+            CHECK(evaluate("\"test1\" != \"test\"") == EL::Value(true));
 
-            ASSERT_EL_EQ(true, "2 > 1");
-            ASSERT_EL_EQ(false, "2 > 2");
-            ASSERT_EL_EQ(true, "2 >= 1");
-            ASSERT_EL_EQ(true, "2 >= 2");
-            ASSERT_EL_EQ(false, "2 >= 3");
+            CHECK(evaluate("2 > 1") == EL::Value(true));
+            CHECK(evaluate("2 > 2") == EL::Value(false));
+            CHECK(evaluate("2 >= 1") == EL::Value(true));
+            CHECK(evaluate("2 >= 2") == EL::Value(true));
+            CHECK(evaluate("2 >= 3") == EL::Value(false));
         }
 
         TEST_CASE("ELParserTest.testOperatorPrecedence", "[ELParserTest]") {
-            ASSERT_ELS_EQ("7 + 2 * 3", "2 * 3 + 7");
-            ASSERT_ELS_EQ("7 + 2 * 3 + 2", "2 * 3 + 7 + 2");
-            ASSERT_ELS_EQ("7 + 2 * 3 + 2 * 2", "2 * 3 + 7 + 2 * 2");
-            ASSERT_ELS_EQ("7 + 2 / 3 + 2 * 2", "2 / 3 + 7 + 2 * 2");
+            CHECK(evaluate("7 + 2 * 3") == evaluate("2 * 3 + 7"));
+            CHECK(evaluate("7 + 2 * 3 + 2") == evaluate("2 * 3 + 7 + 2"));
+            CHECK(evaluate("7 + 2 * 3 + 2 * 2") == evaluate("2 * 3 + 7 + 2 * 2"));
+            CHECK(evaluate("7 + 2 / 3 + 2 * 2") == evaluate("2 / 3 + 7 + 2 * 2"));
 
-            ASSERT_ELS_EQ("3 + 2 < 3 + 3", "(3 + 2) < (3 + 3)");
-            ASSERT_ELS_EQ("3 + 2 < 3 + 3 + 0 && true", "((3 + 2) < (3 + 3 + 0)) && true");
-            ASSERT_EL_EQ(true, "false && false || true");
-            ASSERT_EL_EQ(false, "false && (false || true)");
+            CHECK(evaluate("3 + 2 < 3 + 3") == evaluate("(3 + 2) < (3 + 3)"));
+            CHECK(evaluate("3 + 2 < 3 + 3 + 0 && true") == evaluate("((3 + 2) < (3 + 3 + 0)) && true"));
+            CHECK(evaluate("false && false || true") == EL::Value(true));
+            CHECK(evaluate("false && (false || true)") == EL::Value(false));
         }
 
         TEST_CASE("ELParserTest.testParseGrouping", "[ELParserTest]") {
-            ASSERT_EL_THROW("()", ParserException);
-            ASSERT_EL_EQ(1.0, "(1)");
-            ASSERT_EL_EQ(9.0, "(2+1)*3");
-            ASSERT_EL_EQ(9.0, "(2+1)*(2+1)");
-            ASSERT_EL_EQ(12.0, "(2+1)*((1+1)*2)");
+            CHECK_THROWS_AS(evaluate("()"), ParserException);
+            CHECK(evaluate("(1)") == EL::Value(1.0));
+            CHECK(evaluate("(2+1)*3") == EL::Value(9.0));
+            CHECK(evaluate("(2+1)*(2+1)") == EL::Value(9.0));
+            CHECK(evaluate("(2+1)*((1+1)*2)") == EL::Value(12.0));
         }
     }
 }

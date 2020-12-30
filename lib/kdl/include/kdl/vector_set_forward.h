@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_VECTOR_SET_FORWARD_H
-#define KDL_VECTOR_SET_FORWARD_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -26,4 +25,3 @@ namespace kdl {
     class vector_set;
 }
 
-#endif //KDL_VECTOR_SET_FORWARD_H

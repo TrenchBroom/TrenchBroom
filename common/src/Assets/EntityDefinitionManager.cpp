@@ -23,8 +23,9 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "IO/EntityDefinitionLoader.h"
-#include "Model/AttributableNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/Entity.h"
+#include "Model/EntityNodeBase.h"
+#include "Model/EntityProperties.h"
 
 #include <kdl/vector_utils.h>
 
@@ -58,9 +59,9 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_definitions);
         }
 
-        EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {
-            ensure(attributable != nullptr, "attributable is null");
-            return definition(attributable->attribute(Model::AttributeNames::Classname));
+        EntityDefinition* EntityDefinitionManager::definition(const Model::EntityNodeBase* node) const {
+            ensure(node != nullptr, "node is null");
+            return definition(node->entity().classname());
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const std::string& classname) const {

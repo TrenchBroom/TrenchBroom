@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VertexToolController_h
-#define VertexToolController_h
+#pragma once
 
 #include "View/VertexToolControllerBase.h"
 
@@ -42,4 +41,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* VertexToolController_h */

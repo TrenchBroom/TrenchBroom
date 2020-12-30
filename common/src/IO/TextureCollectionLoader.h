@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TextureCollectionLoader_h
-#define TextureCollectionLoader_h
+#pragma once
 
 #include <memory>
 #include <string>
@@ -74,4 +73,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TextureCollectionLoader_h */

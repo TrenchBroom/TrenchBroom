@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Polyhedron_ConvexHull_h
-#define TrenchBroom_Polyhedron_ConvexHull_h
+#pragma once
 
 #include "Macros.h"
 
@@ -52,7 +51,7 @@ namespace TrenchBroom {
         template <typename T, typename FP, typename VP>
         void Polyhedron<T,FP,VP>::addPoints(std::vector<vm::vec<T,3>> points) {
             if (!points.empty()) {
-                kdl::vec_sort_and_remove_duplicates(points);
+                points = kdl::vec_sort_and_remove_duplicates(std::move(points));
                 
                 const auto planeEpsilon = computePlaneEpsilon(points);
                 for (const auto& point : points) {
@@ -853,5 +852,3 @@ namespace TrenchBroom {
         }
     }
 }
-
-#endif

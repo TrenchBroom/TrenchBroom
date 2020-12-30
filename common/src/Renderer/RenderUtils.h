@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RenderUtils_h
-#define TrenchBroom_RenderUtils_h
+#pragma once
 
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
@@ -74,5 +73,3 @@ namespace TrenchBroom {
         VertsAndNormals cone3D(float radius, float length, size_t segments);
     }
 }
-
-#endif

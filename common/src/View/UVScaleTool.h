@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_UVScaleTool
-#define TrenchBroom_UVScaleTool
+#pragma once
 
 #include "Model/HitType.h"
 #include "Renderer/GLVertexType.h"
@@ -83,4 +82,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_UVScaleTool) */

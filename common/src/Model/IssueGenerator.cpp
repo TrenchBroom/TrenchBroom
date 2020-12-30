@@ -77,11 +77,11 @@ namespace TrenchBroom {
             m_quickFixes.push_back(quickFix);
         }
  
-        void IssueGenerator::doGenerate(WorldNode* worldNode,   IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(worldNode), issues); }
+        void IssueGenerator::doGenerate(WorldNode* worldNode,   IssueList& issues) const { doGenerate(static_cast<EntityNodeBase*>(worldNode), issues); }
         void IssueGenerator::doGenerate(LayerNode*,             IssueList&) const        {}
         void IssueGenerator::doGenerate(GroupNode*,             IssueList&) const        {}
-        void IssueGenerator::doGenerate(EntityNode* entityNode, IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(entityNode), issues); }
+        void IssueGenerator::doGenerate(EntityNode* entityNode, IssueList& issues) const { doGenerate(static_cast<EntityNodeBase*>(entityNode), issues); }
         void IssueGenerator::doGenerate(BrushNode*,             IssueList&) const        {}
-        void IssueGenerator::doGenerate(AttributableNode*,      IssueList&) const        {}
+        void IssueGenerator::doGenerate(EntityNodeBase*, IssueList&) const        {}
     }
 }

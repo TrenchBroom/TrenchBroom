@@ -20,16 +20,15 @@
 #include "SmartFlagsEditor.h"
 
 #include "Assets/EntityDefinition.h"
-#include "Assets/AttributeDefinition.h"
-#include "Model/AttributableNode.h"
-#include "Model/EntityNode.h"
-#include "Model/NodeVisitor.h"
-#include "Model/WorldNode.h"
+#include "Assets/PropertyDefinition.h"
+#include "Model/Entity.h"
+#include "Model/EntityNodeBase.h"
 #include "View/FlagsEditor.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
 #include <kdl/set_temp.h>
+#include <kdl/string_utils.h>
 
 #include <cassert>
 #include <memory>
@@ -42,31 +41,11 @@ namespace TrenchBroom {
     namespace View {
         class MapDocument;
 
-        class SmartFlagsEditor::UpdateSpawnflag : public Model::NodeVisitor {
-        private:
-            std::shared_ptr<MapDocument> m_document;
-            const std::string& m_name;
-            size_t m_flagIndex;
-            bool m_setFlag;
-        public:
-            UpdateSpawnflag(std::shared_ptr<MapDocument> document, const std::string& name, const size_t flagIndex, const bool setFlag) :
-            m_document(document),
-            m_name(name),
-            m_flagIndex(flagIndex),
-            m_setFlag(setFlag) {}
-
-            void doVisit(Model::WorldNode*) override  { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::LayerNode*) override  {}
-            void doVisit(Model::GroupNode*) override  {}
-            void doVisit(Model::EntityNode*) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::BrushNode*) override  {}
-        };
-
         SmartFlagsEditor::SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
-        SmartAttributeEditor(document, parent),
-        m_scrolledWindow(nullptr),
-        m_flagsEditor(nullptr),
-        m_ignoreUpdates(false) {
+            SmartPropertyEditor(document, parent),
+            m_scrolledWindow(nullptr),
+            m_flagsEditor(nullptr),
+            m_ignoreUpdates(false) {
             createGui();
         }
 
@@ -86,22 +65,22 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
-            assert(!attributables.empty());
+        void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) {
+            assert(!nodes.empty());
             if (m_ignoreUpdates)
                 return;
 
             QStringList labels;
             QStringList tooltips;
-            getFlags(attributables, labels, tooltips);
+            getFlags(nodes, labels, tooltips);
             m_flagsEditor->setFlags(labels, tooltips);
 
             int set, mixed;
-            getFlagValues(attributables, set, mixed);
+            getFlagValues(nodes, set, mixed);
             m_flagsEditor->setFlagValue(set, mixed);
         }
 
-        void SmartFlagsEditor::getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const {
+        void SmartFlagsEditor::getFlags(const std::vector<Model::EntityNodeBase*>& nodes, QStringList& labels, QStringList& tooltips) const {
             QStringList defaultLabels;
 
             // Initialize the labels and tooltips.
@@ -116,15 +95,15 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < NumFlags; ++i) {
                 bool firstPass = true;
-                for (const Model::AttributableNode* attributable : attributables) {
+                for (const Model::EntityNodeBase* node : nodes) {
                     const int indexI = static_cast<int>(i);
                     QString label = defaultLabels[indexI];
                     QString tooltip = "";
 
-                    const Assets::FlagsAttributeDefinition* attrDef = Assets::EntityDefinition::safeGetFlagsAttributeDefinition(attributable->definition(), name());
-                    if (attrDef != nullptr) {
+                    const Assets::FlagsPropertyDefinition* propDef = Assets::EntityDefinition::safeGetFlagsPropertyDefinition(node->entity().definition(), propertyKey());
+                    if (propDef != nullptr) {
                         const int flag = static_cast<int>(1 << i);
-                        const Assets::FlagsAttributeOption* flagDef = attrDef->option(flag);
+                        const Assets::FlagsPropertyOption* flagDef = propDef->option(flag);
                         if (flagDef != nullptr) {
                             label = QString::fromStdString(flagDef->shortDescription());
                             tooltip = QString::fromStdString(flagDef->longDescription());
@@ -145,15 +124,15 @@ namespace TrenchBroom {
             }
         }
 
-        void SmartFlagsEditor::getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const {
-            if (attributables.empty()) {
+        void SmartFlagsEditor::getFlagValues(const std::vector<Model::EntityNodeBase*>& nodes, int& setFlags, int& mixedFlags) const {
+            if (nodes.empty()) {
                 setFlags = 0;
                 mixedFlags = 0;
                 return;
             }
 
-            auto it = std::begin(attributables);
-            auto end = std::end(attributables);
+            auto it = std::begin(nodes);
+            auto end = std::end(nodes);
             setFlags = getFlagValue(*it);
             mixedFlags = 0;
 
@@ -161,26 +140,22 @@ namespace TrenchBroom {
                 combineFlags(NumFlags, getFlagValue(*it), setFlags, mixedFlags);
         }
 
-        int SmartFlagsEditor::getFlagValue(const Model::AttributableNode* attributable) const {
-            if (!attributable->hasAttribute(name()))
+        int SmartFlagsEditor::getFlagValue(const Model::EntityNodeBase* node) const {
+            if (const auto* value = node->entity().property(propertyKey())) {
+                return kdl::str_to_int(*value).value_or(0);
+            } else {
                 return 0;
-
-            const std::string& value = attributable->attribute(name());
-            return std::atoi(value.c_str());
+            }
         }
 
         void SmartFlagsEditor::flagChanged(const size_t index, const int /* value */, const int /* setFlag */, const int /* mixedFlag */) {
-            const std::vector<Model::AttributableNode*>& toUpdate = attributables();
+            const std::vector<Model::EntityNodeBase*>& toUpdate = nodes();
             if (toUpdate.empty())
                 return;
 
             const bool set = m_flagsEditor->isFlagSet(index);
-
             const kdl::set_temp ignoreUpdates(m_ignoreUpdates);
-
-            const Transaction transaction(document(), "Set Spawnflags");
-            UpdateSpawnflag visitor(document(), name(), index, set);
-            Model::Node::accept(std::begin(toUpdate), std::end(toUpdate), visitor);
+            document()->updateSpawnflag(propertyKey(), index, set);
         }
     }
 }

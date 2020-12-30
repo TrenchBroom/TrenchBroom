@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Color_h
-#define TrenchBroom_Color_h
+#pragma once
 
 #include <vecmath/vec.h>
 
@@ -65,4 +64,3 @@ namespace TrenchBroom {
     };
 }
 
-#endif

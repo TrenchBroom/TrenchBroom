@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_IndexedVertexList_h
-#define TrenchBroom_IndexedVertexList_h
+#pragma once
 
 #include "Renderer/GL.h"
 
@@ -69,7 +68,7 @@ namespace TrenchBroom {
 
             void addVertices(const typename T::Vertex::List& vertices) {
                 assert(m_allowDynamicGrowth || vertices.size() <= m_vertices.capacity() - m_vertices.size());
-                kdl::vec_append(m_vertices, vertices);
+                m_vertices = kdl::vec_concat(std::move(m_vertices), vertices);
             }
 
             void addPrimitive(const typename T::Vertex::List& vertices) {
@@ -81,9 +80,9 @@ namespace TrenchBroom {
                 assert(m_allowDynamicGrowth || primitives.vertices().size() <= m_vertices.capacity() - m_vertices.size());
                 assert(m_allowDynamicGrowth || primitives.indices().size() <= m_indices.capacity() - m_indices.size());
                 assert(m_allowDynamicGrowth || primitives.counts().size() <= m_counts.capacity() - m_counts.size());
-                kdl::vec_append(m_vertices, primitives.vertices());
-                kdl::vec_append(m_indices, primitives.indices());
-                kdl::vec_append(m_counts, primitives.counts());
+                m_vertices = kdl::vec_concat(std::move(m_vertices), primitives.vertices());
+                m_indices = kdl::vec_concat(std::move(m_indices), primitives.indices());
+                m_counts = kdl::vec_concat(std::move(m_counts), primitives.counts());
                 m_primStart = m_vertices.size();
             }
 
@@ -143,5 +142,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

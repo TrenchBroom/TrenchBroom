@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushFaceAttributes
-#define TrenchBroom_BrushFaceAttributes
+#pragma once
 
 #include "Color.h"
 
@@ -56,8 +55,6 @@ namespace TrenchBroom {
             
             friend bool operator==(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs);
             friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
-
-            BrushFaceAttributes takeSnapshot() const;
 
             const std::string& textureName() const;
 
@@ -98,4 +95,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_BrushFaceAttributes) */
