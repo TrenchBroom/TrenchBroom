@@ -53,7 +53,12 @@ namespace TrenchBroom {
             char m_escapeChar;
             TokenizerState m_state;
         public:
-            TokenizerBase(const char* begin, const char* end, std::string_view escapableChars, char escapeChar);
+            TokenizerBase(const char* begin, const char* end, std::string_view escapableChars, const char escapeChar) :
+            m_begin(begin),
+            m_end(end),
+            m_escapableChars(escapableChars),
+            m_escapeChar(escapeChar),
+            m_state{begin, 1, 1, false} {}
 
             inline void replaceState(std::string_view str) {
                 m_begin = str.data();

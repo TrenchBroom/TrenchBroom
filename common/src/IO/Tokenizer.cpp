@@ -24,11 +24,5 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TokenizerBase::TokenizerBase(const char* begin, const char* end, std::string_view escapableChars, const char escapeChar) :
-        m_begin(begin),
-        m_end(end),
-        m_escapableChars(escapableChars),
-        m_escapeChar(escapeChar),
-        m_state{begin, 1, 1, false} {}
     }
 }
