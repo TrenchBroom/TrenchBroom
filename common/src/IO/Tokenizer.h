@@ -201,7 +201,6 @@ namespace TrenchBroom {
                 }
             };
 
-            template <typename T> friend class Tokenizer;
         public:
             static const std::string& Whitespace() {
                 static const std::string whitespace(" \t\n\r");
