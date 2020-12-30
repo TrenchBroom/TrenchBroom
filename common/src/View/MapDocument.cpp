@@ -2010,6 +2010,19 @@ namespace TrenchBroom {
             ));
         }
 
+        bool MapDocument::setPreservedProperties(const std::vector<std::string>& preservedProperties) {
+            const auto entityNodes = kdl::vec_filter(allSelectedEntityNodes(), [](auto* node) { return Model::findContainingGroup(node) != nullptr; });
+            return applyAndSwap(*this, "Set Preserved Properties", entityNodes, kdl::overload(
+                [] (Model::Layer&) { return true; },
+                [] (Model::Group&) { return true; },
+                [&](Model::Entity& entity) {
+                    entity.setPreservedProperties(preservedProperties);
+                    return true;
+                },
+                [] (Model::Brush&) { return true; }
+            ));
+        }
+
         bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
             return applyAndSwap(*this, "Resize Brushes", m_selectedNodes.nodes(), kdl::overload(
                 [] (Model::Layer&)       { return true; },

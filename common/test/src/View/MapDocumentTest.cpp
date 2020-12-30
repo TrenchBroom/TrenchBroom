@@ -1550,5 +1550,24 @@ namespace TrenchBroom {
             document->redoCommand();
             CHECK(document->currentLayer() == layerNode2);
         }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.setPreservedProperties", "[MapDocumentTest]") {
+            auto* entityNode = new Model::EntityNode{};
+            document->addNodes({{document->parentForNodes(), {entityNode}}});
+            REQUIRE_THAT(entityNode->entity().preservedProperties(), Catch::Equals(std::vector<std::string>{}));
+
+            SECTION("Ungrouped entities don't get preserved properties set") {
+                document->selectAllNodes();
+                CHECK(document->setPreservedProperties({ "some_key" }));
+                CHECK_THAT(entityNode->entity().preservedProperties(), Catch::Equals(std::vector<std::string>{}));
+            }
+
+            SECTION("Grouped entities do get preserved properties set") {
+                document->selectAllNodes();
+                document->groupSelection("test");
+                CHECK(document->setPreservedProperties({ "some_key" }));
+                CHECK_THAT(entityNode->entity().preservedProperties(), Catch::Equals(std::vector<std::string>{ "some_key" }));
+            }
+        }
     }
 }
