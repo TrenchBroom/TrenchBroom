@@ -26,14 +26,39 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 
+#include <kdl/result_forward.h>
+
 #include <vecmath/bbox.h>
 
+#include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        enum class UpdateLinkedGroupsError;
+        using UpdateLinkedGroupsResult = std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>;
+
+        /**
+         * Updates the given target group nodes from the given source group node.
+         *
+         * The children of the source node are cloned (recursively) and transformed into the target nodes by means of the
+         * recorded transformations of the source group and the corresponding target groups.
+         *
+         * If this operation fails for any child and target group, then an error is returned. The operation can fail
+         * if any of the following conditions arises:
+         *
+         * - the transformation of the source group node is not invertible
+         * - transforming any of the source node's children fails
+         * - any of the transformed children is no longer within the world bounds
+         *
+         * If this operation succeeds, a vector of pairs is returned where each pair consists of the target node that
+         * should be updated, and the new children that should replace the target node's children.
+         */
+        kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroups(const GroupNode& sourceGroupNode, const std::vector<Model::GroupNode*>& targetGroupNodes, const vm::bbox3& worldBounds);
+
         /**
          * A group of nodes that can be edited as one.
          *
