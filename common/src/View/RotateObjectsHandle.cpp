@@ -144,9 +144,11 @@ namespace TrenchBroom {
         }
 
         Model::Hit RotateObjectsHandle::Handle2D::pickRotateHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const HitArea area) const {
-            // Work around imprecision caused by 2D cameras being positioned at map bounds...
+            // Work around imprecision caused by 2D cameras being positioned at map bounds
+            // by placing the ray origin on the same plane as the handle itself.
             // Fixes erratic handle selection behaviour at high zoom
-            auto ray(pickRay);
+            // TODO: This should be removed once we replace the numerically unstable torus intersection code
+            auto ray = pickRay;
             switch (area) {
                 case HitArea::XAxis:
                     ray.origin[0] = m_position[0];
@@ -158,6 +160,10 @@ namespace TrenchBroom {
 
                 case HitArea::ZAxis:
                     ray.origin[2] = m_position[2];
+                    break;
+
+                case HitArea::None:
+                case HitArea::Center:
                     break;
 
                 switchDefault();
