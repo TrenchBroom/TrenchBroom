@@ -1005,6 +1005,16 @@ namespace TrenchBroom {
             editMenu.addSeparator();
 
             editMenu.addItem(
+                createAction(IO::Path("Menu/Edit/Create Linked Duplicate"), QObject::tr("Create Linked Duplicate"), ActionContext::Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_D),
+                    [](ActionExecutionContext& context) {
+                        context.document()->createLinkedDuplicate();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.document()->canCreateLinkedDuplicate();
+                    }));
+            editMenu.addSeparator();
+
+            editMenu.addItem(
                 createAction(IO::Path("Controls/Map view/Flip objects horizontally"), QObject::tr("Flip Horizontally"), ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_F),
                     [](ActionExecutionContext& context) {
                         context.view()->flipObjects(vm::direction::left);
