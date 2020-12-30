@@ -31,6 +31,9 @@ namespace TrenchBroom {
 
             const std::string& name() const;
             void setName(std::string name);
+
+            friend bool operator==(const Group& lhs, const Group& rhs);
+            friend bool operator!=(const Group& lhs, const Group& rhs);
         };
     }
 }
