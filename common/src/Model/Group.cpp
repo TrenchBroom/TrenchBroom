@@ -31,5 +31,13 @@ namespace TrenchBroom {
         void Group::setName(std::string name) {
             m_name = std::move(name);
         }
+
+        bool operator==(const Group& lhs, const Group& rhs) {
+            return lhs.m_name == rhs.m_name;
+        }
+
+        bool operator!=(const Group& lhs, const Group& rhs) {
+            return !(lhs == rhs);
+        }
     }
 }
