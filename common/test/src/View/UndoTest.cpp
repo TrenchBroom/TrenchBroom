@@ -54,6 +54,7 @@ namespace TrenchBroom {
             }
             
             SECTION("translate brush") {
+                document->select(brushNode);
                 document->translateObjects(vm::vec3(1, 1, 1));
                 CHECK(texture->usageCount() == 6u);
 
