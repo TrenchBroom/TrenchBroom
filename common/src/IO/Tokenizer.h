@@ -213,7 +213,7 @@ namespace TrenchBroom {
 
             virtual ~Tokenizer() = default;
 
-            Token nextToken(const TokenType skipTokens = 0u) {
+            inline Token nextToken(const TokenType skipTokens = 0u) {
                 auto token = emitToken();
                 while (token.hasType(skipTokens)) {
                     token = emitToken();
@@ -221,23 +221,23 @@ namespace TrenchBroom {
                 return token;
             }
 
-            Token peekToken(const TokenType skipTokens = 0u) {
+            inline Token peekToken(const TokenType skipTokens = 0u) {
                 SaveState oldState(&m_state);
                 return nextToken(skipTokens);
             }
 
-            void skipToken(const TokenType skipTokens = ~0u) {
+            inline void skipToken(const TokenType skipTokens = ~0u) {
                 if (peekToken().hasType(skipTokens)) {
                     nextToken();
                 }
             }
 
-            void discardLine() {
+            inline void discardLine() {
                 discardUntil("\n");
                 discardWhile("\n");
             }
 
-            std::string_view readRemainder(const TokenType delimiterType) {
+            inline std::string_view readRemainder(const TokenType delimiterType) {
                 if (eof()) {
                     return std::string_view();
                 }
@@ -253,7 +253,7 @@ namespace TrenchBroom {
                 return std::string_view(startPos, static_cast<size_t>(endPos - startPos));
             }
 
-            std::string_view readAnyString(std::string_view delims) {
+            inline std::string_view readAnyString(std::string_view delims) {
                 while (isWhitespace(curChar())) {
                     advance();
                 }
@@ -262,15 +262,15 @@ namespace TrenchBroom {
                 return std::string_view(startPos, static_cast<size_t>(endPos - startPos));
             }
 
-            std::string unescapeString(std::string_view str) const {
+            inline std::string unescapeString(std::string_view str) const {
                 return unescape(str);
             }
 
-            void reset() {
+            inline void reset() {
                 TokenizerBase::reset();
             }
 
-            double progress() const {
+            inline double progress() const {
                 if (length() == 0) {
                     return 0.0;
                 }
@@ -279,40 +279,40 @@ namespace TrenchBroom {
                 return cur / len;
             }
 
-            bool eof() const {
+            inline bool eof() const {
                 return TokenizerBase::eof();
             }
         public:
-            size_t line() const {
+            inline size_t line() const {
                 return TokenizerBase::line();
             }
 
-            size_t column() const {
+            inline size_t column() const {
                 return TokenizerBase::column();
             }
 
-            size_t length() const {
+            inline size_t length() const {
                 return static_cast<size_t>(m_end - m_begin);
             }
 
-            std::string_view remainder() const {
+            inline std::string_view remainder() const {
                 return std::string_view(curPos(), length());
             }
 
         public:
-            TokenizerState snapshot() const {
+            inline TokenizerState snapshot() const {
                 return m_state;
             }
 
-            void restore(const TokenizerState& snapshot) {
+            inline void restore(const TokenizerState& snapshot) {
                 m_state = snapshot;
             }
         protected:
-            const char* curPos() const {
+            inline const char* curPos() const {
                 return m_state.cur;
             }
 
-            char curChar() const {
+            inline char curChar() const {
                 if (eof()) {
                     return 0;
                 }
@@ -320,31 +320,31 @@ namespace TrenchBroom {
                 return *curPos();
             }
 
-            void advance(const size_t offset) {
+            inline void advance(const size_t offset) {
                 TokenizerBase::advance(offset);
             }
 
-            void advance() {
+            inline void advance() {
                 advance(1);
             }
 
-            bool isDigit(const char c) const {
+            inline bool isDigit(const char c) const {
                 return c >= '0' && c <= '9';
             }
 
-            bool isLetter(const char c) const {
+            inline bool isLetter(const char c) const {
                 return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
             }
 
-            bool isWhitespace(const char c) const {
+            inline bool isWhitespace(const char c) const {
                 return isAnyOf(c, Whitespace());
             }
 
-            bool isEscaped() const {
+            inline bool isEscaped() const {
                 return escaped();
             }
 
-            const char* readInteger(std::string_view delims) {
+            inline const char* readInteger(std::string_view delims) {
                 if (curChar() != '+' && curChar() != '-' && !isDigit(curChar())) {
                     return nullptr;
                 }
@@ -364,7 +364,7 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            const char* readDecimal(std::string_view delims) {
+            inline const char* readDecimal(std::string_view delims) {
                 if (curChar() != '+' && curChar() != '-' && curChar() != '.' && !isDigit(curChar())) {
                     return nullptr;
                 }
@@ -397,13 +397,13 @@ namespace TrenchBroom {
             }
 
         private:
-            void readDigits() {
+            inline void readDigits() {
                 while (!eof() && isDigit(curChar())) {
                     advance();
                 }
             }
         protected:
-            const char* readUntil(std::string_view delims) {
+            inline const char* readUntil(std::string_view delims) {
                 if (!eof()) {
                     do {
                         advance();
@@ -412,14 +412,14 @@ namespace TrenchBroom {
                 return curPos();
             }
 
-            const char* readWhile(std::string_view allow) {
+            inline const char* readWhile(std::string_view allow) {
                 while (!eof() && isAnyOf(curChar(), allow)) {
                     advance();
                 }
                 return curPos();
             }
 
-            const char* readQuotedString(const char delim = '"', std::string_view hackDelims = std::string_view()) {
+            inline const char* readQuotedString(const char delim = '"', std::string_view hackDelims = std::string_view()) {
                 while (!eof() && (curChar() != delim || isEscaped())) {
                     // This is a hack to handle paths with trailing backslashes that get misinterpreted as escaped double quotation marks.
                     if (!hackDelims.empty() && curChar() == '"' && isEscaped() && hackDelims.find(lookAhead()) != std::string_view::npos) {
@@ -434,21 +434,21 @@ namespace TrenchBroom {
                 return end;
             }
 
-            const char* discardWhile(std::string_view allow) {
+            inline const char* discardWhile(std::string_view allow) {
                 while (!eof() && isAnyOf(curChar(), allow)) {
                     advance();
                 }
                 return curPos();
             }
 
-            const char* discardUntil(std::string_view delims) {
+            inline const char* discardUntil(std::string_view delims) {
                 while (!eof() && !isAnyOf(curChar(), delims)) {
                     advance();
                 }
                 return curPos();
             }
 
-            bool matchesPattern(std::string_view pattern) const {
+            inline bool matchesPattern(std::string_view pattern) const {
                 if (pattern.empty() || isEscaped() || curChar() != pattern[0]) {
                     return false;
                 }
@@ -460,7 +460,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            const char* discardUntilPattern(std::string_view pattern) {
+            inline const char* discardUntilPattern(std::string_view pattern) {
                 if (pattern.empty()) {
                     return curPos();
                 }
@@ -476,7 +476,7 @@ namespace TrenchBroom {
                 return curPos();
             }
 
-            const char* discard(std::string_view str) {
+            inline const char* discard(std::string_view str) {
                 for (size_t i = 0; i < str.size(); ++i) {
                     const char c = lookAhead(i);
                     if (c == 0 || c != str[i]) {
@@ -489,7 +489,7 @@ namespace TrenchBroom {
                 return curPos();
             }
         protected:
-            bool isAnyOf(const char c, std::string_view allow) const {
+            inline bool isAnyOf(const char c, std::string_view allow) const {
                 for (const auto& a : allow) {
                     if (c == a) {
                         return true;
