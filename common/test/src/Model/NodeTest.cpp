@@ -560,13 +560,13 @@ namespace TrenchBroom {
 
             auto* entity1 = world.createEntity(Entity());
             auto* entity2 = world.createEntity(Entity());
-            auto* group = world.createGroup("name");
+            auto* groupNode = new Model::GroupNode(Model::Group("name"));
             auto* groupEntity = world.createEntity(Entity());
 
             layer->addChild(entity1);
             layer->addChild(entity2);
-            layer->addChild(group);
-            group->addChild(groupEntity);
+            layer->addChild(groupNode);
+            groupNode->addChild(groupEntity);
 
             const auto collectRecursively = [](auto& node) {
                 auto result = std::vector<Node*>{};
@@ -580,8 +580,8 @@ namespace TrenchBroom {
                 return result;
             };
 
-            CHECK_THAT(collectRecursively(world), Catch::Equals(std::vector<Node*>{&world, layer, entity1, entity2, group, groupEntity}));
-            CHECK_THAT(collectRecursively(*group), Catch::Equals(std::vector<Node*>{group, groupEntity}));
+            CHECK_THAT(collectRecursively(world), Catch::Equals(std::vector<Node*>{ &world, layer, entity1, entity2, groupNode, groupEntity}));
+            CHECK_THAT(collectRecursively(*groupNode), Catch::Equals(std::vector<Node*>{ groupNode, groupEntity}));
             CHECK_THAT(collectRecursively(*entity1), Catch::Equals(std::vector<Node*>{entity1}));
         }
 
