@@ -219,13 +219,13 @@ namespace TrenchBroom {
                 return;
             }
 
-            const long rawId = std::atol(idStr.c_str());
-            if (rawId <= 0) {
+            const auto rawId = kdl::str_to_size(idStr);
+            if (!rawId || *rawId <= 0u) {
                 status.error(line, kdl::str_to_string("Skipping layer entity: '", idStr, "' is not a valid id"));
                 return;
             }
 
-            const Model::IdType layerId = static_cast<Model::IdType>(rawId);
+            const Model::IdType layerId = static_cast<Model::IdType>(*rawId);
             if (m_layers.count(layerId) > 0) {
                 status.error(line, kdl::str_to_string("Skipping layer entity: layer with id '", idStr, "' already exists"));
                 return;
@@ -271,13 +271,13 @@ namespace TrenchBroom {
                 return;
             }
 
-            const long rawId = std::atol(idStr.c_str());
-            if (rawId <= 0) {
+            const auto rawId = kdl::str_to_size(idStr);
+            if (!rawId || *rawId <= 0) {
                 status.error(line, kdl::str_to_string("Skipping group entity: '", idStr, "' is not a valid id"));
                 return;
             }
 
-            const Model::IdType groupId = static_cast<Model::IdType>(rawId);
+            const Model::IdType groupId = static_cast<Model::IdType>(*rawId);
             if (m_groups.count(groupId) > 0) {
                 status.error(line, kdl::str_to_string("Skipping group entity: group with id '", idStr, "' already exists"));
                 return;
@@ -327,9 +327,8 @@ namespace TrenchBroom {
         MapReader::ParentInfo::Type MapReader::storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) {
             const std::string& layerIdStr = findProperty(properties, Model::PropertyKeys::Layer);
             if (!kdl::str_is_blank(layerIdStr)) {
-                const long rawId = std::atol(layerIdStr.c_str());
-                if (rawId > 0) {
-                    const Model::IdType layerId = static_cast<Model::IdType>(rawId);
+                if (const auto rawId = kdl::str_to_size(layerIdStr)) {
+                    const Model::IdType layerId = static_cast<Model::IdType>(*rawId);
                     Model::LayerNode* layer = kdl::map_find_or_default(m_layers, layerId,
                         static_cast<Model::LayerNode*>(nullptr));
                     if (layer != nullptr)
@@ -343,9 +342,8 @@ namespace TrenchBroom {
             } else {
                 const std::string& groupIdStr = findProperty(properties, Model::PropertyKeys::Group);
                 if (!kdl::str_is_blank(groupIdStr)) {
-                    const long rawId = std::atol(groupIdStr.c_str());
-                    if (rawId > 0) {
-                        const Model::IdType groupId = static_cast<Model::IdType>(rawId);
+                if (const auto rawId = kdl::str_to_size(groupIdStr)) {
+                        const Model::IdType groupId = static_cast<Model::IdType>(*rawId);
                         Model::GroupNode* group = kdl::map_find_or_default(m_groups, groupId,
                             static_cast<Model::GroupNode*>(nullptr));
                         if (group != nullptr)
