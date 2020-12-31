@@ -199,28 +199,26 @@ namespace TrenchBroom {
         }
 
         Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const {
-            WorldNode* world = m_factory->createWorld(Entity());
-            cloneAttributes(world);
-            return world;
+            WorldNode* worldNode = new WorldNode(entity(), format());
+            cloneAttributes(worldNode);
+            return worldNode;
         }
 
         Node* WorldNode::doCloneRecursively(const vm::bbox3& worldBounds) const {
             const std::vector<Node*>& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
 
-            WorldNode* world = m_factory->createWorld(Entity());
-            cloneAttributes(world);
-
-            world->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
+            WorldNode* worldNode = static_cast<WorldNode*>(clone(worldBounds));
+            worldNode->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
 
             if (myChildren.size() > 1) {
                 std::vector<Node*> childClones;
                 childClones.reserve(myChildren.size() - 1);
                 cloneRecursively(worldBounds, std::begin(myChildren) + 1, std::end(myChildren), std::back_inserter(childClones));
-                world->addChildren(childClones);
+                worldNode->addChildren(childClones);
             }
 
-            return world;
+            return worldNode;
         }
 
         bool WorldNode::doCanAddChild(const Node* child) const {
@@ -356,10 +354,6 @@ namespace TrenchBroom {
 
         MapFormat WorldNode::doGetFormat() const {
             return m_factory->format();
-        }
-
-        WorldNode* WorldNode::doCreateWorld(Entity entity) const {
-            return m_factory->createWorld(std::move(entity));
         }
 
         LayerNode* WorldNode::doCreateLayer(const std::string& name) const {
