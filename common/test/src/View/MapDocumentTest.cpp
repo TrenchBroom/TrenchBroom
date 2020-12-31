@@ -1225,15 +1225,15 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            Model::LayerNode* layer = document->world()->createLayer("test1");
-            document->addNode(layer, document->world());
-            CHECK(layer->name() == "test1");
+            Model::LayerNode* layerNode = new Model::LayerNode(Model::Layer("test1"));
+            document->addNode(layerNode, document->world());
+            CHECK(layerNode->name() == "test1");
 
-            document->renameLayer(layer, "test2");
-            CHECK(layer->name() == "test2");
+            document->renameLayer(layerNode, "test2");
+            CHECK(layerNode->name() == "test2");
 
             document->undoCommand();
-            CHECK(layer->name() == "test1");
+            CHECK(layerNode->name() == "test1");
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.duplicateObjectGoesIntoSourceLayer", "[LayerTest]") {
@@ -1241,25 +1241,25 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            Model::LayerNode* layer1 = document->world()->createLayer("test1");
-            Model::LayerNode* layer2 = document->world()->createLayer("test2");
-            document->addNode(layer1, document->world());
-            document->addNode(layer2, document->world());
+            Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
+            Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+            document->addNode(layerNode1, document->world());
+            document->addNode(layerNode2, document->world());
 
-            document->setCurrentLayer(layer1);
+            document->setCurrentLayer(layerNode1);
             Model::EntityNode* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-            CHECK(entity->parent() == layer1);
-            CHECK(layer1->childCount() == 1);
+            CHECK(entity->parent() == layerNode1);
+            CHECK(layerNode1->childCount() == 1);
 
-            document->setCurrentLayer(layer2);
+            document->setCurrentLayer(layerNode2);
             document->select(entity);
             document->duplicateObjects(); // the duplicate should stay in layer1
 
             REQUIRE(document->selectedNodes().entityCount() == 1);
             Model::EntityNode* entityClone = document->selectedNodes().entities().at(0);
-            CHECK(entityClone->parent() == layer1);
-            CHECK(layer1->childCount() == 2);
-            CHECK(document->currentLayer() == layer2);
+            CHECK(entityClone->parent() == layerNode1);
+            CHECK(layerNode1->childCount() == 2);
+            CHECK(document->currentLayer() == layerNode2);
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newGroupGoesIntoSourceLayer", "[LayerTest]") {
@@ -1267,24 +1267,24 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            Model::LayerNode* layer1 = document->world()->createLayer("test1");
-            Model::LayerNode* layer2 = document->world()->createLayer("test2");
-            document->addNode(layer1, document->world());
-            document->addNode(layer2, document->world());
+            Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
+            Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+            document->addNode(layerNode1, document->world());
+            document->addNode(layerNode2, document->world());
 
-            document->setCurrentLayer(layer1);
+            document->setCurrentLayer(layerNode1);
             Model::EntityNode* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-            CHECK(entity->parent() == layer1);
-            CHECK(layer1->childCount() == 1);
+            CHECK(entity->parent() == layerNode1);
+            CHECK(layerNode1->childCount() == 1);
 
-            document->setCurrentLayer(layer2);
+            document->setCurrentLayer(layerNode2);
             document->select(entity);
             Model::GroupNode* newGroup = document->groupSelection("Group in Layer 1"); // the new group should stay in layer1
 
             CHECK(entity->parent() == newGroup);
-            CHECK(Model::findContainingLayer(entity) == layer1);
-            CHECK(Model::findContainingLayer(newGroup) == layer1);
-            CHECK(document->currentLayer() == layer2);
+            CHECK(Model::findContainingLayer(entity) == layerNode1);
+            CHECK(Model::findContainingLayer(newGroup) == layerNode1);
+            CHECK(document->currentLayer() == layerNode2);
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newObjectsInHiddenLayerAreVisible", "[LayerTest]") {
@@ -1292,31 +1292,31 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            Model::LayerNode* layer1 = document->world()->createLayer("test1");
-            Model::LayerNode* layer2 = document->world()->createLayer("test2");
-            document->addNode(layer1, document->world());
-            document->addNode(layer2, document->world());
+            Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
+            Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+            document->addNode(layerNode1, document->world());
+            document->addNode(layerNode2, document->world());
 
-            document->setCurrentLayer(layer1);
+            document->setCurrentLayer(layerNode1);
 
             // Create an entity in layer1
             Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-            CHECK(entity1->parent() == layer1);
-            CHECK(layer1->childCount() == 1u);
+            CHECK(entity1->parent() == layerNode1);
+            CHECK(layerNode1->childCount() == 1u);
 
             CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
             CHECK(entity1->visible());
 
             // Hide layer1. If any nodes in the layer were Visibility_Shown they would be reset to Visibility_Inherited
-            document->hideLayers({layer1}); 
+            document->hideLayers({ layerNode1});
 
             CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
             CHECK(!entity1->visible());
 
             // Create another entity in layer1. It will be visible, while entity1 will still be hidden.
             Model::EntityNode* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-            CHECK(entity2->parent() == layer1);
-            CHECK(layer1->childCount() == 2u);
+            CHECK(entity2->parent() == layerNode1);
+            CHECK(layerNode1->childCount() == 2u);
 
             CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
             CHECK(!entity1->visible());
@@ -1324,9 +1324,9 @@ namespace TrenchBroom {
             CHECK(entity2->visible());
 
             // Change to layer2. This hides all objects in layer1
-            document->setCurrentLayer(layer2);
+            document->setCurrentLayer(layerNode2);
 
-            CHECK(document->currentLayer() == layer2);
+            CHECK(document->currentLayer() == layerNode2);
             CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
             CHECK(!entity1->visible());
             CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Inherited);
@@ -1335,7 +1335,7 @@ namespace TrenchBroom {
             // Undo (Switch current layer back to layer1)
             document->undoCommand();
 
-            CHECK(document->currentLayer() == layer1);
+            CHECK(document->currentLayer() == layerNode1);
             CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
             CHECK(!entity1->visible());
             CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
@@ -1344,7 +1344,7 @@ namespace TrenchBroom {
             // Undo (entity2 creation)
             document->undoCommand();
 
-            CHECK(layer1->childCount() == 1u);
+            CHECK(layerNode1->childCount() == 1u);
             CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
             CHECK(!entity1->visible());
 
@@ -1360,20 +1360,20 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            Model::LayerNode* layer1 = document->world()->createLayer("test1");
-            document->addNode(layer1, document->world());
+            Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
+            document->addNode(layerNode1, document->world());
 
-            document->setCurrentLayer(layer1);
-            document->hideLayers({layer1});
+            document->setCurrentLayer(layerNode1);
+            document->hideLayers({ layerNode1});
 
             // Create entity1 and brush1 in the hidden layer1
             Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
             Model::BrushNode* brush1 = createBrushNode();
             document->addNode(brush1, document->parentForNodes());
 
-            CHECK(entity1->parent() == layer1);
-            CHECK(brush1->parent() == layer1);
-            CHECK(layer1->childCount() == 2u);
+            CHECK(entity1->parent() == layerNode1);
+            CHECK(brush1->parent() == layerNode1);
+            CHECK(layerNode1->childCount() == 2u);
 
             CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Shown);
             CHECK(brush1->visibilityState() == Model::VisibilityState::Visibility_Shown);
@@ -1404,31 +1404,31 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            auto* layer1 = document->world()->createLayer("test1");
-            auto* layer2 = document->world()->createLayer("test2");
-            document->addNode(layer1, document->world());
-            document->addNode(layer2, document->world());
+            auto* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
+            auto* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+            document->addNode(layerNode1, document->world());
+            document->addNode(layerNode2, document->world());
 
-            document->setCurrentLayer(layer1);
+            document->setCurrentLayer(layerNode1);
 
             // Create an entity in layer1
             auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-            CHECK(entity1->parent() == layer1);
-            CHECK(layer1->childCount() == 1u);
+            CHECK(entity1->parent() == layerNode1);
+            CHECK(layerNode1->childCount() == 1u);
 
             CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
             CHECK(!entity1->locked());
 
             // Lock layer1
-            document->lock({layer1}); 
+            document->lock({ layerNode1});
 
             CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
             CHECK(entity1->locked());
 
             // Create another entity in layer1. It will be unlocked, while entity1 will still be locked (inherited).
             auto* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-            CHECK(entity2->parent() == layer1);
-            CHECK(layer1->childCount() == 2u);
+            CHECK(entity2->parent() == layerNode1);
+            CHECK(layerNode1->childCount() == 2u);
 
             CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
             CHECK(entity1->locked());
@@ -1437,9 +1437,9 @@ namespace TrenchBroom {
 
             // Change to layer2. This causes the Lock_Unlocked objects in layer1 to be degraded to Lock_Inherited
             // (i.e. everything in layer1 becomes locked)
-            document->setCurrentLayer(layer2);
+            document->setCurrentLayer(layerNode2);
 
-            CHECK(document->currentLayer() == layer2);
+            CHECK(document->currentLayer() == layerNode2);
             CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
             CHECK(entity1->locked());
             CHECK(entity2->lockState() == Model::LockState::Lock_Inherited);
@@ -1448,7 +1448,7 @@ namespace TrenchBroom {
             // Undo (Switch current layer back to layer1)
             document->undoCommand();
 
-            CHECK(document->currentLayer() == layer1);
+            CHECK(document->currentLayer() == layerNode1);
             CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
             CHECK(entity1->locked());
             CHECK(entity2->lockState() == Model::LockState::Lock_Unlocked);
@@ -1457,7 +1457,7 @@ namespace TrenchBroom {
             // Undo entity2 creation
             document->undoCommand();
 
-            CHECK(layer1->childCount() == 1u);
+            CHECK(layerNode1->childCount() == 1u);
             CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
             CHECK(entity1->locked());
 
@@ -1473,9 +1473,9 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            auto* layerNode0 = document->world()->createLayer("layer0");
-            auto* layerNode1 = document->world()->createLayer("layer1");
-            auto* layerNode2 = document->world()->createLayer("layer2");
+            auto* layerNode0 = new Model::LayerNode(Model::Layer("layer0"));
+            auto* layerNode1 = new Model::LayerNode(Model::Layer("layer1"));
+            auto* layerNode2 = new Model::LayerNode(Model::Layer("layer2"));
 
             setLayerSortIndex(*layerNode0, 0);
             setLayerSortIndex(*layerNode1, 1);
@@ -1528,27 +1528,27 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            auto* defaultLayer = document->world()->defaultLayer();
-            auto* layer1 = document->world()->createLayer("test1");
-            auto* layer2 = document->world()->createLayer("test2");
-            document->addNode(layer1, document->world());
-            document->addNode(layer2, document->world());
-            CHECK(document->currentLayer() == defaultLayer);
+            auto* defaultLayerNode = document->world()->defaultLayer();
+            auto* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
+            auto* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+            document->addNode(layerNode1, document->world());
+            document->addNode(layerNode2, document->world());
+            CHECK(document->currentLayer() == defaultLayerNode);
 
-            document->setCurrentLayer(layer1);
-            document->setCurrentLayer(layer2);
-            CHECK(document->currentLayer() == layer2);
+            document->setCurrentLayer(layerNode1);
+            document->setCurrentLayer(layerNode2);
+            CHECK(document->currentLayer() == layerNode2);
 
             // No collation currently because of the transactions in setCurrentLayer()
             document->undoCommand();
-            CHECK(document->currentLayer() == layer1);
+            CHECK(document->currentLayer() == layerNode1);
             document->undoCommand();
-            CHECK(document->currentLayer() == defaultLayer);
+            CHECK(document->currentLayer() == defaultLayerNode);
 
             document->redoCommand();
-            CHECK(document->currentLayer() == layer1);
+            CHECK(document->currentLayer() == layerNode1);
             document->redoCommand();
-            CHECK(document->currentLayer() == layer2);
+            CHECK(document->currentLayer() == layerNode2);
         }
     }
 }
