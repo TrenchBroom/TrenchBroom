@@ -91,26 +91,16 @@ namespace TrenchBroom {
                 }
             }
 
-            inline size_t line() const {
-                return m_state.line;
-            }
-
-            inline size_t column() const {
-                return m_state.column;
-            }
-
             inline bool escaped() const {
                 return !eof() && m_state.escaped && m_escapableChars.find(curChar()) != std::string::npos;
             }
+
             inline std::string unescape(std::string_view str) const {
                 return kdl::str_unescape(str, m_escapableChars, m_escapeChar);
             }
+
             inline void resetEscaped() {
                 m_state.escaped = false;
-            }
-
-            inline bool eof() const  {
-                return eof(m_state.cur);
             }
 
             inline bool eof(const char* ptr) const {
@@ -127,6 +117,7 @@ namespace TrenchBroom {
                     advance();
                 }
             }
+
             inline void advance() {
                 errorIfEof();
 
@@ -155,12 +146,6 @@ namespace TrenchBroom {
                 }
                 ++m_state.cur;
             }
-            inline void reset() {
-                m_state.cur = m_begin;
-                m_state.line = 1;
-                m_state.column = 1;
-                m_state.escaped = false;
-            }
 
             inline void errorIfEof() const {
                 if (eof()) {
@@ -171,11 +156,31 @@ namespace TrenchBroom {
             inline TokenizerState snapshot() const {
                 return m_state;
             }
+
             inline void restore(const TokenizerState& snapshot) {
                 m_state = snapshot;
             }
 
         public:
+            inline bool eof() const  {
+                return eof(m_state.cur);
+            }
+
+            inline size_t line() const {
+                return m_state.line;
+            }
+
+            inline size_t column() const {
+                return m_state.column;
+            }
+        public:
+            inline void reset() {
+                m_state.cur = m_begin;
+                m_state.line = 1;
+                m_state.column = 1;
+                m_state.escaped = false;
+            }
+
             inline void adoptState(const TokenizerState& state) {
                 assert(state.cur >= m_begin);
                 assert(state.cur <= m_end);
@@ -270,10 +275,6 @@ namespace TrenchBroom {
                 return unescape(str);
             }
 
-            inline void reset() {
-                TokenizerBase::reset();
-            }
-
             inline double progress() const {
                 if (length() == 0) {
                     return 0.0;
@@ -281,18 +282,6 @@ namespace TrenchBroom {
                 const auto cur = static_cast<double>(offset(curPos()));
                 const auto len = static_cast<double>(length());
                 return cur / len;
-            }
-
-            inline bool eof() const {
-                return TokenizerBase::eof();
-            }
-        public:
-            inline size_t line() const {
-                return TokenizerBase::line();
-            }
-
-            inline size_t column() const {
-                return TokenizerBase::column();
             }
 
             inline size_t length() const {
@@ -322,14 +311,6 @@ namespace TrenchBroom {
                 }
 
                 return *curPos();
-            }
-
-            inline void advance(const size_t offset) {
-                TokenizerBase::advance(offset);
-            }
-
-            inline void advance() {
-                advance(1);
             }
 
             inline bool isDigit(const char c) const {
