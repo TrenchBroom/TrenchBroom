@@ -525,7 +525,7 @@ namespace TrenchBroom {
 
             WorldNode world(Entity(), MapFormat::Standard);
             LayerNode layer(Layer("name"));
-            GroupNode group("name");
+            GroupNode group(Group("name"));
             EntityNode entity;
             BrushNode brush(BrushBuilder(&world, worldBounds).createCube(32.0, "texture").value());
 
@@ -612,7 +612,7 @@ namespace TrenchBroom {
         TEST_CASE("NodeTest.visitAll", "[NodeTest]") {
             WorldNode world(Entity(), MapFormat::Standard);
             LayerNode layer(Layer("name"));
-            GroupNode group("name");
+            GroupNode group(Group("name"));
             EntityNode entity;
 
             const auto toVisit = std::vector<Node*>{&world, &layer, &group, &entity};

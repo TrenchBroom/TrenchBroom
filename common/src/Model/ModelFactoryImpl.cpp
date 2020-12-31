@@ -63,7 +63,7 @@ namespace TrenchBroom {
 
         GroupNode* ModelFactoryImpl::doCreateGroup(const std::string& name) const {
             assert(m_format != MapFormat::Unknown);
-            return new GroupNode(name);
+            return new GroupNode(Group(name));
         }
 
         EntityNode* ModelFactoryImpl::doCreateEntity(Entity entity) const {

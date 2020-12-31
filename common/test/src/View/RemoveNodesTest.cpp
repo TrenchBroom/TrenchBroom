@@ -65,7 +65,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyGroup") {
-            Model::GroupNode* group = new Model::GroupNode("group");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("group"));
             document->addNode(group, document->parentForNodes());
 
             document->openGroup(group);
@@ -85,12 +85,12 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups") {
-            Model::GroupNode* outer = new Model::GroupNode("outer");
+            Model::GroupNode* outer = new Model::GroupNode(Model::Group("outer"));
             document->addNode(outer, document->parentForNodes());
 
             document->openGroup(outer);
 
-            Model::GroupNode* inner = new Model::GroupNode("inner");
+            Model::GroupNode* inner = new Model::GroupNode(Model::Group("inner"));
             document->addNode(inner, document->parentForNodes());
 
             document->openGroup(inner);

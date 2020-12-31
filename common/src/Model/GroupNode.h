@@ -48,7 +48,7 @@ namespace TrenchBroom {
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            explicit GroupNode(std::string name);
+            explicit GroupNode(Group group);
 
             const Group& group() const;
             Group setGroup(Group group);
