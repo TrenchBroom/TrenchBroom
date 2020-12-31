@@ -38,8 +38,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GroupNode::GroupNode(std::string name) :
-        m_group(std::move(name)),
+        GroupNode::GroupNode(Group group) :
+        m_group(std::move(group)),
         m_editState(EditState::Closed),
         m_boundsValid(false) {}
 
@@ -118,7 +118,7 @@ namespace TrenchBroom {
         }
 
         Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const {
-            GroupNode* group = new GroupNode(doGetName());
+            GroupNode* group = new GroupNode(m_group);
             cloneAttributes(group);
             return group;
         }

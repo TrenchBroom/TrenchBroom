@@ -1214,7 +1214,7 @@ namespace TrenchBroom {
             if (nodes.empty())
                 return nullptr;
 
-            Model::GroupNode* group = new Model::GroupNode(name);
+            Model::GroupNode* group = new Model::GroupNode(Model::Group(name));
 
             const Transaction transaction(this, "Group Selected Objects");
             deselectAll();

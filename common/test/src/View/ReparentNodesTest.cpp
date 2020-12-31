@@ -60,24 +60,24 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToItself") {
-            Model::GroupNode* group = new Model::GroupNode("Group");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             document->addNode(group, document->parentForNodes());
 
             CHECK_FALSE(document->reparentNodes(group, { group }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToChild") {
-            Model::GroupNode* outer = new Model::GroupNode("Outer");
+            Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
             document->addNode(outer, document->parentForNodes());
 
-            Model::GroupNode* inner = new Model::GroupNode("Inner");
+            Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
             document->addNode(inner, outer);
 
             CHECK_FALSE(document->reparentNodes(inner, { outer }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroup") {
-            Model::GroupNode* group = new Model::GroupNode("Group");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             document->addNode(group, document->parentForNodes());
 
             Model::EntityNode* entity = new Model::EntityNode();
@@ -93,10 +93,10 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.recursivelyRemoveEmptyGroups") {
-            Model::GroupNode* outer = new Model::GroupNode("Outer");
+            Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
             document->addNode(outer, document->parentForNodes());
 
-            Model::GroupNode* inner = new Model::GroupNode("Inner");
+            Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
             document->addNode(inner, outer);
 
             Model::EntityNode* entity = new Model::EntityNode();
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroupAndEntity") {
-            Model::GroupNode* group = new Model::GroupNode("Group");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             document->addNode(group, document->parentForNodes());
 
             Model::EntityNode* entity = new Model::EntityNode();

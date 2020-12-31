@@ -44,7 +44,7 @@ namespace TrenchBroom {
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
-            Model::GroupNode* group = new Model::GroupNode("Unnamed");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
             document->addNode(group, layer);
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
-            Model::GroupNode* group = new Model::GroupNode("Unnamed");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
             document->addNode(group, layer);
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
