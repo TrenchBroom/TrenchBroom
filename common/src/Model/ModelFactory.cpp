@@ -34,10 +34,6 @@ namespace TrenchBroom {
             return doGetFormat();
         }
 
-        GroupNode* ModelFactory::createGroup(const std::string& name) const {
-            return doCreateGroup(name);
-        }
-
         EntityNode* ModelFactory::createEntity(Entity entity) const {
             return doCreateEntity(std::move(entity));
         }

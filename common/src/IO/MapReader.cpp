@@ -292,14 +292,14 @@ namespace TrenchBroom {
                 return;
             }
 
-            Model::GroupNode* group = m_factory->createGroup(name);
-            setExtraAttributes(group, extraAttributes);
+            Model::GroupNode* groupNode = new Model::GroupNode(Model::Group(name));
+            setExtraAttributes(groupNode, extraAttributes);
 
-            storeNode(group, properties, status);
-            m_groups.insert(std::make_pair(groupId, group));
+            storeNode(groupNode, properties, status);
+            m_groups.insert(std::make_pair(groupId, groupNode));
 
-            m_currentNode = group;
-            m_brushParent = group;
+            m_currentNode = groupNode;
+            m_brushParent = groupNode;
         }
 
         void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) {

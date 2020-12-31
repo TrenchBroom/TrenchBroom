@@ -360,12 +360,12 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::GroupNode* group = map.createGroup("Group");
-            map.defaultLayer()->addChild(group);
+            Model::GroupNode* groupNode = new Model::GroupNode(Model::Group("Group"));
+            map.defaultLayer()->addChild(groupNode);
 
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brushNode = map.createBrush(builder.createCube(64.0, "none").value());
-            group->addChild(brushNode);
+            groupNode->addChild(brushNode);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -405,12 +405,12 @@ R"(// entity 0
             Model::LayerNode* layerNode = new Model::LayerNode(Model::Layer("Custom Layer"));
             map.addChild(layerNode);
 
-            Model::GroupNode* group = map.createGroup("Group");
-            layerNode->addChild(group);
+            Model::GroupNode* groupNode = new Model::GroupNode(Model::Group("Group"));
+            layerNode->addChild(groupNode);
 
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brushNode = map.createBrush(builder.createCube(64.0, "none").value());
-            group->addChild(brushNode);
+            groupNode->addChild(brushNode);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -458,15 +458,15 @@ R"(// entity 0
             Model::LayerNode* layerNode = new Model::LayerNode(Model::Layer("Custom Layer"));
             map.addChild(layerNode);
 
-            Model::GroupNode* outer = map.createGroup("Outer Group");
-            layerNode->addChild(outer);
+            Model::GroupNode* outerGroupNode = new Model::GroupNode(Model::Group("Outer Group"));
+            layerNode->addChild(outerGroupNode);
 
-            Model::GroupNode* inner = map.createGroup("Inner Group");
-            outer->addChild(inner);
+            Model::GroupNode* innerGroupNode = new Model::GroupNode(Model::Group("Inner Group"));
+            outerGroupNode->addChild(innerGroupNode);
 
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brushNode = map.createBrush(builder.createCube(64.0, "none").value());
-            inner->addChild(brushNode);
+            innerGroupNode->addChild(brushNode);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -642,17 +642,17 @@ R"(// entity 0
             Model::BrushBuilder builder(&map, worldBounds);
 
             Model::BrushNode* worldBrush = map.createBrush(builder.createCube(64.0, "some").value());
-            Model::GroupNode* outer = map.createGroup("Outer Group");
-            Model::GroupNode* inner = map.createGroup("Inner Group");
+            Model::GroupNode* outerGroupNode = new Model::GroupNode(Model::Group("Outer Group"));
+            Model::GroupNode* innerGroupNode = new Model::GroupNode(Model::Group("Inner Group"));
             Model::BrushNode* innerBrush = map.createBrush(builder.createCube(64.0, "none").value());
 
-            inner->addChild(innerBrush);
-            outer->addChild(inner);
+            innerGroupNode->addChild(innerBrush);
+            outerGroupNode->addChild(innerGroupNode);
             map.defaultLayer()->addChild(worldBrush);
-            map.defaultLayer()->addChild(outer);
+            map.defaultLayer()->addChild(outerGroupNode);
 
             std::vector<Model::Node*> nodes;
-            nodes.push_back(inner);
+            nodes.push_back(innerGroupNode);
             nodes.push_back(worldBrush);
 
             std::stringstream str;

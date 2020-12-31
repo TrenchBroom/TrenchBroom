@@ -356,10 +356,6 @@ namespace TrenchBroom {
             return m_factory->format();
         }
 
-        GroupNode* WorldNode::doCreateGroup(const std::string& name) const {
-            return m_factory->createGroup(name);
-        }
-
         EntityNode* WorldNode::doCreateEntity(Entity entity) const {
             return m_factory->createEntity(std::move(entity));
         }

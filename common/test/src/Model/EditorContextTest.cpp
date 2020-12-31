@@ -93,49 +93,49 @@ namespace TrenchBroom {
             std::tuple<GroupNode*, BrushNode*> createGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* group = world->createGroup("somegroup");
+                auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
-                group->addChild(brush);
-                world->defaultLayer()->addChild(group);
+                groupNode->addChild(brush);
+                world->defaultLayer()->addChild(groupNode);
 
-                return std::make_tuple(group, brush);
+                return std::make_tuple(groupNode, brush);
             }
 
             std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* entity = world->createEntity(Model::Entity());
-                auto* group = world->createGroup("somegroup");
+                auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
-                group->addChild(entity);
-                world->defaultLayer()->addChild(group);
+                groupNode->addChild(entity);
+                world->defaultLayer()->addChild(groupNode);
 
-                return std::make_tuple(group, entity);
+                return std::make_tuple(groupNode, entity);
             }
 
             std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
                 auto* entity = world->createEntity(Model::Entity());
-                auto* group = world->createGroup("somegroup");
+                auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
                 entity->addChild(brush);
-                group->addChild(entity);
-                world->defaultLayer()->addChild(group);
+                groupNode->addChild(entity);
+                world->defaultLayer()->addChild(groupNode);
 
-                return std::make_tuple(group, entity, brush);
+                return std::make_tuple(groupNode, entity, brush);
             }
 
             std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
                 auto* innerBrush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* innerGroup = world->createGroup("inner");
-                auto* outerGroup = world->createGroup("outer");
+                auto* innerGroupNode = new Model::GroupNode(Model::Group("inner"));
+                auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));
 
-                innerGroup->addChild(innerBrush);
-                outerGroup->addChild(innerGroup);
-                world->defaultLayer()->addChild(outerGroup);
+                innerGroupNode->addChild(innerBrush);
+                outerGroupNode->addChild(innerGroupNode);
+                world->defaultLayer()->addChild(outerGroupNode);
 
-                return std::make_tuple(outerGroup, innerGroup, innerBrush);
+                return std::make_tuple(outerGroupNode, innerGroupNode, innerBrush);
             }
 
             void assertVisible(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
