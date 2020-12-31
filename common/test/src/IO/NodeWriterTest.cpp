@@ -525,12 +525,12 @@ R"(// entity 0
             defaultLayer.setOmitFromExport(true);
             map.defaultLayer()->setLayer(std::move(defaultLayer));
 
-            auto* defaultLayerPointEntity = map.createEntity(Model::Entity({
+            auto* defaultLayerPointEntityNode = new Model::EntityNode(Model::Entity({
                 {"classname", "defaultLayerPointEntity"}
             }));
 
             auto* defaultLayerBrush = map.createBrush(builder.createCube(64.0, "defaultTexture").value());
-            map.defaultLayer()->addChild(defaultLayerPointEntity);
+            map.defaultLayer()->addChild(defaultLayerPointEntityNode);
             map.defaultLayer()->addChild(defaultLayerBrush);
 
             // layer1 (omit from export)
@@ -542,10 +542,10 @@ R"(// entity 0
 
             map.addChild(layerNode1);
 
-            auto* layer1PointEntity = map.createEntity(Model::Entity({
+            auto* layer1PointEntityNode = new Model::EntityNode(Model::Entity({
                 {"classname", "layer1PointEntity"}
             }));
-            layerNode1->addChild(layer1PointEntity);
+            layerNode1->addChild(layer1PointEntityNode);
 
             auto* layer1Brush = map.createBrush(builder.createCube(64.0, "layer1Texture").value());
             layerNode1->addChild(layer1Brush);
@@ -554,10 +554,10 @@ R"(// entity 0
             auto* layerNode2 = new Model::LayerNode(Model::Layer("Custom Layer 2"));
             map.addChild(layerNode2);
 
-            auto* layer2PointEntity = map.createEntity(Model::Entity({
+            auto* layer2PointEntityNode = new Model::EntityNode(Model::Entity({
                 {"classname", "layer2PointEntity"}
             }));
-            layerNode2->addChild(layer2PointEntity);
+            layerNode2->addChild(layer2PointEntityNode);
 
             auto* layer2Brush = map.createBrush(builder.createCube(64.0, "layer2Texture").value());
             layerNode2->addChild(layer2Brush);

@@ -303,7 +303,7 @@ namespace TrenchBroom {
         }
 
         void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            Model::EntityNode* entity = m_factory->createEntity(Model::Entity());
+            Model::EntityNode* entity = new Model::EntityNode(Model::Entity());
             entity->setEntity(Model::Entity(properties));
             setExtraAttributes(entity, extraAttributes);
 

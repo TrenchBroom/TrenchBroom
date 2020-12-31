@@ -34,10 +34,6 @@ namespace TrenchBroom {
             return doGetFormat();
         }
 
-        EntityNode* ModelFactory::createEntity(Entity entity) const {
-            return doCreateEntity(std::move(entity));
-        }
-
         BrushNode* ModelFactory::createBrush(Brush brush) const {
             return doCreateBrush(std::move(brush));
         }

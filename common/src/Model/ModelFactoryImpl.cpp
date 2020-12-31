@@ -51,11 +51,6 @@ namespace TrenchBroom {
             return m_format;
         }
 
-        EntityNode* ModelFactoryImpl::doCreateEntity(Entity entity) const {
-            assert(m_format != MapFormat::Unknown);
-            return new EntityNode(std::move(entity));
-        }
-
         kdl::result<BrushFace, BrushError> ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             assert(m_format != MapFormat::Unknown);
             return Model::isParallelTexCoordSystem(m_format)

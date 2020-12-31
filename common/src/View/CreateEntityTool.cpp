@@ -57,8 +57,7 @@ namespace TrenchBroom {
             if (definition->type() != Assets::EntityDefinitionType::PointEntity)
                 return false;
 
-            const Model::WorldNode* world = document->world();
-            m_entity = world->createEntity(Model::Entity({
+            m_entity = new Model::EntityNode(Model::Entity({
                 {Model::PropertyKeys::Classname, definition->name()}
             }));
 
