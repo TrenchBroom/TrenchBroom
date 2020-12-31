@@ -199,8 +199,8 @@ namespace TrenchBroom {
             if (!name.empty()) {
                 auto document = kdl::mem_lock(m_document);
                 auto* world = document->world();
-                auto* layerNode = world->createLayer(name);
-                auto layer = layerNode->layer();
+
+                auto layer = Model::Layer(name);
 
                 // Sort it at the bottom of the list
                 const std::vector<Model::LayerNode*> customLayers = world->customLayersUserSorted();
@@ -210,7 +210,7 @@ namespace TrenchBroom {
                     layer.setSortIndex(customLayers.back()->layer().sortIndex() + 1);
                 }
 
-                layerNode->setLayer(std::move(layer));
+                auto* layerNode = new Model::LayerNode(std::move(layer));
 
                 Transaction transaction(document, "Create Layer " + layerNode->name());
                 document->addNode(layerNode, world);

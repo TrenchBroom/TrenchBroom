@@ -275,13 +275,11 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::LayerNode* layerNode = map.createLayer("Custom Layer");
-            Model::Layer layer = layerNode->layer();
-            
+            Model::Layer layer = Model::Layer("Custom Layer");
             REQUIRE(layer.sortIndex() == Model::Layer::invalidSortIndex());
             layer.setSortIndex(0);
-            layerNode->setLayer(std::move(layer));
 
+            Model::LayerNode* layerNode = new Model::LayerNode(std::move(layer));
             map.addChild(layerNode);
 
             Model::BrushBuilder builder(&map, worldBounds);
@@ -322,14 +320,13 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::LayerNode* layerNode = map.createLayer("Custom Layer");
-            layerNode->setLockState(Model::LockState::Lock_Locked);
-            layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
-
-            Model::Layer layer = layerNode->layer();
+            Model::Layer layer = Model::Layer("Custom Layer");
             layer.setSortIndex(1);
             layer.setOmitFromExport(true);
-            layerNode->setLayer(std::move(layer));
+
+            Model::LayerNode* layerNode = new Model::LayerNode(std::move(layer));
+            layerNode->setLockState(Model::LockState::Lock_Locked);
+            layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
 
             map.addChild(layerNode);
 
@@ -405,11 +402,11 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::LayerNode* layer = map.createLayer("Custom Layer");
-            map.addChild(layer);
+            Model::LayerNode* layerNode = new Model::LayerNode(Model::Layer("Custom Layer"));
+            map.addChild(layerNode);
 
             Model::GroupNode* group = map.createGroup("Group");
-            layer->addChild(group);
+            layerNode->addChild(group);
 
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brushNode = map.createBrush(builder.createCube(64.0, "none").value());
@@ -458,11 +455,11 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::LayerNode* layer = map.createLayer("Custom Layer");
-            map.addChild(layer);
+            Model::LayerNode* layerNode = new Model::LayerNode(Model::Layer("Custom Layer"));
+            map.addChild(layerNode);
 
             Model::GroupNode* outer = map.createGroup("Outer Group");
-            layer->addChild(outer);
+            layerNode->addChild(outer);
 
             Model::GroupNode* inner = map.createGroup("Inner Group");
             outer->addChild(inner);
@@ -537,9 +534,10 @@ R"(// entity 0
             map.defaultLayer()->addChild(defaultLayerBrush);
 
             // layer1 (omit from export)
-            auto* layerNode1 = map.createLayer("Custom Layer 1");
-            auto layer1 = layerNode1->layer();
+            auto layer1 = Model::Layer("Custom Layer 1");
             layer1.setOmitFromExport(true);
+
+            auto* layerNode1 = new Model::LayerNode(std::move(layer1));
             layerNode1->setLayer(std::move(layer1));
 
             map.addChild(layerNode1);
@@ -553,7 +551,7 @@ R"(// entity 0
             layerNode1->addChild(layer1Brush);
 
             // layer2
-            auto* layerNode2 = map.createLayer("Custom Layer 2");
+            auto* layerNode2 = new Model::LayerNode(Model::Layer("Custom Layer 2"));
             map.addChild(layerNode2);
 
             auto* layer2PointEntity = map.createEntity(Model::Entity({
@@ -604,8 +602,8 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeMapWithInheritedLock", "[NodeWriterTest]") {
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::LayerNode* layer = map.createLayer("Custom Layer");
-            map.addChild(layer);
+            Model::LayerNode* layerNode = new Model::LayerNode(Model::Layer("Custom Layer"));
+            map.addChild(layerNode);
 
             // WorldNode's lock state is not persisted.
             // TB uses it e.g. for locking everything when opening a group.
@@ -613,7 +611,7 @@ R"(// entity 0
 
             map.setLockState(Model::LockState::Lock_Locked);
             map.defaultLayer()->setLockState(Model::LockState::Lock_Inherited);
-            layer->setLockState(Model::LockState::Lock_Inherited);
+            layerNode->setLockState(Model::LockState::Lock_Inherited);
 
             std::stringstream str;
             NodeWriter writer(map, str);

@@ -356,10 +356,6 @@ namespace TrenchBroom {
             return m_factory->format();
         }
 
-        LayerNode* WorldNode::doCreateLayer(const std::string& name) const {
-            return m_factory->createLayer(name);
-        }
-
         GroupNode* WorldNode::doCreateGroup(const std::string& name) const {
             return m_factory->createGroup(name);
         }

@@ -146,7 +146,6 @@ namespace TrenchBroom {
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
-            LayerNode* doCreateLayer(const std::string& name) const override;
             GroupNode* doCreateGroup(const std::string& name) const override;
             EntityNode* doCreateEntity(Entity entity) const override;
             kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
