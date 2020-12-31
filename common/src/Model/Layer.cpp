@@ -21,7 +21,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Layer::Layer(const bool defaultLayer, std::string name) :
+        Layer::Layer(std::string name, const bool defaultLayer) :
         m_defaultLayer(defaultLayer),
         m_name(std::move(name)),
         m_omitFromExport(false) {}

@@ -40,7 +40,7 @@
 namespace TrenchBroom {
     namespace Model {
         LayerNode::LayerNode(const bool defaultLayer, std::string name) :
-        m_layer(defaultLayer, std::move(name)),
+        m_layer(std::move(name), defaultLayer),
         m_boundsValid(false) {}
 
         LayerNode::LayerNode(std::string name) :

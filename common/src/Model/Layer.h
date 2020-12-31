@@ -34,7 +34,7 @@ namespace TrenchBroom {
             std::optional<Color> m_color;
             bool m_omitFromExport;
         public:
-            Layer(bool defaultLayer, std::string name);
+            explicit Layer(std::string name, bool defaultLayer = false);
 
             bool defaultLayer() const;
 
