@@ -27,7 +27,7 @@ namespace TrenchBroom {
         private:
             std::string m_name;
         public:
-            Group(std::string name);
+            explicit Group(std::string name);
 
             const std::string& name() const;
             void setName(std::string name);
