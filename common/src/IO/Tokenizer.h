@@ -192,16 +192,16 @@ namespace TrenchBroom {
         public:
             using Token = TokenTemplate<TokenType>;
         private:
-            class SaveState {
+            class SaveAndRestoreState {
             private:
                 TokenizerState& m_target;
                 TokenizerState m_snapshot;
             public:
-                explicit SaveState(TokenizerState& target) :
+                explicit SaveAndRestoreState(TokenizerState& target) :
                 m_target(target),
                 m_snapshot(target) {}
 
-                ~SaveState() {
+                ~SaveAndRestoreState() {
                     m_target = m_snapshot;
                 }
             };
@@ -226,7 +226,7 @@ namespace TrenchBroom {
             }
 
             inline Token peekToken(const TokenType skipTokens = 0u) {
-                SaveState oldState(m_state);
+                SaveAndRestoreState oldState(m_state);
                 return nextToken(skipTokens);
             }
 
