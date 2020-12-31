@@ -41,7 +41,7 @@ namespace TrenchBroom {
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
 
-            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
             Model::GroupNode* group = new Model::GroupNode("Unnamed");
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
 
-            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
             Model::GroupNode* group = new Model::GroupNode("Unnamed");

@@ -127,7 +127,7 @@ namespace TrenchBroom {
         }
 
         void WorldNode::createDefaultLayer() {
-            m_defaultLayer = new LayerNode(true, "Default Layer");
+            m_defaultLayer = new LayerNode(Layer("Default Layer", true));
             addChild(m_defaultLayer);
             assert(m_defaultLayer->layer().sortIndex() == Layer::defaultLayerSortIndex());
         }

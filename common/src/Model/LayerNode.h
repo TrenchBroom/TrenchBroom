@@ -40,8 +40,7 @@ namespace TrenchBroom {
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            LayerNode(bool defaultLayer, std::string name);
-            LayerNode(std::string name);
+            explicit LayerNode(Layer layer);
 
             const Layer& layer() const;
             Layer setLayer(Layer layer);

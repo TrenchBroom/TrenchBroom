@@ -39,12 +39,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        LayerNode::LayerNode(const bool defaultLayer, std::string name) :
-        m_layer(std::move(name), defaultLayer),
+        LayerNode::LayerNode(Layer layer) :
+        m_layer(layer),
         m_boundsValid(false) {}
-
-        LayerNode::LayerNode(std::string name) :
-        LayerNode(false, std::move(name)) {}
 
         const Layer& LayerNode::layer() const {
             return m_layer;
@@ -87,9 +84,9 @@ namespace TrenchBroom {
         }
 
         Node* LayerNode::doClone(const vm::bbox3&) const {
-            LayerNode* layer = new LayerNode(isDefaultLayer(), doGetName());
-            cloneAttributes(layer);
-            return layer;
+            LayerNode* layerNode = new LayerNode(m_layer);
+            cloneAttributes(layerNode);
+            return layerNode;
         }
 
         bool LayerNode::doCanAddChild(const Node* child) const {
