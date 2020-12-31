@@ -35,7 +35,7 @@ namespace TrenchBroom {
         class RemoveNodesTest : public MapDocumentTest {};
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeLayer") {
-            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
             document->removeNode(layer);
@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyBrushEntity") {
-            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
             Model::EntityNode* entity = new Model::EntityNode();
