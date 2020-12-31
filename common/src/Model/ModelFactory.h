@@ -48,7 +48,6 @@ namespace TrenchBroom {
             virtual ~ModelFactory();
 
             MapFormat format() const;
-            EntityNode* createEntity(Entity entity) const;
             BrushNode* createBrush(Brush brush) const;
 
             /**
@@ -80,7 +79,6 @@ namespace TrenchBroom {
             kdl::result<BrushFace, BrushError> createFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
         private:
             virtual MapFormat doGetFormat() const = 0;
-            virtual EntityNode* doCreateEntity(Entity entity) const = 0;
             virtual BrushNode* doCreateBrush(Brush brush) const;
             virtual kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
             virtual kdl::result<BrushFace, BrushError> doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;

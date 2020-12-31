@@ -1150,7 +1150,7 @@ namespace TrenchBroom {
         Model::EntityNode* MapDocument::createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) {
             ensure(definition != nullptr, "definition is null");
 
-            auto* entity = m_world->createEntity(Model::Entity({
+            auto* entityNode = new Model::EntityNode(Model::Entity({
                 {Model::PropertyKeys::Classname, definition->name()}
             }));
 
@@ -1159,11 +1159,11 @@ namespace TrenchBroom {
 
             const Transaction transaction(this, name.str());
             deselectAll();
-            addNode(entity, parentForNodes());
-            select(entity);
+            addNode(entityNode, parentForNodes());
+            select(entityNode);
             translateObjects(delta);
 
-            return entity;
+            return entityNode;
         }
 
         Model::EntityNode* MapDocument::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
@@ -1190,7 +1190,7 @@ namespace TrenchBroom {
             }
 
             entity.addOrUpdateProperty(Model::PropertyKeys::Classname, definition->name());
-            auto* entityNode = m_world->createEntity(std::move(entity));
+            auto* entityNode = new Model::EntityNode(std::move(entity));
 
             std::stringstream name;
             name << "Create " << definition->name();

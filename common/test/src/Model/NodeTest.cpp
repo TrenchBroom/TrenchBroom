@@ -558,15 +558,15 @@ namespace TrenchBroom {
             WorldNode world(Entity(), MapFormat::Standard);
             auto* layer = world.defaultLayer();
 
-            auto* entity1 = world.createEntity(Entity());
-            auto* entity2 = world.createEntity(Entity());
+            auto* entityNode1 = new EntityNode(Entity());
+            auto* entityNode2 = new EntityNode(Entity());
             auto* groupNode = new Model::GroupNode(Model::Group("name"));
-            auto* groupEntity = world.createEntity(Entity());
+            auto* groupEntityNode = new EntityNode(Entity());
 
-            layer->addChild(entity1);
-            layer->addChild(entity2);
+            layer->addChild(entityNode1);
+            layer->addChild(entityNode2);
             layer->addChild(groupNode);
-            groupNode->addChild(groupEntity);
+            groupNode->addChild(groupEntityNode);
 
             const auto collectRecursively = [](auto& node) {
                 auto result = std::vector<Node*>{};
@@ -580,9 +580,9 @@ namespace TrenchBroom {
                 return result;
             };
 
-            CHECK_THAT(collectRecursively(world), Catch::Equals(std::vector<Node*>{ &world, layer, entity1, entity2, groupNode, groupEntity}));
-            CHECK_THAT(collectRecursively(*groupNode), Catch::Equals(std::vector<Node*>{ groupNode, groupEntity}));
-            CHECK_THAT(collectRecursively(*entity1), Catch::Equals(std::vector<Node*>{entity1}));
+            CHECK_THAT(collectRecursively(world), Catch::Equals(std::vector<Node*>{ &world, layer, entityNode1, entityNode2, groupNode, groupEntityNode}));
+            CHECK_THAT(collectRecursively(*groupNode), Catch::Equals(std::vector<Node*>{ groupNode, groupEntityNode}));
+            CHECK_THAT(collectRecursively(*entityNode1), Catch::Equals(std::vector<Node*>{ entityNode1}));
         }
 
         TEST_CASE("NodeTest.visitParent", "[NodeTest]") {
@@ -626,10 +626,10 @@ namespace TrenchBroom {
             WorldNode world(Entity(), MapFormat::Standard);
             auto* layer = world.defaultLayer();
             
-            auto* entity1 = world.createEntity(Entity());
-            auto* entity2 = world.createEntity(Entity());
-            layer->addChild(entity1);
-            layer->addChild(entity2);
+            auto* entityNode1 = new EntityNode(Entity());
+            auto* entityNode2 = new EntityNode(Entity());
+            layer->addChild(entityNode1);
+            layer->addChild(entityNode2);
 
             SECTION("Visit children of world node") {
                 auto visited = std::vector<Node*>{};
@@ -640,12 +640,12 @@ namespace TrenchBroom {
             SECTION("Visit children of layer node") {
                 auto visited = std::vector<Node*>{};
                 layer->visitChildren(makeCollectVisitedNodesVisitor(visited));
-                CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{entity1, entity2}));
+                CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{ entityNode1, entityNode2}));
             }
 
             SECTION("Visit children of entity node") {
                 auto visited = std::vector<Node*>{};
-                entity1->visitChildren(makeCollectVisitedNodesVisitor(visited));
+                entityNode1->visitChildren(makeCollectVisitedNodesVisitor(visited));
                 CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{}));
             }
         }

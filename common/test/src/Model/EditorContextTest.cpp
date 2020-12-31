@@ -61,18 +61,18 @@ namespace TrenchBroom {
             }
 
             EntityNode* createTopLevelPointEntity() {
-                auto* entity = world->createEntity(Model::Entity());
-                world->defaultLayer()->addChild(entity);
-                return entity;
+                auto* entityNode = new Model::EntityNode(Model::Entity());
+                world->defaultLayer()->addChild(entityNode);
+                return entityNode;
             }
 
             std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* entity = world->createEntity(Model::Entity());
-                entity->addChild(brush);
-                world->defaultLayer()->addChild(entity);
-                return std::make_tuple(entity, brush);
+                auto* entityNode = new Model::EntityNode(Model::Entity());
+                entityNode->addChild(brush);
+                world->defaultLayer()->addChild(entityNode);
+                return std::make_tuple(entityNode, brush);
             }
 
             BrushNode* createTopLevelBrush() {
@@ -103,19 +103,19 @@ namespace TrenchBroom {
 
             std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity() {
                 BrushBuilder builder(world, worldBounds);
-                auto* entity = world->createEntity(Model::Entity());
+                auto* entityNode = new Model::EntityNode(Model::Entity());
                 auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
-                groupNode->addChild(entity);
+                groupNode->addChild(entityNode);
                 world->defaultLayer()->addChild(groupNode);
 
-                return std::make_tuple(groupNode, entity);
+                return std::make_tuple(groupNode, entityNode);
             }
 
             std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* entity = world->createEntity(Model::Entity());
+                auto* entityNode = new Model::EntityNode(Model::Entity());
                 auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
                 entity->addChild(brush);
