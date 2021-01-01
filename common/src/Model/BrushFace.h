@@ -24,6 +24,7 @@
 #include "Assets/AssetReference.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
+#include "Model/MapFormat.h"
 #include "Model/Tag.h" // BrushFace inherits from Taggable
 
 #include <kdl/result_forward.h>
@@ -104,6 +105,7 @@ namespace TrenchBroom {
 
             ~BrushFace();
 
+            static kdl::result<BrushFace, BrushError> create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, MapFormat mapFormat);
             static kdl::result<BrushFace, BrushError> create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
 
             BrushFace(const BrushFace::Points& points, const vm::plane3& boundary, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
