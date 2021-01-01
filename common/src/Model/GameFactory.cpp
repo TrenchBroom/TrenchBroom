@@ -165,7 +165,7 @@ namespace TrenchBroom {
             }
             
             const std::string formatName = IO::readFormatComment(stream);
-            const MapFormat format = mapFormat(formatName);
+            const MapFormat format = formatFromName(formatName);
             
             return std::make_pair(gameName, format);
         }
