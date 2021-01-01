@@ -116,12 +116,12 @@ namespace TrenchBroom {
 
         std::vector<Node*> TestGame::doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
-            return IO::NodeReader::read(str, world, worldBounds, status);
+            return IO::NodeReader::read(str, world.format(), worldBounds, status);
         }
 
         std::vector<BrushFace> TestGame::doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
-            IO::BrushFaceReader reader(str, world);
+            IO::BrushFaceReader reader(str, world.format());
             return reader.read(worldBounds, status);
         }
 

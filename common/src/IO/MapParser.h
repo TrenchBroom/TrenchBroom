@@ -72,21 +72,19 @@ namespace TrenchBroom {
         public:
             virtual ~MapParser();
         protected:
-            void formatSet(Model::MapFormat format);
             void beginEntity(size_t line, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void endEntity(size_t startLine, size_t lineCount, ParserStatus& status);
             void beginBrush(size_t line, ParserStatus& status);
             void endBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status);\
-            void standardBrushFace(size_t line, Model::MapFormat format, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status);
-            void valveBrushFace(size_t line, Model::MapFormat format, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status);
+            void standardBrushFace(size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status);
+            void valveBrushFace(size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status);
         private: // subclassing interface for users of the parser
-            virtual void onFormatSet(Model::MapFormat format) = 0;
             virtual void onBeginEntity(size_t line, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onBeginBrush(size_t line, ParserStatus& status) = 0;
             virtual void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
-            virtual void onStandardBrushFace(size_t line, Model::MapFormat format, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) = 0;
-            virtual void onValveBrushFace(size_t line, Model::MapFormat format, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) = 0;
+            virtual void onStandardBrushFace(size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) = 0;
+            virtual void onValveBrushFace(size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) = 0;
         };
     }
 }

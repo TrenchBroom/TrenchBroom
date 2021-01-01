@@ -34,7 +34,6 @@
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/Polyhedron.h"
-#include "Model/WorldNode.h"
 
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
@@ -535,10 +534,9 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
-            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
             BrushNode* pyramidLight = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
             REQUIRE(pyramidLight != nullptr);
             
@@ -591,11 +589,10 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
             BrushNode* pyramidLight = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
             REQUIRE(pyramidLight != nullptr);
             
@@ -652,11 +649,10 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
             BrushNode* brushNode = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
             CHECK(brushNode != nullptr);
             
@@ -727,11 +723,10 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
             auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
             REQUIRE(brushNode != nullptr);
 
@@ -760,11 +755,10 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
 
             auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
             REQUIRE(groupNode != nullptr);
@@ -782,11 +776,10 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
-            CHECK(IO::NodeReader::read(data, world, worldBounds, status).empty());
+            CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status).empty());
         }
     }
 }

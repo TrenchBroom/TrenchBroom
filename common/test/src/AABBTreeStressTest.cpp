@@ -91,10 +91,10 @@ namespace TrenchBroom {
             auto fileReader = file->reader().buffer();
 
             IO::TestParserStatus status;
-            IO::WorldReader worldReader(fileReader.stringView());
+            IO::WorldReader worldReader(fileReader.stringView(), Model::MapFormat::Standard);
 
             const auto worldBounds = vm::bbox3(8192.0);
-            auto world = worldReader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = worldReader.read(worldBounds, status);
 
             AABB tree;
             vm::bbox3::builder totalBounds;

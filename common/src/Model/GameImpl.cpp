@@ -179,8 +179,8 @@ namespace TrenchBroom {
             IO::SimpleParserStatus parserStatus(logger);
             auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
             auto fileReader = file->reader().buffer();
-            IO::WorldReader worldReader(fileReader.stringView());
-            return worldReader.read(format, worldBounds, parserStatus);
+            IO::WorldReader worldReader(fileReader.stringView(), format);
+            return worldReader.read(worldBounds, parserStatus);
         }
 
         void GameImpl::doWriteMap(WorldNode& world, const IO::Path& path, const bool exporting) const {
@@ -217,12 +217,12 @@ namespace TrenchBroom {
 
         std::vector<Node*> GameImpl::doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
-            return IO::NodeReader::read(str, world, worldBounds, parserStatus);
+            return IO::NodeReader::read(str, world.format(), worldBounds, parserStatus);
         }
 
         std::vector<BrushFace> GameImpl::doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
-            IO::BrushFaceReader reader(str, world);
+            IO::BrushFaceReader reader(str, world.format());
             return reader.read(worldBounds, parserStatus);
         }
 

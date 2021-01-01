@@ -75,22 +75,27 @@ namespace TrenchBroom {
             static const std::string PatchId;
 
             QuakeMapTokenizer m_tokenizer;
-            Model::MapFormat m_format;
+            Model::MapFormat m_sourceMapFormat;
+            Model::MapFormat m_targetMapFormat;
         public:
-            explicit StandardMapParser(std::string_view str);
+            /**
+             * Creates a new parser where the given string is expected to be formatted in the given source map format,
+             * and the created objects are converted to the given target format.
+             *
+             * @param str the string to parse
+             * @param sourceMapFormat the expected format of the given string
+             * @param targetMapFormat the format to convert the created objects to
+             */
+            StandardMapParser(std::string_view str, Model::MapFormat sourceMapFormat, Model::MapFormat targetMapFormat);
 
             ~StandardMapParser() override;
         protected:
-            Model::MapFormat detectFormat();
-
-            void parseEntities(Model::MapFormat format, ParserStatus& status);
-            void parseBrushes(Model::MapFormat format, ParserStatus& status);
-            void parseBrushFaces(Model::MapFormat format, ParserStatus& status);
+            void parseEntities(ParserStatus& status);
+            void parseBrushes(ParserStatus& status);
+            void parseBrushFaces(ParserStatus& status);
 
             void reset();
         private:
-            void setFormat(Model::MapFormat format);
-
             void parseEntity(ParserStatus& status);
             void parseEntityProperty(std::vector<Model::EntityProperty>& properties, PropertyKeys& keys, ParserStatus& status);
 

@@ -39,13 +39,12 @@ namespace TrenchBroom {
         class WorldReader : public MapReader {
             std::unique_ptr<Model::WorldNode> m_world;
         public:
-            explicit WorldReader(std::string_view str);
+            explicit WorldReader(std::string_view str, Model::MapFormat sourceAndTargetMapFormat);
 
-            std::unique_ptr<Model::WorldNode> read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
+            std::unique_ptr<Model::WorldNode> read(const vm::bbox3& worldBounds, ParserStatus& status);
         private:            
             void sanitizeLayerSortIndicies(ParserStatus& status);            
         private: // implement MapReader interface
-            Model::ModelFactory& initialize(Model::MapFormat format) override;
             Model::Node* onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::LayerNode* layer, ParserStatus& status) override;
