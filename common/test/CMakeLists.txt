@@ -60,6 +60,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/TestGame.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/TestGame.h"
         "${COMMON_TEST_SOURCE_DIR}/Model/TexCoordSystemTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/WorldNodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Renderer/AllocationTrackerTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Renderer/CameraTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Renderer/VertexTest.cpp"

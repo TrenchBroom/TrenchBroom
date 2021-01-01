@@ -265,6 +265,23 @@ namespace TrenchBroom {
                     [&](BrushNode* brush)                      { m_nodeTree->insert(brush->physicalBounds(), brush); }
                 ));
             }
+
+            const auto updatePersistentId = [&](auto* persistentNode) {
+                if (const auto persistentNodeId = persistentNode->persistentId()) {
+                    ensure(*persistentNodeId < std::numeric_limits<IdType>::max(), "Persistent ID available");
+                    m_nextPersistentId = std::max(m_nextPersistentId, *persistentNodeId + 1u);
+                } else {
+                    persistentNode->setPersistentId(m_nextPersistentId++);
+                }
+            };
+
+            node->accept(kdl::overload(
+                [&](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); if (layer != defaultLayer()) { updatePersistentId(layer); } },
+                [&](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); updatePersistentId(group); },
+                [&](EntityNode*)                         {},
+                [&](BrushNode*)                          {}
+                ));
         }
 
         void WorldNode::doDescendantWillBeRemoved(Node* node, const size_t /* depth */) {
