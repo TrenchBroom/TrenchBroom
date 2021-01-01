@@ -22,6 +22,7 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/Group.h"
+#include "Model/IdType.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
 
@@ -29,6 +30,7 @@
 
 #include <vecmath/bbox.h>
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -47,6 +49,12 @@ namespace TrenchBroom {
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
+
+            /**
+             * The ID used to serialize group nodes (see MapReader and NodeSerializer). This is set by MapReader when a
+             * layer is read, or by WorldNode when a group is added that doesn't yet have a persistent ID.
+             */
+            std::optional<IdType> m_persistentId;
         public:
             explicit GroupNode(Group group);
 
@@ -58,6 +66,9 @@ namespace TrenchBroom {
             bool closed() const;
             void open();
             void close();
+
+            const std::optional<IdType>& persistentId() const;
+            void setPersistentId(IdType persistentId);
         private:
             void setEditState(EditState editState);
             void setAncestorEditState(EditState editState);

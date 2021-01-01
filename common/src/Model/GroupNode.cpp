@@ -77,6 +77,14 @@ namespace TrenchBroom {
             closeAncestors();
         }
 
+        const std::optional<IdType>& GroupNode::persistentId() const {
+            return m_persistentId;
+        }
+
+        void GroupNode::setPersistentId(const IdType persistentId) {
+            m_persistentId = persistentId;
+        }
+
         void GroupNode::setEditState(const EditState editState) {
             m_editState = editState;
         }

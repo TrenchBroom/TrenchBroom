@@ -65,6 +65,14 @@ namespace TrenchBroom {
             });
         }
 
+        const std::optional<IdType>& LayerNode::persistentId() const {
+            return m_persistentId;
+        }
+
+        void LayerNode::setPersistentId(const IdType persistentId) {
+            m_persistentId = persistentId;
+        }
+
         const std::string& LayerNode::doGetName() const {
             return layer().name();
         }
