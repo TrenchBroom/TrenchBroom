@@ -30,7 +30,6 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
-#include "Model/ModelFactory.h"
 #include "Model/VisibilityState.h"
 
 #include <kdl/map_utils.h>
@@ -72,35 +71,31 @@ namespace TrenchBroom {
             return m_id;
         }
 
-        MapReader::MapReader(std::string_view str) :
-        StandardMapParser(std::move(str)),
-        m_factory(nullptr),
+        MapReader::MapReader(std::string_view str, const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat) :
+        StandardMapParser(std::move(str), sourceMapFormat, targetMapFormat),
         m_brushParent(nullptr),
         m_currentNode(nullptr) {}
 
-        void MapReader::readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
+
+        void MapReader::readEntities(const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
-            parseEntities(format, status);
+            parseEntities(status);
             createNodes(status);
             resolveNodes(status);
         }
 
-        void MapReader::readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        void MapReader::readBrushes(const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
-            parseBrushes(format, status);
+            parseBrushes(status);
             createNodes(status);
         }
 
-        void MapReader::readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        void MapReader::readBrushFaces(const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
-            parseBrushFaces(format, status);
+            parseBrushFaces(status);
         }
 
         // implement MapParser interface
-
-        void MapReader::onFormatSet(const Model::MapFormat format) {
-            m_factory = &initialize(format);
-        }
 
         void MapReader::onBeginEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             const size_t brushesBegin = m_brushInfos.size();
@@ -132,10 +127,8 @@ namespace TrenchBroom {
             }
         }
 
-        void MapReader::onStandardBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
-            // NOTE: format is the format we're reading from the .map as which may not be this->format().
-            // ModelFactory::createFaceFromStandard() will convert it to this->format().
-            Model::BrushFace::createFromStandard(point1, point2, point3, attribs, m_factory->format()).visit(kdl::overload(
+        void MapReader::onStandardBrushFace(const size_t line, const Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
+            Model::BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat).visit(kdl::overload(
                     [&](Model::BrushFace&& face) {
                         face.setFilePosition(line, 1u);
                         onBrushFace(std::move(face), status);
@@ -146,10 +139,8 @@ namespace TrenchBroom {
             ));
         }
 
-        void MapReader::onValveBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
-            // NOTE: format is the format we're reading from the .map as which may not be this->format().
-            // ModelFactory::createFaceFromValve() will convert it to this->format().
-           Model::BrushFace::createFromValve(point1, point2, point3, attribs, texAxisX, texAxisY, m_factory->format()).visit(kdl::overload(
+        void MapReader::onValveBrushFace(const size_t line, const Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
+           Model::BrushFace::createFromValve(point1, point2, point3, attribs, texAxisX, texAxisY, targetMapFormat).visit(kdl::overload(
                     [&](Model::BrushFace&& face) {
                         face.setFilePosition(line, 1u);
                         onBrushFace(std::move(face), status);

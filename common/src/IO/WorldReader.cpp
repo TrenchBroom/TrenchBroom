@@ -37,11 +37,14 @@
 
 namespace TrenchBroom {
     namespace IO {
-        WorldReader::WorldReader(std::string_view str) :
-        MapReader(std::move(str)) {}
+        WorldReader::WorldReader(std::string_view str, const Model::MapFormat sourceAndTargetMapFormat) :
+        MapReader(std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat),
+        m_world(std::make_unique<Model::WorldNode>(Model::Entity(), sourceAndTargetMapFormat)) {
+            m_world->disableNodeTreeUpdates();
+        }
 
-        std::unique_ptr<Model::WorldNode> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
-            readEntities(format, worldBounds, status);
+        std::unique_ptr<Model::WorldNode> WorldReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
+            readEntities(worldBounds, status);
             sanitizeLayerSortIndicies(status);
             m_world->rebuildNodeTree();
             m_world->enableNodeTreeUpdates();
@@ -90,12 +93,6 @@ namespace TrenchBroom {
                 layer.setSortIndex(nextValidLayerIndex++);
                 layerNode->setLayer(std::move(layer));
             }
-        }
-
-        Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format) {
-            m_world = std::make_unique<Model::WorldNode>(Model::Entity(), format);
-            m_world->disableNodeTreeUpdates();
-            return *m_world;
         }
 
         Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {

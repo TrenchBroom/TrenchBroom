@@ -30,7 +30,6 @@
 #include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
 #include "Model/PickResult.h"
-#include "Model/WorldNode.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/result.h>
@@ -66,11 +65,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
-            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
             CHECK(nodes.size() == 1u);
         }
 
@@ -90,11 +88,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
-            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
             CHECK(nodes.size() == 1u);
         }
 
@@ -196,11 +193,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
-            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
             CHECK(nodes.size() == 1u);
         }
 
@@ -218,11 +214,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
-            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
             CHECK(nodes.empty());
         }
 
@@ -444,11 +439,10 @@ namespace TrenchBroom {
             // This brush is almost degenerate. It should be rejected by the map loader.
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
-            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
             CHECK(nodes.size() == 0u);
         }
 
@@ -475,11 +469,10 @@ namespace TrenchBroom {
                               "}");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
         }
 
@@ -525,11 +518,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
         }
 
@@ -551,11 +543,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
         }
 
@@ -602,11 +593,10 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
             CHECK(nodes.size() == 1u);
             CHECK(nodes.at(0)->hasChildren());
             CHECK(nodes.at(0)->children().size() == 2u);
@@ -622,7 +612,6 @@ namespace TrenchBroom {
             // see https://github.com/TrenchBroom/TrenchBroom/pull/2372#issuecomment-432893836
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             const std::string data = R"(
 {
@@ -704,14 +693,13 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            CHECK_NOTHROW(IO::NodeReader::read(data, world, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2491", "[BrushNodeTest]") {
             // see https://github.com/TrenchBroom/TrenchBroom/issues/2491
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Entity(), MapFormat::Standard);
 
             const std::string data = R"(
             {
@@ -726,14 +714,13 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            CHECK_NOTHROW(IO::NodeReader::read(data, world, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2686", "[BrushNodeTest]") {
             // see https://github.com/TrenchBroom/TrenchBroom/issues/2686
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Entity(), MapFormat::Valve);
 
             const std::string data = R"(
 {
@@ -766,7 +753,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            CHECK_NOTHROW(IO::NodeReader::read(data, world, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status));
         }
     }
 }

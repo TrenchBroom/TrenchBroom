@@ -84,9 +84,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
             CHECK(world != nullptr);
         }
 
@@ -95,9 +95,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world != nullptr);
             CHECK(world->childCount() == 1u);
@@ -109,9 +109,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world != nullptr);
             CHECK(world->childCount() == 1u);
@@ -129,9 +129,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto worldNode = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto worldNode = reader.read(worldBounds, status);
 
             CHECK(worldNode != nullptr);
             CHECK(worldNode->childCount() == 1u);
@@ -163,9 +163,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             REQUIRE(world != nullptr);
             REQUIRE(world->childCount() == 1u);
@@ -194,9 +194,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto worldNode = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto worldNode = reader.read(worldBounds, status);
 
             CHECK(worldNode != nullptr);
             CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
@@ -234,9 +234,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -285,9 +285,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -324,9 +324,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -367,9 +367,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -409,9 +409,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -436,9 +436,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -463,9 +463,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Valve);
 
-            auto world = reader.read(Model::MapFormat::Valve, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -490,9 +490,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake2);
 
-            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -520,9 +520,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake2_Valve);
 
-            auto world = reader.read(Model::MapFormat::Quake2_Valve, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -550,9 +550,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake3_Valve);
 
-            auto world = reader.read(Model::MapFormat::Quake3_Valve, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -577,9 +577,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Daikatana);
 
-            auto world = reader.read(Model::MapFormat::Daikatana, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -636,9 +636,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Daikatana);
 
-            auto world = reader.read(Model::MapFormat::Daikatana, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -663,9 +663,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
             Model::Node* defaultLayer = world->children().front();
@@ -712,9 +712,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake2);
 
-            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 2u);
 
@@ -757,9 +757,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake2);
 
-            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             REQUIRE(world->childCount() == 3u);
 
@@ -818,9 +818,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake2);
 
-            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 4u);
 
@@ -896,9 +896,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake2);
 
-            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 7u);
 
@@ -985,9 +985,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake2);
 
-            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 2u);
             CHECK(world->children().front()->childCount() == 2u); // default layer
@@ -1060,9 +1060,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake2);
 
-            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             CHECK(world->childCount() == 1u);
 
@@ -1096,9 +1096,9 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake3);
 
-            auto world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             // TODO 2427: Assert one brush!
             CHECK(world->defaultLayer()->childCount() == 0u);
@@ -1132,9 +1132,9 @@ brushDef
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake3);
 
-            auto world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             // TODO 2427: Assert two brushes!
             CHECK(world->defaultLayer()->childCount() == 1u);
@@ -1160,9 +1160,9 @@ common/caulk
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake3);
 
-            auto world = reader.read(Model::MapFormat::Quake3, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
 
             // TODO 2428: Assert one patch!
             CHECK(world->defaultLayer()->childCount() == 0u);
@@ -1180,9 +1180,9 @@ common/caulk
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Quake2);
 
-            CHECK_NOTHROW(reader.read(Model::MapFormat::Quake2, worldBounds, status));
+            CHECK_NOTHROW(reader.read(worldBounds, status));
         }
 
         TEST_CASE("WorldReaderTest.parseEscapedDoubleQuotationMarks", "[WorldReaderTest]") {
@@ -1194,9 +1194,9 @@ common/caulk
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto worldNode = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto worldNode = reader.read(worldBounds, status);
 
             CHECK(worldNode != nullptr);
             CHECK(worldNode->childCount() == 1u);
@@ -1216,9 +1216,9 @@ common/caulk
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto worldNode = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto worldNode = reader.read(worldBounds, status);
 
             CHECK(worldNode != nullptr);
             CHECK(worldNode->childCount() == 1u);
@@ -1238,9 +1238,9 @@ common/caulk
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto worldNode = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto worldNode = reader.read(worldBounds, status);
 
             CHECK(worldNode != nullptr);
             CHECK(worldNode->childCount() == 1u);
@@ -1261,9 +1261,9 @@ common/caulk
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto worldNode = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto worldNode = reader.read(worldBounds, status);
 
             CHECK(worldNode != nullptr);
             CHECK(worldNode->childCount() == 1u);
@@ -1284,9 +1284,9 @@ common/caulk
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto worldNode = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto worldNode = reader.read(worldBounds, status);
 
             CHECK(worldNode != nullptr);
             CHECK(worldNode->childCount() == 1u);
@@ -1349,10 +1349,10 @@ common/caulk
             auto fileReader = file->reader().buffer();
 
             IO::TestParserStatus status;
-            IO::WorldReader worldReader(fileReader.stringView());
+            IO::WorldReader worldReader(fileReader.stringView(), Model::MapFormat::Quake2);
 
             const auto worldBounds = vm::bbox3(8192.0);
-            auto worldNode = worldReader.read(Model::MapFormat::Quake2, worldBounds, status);
+            auto worldNode = worldReader.read(worldBounds, status);
 
             REQUIRE(worldNode != nullptr);
             REQUIRE(1u == worldNode->childCount());
@@ -1389,9 +1389,9 @@ common/caulk
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data);
+            WorldReader reader(data, Model::MapFormat::Standard);
 
-            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            auto world = reader.read(worldBounds, status);
             REQUIRE(world != nullptr);
             REQUIRE(world->childCount() == 1u);
 
