@@ -114,14 +114,14 @@ namespace TrenchBroom {
 
         void TestGame::doExportMap(WorldNode& /* world */, const Model::ExportFormat /* format */, const IO::Path& /* path */) const {}
 
-        std::vector<Node*> TestGame::doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
+        std::vector<Node*> TestGame::doParseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
-            return IO::NodeReader::read(str, world.format(), worldBounds, status);
+            return IO::NodeReader::read(str, mapFormat, worldBounds, status);
         }
 
-        std::vector<BrushFace> TestGame::doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
+        std::vector<BrushFace> TestGame::doParseBrushFaces(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
-            IO::BrushFaceReader reader(str, world.format());
+            IO::BrushFaceReader reader(str, mapFormat);
             return reader.read(worldBounds, status);
         }
 

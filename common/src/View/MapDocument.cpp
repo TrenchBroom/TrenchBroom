@@ -495,7 +495,7 @@ namespace TrenchBroom {
 
         PasteType MapDocument::paste(const std::string& str) {
             // Try parsing as entities, then as brushes, in all compatible formats
-            const std::vector<Model::Node*> nodes = m_game->parseNodes(str, *m_world, m_worldBounds, logger());
+            const std::vector<Model::Node*> nodes = m_game->parseNodes(str, m_world->format(), m_worldBounds, logger());
             if (!nodes.empty()) {
                 if (pasteNodes(nodes)) {
                     return PasteType::Node;
@@ -505,7 +505,7 @@ namespace TrenchBroom {
 
             // Try parsing as brush faces
             try {
-                const std::vector<Model::BrushFace> faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
+                const std::vector<Model::BrushFace> faces = m_game->parseBrushFaces(str, m_world->format(), m_worldBounds, logger());
                 if (!faces.empty() && pasteBrushFaces(faces)) {
                     return PasteType::BrushFace;
                 }

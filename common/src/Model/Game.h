@@ -100,8 +100,8 @@ namespace TrenchBroom {
             void writeMap(WorldNode& world, const IO::Path& path) const;
             void exportMap(WorldNode& world, Model::ExportFormat format, const IO::Path& path) const;
         public: // parsing and serializing objects
-            std::vector<Node*> parseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const;
-            std::vector<BrushFace> parseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const;
+            std::vector<Node*> parseNodes(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const;
+            std::vector<BrushFace> parseBrushFaces(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const;
 
             void writeNodesToStream(WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const;
             void writeBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const;
@@ -149,8 +149,8 @@ namespace TrenchBroom {
             virtual void doWriteMap(WorldNode& world, const IO::Path& path) const = 0;
             virtual void doExportMap(WorldNode& world, Model::ExportFormat format, const IO::Path& path) const = 0;
 
-            virtual std::vector<Node*> doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
-            virtual std::vector<BrushFace> doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
+            virtual std::vector<Node*> doParseNodes(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const = 0;
+            virtual std::vector<BrushFace> doParseBrushFaces(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const = 0;
             virtual void doWriteNodesToStream(WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const = 0;
             virtual void doWriteBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const = 0;
 

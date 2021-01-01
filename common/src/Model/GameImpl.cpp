@@ -215,14 +215,14 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<Node*> GameImpl::doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<Node*> GameImpl::doParseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
-            return IO::NodeReader::read(str, world.format(), worldBounds, parserStatus);
+            return IO::NodeReader::read(str, mapFormat, worldBounds, parserStatus);
         }
 
-        std::vector<BrushFace> GameImpl::doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<BrushFace> GameImpl::doParseBrushFaces(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
-            IO::BrushFaceReader reader(str, world.format());
+            IO::BrushFaceReader reader(str, mapFormat);
             return reader.read(worldBounds, parserStatus);
         }
 
