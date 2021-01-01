@@ -68,18 +68,18 @@ namespace TrenchBroom {
 
             std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
+                auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
                 auto* entityNode = new Model::EntityNode(Model::Entity());
-                entityNode->addChild(brush);
+                entityNode->addChild(brushNode);
                 world->defaultLayer()->addChild(entityNode);
-                return std::make_tuple(entityNode, brush);
+                return std::make_tuple(entityNode, brushNode);
             }
 
             BrushNode* createTopLevelBrush() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                world->defaultLayer()->addChild(brush);
-                return brush;
+                auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
+                world->defaultLayer()->addChild(brushNode);
+                return brushNode;
             }
 
             std::tuple<GroupNode*, GroupNode*> createNestedGroup() {
@@ -92,13 +92,13 @@ namespace TrenchBroom {
 
             std::tuple<GroupNode*, BrushNode*> createGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
+                auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
                 auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
-                groupNode->addChild(brush);
+                groupNode->addChild(brushNode);
                 world->defaultLayer()->addChild(groupNode);
 
-                return std::make_tuple(groupNode, brush);
+                return std::make_tuple(groupNode, brushNode);
             }
 
             std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity() {
@@ -114,28 +114,28 @@ namespace TrenchBroom {
 
             std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
+                auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
                 auto* entityNode = new Model::EntityNode(Model::Entity());
                 auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
-                entity->addChild(brush);
-                groupNode->addChild(entity);
+                entityNode->addChild(brushNode);
+                groupNode->addChild(entityNode);
                 world->defaultLayer()->addChild(groupNode);
 
-                return std::make_tuple(groupNode, entity, brush);
+                return std::make_tuple(groupNode, entityNode, brushNode);
             }
 
             std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
-                auto* innerBrush = world->createBrush(builder.createCube(32.0, "sometex").value());
+                auto* innerBrushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
                 auto* innerGroupNode = new Model::GroupNode(Model::Group("inner"));
                 auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));
 
-                innerGroupNode->addChild(innerBrush);
+                innerGroupNode->addChild(innerBrushNode);
                 outerGroupNode->addChild(innerGroupNode);
                 world->defaultLayer()->addChild(outerGroupNode);
 
-                return std::make_tuple(outerGroupNode, innerGroupNode, innerBrush);
+                return std::make_tuple(outerGroupNode, innerGroupNode, innerBrushNode);
             }
 
             void assertVisible(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {

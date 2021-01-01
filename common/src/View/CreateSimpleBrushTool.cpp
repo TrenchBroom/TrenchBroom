@@ -24,6 +24,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushError.h"
+#include "Model/BrushNode.h"
 #include "Model/WorldNode.h"
 #include "Model/Game.h"
 #include "View/MapDocument.h"
@@ -45,7 +46,7 @@ namespace TrenchBroom {
             builder.createCuboid(bounds, document->currentTextureName())
                 .visit(kdl::overload(
                     [&](Model::Brush&& b) {
-                        updateBrush(document->world()->createBrush(std::move(b)));
+                        updateBrush(new Model::BrushNode(std::move(b)));
                     },
                     [&](const Model::BrushError e) {
                         updateBrush(nullptr);

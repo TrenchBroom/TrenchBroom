@@ -908,7 +908,7 @@ namespace TrenchBroom {
                 brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
                     .visit(kdl::overload(
                         [&](Model::Brush&& b) {
-                            tallBrushes.push_back(world()->createBrush(std::move(b)));
+                            tallBrushes.push_back(new Model::BrushNode(std::move(b)));
                         },
                         [&](const Model::BrushError e) {
                             logger().error() << "Could not create selection brush: " << e;
@@ -1702,7 +1702,7 @@ namespace TrenchBroom {
             return builder.createBrush(points, currentTextureName())
                 .visit(kdl::overload(
                     [&](Model::Brush&& b) {
-                        Model::BrushNode* brushNode = m_world->createBrush(std::move(b));
+                        Model::BrushNode* brushNode = new Model::BrushNode(std::move(b));
                         
                         Transaction transaction(this, "Create Brush");
                         deselectAll();
@@ -1803,7 +1803,7 @@ namespace TrenchBroom {
                     .visit(kdl::overload(
                         [&](const std::vector<Model::Brush>& brushes) {
                             if (!brushes.empty()) {
-                                std::vector<Model::BrushNode*> resultNodes = kdl::vec_transform(std::move(brushes), [&](auto b) { return m_world->createBrush(std::move(b)); });
+                                std::vector<Model::BrushNode*> resultNodes = kdl::vec_transform(std::move(brushes), [&](auto b) { return new Model::BrushNode(std::move(b)); });
                                 auto& toAddForParent = toAdd[minuendNode->parent()];
                                 toAddForParent = kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
                             }
