@@ -26,6 +26,7 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/WorldNode.h"
@@ -1074,6 +1075,59 @@ namespace TrenchBroom {
 
             Model::Node* mySubGroup = myGroup->children().back();
             CHECK(mySubGroup->childCount() == 1u);
+        }
+
+        TEST_CASE("WorldReaderTest.parseLayersAndGroupsAndRetainIds", "[WorldReaderTest]") {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Layer"
+"_tb_id" "7"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "7"
+"_tb_layer" "7"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 2"
+"_tb_id" "22"
+}
+)");
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, Model::MapFormat::Standard);
+
+            auto world = reader.read(worldBounds, status);
+
+            CHECK(world->childCount() == 2u);
+
+            // NOTE: They are listed in world->children() in file order, not sort index order
+            auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            auto* customLayerNode  = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+
+            REQUIRE(defaultLayerNode != nullptr);
+            REQUIRE(customLayerNode != nullptr);
+
+            auto* groupNode1 = dynamic_cast<Model::GroupNode*>(customLayerNode->children().front());
+            auto* groupNode2 = dynamic_cast<Model::GroupNode*>(defaultLayerNode->children().front());
+
+            REQUIRE(groupNode1 != nullptr);
+            REQUIRE(groupNode2 != nullptr);
+
+            CHECK(world->defaultLayer()->persistentId() == std::nullopt);
+            CHECK(customLayerNode->persistentId() == 7u);
+            CHECK(groupNode1->persistentId() == 7u);
+            CHECK(groupNode2->persistentId() == 22u);
         }
 
         TEST_CASE("WorldReaderTest.parseBrushPrimitive", "[WorldReaderTest]") {

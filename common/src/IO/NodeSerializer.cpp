@@ -37,23 +37,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        const std::string& NodeSerializer::IdManager::getId(const Model::Node* t) const {
-            auto it = m_ids.find(t);
-            if (it == std::end(m_ids)) {
-                it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
-            }
-            return it->second;
-        }
-
-        Model::IdType NodeSerializer::IdManager::makeId() const {
-            static Model::IdType currentId = 1;
-            return currentId++;
-        }
-
-        std::string NodeSerializer::IdManager::idToString(const Model::IdType nodeId) const {
-            return kdl::str_to_string(nodeId);
-        }
-
         NodeSerializer::NodeSerializer() :
         m_entityNo(0),
         m_brushNo(0),
@@ -219,8 +202,8 @@ namespace TrenchBroom {
             auto properties = std::vector<Model::EntityProperty>{};
             node->accept(kdl::overload(
                 [](const Model::WorldNode*) {},
-                [&](const Model::LayerNode* layer) { properties.push_back(Model::EntityProperty(Model::PropertyKeys::Layer, m_layerIds.getId(layer))); },
-                [&](const Model::GroupNode* group) { properties.push_back(Model::EntityProperty(Model::PropertyKeys::Group, m_groupIds.getId(group))); },
+                [&](const Model::LayerNode* layerNode) { properties.push_back(Model::EntityProperty(Model::PropertyKeys::Layer, kdl::str_to_string(*layerNode->persistentId()))); },
+                [&](const Model::GroupNode* groupNode) { properties.push_back(Model::EntityProperty(Model::PropertyKeys::Group, kdl::str_to_string(*groupNode->persistentId()))); },
                 [](const Model::EntityNode*) {},
                 [](const Model::BrushNode*) {}
             ));
@@ -233,7 +216,7 @@ namespace TrenchBroom {
                 Model::EntityProperty(Model::PropertyKeys::Classname, Model::PropertyValues::LayerClassname),
                 Model::EntityProperty(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeLayer),
                 Model::EntityProperty(Model::PropertyKeys::LayerName, layerNode->name()),
-                Model::EntityProperty(Model::PropertyKeys::LayerId, m_layerIds.getId(layerNode)),
+                Model::EntityProperty(Model::PropertyKeys::LayerId, kdl::str_to_string(*layerNode->persistentId())),
             };
 
             const auto& layer = layerNode->layer();
@@ -252,12 +235,12 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<Model::EntityProperty> NodeSerializer::groupProperties(const Model::GroupNode* group) {
+        std::vector<Model::EntityProperty> NodeSerializer::groupProperties(const Model::GroupNode* groupNode) {
             return {
                 Model::EntityProperty(Model::PropertyKeys::Classname, Model::PropertyValues::GroupClassname),
                 Model::EntityProperty(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeGroup),
-                Model::EntityProperty(Model::PropertyKeys::GroupName, group->name()),
-                Model::EntityProperty(Model::PropertyKeys::GroupId, m_groupIds.getId(group)),
+                Model::EntityProperty(Model::PropertyKeys::GroupName, groupNode->name()),
+                Model::EntityProperty(Model::PropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())),
             };
         }
 
