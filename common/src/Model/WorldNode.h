@@ -22,6 +22,7 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/EntityNodeBase.h"
+#include "Model/IdType.h"
 #include "Model/MapFormat.h"
 #include "Model/Node.h"
 
@@ -53,6 +54,8 @@ namespace TrenchBroom {
             using NodeTree = AABBTree<FloatType, 3, Node*>;
             std::unique_ptr<NodeTree> m_nodeTree;
             bool m_updateNodeTree;
+
+            IdType m_nextPersistentId = 1;
         public:
             WorldNode(Entity entity, MapFormat mapFormat);
             ~WorldNode() override;
