@@ -21,14 +21,15 @@
 
 #include "FloatType.h"
 #include "Macros.h"
+#include "Model/IdType.h"
 #include "Model/Layer.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>
 
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
 
 namespace TrenchBroom {
     namespace Model {
@@ -39,6 +40,12 @@ namespace TrenchBroom {
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
+
+            /**
+             * The ID used to serialize layer nodes (see MapReader and NodeSerializer). This is set by MapReader when a
+             * layer is read, or by WorldNode when a layer is added that doesn't yet have a persistent ID.
+             */
+            std::optional<IdType> m_persistentId;
         public:
             explicit LayerNode(Layer layer);
 
@@ -51,6 +58,9 @@ namespace TrenchBroom {
              * Stable sort the given vector using `sortIndex()` as the sort key.
              */
             static void sortLayers(std::vector<LayerNode*>& layers);
+
+            const std::optional<IdType>& persistentId() const;
+            void setPersistentId(IdType persistentId);
         private: // implement Node interface
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;
