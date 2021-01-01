@@ -29,7 +29,6 @@
 #include "Model/IssueGenerator.h"
 #include "Model/IssueGeneratorRegistry.h"
 #include "Model/LayerNode.h"
-#include "Model/ModelFactoryImpl.h"
 #include "Model/TagVisitor.h"
 
 #include <kdl/overload.h>
@@ -44,8 +43,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        WorldNode::WorldNode(Entity entity, MapFormat mapFormat) :
-        m_factory(std::make_unique<ModelFactoryImpl>(mapFormat)),
+        WorldNode::WorldNode(Entity entity, const MapFormat mapFormat) :
+        m_mapFormat(mapFormat),
         m_defaultLayer(nullptr),
         m_entityNodeIndex(std::make_unique<EntityNodeIndex>()),
         m_issueGeneratorRegistry(std::make_unique<IssueGeneratorRegistry>()),
@@ -58,6 +57,10 @@ namespace TrenchBroom {
         }
 
         WorldNode::~WorldNode() = default;
+
+        MapFormat WorldNode::format() const {
+            return m_mapFormat;
+        }
 
         LayerNode* WorldNode::defaultLayer() {
             ensure(m_defaultLayer != nullptr, "defaultLayer is null");
@@ -350,10 +353,6 @@ namespace TrenchBroom {
 
         vm::vec3 WorldNode::doGetLinkTargetAnchor() const {
             return vm::vec3::zero();
-        }
-
-        MapFormat WorldNode::doGetFormat() const {
-            return m_factory->format();
         }
 
         void WorldNode::doAcceptTagVisitor(TagVisitor& visitor) {

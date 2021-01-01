@@ -23,7 +23,6 @@
 #include "Macros.h"
 #include "Model/EntityNodeBase.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelFactory.h"
 #include "Model/Node.h"
 
 #include <kdl/result_forward.h>
@@ -41,11 +40,12 @@ namespace TrenchBroom {
         class BrushFace;
         class IssueGeneratorRegistry;
         class IssueQuickFix;
+        enum class MapFormat;
         class PickResult;
 
-        class WorldNode : public EntityNodeBase, public ModelFactory {
+        class WorldNode : public EntityNodeBase {
         private:
-            std::unique_ptr<ModelFactory> m_factory;
+            MapFormat m_mapFormat;
             LayerNode* m_defaultLayer;
             std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
             std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
@@ -56,6 +56,8 @@ namespace TrenchBroom {
         public:
             WorldNode(Entity entity, MapFormat mapFormat);
             ~WorldNode() override;
+
+            MapFormat format() const;
         public: // layer management
             LayerNode* defaultLayer();
 
@@ -144,8 +146,6 @@ namespace TrenchBroom {
             void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
-        private: // implement ModelFactory interface
-            MapFormat doGetFormat() const override;
         private: // implement Taggable interface
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;

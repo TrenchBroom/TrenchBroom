@@ -148,8 +148,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MixedBrushContentsIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/ModelFactory.cpp
-        ${COMMON_SOURCE_DIR}/Model/ModelFactoryImpl.cpp
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.cpp
         ${COMMON_SOURCE_DIR}/Model/Node.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.cpp
@@ -617,8 +615,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MixedBrushContentsIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/ModelFactory.h
-        ${COMMON_SOURCE_DIR}/Model/ModelFactoryImpl.h
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.h
         ${COMMON_SOURCE_DIR}/Model/Node.h
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.h
