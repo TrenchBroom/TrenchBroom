@@ -21,15 +21,16 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/BrushBuilder.h"
+#include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
-#include "Model/LockState.h"
-#include "Model/VisibilityState.h"
-#include "Model/WorldNode.h"
-#include "Model/LayerNode.h"
-#include "Model/GroupNode.h"
 #include "Model/EntityNode.h"
-#include "Model/BrushNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/LockState.h"
+#include "Model/MapFormat.h"
+#include "Model/WorldNode.h"
+#include "Model/VisibilityState.h"
 
 #include <kdl/result.h>
 
