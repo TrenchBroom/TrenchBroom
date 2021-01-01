@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 for (Model::BrushFace& face : brush.faces()) {
                     face.setTexture(textures.at((currentTextureIndex++) % NumTextures));
                 }
-                Model::BrushNode* brushNode = world.createBrush(std::move(brush));
+                Model::BrushNode* brushNode = new Model::BrushNode(std::move(brush));
                 result.push_back(brushNode);
             }
 

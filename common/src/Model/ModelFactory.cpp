@@ -34,10 +34,6 @@ namespace TrenchBroom {
             return doGetFormat();
         }
 
-        BrushNode* ModelFactory::createBrush(Brush brush) const {
-            return doCreateBrush(std::move(brush));
-        }
-
         kdl::result<BrushFace, BrushError> ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return doCreateFace(point1, point2, point3, attribs);
         }
@@ -48,10 +44,6 @@ namespace TrenchBroom {
 
         kdl::result<BrushFace, BrushError> ModelFactory::createFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             return doCreateFaceFromValve(point1, point2, point3, attribs, texAxisX, texAxisY);
-        }
-        
-        BrushNode* ModelFactory::doCreateBrush(Brush brush) const {
-            return new BrushNode(std::move(brush));
         }
     }
 }

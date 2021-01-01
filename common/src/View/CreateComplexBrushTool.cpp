@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 builder.createBrush(*m_polyhedron, document->currentTextureName())
                     .visit(kdl::overload(
                         [&](Model::Brush&& b) {
-                            updateBrush(document->world()->createBrush(std::move(b)));
+                            updateBrush(new Model::BrushNode(std::move(b)));
                         },
                         [&](const Model::BrushError e) {
                             updateBrush(nullptr);

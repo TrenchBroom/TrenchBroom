@@ -55,10 +55,10 @@ namespace TrenchBroom {
                                           vm::vec3::fill(8.0));
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
-            Model::BrushNode* brush1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3::fill(0.0), bboxMax), "texture").value());
+            Model::BrushNode* brushNode1 =new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3::fill(0.0), bboxMax), "texture").value());
 
-            document->addNode(brush1, document->currentLayer());
-            document->select(brush1);
+            document->addNode(brushNode1, document->currentLayer());
+            document->select(brushNode1);
 
             const Model::Hit hit = tool.pick3D(PickRay, Model::PickResult());
             CHECK(hit.isMatch());
@@ -67,8 +67,8 @@ namespace TrenchBroom {
             CHECK(!vm::is_nan(hit.distance()));
 
             const auto hitHandle = hit.target<ResizeBrushesTool::Resize3DHitData>();
-            CHECK(hitHandle.node() == brush1);
-            CHECK(hitHandle.faceIndex() == brush1->brush().findFace(vm::vec3::neg_x()).value());
+            CHECK(hitHandle.node() == brushNode1);
+            CHECK(hitHandle.faceIndex() == brushNode1->brush().findFace(vm::vec3::neg_x()).value());
         }
     }
 }

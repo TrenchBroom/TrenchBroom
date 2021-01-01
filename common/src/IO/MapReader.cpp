@@ -318,7 +318,7 @@ namespace TrenchBroom {
             std::move(brush)
                 .and_then(
                     [&](Model::Brush&& b) {
-                        Model::BrushNode* brushNode = m_factory->createBrush(std::move(b));
+                        Model::BrushNode* brushNode = new Model::BrushNode(std::move(b));
                         setFilePosition(brushNode, startLine, lineCount);
                         setExtraAttributes(brushNode, extraAttributes);
 

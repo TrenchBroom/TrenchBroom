@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).
                     visit(kdl::overload(
                         [&](Brush&& b) {
-                            worldNode->defaultLayer()->addChild(worldNode->createBrush(std::move(b)));
+                            worldNode->defaultLayer()->addChild(new BrushNode(std::move(b)));
                         },
                         [&](const Model::BrushError e) {
                             logger.error() << "Could not create default brush: " << e;

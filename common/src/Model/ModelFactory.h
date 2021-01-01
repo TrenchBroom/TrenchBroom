@@ -48,7 +48,6 @@ namespace TrenchBroom {
             virtual ~ModelFactory();
 
             MapFormat format() const;
-            BrushNode* createBrush(Brush brush) const;
 
             /**
              * Creates a face using TB's default texture projection for the current map format
@@ -79,7 +78,6 @@ namespace TrenchBroom {
             kdl::result<BrushFace, BrushError> createFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
         private:
             virtual MapFormat doGetFormat() const = 0;
-            virtual BrushNode* doCreateBrush(Brush brush) const;
             virtual kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
             virtual kdl::result<BrushFace, BrushError> doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
             virtual kdl::result<BrushFace, BrushError> doCreateFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const = 0;

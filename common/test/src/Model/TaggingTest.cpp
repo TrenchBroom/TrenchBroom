@@ -37,9 +37,9 @@ namespace TrenchBroom {
             WorldNode world{Model::Entity{}, MapFormat::Standard};
 
             BrushBuilder builder{&world, worldBounds};
-            BrushNode* brush = world.createBrush(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value());
+            BrushNode* brushNode = new BrushNode(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value());
 
-            world.defaultLayer()->addChild(brush);
+            world.defaultLayer()->addChild(brushNode);
 
             Tag tag1{"tag1", {}};
             Tag tag2{"tag2", {}};
@@ -47,20 +47,20 @@ namespace TrenchBroom {
             tag1.setIndex(0);
             tag2.setIndex(1);
 
-            CHECK_FALSE(brush->hasTag(tag1));
-            CHECK_FALSE(brush->hasTag(tag2));
+            CHECK_FALSE(brushNode->hasTag(tag1));
+            CHECK_FALSE(brushNode->hasTag(tag2));
 
-            CHECK(brush->addTag(tag1));
-            CHECK_FALSE(brush->addTag(tag1));
+            CHECK(brushNode->addTag(tag1));
+            CHECK_FALSE(brushNode->addTag(tag1));
 
-            CHECK(brush->hasTag(tag1));
-            CHECK_FALSE(brush->hasTag(tag2));
+            CHECK(brushNode->hasTag(tag1));
+            CHECK_FALSE(brushNode->hasTag(tag2));
 
-            CHECK(brush->removeTag(tag1));
-            CHECK_FALSE(brush->removeTag(tag1));
+            CHECK(brushNode->removeTag(tag1));
+            CHECK_FALSE(brushNode->removeTag(tag1));
 
-            CHECK_FALSE(brush->hasTag(tag1));
-            CHECK_FALSE(brush->hasTag(tag2));
+            CHECK_FALSE(brushNode->hasTag(tag1));
+            CHECK_FALSE(brushNode->hasTag(tag2));
         }
     }
 }
