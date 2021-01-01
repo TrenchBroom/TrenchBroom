@@ -160,7 +160,7 @@ namespace TrenchBroom {
 
                 auto worldNode = std::make_unique<WorldNode>(std::move(worldEntity), format);
 
-                const Model::BrushBuilder builder(worldNode->format(), worldBounds, defaultFaceAttribs());
+                const Model::BrushBuilder builder(worldNode->mapFormat(), worldBounds, defaultFaceAttribs());
                 builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).
                     visit(kdl::overload(
                         [&](Brush&& b) {
@@ -184,7 +184,7 @@ namespace TrenchBroom {
         }
 
         void GameImpl::doWriteMap(WorldNode& world, const IO::Path& path, const bool exporting) const {
-            const auto mapFormatName = formatName(world.format());
+            const auto mapFormatName = formatName(world.mapFormat());
 
             std::ofstream file = openPathAsOutputStream(path);
             if (!file) {

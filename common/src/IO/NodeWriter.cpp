@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
         NodeWriter::NodeWriter(const Model::WorldNode& world, std::ostream& stream) :
         m_world(world),
-        m_serializer(MapFileSerializer::create(m_world.format(), stream)) {}
+        m_serializer(MapFileSerializer::create(m_world.mapFormat(), stream)) {}
 
         NodeWriter::NodeWriter(const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer) :
         m_world(world),
