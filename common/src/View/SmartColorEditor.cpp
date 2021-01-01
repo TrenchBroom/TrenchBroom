@@ -21,9 +21,10 @@
 
 #include "Color.h"
 #include "Assets/ColorRange.h"
-#include "Model/AttributableNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityColor.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -46,11 +47,11 @@
 namespace TrenchBroom {
     namespace View {
         SmartColorEditor::SmartColorEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
-        SmartAttributeEditor(document, parent),
-        m_floatRadio(nullptr),
-        m_byteRadio(nullptr),
-        m_colorPicker(nullptr),
-        m_colorHistory(nullptr) {
+            SmartPropertyEditor(document, parent),
+            m_floatRadio(nullptr),
+            m_byteRadio(nullptr),
+            m_colorPicker(nullptr),
+            m_colorHistory(nullptr) {
             createGui();
         }
 
@@ -97,18 +98,18 @@ namespace TrenchBroom {
             connect(m_colorHistory, &ColorTable::colorTableSelected, this, &SmartColorEditor::colorTableSelected);
         }
 
-        void SmartColorEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
+        void SmartColorEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) {
             ensure(m_floatRadio != nullptr, "floatRadio is null");
             ensure(m_byteRadio != nullptr, "byteRadio is null");
             ensure(m_colorPicker != nullptr, "colorPicker is null");
             ensure(m_colorHistory != nullptr, "colorHistory is null");
 
-            updateColorRange(attributables);
+            updateColorRange(nodes);
             updateColorHistory();
         }
 
-        void SmartColorEditor::updateColorRange(const std::vector<Model::AttributableNode*>& attributables) {
-            const auto range = detectColorRange(name(), attributables);
+        void SmartColorEditor::updateColorRange(const std::vector<Model::EntityNodeBase*>& nodes) {
+            const auto range = detectColorRange(propertyKey(), nodes);
             if (range == Assets::ColorRange::Float) {
                 m_floatRadio->setChecked(true);
                 m_byteRadio->setChecked(false);
@@ -122,7 +123,7 @@ namespace TrenchBroom {
         }
 
         template <typename Node>
-        static std::vector<QColor> collectColors(const std::vector<Node*>& nodes, const std::string& attributeName) {
+        static std::vector<QColor> collectColors(const std::vector<Node*>& nodes, const std::string& propertyKey) {
             struct ColorCmp {
                 bool operator()(const QColor& lhs, const QColor& rhs) const {
                     const auto lr = static_cast<float>(lhs.red()) / 255.0f;
@@ -154,20 +155,18 @@ namespace TrenchBroom {
     
             kdl::vector_set<QColor, ColorCmp> colors;
 
-            const auto visitAttributableNode = [&](const auto* node) {
-                static const auto NullValue("");
-                const auto& value = node->attribute(attributeName, NullValue);
-                if (value != NullValue) {
-                    colors.insert(toQColor(Model::parseEntityColor(value)));
+            const auto visitEntityNode = [&](const auto* node) {
+                if (const auto* value = node->entity().property(propertyKey)) {
+                    colors.insert(toQColor(Model::parseEntityColor(*value)));
                 }
             };
 
             for (const auto* node : nodes) {
                 node->accept(kdl::overload(
-                    [&](auto&& thisLambda, const Model::WorldNode* world)   { world->visitChildren(thisLambda); visitAttributableNode(world); },
+                    [&](auto&& thisLambda, const Model::WorldNode* world)   { world->visitChildren(thisLambda); visitEntityNode(world); },
                     [] (auto&& thisLambda, const Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, const Model::GroupNode* group)   { group->visitChildren(thisLambda); },
-                    [&](const Model::EntityNode* entity)                    { visitAttributableNode(entity); },
+                    [&](const Model::EntityNode* entity)                    { visitEntityNode(entity); },
                     [] (const Model::BrushNode*)                            {}
                 ));
             }
@@ -176,9 +175,9 @@ namespace TrenchBroom {
         }
 
         void SmartColorEditor::updateColorHistory() {
-            m_colorHistory->setColors(collectColors(std::vector<Model::Node*>{document()->world()}, name()));
+            m_colorHistory->setColors(collectColors(std::vector<Model::Node*>{document()->world()}, propertyKey()));
 
-            const auto selectedColors = collectColors(document()->allSelectedAttributableNodes(), name());
+            const auto selectedColors = collectColors(document()->allSelectedEntityNodes(), propertyKey());
             m_colorHistory->setSelection(selectedColors);
             m_colorPicker->setColor(!selectedColors.empty() ? selectedColors.back() : QColor(Qt::black));
         }
@@ -186,15 +185,15 @@ namespace TrenchBroom {
         void SmartColorEditor::setColor(const QColor& color) const {
             const auto colorRange = m_floatRadio->isChecked() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
             const auto value = Model::entityColorAsString(fromQColor(color), colorRange);
-            document()->setAttribute(name(), value);
+            document()->setProperty(propertyKey(), value);
         }
 
         void SmartColorEditor::floatRangeRadioButtonClicked() {
-            document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
+            document()->convertEntityColorRange(propertyKey(), Assets::ColorRange::Float);
         }
 
         void SmartColorEditor::byteRangeRadioButtonClicked() {
-            document()->convertEntityColorRange(name(), Assets::ColorRange::Byte);
+            document()->convertEntityColorRange(propertyKey(), Assets::ColorRange::Byte);
         }
 
         void SmartColorEditor::colorPickerChanged(const QColor& color) {

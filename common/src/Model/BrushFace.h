@@ -17,12 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Face
-#define TrenchBroom_Face
+#pragma once
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Assets/TextureReference.h"
+#include "Assets/AssetReference.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Tag.h" // BrushFace inherits from Taggable
@@ -86,7 +85,7 @@ namespace TrenchBroom {
             vm::plane3 m_boundary;
             BrushFaceAttributes m_attributes;
 
-            Assets::TextureReference m_textureReference;
+            Assets::AssetReference<Assets::Texture> m_textureReference;
             std::unique_ptr<TexCoordSystem> m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
 
@@ -200,4 +199,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Face) */

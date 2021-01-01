@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_SKIP_ITERATOR_H
-#define KDL_SKIP_ITERATOR_H
+#pragma once
 
 #include <iterator>
 
@@ -91,7 +90,8 @@ namespace kdl {
         pointer   operator->() const { return *m_cur; }
     private:
         void advance(const difference_type distance) {
-            std::advance(m_cur, std::min(distance, std::distance(m_cur, m_end)));
+            const auto maxDistance = std::distance(m_cur, m_end);
+            std::advance(m_cur, distance < maxDistance ? distance : maxDistance);
         }
     };
 
@@ -102,4 +102,3 @@ namespace kdl {
     skip_iterator(I cur, I end, typename I::difference_type offset,  typename I::difference_type stride) -> skip_iterator<I>;
 }
 
-#endif //KDL_SKIP_ITERATOR_H

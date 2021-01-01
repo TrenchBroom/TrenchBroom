@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_META_UTILS_H
-#define KDL_META_UTILS_H
+#pragma once
 
 #include <type_traits>
 
@@ -121,4 +120,3 @@ namespace kdl {
     };
 }
 
-#endif //KDL_META_UTILS_H

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TestParserStatus
-#define TrenchBroom_TestParserStatus
+#pragma once
 
 #include "Logger.h"
 #include "IO/ParserStatus.h"
@@ -44,4 +43,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_TestParserStatus) */

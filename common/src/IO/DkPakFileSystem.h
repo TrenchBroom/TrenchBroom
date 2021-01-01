@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DkPakFileSystem_h
-#define DkPakFileSystem_h
+#pragma once
 
 #include "IO/ImageFileSystem.h"
 
@@ -46,4 +45,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* DkPakFileSystem_h */

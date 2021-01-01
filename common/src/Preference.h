@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Preference
-#define TrenchBroom_Preference
+#pragma once
 
 #include "Macros.h"
 #include "IO/Path.h"
@@ -200,4 +199,3 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* defined(TrenchBroom_Preference) */

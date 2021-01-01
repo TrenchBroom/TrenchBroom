@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_BINARY_RELATION_H
-#define KDL_BINARY_RELATION_H
+#pragma once
 
 #include <cassert>
 #include <map>
@@ -484,4 +483,3 @@ namespace kdl {
     };
 }
 
-#endif //KDL_BINARY_RELATION_H

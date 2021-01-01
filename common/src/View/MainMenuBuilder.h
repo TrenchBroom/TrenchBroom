@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_MAINMENUBUILDER_H
-#define TRENCHBROOM_MAINMENUBUILDER_H
+#pragma once
 
 #include "View/Actions.h"
 
@@ -76,4 +75,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_MAINMENUBUILDER_H

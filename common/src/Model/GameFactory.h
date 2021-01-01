@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GameFactory
-#define TrenchBroom_GameFactory
+#pragma once
 
 #include "Model/MapFormat.h"
 
@@ -102,6 +101,9 @@ namespace TrenchBroom {
             bool setGamePath(const std::string& gameName, const IO::Path& gamePath);
             bool isGamePathPreference(const std::string& gameName, const IO::Path& prefPath) const;
 
+            IO::Path compilationToolPath(const std::string& gameName, const std::string& toolName) const;
+            bool setCompilationToolPath(const std::string& gameName, const std::string& toolName, const IO::Path& gamePath);
+
             GameConfig& gameConfig(const std::string& gameName);
             const GameConfig& gameConfig(const std::string& gameName) const;
 
@@ -129,4 +131,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_GameFactory) */

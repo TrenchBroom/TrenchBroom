@@ -36,7 +36,6 @@
 #include <vecmath/vec_io.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 #include "MapDocumentTest.h"
 

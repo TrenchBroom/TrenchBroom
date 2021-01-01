@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ACTIVESHADER_H
-#define TRENCHBROOM_ACTIVESHADER_H
+#pragma once
 
 #include "Renderer/ShaderProgram.h"
 
@@ -44,4 +43,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_ACTIVESHADER_H

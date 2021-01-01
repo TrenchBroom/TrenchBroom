@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_ENUM_ARRAY_H
-#define KDL_ENUM_ARRAY_H
+#pragma once
 
 #include <cassert>
 #include <cstddef>
@@ -191,4 +190,3 @@ namespace kdl {
     };
 }
 
-#endif //KDL_ENUM_ARRAY_H

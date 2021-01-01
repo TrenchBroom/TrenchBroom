@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ISSUETYPE_H
-#define TRENCHBROOM_ISSUETYPE_H
+#pragma once
 
 namespace TrenchBroom {
     namespace Model {
@@ -26,4 +25,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_ISSUETYPE_H

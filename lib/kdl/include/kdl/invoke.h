@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_INVOKE_H
-#define KDL_INVOKE_H
+#pragma once
 
 #include <utility>
 
@@ -55,4 +54,3 @@ namespace kdl {
     invoke_later(const LL& lambda_now) -> invoke_later<LL>;
 }
 
-#endif //KDL_INVOKE_H

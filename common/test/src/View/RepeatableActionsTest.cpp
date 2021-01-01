@@ -66,14 +66,16 @@ namespace TrenchBroom {
             document->translateObjects(vm::vec3(1, 2, 3));
             CHECK(document->canRepeatCommands());
 
-            REQUIRE(entityNode->origin() == vm::vec3(1, 2, 3));
+            REQUIRE(entityNode->entity().origin() == vm::vec3(1, 2, 3));
             document->repeatCommands();
-            CHECK(entityNode->origin() == vm::vec3(2, 4, 6));
+            CHECK(entityNode->entity().origin() == vm::vec3(2, 4, 6));
         }
 
         TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.repeatRotate") {
-            auto* entityNode = new Model::EntityNode();
-            REQUIRE(entityNode->transform(document->worldBounds(), vm::translation_matrix(vm::vec3(1, 2, 3)), false).is_success());
+            auto entity = Model::Entity();
+            entity.transform(vm::translation_matrix(vm::vec3(1, 2, 3)));
+
+            auto* entityNode = new Model::EntityNode(std::move(entity));
 
             document->addNode(entityNode, document->parentForNodes());
             document->select(entityNode);
@@ -82,9 +84,9 @@ namespace TrenchBroom {
             document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), vm::to_radians(90.0));
             CHECK(document->canRepeatCommands());
 
-            REQUIRE(entityNode->origin() == vm::approx(vm::rotation_matrix(vm::vec3::pos_z(), vm::to_radians(90.0)) * vm::vec3(1, 2, 3)));
+            REQUIRE(entityNode->entity().origin() == vm::approx(vm::rotation_matrix(vm::vec3::pos_z(), vm::to_radians(90.0)) * vm::vec3(1, 2, 3)));
             document->repeatCommands();
-            CHECK(entityNode->origin() == vm::approx(vm::rotation_matrix(vm::vec3::pos_z(), vm::to_radians(180.0)) * vm::vec3(1, 2, 3)));
+            CHECK(entityNode->entity().origin() == vm::approx(vm::rotation_matrix(vm::vec3::pos_z(), vm::to_radians(180.0)) * vm::vec3(1, 2, 3)));
         }
 
         TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.repeatScaleWithBBox") {
@@ -186,7 +188,7 @@ namespace TrenchBroom {
             CHECK(document->canRepeatCommands());
 
             // this command will not clear the repeat stack
-            document->setAttribute("this", "that");
+            document->setProperty("this", "that");
             CHECK(document->canRepeatCommands());
 
             // this command will replace the command on the repeat stack
@@ -197,7 +199,7 @@ namespace TrenchBroom {
             document->select(entityNode1);
 
             document->repeatCommands();
-            CHECK(entityNode1->origin() == vm::vec3::zero());
+            CHECK(entityNode1->entity().origin() == vm::vec3::zero());
 
             document->deselectAll();
             document->select(entityNode1);

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PreferenceManager
-#define TrenchBroom_PreferenceManager
+#pragma once
 
 #include "Ensure.h"
 #include "Macros.h"
@@ -253,4 +252,3 @@ namespace TrenchBroom {
     bool migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
 }
 
-#endif /* defined(TrenchBroom_PreferenceManager) */

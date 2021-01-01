@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Bitset_h
-#define TrenchBroom_Bitset_h
+#pragma once
 
 #include <vector>
 
@@ -48,5 +47,3 @@ namespace kdl {
         }
     };
 }
-
-#endif

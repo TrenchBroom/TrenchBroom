@@ -28,19 +28,15 @@
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
-        void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual);
-
         TEST_CASE("Quake3ShaderParserTest.parseEmptyShader", "[Quake3ShaderParserTest]") {
             const std::string data("");
             Quake3ShaderParser parser(data);
-            const auto expected = std::vector<Assets::Quake3Shader> {};
-
             TestParserStatus status;
-            assertShaders(expected, parser.parse(status));
+
+            CHECK_THAT(parser.parse(status), Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{}));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseSingleShaderWithEmptyBlock", "[Quake3ShaderParserTest]") {
@@ -48,7 +44,10 @@ namespace TrenchBroom {
 textures/liquids/lavahell2 //path and name of new texture
 {}
 )");
-            const auto expected = std::vector<Assets::Quake3Shader> {
+            Quake3ShaderParser parser(data);
+            TestParserStatus status;
+
+            CHECK_THAT(parser.parse(status), Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{
                 {
                     IO::Path("textures/liquids/lavahell2"), // shaderPath
                     IO::Path(), // editorImage
@@ -57,10 +56,7 @@ textures/liquids/lavahell2 //path and name of new texture
                     {}, // surfaceParms
                     {} // stages
                 }
-            };
-            Quake3ShaderParser parser(data);
-            TestParserStatus status;
-            assertShaders(expected, parser.parse(status));
+            }));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseSingleSimpleShaderWithoutEditorImage", "[Quake3ShaderParserTest]") {
@@ -95,7 +91,10 @@ textures/liquids/lavahell2 //path and name of new texture
     }
 
 })");
-            const auto expected = std::vector<Assets::Quake3Shader> {
+            Quake3ShaderParser parser(data);
+            TestParserStatus status;
+
+            CHECK_THAT(parser.parse(status), Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{
                 {
                     IO::Path("textures/liquids/lavahell2"), // shaderPath
                     IO::Path(), // editorImage
@@ -109,10 +108,7 @@ textures/liquids/lavahell2 //path and name of new texture
                         }
                     } // stages
                 }
-            };
-            Quake3ShaderParser parser(data);
-            TestParserStatus status;
-            assertShaders(expected, parser.parse(status));
+            }));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseSingleSimpleShaderWithEditorImage", "[Quake3ShaderParserTest]") {
@@ -148,7 +144,10 @@ textures/liquids/lavahell2 //path and name of new texture
     }
 
 })");
-            const auto expected = std::vector<Assets::Quake3Shader>{
+            Quake3ShaderParser parser(data);
+            TestParserStatus status;
+
+            CHECK_THAT(parser.parse(status), Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{
                 {
                     IO::Path("textures/liquids/lavahell2"), // shaderPath
                     IO::Path("textures/eerie/lavahell.tga"), // editorImage
@@ -162,10 +161,7 @@ textures/liquids/lavahell2 //path and name of new texture
                         }
                     } // stages
                 }
-            };
-            Quake3ShaderParser parser(data);
-            TestParserStatus status;
-            assertShaders(expected, parser.parse(status));
+            }));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseSingleComplexShaderWithEditorImage", "[Quake3ShaderParserTest]") {
@@ -201,7 +197,10 @@ textures/eerie/ironcrosslt2_10000
     }
 
 })");
-            const auto expected = std::vector<Assets::Quake3Shader>{
+            Quake3ShaderParser parser(data);
+            TestParserStatus status;
+
+            CHECK_THAT(parser.parse(status), Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{
                 {
                     IO::Path("textures/eerie/ironcrosslt2_10000"), // shaderPath
                     IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
@@ -223,10 +222,7 @@ textures/eerie/ironcrosslt2_10000
                         }
                     } // stages
                 }
-            };
-            Quake3ShaderParser parser(data);
-            TestParserStatus status;
-            assertShaders(expected, parser.parse(status));
+            }));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseTwoShaders", "[Quake3ShaderParserTest]") {
@@ -297,7 +293,10 @@ textures/liquids/lavahell2 //path and name of new texture
 }
 
 )");
-            const auto expected = std::vector<Assets::Quake3Shader>{
+            Quake3ShaderParser parser(data);
+            TestParserStatus status;
+
+            CHECK_THAT(parser.parse(status), Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{
                 {
                     IO::Path("textures/eerie/ironcrosslt2_10000"), // shaderPath
                     IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
@@ -332,10 +331,7 @@ textures/liquids/lavahell2 //path and name of new texture
                         }
                     } // stages
                 }
-            };
-            Quake3ShaderParser parser(data);
-            TestParserStatus status;
-            assertShaders(expected, parser.parse(status));
+            }));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseShadersWithCommentTerminatingBlockEntry", "[Quake3ShaderParserTest]") {
@@ -356,7 +352,7 @@ waterBubble
 )");
             Quake3ShaderParser parser(data);
             TestParserStatus status;
-            ASSERT_NO_THROW(parser.parse(status));
+            CHECK_NOTHROW(parser.parse(status));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseShadersWithMultilineComment", "[Quake3ShaderParserTest]") {
@@ -382,7 +378,7 @@ waterBubble
 )");
             Quake3ShaderParser parser(data);
             TestParserStatus status;
-            ASSERT_NO_THROW(parser.parse(status));
+            CHECK_NOTHROW(parser.parse(status));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseBlendFuncParameters", "[Quake3ShaderParserTest]") {
@@ -442,62 +438,70 @@ waterBubble
 
             )");
 
+            using BF = Assets::Quake3ShaderStage::BlendFunc;
+
             Quake3ShaderParser parser(data);
             TestParserStatus status;
-            const auto shaders = parser.parse(status);
-            ASSERT_EQ(1u, shaders.size());
 
-            const auto& shader = shaders.front();
-            const auto& stages = shader.stages;
-            ASSERT_EQ(12u, stages.size());
-
-            // add
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::One, stages[0].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::One, stages[0].blendFunc.destFactor);
-
-            // filter
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::DestColor, stages[1].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::Zero, stages[1].blendFunc.destFactor);
-
-            // blend
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::SrcAlpha, stages[2].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha, stages[2].blendFunc.destFactor);
-
-            // GL_ONE GL_ONE
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::One, stages[3].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::One, stages[3].blendFunc.destFactor);
-
-            // GL_ZERO GL_ZERO
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::Zero, stages[4].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::Zero, stages[4].blendFunc.destFactor);
-
-            // GL_DST_COLOR GL_SRC_ALPHA
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::DestColor, stages[5].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::SrcAlpha, stages[5].blendFunc.destFactor);
-
-            // GL_ONE_MINUS_DST_COLOR GL_ONE_MINUS_SRC_ALPHA
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::OneMinusDestColor, stages[6].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha, stages[6].blendFunc.destFactor);
-
-            // GL_SRC_ALPHA GL_DST_ALPHA
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::SrcAlpha, stages[7].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::DestAlpha, stages[7].blendFunc.destFactor);
-
-            // GL_ONE_MINUS_SRC_ALPHA GL_ONE_MINUS_DST_ALPHA
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha, stages[8].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::OneMinusDestAlpha, stages[8].blendFunc.destFactor);
-
-            // GL_DST_ALPHA GL_SRC_COLOR
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::DestAlpha, stages[9].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::SrcColor, stages[9].blendFunc.destFactor);
-
-            // GL_ONE_MINUS_DST_ALPHA GL_ONE_MINUS_SRC_COLOR
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::OneMinusDestAlpha, stages[10].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcColor, stages[10].blendFunc.destFactor);
-
-            // GL_SRC_ALPHA_SATURATE GL_ONE_MINUS_SRC_COLOR
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::SrcAlphaSaturate, stages[11].blendFunc.srcFactor);
-            ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcColor, stages[11].blendFunc.destFactor);
+            CHECK_THAT(parser.parse(status), Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{
+                {
+                    IO::Path("waterBubble"), // shaderPath
+                    IO::Path(), // editorImage
+                    IO::Path(), // lightImage
+                    Assets::Quake3Shader::Culling::Front, // culling
+                    {}, // surfaceParms
+                    {
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::One, BF::One } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::DestColor, BF::Zero } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::SrcAlpha, BF::OneMinusSrcAlpha } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::One, BF::One } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::Zero, BF::Zero } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::DestColor, BF::SrcAlpha } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::OneMinusDestColor, BF::OneMinusSrcAlpha } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::SrcAlpha, BF::DestAlpha } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::OneMinusSrcAlpha, BF::OneMinusDestAlpha } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::DestAlpha, BF::SrcColor } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::OneMinusDestAlpha, BF::OneMinusSrcColor } // blendFunc
+                        },
+                        {
+                            Path("sprites/bubble.tga"), // map
+                            { BF::SrcAlphaSaturate, BF::OneMinusSrcColor } // blendFunc
+                        },
+                    } // stages
+                }
+            }));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseShadersWithInvalidWhitespace", "[Quake3ShaderParserTest]") {
@@ -511,7 +515,7 @@ waterBubble
 
             Quake3ShaderParser parser(reader.stringView());
             TestParserStatus status;
-            ASSERT_NO_THROW(parser.parse(status));
+            CHECK_NOTHROW(parser.parse(status));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseShaderAbsolutePath", "[Quake3ShaderParserTest]") {
@@ -526,7 +530,11 @@ waterBubble
     // different light values
 
 })");
-            const auto expected = std::vector<Assets::Quake3Shader>{
+
+            Quake3ShaderParser parser(data);
+            TestParserStatus status;
+
+            CHECK_THAT(parser.parse(status), Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{
                 {
                     IO::Path("textures/eerie/ironcrosslt2_10000"), // shaderPath
                     IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
@@ -535,10 +543,7 @@ waterBubble
                     {}, // surfaceParms
                     {} // stages
                 }
-            };
-            Quake3ShaderParser parser(data);
-            TestParserStatus status;
-            assertShaders(expected, parser.parse(status));
+            }));
         }
 
         TEST_CASE("Quake3ShaderParserTest.parseShaderWithMissingCBrace", "[Quake3ShaderParserTest]") {
@@ -563,18 +568,7 @@ textures/evil3_floors/cemtiledrk_mhbrk
 
             Quake3ShaderParser parser(data);
             TestParserStatus status;
-            ASSERT_NO_THROW(parser.parse(status));
-        }
-
-        void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual) {
-            ASSERT_EQ(expected.size(), actual.size());
-            for (const auto& expectedShader : expected) {
-                auto it = std::find(std::begin(actual), std::end(actual), expectedShader);
-                ASSERT_TRUE(it != std::end(actual));
-
-                const auto& actualShader = *it;
-                ASSERT_TRUE(isEqual(expectedShader, actualShader));
-            }
+            CHECK_NOTHROW(parser.parse(status));
         }
     }
 }

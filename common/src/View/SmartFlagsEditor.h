@@ -17,10 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SmartFlagsEditor
-#define TrenchBroom_SmartFlagsEditor
+#pragma once
 
-#include "View/SmartAttributeEditor.h"
+#include "View/SmartPropertyEditor.h"
 
 #include <memory>
 #include <vector>
@@ -34,7 +33,7 @@ namespace TrenchBroom {
         class FlagsEditor;
         class MapDocument;
 
-        class SmartFlagsEditor : public SmartAttributeEditor {
+        class SmartFlagsEditor : public SmartPropertyEditor {
             Q_OBJECT
         private:
             static const size_t NumFlags = 24;
@@ -47,16 +46,15 @@ namespace TrenchBroom {
             explicit SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
-            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
+            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
             void resetScrollPos();
 
-            void getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const;
-            void getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const;
-            int getFlagValue(const Model::AttributableNode* attributable) const;
+            void getFlags(const std::vector<Model::EntityNodeBase*>& nodes, QStringList& labels, QStringList& tooltips) const;
+            void getFlagValues(const std::vector<Model::EntityNodeBase*>& nodes, int& setFlags, int& mixedFlags) const;
+            int getFlagValue(const Model::EntityNodeBase* node) const;
 
             void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_SmartFlagsEditor) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushNode
-#define TrenchBroom_BrushNode
+#pragma once
 
 #include "FloatType.h"
 #include "Macros.h"
@@ -70,11 +69,11 @@ namespace TrenchBroom {
         public:
             BrushNode* clone(const vm::bbox3& worldBounds) const;
 
-            AttributableNode* entity();
-            const AttributableNode* entity() const;
+            EntityNodeBase* entity();
+            const EntityNodeBase* entity() const;
             
             const Brush& brush() const;
-            void setBrush(Brush brush);
+            Brush setBrush(Brush brush);
 
             bool hasSelectedFaces() const;
             void selectFace(size_t faceIndex);
@@ -83,8 +82,6 @@ namespace TrenchBroom {
             void updateFaceTags(size_t faceIndex, TagManager& tagManager);
             
             void setFaceTexture(size_t faceIndex, Assets::Texture* texture);
-            
-            using Node::takeSnapshot;
         private:
             void updateSelectedFaceCount();
         private: // implement Node interface
@@ -93,7 +90,6 @@ namespace TrenchBroom {
             const vm::bbox3& doGetPhysicalBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
-            NodeSnapshot* doTakeSnapshot() override;
 
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
@@ -113,10 +109,8 @@ namespace TrenchBroom {
             std::optional<std::tuple<FloatType, size_t>> findFaceHit(const vm::ray3& ray) const;
 
             Node* doGetContainer() override;
-            LayerNode* doGetLayer() override;
-            GroupNode* doGetGroup() override;
-
-            kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
+            LayerNode* doGetContainingLayer() override;
+            GroupNode* doGetContainingGroup() override;
 
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
@@ -166,4 +160,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_BrushNode) */

@@ -25,7 +25,6 @@
 #include <memory>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 #include "TestLogger.h"
 
 namespace TrenchBroom {
@@ -35,7 +34,7 @@ namespace TrenchBroom {
             NullLogger logger;
             
             auto texture = loadDefaultTexture(*fs, logger, "some_name");
-            ASSERT_EQ("some_name", texture.name());
+            CHECK(texture.name() == "some_name");
         }
     }
 }

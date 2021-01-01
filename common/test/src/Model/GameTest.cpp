@@ -18,7 +18,6 @@
  */
 
 #include "Logger.h"
-#include "TestUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
@@ -30,11 +29,9 @@
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
 
-#include <algorithm>
-#include <iterator>
+#include <kdl/vector_utils.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -60,17 +57,18 @@ namespace TrenchBroom {
                 EntityConfig(),
                 FaceAttribsConfig(),
                 std::vector<SmartTag>(),
-                std::nullopt);
+                std::nullopt, // soft map bounds
+                {} // compilation tools
+            );
             const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/Quake2");
             auto logger = NullLogger();
             GameImpl game(config, gamePath, logger);
             
-            EXPECT_COLLECTIONS_EQUIVALENT(std::vector<IO::Path>({
+            CHECK_THAT(game.findTextureCollections(), Catch::UnorderedEquals(std::vector<IO::Path>{
                 IO::Path("textures"),
                 IO::Path("textures/e1m1"),
                 IO::Path("textures/e1m1/f1")
-            }),
-            game.findTextureCollections());
+            }));
         }
         
         TEST_CASE("GameTest.loadCorruptPackages", "[GameTest]") {
@@ -84,20 +82,20 @@ namespace TrenchBroom {
 
             for (const auto& game : games) {
                 const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games/") + game + IO::Path("GameConfig.cfg");
-                const auto configStr = IO::Disk::readFile(configPath);
+                const auto configStr = IO::Disk::readTextFile(configPath);
                 auto configParser = IO::GameConfigParser(configStr, configPath);
                 auto config = configParser.parse();
 
                 const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/CorruptPak");
                 auto logger = NullLogger();
                 UNSCOPED_INFO("Should not throw when loading corrupted package file for game " << game);
-                ASSERT_NO_THROW(GameImpl(config, gamePath, logger));
+                CHECK_NOTHROW(GameImpl(config, gamePath, logger));
             }
         }
 
         TEST_CASE("GameTest.loadQuake3Shaders", "[GameTest]") {
             const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games//Quake3/GameConfig.cfg");
-            const auto configStr = IO::Disk::readFile(configPath);
+            const auto configStr = IO::Disk::readTextFile(configPath);
             auto configParser = IO::GameConfigParser(configStr, configPath);
             auto config = configParser.parse();
 
@@ -105,21 +103,21 @@ namespace TrenchBroom {
             auto logger = NullLogger();
             auto game = GameImpl(config, gamePath, logger);
 
-            const auto textureCollections = game.findTextureCollections();
-            EXPECT_COLLECTIONS_EQUIVALENT(std::vector<IO::Path>({
+            CHECK_THAT(game.findTextureCollections(), Catch::UnorderedEquals(std::vector<IO::Path>{
                 IO::Path("textures"),
                 IO::Path("textures/skies"),
                 IO::Path("textures/skies/hub1"),
                 IO::Path("textures/test"),
-            }), textureCollections);
+            }));
 
-            auto worldspawn = EntityNode();
-            worldspawn.addOrUpdateAttribute("_tb_textures", "textures/test;textures/skies/hub1");
+            auto worldspawn = Entity({
+                {"_tb_textures", "textures/test;textures/skies/hub1"}
+            });
 
             auto textureManager = Assets::TextureManager(0, 0, logger);
             game.loadTextureCollections(worldspawn, IO::Path(), textureManager, logger);
 
-            ASSERT_EQ(2u, textureManager.collections().size());
+            CHECK(textureManager.collections().size() == 2u);
 
             /*
              * The shader script contains five entries:
@@ -154,20 +152,22 @@ namespace TrenchBroom {
              */
 
             const auto& testCollection = textureManager.collections().front();
-            ASSERT_EQ(5u, testCollection.textureCount());
+            const auto testTextureNames = kdl::vec_transform(testCollection.textures(), [](const auto& texture) { return texture.name(); });
 
-            const auto& testTextures = testCollection.textures();
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/test"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/not_existing"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/editor_image"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/not_existing2"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/test2"; }));
-            
+            CHECK_THAT(testTextureNames, Catch::UnorderedEquals(std::vector<std::string>{
+                "test/test",
+                "test/not_existing",
+                "test/editor_image",
+                "test/not_existing2",
+                "test/test2",
+            }));
+
             const auto& skiesCollection = textureManager.collections().back();
-            ASSERT_EQ(1u, skiesCollection.textureCount());
-            
-            const auto& skiesTextures = testCollection.textures();
-            ASSERT_TRUE(skiesTextures.front().name() == "test/editor_image");
+            const auto skiesTextureNames = kdl::vec_transform(skiesCollection.textures(), [](const auto& texture) { return texture.name(); });
+
+            CHECK_THAT(skiesTextureNames, Catch::UnorderedEquals(std::vector<std::string>{
+                "skies/hub1/dusk",
+            }));
         }
     }
 }

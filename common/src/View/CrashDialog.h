@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CrashDialog_h
-#define CrashDialog_h
+#pragma once
 
 #include <QDialog>
 
@@ -38,4 +37,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CrashDialog_h */

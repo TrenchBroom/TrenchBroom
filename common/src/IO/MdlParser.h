@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MdlParser
-#define TrenchBroom_MdlParser
+#pragma once
 
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
@@ -82,4 +81,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MdlParser) */

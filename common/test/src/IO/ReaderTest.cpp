@@ -26,39 +26,29 @@
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
-        const char* buff();
-        std::shared_ptr<File> file();
-        void createEmpty(Reader&& r);
-        void createNonEmpty(Reader&& r);
-        void seekFromBegin(Reader&& r);
-        void seekFromEnd(Reader&& r);
-        void seekForward(Reader&& r);
-        void subReader(Reader&& r);
-
-        const char* buff() {
+        static const char* buff() {
             static const auto* result = "abcdefghij_";
             return result;
         }
 
-        std::shared_ptr<File> file() {
+        static std::shared_ptr<File> file() {
             static auto result = Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/10byte"));
             return result;
         }
 
-        void createEmpty(Reader&& r) {
-            EXPECT_EQ(0U, r.size());
-            EXPECT_EQ(0U, r.position());
-            EXPECT_NO_THROW(r.seekFromBegin(0U));
-            EXPECT_NO_THROW(r.seekFromEnd(0U));
-            EXPECT_NO_THROW(r.seekForward(0U));
-            EXPECT_FALSE(r.canRead(1U));
-            EXPECT_TRUE(r.canRead(0U));
-            EXPECT_TRUE(r.eof());
-            EXPECT_THROW(r.readChar<char>(), ReaderException);
+        static void createEmpty(Reader&& r) {
+            CHECK(r.size() == 0U);
+            CHECK(r.position() == 0U);
+            CHECK_NOTHROW(r.seekFromBegin(0U));
+            CHECK_NOTHROW(r.seekFromEnd(0U));
+            CHECK_NOTHROW(r.seekForward(0U));
+            CHECK_FALSE(r.canRead(1U));
+            CHECK(r.canRead(0U));
+            CHECK(r.eof());
+            CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
         }
 
         TEST_CASE("BufferReaderTest.createEmpty", "[BufferReaderTest]") {
@@ -70,28 +60,28 @@ namespace TrenchBroom {
             createEmpty(emptyFile->reader());
         }
 
-        void createNonEmpty(Reader&& r) {
-            EXPECT_EQ(10U, r.size());
-            EXPECT_EQ(0U, r.position());
-            EXPECT_TRUE(r.canRead(0U));
-            EXPECT_TRUE(r.canRead(10U));
-            EXPECT_FALSE(r.canRead(11U));
-            EXPECT_FALSE(r.eof());
+        static void createNonEmpty(Reader&& r) {
+            CHECK(r.size() == 10U);
+            CHECK(r.position() == 0U);
+            CHECK(r.canRead(0U));
+            CHECK(r.canRead(10U));
+            CHECK_FALSE(r.canRead(11U));
+            CHECK_FALSE(r.eof());
 
             // read a char
-            EXPECT_EQ('a', r.readChar<char>());
-            EXPECT_EQ(1U, r.position());
-            EXPECT_TRUE(r.canRead(1U));
-            EXPECT_TRUE(r.canRead(9U));
-            EXPECT_FALSE(r.canRead(10U));
+            CHECK(r.readChar<char>() == 'a');
+            CHECK(r.position() == 1U);
+            CHECK(r.canRead(1U));
+            CHECK(r.canRead(9U));
+            CHECK_FALSE(r.canRead(10U));
 
             // read remainder
-            EXPECT_EQ(std::string("bcdefghij"), r.readString(9));
-            EXPECT_EQ(10U, r.position());
-            EXPECT_FALSE(r.canRead(1U));
-            EXPECT_TRUE(r.canRead(0U));
-            EXPECT_TRUE(r.eof());
-            EXPECT_THROW(r.readChar<char>(), ReaderException);
+            CHECK(r.readString(9) == std::string("bcdefghij"));
+            CHECK(r.position() == 10U);
+            CHECK_FALSE(r.canRead(1U));
+            CHECK(r.canRead(0U));
+            CHECK(r.eof());
+            CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
         }
 
         TEST_CASE("BufferReaderTest.createNonEmpty", "[BufferReaderTest]") {
@@ -102,18 +92,18 @@ namespace TrenchBroom {
             createNonEmpty(file()->reader());
         }
 
-        void seekFromBegin(Reader&& r) {
+        static void seekFromBegin(Reader&& r) {
             r.seekFromBegin(0U);
-            EXPECT_EQ(0U, r.position());
+            CHECK(r.position() == 0U);
 
             r.seekFromBegin(1U);
-            EXPECT_EQ(1U, r.position());
+            CHECK(r.position() == 1U);
 
             r.seekFromBegin(2U);
-            EXPECT_EQ(2U, r.position());
+            CHECK(r.position() == 2U);
 
-            EXPECT_THROW(r.seekFromBegin(11U), ReaderException);
-            EXPECT_EQ(2U, r.position());
+            CHECK_THROWS_AS(r.seekFromBegin(11U), ReaderException);
+            CHECK(r.position() == 2U);
         }
 
         TEST_CASE("BufferReaderTest.testSeekFromBegin", "[BufferReaderTest]") {
@@ -125,18 +115,18 @@ namespace TrenchBroom {
             seekFromBegin(file()->reader());
         }
 
-        void seekFromEnd(Reader&& r) {
+        static void seekFromEnd(Reader&& r) {
             r.seekFromEnd(0U);
-            EXPECT_EQ(10U, r.position());
+            CHECK(r.position() == 10U);
 
             r.seekFromEnd(1U);
-            EXPECT_EQ(9U, r.position());
+            CHECK(r.position() == 9U);
 
             r.seekFromEnd(10U);
-            EXPECT_EQ(0U, r.position());
+            CHECK(r.position() == 0U);
 
-            EXPECT_THROW(r.seekFromEnd(11U), ReaderException);
-            EXPECT_EQ(0U, r.position());
+            CHECK_THROWS_AS(r.seekFromEnd(11U), ReaderException);
+            CHECK(r.position() == 0U);
         }
 
         TEST_CASE("BufferReaderTest.testSeekFromEnd", "[BufferReaderTest]") {
@@ -147,15 +137,15 @@ namespace TrenchBroom {
             seekFromEnd(file()->reader());
         }
 
-        void seekForward(Reader&& r) {
+        static void seekForward(Reader&& r) {
             r.seekForward(1U);
-            EXPECT_EQ(1U, r.position());
+            CHECK(r.position() == 1U);
 
             r.seekForward(1U);
-            EXPECT_EQ(2U, r.position());
+            CHECK(r.position() == 2U);
 
-            EXPECT_THROW(r.seekForward(9U), ReaderException);
-            EXPECT_EQ(2U, r.position());
+            CHECK_THROWS_AS(r.seekForward(9U), ReaderException);
+            CHECK(r.position() == 2U);
         }
 
         TEST_CASE("BufferReaderTest.testSeekForward", "[BufferReaderTest]") {
@@ -166,23 +156,23 @@ namespace TrenchBroom {
             seekForward(file()->reader());
         }
 
-        void subReader(Reader&& r) {
+        static void subReader(Reader&& r) {
             auto s = r.subReaderFromBegin(5, 3);
 
-            EXPECT_EQ(3U, s.size());
-            EXPECT_EQ(0U, s.position());
+            CHECK(s.size() == 3U);
+            CHECK(s.position() == 0U);
 
-            ASSERT_EQ('f', s.readChar<char>());
-            EXPECT_EQ(1U, s.position());
+            CHECK(s.readChar<char>() == 'f');
+            CHECK(s.position() == 1U);
 
-            ASSERT_EQ('g', s.readChar<char>());
-            EXPECT_EQ(2U, s.position());
+            CHECK(s.readChar<char>() == 'g');
+            CHECK(s.position() == 2U);
 
-            ASSERT_EQ('h', s.readChar<char>());
-            EXPECT_EQ(3U, s.position());
+            CHECK(s.readChar<char>() == 'h');
+            CHECK(s.position() == 3U);
 
-            EXPECT_THROW(s.seekForward(1U), ReaderException);
-            EXPECT_EQ(3U, s.position());
+            CHECK_THROWS_AS(s.seekForward(1U), ReaderException);
+            CHECK(s.position() == 3U);
         }
 
         TEST_CASE("BufferReaderTest.testSubReader", "[BufferReaderTest]") {

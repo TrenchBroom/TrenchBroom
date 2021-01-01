@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_VECTOR_UTILS_H
-#define KDL_VECTOR_UTILS_H
+#pragma once
 
 #include "collection_utils.h"
 
@@ -860,4 +859,3 @@ namespace kdl {
     }
 }
 
-#endif //KDL_VECTOR_UTILS_H

@@ -20,6 +20,7 @@
 #include "MissingClassnameIssueGenerator.h"
 
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -34,7 +35,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit MissingClassnameIssue(AttributableNode* node) :
+            explicit MissingClassnameIssue(EntityNodeBase* node) :
             Issue(node) {}
         private:
             IssueType doGetType() const override {
@@ -63,8 +64,8 @@ namespace TrenchBroom {
             addQuickFix(new MissingClassnameIssueQuickFix());
         }
 
-        void MissingClassnameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            if (!node->hasAttribute(AttributeNames::Classname))
+        void MissingClassnameIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+            if (!node->entity().hasProperty(PropertyKeys::Classname))
                 issues.push_back(new MissingClassnameIssue(node));
         }
     }

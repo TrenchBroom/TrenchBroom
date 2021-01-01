@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Token
-#define TrenchBroom_Token
+#pragma once
 
 #include <cassert>
 #include <string>
@@ -104,4 +103,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Token) */

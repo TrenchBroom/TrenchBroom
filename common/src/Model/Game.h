@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Game
-#define TrenchBroom_Game
+#pragma once
 
 #include "FloatType.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
+#include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 
 #include <vecmath/forward.h>
@@ -44,10 +44,11 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
         class BrushFace;
         class BrushFaceAttributes;
         class CompilationConfig;
+        class Entity;
         enum class ExportFormat;
         struct FlagsConfig;
         class Node;
@@ -92,7 +93,7 @@ namespace TrenchBroom {
             /**
              * Returns the soft map bounds specified in the given World entity, or if unset, the value from softMapBounds()
              */
-            SoftMapBounds extractSoftMapBounds(const AttributableNode& node) const;
+            SoftMapBounds extractSoftMapBounds(const Entity& entity) const;
         public: // loading and writing map files
             std::unique_ptr<WorldNode> newMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
             std::unique_ptr<WorldNode> loadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const;
@@ -106,27 +107,29 @@ namespace TrenchBroom {
             void writeBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const;
         public: // texture collection handling
             TexturePackageType texturePackageType() const;
-            void loadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const;
+            void loadTextureCollections(const Entity& entity, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const;
             bool isTextureCollection(const IO::Path& path) const;
             std::vector<std::string> fileTextureCollectionExtensions() const;
 
             std::vector<IO::Path> findTextureCollections() const;
-            std::vector<IO::Path> extractTextureCollections(const AttributableNode& node) const;
-            void updateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const;
+            std::vector<IO::Path> extractTextureCollections(const Entity& entity) const;
+            void updateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const;
             void reloadShaders();
         public: // entity definition handling
             bool isEntityDefinitionFile(const IO::Path& path) const;
             std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
-            Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const AttributableNode& node) const;
+            Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const Entity& entity) const;
             IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const;
         public: // mods
             std::vector<std::string> availableMods() const;
-            std::vector<std::string> extractEnabledMods(const AttributableNode& node) const;
+            std::vector<std::string> extractEnabledMods(const Entity& entity) const;
             std::string defaultMod() const;
         public: // configs for faces
             const FlagsConfig& surfaceFlags() const;
             const FlagsConfig& contentFlags() const;
             const BrushFaceAttributes& defaultFaceAttribs() const;
+        public: // compilation tools
+            const std::vector<CompilationTool>& compilationTools() const;
         private: // subclassing interface
             virtual const std::string& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
@@ -137,7 +140,7 @@ namespace TrenchBroom {
             virtual const CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
             virtual std::optional<vm::bbox3> doSoftMapBounds() const = 0;
-            virtual SoftMapBounds doExtractSoftMapBounds(const AttributableNode& node) const = 0;
+            virtual SoftMapBounds doExtractSoftMapBounds(const Entity& entity) const = 0;
 
             virtual const std::vector<SmartTag>& doSmartTags() const = 0;
 
@@ -152,28 +155,29 @@ namespace TrenchBroom {
             virtual void doWriteBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const = 0;
 
             virtual TexturePackageType doTexturePackageType() const = 0;
-            virtual void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const = 0;
+            virtual void doLoadTextureCollections(const Entity& entity, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
             virtual std::vector<std::string> doFileTextureCollectionExtensions() const = 0;
             virtual std::vector<IO::Path> doFindTextureCollections() const = 0;
-            virtual std::vector<IO::Path> doExtractTextureCollections(const AttributableNode& node) const = 0;
-            virtual void doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const = 0;
+            virtual std::vector<IO::Path> doExtractTextureCollections(const Entity& entity) const = 0;
+            virtual void doUpdateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const = 0;
             virtual void doReloadShaders() = 0;
 
             virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
             virtual std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const = 0;
-            virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const = 0;
+            virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Entity& entity) const = 0;
             virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const = 0;
 
             virtual std::vector<std::string> doAvailableMods() const = 0;
-            virtual std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const = 0;
+            virtual std::vector<std::string> doExtractEnabledMods(const Entity& entity) const = 0;
             virtual std::string doDefaultMod() const = 0;
 
             virtual const FlagsConfig& doSurfaceFlags() const = 0;
             virtual const FlagsConfig& doContentFlags() const = 0;
             virtual const BrushFaceAttributes& doDefaultFaceAttribs() const = 0;
+
+            virtual const std::vector<CompilationTool>& doCompilationTools() const = 0;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_Game) */

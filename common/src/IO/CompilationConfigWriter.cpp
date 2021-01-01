@@ -69,6 +69,9 @@ namespace TrenchBroom {
         public:
             void visit(const Model::CompilationExportMap& task) override {
                 EL::MapType map;
+                if (!task.enabled()) {
+                    map["enabled"] = EL::Value(false);
+                }
                 map["type"] = EL::Value("export");
                 map["target"] = EL::Value(task.targetSpec());
                 m_array.push_back(EL::Value(map));
@@ -76,6 +79,9 @@ namespace TrenchBroom {
 
             void visit(const Model::CompilationCopyFiles& task) override {
                 EL::MapType map;
+                if (!task.enabled()) {
+                    map["enabled"] = EL::Value(false);
+                }
                 map["type"] = EL::Value("copy");
                 map["source"] = EL::Value(task.sourceSpec());
                 map["target"] = EL::Value(task.targetSpec());
@@ -84,6 +90,9 @@ namespace TrenchBroom {
 
             void visit(const Model::CompilationRunTool& task) override {
                 EL::MapType map;
+                if (!task.enabled()) {
+                    map["enabled"] = EL::Value(false);
+                }
                 map["type"] = EL::Value("tool");
                 map["tool"] = EL::Value(task.toolSpec());
                 map["parameters"] = EL::Value(task.parameterSpec());

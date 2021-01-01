@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Polyhedron3_h
-#define TrenchBroom_Polyhedron3_h
+#pragma once
 
 #include "FloatType.h"
 #include "Polyhedron_Forward.h"
@@ -30,5 +29,3 @@ namespace TrenchBroom {
         using Polyhedron3 = Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
     }
 }
-
-#endif

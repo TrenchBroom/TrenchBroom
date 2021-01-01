@@ -37,7 +37,6 @@
 #include <vecmath/ray.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -46,7 +45,7 @@ namespace TrenchBroom {
 
             const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games/Quake/GameConfig.cfg");
             const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/Quake");
-            const auto configStr = IO::Disk::readFile(configPath);
+            const auto configStr = IO::Disk::readTextFile(configPath);
             auto configParser = IO::GameConfigParser(configStr, configPath);
             Model::GameConfig config = configParser.parse();
 

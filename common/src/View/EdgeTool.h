@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EdgeTool_h
-#define EdgeTool_h
+#pragma once
 
 #include "FloatType.h"
 #include "View/VertexToolBase.h"
@@ -64,4 +63,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* EdgeTool_h */

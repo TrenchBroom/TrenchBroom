@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityColor
-#define TrenchBroom_EntityColor
+#pragma once
 
 #include <string>
 #include <vector>
@@ -33,9 +32,9 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
 
-        Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<AttributableNode*>& attributables);
+        Assets::ColorRange::Type detectColorRange(const std::string& entityNode, const std::vector<EntityNodeBase*>& nodes);
 
         const std::string convertEntityColor(const std::string& str, Assets::ColorRange::Type colorRange);
         Color parseEntityColor(const std::string& str);
@@ -43,4 +42,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityColor) */

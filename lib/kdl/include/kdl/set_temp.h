@@ -14,8 +14,7 @@
  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#ifndef KDL_SET_TEMP_H
-#define KDL_SET_TEMP_H
+#pragma once
 
 #include <utility>
 #include <type_traits>
@@ -160,4 +159,3 @@ namespace kdl {
     dec_temp(T& value) -> dec_temp<T>;
 }
 
-#endif //KDL_SET_TEMP_H

@@ -22,6 +22,7 @@
 #include "Preferences.h"
 #include "Model/BrushBuilder.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/LockState.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
@@ -33,7 +34,6 @@
 #include <kdl/result.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
             EditorContextTest() {
                 worldBounds = vm::bbox3d(8192.0);
-                world = new WorldNode(MapFormat::Standard);
+                world = new WorldNode(Model::Entity(), MapFormat::Standard);
             }
 
             virtual ~EditorContextTest() {
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             }
 
             EntityNode* createTopLevelPointEntity() {
-                auto* entity = world->createEntity();
+                auto* entity = world->createEntity(Model::Entity());
                 world->defaultLayer()->addChild(entity);
                 return entity;
             }
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* entity = world->createEntity();
+                auto* entity = world->createEntity(Model::Entity());
                 entity->addChild(brush);
                 world->defaultLayer()->addChild(entity);
                 return std::make_tuple(entity, brush);
@@ -103,7 +103,7 @@ namespace TrenchBroom {
 
             std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity() {
                 BrushBuilder builder(world, worldBounds);
-                auto* entity = world->createEntity();
+                auto* entity = world->createEntity(Model::Entity());
                 auto* group = world->createGroup("somegroup");
 
                 group->addChild(entity);
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* entity = world->createEntity();
+                auto* entity = world->createEntity(Model::Entity());
                 auto* group = world->createGroup("somegroup");
 
                 entity->addChild(brush);
@@ -140,22 +140,22 @@ namespace TrenchBroom {
 
             void assertVisible(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.visible(node));
+                CHECK(context.visible(node) == expected);
             }
 
             void assertEditable(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.editable(node));
+                CHECK(context.editable(node) == expected);
             }
 
             void assertPickable(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.pickable(node));
+                CHECK(context.pickable(node) == expected);
             }
 
             void assertSelectable(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.selectable(node));
+                CHECK(context.selectable(node) == expected);
             }
         private:
             void setState(Node* node, const VisibilityState visibilityState, const LockState lockState) {

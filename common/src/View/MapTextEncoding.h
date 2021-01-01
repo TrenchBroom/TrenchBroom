@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_MAPTEXTENCODING_H
-#define TRENCHBROOM_MAPTEXTENCODING_H
+#pragma once
 
 namespace TrenchBroom {
     namespace View {
@@ -30,4 +29,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_MAPTEXTENCODING_H

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RotateObjectsToolPage
-#define TrenchBroom_RotateObjectsToolPage
+#pragma once
 
 #include "FloatType.h"
 
@@ -76,4 +75,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_RotateObjectsToolPage) */

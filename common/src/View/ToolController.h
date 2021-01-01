@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ToolController
-#define TrenchBroom_ToolController
+#pragma once
 
 #include "FloatType.h"
 #include "ToolChain.h"
@@ -578,4 +577,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ToolController) */

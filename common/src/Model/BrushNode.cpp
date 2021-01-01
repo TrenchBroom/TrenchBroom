@@ -28,7 +28,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
-#include "Model/BrushSnapshot.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
@@ -76,36 +75,36 @@ namespace TrenchBroom {
             return static_cast<BrushNode*>(Node::clone(worldBounds));
         }
 
-        NodeSnapshot* BrushNode::doTakeSnapshot() {
-            return new BrushSnapshot(this);
-        }
-
-        const AttributableNode* BrushNode::entity() const {
+        const EntityNodeBase* BrushNode::entity() const {
             return visitParent(kdl::overload(
-                [](const WorldNode* world)                    -> const AttributableNode* { return world; },
-                [](const EntityNode* entity)                  -> const AttributableNode* { return entity; },
-                [](auto&& thisLambda, const LayerNode* layer) -> const AttributableNode* { return layer->visitParent(thisLambda).value_or(nullptr); },
-                [](auto&& thisLambda, const GroupNode* group) -> const AttributableNode* { return group->visitParent(thisLambda).value_or(nullptr); },
-                [](auto&& thisLambda, const BrushNode* brush) -> const AttributableNode* { return brush->visitParent(thisLambda).value_or(nullptr); }
+                [](const WorldNode* world)                    -> const EntityNodeBase* { return world; },
+                [](const EntityNode* entity)                  -> const EntityNodeBase* { return entity; },
+                [](auto&& thisLambda, const LayerNode* layer) -> const EntityNodeBase* { return layer->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, const GroupNode* group) -> const EntityNodeBase* { return group->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, const BrushNode* brush) -> const EntityNodeBase* { return brush->visitParent(thisLambda).value_or(nullptr); }
             )).value_or(nullptr);
         }
 
-        AttributableNode* BrushNode::entity() {
-            return const_cast<AttributableNode*>(const_cast<const BrushNode*>(this)->entity());
+        EntityNodeBase* BrushNode::entity() {
+            return const_cast<EntityNodeBase*>(const_cast<const BrushNode*>(this)->entity());
         }
 
         const Brush& BrushNode::brush() const {
             return m_brush;
         }
         
-        void BrushNode::setBrush(Brush brush) {
+        Brush BrushNode::setBrush(Brush brush) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush = std::move(brush);
+
+            using std::swap;
+            swap(m_brush, brush);
             
             updateSelectedFaceCount();
             invalidateIssues();
             invalidateVertexCache();
+
+            return brush;
         }
 
         bool BrushNode::hasSelectedFaces() const {
@@ -225,31 +224,12 @@ namespace TrenchBroom {
             return parent();
         }
 
-        LayerNode* BrushNode::doGetLayer() {
+        LayerNode* BrushNode::doGetContainingLayer() {
             return findContainingLayer(this);
         }
 
-        GroupNode* BrushNode::doGetGroup() {
+        GroupNode* BrushNode::doGetContainingGroup() {
             return findContainingGroup(this);
-        }
-
-        kdl::result<void, TransformError> BrushNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-
-            return m_brush.transform(worldBounds, transformation, lockTextures)
-                .visit(kdl::overload(
-                    [&](Brush&& brush) {
-                        m_brush = std::move(brush);
-                        invalidateIssues();
-                        invalidateVertexCache();
-
-                        return kdl::result<void, TransformError>::success();
-                    },
-                    [](const BrushError e) {
-                        return kdl::result<void, TransformError>::error(TransformError{kdl::str_to_string(e)});
-                    }
-                ));
         }
 
         bool BrushNode::doContains(const Node* node) const {

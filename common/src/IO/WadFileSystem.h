@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WadFileSystem_h
-#define WadFileSystem_h
+#pragma once
 
 #include "IO/ImageFileSystem.h"
 
@@ -44,4 +43,3 @@ namespace TrenchBroom {
 }
 
 
-#endif /* WadFileSystem_h */

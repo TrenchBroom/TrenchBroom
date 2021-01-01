@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveToolController
-#define TrenchBroom_MoveToolController
+#pragma once
 
 #include "View/ToolController.h"
 
@@ -232,4 +231,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MoveToolController) */

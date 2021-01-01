@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Tokenizer_h
-#define TrenchBroom_Tokenizer_h
+#pragma once
 
 #include "Token.h"
 
@@ -416,4 +415,3 @@ namespace TrenchBroom {
         };
     }
 }
-#endif

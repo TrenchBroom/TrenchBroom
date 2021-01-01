@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef wxKeyStrings_h
-#define wxKeyStrings_h
+#pragma once
 
 #include <Qt>
 #include <QString>
@@ -49,5 +48,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif /* wxKeyStrings_h */

@@ -29,13 +29,12 @@
 #include <kdl/result.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
         TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]") {
             const vm::bbox3 worldBounds{4096.0};
-            WorldNode world{MapFormat::Standard};
+            WorldNode world{Model::Entity{}, MapFormat::Standard};
 
             BrushBuilder builder{&world, worldBounds};
             BrushNode* brush = world.createBrush(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value());
@@ -48,20 +47,20 @@ namespace TrenchBroom {
             tag1.setIndex(0);
             tag2.setIndex(1);
 
-            ASSERT_FALSE(brush->hasTag(tag1));
-            ASSERT_FALSE(brush->hasTag(tag2));
+            CHECK_FALSE(brush->hasTag(tag1));
+            CHECK_FALSE(brush->hasTag(tag2));
 
-            ASSERT_TRUE(brush->addTag(tag1));
-            ASSERT_FALSE(brush->addTag(tag1));
+            CHECK(brush->addTag(tag1));
+            CHECK_FALSE(brush->addTag(tag1));
 
-            ASSERT_TRUE(brush->hasTag(tag1));
-            ASSERT_FALSE(brush->hasTag(tag2));
+            CHECK(brush->hasTag(tag1));
+            CHECK_FALSE(brush->hasTag(tag2));
 
-            ASSERT_TRUE(brush->removeTag(tag1));
-            ASSERT_FALSE(brush->removeTag(tag1));
+            CHECK(brush->removeTag(tag1));
+            CHECK_FALSE(brush->removeTag(tag1));
 
-            ASSERT_FALSE(brush->hasTag(tag1));
-            ASSERT_FALSE(brush->hasTag(tag2));
+            CHECK_FALSE(brush->hasTag(tag1));
+            CHECK_FALSE(brush->hasTag(tag2));
         }
     }
 }

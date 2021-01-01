@@ -20,9 +20,9 @@
 #include "EntityColor.h"
 
 #include "Color.h"
-#include "Model/AttributableNode.h"
 #include "Assets/ColorRange.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -35,15 +35,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<AttributableNode*>& attributables) {
+        Assets::ColorRange::Type detectColorRange(const std::string& propertyKey, const std::vector<EntityNodeBase*>& nodes) {
             auto result = Assets::ColorRange::Unset;
-            for (auto* attributable : attributables) {
-                attributable->accept(kdl::overload(
-                    [&](const AttributableNode* node) {
-                        static const auto NullValue = "";
-                        const auto& value = node->attribute(name, NullValue);
-                        if (value != NullValue) {
-                            const auto range = Assets::detectColorRange(value);
+            for (auto* node : nodes) {
+                node->accept(kdl::overload(
+                    [&](const EntityNodeBase* entityNode) {
+                        if (const auto* value = entityNode->entity().property(propertyKey)) {
+                            const auto range = Assets::detectColorRange(*value);
                             if (result == Assets::ColorRange::Unset) {
                                 result = range;
                             } else if (result != range) {

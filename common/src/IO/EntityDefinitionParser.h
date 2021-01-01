@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinitionParser_h
-#define TrenchBroom_EntityDefinitionParser_h
+#pragma once
 
 #include "Color.h"
 
@@ -29,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class AttributeDefinition;
+        class PropertyDefinition;
         class EntityDefinition;
     }
 
@@ -45,9 +44,9 @@ namespace TrenchBroom {
             Color m_defaultEntityColor;
         protected:
             using EntityDefinitionList = std::vector<Assets::EntityDefinition*>;
-            using AttributeDefinitionPtr = std::shared_ptr<Assets::AttributeDefinition>;
-            using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
-            using AttributeDefinitionMap = std::unordered_map<std::string, AttributeDefinitionPtr>;
+            using PropertyDefinitionPtr = std::shared_ptr<Assets::PropertyDefinition>;
+            using PropertyDefinitionList = std::vector<PropertyDefinitionPtr>;
+            using PropertyDefinitionMap = std::unordered_map<std::string, PropertyDefinitionPtr>;
         public:
             EntityDefinitionParser(const Color& defaultEntityColor);
             virtual ~EntityDefinitionParser();
@@ -61,5 +60,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ModelFactoryImpl
-#define TrenchBroom_ModelFactoryImpl
+#pragma once
 
 #include "FloatType.h"
 #include "Model/MapFormat.h"
@@ -33,6 +32,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttributes;
         enum class BrushError;
+        class Entity;
 
         class ModelFactoryImpl : public ModelFactory {
         private:
@@ -42,10 +42,10 @@ namespace TrenchBroom {
             ModelFactoryImpl(MapFormat format);
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
-            WorldNode* doCreateWorld() const override;
+            WorldNode* doCreateWorld(Entity entity) const override;
             LayerNode* doCreateLayer(const std::string& name) const override;
             GroupNode* doCreateGroup(const std::string& name) const override;
-            EntityNode* doCreateEntity() const override;
+            EntityNode* doCreateEntity(Entity entity) const override;
 
             kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
             kdl::result<BrushFace, BrushError> doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
@@ -54,4 +54,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ModelFactoryImpl) */

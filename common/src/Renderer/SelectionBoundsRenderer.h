@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SelectionBoundsRenderer
-#define TrenchBroom_SelectionBoundsRenderer
+#pragma once
 
 #include "FloatType.h"
 
@@ -50,4 +49,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_SelectionBoundsRenderer) */

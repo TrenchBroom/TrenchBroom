@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationProfileListBox_h
-#define CompilationProfileListBox_h
+#pragma once
 
 #include "View/ControlListBox.h"
 
@@ -64,4 +63,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationProfileListBox_h */

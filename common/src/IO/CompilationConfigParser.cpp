@@ -95,27 +95,30 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseExportTask(const EL::Value& value) const {
-            expectStructure(value, "[ {'type': 'String', 'target': 'String'}, {} ]");
+            expectStructure(value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+            const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
             const std::string target = value["target"].stringValue();
-            return std::make_unique<Model::CompilationExportMap>(target);
+            return std::make_unique<Model::CompilationExportMap>(enabled, target);
         }
 
         std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(const EL::Value& value) const {
-            expectStructure(value, "[ {'type': 'String', 'source': 'String', 'target': 'String'}, {} ]");
+            expectStructure(value, "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
 
+            const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
             const std::string source = value["source"].stringValue();
             const std::string target = value["target"].stringValue();
 
-            return std::make_unique<Model::CompilationCopyFiles>(source, target);
+            return std::make_unique<Model::CompilationCopyFiles>(enabled, source, target);
         }
 
         std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(const EL::Value& value) const {
-            expectStructure(value, "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, {} ]");
+            expectStructure(value, "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': 'Boolean' } ]");
 
+            const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
             const std::string tool = value["tool"].stringValue();
             const std::string parameters = value["parameters"].stringValue();
 
-            return std::make_unique<Model::CompilationRunTool>(tool, parameters);
+            return std::make_unique<Model::CompilationRunTool>(enabled, tool, parameters);
         }
     }
 }

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FlagsEditor
-#define TrenchBroom_FlagsEditor
+#pragma once
 
 #include <QWidget>
 #include <QStringList>
@@ -68,4 +67,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FlagsEditor) */

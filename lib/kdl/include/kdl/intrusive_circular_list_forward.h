@@ -15,12 +15,10 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef TRENCHBROOM_INTRUSIVE_CIRCULAR_LIST_FORWARD_H
-#define TRENCHBROOM_INTRUSIVE_CIRCULAR_LIST_FORWARD_H
+#pragma once
 
 namespace kdl {
     template <typename T> class intrusive_circular_link;
     template <typename T, typename GetLink> class intrusive_circular_list;
 }
 
-#endif //TRENCHBROOM_INTRUSIVE_CIRCULAR_LIST_FORWARD_H

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_SKINLOADER_H
-#define TRENCHBROOM_SKINLOADER_H
+#pragma once
 
 #include <memory>
 
@@ -41,4 +40,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_SKINLOADER_H

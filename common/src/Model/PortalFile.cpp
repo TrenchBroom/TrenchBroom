@@ -20,6 +20,7 @@
 #include "PortalFile.h"
 
 #include "Exceptions.h"
+#include "IO/IOUtils.h"
 #include "IO/Path.h"
 
 #include <kdl/string_format.h>
@@ -42,7 +43,7 @@ namespace TrenchBroom {
         }
 
         bool PortalFile::canLoad(const IO::Path& path) {
-            std::fstream stream(path.asString(), std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             return stream.is_open() && stream.good();
         }
 
@@ -51,7 +52,7 @@ namespace TrenchBroom {
         }
 
         void PortalFile::load(const IO::Path& path) {
-            std::fstream stream(path.asString(), std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             if (!stream.good()) {
                 throw FileFormatException("Couldn't open file");
             }

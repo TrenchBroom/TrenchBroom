@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef result_h
-#define result_h
+#pragma once
 
 #include "kdl/meta_utils.h"
 #include "kdl/overload.h"
@@ -676,5 +675,3 @@ namespace kdl {
 
     static const auto void_result = kdl::result<void>::success();
 }
-
-#endif /* result_h */

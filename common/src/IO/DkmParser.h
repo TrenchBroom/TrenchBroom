@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_DkmParser
-#define TrenchBroom_DkmParser
+#pragma once
 
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
@@ -112,4 +111,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_DkmParser) */

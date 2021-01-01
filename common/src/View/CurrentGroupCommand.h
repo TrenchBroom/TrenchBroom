@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CurrentGroupCommand
-#define TrenchBroom_CurrentGroupCommand
+#pragma once
 
 #include "Macros.h"
 #include "View/UndoableCommand.h"
@@ -52,4 +51,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CurrentGroupCommand) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RepeatStack
-#define TrenchBroom_RepeatStack
+#pragma once
 
 #include <functional>
 #include <vector>
@@ -91,4 +90,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_RepeatStack) */

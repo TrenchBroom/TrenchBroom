@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DiskIO_h
-#define DiskIO_h
+#pragma once
 
 #include "IO/Path.h"
 
@@ -39,7 +38,7 @@ namespace TrenchBroom {
 
             std::vector<Path> getDirectoryContents(const Path& path);
             std::shared_ptr<File> openFile(const Path& path);
-            std::string readFile(const Path& path);
+            std::string readTextFile(const Path& path);
             Path getCurrentWorkingDir();
 
             template <class M>
@@ -121,4 +120,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* DiskIO_h */

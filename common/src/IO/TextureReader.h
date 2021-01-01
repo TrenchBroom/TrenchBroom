@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureReader_h
-#define TrenchBroom_TextureReader_h
+#pragma once
 
 #include "Macros.h"
 
@@ -141,4 +140,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Preferences_h
-#define TrenchBroom_Preferences_h
+#pragma once
 
 #include "Color.h"
 #include "Preference.h"
@@ -139,6 +138,8 @@ namespace TrenchBroom {
 
         extern Preference<float> CameraFov;
 
+        static constexpr auto MinCameraFlyMoveSpeed = 0.1f;
+        static constexpr auto MaxCameraFlyMoveSpeed = 10.0f;
         extern Preference<float> CameraFlyMoveSpeed;
 
         extern Preference<bool> Link2DCameras;
@@ -190,6 +191,7 @@ namespace TrenchBroom {
         std::vector<Preference<QKeySequence>*> keyPreferences();
 
         extern DynamicPreferencePattern<QString> GamesPath;
+        extern DynamicPreferencePattern<QString> GamesToolPath;
         extern DynamicPreferencePattern<QString> GamesDefaultEngine;
         extern DynamicPreferencePattern<QKeySequence> FiltersTagsToggle;
         extern DynamicPreferencePattern<QKeySequence> TagsEnable;
@@ -200,5 +202,3 @@ namespace TrenchBroom {
         const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns();
     }
 }
-
-#endif

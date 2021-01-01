@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_QUAKE3SHADER_H
-#define TRENCHBROOM_QUAKE3SHADER_H
+#pragma once
 
 #include "IO/Path.h"
 
@@ -51,14 +50,17 @@ namespace TrenchBroom {
                 bool validateDestFactor() const;
                 void reset();
 
-                bool operator==(const BlendFunc& other) const;
             };
         public:
             IO::Path map;
             BlendFunc blendFunc;
-        public:
-            bool operator==(const Quake3ShaderStage& other) const;
         };
+
+        bool operator==(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs);
+        bool operator!=(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs);
+        
+        bool operator==(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs);
+        bool operator!=(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs);
 
         class Quake3Shader {
         public:
@@ -75,13 +77,13 @@ namespace TrenchBroom {
             std::set<std::string> surfaceParms;
             std::vector<Quake3ShaderStage> stages;
         public:
-            bool operator==(const Quake3Shader& other) const;
-            friend bool isEqual(const Quake3Shader& lhs, const Quake3Shader& rhs);
 
             Quake3ShaderStage& addStage();
         };
+
+        bool operator==(const Quake3Shader& lhs, const Quake3Shader& rhs);
+        bool operator!=(const Quake3Shader& lhs, const Quake3Shader& rhs);
     }
 }
 
 
-#endif //TRENCHBROOM_QUAKE3SHADER_H

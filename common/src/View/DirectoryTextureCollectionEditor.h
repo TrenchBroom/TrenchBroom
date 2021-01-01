@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DirectoryTextureCollectionEditor_h
-#define DirectoryTextureCollectionEditor_h
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -82,4 +81,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* DirectoryTextureCollectionEditor_h */

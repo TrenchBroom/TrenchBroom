@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityModelRenderer
-#define TrenchBroom_EntityModelRenderer
+#pragma once
 
 #include "Color.h"
 #include "Renderer/Renderable.h"
@@ -82,8 +81,8 @@ namespace TrenchBroom {
                 }
             }
 
-            void addEntity(Model::EntityNode* entity);
-            void updateEntity(Model::EntityNode* entity);
+            void addEntity(Model::EntityNode* entityNode);
+            void updateEntity(Model::EntityNode* entityNode);
             void clear();
 
             bool applyTinting() const;
@@ -102,4 +101,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityModelRenderer) */

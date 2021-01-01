@@ -245,45 +245,54 @@ namespace TrenchBroom {
                 BrushNode* node  = faceHandle.node();
                 Brush brush = node->brush();
                 BrushFace& face = brush.face(faceHandle.faceIndex());
-                BrushFaceAttributes attributes = face.attributes();
-                
-                switch (m_textureOp) {
-                    case TextureOp_Set:
-                        result |= attributes.setTextureName(m_textureName);
-                        break;
-                    case TextureOp_None:
-                        break;
-                    switchDefault();
-                }
 
-                result |= attributes.setXOffset(evaluateValueOp(attributes.xOffset(), m_xOffset, m_xOffsetOp));
-                result |= attributes.setYOffset(evaluateValueOp(attributes.yOffset(), m_yOffset, m_yOffsetOp));
-                result |= attributes.setRotation(evaluateValueOp(attributes.rotation(), m_rotation, m_rotationOp));
-                result |= attributes.setXScale(evaluateValueOp(attributes.xScale(), m_xScale, m_xScaleOp));
-                result |= attributes.setYScale(evaluateValueOp(attributes.yScale(), m_yScale, m_yScaleOp));
-                result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
-                result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), m_contentFlags, m_contentFlagsOp));
-                result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), m_surfaceValue, m_surfaceValueOp));
-                result |= attributes.setColor(evaluateValueOp(attributes.color(), m_colorValue, m_colorValueOp));
-
-                face.setAttributes(attributes);
-                
-                switch (m_axisOp) {
-                    case AxisOp_Reset:
-                        face.resetTextureAxes();
-                        result |= true;
-                        break;
-                    case AxisOp_None:
-                    case AxisOp_ToParaxial:
-                    case AxisOp_ToParallel:
-                        break;
-                    switchDefault()
-                }
-                
+                result |= evaluate(face);
                 node->setBrush(std::move(brush));
             }
             return result;
         }
+
+        bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const {
+            auto result = false;
+
+            BrushFaceAttributes attributes = brushFace.attributes();
+            
+            switch (m_textureOp) {
+                case TextureOp_Set:
+                    result |= attributes.setTextureName(m_textureName);
+                    break;
+                case TextureOp_None:
+                    break;
+                switchDefault();
+            }
+
+            result |= attributes.setXOffset(evaluateValueOp(attributes.xOffset(), m_xOffset, m_xOffsetOp));
+            result |= attributes.setYOffset(evaluateValueOp(attributes.yOffset(), m_yOffset, m_yOffsetOp));
+            result |= attributes.setRotation(evaluateValueOp(attributes.rotation(), m_rotation, m_rotationOp));
+            result |= attributes.setXScale(evaluateValueOp(attributes.xScale(), m_xScale, m_xScaleOp));
+            result |= attributes.setYScale(evaluateValueOp(attributes.yScale(), m_yScale, m_yScaleOp));
+            result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
+            result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), m_contentFlags, m_contentFlagsOp));
+            result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), m_surfaceValue, m_surfaceValueOp));
+            result |= attributes.setColor(evaluateValueOp(attributes.color(), m_colorValue, m_colorValueOp));
+
+            brushFace.setAttributes(attributes);
+            
+            switch (m_axisOp) {
+                case AxisOp_Reset:
+                    brushFace.resetTextureAxes();
+                    result |= true;
+                    break;
+                case AxisOp_None:
+                case AxisOp_ToParaxial:
+                case AxisOp_ToParallel:
+                    break;
+                switchDefault()
+            }
+
+            return result;
+        }
+
 
         void ChangeBrushFaceAttributesRequest::resetAll(const BrushFaceAttributes& defaultFaceAttributes) {
             resetTextureAxes();

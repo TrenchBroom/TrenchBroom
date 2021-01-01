@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RenderView
-#define TrenchBroom_RenderView
+#pragma once
 
 #include "Color.h"
 #include "Renderer/GL.h" // must be included here, before QOpenGLWidget, because it includes glew
@@ -98,4 +97,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_RenderView) */

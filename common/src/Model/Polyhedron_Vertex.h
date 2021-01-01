@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Polyhedron_Vertex_h
-#define TrenchBroom_Polyhedron_Vertex_h
+#pragma once
 
 #include "Polyhedron.h"
 
@@ -119,5 +118,3 @@ m_link(this),
         }
     }
 }
-
-#endif

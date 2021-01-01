@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinitionLoader
-#define TrenchBroom_EntityDefinitionLoader
+#pragma once
 
 #include <vector>
 
@@ -41,4 +40,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityDefinitionLoader) */

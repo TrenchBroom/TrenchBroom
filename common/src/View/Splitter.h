@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_SPLITTER_H
-#define TRENCHBROOM_SPLITTER_H
+#pragma once
 
 #include <QSplitter>
 
@@ -52,4 +51,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_SPLITTER_H

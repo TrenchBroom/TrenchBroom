@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SetBrushFaceAttributesTool
-#define TrenchBroom_SetBrushFaceAttributesTool
+#pragma once
 
 #include "Model/BrushFaceHandle.h"
 #include "View/Tool.h"
@@ -81,4 +80,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_SetBrushFaceAttributesTool) */

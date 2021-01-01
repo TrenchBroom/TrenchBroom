@@ -15,22 +15,20 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
-#include "test_utils.h"
-
 #include "kdl/map_utils.h"
 
 #include <map>
 #include <string>
 #include <vector>
 
+#include "test_utils.h"
+
+#include <catch2/catch.hpp>
+
 namespace kdl {
     template<typename K, typename V>
     void test_map_keys(const std::vector<K>& keys, const std::map<K, V>& map) {
-        ASSERT_EQ(keys, map_keys(map));
+        CHECK(map_keys(map) == keys);
     }
 
     TEST_CASE("map_utils_test.map_keys", "[map_utils_test]") {
@@ -44,7 +42,7 @@ namespace kdl {
 
     template<typename K, typename V>
     void test_map_values(const std::vector<V>& values, const std::map<K, V>& map) {
-        ASSERT_EQ(values, map_values(map));
+        CHECK(map_values(map) == values);
     }
 
     TEST_CASE("map_utils_test.map_values", "[map_utils_test]") {
@@ -58,7 +56,7 @@ namespace kdl {
 
     template<typename K, typename V>
     void test_map_lexicographical_compare(const int exp, const std::map<K, V>& lhs, const std::map<K, V>& rhs) {
-        ASSERT_EQ(exp, map_lexicographical_compare(lhs, rhs));
+        CHECK(map_lexicographical_compare(lhs, rhs) == exp);
     }
 
     TEST_CASE("map_utils_test.map_lexicographical_compare", "[map_utils_test]") {
@@ -111,7 +109,7 @@ namespace kdl {
 
     template<typename K, typename V>
     void test_map_is_equivalent(const bool exp, const std::map<K, V>& lhs, const std::map<K, V>& rhs) {
-        ASSERT_EQ(exp, map_is_equivalent(lhs, rhs));
+        CHECK(map_is_equivalent(lhs, rhs) == exp);
     }
 
     TEST_CASE("map_utils_test.map_is_equivalent", "[map_utils_test]") {
@@ -164,7 +162,7 @@ namespace kdl {
 
     template <typename K, typename V>
     void test_map_find_or_default(const V& exp, const std::map<K, V>& m, const K& key, const V& defaultValue) {
-        ASSERT_EQ(exp, map_find_or_default(m, key, defaultValue));
+        CHECK(map_find_or_default(m, key, defaultValue) == exp);
     }
 
     TEST_CASE("map_utils_test.map_find_or_default", "[map_utils_test]") {
@@ -174,7 +172,7 @@ namespace kdl {
 
     template <typename K, typename V>
     void test_map_union(const std::map<K, V>& exp, const std::map<K, V>& m1, const std::map<K, V>& m2) {
-        ASSERT_EQ(exp, map_union(m1, m2));
+        CHECK(map_union(m1, m2) == exp);
     }
 
     TEST_CASE("map_utils_test.map_union", "[map_utils_test]") {
@@ -189,7 +187,7 @@ namespace kdl {
 
     template <typename K, typename V>
     void test_map_merge(const std::map<K, std::vector<V>>& exp, const std::map<K, std::vector<V>>& m1, const std::map<K, std::vector<V>>& m2) {
-        ASSERT_EQ(exp, map_merge(m1, m2));
+        CHECK(map_merge(m1, m2) == exp);
     }
 
     TEST_CASE("map_utils_test.map_merge", "[map_utils_test]") {
@@ -216,10 +214,10 @@ namespace kdl {
         });
 
         map_clear_and_delete(m);
-        ASSERT_TRUE(m.empty());
-        ASSERT_TRUE(d1);
-        ASSERT_TRUE(d2);
-        ASSERT_TRUE(d3);
-        ASSERT_TRUE(d4);
+        CHECK(m.empty());
+        CHECK(d1);
+        CHECK(d2);
+        CHECK(d3);
+        CHECK(d4);
     }
 }

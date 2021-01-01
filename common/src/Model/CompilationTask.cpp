@@ -23,9 +23,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        CompilationTask::CompilationTask() = default;
+        // CompilationTask
+
+        CompilationTask::CompilationTask(const bool enabled)
+        : m_enabled(enabled) {}
 
         CompilationTask::~CompilationTask() = default;
+
+        bool CompilationTask::enabled() const {
+            return m_enabled;
+        }
+
+        void CompilationTask::setEnabled(const bool enabled) {
+            m_enabled = enabled;
+        }
 
         bool CompilationTask::operator!=(const CompilationTask& other) const {
             return !(*this == other);
@@ -33,7 +44,8 @@ namespace TrenchBroom {
 
         // CompilationExportMap
 
-        CompilationExportMap::CompilationExportMap(const std::string& targetSpec) :
+        CompilationExportMap::CompilationExportMap(const bool enabled, const std::string& targetSpec) :
+        CompilationTask(enabled),
         m_targetSpec(targetSpec) {}
 
         void CompilationExportMap::accept(CompilationTaskVisitor& visitor) {
@@ -61,12 +73,15 @@ namespace TrenchBroom {
         }
 
         CompilationExportMap* CompilationExportMap::clone() const {
-            return new CompilationExportMap(m_targetSpec);
+            return new CompilationExportMap(enabled(), m_targetSpec);
         }
 
         bool CompilationExportMap::operator==(const CompilationTask& other) const {
             auto* otherCasted = dynamic_cast<const CompilationExportMap*>(&other);
             if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_enabled != otherCasted->m_enabled) {
                 return false;
             }
             if (m_targetSpec != otherCasted->m_targetSpec) {
@@ -77,8 +92,8 @@ namespace TrenchBroom {
 
         // CompilationCopyFiles
 
-        CompilationCopyFiles::CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec) :
-        CompilationTask(),
+        CompilationCopyFiles::CompilationCopyFiles(const bool enabled, const std::string& sourceSpec, const std::string& targetSpec) :
+        CompilationTask(enabled),
         m_sourceSpec(sourceSpec),
         m_targetSpec(targetSpec) {}
 
@@ -115,12 +130,15 @@ namespace TrenchBroom {
         }
 
         CompilationCopyFiles* CompilationCopyFiles::clone() const {
-            return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
+            return new CompilationCopyFiles(enabled(), m_sourceSpec, m_targetSpec);
         }
 
         bool CompilationCopyFiles::operator==(const CompilationTask& other) const {
             auto* otherCasted = dynamic_cast<const CompilationCopyFiles*>(&other);
             if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_enabled != otherCasted->m_enabled) {
                 return false;
             }
             if (m_sourceSpec != otherCasted->m_sourceSpec) {
@@ -134,8 +152,8 @@ namespace TrenchBroom {
 
         // CompilationRunTool
 
-        CompilationRunTool::CompilationRunTool(const std::string& toolSpec, const std::string& parameterSpec) :
-        CompilationTask(),
+        CompilationRunTool::CompilationRunTool(const bool enabled, const std::string& toolSpec, const std::string& parameterSpec) :
+        CompilationTask(enabled),
         m_toolSpec(toolSpec),
         m_parameterSpec(parameterSpec) {}
 
@@ -172,12 +190,15 @@ namespace TrenchBroom {
         }
 
         CompilationRunTool* CompilationRunTool::clone() const {
-            return new CompilationRunTool(m_toolSpec, m_parameterSpec);
+            return new CompilationRunTool(enabled(), m_toolSpec, m_parameterSpec);
         }
 
         bool CompilationRunTool::operator==(const CompilationTask& other) const {
             auto* otherCasted = dynamic_cast<const CompilationRunTool*>(&other);
             if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_enabled != otherCasted->m_enabled) {
                 return false;
             }
             if (m_toolSpec != otherCasted->m_toolSpec) {

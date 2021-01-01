@@ -62,7 +62,6 @@
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
-#include <kdl/vector_utils.h>
 
 #include <vecmath/util.h>
 
@@ -200,51 +199,8 @@ namespace TrenchBroom {
 
         void MapView2D::doSelectTall() {
             const auto document = kdl::mem_lock(m_document);
-            const vm::bbox3 tallBounds = document->worldBounds().expand(-1.0); // we can't make a brush that is exactly as large as worldBounds
-
-            const FloatType min = vm::dot(tallBounds.min, vm::vec3(m_camera->direction()));
-            const FloatType max = vm::dot(tallBounds.max, vm::vec3(m_camera->direction()));
-
-            const vm::plane3 minPlane(min, vm::vec3(m_camera->direction()));
-            const vm::plane3 maxPlane(max, vm::vec3(m_camera->direction()));
-
-            const std::vector<Model::BrushNode*>& selectionBrushNodes = document->selectedNodes().brushes();
-            assert(!selectionBrushNodes.empty());
-
-            const Model::BrushBuilder brushBuilder(document->world(), document->worldBounds());
-            std::vector<Model::BrushNode*> tallBrushes;
-            tallBrushes.reserve(selectionBrushNodes.size());
-
-            for (const Model::BrushNode* selectionBrushNode : selectionBrushNodes) {
-                const Model::Brush& selectionBrush = selectionBrushNode->brush();
-                
-                std::vector<vm::vec3> tallVertices;
-                tallVertices.reserve(2 * selectionBrush.vertexCount());
-
-                for (const Model::BrushVertex* vertex : selectionBrush.vertices()) {
-                    tallVertices.push_back(minPlane.project_point(vertex->position()));
-                    tallVertices.push_back(maxPlane.project_point(vertex->position()));
-                }
-
-                brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& b) {
-                            tallBrushes.push_back(document->world()->createBrush(std::move(b)));
-                        },
-                        [&](const Model::BrushError e) {
-                            m_logger->error() << "Could not create selection brush: " << e;
-                        }
-                    ));
-            }
-
-            const auto nodesToSelect = kdl::vec_filter(
-                Model::collectContainedNodes(std::vector<Model::Node*>{document->world()}, tallBrushes), 
-                [&](const auto* node) { return document->editorContext().selectable(node); });
-            kdl::vec_clear_and_delete(tallBrushes);
-
-            Transaction transaction(document, "Select Tall");
-            document->deleteObjects();
-            document->select(nodesToSelect);
+            const vm::axis::type cameraAxis = vm::find_abs_max_component(m_camera->direction());
+            document->selectTall(cameraAxis);
         }
 
         void MapView2D::doFocusCameraOnSelection(const bool animate) {

@@ -17,15 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FreeTypeFontFactory
-#define TrenchBroom_FreeTypeFontFactory
+#pragma once
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include "IO/Reader.h"
 #include "Renderer/FontFactory.h"
 
 #include <memory>
+#include <utility>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -41,7 +42,7 @@ namespace TrenchBroom {
         private:
             std::unique_ptr<TextureFont> doCreateFont(const FontDescriptor& fontDescriptor) override;
 
-            FT_Face loadFont(const FontDescriptor& fontDescriptor);
+            std::pair<FT_Face, IO::BufferedReader> loadFont(const FontDescriptor& fontDescriptor);
             std::unique_ptr<TextureFont> buildFont(FT_Face face, unsigned char firstChar, unsigned char charCount);
 
             Metrics computeMetrics(FT_Face face, unsigned char firstChar, unsigned char charCount) const;
@@ -49,4 +50,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FreeTypeFontFactory) */

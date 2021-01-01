@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushError
-#define TrenchBroom_BrushError
+#pragma once
 
 #include <iosfwd>
 
@@ -35,4 +34,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_BrushError) */

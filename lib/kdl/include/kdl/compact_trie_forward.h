@@ -15,11 +15,9 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_COMPACT_TRIE_FORWARD_H
-#define KDL_COMPACT_TRIE_FORWARD_H
+#pragma once
 
 namespace kdl {
     template <typename V> class compact_trie;
 }
 
-#endif //KDL_COMPACT_TRIE_FORWARD_H

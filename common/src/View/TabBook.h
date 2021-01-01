@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TabBook
-#define TrenchBroom_TabBook
+#pragma once
 
 #include <QWidget>
 
@@ -55,4 +54,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_TabBook) */

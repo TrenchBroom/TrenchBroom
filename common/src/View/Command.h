@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Command
-#define TrenchBroom_Command
+#pragma once
 
 #include "Macros.h"
 
@@ -80,4 +79,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Command) */

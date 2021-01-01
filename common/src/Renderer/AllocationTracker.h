@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AllocationTracker
-#define TrenchBroom_AllocationTracker
+#pragma once
 
 #include <vector>
 
@@ -146,5 +145,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

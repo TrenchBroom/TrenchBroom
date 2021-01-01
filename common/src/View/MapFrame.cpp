@@ -26,10 +26,11 @@
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "IO/PathQt.h"
-#include "Model/AttributableNode.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/ExportFormat.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
@@ -77,6 +78,7 @@
 #include <vecmath/vec_io.h>
 
 #include <cassert>
+#include <chrono>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -415,11 +417,11 @@ namespace TrenchBroom {
             statusBar()->addWidget(m_statusBarLabel);
         }
 
-        static Model::AttributableNode* commonEntityForBrushList(const std::vector<Model::BrushNode*>& list) {
+        static Model::EntityNodeBase* commonEntityForBrushList(const std::vector<Model::BrushNode*>& list) {
             if (list.empty())
                 return nullptr;
 
-            Model::AttributableNode* firstEntity = list.front()->entity();
+            Model::EntityNodeBase* firstEntity = list.front()->entity();
             bool multipleEntities = false;
 
             for (const Model::BrushNode* brush : list) {
@@ -439,11 +441,11 @@ namespace TrenchBroom {
             if (list.empty())
                 return "";
 
-            const std::string firstClassname = list.front()->classname();
+            const std::string firstClassname = list.front()->entity().classname();
             bool multipleClassnames = false;
 
-            for (const Model::EntityNode* entity : list) {
-                if (entity->classname() != firstClassname) {
+            for (const Model::EntityNode* entityNode : list) {
+                if (entityNode->entity().classname() != firstClassname) {
                     multipleClassnames = true;
                 }
             }
@@ -470,7 +472,7 @@ namespace TrenchBroom {
 
             // open groups
             std::vector<Model::GroupNode*> groups;
-            for (Model::GroupNode* group = document->currentGroup(); group != nullptr; group = group->group()) {
+            for (Model::GroupNode* group = document->currentGroup(); group != nullptr; group = group->containingGroup()) {
                 groups.push_back(group);
             }
             if (!groups.empty()) {
@@ -493,12 +495,12 @@ namespace TrenchBroom {
 
             // selected brushes
             if (!selectedNodes.brushes().empty()) {
-                Model::AttributableNode *commonEntity = commonEntityForBrushList(selectedNodes.brushes());
+                Model::EntityNodeBase* commonEntityNode = commonEntityForBrushList(selectedNodes.brushes());
 
                 // if all selected brushes are from the same entity, print the entity name
                 std::string token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
-                if (commonEntity) {
-                    token += " (" + commonEntity->classname() + ")";
+                if (commonEntityNode) {
+                    token += " (" + commonEntityNode->entity().classname() + ")";
                 } else {
                     token += " (multiple entities)";
                 }
@@ -762,15 +764,25 @@ namespace TrenchBroom {
             if (!confirmOrDiscardChanges()) {
                 return false;
             }
+            const auto startTime = std::chrono::high_resolution_clock::now();
             m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);
+            const auto endTime = std::chrono::high_resolution_clock::now();
+
+            logger().info() << "Loaded " << m_document->path() << " in "
+                                         << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
+
             return true;
         }
 
         bool MapFrame::saveDocument() {
             try {
                 if (m_document->persistent()) {
+                    const auto startTime = std::chrono::high_resolution_clock::now();
                     m_document->saveDocument();
-                    logger().info() << "Saved " << m_document->path();
+                    const auto endTime = std::chrono::high_resolution_clock::now();
+
+                    logger().info() << "Saved " << m_document->path() << " in "
+                                    << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
                     return true;
                 } else {
                     return saveDocumentAs();
@@ -796,8 +808,13 @@ namespace TrenchBroom {
                 }
 
                 const IO::Path path = IO::pathFromQString(newFileName);
+
+                const auto startTime = std::chrono::high_resolution_clock::now();
                 m_document->saveDocumentAs(path);
-                logger().info() << "Saved " << m_document->path();
+                const auto endTime = std::chrono::high_resolution_clock::now();
+
+                logger().info() << "Saved " << m_document->path() << " in "
+                                << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
                 return true;
             } catch (const FileSystemException& e) {
                 QMessageBox::critical(this, "", e.what());

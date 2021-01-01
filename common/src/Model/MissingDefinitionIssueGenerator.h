@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MissingDefinitionIssueGenerator
-#define TrenchBroom_MissingDefinitionIssueGenerator
+#pragma once
 
 #include "Model/IssueGenerator.h"
 
@@ -33,9 +32,8 @@ namespace TrenchBroom {
         public:
             MissingDefinitionIssueGenerator();
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const override;
+            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_MissingDefinitionIssueGenerator) */

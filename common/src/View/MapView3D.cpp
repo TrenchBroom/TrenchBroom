@@ -250,13 +250,12 @@ namespace TrenchBroom {
             }
         }
 
-        static vm::vec3 computeCameraCenterPosition(const Renderer::Camera& camera, const std::vector<Model::Node*>& nodes) {
+        static vm::vec3 computeCameraTargetPosition(const std::vector<Model::Node*>& nodes) {
             auto center = vm::vec3();
             size_t count = 0u;
-            
-            const auto cameraPosition = vm::vec3(camera.position());
+
             const auto handlePoint = [&](const vm::vec3& point) {
-                center = center + (point - cameraPosition);
+                center = center + point;
                 ++count;
             };
 
@@ -321,7 +320,7 @@ namespace TrenchBroom {
         }
 
         vm::vec3 MapView3D::focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes) {
-            const auto newPosition = computeCameraCenterPosition(*m_camera, nodes);
+            const auto newPosition = computeCameraTargetPosition(nodes);
 
             // act as if the camera were there already:
             const auto oldPosition = m_camera->position();

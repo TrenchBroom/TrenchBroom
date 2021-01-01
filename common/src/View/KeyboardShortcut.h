@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_KeyboardShortcut
-#define TrenchBroom_KeyboardShortcut
+#pragma once
 
 #include <QString>
 
@@ -36,4 +35,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_KeyboardShortcut) */

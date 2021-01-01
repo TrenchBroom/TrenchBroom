@@ -20,12 +20,12 @@
 #include "EntityDefinitionParser.h"
 
 #include "Macros.h"
-#include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/ParserStatus.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <kdl/vector_utils.h>
 
@@ -41,20 +41,20 @@ namespace TrenchBroom {
         
         EntityDefinitionParser::~EntityDefinitionParser() {}
         
-        static std::shared_ptr<Assets::AttributeDefinition> mergeAttributes(const Assets::AttributeDefinition& inheritingClassAttribute, const Assets::AttributeDefinition& superClassAttribute) {
-            assert(inheritingClassAttribute.name() == superClassAttribute.name());
+        static std::shared_ptr<Assets::PropertyDefinition> mergeAttributes(const Assets::PropertyDefinition& inheritingClassAttribute, const Assets::PropertyDefinition& superClassAttribute) {
+            assert(inheritingClassAttribute.key() == superClassAttribute.key());
         
             // for now, only merge spawnflags
-            if (superClassAttribute.type() == Assets::AttributeDefinitionType::FlagsAttribute &&
-                inheritingClassAttribute.type() == Assets::AttributeDefinitionType::FlagsAttribute &&
-                superClassAttribute.name() == Model::AttributeNames::Spawnflags &&
-                inheritingClassAttribute.name() == Model::AttributeNames::Spawnflags) {
+            if (superClassAttribute.type() == Assets::PropertyDefinitionType::FlagsProperty &&
+                inheritingClassAttribute.type() == Assets::PropertyDefinitionType::FlagsProperty &&
+                superClassAttribute.key() == Model::PropertyKeys::Spawnflags &&
+                inheritingClassAttribute.key() == Model::PropertyKeys::Spawnflags) {
 
-                const auto& name = inheritingClassAttribute.name();
-                auto result = std::make_shared<Assets::FlagsAttributeDefinition>(name);
+                const auto& name = inheritingClassAttribute.key();
+                auto result = std::make_shared<Assets::FlagsPropertyDefinition>(name);
                 
-                const auto& baseclassFlags = static_cast<const Assets::FlagsAttributeDefinition&>(superClassAttribute);
-                const auto& classFlags     = static_cast<const Assets::FlagsAttributeDefinition&>(inheritingClassAttribute);
+                const auto& baseclassFlags = static_cast<const Assets::FlagsPropertyDefinition&>(superClassAttribute);
+                const auto& classFlags     = static_cast<const Assets::FlagsPropertyDefinition&>(inheritingClassAttribute);
 
                 for (int i = 0; i < 24; ++i) {
                     const auto* baseclassFlag = baseclassFlags.option(static_cast<int>(1 << i));
@@ -92,11 +92,11 @@ namespace TrenchBroom {
                 inheritingClass.size = superClass.size;
             }
 
-            for (const auto& attribute : superClass.attributes) {
-                auto it = std::find_if(std::begin(inheritingClass.attributes), std::end(inheritingClass.attributes),
-                    [&](const auto& a) { return a->name() == attribute->name(); });
-                if (it == std::end(inheritingClass.attributes)) {
-                    inheritingClass.attributes.push_back(attribute);
+            for (const auto& attribute : superClass.propertyDefinitions) {
+                auto it = std::find_if(std::begin(inheritingClass.propertyDefinitions), std::end(inheritingClass.propertyDefinitions),
+                    [&](const auto& a) { return a->key() == attribute->key(); });
+                if (it == std::end(inheritingClass.propertyDefinitions)) {
+                    inheritingClass.propertyDefinitions.push_back(attribute);
                 } else {
                     auto mergedAttribute = mergeAttributes(**it, *attribute);
                     if (mergedAttribute != nullptr) {
@@ -312,7 +312,7 @@ namespace TrenchBroom {
             const auto color = classInfo.color.value_or(m_defaultEntityColor);
             const auto size = classInfo.size.value_or(DefaultSize);
             auto description = classInfo.description.value_or("");
-            auto& attributes = classInfo.attributes;
+            auto& attributes = classInfo.propertyDefinitions;
             auto modelDefinition = classInfo.modelDefinition.value_or(Assets::ModelDefinition());
             
             switch (classInfo.type) {

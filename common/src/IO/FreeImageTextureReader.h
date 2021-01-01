@@ -18,8 +18,7 @@
  */
 
 
-#ifndef FREEIMAGETEXTUREREADER_H
-#define FREEIMAGETEXTUREREADER_H
+#pragma once
 
 #include "IO/TextureReader.h"
 
@@ -40,5 +39,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif // FREEIMAGETEXTUREREADER_H

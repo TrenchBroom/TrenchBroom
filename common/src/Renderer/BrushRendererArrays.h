@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BrushRendererArray_h
-#define BrushRendererArray_h
+#pragma once
 
 #include "Ensure.h"
 #include "Renderer/AllocationTracker.h"
@@ -345,4 +344,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* BrushRenderer_h */

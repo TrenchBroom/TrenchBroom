@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushBuilder
-#define TrenchBroom_BrushBuilder
+#pragma once
 
 #include "FloatType.h"
 #include "Model/Polyhedron3.h"
@@ -62,4 +61,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_BrushBuilder) */

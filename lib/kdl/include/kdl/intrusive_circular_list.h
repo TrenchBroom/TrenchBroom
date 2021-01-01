@@ -15,10 +15,13 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_INTRUSIVE_CIRCULAR_LIST_H
-#define KDL_INTRUSIVE_CIRCULAR_LIST_H
+#pragma once
 
-#include <cstddef>
+#include <cassert>
+#include <cstddef> // for ptrdiff_t
+#include <initializer_list>
+#include <iterator> // for std::forward_iterator_tag
+#include <type_traits> // for std::is_pointer
 #include <utility>
 
 namespace kdl {
@@ -727,4 +730,3 @@ namespace kdl {
     };
 }
 
-#endif //KDL_INTRUSIVE_CIRCULAR_LIST_H

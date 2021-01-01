@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_NodeVisitor
-#define TrenchBroom_NodeVisitor
+#pragma once
 
 #include <optional>
 
@@ -114,7 +113,16 @@ namespace TrenchBroom {
 
             template <typename N>
             void doVisit(N* node) {
-                if constexpr(std::is_invocable_v<L, const L&, N*>) {
+                constexpr bool invokableWithAnyPointerType = std::is_invocable_v<L, int*> || std::is_invocable_v<L, const L&, int*>;
+                static_assert(!invokableWithAnyPointerType, "Don't use auto* to generate node visitors, this can lead to hard to detect errors.");
+
+                constexpr bool invokableWithLambdaAndNode = std::is_invocable_v<L, const L&, N*>;
+                constexpr bool invokableWithNode = std::is_invocable_v<L, N*>;
+
+                static_assert(!(invokableWithNode && invokableWithLambdaAndNode),
+                              "Visitor implements both lambda and non-lambda overloads for the given node type");
+
+                if constexpr(invokableWithLambdaAndNode) {
                     if constexpr(NodeLambdaHasResult_v<L>) {
                         NodeLambdaVisitorResult<L>::setResult(m_lambda(m_lambda, node));
                     } else {
@@ -145,7 +153,16 @@ namespace TrenchBroom {
 
             template <typename N>
             void doVisit(const N* node) {
-                if constexpr(std::is_invocable_v<L, const L&, const N*>) {
+                constexpr bool invokableWithAnyPointerType = std::is_invocable_v<L, int*> || std::is_invocable_v<L, const L&, int*>;
+                static_assert(!invokableWithAnyPointerType, "Don't use auto* to generate node visitors, this can lead to hard to detect errors.");
+
+                constexpr bool invokableWithLambdaAndNode = std::is_invocable_v<L, const L&, const N*>;
+                constexpr bool invokableWithNode = std::is_invocable_v<L, const N*>;
+
+                static_assert(!(invokableWithNode && invokableWithLambdaAndNode),
+                              "Visitor implements both lambda and non-lambda overloads for the given node type");
+
+                if constexpr(invokableWithLambdaAndNode) {
                     if constexpr(NodeLambdaHasResult_v<L>) {
                         NodeLambdaVisitorResult<L>::setResult(m_lambda(m_lambda, node));
                     } else {
@@ -163,4 +180,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_NodeVisitor) */

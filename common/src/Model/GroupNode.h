@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GroupNode
-#define TrenchBroom_GroupNode
+#pragma once
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/AttributableNode.h"
+#include "Model/Group.h"
+#include "Model/Node.h"
 #include "Model/Object.h"
 
 #include <kdl/result_forward.h>
@@ -34,25 +34,28 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class GroupNode : public AttributableNode, public Object {
+        class GroupNode : public Node, public Object {
         private:
-            typedef enum {
-                Edit_Open,
-                Edit_Closed,
-                Edit_DescendantOpen
-            } EditState;
+            enum class EditState {
+                Open,
+                Closed,
+                DescendantOpen
+            };
 
+            Group m_group;
             EditState m_editState;
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            GroupNode(const std::string& name);
+            GroupNode(std::string name);
 
-            void setName(const std::string& name);
+            const Group& group() const;
+            Group setGroup(Group group);
 
             bool opened() const;
             bool hasOpenedDescendant() const;
+            bool closed() const;
             void open();
             void close();
         private:
@@ -67,7 +70,6 @@ namespace TrenchBroom {
             const vm::bbox3& doGetPhysicalBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
-            NodeSnapshot* doTakeSnapshot() override;
 
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
@@ -89,18 +91,11 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-        private: // implement AttributableNode interface
-            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
-            bool doIsAttributeNameMutable(const std::string& name) const override;
-            bool doIsAttributeValueMutable(const std::string& name) const override;
-            vm::vec3 doGetLinkSourceAnchor() const override;
-            vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement methods inherited from Object
             Node* doGetContainer() override;
-            LayerNode* doGetLayer() override;
-            GroupNode* doGetGroup() override;
+            LayerNode* doGetContainingLayer() override;
+            GroupNode* doGetContainingGroup() override;
 
-            kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         private:
@@ -115,4 +110,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_GroupNode) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CommandProcessor
-#define TrenchBroom_CommandProcessor
+#pragma once
 
 #include "Notifier.h"
 
@@ -363,4 +362,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CommandProcessor) */

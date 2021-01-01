@@ -24,9 +24,9 @@
 #include "Preferences.h"
 #include "Model/BrushNode.h"
 #include "Renderer/RenderBatch.h"
+#include "View/BrushVertexCommands.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
-#include "View/VertexCommand.h"
 
 #include <kdl/string_format.h>
 
@@ -113,10 +113,8 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             if (m_mode == Mode_Move) {
-                const auto handles = m_vertexHandles->selectedHandles();
-                const auto brushMap = buildBrushMap(*m_vertexHandles, std::begin(handles), std::end(handles));
-
-                const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
+                auto handles = m_vertexHandles->selectedHandles();
+                const auto result = document->moveVertices(std::move(handles), delta);
                 if (result.success) {
                     if (!result.hasRemainingVertices) {
                         return MR_Cancel;
@@ -143,8 +141,8 @@ namespace TrenchBroom {
                 }
 
                 if (!brushes.empty()) {
-                    const std::map<vm::vec3, std::vector<Model::BrushNode*>> vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
-                    if (document->addVertices(vertices)) {
+                    const auto newVertexPosition = m_dragHandlePosition + delta;
+                    if (document->addVertex(newVertexPosition)) {
                         m_mode = Mode_Move;
                         m_edgeHandles->deselectAll();
                         m_faceHandles->deselectAll();
@@ -200,11 +198,9 @@ namespace TrenchBroom {
         void VertexTool::removeSelection() {
             assert(canRemoveSelection());
 
-            const auto handles = m_vertexHandles->selectedHandles();
-            const auto brushMap = buildBrushMap(*m_vertexHandles, std::begin(handles), std::end(handles));
-
-            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
-            kdl::mem_lock(m_document)->removeVertices(brushMap);
+            auto handles = m_vertexHandles->selectedHandles();
+            const auto commandName = kdl::str_plural(handles.size(), "Remove Brush Vertex", "Remove Brush Vertices");
+            kdl::mem_lock(m_document)->removeVertices(commandName, std::move(handles));
         }
 
         void VertexTool::renderGuide(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {
@@ -247,13 +243,13 @@ namespace TrenchBroom {
             VertexToolBase::removeHandles(nodes, *m_faceHandles);
         }
 
-        void VertexTool::addHandles(VertexCommand* command) {
+        void VertexTool::addHandles(BrushVertexCommandBase* command) {
             command->addHandles(*m_vertexHandles);
             command->addHandles(*m_edgeHandles);
             command->addHandles(*m_faceHandles);
         }
 
-        void VertexTool::removeHandles(VertexCommand* command) {
+        void VertexTool::removeHandles(BrushVertexCommandBase* command) {
             command->removeHandles(*m_vertexHandles);
             command->removeHandles(*m_edgeHandles);
             command->removeHandles(*m_faceHandles);

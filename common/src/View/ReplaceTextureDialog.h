@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ReplaceTextureDialog
-#define TrenchBroom_ReplaceTextureDialog
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -63,4 +62,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ReplaceTextureDialog) */

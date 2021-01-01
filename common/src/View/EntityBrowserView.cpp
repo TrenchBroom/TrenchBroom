@@ -89,6 +89,7 @@ namespace TrenchBroom {
         }
 
         EntityBrowserView::~EntityBrowserView() {
+            m_entityDefinitionManager.usageCountDidChangeNotifier.removeObserver(this, &EntityBrowserView::usageCountDidChange);
             clear();
         }
 

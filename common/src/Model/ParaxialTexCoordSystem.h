@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ParaxialTexCoordSystem
-#define TrenchBroom_ParaxialTexCoordSystem
+#pragma once
 
 #include "FloatType.h"
 #include "Macros.h"
@@ -85,4 +84,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_QuakeTexCoordPolicy) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_KEYSEQUENCEEDIT_H
-#define TRENCHBROOM_KEYSEQUENCEEDIT_H
+#pragma once
 
 #include <QWidget>
 
@@ -51,4 +50,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_KEYSEQUENCEEDIT_H

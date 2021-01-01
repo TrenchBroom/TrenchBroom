@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_DuplicateNodesCommand
-#define TrenchBroom_DuplicateNodesCommand
+#pragma once
 
 #include "Macros.h"
 #include "View/DocumentCommand.h"
@@ -59,4 +58,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_DuplicateNodesCommand) */
