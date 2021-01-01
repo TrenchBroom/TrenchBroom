@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        MapFormat mapFormat(const std::string& formatName) {
+        MapFormat formatFromName(const std::string& formatName) {
             if (formatName == "Standard") {
                 return MapFormat::Standard;
             } else if (formatName == "Quake2") {
