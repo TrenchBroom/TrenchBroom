@@ -33,13 +33,5 @@ namespace TrenchBroom {
         MapFormat ModelFactory::format() const {
             return doGetFormat();
         }
-
-        kdl::result<BrushFace, BrushError> ModelFactory::createFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
-            return doCreateFaceFromStandard(point1, point2, point3, attribs);
-        }
-
-        kdl::result<BrushFace, BrushError> ModelFactory::createFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
-            return doCreateFaceFromValve(point1, point2, point3, attribs, texAxisX, texAxisY);
-        }
     }
 }

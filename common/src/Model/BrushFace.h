@@ -106,6 +106,9 @@ namespace TrenchBroom {
             ~BrushFace();
 
             static kdl::result<BrushFace, BrushError> create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, MapFormat mapFormat);
+            static kdl::result<BrushFace, BrushError> createFromStandard(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, MapFormat mapFormat);
+            static kdl::result<BrushFace, BrushError> createFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attributes, const vm::vec3& texAxisX, const vm::vec3& texAxisY, MapFormat mapFormat);
+
             static kdl::result<BrushFace, BrushError> create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
 
             BrushFace(const BrushFace::Points& points, const vm::plane3& boundary, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);

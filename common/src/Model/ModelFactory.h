@@ -48,27 +48,8 @@ namespace TrenchBroom {
             virtual ~ModelFactory();
 
             MapFormat format() const;
-
-            /**
-             * Creates a face from a Standard texture projection, converting it to Valve if necessary.
-             *
-             * Used when loading/pasting a Standard format map.
-             *
-             * The returned face has a TexCoordSystem matching format().
-             */
-            kdl::result<BrushFace, BrushError> createFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const;
-            /**
-             * Creates a face from a Valve texture projection, converting it to Standard if necessary.
-             *
-             * Used when loading/pasting a Valve format map.
-             *
-             * The returned face has a TexCoordSystem matching format().
-             */
-            kdl::result<BrushFace, BrushError> createFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
         private:
             virtual MapFormat doGetFormat() const = 0;
-            virtual kdl::result<BrushFace, BrushError> doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
-            virtual kdl::result<BrushFace, BrushError> doCreateFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const = 0;
         };
     }
 }
