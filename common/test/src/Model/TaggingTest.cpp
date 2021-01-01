@@ -36,7 +36,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds{4096.0};
             WorldNode world{Model::Entity{}, MapFormat::Standard};
 
-            BrushBuilder builder{&world, worldBounds};
+            BrushBuilder builder{MapFormat::Standard, worldBounds};
             BrushNode* brushNode = new BrushNode(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value());
 
             world.defaultLayer()->addChild(brushNode);

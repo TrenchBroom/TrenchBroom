@@ -56,9 +56,8 @@ namespace TrenchBroom {
 
             // make brushes, cycling through the textures for each face
             const vm::bbox3 worldBounds(4096.0);
-            Model::WorldNode world(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::BrushBuilder builder(&world, worldBounds);
+            Model::BrushBuilder builder(Model::MapFormat::Standard, worldBounds);
 
             std::vector<Model::BrushNode*> result;
             size_t currentTextureIndex = 0;

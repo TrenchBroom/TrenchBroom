@@ -744,14 +744,13 @@ namespace TrenchBroom {
 
         void ClipTool::updateBrushes() {
             auto document = kdl::mem_lock(m_document);
-            auto* world = document->world();
 
             const auto& brushNodes = document->selectedNodes().brushes();
             const auto& worldBounds = document->worldBounds();
 
             const auto clip = [&](auto* node, const auto& p1, const auto& p2, const auto& p3, auto& brushMap) {
                 auto brush = node->brush();
-                world->createFace(p1, p2, p3, Model::BrushFaceAttributes(document->currentTextureName()))
+                Model::BrushFace::create(p1, p2, p3, Model::BrushFaceAttributes(document->currentTextureName()), document->world()->format())
                     .and_then([&](Model::BrushFace&& clipFace) {
                             setFaceAttributes(brush.faces(), clipFace);
                             return brush.clip(worldBounds, std::move(clipFace));

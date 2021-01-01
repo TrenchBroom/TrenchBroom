@@ -120,7 +120,7 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Daikatana);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             Model::Brush brush1 = builder.createCube(64.0, "none").value();
             for (Model::BrushFace& face : brush1.faces()) {
                 Model::BrushFaceAttributes attributes = face.attributes();
@@ -170,7 +170,7 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Quake2_Valve);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             Model::Brush brush1 = builder.createCube(64.0, "none").value();
             for (Model::BrushFace& face : brush1.faces()) {
                 Model::BrushFaceAttributes attributes = face.attributes();
@@ -210,7 +210,7 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Quake3_Valve);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             map.defaultLayer()->addChild(brushNode1);
 
@@ -243,7 +243,7 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCube(64.0, "none").value());
             map.defaultLayer()->addChild(brushNode);
 
@@ -282,7 +282,7 @@ R"(// entity 0
             Model::LayerNode* layerNode = new Model::LayerNode(std::move(layer));
             map.addChild(layerNode);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCube(64.0, "none").value());
             layerNode->addChild(brushNode);
 
@@ -363,7 +363,7 @@ R"(// entity 0
             Model::GroupNode* groupNode = new Model::GroupNode(Model::Group("Group"));
             map.defaultLayer()->addChild(groupNode);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCube(64.0, "none").value());
             groupNode->addChild(brushNode);
 
@@ -408,7 +408,7 @@ R"(// entity 0
             Model::GroupNode* groupNode = new Model::GroupNode(Model::Group("Group"));
             layerNode->addChild(groupNode);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCube(64.0, "none").value());
             groupNode->addChild(brushNode);
 
@@ -464,7 +464,7 @@ R"(// entity 0
             Model::GroupNode* innerGroupNode = new Model::GroupNode(Model::Group("Inner Group"));
             outerGroupNode->addChild(innerGroupNode);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCube(64.0, "none").value());
             innerGroupNode->addChild(brushNode);
 
@@ -518,7 +518,7 @@ R"(// entity 0
             const vm::bbox3 worldBounds(8192.0);
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
 
             // default layer (omit from export)
             auto defaultLayer = map.defaultLayer()->layer();
@@ -639,7 +639,7 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
 
             Model::BrushNode* worldBrushNode = new Model::BrushNode(builder.createCube(64.0, "some").value());
             Model::GroupNode* outerGroupNode = new Model::GroupNode(Model::Group("Outer Group"));
@@ -698,7 +698,7 @@ R"(// entity 0
             const vm::bbox3 worldBounds(8192.0);
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCube(64.0, "none").value());
 
             std::stringstream str;
@@ -815,7 +815,7 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Quake2);
 
-            Model::BrushBuilder builder(&map, worldBounds);
+            Model::BrushBuilder builder(map.format(), worldBounds);
             auto brush = builder.createCube(64.0, "defaultTexture").value();
             REQUIRE(brush.transform(worldBounds, vm::rotation_matrix(vm::to_radians(15.0), vm::to_radians(22.0), vm::to_radians(89.0)), false).is_success());
 

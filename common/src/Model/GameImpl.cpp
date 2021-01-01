@@ -160,7 +160,7 @@ namespace TrenchBroom {
 
                 auto worldNode = std::make_unique<WorldNode>(std::move(worldEntity), format);
 
-                const Model::BrushBuilder builder(worldNode.get(), worldBounds, defaultFaceAttribs());
+                const Model::BrushBuilder builder(worldNode->format(), worldBounds, defaultFaceAttribs());
                 builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).
                     visit(kdl::overload(
                         [&](Brush&& b) {

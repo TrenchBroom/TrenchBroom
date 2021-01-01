@@ -24,7 +24,6 @@
 #include "Model/Brush.h"
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
-#include "Model/ModelFactory.h"
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
@@ -35,19 +34,15 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushBuilder::BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds) :
-        m_factory(factory),
+        BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBounds) :
+        m_mapFormat(mapFormat),
         m_worldBounds(worldBounds),
-        m_defaultAttribs(BrushFaceAttributes::NoTextureName) {
-            ensure(m_factory != nullptr, "factory is null");
-        }
+        m_defaultAttribs(BrushFaceAttributes::NoTextureName) {}
 
-        BrushBuilder::BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs) :
-        m_factory(factory),
+        BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs) :
+        m_mapFormat(mapFormat),
         m_worldBounds(worldBounds),
-        m_defaultAttribs(defaultAttribs) {
-            ensure(m_factory != nullptr, "factory is null");
-        }
+        m_defaultAttribs(defaultAttribs) {}
 
         kdl::result<Brush, BrushError> BrushBuilder::createCube(const FloatType size, const std::string& textureName) const {
             return createCuboid(vm::bbox3(size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
@@ -84,7 +79,7 @@ namespace TrenchBroom {
             
             for (const auto& [p1, p2, p3, attrs] : specs) {
                 std::optional<BrushError> error;
-                m_factory->createFace(p1, p2, p3, attrs)
+                BrushFace::create(p1, p2, p3, attrs, m_mapFormat)
                     .visit(kdl::overload(
                         [&](BrushFace&& face) {
                             faces.push_back(std::move(face));
@@ -127,7 +122,7 @@ namespace TrenchBroom {
                 const vm::vec3& p3 = edge3->origin()->position();
 
                 std::optional<BrushError> error;
-                m_factory->createFace(p1, p3, p2, Model::BrushFaceAttributes(textureName))
+                BrushFace::create(p1, p3, p2, Model::BrushFaceAttributes(textureName), m_mapFormat)
                     .visit(kdl::overload(
                         [&](BrushFace&& f) {
                             brushFaces.push_back(std::move(f));

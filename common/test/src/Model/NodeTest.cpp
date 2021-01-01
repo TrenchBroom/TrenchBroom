@@ -527,7 +527,7 @@ namespace TrenchBroom {
             LayerNode layer(Layer("name"));
             GroupNode group(Group("name"));
             EntityNode entity;
-            BrushNode brush(BrushBuilder(&world, worldBounds).createCube(32.0, "texture").value());
+            BrushNode brush(BrushBuilder(world.format(), worldBounds).createCube(32.0, "texture").value());
 
             SECTION("Non const nodes accept non const visitor") {
                 CHECK(world.accept(nodeTestVisitor) == Visited::World);

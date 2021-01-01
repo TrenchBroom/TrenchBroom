@@ -356,10 +356,6 @@ namespace TrenchBroom {
             return m_factory->format();
         }
 
-        kdl::result<BrushFace, BrushError> WorldNode::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
-            return m_factory->createFace(point1, point2, point3, attribs);
-        }
-
         kdl::result<BrushFace, BrushError> WorldNode::doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return m_factory->createFaceFromStandard(point1, point2, point3, attribs);
         }

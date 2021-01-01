@@ -464,9 +464,8 @@ namespace TrenchBroom {
         TEST_CASE("BrushFaceTest.testSetRotation_Paraxial", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            WorldNode world(Entity(), MapFormat::Standard);
 
-            BrushBuilder builder(&world, worldBounds);
+            BrushBuilder builder(MapFormat::Standard, worldBounds);
             Brush cube = builder.createCube(128.0, "").value();
             BrushFace& face = cube.faces().front();
 
@@ -488,9 +487,8 @@ namespace TrenchBroom {
         TEST_CASE("BrushFaceTest.testTextureLock_Paraxial", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            WorldNode world(Entity(), MapFormat::Standard);
 
-            BrushBuilder builder(&world, worldBounds);
+            BrushBuilder builder(MapFormat::Standard, worldBounds);
             Brush cube = builder.createCube(128.0, "").value();
             auto& faces = cube.faces();
 
@@ -507,9 +505,8 @@ namespace TrenchBroom {
         TEST_CASE("BrushFaceTest.testTextureLock_Parallel", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            WorldNode world(Entity(), MapFormat::Valve);
 
-            BrushBuilder builder(&world, worldBounds);
+            BrushBuilder builder(MapFormat::Valve, worldBounds);
             Brush cube = builder.createCube(128.0, "").value();
             auto& faces = cube.faces();
 
@@ -677,11 +674,8 @@ namespace TrenchBroom {
         TEST_CASE("BrushFaceTest.formatConversion", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(4096.0);
 
-            WorldNode standardWorld(Model::Entity(), MapFormat::Standard);
-            WorldNode valveWorld(Model::Entity(), MapFormat::Valve);
-
-            BrushBuilder standardBuilder(&standardWorld, worldBounds);
-            BrushBuilder valveBuilder(&valveWorld, worldBounds);
+            BrushBuilder standardBuilder(MapFormat::Standard, worldBounds);
+            BrushBuilder valveBuilder(MapFormat::Valve, worldBounds);
 
             Assets::Texture texture("testTexture", 64, 64);
 
