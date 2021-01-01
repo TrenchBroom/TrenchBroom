@@ -21,97 +21,204 @@
 
 #include "Token.h"
 
-#include <memory>
+#include "Exceptions.h"
+#include "Macros.h"
+
+#include <kdl/string_format.h>
+
+#include <cassert>
 #include <string>
 #include <string_view>
 
 namespace TrenchBroom {
     namespace IO {
-        class TokenizerState {
-        private:
+        struct TokenizerState {
+            const char* cur;
+            size_t line;
+            size_t column;
+            bool escaped;
+        };
+
+        struct TokenizerStateAndSource {
+            TokenizerState state;
+            const char* begin;
+            const char* end;
+        };
+
+        class TokenizerBase {
+        protected:
             const char* m_begin;
-            const char* m_cur;
             const char* m_end;
             std::string m_escapableChars;
             char m_escapeChar;
-            size_t m_line;
-            size_t m_column;
-            bool m_escaped;
+            TokenizerState m_state;
         public:
-            TokenizerState(const char* begin, const char* end, const std::string& escapableChars, char escapeChar);
+            TokenizerBase(const char* begin, const char* end, std::string_view escapableChars, const char escapeChar) :
+            m_begin(begin),
+            m_end(end),
+            m_escapableChars(escapableChars),
+            m_escapeChar(escapeChar),
+            m_state{begin, 1, 1, false} {}
 
-            TokenizerState* clone(const char* begin, const char* end) const;
+            void replaceState(std::string_view str) {
+                m_begin = str.data();
+                m_end = str.data() + str.length();
+                // preserve m_escapableChars and m_escapeChar
+                reset();
+            }
 
-            size_t length() const;
-            const char* begin() const;
-            const char* end() const;
+            TokenizerStateAndSource snapshotStateAndSource() const {
+                return { m_state, m_begin, m_end };
+            }
+            void restoreStateAndSource(const TokenizerStateAndSource& snapshot) {
+                m_state = snapshot.state;
+                m_begin = snapshot.begin;
+                m_end = snapshot.end;
+            }
+        protected:
+            /**
+             * Returns current character; caller must ensure eof() is false before calling.
+             */
+            char curChar() const {
+                return *m_state.cur;
+            }
 
-            const char* curPos() const;
-            char curChar() const;
+            char lookAhead(size_t offset = 1) const {
+                if (eof(m_state.cur + offset)) {
+                    return 0;
+                } else {
+                    return *(m_state.cur + offset);
+                }
+            }
 
-            char lookAhead(size_t offset = 1) const;
+            bool escaped() const {
+                return !eof() && m_state.escaped && m_escapableChars.find(curChar()) != std::string::npos;
+            }
 
-            size_t line() const;
-            size_t column() const;
+            std::string unescape(std::string_view str) const {
+                return kdl::str_unescape(str, m_escapableChars, m_escapeChar);
+            }
 
-            bool escaped() const;
-            std::string unescape(const std::string& str);
-            void resetEscaped();
+            void resetEscaped() {
+                m_state.escaped = false;
+            }
 
-            bool eof() const;
-            bool eof(const char* ptr) const;
+            bool eof(const char* ptr) const {
+                return ptr >= m_end;
+            }
 
-            size_t offset(const char* ptr) const;
+            size_t offset(const char* ptr) const {
+                assert(ptr >= m_begin);
+                return static_cast<size_t>(ptr - m_begin);
+            }
 
-            void advance(size_t offset);
-            void advance();
-            void reset();
+            void advance(size_t offset)  {
+                for (size_t i = 0; i < offset; ++i) {
+                    advance();
+                }
+            }
 
-            void errorIfEof() const;
+            void advance() {
+                errorIfEof();
 
-            TokenizerState snapshot() const;
-            void restore(const TokenizerState& snapshot);
+                switch (curChar()) {
+                    case '\r':
+                        if (lookAhead() == '\n') {
+                            ++m_state.column;
+                            break;
+                        }
+                        // handle carriage return without consecutive line feed
+                        // by falling through into the line feed case
+                        switchFallthrough();
+                    case '\n':
+                        ++m_state.line;
+                        m_state.column = 1;
+                        m_state.escaped = false;
+                        break;
+                    default:
+                        ++m_state.column;
+                        if (curChar() == m_escapeChar) {
+                            m_state.escaped = !m_state.escaped;
+                        } else {
+                            m_state.escaped = false;
+                        }
+                        break;
+                }
+                ++m_state.cur;
+            }
+
+            void errorIfEof() const {
+                if (eof()) {
+                    throw ParserException("Unexpected end of file");
+                }
+            }
+
+            TokenizerState snapshot() const {
+                return m_state;
+            }
+
+            void restore(const TokenizerState& snapshot) {
+                m_state = snapshot;
+            }
+
+        public:
+            bool eof() const  {
+                return eof(m_state.cur);
+            }
+
+            size_t line() const {
+                return m_state.line;
+            }
+
+            size_t column() const {
+                return m_state.column;
+            }
+        public:
+            void reset() {
+                m_state.cur = m_begin;
+                m_state.line = 1;
+                m_state.column = 1;
+                m_state.escaped = false;
+            }
+
+            void adoptState(const TokenizerState& state) {
+                assert(state.cur >= m_begin);
+                assert(state.cur <= m_end);
+
+                m_state.cur = state.cur;
+                m_state.line = state.line;
+                m_state.column = state.column;
+                // m_state.escaped is not updated
+            }
         };
 
         template <typename TokenType>
-        class Tokenizer {
+        class Tokenizer : public TokenizerBase {
         public:
             using Token = TokenTemplate<TokenType>;
         private:
-            using StatePtr = std::shared_ptr<TokenizerState>;
-
-            class SaveState {
+            class SaveAndRestoreState {
             private:
-                StatePtr m_state;
+                TokenizerState& m_target;
                 TokenizerState m_snapshot;
             public:
-                explicit SaveState(StatePtr state) :
-                m_state(state),
-                m_snapshot(m_state->snapshot()) {}
+                explicit SaveAndRestoreState(TokenizerState& target) :
+                m_target(target),
+                m_snapshot(target) {}
 
-                ~SaveState() {
-                    m_state->restore(m_snapshot);
+                ~SaveAndRestoreState() {
+                    m_target = m_snapshot;
                 }
             };
 
-            StatePtr m_state;
-
-            template <typename T> friend class Tokenizer;
         public:
             static const std::string& Whitespace() {
                 static const std::string whitespace(" \t\n\r");
                 return whitespace;
             }
         public:
-            Tokenizer(std::string_view str, const std::string& escapableChars, const char escapeChar) :
-            m_state(std::make_shared<TokenizerState>(str.data(), str.data() + str.size(), escapableChars, escapeChar)) {}
-
-            template <typename OtherType>
-            explicit Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :
-            m_state(nestedTokenizer.m_state) {}
-
-            Tokenizer(const Tokenizer& other) :
-            m_state(other.m_state) {}
+            Tokenizer(std::string_view str, std::string_view escapableChars, const char escapeChar) :
+            TokenizerBase(str.data(), str.data() + str.size(), escapableChars, escapeChar) {}
 
             virtual ~Tokenizer() = default;
 
@@ -124,7 +231,7 @@ namespace TrenchBroom {
             }
 
             Token peekToken(const TokenType skipTokens = 0u) {
-                SaveState oldState(m_state);
+                SaveAndRestoreState oldState(m_state);
                 return nextToken(skipTokens);
             }
 
@@ -139,9 +246,9 @@ namespace TrenchBroom {
                 discardWhile("\n");
             }
 
-            std::string readRemainder(const TokenType delimiterType) {
+            std::string_view readRemainder(const TokenType delimiterType) {
                 if (eof()) {
-                    return "";
+                    return std::string_view();
                 }
 
                 Token token = peekToken();
@@ -152,24 +259,20 @@ namespace TrenchBroom {
                     endPos = std::end(token);
                 } while (peekToken().hasType(delimiterType) == 0 && !eof());
 
-                return std::string(startPos, static_cast<size_t>(endPos - startPos));
+                return std::string_view(startPos, static_cast<size_t>(endPos - startPos));
             }
 
-            std::string readAnyString(const std::string& delims) {
+            std::string_view readAnyString(std::string_view delims) {
                 while (isWhitespace(curChar())) {
                     advance();
                 }
                 const char* startPos = curPos();
                 const char* endPos = (curChar() == '"' ? readQuotedString() : readUntil(delims));
-                return std::string(startPos, static_cast<size_t>(endPos - startPos));
+                return std::string_view(startPos, static_cast<size_t>(endPos - startPos));
             }
 
-            std::string unescapeString(const std::string& str) const {
-                return m_state->unescape(str);
-            }
-
-            void reset() {
-                m_state->reset();
+            std::string unescapeString(std::string_view str) const {
+                return unescape(str);
             }
 
             double progress() const {
@@ -181,40 +284,25 @@ namespace TrenchBroom {
                 return cur / len;
             }
 
-            bool eof() const {
-                return m_state->eof();
-            }
-        public:
-            size_t line() const {
-                return m_state->line();
-            }
-
-            size_t column() const {
-                return m_state->column();
-            }
-
             size_t length() const {
-                return m_state->length();
+                return static_cast<size_t>(m_end - m_begin);
             }
+
+            std::string_view remainder() const {
+                return std::string_view(curPos(), length());
+            }
+
         public:
             TokenizerState snapshot() const {
-                return m_state->snapshot();
-            }
-
-            void replaceState(std::string_view str) {
-                m_state.reset(m_state->clone(str.data(), str.data() + str.size()));
+                return m_state;
             }
 
             void restore(const TokenizerState& snapshot) {
-                m_state->restore(snapshot);
+                m_state = snapshot;
             }
         protected:
-            size_t offset(const char* ptr) const {
-                return m_state->offset(ptr);
-            }
-
             const char* curPos() const {
-                return m_state->curPos();
+                return m_state.cur;
             }
 
             char curChar() const {
@@ -223,18 +311,6 @@ namespace TrenchBroom {
                 }
 
                 return *curPos();
-            }
-
-            char lookAhead(const size_t offset = 1) const {
-                return m_state->lookAhead(offset);
-            }
-
-            void advance(const size_t offset) {
-                m_state->advance(offset);
-            }
-
-            void advance() {
-                m_state->advance();
             }
 
             bool isDigit(const char c) const {
@@ -250,15 +326,15 @@ namespace TrenchBroom {
             }
 
             bool isEscaped() const {
-                return m_state->escaped();
+                return escaped();
             }
 
-            const char* readInteger(const std::string& delims) {
+            const char* readInteger(std::string_view delims) {
                 if (curChar() != '+' && curChar() != '-' && !isDigit(curChar())) {
                     return nullptr;
                 }
 
-                const auto previousState = *m_state;
+                const TokenizerState previousState = m_state;
                 if (curChar() == '+' || curChar() == '-') {
                     advance();
                 }
@@ -269,16 +345,16 @@ namespace TrenchBroom {
                     return curPos();
                 }
 
-                *m_state = previousState;
+                m_state = previousState;
                 return nullptr;
             }
 
-            const char* readDecimal(const std::string& delims) {
+            const char* readDecimal(std::string_view delims) {
                 if (curChar() != '+' && curChar() != '-' && curChar() != '.' && !isDigit(curChar())) {
                     return nullptr;
                 }
 
-                const auto previousState = *m_state;
+                const TokenizerState previousState = m_state;
                 if (curChar() != '.') {
                     advance();
                     readDigits();
@@ -301,7 +377,7 @@ namespace TrenchBroom {
                     return curPos();
                 }
 
-                *m_state = previousState;
+                m_state = previousState;
                 return nullptr;
             }
 
@@ -312,7 +388,7 @@ namespace TrenchBroom {
                 }
             }
         protected:
-            const char* readUntil(const std::string& delims) {
+            const char* readUntil(std::string_view delims) {
                 if (!eof()) {
                     do {
                         advance();
@@ -321,18 +397,18 @@ namespace TrenchBroom {
                 return curPos();
             }
 
-            const char* readWhile(const std::string& allow) {
+            const char* readWhile(std::string_view allow) {
                 while (!eof() && isAnyOf(curChar(), allow)) {
                     advance();
                 }
                 return curPos();
             }
 
-            const char* readQuotedString(const char delim = '"', const std::string& hackDelims = "") {
+            const char* readQuotedString(const char delim = '"', std::string_view hackDelims = std::string_view()) {
                 while (!eof() && (curChar() != delim || isEscaped())) {
                     // This is a hack to handle paths with trailing backslashes that get misinterpreted as escaped double quotation marks.
-                    if (!hackDelims.empty() && curChar() == '"' && isEscaped() && hackDelims.find(lookAhead()) != std::string::npos) {
-                        m_state->resetEscaped();
+                    if (!hackDelims.empty() && curChar() == '"' && isEscaped() && hackDelims.find(lookAhead()) != std::string_view::npos) {
+                        resetEscaped();
                         break;
                     }
                     advance();
@@ -343,21 +419,21 @@ namespace TrenchBroom {
                 return end;
             }
 
-            const char* discardWhile(const std::string& allow) {
+            const char* discardWhile(std::string_view allow) {
                 while (!eof() && isAnyOf(curChar(), allow)) {
                     advance();
                 }
                 return curPos();
             }
 
-            const char* discardUntil(const std::string& delims) {
+            const char* discardUntil(std::string_view delims) {
                 while (!eof() && !isAnyOf(curChar(), delims)) {
                     advance();
                 }
                 return curPos();
             }
 
-            bool matchesPattern(const std::string& pattern) const {
+            bool matchesPattern(std::string_view pattern) const {
                 if (pattern.empty() || isEscaped() || curChar() != pattern[0]) {
                     return false;
                 }
@@ -369,7 +445,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            const char* discardUntilPattern(const std::string& pattern) {
+            const char* discardUntilPattern(std::string_view pattern) {
                 if (pattern.empty()) {
                     return curPos();
                 }
@@ -379,13 +455,13 @@ namespace TrenchBroom {
                 }
 
                 if (eof()) {
-                    return m_state->end();
+                    return m_end;
                 }
 
                 return curPos();
             }
 
-            const char* discard(const std::string& str) {
+            const char* discard(std::string_view str) {
                 for (size_t i = 0; i < str.size(); ++i) {
                     const char c = lookAhead(i);
                     if (c == 0 || c != str[i]) {
@@ -397,12 +473,8 @@ namespace TrenchBroom {
                 advance(str.size());
                 return curPos();
             }
-
-            void errorIfEof() const {
-                m_state->errorIfEof();
-            }
         protected:
-            bool isAnyOf(const char c, const std::string& allow) const {
+            bool isAnyOf(const char c, std::string_view allow) const {
                 for (const auto& a : allow) {
                     if (c == a) {
                         return true;

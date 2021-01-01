@@ -43,10 +43,6 @@ namespace TrenchBroom {
         class LegacyModelDefinitionTokenizer : public Tokenizer<MdlToken::Type> {
         public:
             explicit LegacyModelDefinitionTokenizer(std::string_view str);
-
-            template <typename OtherToken>
-            explicit LegacyModelDefinitionTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
-            Tokenizer(nestedTokenizer) {}
         private:
             static const std::string WordDelims;
             Token emitToken() override;
@@ -58,10 +54,7 @@ namespace TrenchBroom {
             LegacyModelDefinitionTokenizer m_tokenizer;
         public:
             explicit LegacyModelDefinitionParser(std::string_view str);
-
-            template <typename OtherToken>
-            explicit LegacyModelDefinitionParser(Tokenizer<OtherToken>& nestedTokenizer) :
-            m_tokenizer(nestedTokenizer) {}
+            TokenizerState tokenizerState() const;
         public:
             EL::Expression parse(ParserStatus& status);
         private:

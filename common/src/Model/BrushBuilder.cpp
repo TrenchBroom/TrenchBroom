@@ -127,7 +127,7 @@ namespace TrenchBroom {
                 const vm::vec3& p3 = edge3->origin()->position();
 
                 std::optional<BrushError> error;
-                m_factory->createFace(p1, p3, p2, textureName)
+                m_factory->createFace(p1, p3, p2, Model::BrushFaceAttributes(textureName))
                     .visit(kdl::overload(
                         [&](BrushFace&& f) {
                             brushFaces.push_back(std::move(f));

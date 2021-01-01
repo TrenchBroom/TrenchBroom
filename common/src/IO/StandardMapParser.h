@@ -110,7 +110,7 @@ namespace TrenchBroom {
             void parsePatch(ParserStatus& status, size_t startLine);
 
             std::tuple<vm::vec3, vm::vec3, vm::vec3> parseFacePoints(ParserStatus& status);
-            std::string parseTextureName(ParserStatus& status);
+            std::string_view parseTextureName(ParserStatus& status);
             std::tuple<vm::vec3, float, vm::vec3, float> parseValveTextureAxes(ParserStatus& status);
             std::tuple<vm::vec3, vm::vec3> parsePrimitiveTextureAxes(ParserStatus& status);
 
