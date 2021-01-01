@@ -34,10 +34,10 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class ModelFactory;
         template <typename P> class PolyhedronMatcher;
 
         enum class BrushError;
+        enum class MapFormat;
 
         class Brush {
         private:
@@ -211,8 +211,8 @@ namespace TrenchBroom {
              * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
              * @return the subtraction result
              */
-            kdl::result<std::vector<Brush>, BrushError> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const;
-            kdl::result<std::vector<Brush>, BrushError> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const;
+            kdl::result<std::vector<Brush>, BrushError> subtract(MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const;
+            kdl::result<std::vector<Brush>, BrushError> subtract(MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const;
 
             /**
              * Intersects this brush with the given brush.
@@ -247,14 +247,14 @@ namespace TrenchBroom {
              * into a Brush by copying texturing from `this` (for un-clipped faces) or the brushes in `subtrahends`
              * (for clipped faces).
              *
-             * @param factory the model factory
+             * @param mapFormat the map format
              * @param worldBounds the world bounds
              * @param defaultTextureName default texture name
              * @param geometry the geometry for the newly created brush
              * @param subtrahends used as a source of texture alignment only
              * @return the newly created brush
              */
-            kdl::result<Brush, BrushError> createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const;
+            kdl::result<Brush, BrushError> createBrush(MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const;
         public: // texture format conversion
             Brush convertToParaxial() const;
             Brush convertToParallel() const;

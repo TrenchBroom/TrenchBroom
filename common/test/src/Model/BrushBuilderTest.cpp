@@ -22,7 +22,6 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/MapFormat.h"
-#include "Model/WorldNode.h"
 
 #include <kdl/result.h>
 
@@ -34,9 +33,8 @@ namespace TrenchBroom {
     namespace Model {
         TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Model::Entity(), MapFormat::Standard);
 
-            BrushBuilder builder(&world, worldBounds);
+            BrushBuilder builder(MapFormat::Standard, worldBounds);
             const Brush cube = builder.createCube(128.0, "someName").value();
             CHECK(cube.fullySpecified());
             CHECK(cube.bounds() == vm::bbox3d(-64.0, +64.0));
@@ -51,7 +49,6 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Model::Entity(), MapFormat::Standard);
 
             BrushFaceAttributes defaultAttribs("defaultTexture");
             defaultAttribs.setOffset(vm::vec2f(0.5f, 0.5f));
@@ -62,7 +59,7 @@ namespace TrenchBroom {
             defaultAttribs.setSurfaceValue(0.1f);
             defaultAttribs.setColor(Color(255, 255, 255, 255));
 
-            BrushBuilder builder(&world, worldBounds, defaultAttribs);
+            BrushBuilder builder(MapFormat::Standard, worldBounds, defaultAttribs);
             const Brush cube = builder.createCube(128.0, "someName").value();
             CHECK(cube.fullySpecified());
             CHECK(cube.bounds() == vm::bbox3d(-64.0, +64.0));

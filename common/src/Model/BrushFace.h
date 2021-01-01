@@ -24,7 +24,6 @@
 #include "Assets/AssetReference.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
-#include "Model/MapFormat.h"
 #include "Model/Tag.h" // BrushFace inherits from Taggable
 
 #include <kdl/result_forward.h>
@@ -50,6 +49,7 @@ namespace TrenchBroom {
         class TexCoordSystemSnapshot;
         enum class WrapStyle;
         enum class BrushError;
+        enum class MapFormat;
 
         class BrushFace : public Taggable {
         public:

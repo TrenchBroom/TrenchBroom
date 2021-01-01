@@ -54,7 +54,7 @@ namespace TrenchBroom {
             const auto bboxMax = GENERATE(vm::vec3::fill(0.01),
                                           vm::vec3::fill(8.0));
 
-            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
             Model::BrushNode* brushNode1 =new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3::fill(0.0), bboxMax), "texture").value());
 
             document->addNode(brushNode1, document->currentLayer());

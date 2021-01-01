@@ -26,7 +26,7 @@
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
-#include "Model/ModelFactory.h"
+#include "Model/MapFormat.h"
 #include "Model/TexCoordSystem.h"
 
 #include <kdl/overload.h>
@@ -828,7 +828,7 @@ namespace TrenchBroom {
             return updateGeometryFromFaces(worldBounds);
         }
 
-        kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
+        kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
             auto result = std::vector<BrushGeometry>{*m_geometry};
 
             for (auto* subtrahend : subtrahends) {
@@ -851,7 +851,7 @@ namespace TrenchBroom {
 
             for (const auto& geometry : result) {
                 std::optional<BrushError> error;
-                createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends)
+                createBrush(mapFormat, worldBounds, defaultTextureName, geometry, subtrahends)
                     .visit(kdl::overload(
                         [&](Brush&& brush) {
                             brushes.push_back(std::move(brush));
@@ -869,8 +869,8 @@ namespace TrenchBroom {
             return kdl::result<std::vector<Brush>, BrushError>::success(brushes);
         }
 
-        kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const {
-            return subtract(factory, worldBounds, defaultTextureName, std::vector<const Brush*>{&subtrahend});
+        kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const {
+            return subtract(mapFormat, worldBounds, defaultTextureName, std::vector<const Brush*>{&subtrahend});
         }
 
         kdl::result<void, BrushError> Brush::intersect(const vm::bbox3& worldBounds, const Brush& brush) {
@@ -914,7 +914,7 @@ namespace TrenchBroom {
             return m_geometry->intersects(*brush.m_geometry);
         }
 
-        kdl::result<Brush, BrushError> Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const {
+        kdl::result<Brush, BrushError> Brush::createBrush(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const {
             std::vector<BrushFace> faces;
             faces.reserve(geometry.faceCount());
 
@@ -928,7 +928,7 @@ namespace TrenchBroom {
                 const auto& p2 = h2->origin()->position();
 
                 std::optional<BrushError> error;
-                factory.createFace(p0, p1, p2, BrushFaceAttributes(defaultTextureName))
+                BrushFace::create(p0, p1, p2, BrushFaceAttributes(defaultTextureName), mapFormat)
                     .visit(kdl::overload(
                         [&](BrushFace&& f) {
                             faces.push_back(std::move(f));

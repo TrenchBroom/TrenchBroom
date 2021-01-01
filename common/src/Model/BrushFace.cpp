@@ -25,6 +25,7 @@
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "Model/BrushError.h"
+#include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/TagMatcher.h"
@@ -107,7 +108,7 @@ namespace TrenchBroom {
 
         BrushFace::~BrushFace() = default;
 
-        kdl::result<BrushFace, BrushError> create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, const MapFormat mapFormat) {
+        kdl::result<BrushFace, BrushError> BrushFace::create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, const MapFormat mapFormat) {
             return Model::isParallelTexCoordSystem(mapFormat)
                    ? BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes))
                    : BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));

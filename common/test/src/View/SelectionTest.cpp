@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
             document->addNode(group, layer);
 
-            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
             document->addNode(group, layer);
 
-            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
