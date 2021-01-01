@@ -56,20 +56,6 @@ namespace TrenchBroom {
         protected:
             using ObjectNo = unsigned int;
         private:
-            class IdManager {
-            private:
-                using IdMap = std::unordered_map<const Model::Node*, std::string>;
-                mutable IdMap m_ids;
-            public:
-                const std::string& getId(const Model::Node* t) const;
-            private:
-                Model::IdType makeId() const;
-                std::string idToString(const Model::IdType nodeId) const;
-            };
-
-            IdManager m_layerIds;
-            IdManager m_groupIds;
-
             ObjectNo m_entityNo;
             ObjectNo m_brushNo;
 
@@ -118,10 +104,10 @@ namespace TrenchBroom {
         private:
             void brushFace(const Model::BrushFace& face);
         public:
-            std::vector<Model::EntityProperty> parentProperties(const Model::Node* node);
+            std::vector<Model::EntityProperty> parentProperties(const Model::Node* groupNode);
         private:
             std::vector<Model::EntityProperty> layerProperties(const Model::LayerNode* layerNode);
-            std::vector<Model::EntityProperty> groupProperties(const Model::GroupNode* group);
+            std::vector<Model::EntityProperty> groupProperties(const Model::GroupNode* groupNode);
         protected:
             std::string escapeEntityProperties(const std::string& str) const;
         private:

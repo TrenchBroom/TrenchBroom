@@ -242,6 +242,8 @@ namespace TrenchBroom {
             }
 
             Model::LayerNode* layerNode = new Model::LayerNode(std::move(layer));
+            layerNode->setPersistentId(layerId);
+
             if (findProperty(propeties, Model::PropertyKeys::LayerLocked) == Model::PropertyValues::LayerLockedValue) {
                 layerNode->setLockState(Model::LockState::Lock_Locked);
             }
@@ -284,6 +286,7 @@ namespace TrenchBroom {
             }
 
             Model::GroupNode* groupNode = new Model::GroupNode(Model::Group(name));
+            groupNode->setPersistentId(groupId);
             setExtraAttributes(groupNode, extraAttributes);
 
             storeNode(groupNode, properties, status);

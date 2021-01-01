@@ -41,6 +41,8 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <fmt/format.h>
+
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -291,30 +293,30 @@ R"(// entity 0
             writer.writeMap();
 
             const std::string actual = str.str();
-            const std::string expected =
+            const std::string expected = fmt::format(
 R"(// entity 0
-{
+{{
 "classname" "worldspawn"
-}
+}}
 // entity 1
-{
+{{
 "classname" "func_group"
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
-"_tb_id" "*"
+"_tb_id" "{}"
 "_tb_layer_sort_index" "0"
 // brush 0
-{
+{{
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
-}
-}
-)";
-            CHECK_THAT(actual, MatchesGlob(expected));
+}}
+}}
+)", *layerNode->persistentId());
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
@@ -335,24 +337,24 @@ R"(// entity 0
             writer.writeMap();
 
             const std::string actual = str.str();
-            const std::string expected =
+            const std::string expected = fmt::format(
 R"(// entity 0
-{
+{{
 "classname" "worldspawn"
-}
+}}
 // entity 1
-{
+{{
 "classname" "func_group"
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
-"_tb_id" "*"
+"_tb_id" "{}"
 "_tb_layer_sort_index" "1"
 "_tb_layer_locked" "1"
 "_tb_layer_hidden" "1"
 "_tb_layer_omit_from_export" "1"
-}
-)";
-            CHECK_THAT(actual, MatchesGlob(expected));
+}}
+)", *layerNode->persistentId());
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer", "[NodeWriterTest]") {
@@ -372,29 +374,29 @@ R"(// entity 0
             writer.writeMap();
 
             const std::string actual = str.str();
-            const std::string expected =
+            const std::string expected = fmt::format(
 R"(// entity 0
-{
+{{
 "classname" "worldspawn"
-}
+}}
 // entity 1
-{
+{{
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Group"
-"_tb_id" "*"
+"_tb_id" "{}"
 // brush 0
-{
+{{
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
-}
-}
-)";
-            CHECK_THAT(actual, MatchesGlob(expected));
+}}
+}}
+)", *groupNode->persistentId());
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer", "[NodeWriterTest]") {
@@ -417,37 +419,37 @@ R"(// entity 0
             writer.writeMap();
 
             const std::string actual = str.str();
-            const std::string expected =
+            const std::string expected = fmt::format(
 R"(// entity 0
-{
+{{
 "classname" "worldspawn"
-}
+}}
 // entity 1
-{
+{{
 "classname" "func_group"
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
-"_tb_id" "*"
-}
+"_tb_id" "{0}"
+}}
 // entity 2
-{
+{{
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Group"
-"_tb_id" "*"
-"_tb_layer" "*"
+"_tb_id" "{1}"
+"_tb_layer" "{0}"
 // brush 0
-{
+{{
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
-}
-}
-)";
-            CHECK_THAT(actual, MatchesGlob(expected));
+}}
+}}
+)", *layerNode->persistentId(), *groupNode->persistentId());
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer", "[NodeWriterTest]") {
@@ -473,8 +475,79 @@ R"(// entity 0
             writer.writeMap();
 
             const std::string actual = str.str();
-            const std::string expected =
+            const std::string expected = fmt::format(
 R"(// entity 0
+{{
+"classname" "worldspawn"
+}}
+// entity 1
+{{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Custom Layer"
+"_tb_id" "{0}"
+}}
+// entity 2
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Outer Group"
+"_tb_id" "{1}"
+"_tb_layer" "{0}"
+}}
+// entity 3
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Inner Group"
+"_tb_id" "{2}"
+"_tb_group" "{1}"
+// brush 0
+{{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
+}}
+}}
+)", *layerNode->persistentId(), *outerGroupNode->persistentId(), *innerGroupNode->persistentId());
+            CHECK(actual == expected);
+        }
+
+        TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs", "[NodeWriterTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
+
+            Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("Custom Layer 1"));
+            layerNode1->setPersistentId(1u);
+            map.addChild(layerNode1);
+
+            Model::GroupNode* outerGroupNode = new Model::GroupNode(Model::Group("Outer Group"));
+            outerGroupNode->setPersistentId(21u);
+            layerNode1->addChild(outerGroupNode);
+
+            Model::GroupNode* innerGroupNode = new Model::GroupNode(Model::Group("Inner Group"));
+            innerGroupNode->setPersistentId(7u);
+            outerGroupNode->addChild(innerGroupNode);
+
+            Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("Custom Layer 2"));
+            layerNode2->setPersistentId(12u);
+            map.addChild(layerNode2);
+
+            Model::BrushBuilder builder(map.mapFormat(), worldBounds);
+            Model::BrushNode* brushNode = new Model::BrushNode(builder.createCube(64.0, "none").value());
+            innerGroupNode->addChild(brushNode);
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.writeMap();
+
+            const std::string actual = str.str();
+            const std::string expected =
+                R"(// entity 0
 {
 "classname" "worldspawn"
 }
@@ -482,24 +555,24 @@ R"(// entity 0
 {
 "classname" "func_group"
 "_tb_type" "_tb_layer"
-"_tb_name" "Custom Layer"
-"_tb_id" "*"
+"_tb_name" "Custom Layer 1"
+"_tb_id" "1"
 }
 // entity 2
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Outer Group"
-"_tb_id" "*"
-"_tb_layer" "*"
+"_tb_id" "21"
+"_tb_layer" "1"
 }
 // entity 3
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Inner Group"
-"_tb_id" "*"
-"_tb_group" "*"
+"_tb_id" "7"
+"_tb_group" "21"
 // brush 0
 {
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
@@ -510,8 +583,15 @@ R"(// entity 0
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 }
 }
+// entity 4
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Custom Layer 2"
+"_tb_id" "12"
+}
 )";
-            CHECK_THAT(actual, MatchesGlob(expected));
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers", "[NodeWriterTest]") {
@@ -660,38 +740,38 @@ R"(// entity 0
             writer.writeNodes(nodes);
 
             const std::string actual = str.str();
-            const std::string expected =
+            const std::string expected = fmt::format(
 R"(// entity 0
-{
+{{
 "classname" "worldspawn"
 // brush 0
-{
+{{
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1
 ( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1
 ( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1
-}
-}
+}}
+}}
 // entity 1
-{
+{{
 "classname" "func_group"
 "_tb_type" "_tb_group"
 "_tb_name" "Inner Group"
-"_tb_id" "*"
+"_tb_id" "{}"
 // brush 0
-{
+{{
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1
 ( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
-}
-}
-)";
-            CHECK_THAT(actual, MatchesGlob(expected));
+}}
+}}
+)", *innerGroupNode->persistentId());
+            CHECK(actual == expected);
         }
 
         TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]") {
