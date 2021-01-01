@@ -495,7 +495,7 @@ namespace TrenchBroom {
 
         PasteType MapDocument::paste(const std::string& str) {
             // Try parsing as entities, then as brushes, in all compatible formats
-            const std::vector<Model::Node*> nodes = m_game->parseNodes(str, m_world->format(), m_worldBounds, logger());
+            const std::vector<Model::Node*> nodes = m_game->parseNodes(str, m_world->mapFormat(), m_worldBounds, logger());
             if (!nodes.empty()) {
                 if (pasteNodes(nodes)) {
                     return PasteType::Node;
@@ -505,7 +505,7 @@ namespace TrenchBroom {
 
             // Try parsing as brush faces
             try {
-                const std::vector<Model::BrushFace> faces = m_game->parseBrushFaces(str, m_world->format(), m_worldBounds, logger());
+                const std::vector<Model::BrushFace> faces = m_game->parseBrushFaces(str, m_world->mapFormat(), m_worldBounds, logger());
                 if (!faces.empty() && pasteBrushFaces(faces)) {
                     return PasteType::BrushFace;
                 }
@@ -890,7 +890,7 @@ namespace TrenchBroom {
             const std::vector<Model::BrushNode*>& selectionBrushNodes = selectedNodes().brushes();
             assert(!selectionBrushNodes.empty());
 
-            const Model::BrushBuilder brushBuilder(world()->format(), worldBounds());
+            const Model::BrushBuilder brushBuilder(world()->mapFormat(), worldBounds());
             std::vector<Model::BrushNode*> tallBrushes;
             tallBrushes.reserve(selectionBrushNodes.size());
 
@@ -1698,7 +1698,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
-            Model::BrushBuilder builder(m_world->format(), m_worldBounds, m_game->defaultFaceAttribs());
+            Model::BrushBuilder builder(m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs());
             return builder.createBrush(points, currentTextureName())
                 .visit(kdl::overload(
                     [&](Model::Brush&& b) {
@@ -1744,7 +1744,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const Model::BrushBuilder builder(m_world->format(), m_worldBounds, m_game->defaultFaceAttribs());
+            const Model::BrushBuilder builder(m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs());
             return builder.createBrush(polyhedron, currentTextureName())
                 .visit(kdl::overload(
                     [&](Model::Brush&& b) {
@@ -1799,7 +1799,7 @@ namespace TrenchBroom {
             
             for (Model::BrushNode* minuendNode : minuendNodes) {
                 const Model::Brush& minuend = minuendNode->brush();
-                minuend.subtract(m_world->format(), m_worldBounds, currentTextureName(), subtrahends)
+                minuend.subtract(m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends)
                     .visit(kdl::overload(
                         [&](const std::vector<Model::Brush>& brushes) {
                             if (!brushes.empty()) {
@@ -1874,7 +1874,7 @@ namespace TrenchBroom {
                 shrunkenBrush.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
                     .and_then(
                         [&]() {
-                            return originalBrush.subtract(m_world->format(), m_worldBounds, currentTextureName(), shrunkenBrush);
+                            return originalBrush.subtract(m_world->mapFormat(), m_worldBounds, currentTextureName(), shrunkenBrush);
                         }
                     ).visit(kdl::overload(
                         [&](const std::vector<Model::Brush>& fragments) {
@@ -1908,7 +1908,8 @@ namespace TrenchBroom {
 
             for (const Model::BrushNode* originalBrush : brushes) {
                 auto clippedBrush = originalBrush->brush();
-                const bool success = Model::BrushFace::create(p1, p2, p3, Model::BrushFaceAttributes(currentTextureName()), m_world->format())
+                const bool success = Model::BrushFace::create(p1, p2, p3, Model::BrushFaceAttributes(currentTextureName()),
+                    m_world->mapFormat())
                     .and_then([&](Model::BrushFace&& clipFace) {
                         return clippedBrush.clip(m_worldBounds, std::move(clipFace));
                     }).and_then([&]() {

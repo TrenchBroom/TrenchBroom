@@ -48,7 +48,7 @@ namespace TrenchBroom {
             if (m_polyhedron->closed()) {
                 auto document = kdl::mem_lock(m_document);
                 const auto game = document->game();
-                const Model::BrushBuilder builder(document->world()->format(), document->worldBounds(), game->defaultFaceAttribs());
+                const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
                 
                 builder.createBrush(*m_polyhedron, document->currentTextureName())
                     .visit(kdl::overload(

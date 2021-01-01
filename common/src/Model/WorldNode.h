@@ -57,7 +57,7 @@ namespace TrenchBroom {
             WorldNode(Entity entity, MapFormat mapFormat);
             ~WorldNode() override;
 
-            MapFormat format() const;
+            MapFormat mapFormat() const;
         public: // layer management
             LayerNode* defaultLayer();
 

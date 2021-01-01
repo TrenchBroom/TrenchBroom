@@ -58,7 +58,7 @@ namespace TrenchBroom {
 
         WorldNode::~WorldNode() = default;
 
-        MapFormat WorldNode::format() const {
+        MapFormat WorldNode::mapFormat() const {
             return m_mapFormat;
         }
 
@@ -202,7 +202,7 @@ namespace TrenchBroom {
         }
 
         Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const {
-            WorldNode* worldNode = new WorldNode(entity(), format());
+            WorldNode* worldNode = new WorldNode(entity(), mapFormat());
             cloneAttributes(worldNode);
             return worldNode;
         }

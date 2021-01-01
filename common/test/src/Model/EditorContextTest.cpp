@@ -68,7 +68,7 @@ namespace TrenchBroom {
             }
 
             std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity() {
-                BrushBuilder builder(world->format(), worldBounds);
+                BrushBuilder builder(world->mapFormat(), worldBounds);
                 auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
                 auto* entityNode = new Model::EntityNode(Model::Entity());
                 entityNode->addChild(brushNode);
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             }
 
             BrushNode* createTopLevelBrush() {
-                BrushBuilder builder(world->format(), worldBounds);
+                BrushBuilder builder(world->mapFormat(), worldBounds);
                 auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
                 world->defaultLayer()->addChild(brushNode);
                 return brushNode;
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             }
 
             std::tuple<GroupNode*, BrushNode*> createGroupedBrush() {
-                BrushBuilder builder(world->format(), worldBounds);
+                BrushBuilder builder(world->mapFormat(), worldBounds);
                 auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
                 auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             }
 
             std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity() {
-                BrushBuilder builder(world->format(), worldBounds);
+                BrushBuilder builder(world->mapFormat(), worldBounds);
                 auto* entityNode = new Model::EntityNode(Model::Entity());
                 auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             }
 
             std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
-                BrushBuilder builder(world->format(), worldBounds);
+                BrushBuilder builder(world->mapFormat(), worldBounds);
                 auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
                 auto* entityNode = new Model::EntityNode(Model::Entity());
                 auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             }
 
             std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush() {
-                BrushBuilder builder(world->format(), worldBounds);
+                BrushBuilder builder(world->mapFormat(), worldBounds);
                 auto* innerBrushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
                 auto* innerGroupNode = new Model::GroupNode(Model::Group("inner"));
                 auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));

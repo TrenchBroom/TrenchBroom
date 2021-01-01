@@ -635,7 +635,7 @@ namespace TrenchBroom {
 
         bool FaceAttribsEditor::hasColorAttribs() const {
             auto document = kdl::mem_lock(m_document);
-            return document->world()->format() == Model::MapFormat::Daikatana;
+            return document->world()->mapFormat() == Model::MapFormat::Daikatana;
         }
 
         void FaceAttribsEditor::showColorAttribEditor() {

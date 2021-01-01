@@ -467,7 +467,7 @@ namespace TrenchBroom {
             QStringList pipeSeparatedSections;
 
             pipeSeparatedSections << QString::fromStdString(document->game()->gameName())
-                                  << QString::fromStdString(Model::formatName(document->world()->format()))
+                                  << QString::fromStdString(Model::formatName(document->world()->mapFormat()))
                                   << QString::fromStdString(document->currentLayer()->name());
 
             // open groups
@@ -832,7 +832,7 @@ namespace TrenchBroom {
             if (!confirmRevertDocument()) {
                 return false;
             }
-            const auto mapFormat = m_document->world()->format();
+            const auto mapFormat = m_document->world()->mapFormat();
             const auto game = m_document->game();
             const auto path = m_document->path();
             m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);

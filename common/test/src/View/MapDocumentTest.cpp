@@ -99,7 +99,7 @@ namespace TrenchBroom {
 
         Model::BrushNode* MapDocumentTest::createBrushNode(const std::string& textureName, const std::function<void(Model::Brush&)>& brushFunc) {
             const Model::WorldNode* world = document->world();
-            Model::BrushBuilder builder(world->format(), document->worldBounds(), document->game()->defaultFaceAttribs());
+            Model::BrushBuilder builder(world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs());
             Model::Brush brush = builder.createCube(32.0, textureName).value();
             brushFunc(brush);
             return new Model::BrushNode(std::move(brush));
@@ -139,7 +139,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.flip") {
-            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(30.0, 31.0, 31.0)), "texture").value());
             Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(30.0, 0.0, 0.0), vm::vec3(31.0, 31.0, 31.0)), "texture").value());
 
@@ -167,7 +167,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.rotate") {
-            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(30.0, 31.0, 31.0)), "texture").value());
             Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(30.0, 0.0, 0.0), vm::vec3(31.0, 31.0, 31.0)), "texture").value());
 
@@ -202,7 +202,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.shearCube") {
             const vm::bbox3 initialBBox(vm::vec3(100,100,100), vm::vec3(200,200,200));
 
-            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
             document->addNode(brushNode, document->parentForNodes());
@@ -241,7 +241,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.shearPillar") {
             const vm::bbox3 initialBBox(vm::vec3(0,0,0), vm::vec3(100,100,400));
 
-            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
             document->addNode(brushNode, document->parentForNodes());
@@ -282,7 +282,7 @@ namespace TrenchBroom {
             const vm::bbox3 doubleBBox(2.0 * initialBBox.min, 2.0 * initialBBox.max);
             const vm::bbox3 invalidBBox(vm::vec3(0,-100,-100), vm::vec3(0,100,100));
 
-            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
             const Model::Brush& brush = brushNode->brush();
 
@@ -307,7 +307,7 @@ namespace TrenchBroom {
             const vm::bbox3 doubleBBox(2.0 * initialBBox.min, 2.0 * initialBBox.max);
             const vm::bbox3 invalidBBox(vm::vec3(0, -100, -100), vm::vec3(0, 100, 100));
 
-            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
             document->addNode(brushNode, document->parentForNodes());
@@ -326,7 +326,7 @@ namespace TrenchBroom {
             const vm::bbox3 initialBBox(vm::vec3(0,0,0), vm::vec3(100,100,400));
             const vm::bbox3 expectedBBox(vm::vec3(-50,0,0), vm::vec3(150,100,400));
 
-            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode = new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
             document->addNode(brushNode, document->parentForNodes());
@@ -338,7 +338,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.csgConvexMergeBrushes") {
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             auto* entity = new Model::EntityNode();
             document->addNode(entity, document->parentForNodes());
@@ -358,7 +358,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.csgConvexMergeFaces") {
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             auto* entity = new Model::EntityNode();
             document->addNode(entity, document->parentForNodes());
@@ -401,7 +401,7 @@ namespace TrenchBroom {
         MapDocumentTest(Model::MapFormat::Valve) {}
 
         TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTexturing") {
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, document->parentForNodes());
@@ -435,7 +435,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturing") {
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, document->parentForNodes());
@@ -472,7 +472,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.csgSubtractMultipleBrushes") {
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             auto* entity = new Model::EntityNode();
             document->addNode(entity, document->parentForNodes());
@@ -506,7 +506,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.csgSubtractAndUndoRestoresSelection") {
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             auto* entity = new Model::EntityNode();
             document->addNode(entity, document->parentForNodes());
@@ -608,7 +608,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.ungroupLeavesBrushEntitySelected") {
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             Model::EntityNode* ent1 = new Model::EntityNode();
             document->addNode(ent1, document->parentForNodes());
@@ -667,7 +667,7 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
             document->addNode(brushNode1, document->parentForNodes());
@@ -719,7 +719,7 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
             document->addNode(brushNode1, document->parentForNodes());
@@ -780,7 +780,7 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
             document->addNode(brushNode1, document->parentForNodes());
@@ -918,7 +918,7 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
             document->addNode(brushNode1, document->parentForNodes());
@@ -955,7 +955,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectTouching") {
-            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode3 = new Model::BrushNode(builder.createCube(64.0, "none").value());
@@ -986,7 +986,7 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
@@ -1014,7 +1014,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectTall") {
             using Catch::Matchers::UnorderedEquals;
 
-            Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode3 = new Model::BrushNode(builder.createCube(64.0, "none").value());
@@ -1048,7 +1048,7 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
@@ -1091,7 +1091,7 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
@@ -1120,7 +1120,7 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->format(), document->worldBounds());
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
