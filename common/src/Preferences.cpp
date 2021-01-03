@@ -145,6 +145,7 @@ namespace TrenchBroom {
         Preference<Color> BrowserTextColor(IO::Path("Browser/Text color"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> BrowserSubTextColor(IO::Path("Browser/Text color"), Color(0.65f, 0.65f, 0.65f, 1.0f));
         Preference<Color> BrowserGroupBackgroundColor(IO::Path("Browser/Group background color"), Color(0.8f, 0.8f, 0.8f, 0.8f));
+        Preference<Color> BrowserBackgroundColor(IO::Path("Browser/Background color"), Color(0.14f, 0.14f, 0.14f, 1.0f));
         Preference<float> TextureBrowserIconSize(IO::Path("Texture Browser/Icon size"), 1.0f);
         Preference<Color> TextureBrowserDefaultColor(IO::Path("Texture Browser/Default color"), Color(0.0f, 0.0f, 0.0f, 0.0f));
         Preference<Color> TextureBrowserSelectedColor(IO::Path("Texture Browser/Selected color"), Color(1.0f, 0.0f, 0.0f, 1.0f));
@@ -300,6 +301,7 @@ namespace TrenchBroom {
                 &BrowserFontSize,
                 &BrowserTextColor,
                 &BrowserSubTextColor,
+                &BrowserBackgroundColor,
                 &BrowserGroupBackgroundColor,
                 &TextureBrowserIconSize,
                 &TextureBrowserDefaultColor,
