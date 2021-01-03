@@ -223,8 +223,7 @@ namespace TrenchBroom {
         }
 
         const Color& RenderView::getBackgroundColor() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(Preferences::BackgroundColor);
+            return pref(Preferences::BackgroundColor);
         }
 
         void RenderView::renderFocusIndicator() {

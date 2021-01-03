@@ -308,8 +308,7 @@ namespace TrenchBroom {
         }
 
         const Color& TextureBrowserView::getBackgroundColor() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(Preferences::BrowserBackgroundColor);
+            return pref(Preferences::BrowserBackgroundColor);
         }
 
         void TextureBrowserView::renderBounds(Layout& layout, const float y, const float height) {

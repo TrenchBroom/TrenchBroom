@@ -243,8 +243,7 @@ namespace TrenchBroom {
         }
 
         const Color& EntityBrowserView::getBackgroundColor() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(Preferences::BrowserBackgroundColor);
+            return pref(Preferences::BrowserBackgroundColor);
         }
 
         template <typename Vertex>
