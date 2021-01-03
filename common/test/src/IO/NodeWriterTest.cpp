@@ -774,6 +774,168 @@ R"(// entity 0
             CHECK(actual == expected);
         }
 
+        TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups", "[NodeWriterTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+
+            auto worldNode = Model::WorldNode(Model::Entity(), Model::MapFormat::Standard);
+
+            auto group = Model::Group("Group");
+            group.transform(vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+            auto* groupNode = new Model::GroupNode(std::move(group));
+
+            worldNode.defaultLayer()->addChild(groupNode);
+
+            SECTION("Group node without linked group ID does not write ID or transformation") {
+                std::stringstream str;
+                NodeWriter writer(worldNode, str);
+                writer.writeMap();
+
+                const std::string actual = str.str();
+                const std::string expected = fmt::format(
+R"(// entity 0
+{{
+"classname" "worldspawn"
+}}
+// entity 1
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "{}"
+}}
+)", *groupNode->persistentId());
+                CHECK(actual == expected);
+            }
+
+            SECTION("Group nodes with linked group ID does write ID and transformation") {
+                group = groupNode->group();
+                group.setLinkedGroupId("asdf");
+                groupNode->setGroup(std::move(group));
+
+                auto* groupNodeClone = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(worldBounds));
+
+                auto groupClone = groupNodeClone->group();
+                groupClone.transform(vm::translation_matrix(vm::vec3(0.0, 16.0, 0.0)));
+                groupNodeClone->setGroup(std::move(groupClone));
+
+                worldNode.defaultLayer()->addChild(groupNodeClone);
+                REQUIRE(groupNodeClone->group().linkedGroupId() == groupNode->group().linkedGroupId());
+
+                std::stringstream str;
+                NodeWriter writer(worldNode, str);
+                writer.writeMap();
+
+                const std::string actual = str.str();
+                const std::string expected = fmt::format(
+R"(// entity 0
+{{
+"classname" "worldspawn"
+}}
+// entity 1
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "{0}"
+"_tb_linked_group_id" "asdf"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}}
+// entity 2
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "{1}"
+"_tb_linked_group_id" "asdf"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}}
+)", *groupNode->persistentId(), *groupNodeClone->persistentId());
+                CHECK(actual == expected);
+            }
+        }
+
+        TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup", "[NodeWriterTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+
+            auto worldNode = Model::WorldNode(Model::Entity(), Model::MapFormat::Standard);
+
+            auto group = Model::Group("Group");
+            group.transform(vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+            group.setLinkedGroupId("asdf");
+
+            auto* groupNode = new Model::GroupNode(std::move(group));
+            worldNode.defaultLayer()->addChild(groupNode);
+
+            auto* groupNodeClone = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(worldBounds));
+            auto groupClone = groupNodeClone->group();
+            groupClone.transform(vm::translation_matrix(vm::vec3(0.0, 16.0, 0.0)));
+            groupNodeClone->setGroup(std::move(groupClone));
+
+            worldNode.defaultLayer()->addChild(groupNodeClone);
+            REQUIRE(groupNodeClone->group().linkedGroupId() == groupNode->group().linkedGroupId());
+
+            std::stringstream str;
+            NodeWriter writer(worldNode, str);
+            writer.writeNodes(std::vector<Model::Node*>{groupNode});
+
+            const std::string actual = str.str();
+            const std::string expected = fmt::format(
+R"(// entity 0
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "{0}"
+"_tb_linked_group_id" "asdf"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}}
+)", *groupNode->persistentId());
+            CHECK(actual == expected);
+        }
+
+        TEST_CASE("NodeWriterTest.writeProtectedEntityProperties", "[NodeWriterTest]") {
+            auto worldNode = Model::WorldNode{Model::Entity{}, Model::MapFormat::Standard};
+
+            SECTION("No protected properties") {
+                auto entity = Model::Entity{};
+                entity.setProtectedProperties({});
+                auto* entityNode = new Model::EntityNode{std::move(entity)};
+                worldNode.defaultLayer()->addChild(entityNode);
+
+                std::stringstream str;
+                NodeWriter writer(worldNode, str);
+                writer.writeNodes(std::vector<Model::Node*>{entityNode});
+
+                const std::string actual = str.str();
+                const std::string expected = 
+R"(// entity 0
+{
+}
+)";
+                CHECK(actual == expected);
+            }
+
+            SECTION("Some protected properties") {
+                auto entity = Model::Entity{};
+                entity.setProtectedProperties({"asdf", "some", "with;semicolon"});
+                auto* entityNode = new Model::EntityNode{std::move(entity)};
+                worldNode.defaultLayer()->addChild(entityNode);
+
+                std::stringstream str;
+                NodeWriter writer(worldNode, str);
+                writer.writeNodes(std::vector<Model::Node*>{entityNode});
+
+                const std::string actual = str.str();
+                const std::string expected = 
+R"(// entity 0
+{
+"_tb_protected_properties" "asdf;some;with\;semicolon"
+}
+)";
+                CHECK(actual == expected);
+            }
+        }
+
         TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 

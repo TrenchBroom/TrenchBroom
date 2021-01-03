@@ -33,6 +33,8 @@
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 
+#include <fmt/format.h>
+
 #include <string>
 
 namespace TrenchBroom {
@@ -121,12 +123,12 @@ namespace TrenchBroom {
             }
         }
 
-        void NodeSerializer::group(const Model::GroupNode* group, const std::vector<Model::EntityProperty>& parentProperties) {
-            entity(group, groupProperties(group), parentProperties, group);
+        void NodeSerializer::group(const Model::GroupNode* group, const std::vector<Model::EntityProperty>& extraProperties) {
+            entity(group, groupProperties(group), extraProperties, group);
         }
 
-        void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityProperty>& properties, const std::vector<Model::EntityProperty>& parentProperties, const Model::Node* brushParent) {
-            beginEntity(node, properties, parentProperties);
+        void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityProperty>& properties, const std::vector<Model::EntityProperty>& extraProperties, const Model::Node* brushParent) {
+            beginEntity(node, properties, extraProperties);
 
             brushParent->visitChildren(kdl::overload(
                 [] (const Model::WorldNode*)   {},
@@ -141,8 +143,8 @@ namespace TrenchBroom {
             endEntity(node);
         }
 
-        void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityProperty>& properties, const std::vector<Model::EntityProperty>& parentProperties, const std::vector<Model::BrushNode*>& entityBrushes) {
-            beginEntity(node, properties, parentProperties);
+        void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityProperty>& properties, const std::vector<Model::EntityProperty>& extraProperties, const std::vector<Model::BrushNode*>& entityBrushes) {
+            beginEntity(node, properties, extraProperties);
             brushes(entityBrushes);
             endEntity(node);
         }
@@ -236,12 +238,27 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::EntityProperty> NodeSerializer::groupProperties(const Model::GroupNode* groupNode) {
-            return {
+            auto result = std::vector<Model::EntityProperty>{
                 Model::EntityProperty(Model::PropertyKeys::Classname, Model::PropertyValues::GroupClassname),
                 Model::EntityProperty(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeGroup),
                 Model::EntityProperty(Model::PropertyKeys::GroupName, groupNode->name()),
                 Model::EntityProperty(Model::PropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())),
             };
+
+            if (const auto linkedGroupId = groupNode->group().linkedGroupId()) {
+                result.emplace_back(Model::PropertyKeys::LinkedGroupId, kdl::str_to_string(*linkedGroupId));
+
+                // write transformation matrix in column major format
+                const auto& transformation = groupNode->group().transformation();
+                const auto transformationStr = fmt::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", 
+                    transformation[0][0], transformation[1][0], transformation[2][0], transformation[3][0],  // row 0
+                    transformation[0][1], transformation[1][1], transformation[2][1], transformation[3][1],  // row 1
+                    transformation[0][2], transformation[1][2], transformation[2][2], transformation[3][2],  // row 2
+                    transformation[0][3], transformation[1][3], transformation[2][3], transformation[3][3]); // row 3
+                result.emplace_back(Model::PropertyKeys::GroupTransformation, transformationStr);
+            }
+
+            return result;
         }
 
         std::string NodeSerializer::escapeEntityProperties(const std::string& str) const {
