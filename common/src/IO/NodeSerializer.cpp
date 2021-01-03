@@ -33,6 +33,8 @@
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 
+#include <fmt/format.h>
+
 #include <string>
 
 namespace TrenchBroom {
@@ -236,12 +238,27 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::EntityProperty> NodeSerializer::groupProperties(const Model::GroupNode* groupNode) {
-            return {
+            auto result = std::vector<Model::EntityProperty>{
                 Model::EntityProperty(Model::PropertyKeys::Classname, Model::PropertyValues::GroupClassname),
                 Model::EntityProperty(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeGroup),
                 Model::EntityProperty(Model::PropertyKeys::GroupName, groupNode->name()),
                 Model::EntityProperty(Model::PropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())),
             };
+
+            if (groupNode->linkedGroups().size() > 1u) {
+                result.emplace_back(Model::PropertyKeys::SharedGroupId, kdl::str_to_string(*groupNode->sharedPersistentId()));
+
+                // write transformation matrix in column major format
+                const auto& transformation = groupNode->group().transformation();
+                const auto transformationStr = fmt::format("{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}", 
+                    transformation[0][0], transformation[1][0], transformation[2][0], transformation[3][0],  // row 0
+                    transformation[0][1], transformation[1][1], transformation[2][1], transformation[3][1],  // row 1
+                    transformation[0][2], transformation[1][2], transformation[2][2], transformation[3][2],  // row 2
+                    transformation[0][3], transformation[1][3], transformation[2][3], transformation[3][3]); // row 3
+                result.emplace_back(Model::PropertyKeys::GroupTransformation, transformationStr);
+            }
+
+            return result;
         }
 
         std::string NodeSerializer::escapeEntityProperties(const std::string& str) const {

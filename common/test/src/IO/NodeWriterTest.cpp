@@ -774,6 +774,127 @@ R"(// entity 0
             CHECK(actual == expected);
         }
 
+        TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups", "[NodeWriterTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+
+            auto worldNode = Model::WorldNode(Model::Entity(), Model::MapFormat::Standard);
+            auto* groupNode = new Model::GroupNode(Model::Group("Group"));
+            groupNode->connectToLinkSet();
+            worldNode.defaultLayer()->addChild(groupNode);
+
+            auto group = groupNode->group();
+            group.transform(vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+            groupNode->setGroup(std::move(group));
+
+            SECTION("Singleton group does not write shared group ID or transformation") {
+                std::stringstream str;
+                NodeWriter writer(worldNode, str);
+                writer.writeMap();
+
+                const std::string actual = str.str();
+                const std::string expected = fmt::format(
+R"(// entity 0
+{{
+"classname" "worldspawn"
+}}
+// entity 1
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "{}"
+}}
+)", *groupNode->persistentId());
+                CHECK(actual == expected);
+            }
+
+            SECTION("Linked groups write shared persistent ID and transformation") {
+                auto* groupNodeClone = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(worldBounds));
+                groupNode->addToLinkSet(*groupNodeClone);
+                groupNodeClone->connectToLinkSet();
+
+                auto groupClone = groupNodeClone->group();
+                groupClone.transform(vm::translation_matrix(vm::vec3(0.0, 16.0, 0.0)));
+                groupNodeClone->setGroup(std::move(groupClone));
+
+                worldNode.defaultLayer()->addChild(groupNodeClone);
+                REQUIRE(groupNodeClone->sharedPersistentId() == groupNode->sharedPersistentId());
+
+                std::stringstream str;
+                NodeWriter writer(worldNode, str);
+                writer.writeMap();
+
+                const std::string actual = str.str();
+                const std::string expected = fmt::format(
+R"(// entity 0
+{{
+"classname" "worldspawn"
+}}
+// entity 1
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "{0}"
+"_tb_shared_group_id" "{2}"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}}
+// entity 2
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "{1}"
+"_tb_shared_group_id" "{2}"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}}
+)", *groupNode->persistentId(), *groupNodeClone->persistentId(), *groupNode->sharedPersistentId());
+                CHECK(actual == expected);
+            }
+        }
+
+        TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup", "[NodeWriterTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+
+            auto worldNode = Model::WorldNode(Model::Entity(), Model::MapFormat::Standard);
+            auto* groupNode = new Model::GroupNode(Model::Group("Group"));
+            groupNode->connectToLinkSet();
+            worldNode.defaultLayer()->addChild(groupNode);
+
+            auto group = groupNode->group();
+            group.transform(vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+            groupNode->setGroup(std::move(group));
+
+            auto* groupNodeClone = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(worldBounds));
+            groupNode->addToLinkSet(*groupNodeClone);
+            groupNodeClone->connectToLinkSet();
+
+            auto groupClone = groupNodeClone->group();
+            groupClone.transform(vm::translation_matrix(vm::vec3(0.0, 16.0, 0.0)));
+            groupNodeClone->setGroup(std::move(groupClone));
+
+            worldNode.defaultLayer()->addChild(groupNodeClone);
+            REQUIRE(groupNodeClone->sharedPersistentId() == groupNode->sharedPersistentId());
+
+            std::stringstream str;
+            NodeWriter writer(worldNode, str);
+            writer.writeNodes(std::vector<Model::Node*>{groupNode});
+
+            const std::string actual = str.str();
+            const std::string expected = fmt::format(
+R"(// entity 0
+{{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group"
+"_tb_id" "{0}"
+"_tb_shared_group_id" "{2}"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}}
+)", *groupNode->persistentId(), *groupNodeClone->persistentId(), *groupNode->sharedPersistentId());
+            CHECK(actual == expected);
+        }
+
         TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
