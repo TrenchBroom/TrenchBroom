@@ -30,9 +30,9 @@
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
-#include <map>
 #include <optional>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom {
@@ -93,8 +93,8 @@ namespace TrenchBroom {
                 EntityType_Default
             } EntityType;
 
-            using LayerMap = std::map<Model::IdType, Model::LayerNode*>;
-            using GroupMap = std::map<Model::IdType, Model::GroupNode*>;
+            using LayerMap = std::unordered_map<Model::IdType, Model::LayerNode*>;
+            using GroupMap = std::unordered_map<Model::IdType, Model::GroupNode*>;
 
             using NodeParentPair = std::pair<Model::Node*, ParentInfo>;
             using NodeParentList = std::vector<NodeParentPair>;
