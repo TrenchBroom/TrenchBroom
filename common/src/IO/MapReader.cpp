@@ -325,12 +325,12 @@ namespace TrenchBroom {
             if (!kdl::str_is_blank(layerIdStr)) {
                 if (const auto rawId = kdl::str_to_size(layerIdStr)) {
                     const Model::IdType layerId = static_cast<Model::IdType>(*rawId);
-                    Model::LayerNode* layer = kdl::map_find_or_default(m_layers, layerId,
-                        static_cast<Model::LayerNode*>(nullptr));
-                    if (layer != nullptr)
-                        onNode(layer, node, status);
-                    else
-                        m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::layer(layerId)));
+                    const auto it = m_layers.find(layerId);
+                    if (it != std::end(m_layers)) {
+                        onNode(it->second, node, status);
+                    } else {
+                        m_unresolvedNodes.emplace_back(node, ParentInfo::layer(layerId));
+                    }
                     return ParentInfo::Type_Layer;
                 }
 
@@ -340,12 +340,12 @@ namespace TrenchBroom {
                 if (!kdl::str_is_blank(groupIdStr)) {
                 if (const auto rawId = kdl::str_to_size(groupIdStr)) {
                         const Model::IdType groupId = static_cast<Model::IdType>(*rawId);
-                        Model::GroupNode* group = kdl::map_find_or_default(m_groups, groupId,
-                            static_cast<Model::GroupNode*>(nullptr));
-                        if (group != nullptr)
-                            onNode(group, node, status);
-                        else
-                            m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::group(groupId)));
+                        const auto it = m_groups.find(groupId);
+                        if (it != std::end(m_groups)) {
+                            onNode(it->second, node, status);
+                        } else {
+                            m_unresolvedNodes.emplace_back(node, ParentInfo::group(groupId));
+                        }
                         return ParentInfo::Type_Group;
                     }
 
@@ -411,10 +411,12 @@ namespace TrenchBroom {
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
             if (parentInfo.layer()) {
                 const Model::IdType layerId = parentInfo.id();
-                return kdl::map_find_or_default(m_layers, layerId, static_cast<Model::LayerNode*>(nullptr));
+                const auto it = m_layers.find(layerId);
+                return it != std::end(m_layers) ? it->second : nullptr;
             }
             const Model::IdType groupId = parentInfo.id();
-            return kdl::map_find_or_default(m_groups, groupId, static_cast<Model::GroupNode*>(nullptr));
+            const auto it = m_groups.find(groupId);
+            return it != std::end(m_groups) ? it->second : nullptr;
         }
 
         MapReader::EntityType MapReader::entityType(const std::vector<Model::EntityProperty>& properties) const {
