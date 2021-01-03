@@ -30,6 +30,8 @@
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vector>
@@ -55,7 +57,13 @@ namespace TrenchBroom {
                         parentStack.pop_back();
                     },
                     [&](const Model::EntityNode* entityNode) {
-                        serializer.entity(entityNode, entityNode->entity().properties(), parentProperties(), entityNode);
+                        auto extraProperties = parentProperties();
+                        const auto& protectedProperties = entityNode->entity().protectedProperties();
+                        if (!protectedProperties.empty()) {
+                            const auto escapedProperties = kdl::vec_transform(protectedProperties, [](const auto& key) { return kdl::str_escape(key, ";"); });
+                            extraProperties.emplace_back(Model::PropertyKeys::ProtectedEntityProperties, kdl::str_join(escapedProperties, ";"));
+                        }
+                        serializer.entity(entityNode, entityNode->entity().properties(), extraProperties, entityNode);
                     },
                     [] (const Model::BrushNode*) {}
                 ));
