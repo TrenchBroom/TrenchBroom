@@ -78,7 +78,7 @@ namespace TrenchBroom {
         Preference<float> TransparentFaceAlpha(IO::Path("Renderer/Colors/Transparent faces"), 0.4f);
         Preference<Color> EdgeColor(IO::Path("Renderer/Colors/Edges"), Color(0.9f,  0.9f,  0.9f,  1.0f));
         Preference<Color> SelectedEdgeColor(IO::Path("Renderer/Colors/Selected edges"), Color(1.0f,  0.0f,  0.0f,  1.0f));
-        Preference<Color> OccludedSelectedEdgeColor(IO::Path("Renderer/Colors/Occluded selected edges"), Color(1.0f,  0.0f,  0.0f,  0.4f));
+        Preference<float> OccludedSelectedEdgeAlpha(IO::Path("Renderer/Occluded selected edge alpha"), 0.4f);
         Preference<Color> LockedEdgeColor(IO::Path("Renderer/Colors/Locked edges"), Color(0.13f, 0.3f,  1.0f,  1.0f));
         Preference<Color> UndefinedEntityColor(IO::Path("Renderer/Colors/Undefined entity"), Color(0.5f,  0.5f,  0.5f,  1.0f));
 
@@ -87,7 +87,7 @@ namespace TrenchBroom {
         Preference<Color> InfoOverlayTextColor(IO::Path("Renderer/Colors/Info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> GroupInfoOverlayTextColor(IO::Path("Renderer/Colors/Group info overlay text"), Color(0.7f,  0.4f,  1.0f,  1.0f));
         Preference<Color> InfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.6f));
-        Preference<Color> WeakInfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Weak info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.3f));
+        Preference<float> WeakInfoOverlayBackgroundAlpha(IO::Path("Renderer/Weak info overlay background alpha"), 0.3f);
         Preference<Color> SelectedInfoOverlayTextColor(IO::Path("Renderer/Colors/Selected info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> SelectedInfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Selected info overlay background"), Color(1.0f, 0.0f, 0.0f, 0.6f));
         Preference<Color> LockedInfoOverlayTextColor(IO::Path("Renderer/Colors/Locked info overlay text"), Color(0.35f, 0.35f, 0.6f,  1.0f));
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         Preference<Color> ScaleHandleColor(IO::Path("Renderer/Colors/Scale handle"),   Color(77, 255, 80, 1.0f));
         Preference<Color> ScaleFillColor(IO::Path("Renderer/Colors/Scale fill"),       Color(77, 255, 80, 0.125f));
         Preference<Color> ScaleOutlineColor(IO::Path("Renderer/Colors/Scale outline"), Color(77, 255, 80, 1.0f));
-        Preference<Color> ScaleOutlineDimColor(IO::Path("Renderer/Colors/Scale outline dim"), Color(77, 255, 80, 0.3f));
+        Preference<float> ScaleOutlineDimAlpha(IO::Path("Renderer/Scale tool outline dim alpha"), 0.3f);
         Preference<Color> ShearFillColor(IO::Path("Renderer/Colors/Shear fill"),       Color(45, 133, 255, 0.125f));
         Preference<Color> ShearOutlineColor(IO::Path("Renderer/Colors/Shear outline"), Color(45, 133, 255, 1.0f));
 
@@ -253,14 +253,14 @@ namespace TrenchBroom {
                 &TransparentFaceAlpha,
                 &EdgeColor,
                 &SelectedEdgeColor,
-                &OccludedSelectedEdgeColor,
+                &OccludedSelectedEdgeAlpha,
                 &LockedEdgeColor,
                 &UndefinedEntityColor,
                 &SelectionBoundsColor,
                 &InfoOverlayTextColor,
                 &GroupInfoOverlayTextColor,
                 &InfoOverlayBackgroundColor,
-                &WeakInfoOverlayBackgroundColor,
+                &WeakInfoOverlayBackgroundAlpha,
                 &SelectedInfoOverlayTextColor,
                 &SelectedInfoOverlayBackgroundColor,
                 &LockedInfoOverlayTextColor,
@@ -279,7 +279,7 @@ namespace TrenchBroom {
                 &ScaleHandleColor,
                 &ScaleFillColor,
                 &ScaleOutlineColor,
-                &ScaleOutlineDimColor,
+                &ScaleOutlineDimAlpha,
                 &ShearFillColor,
                 &ShearOutlineColor,
                 &MoveTraceColor,
