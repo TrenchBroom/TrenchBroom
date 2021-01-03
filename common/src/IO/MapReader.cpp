@@ -32,6 +32,9 @@
 #include "Model/LockState.h"
 #include "Model/VisibilityState.h"
 
+#include <vecmath/mat.h>
+#include <vecmath/mat_io.h>
+
 #include <kdl/map_utils.h>
 #include <kdl/parallel.h>
 #include <kdl/result.h>
@@ -287,20 +290,41 @@ namespace TrenchBroom {
             storeNode(groupNode, properties, status);
             m_groups.insert(std::make_pair(groupId, groupNode));
 
+            const std::string& linkedGroupId = findProperty(properties, Model::PropertyKeys::LinkedGroupId);
+            if (!linkedGroupId.empty()) {
+                const std::string& transformationStr = findProperty(properties, Model::PropertyKeys::GroupTransformation);
+                if (const auto transformation = vm::parse<FloatType, 4u, 4u>(transformationStr)) {
+                    auto group = groupNode->group();
+                    group.setLinkedGroupId(linkedGroupId);
+                    group.setTransformation(*transformation);
+                    groupNode->setGroup(std::move(group));
+
+                    status.debug(line, kdl::str_to_string("Setting linked group ID '", linkedGroupId, "' to group with ID  '", idStr + "'"));
+                } else {
+                    status.error(line, kdl::str_to_string("Not linking group entity: Could not parse transformation '", transformationStr + "'"));
+                }
+            }
+
             m_currentNode = groupNode;
             m_brushParent = groupNode;
         }
 
         void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            Model::EntityNode* entity = new Model::EntityNode(Model::Entity());
-            entity->setEntity(Model::Entity(properties));
-            setExtraAttributes(entity, extraAttributes);
+            auto entity = Model::Entity{properties};
+            if (const auto* protectedPropertiesStr = entity.property(Model::PropertyKeys::ProtectedEntityProperties)) {
+                auto protectedProperties = kdl::str_split(*protectedPropertiesStr, ";");
+                entity.setProtectedProperties(std::move(protectedProperties));
+                entity.removeProperty(Model::PropertyKeys::ProtectedEntityProperties);
+            }
 
-            const ParentInfo::Type parentType = storeNode(entity, properties, status);
-            stripParentProperties(entity, parentType);
+            Model::EntityNode* entityNode = new Model::EntityNode{std::move(entity)};
+            setExtraAttributes(entityNode, extraAttributes);
 
-            m_currentNode = entity;
-            m_brushParent = entity;
+            const ParentInfo::Type parentType = storeNode(entityNode, properties, status);
+            stripParentProperties(entityNode, parentType);
+
+            m_currentNode = entityNode;
+            m_brushParent = entityNode;
         }
 
         void MapReader::createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
