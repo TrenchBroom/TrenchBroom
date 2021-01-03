@@ -32,6 +32,9 @@
 #include "Model/LockState.h"
 #include "Model/VisibilityState.h"
 
+#include <vecmath/mat.h>
+#include <vecmath/mat_io.h>
+
 #include <kdl/map_utils.h>
 #include <kdl/parallel.h>
 #include <kdl/result.h>
@@ -286,6 +289,27 @@ namespace TrenchBroom {
 
             storeNode(groupNode, properties, status);
             m_groups.insert(std::make_pair(groupId, groupNode));
+
+            const auto& sharedId = findProperty(properties, Model::PropertyKeys::SharedGroupId);
+            if (!sharedId.empty()) {
+                const auto transformationStr = findProperty(properties, Model::PropertyKeys::GroupTransformation);
+                if (const auto transformation = vm::parse<FloatType, 4u, 4u>(transformationStr)) {
+                    auto group = groupNode->group();
+                    group.setTransformation(*transformation);
+                    groupNode->setGroup(std::move(group));
+
+                    const auto [it, inserted] = m_linkedGroups.emplace(sharedId, groupNode);
+                    if (!inserted) {
+                        auto* linkedGroupNode = it->second;
+                        linkedGroupNode->addToLinkSet(*groupNode);
+                        status.debug(line, kdl::str_to_string("Linking group with id '", idStr, "' to group with id '", *linkedGroupNode->persistentId(), "' via shared id '", sharedId, "'"));
+                    } else {
+                        groupNode->setSharedPersistentId(sharedId);
+                    }
+                } else {
+                    status.error(line, kdl::str_to_string("Not linking group entity: Could not parse transformation '", transformationStr + "'"));
+                }
+            }
 
             m_currentNode = groupNode;
             m_brushParent = groupNode;

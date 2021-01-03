@@ -93,12 +93,6 @@ namespace TrenchBroom {
                 EntityType_Default
             } EntityType;
 
-            using LayerMap = std::unordered_map<Model::IdType, Model::LayerNode*>;
-            using GroupMap = std::unordered_map<Model::IdType, Model::GroupNode*>;
-
-            using NodeParentPair = std::pair<Model::Node*, ParentInfo>;
-            using NodeParentList = std::vector<NodeParentPair>;
-
             vm::bbox3 m_worldBounds;
         private: // data populated in response to MapParser callbacks
             struct BrushInfo {
@@ -128,9 +122,10 @@ namespace TrenchBroom {
         private:
             Model::Node* m_brushParent;
             Model::Node* m_currentNode;
-            LayerMap m_layers;
-            GroupMap m_groups;
-            NodeParentList m_unresolvedNodes;
+            std::unordered_map<Model::IdType, Model::LayerNode*> m_layers;
+            std::unordered_map<Model::IdType, Model::GroupNode*> m_groups;
+            std::unordered_map<std::string, Model::GroupNode*> m_linkedGroups;
+            std::vector<std::pair<Model::Node*, ParentInfo>> m_unresolvedNodes;
         protected:
             /**
              * Creates a new reader where the given string is expected to be formatted in the given source map format,

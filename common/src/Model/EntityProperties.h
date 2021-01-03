@@ -51,6 +51,8 @@ namespace TrenchBroom {
             extern const std::string GroupId;
             extern const std::string GroupName;
             extern const std::string Group;
+            extern const std::string GroupTransformation;
+            extern const std::string SharedGroupId;
             extern const std::string Message;
             extern const std::string ValveVersion;
             extern const std::string SoftMapBounds;

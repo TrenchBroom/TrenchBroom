@@ -138,6 +138,23 @@ namespace TrenchBroom {
             layerNode.setLayer(layer);
         }
 
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.loadDocumentConnectsLinkSets") {
+            auto worldNode = std::make_unique<Model::WorldNode>(Model::Entity(), Model::MapFormat::Standard);
+            auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));
+            auto* innerGroupNode = new Model::GroupNode(Model::Group("inner"));
+            outerGroupNode->addChild(innerGroupNode);
+            worldNode->defaultLayer()->addChild(outerGroupNode);
+
+            REQUIRE_FALSE(outerGroupNode->connectedToLinkSet());
+            REQUIRE_FALSE(innerGroupNode->connectedToLinkSet());
+
+            game->setWorldNodeToLoad(std::move(worldNode));
+            document->loadDocument(Model::MapFormat::Standard, vm::bbox3(8192.0), game, IO::Path());
+
+            CHECK(outerGroupNode->connectedToLinkSet());
+            CHECK(innerGroupNode->connectedToLinkSet());
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.flip") {
             Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(30.0, 31.0, 31.0)), "texture").value());

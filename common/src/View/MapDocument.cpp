@@ -2457,6 +2457,7 @@ namespace TrenchBroom {
             m_game = game;
             m_world = m_game->loadMap(mapFormat, m_worldBounds, path, logger());
             performSetCurrentLayer(m_world->defaultLayer());
+            connectGroupsToLinkSets({m_world.get()});
 
             updateGameSearchPaths();
             setPath(path);

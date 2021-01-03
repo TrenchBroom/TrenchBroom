@@ -31,6 +31,8 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/WorldNode.h"
 
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/vec.h>
 
 #include <string>
@@ -1460,6 +1462,130 @@ common/caulk
                 CHECK(!face.attributes().textureName().empty());
                 CHECK(face.attributes().textureName() == Model::BrushFaceAttributes::NoTextureName);
             }
+        }
+
+        TEST_CASE("WorldReaderTest.parseLinkedGroups", "[WorldReaderTest]") {
+            const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "1"
+"_tb_shared_group_id" "abcd"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 2"
+"_tb_id" "2"
+"_tb_shared_group_id" "abcd"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
+            )";
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, Model::MapFormat::Standard);
+
+            auto world = reader.read(worldBounds, status);
+            REQUIRE(world != nullptr);
+            CHECK(world->defaultLayer()->childCount() == 2u);
+
+            auto* groupNode1 = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+            auto* groupNode2 = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().back());
+
+            CHECK(groupNode1 != nullptr);
+            CHECK(groupNode2 != nullptr);
+
+            CHECK(inSameLinkSet(*groupNode1, *groupNode2));
+            CHECK(groupNode1->sharedPersistentId() == "abcd");
+            CHECK(groupNode2->sharedPersistentId() == "abcd");
+            CHECK_FALSE(groupNode1->connectedToLinkSet());
+            CHECK_FALSE(groupNode2->connectedToLinkSet());
+
+            CHECK(groupNode1->group().transformation() == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+            CHECK(groupNode2->group().transformation() == vm::translation_matrix(vm::vec3(32.0, 16.0, 0.0)));
+        }
+
+        TEST_CASE("WorldReaderTest.parseLinkedGroupsWithMissingTransformation", "[WorldReaderTest]") {
+            const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "1"
+"_tb_shared_group_id" "1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 2"
+"_tb_id" "2"
+"_tb_shared_group_id" "1"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
+            )";
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, Model::MapFormat::Standard);
+
+            auto world = reader.read(worldBounds, status);
+            REQUIRE(world != nullptr);
+            CHECK(world->defaultLayer()->childCount() == 2u);
+
+            auto* groupNode1 = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+            auto* groupNode2 = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().back());
+
+            CHECK(groupNode1 != nullptr);
+            CHECK(groupNode2 != nullptr);
+
+            CHECK_FALSE(groupNode1->connectedToLinkSet());
+            CHECK_FALSE(groupNode2->connectedToLinkSet());
+            CHECK_FALSE(inSameLinkSet(*groupNode1, *groupNode2));
+
+            CHECK(groupNode1->group().transformation() == vm::mat4x4d{});
+            CHECK(groupNode2->group().transformation() == vm::translation_matrix(vm::vec3(32.0, 16.0, 0.0)));
+        }
+
+        TEST_CASE("WorldReaderTest.parseGroupWithUnnecessaryTransformation", "[WorldReaderTest]") {
+            const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "1"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+            )";
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, Model::MapFormat::Standard);
+
+            auto world = reader.read(worldBounds, status);
+            REQUIRE(world != nullptr);
+            CHECK(world->defaultLayer()->childCount() == 1u);
+
+            auto* groupNode = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+            CHECK(groupNode != nullptr);
+
+            CHECK_FALSE(groupNode->connectedToLinkSet());
+
+            CHECK(groupNode->group().transformation() == vm::mat4x4d{});
         }
     }
 }
