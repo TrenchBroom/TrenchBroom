@@ -31,6 +31,8 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/WorldNode.h"
 
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/vec.h>
 
 #include <fmt/format.h>
@@ -1508,6 +1510,176 @@ common/caulk
             REQUIRE(brushNode != nullptr);
 
             CHECK(brushNode->brush().face(0).attributes().textureName() == expectedName);
+        }
+
+        TEST_CASE("WorldReaderTest.parseLinkedGroups", "[WorldReaderTest]") {
+            const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "1"
+"_tb_linked_group_id" "abcd"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 2"
+"_tb_id" "2"
+"_tb_linked_group_id" "abcd"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
+            )";
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, Model::MapFormat::Standard);
+
+            auto world = reader.read(worldBounds, status);
+            REQUIRE(world != nullptr);
+            CHECK(world->defaultLayer()->childCount() == 2u);
+
+            auto* groupNode1 = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+            auto* groupNode2 = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().back());
+
+            CHECK(groupNode1 != nullptr);
+            CHECK(groupNode2 != nullptr);
+
+            CHECK(groupNode1->group().linkedGroupId() == "abcd");
+            CHECK(groupNode2->group().linkedGroupId() == "abcd");
+
+            CHECK(groupNode1->group().transformation() == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+            CHECK(groupNode2->group().transformation() == vm::translation_matrix(vm::vec3(32.0, 16.0, 0.0)));
+        }
+
+        TEST_CASE("WorldReaderTest.parseLinkedGroupsWithMissingTransformation", "[WorldReaderTest]") {
+            const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "1"
+"_tb_linked_group_id" "1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 2"
+"_tb_id" "2"
+"_tb_linked_group_id" "1"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
+            )";
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, Model::MapFormat::Standard);
+
+            auto world = reader.read(worldBounds, status);
+            REQUIRE(world != nullptr);
+            CHECK(world->defaultLayer()->childCount() == 2u);
+
+            auto* groupNode1 = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+            auto* groupNode2 = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().back());
+
+            CHECK(groupNode1 != nullptr);
+            CHECK(groupNode2 != nullptr);
+
+            CHECK(groupNode1->group().linkedGroupId() == std::nullopt);
+            CHECK(groupNode2->group().linkedGroupId() == "1");
+
+            CHECK(groupNode1->group().transformation() == vm::mat4x4d{});
+            CHECK(groupNode2->group().transformation() == vm::translation_matrix(vm::vec3(32.0, 16.0, 0.0)));
+        }
+
+        TEST_CASE("WorldReaderTest.parseGroupWithUnnecessaryTransformation", "[WorldReaderTest]") {
+            const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "1"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+            )";
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, Model::MapFormat::Standard);
+
+            auto world = reader.read(worldBounds, status);
+            REQUIRE(world != nullptr);
+            CHECK(world->defaultLayer()->childCount() == 1u);
+
+            auto* groupNode = dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+            CHECK(groupNode != nullptr);
+
+            CHECK(groupNode->group().linkedGroupId() == std::nullopt);
+            CHECK(groupNode->group().transformation() == vm::mat4x4d{});
+        }
+
+
+        TEST_CASE("WorldReaderTest.parseProtectedEntityProperties", "[WorldReaderTest]") {
+            const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "info_player_start"
+"_tb_protected_properties" ""
+}
+{
+"classname" "info_player_start"
+"_tb_protected_properties" "origin;target"
+}
+{
+"classname" "info_player_start"
+"_tb_protected_properties" "with\;semicolon"
+}
+            )";
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, Model::MapFormat::Standard);
+
+            auto world = reader.read(worldBounds, status);
+            REQUIRE(world != nullptr);
+            CHECK(world->defaultLayer()->childCount() == 3u);
+
+            SECTION("Empty list") {
+                auto* entityNode = dynamic_cast<Model::EntityNode*>(world->defaultLayer()->children()[0]);
+                REQUIRE(entityNode != nullptr);
+
+                CHECK_THAT(entityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{}));
+            }
+
+            SECTION("Two protected properties") {
+                auto* entityNode = dynamic_cast<Model::EntityNode*>(world->defaultLayer()->children()[1]);
+                REQUIRE(entityNode != nullptr);
+
+                CHECK_THAT(entityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"origin", "target"}));
+            }
+
+            SECTION("Escaped semicolon") {
+                auto* entityNode = dynamic_cast<Model::EntityNode*>(world->defaultLayer()->children()[2]);
+                REQUIRE(entityNode != nullptr);
+
+                CHECK_THAT(entityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"with;semicolon"}));
+            }
         }
     }
 }

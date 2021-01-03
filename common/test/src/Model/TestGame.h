@@ -36,12 +36,14 @@ namespace TrenchBroom {
     namespace Model {
         class TestGame : public Game {
         private:
+            mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
             std::vector<SmartTag> m_smartTags;
             Model::BrushFaceAttributes m_defaultFaceAttributes;
             std::vector<CompilationTool> m_compilationTools;
         public:
             TestGame();
         public:
+            void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
             void setSmartTags(std::vector<SmartTag> smartTags);
             void setDefaultFaceAttributes(const Model::BrushFaceAttributes& newDefaults);
         private:

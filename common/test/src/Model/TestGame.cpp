@@ -48,6 +48,10 @@ namespace TrenchBroom {
         TestGame::TestGame() :
         m_defaultFaceAttributes(Model::BrushFaceAttributes::NoTextureName) {}
 
+        void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode) {
+            m_worldNodeToLoad = std::move(worldNode);
+        }
+
         void TestGame::setSmartTags(std::vector<SmartTag> smartTags) {
             m_smartTags = std::move(smartTags);
         }
@@ -96,7 +100,11 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<WorldNode> TestGame::doLoadMap(const MapFormat format, const vm::bbox3& /* worldBounds */, const IO::Path& /* path */, Logger& /* logger */) const {
-            return std::make_unique<WorldNode>(Entity(), format);
+            if (!m_worldNodeToLoad) {
+                return std::make_unique<WorldNode>(Entity(), format);
+            } else {
+                return std::move(m_worldNodeToLoad);
+            }
         }
 
         void TestGame::doWriteMap(WorldNode& world, const IO::Path& path) const {

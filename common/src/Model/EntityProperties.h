@@ -39,6 +39,7 @@ namespace TrenchBroom {
             extern const std::string Target;
             extern const std::string Targetname;
             extern const std::string Killtarget;
+            extern const std::string ProtectedEntityProperties;
             extern const std::string GroupType;
             extern const std::string LayerId;
             extern const std::string LayerName;
@@ -51,6 +52,8 @@ namespace TrenchBroom {
             extern const std::string GroupId;
             extern const std::string GroupName;
             extern const std::string Group;
+            extern const std::string GroupTransformation;
+            extern const std::string LinkedGroupId;
             extern const std::string Message;
             extern const std::string ValveVersion;
             extern const std::string SoftMapBounds;
