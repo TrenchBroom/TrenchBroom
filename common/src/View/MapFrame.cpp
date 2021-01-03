@@ -1565,8 +1565,9 @@ namespace TrenchBroom {
             bool ok = false;
             const QString str = QInputDialog::getText(this, "Move Camera", "Enter a position (x y z) for the camera.", QLineEdit::Normal, "0.0 0.0 0.0", &ok);
             if (ok) {
-                const vm::vec3 position = vm::parse<FloatType, 3>(str.toStdString());
-                m_mapView->moveCameraToPosition(position, true);
+                if (const auto position = vm::parse<FloatType, 3>(str.toStdString())) {
+                    m_mapView->moveCameraToPosition(*position, true);
+                }
             }
         }
 
@@ -1748,8 +1749,9 @@ namespace TrenchBroom {
             bool ok = false;
             const QString str = QInputDialog::getText(this, "Window Size", "Enter Size (W H)", QLineEdit::Normal, "1920 1080", &ok);
             if (ok) {
-                const auto size = vm::parse<int, 2>(str.toStdString());
-                resize(size.x(), size.y());
+                if (const auto size = vm::parse<int, 2>(str.toStdString())) {
+                    resize(size->x(), size->y());
+                }
             }
         }
 

@@ -124,13 +124,14 @@ namespace TrenchBroom {
             return kdl::mem_lock(m_document)->hasSelectedNodes();
         }
 
-        vm::vec3 ScaleObjectsToolPage::getScaleFactors() const {
+        std::optional<vm::vec3> ScaleObjectsToolPage::getScaleFactors() const {
             switch (m_scaleFactorsOrSize->currentIndex()) {
                 case 0: {
                     auto document = kdl::mem_lock(m_document);
-                    const auto desiredSize = vm::parse<FloatType, 3>(m_sizeTextBox->text().toStdString());
-
-                    return desiredSize / document->selectionBounds().size();
+                    if (const auto desiredSize = vm::parse<FloatType, 3>(m_sizeTextBox->text().toStdString())) {
+                        return *desiredSize / document->selectionBounds().size();
+                    }
+                    return std::nullopt;
                 }
                 default:
                     return vm::parse<FloatType, 3>(m_factorsTextBox->text().toStdString());
@@ -148,9 +149,9 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
             const auto box = document->selectionBounds();
-            const auto scaleFactors = getScaleFactors();
-
-            document->scaleObjects(box.center(), scaleFactors);
+            if (const auto scaleFactors = getScaleFactors()) {
+                document->scaleObjects(box.center(), *scaleFactors);
+            }
         }
     }
 }

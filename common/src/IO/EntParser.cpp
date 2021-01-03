@@ -354,13 +354,13 @@ namespace TrenchBroom {
 
             const auto it = std::begin(parts);
             vm::bbox3 result;
-            result.min = vm::parse<FloatType, 3>(kdl::str_join(it, std::next(it, 3), " "));
-            result.max = vm::parse<FloatType, 3>(kdl::str_join(std::next(it, 3), std::end(parts), " "));
+            result.min = vm::parse<FloatType, 3>(kdl::str_join(it, std::next(it, 3), " ")).value_or(vm::vec3::zero());
+            result.max = vm::parse<FloatType, 3>(kdl::str_join(std::next(it, 3), std::end(parts), " ")).value_or(vm::vec3::zero());
             return result;
         }
 
         Color EntParser::parseColor(const tinyxml2::XMLElement& element, const std::string& attributeName, ParserStatus& status) {
-            return Color::parse(parseString(element, attributeName, status));
+            return Color::parse(parseString(element, attributeName, status)).value_or(Color());
         }
 
         std::optional<int> EntParser::parseInteger(const tinyxml2::XMLElement& element, const std::string& attributeName, ParserStatus& /* status */) {

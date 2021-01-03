@@ -63,7 +63,7 @@ namespace TrenchBroom {
                 }
                 case RotationType::Euler: {
                     const auto* angleValue = entity.property(info.propertyKey);
-                    const auto angles = angleValue ? vm::parse<FloatType, 3>(*angleValue, vm::vec3::zero()) : vm::vec3::zero();
+                    const auto angles = angleValue ? vm::parse<FloatType, 3>(*angleValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
 
                     // x = -pitch
                     // y =  yaw
@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 }
                 case RotationType::Euler_PositivePitchDown: {
                     const auto* angleValue = entity.property(info.propertyKey);
-                    const auto angles = angleValue ? vm::parse<FloatType, 3>(*angleValue, vm::vec3::zero()) : vm::vec3::zero();
+                    const auto angles = angleValue ? vm::parse<FloatType, 3>(*angleValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
 
                     // x = pitch
                     // y = yaw
@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 }
                 case RotationType::Mangle: {
                     const auto* angleValue = entity.property(info.propertyKey);
-                    const auto angles = angleValue ? vm::parse<FloatType, 3>(*angleValue, vm::vec3::zero()) : vm::vec3::zero();
+                    const auto angles = angleValue ? vm::parse<FloatType, 3>(*angleValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
 
                     // x = yaw
                     // y = -pitch

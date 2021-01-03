@@ -202,7 +202,7 @@ namespace TrenchBroom {
 
             const std::vector<Path> defFilePaths = Path::asPaths(value["definitions"].asStringList());
             const std::vector<std::string> modelFormats = value["modelformats"].asStringSet();
-            const Color defaultColor = Color::parse(value["defaultcolor"].stringValue());
+            const Color defaultColor = Color::parse(value["defaultcolor"].stringValue()).value_or(Color());
 
             return Model::EntityConfig(defFilePaths, modelFormats, defaultColor);
         }
@@ -317,7 +317,7 @@ namespace TrenchBroom {
                 defaults.setSurfaceValue(static_cast<float>(value["surfaceValue"].numberValue()));
             }
             if (!value["color"].null()) {
-                defaults.setColor(Color::parse(value["color"].stringValue()));
+                defaults.setColor(Color::parse(value["color"].stringValue()).value_or(Color()));
             }
 
             return defaults;
@@ -509,15 +509,11 @@ namespace TrenchBroom {
         }
 
         std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string) {
-            if (!vm::can_parse<double, 6u>(string)) {
-                return std::nullopt;
+            if (const auto v = vm::parse<double, 6u>(string)) {
+                return vm::bbox3(vm::vec3((*v)[0], (*v)[1], (*v)[2]),
+                                 vm::vec3((*v)[3], (*v)[4], (*v)[5]));
             }
-
-            const auto v = vm::parse<double, 6u>(string);
-            const auto bounds = vm::bbox3(vm::vec3(v[0], v[1], v[2]),
-                                          vm::vec3(v[3], v[4], v[5]));
-
-            return { bounds };
+            return std::nullopt;
         }
 
         std::string serializeSoftMapBoundsString(const vm::bbox3& bounds) {

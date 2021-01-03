@@ -66,14 +66,13 @@ namespace TrenchBroom {
         if (!in.isString()) {
             return false;
         }
-        const std::string inStdString = in.toString().toStdString();
 
-        if (!Color::canParse(inStdString)) {
-            return false;
+        if (const auto color = Color::parse(in.toString().toStdString())) {
+            *out = *color;
+            return true;
         }
 
-        *out = Color::parse(inStdString);
-        return true;
+        return false;
     }
 
     bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, float* out) const {

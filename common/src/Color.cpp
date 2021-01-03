@@ -27,17 +27,13 @@
 #include <sstream>
 
 namespace TrenchBroom {
-    bool Color::canParse(const std::string& str) {
-        return vm::can_parse<float, 4>(str) || vm::can_parse<float, 3>(str);
-    }
-
-    Color Color::parse(const std::string& str) {
-        if (vm::can_parse<float, 4>(str)) {
-            const auto v = vm::parse<float, 4>(str);
-            return Color(v.x(), v.y(), v.z(), v.w());
+    std::optional<Color> Color::parse(const std::string& str) {
+        if (const auto c4 = vm::parse<float, 4>(str)) {
+            return Color(c4->x(), c4->y(), c4->z(), c4->w());
+        } else if (const auto c3 = vm::parse<float, 3>(str)) {
+            return Color(c3->x(), c3->y(), c3->z());
         } else {
-            const auto v = vm::parse<float, 3>(str);
-            return Color(v.x(), v.y(), v.z());
+            return std::nullopt;
         }
     }
 

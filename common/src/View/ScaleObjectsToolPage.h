@@ -24,6 +24,7 @@
 #include <vecmath/forward.h>
 
 #include <memory>
+#include <optional>
 
 #include <QWidget>
 
@@ -61,7 +62,7 @@ namespace TrenchBroom {
             void updateGui();
 
             bool canScale() const;
-            vm::vec3 getScaleFactors() const;
+            std::optional<vm::vec3> getScaleFactors() const;
 
             void selectionDidChange(const Selection& selection);
 
