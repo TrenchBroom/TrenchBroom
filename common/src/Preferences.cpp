@@ -139,7 +139,7 @@ namespace TrenchBroom {
             return fontPath;
         }
 
-    Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
+        Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
 
         Preference<int> BrowserFontSize(IO::Path("Browser/Font size"), 13);
         Preference<Color> BrowserTextColor(IO::Path("Browser/Text color"), Color(1.0f, 1.0f, 1.0f, 1.0f));
