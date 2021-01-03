@@ -86,7 +86,8 @@ namespace TrenchBroom {
             m_toolBar->addAction(mouseImage, "Mouse", [this](){ switchToPane(PrefPane_Mouse); });
             m_toolBar->addAction(keyboardImage, "Keyboard", [this](){ switchToPane(PrefPane_Keyboard); });
 
-            foreach (auto *button, m_toolBar->findChildren<QToolButton*>()) {
+            // Don't display tooltips for pane switcher buttons...
+            for (auto *button : m_toolBar->findChildren<QToolButton*>()) {
                 button->installEventFilter(this);
             }
 
