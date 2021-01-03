@@ -188,8 +188,7 @@ namespace TrenchBroom {
         }
 
         const Color& UVView::getBackgroundColor() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(Preferences::BrowserBackgroundColor);
+            return pref(Preferences::BrowserBackgroundColor);
         }
 
         void UVView::setupGL(Renderer::RenderContext& renderContext) {
