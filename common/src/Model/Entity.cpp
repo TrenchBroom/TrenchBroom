@@ -286,7 +286,7 @@ namespace TrenchBroom {
                 // order is important here because EntityRotationPolicy::getRotation accesses classname
                 m_cachedProperties = CachedProperties{};
                 m_cachedProperties->classname = classnameValue ? *classnameValue : PropertyValues::NoClassname;
-                m_cachedProperties->origin = originValue ? vm::parse<FloatType, 3>(*originValue, vm::vec3::zero()) : vm::vec3::zero();
+                m_cachedProperties->origin = originValue ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
                 m_cachedProperties->rotation = EntityRotationPolicy::getRotation(*this);
             }
         }

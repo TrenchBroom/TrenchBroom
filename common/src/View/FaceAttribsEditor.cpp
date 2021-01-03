@@ -208,9 +208,9 @@ namespace TrenchBroom {
 
             const std::string str = m_colorEditor->text().toStdString();
             if (!kdl::str_is_blank(str)) {
-                if (Color::canParse(str)) {
+                if (const auto color = Color::parse(str)) {
                     Model::ChangeBrushFaceAttributesRequest request;
-                    request.setColor(Color::parse(str));
+                    request.setColor(*color);
                     if (!document->setFaceAttributes(request)) {
                         updateControls();
                     }

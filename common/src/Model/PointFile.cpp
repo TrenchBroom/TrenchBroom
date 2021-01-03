@@ -95,18 +95,18 @@ namespace TrenchBroom {
             if (!stream.eof()) {
                 std::string line;
                 std::getline(stream, line);
-                points.push_back(vm::parse<float, 3>(line));
+                points.push_back(vm::parse<float, 3>(line).value_or(vm::vec3f::zero()));
                 vm::vec3f lastPoint = points.back();
 
                 if (!stream.eof()) {
                     std::getline(stream, line);
-                    vm::vec3f curPoint = vm::parse<float, 3>(line);
+                    vm::vec3f curPoint = vm::parse<float, 3>(line).value_or(vm::vec3f::zero());
                     vm::vec3f refDir = normalize(curPoint - lastPoint);
 
                     while (!stream.eof()) {
                         lastPoint = curPoint;
                         std::getline(stream, line);
-                        curPoint = vm::parse<float, 3>(line);
+                        curPoint = vm::parse<float, 3>(line).value_or(vm::vec3f::zero());
 
                         const vm::vec3f dir = normalize(curPoint - lastPoint);
                         if (std::acos(dot(dir, refDir)) > Threshold) {

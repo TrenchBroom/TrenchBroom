@@ -125,17 +125,13 @@ namespace TrenchBroom {
 
         static std::optional<vm::vec3> parseVec(const QString& qString) {
             const std::string string = qString.toStdString();
-            
-            if (vm::can_parse<double, 3u>(string)) {
-                return { vm::parse<double, 3u>(string) };
+            if (const auto vec = vm::parse<double, 3u>(string)) {
+                return *vec;
+            } else if (const auto val = vm::parse<double, 1u>(string)) {
+                return vm::vec3::fill(val->x());
+            } else {
+                return std::nullopt;
             }
-
-            if (vm::can_parse<double, 1u>(string)) {
-                const double fillValue = vm::parse<double, 1u>(string).x();
-                return { vm::vec3::fill(fillValue) };
-            }
-
-            return std::nullopt;
         }
 
         std::optional<vm::bbox3> MapPropertiesEditor::parseLineEdits() {

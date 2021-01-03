@@ -102,10 +102,12 @@ namespace TrenchBroom {
             // handle default layer attributes, which are stored in worldspawn
             auto* defaultLayerNode = m_world->defaultLayer();
             for (const Model::EntityProperty& property : properties) {
-                if (property.key() == Model::PropertyKeys::LayerColor && Color::canParse(property.value())) {
-                    auto defaultLayer = defaultLayerNode->layer();
-                    defaultLayer.setColor(Color::parse(property.value()));
-                    defaultLayerNode->setLayer(std::move(defaultLayer));
+                if (property.key() == Model::PropertyKeys::LayerColor) {
+                    if (const auto color = Color::parse(property.value())) {
+                        auto defaultLayer = defaultLayerNode->layer();
+                        defaultLayer.setColor(*color);
+                        defaultLayerNode->setLayer(std::move(defaultLayer));
+                    }
                 } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue)) {
                     auto defaultLayer = defaultLayerNode->layer();
                     defaultLayer.setOmitFromExport(true);
