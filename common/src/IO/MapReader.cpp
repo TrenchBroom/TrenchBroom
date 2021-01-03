@@ -338,7 +338,7 @@ namespace TrenchBroom {
             } else {
                 const std::string& groupIdStr = findProperty(properties, Model::PropertyKeys::Group);
                 if (!kdl::str_is_blank(groupIdStr)) {
-                if (const auto rawId = kdl::str_to_size(groupIdStr)) {
+                    if (const auto rawId = kdl::str_to_size(groupIdStr)) {
                         const Model::IdType groupId = static_cast<Model::IdType>(*rawId);
                         const auto it = m_groups.find(groupId);
                         if (it != std::end(m_groups)) {
