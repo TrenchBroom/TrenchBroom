@@ -395,7 +395,6 @@ namespace TrenchBroom {
                                                        static_cast<size_t>(pref(Preferences::BrowserFontSize)));
 
             const std::vector<Color> textColor{ pref(Preferences::BrowserTextColor) };
-            const std::vector<Color> subTextColor { pref(Preferences::BrowserSubTextColor) };
 
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {
@@ -412,7 +411,7 @@ namespace TrenchBroom {
                             quads.size() / 2,
                             kdl::skip_iterator(std::begin(quads), std::end(quads), 0, 2),
                             kdl::skip_iterator(std::begin(quads), std::end(quads), 1, 2),
-                            kdl::skip_iterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
+                            kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
                         auto& allTitleVertices = stringVertices[defaultDescriptor];
                         allTitleVertices = kdl::vec_concat(std::move(allTitleVertices), titleVertices);
                     }

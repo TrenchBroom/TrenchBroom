@@ -455,7 +455,6 @@ namespace TrenchBroom {
 
             const std::vector<Color> textColor{ pref(Preferences::BrowserTextColor) };
             const std::vector<Color> subTextColor{ pref(Preferences::BrowserSubTextColor) };
-            const std::vector<Color> groupTextColor{ Color(textColor[0].r(), textColor[0].g(), textColor[0].b(), 0.75f) };
 
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {
@@ -472,7 +471,7 @@ namespace TrenchBroom {
                             quads.size() / 2,
                             kdl::skip_iterator(std::begin(quads), std::end(quads), 0, 2),
                             kdl::skip_iterator(std::begin(quads), std::end(quads), 1, 2),
-                            kdl::skip_iterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
+                            kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
                         auto& vertices = stringVertices[defaultDescriptor];
                         vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                     }
@@ -508,7 +507,7 @@ namespace TrenchBroom {
                                     groupNameQuads.size() / 2,
                                     kdl::skip_iterator(std::begin(groupNameQuads), std::end(groupNameQuads), 0, 2),
                                     kdl::skip_iterator(std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2),
-                                    kdl::skip_iterator(std::begin(groupTextColor), std::end(groupTextColor), 0, 0));
+                                    kdl::skip_iterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
 
                                 auto& mainTitleVertices = stringVertices[cellData(cell).mainTitleFont];
                                 mainTitleVertices = kdl::vec_concat(std::move(mainTitleVertices), textureNameVertices);
