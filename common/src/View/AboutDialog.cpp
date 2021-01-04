@@ -90,7 +90,8 @@ namespace TrenchBroom {
                                              "StackWalker (C++ stack trace analyzer)\n"
                                              "CMake (Cross platform build manager)\n"
                                              "Pandoc (Universal document converter)\n"
-                                             "Source Sans Pro (Font)\n").replace("\n", "<br/>");
+                                             "Source Sans Pro (Font)\n"
+                                             "Font Awesome 5 Free (Icons)\n").replace("\n", "<br/>");
             setWindowIconTB(this);
 
             auto* infoPanel = new AppInfoPanel();
