@@ -242,6 +242,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        const Color& EntityBrowserView::getBackgroundColor() {
+            return pref(Preferences::BrowserBackgroundColor);
+        }
+
         template <typename Vertex>
         struct CollectBoundsVertices {
             const vm::mat4x4f& transformation;

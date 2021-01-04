@@ -71,7 +71,7 @@ namespace TrenchBroom {
         extern Preference<float> TransparentFaceAlpha;
         extern Preference<Color> EdgeColor;
         extern Preference<Color> SelectedEdgeColor;
-        extern Preference<Color> OccludedSelectedEdgeColor;
+        extern Preference<float> OccludedSelectedEdgeAlpha;
         extern Preference<Color> LockedEdgeColor;
         extern Preference<Color> UndefinedEntityColor;
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         extern Preference<Color> InfoOverlayTextColor;
         extern Preference<Color> GroupInfoOverlayTextColor;
         extern Preference<Color> InfoOverlayBackgroundColor;
-        extern Preference<Color> WeakInfoOverlayBackgroundColor;
+        extern Preference<float> WeakInfoOverlayBackgroundAlpha;
         extern Preference<Color> SelectedInfoOverlayTextColor;
         extern Preference<Color> SelectedInfoOverlayBackgroundColor;
         extern Preference<Color> LockedInfoOverlayTextColor;
@@ -103,7 +103,7 @@ namespace TrenchBroom {
         extern Preference<Color> ScaleHandleColor;
         extern Preference<Color> ScaleFillColor;
         extern Preference<Color> ScaleOutlineColor;
-        extern Preference<Color> ScaleOutlineDimColor;
+        extern Preference<float> ScaleOutlineDimAlpha;
         extern Preference<Color> ShearFillColor;
         extern Preference<Color> ShearOutlineColor;
 
@@ -133,6 +133,7 @@ namespace TrenchBroom {
         extern Preference<int> BrowserFontSize;
         extern Preference<Color> BrowserTextColor;
         extern Preference<Color> BrowserSubTextColor;
+        extern Preference<Color> BrowserBackgroundColor;
         extern Preference<Color> BrowserGroupBackgroundColor;
         extern Preference<float> TextureBrowserIconSize;
         extern Preference<Color> TextureBrowserDefaultColor;

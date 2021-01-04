@@ -259,6 +259,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
         ${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
         ${COMMON_SOURCE_DIR}/View/ColorButton.cpp
+        ${COMMON_SOURCE_DIR}/View/ColorModel.cpp
+        ${COMMON_SOURCE_DIR}/View/ColorsPreferencePane.cpp
         ${COMMON_SOURCE_DIR}/View/ColorTable.cpp
         ${COMMON_SOURCE_DIR}/View/Command.cpp
         ${COMMON_SOURCE_DIR}/View/CommandProcessor.cpp
@@ -752,6 +754,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ClipToolController.h
         ${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
         ${COMMON_SOURCE_DIR}/View/ColorButton.h
+        ${COMMON_SOURCE_DIR}/View/ColorModel.h
+        ${COMMON_SOURCE_DIR}/View/ColorsPreferencePane.h
         ${COMMON_SOURCE_DIR}/View/ColorTable.h
         ${COMMON_SOURCE_DIR}/View/Command.h
         ${COMMON_SOURCE_DIR}/View/CommandProcessor.h

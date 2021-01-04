@@ -89,6 +89,7 @@ namespace TrenchBroom {
             // called by initializeGL by default
             virtual bool doInitializeGL();
         private:
+            virtual const Color& getBackgroundColor();
             virtual void doUpdateViewport(int x, int y, int width, int height);
             virtual bool doShouldRenderFocusIndicator() const = 0;
             virtual void doRender() = 0;

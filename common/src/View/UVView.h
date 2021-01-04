@@ -97,6 +97,7 @@ namespace TrenchBroom {
             void doUpdateViewport(int x, int y, int width, int height) override;
             void doRender() override;
             bool doShouldRenderFocusIndicator() const override;
+            const Color& getBackgroundColor() override;
 
             void setupGL(Renderer::RenderContext& renderContext);
 

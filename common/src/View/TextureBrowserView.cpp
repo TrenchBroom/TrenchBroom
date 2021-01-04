@@ -307,6 +307,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        const Color& TextureBrowserView::getBackgroundColor() {
+            return pref(Preferences::BrowserBackgroundColor);
+        }
+
         void TextureBrowserView::renderBounds(Layout& layout, const float y, const float height) {
             using BoundsVertex = Renderer::GLVertexTypes::P2C4::Vertex;
             std::vector<BoundsVertex> vertices;

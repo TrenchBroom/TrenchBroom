@@ -59,7 +59,7 @@ namespace TrenchBroom {
             TextureMode(GL_NEAREST_MIPMAP_LINEAR,   GL_NEAREST, "Nearest (mipmapped, interpolated)"),
             TextureMode(GL_LINEAR,                  GL_LINEAR,  "Linear"),
             TextureMode(GL_LINEAR_MIPMAP_NEAREST,   GL_LINEAR,  "Linear (mipmapped)"),
-            TextureMode(GL_LINEAR_MIPMAP_LINEAR,    GL_LINEAR,  "Linear (mipmapped, interpolated")
+            TextureMode(GL_LINEAR_MIPMAP_LINEAR,    GL_LINEAR,  "Linear (mipmapped, interpolated)")
         };
 
         ViewPreferencePane::ViewPreferencePane(QWidget* parent) :
@@ -134,13 +134,6 @@ namespace TrenchBroom {
                 m_textureModeCombo->addItem(QString::fromStdString(textureMode.name));
             }
 
-            m_backgroundColorButton = new ColorButton();
-            m_backgroundColorButton->setToolTip("Sets the background color of the editing views.");
-            m_gridColorButton = new ColorButton();
-            m_gridColorButton->setToolTip("Sets the color of the grid lines in the editing views.");
-            m_edgeColorButton = new ColorButton();
-            m_edgeColorButton->setToolTip("Sets the color of brush edges in the editing views.");
-
             m_textureBrowserIconSizeCombo = new QComboBox();
             m_textureBrowserIconSizeCombo->addItem("25%");
             m_textureBrowserIconSizeCombo->addItem("50%");
@@ -174,11 +167,6 @@ namespace TrenchBroom {
             layout->addRow("Show axes", m_showAxes);
             layout->addRow("Texture mode", m_textureModeCombo);
 
-            layout->addSection("Colors");
-            layout->addRow("Background", m_backgroundColorButton);
-            layout->addRow("Grid", m_gridColorButton);
-            layout->addRow("Edges", m_edgeColorButton);
-
             layout->addSection("Texture Browser");
             layout->addRow("Icon size", m_textureBrowserIconSizeCombo);
 
@@ -197,9 +185,6 @@ namespace TrenchBroom {
             connect(m_gridAlphaSlider, &SliderWithLabel::valueChanged, this, &ViewPreferencePane::gridAlphaChanged);
             connect(m_fovSlider, &SliderWithLabel::valueChanged, this, &ViewPreferencePane::fovChanged);
             connect(m_showAxes, &QCheckBox::stateChanged, this, &ViewPreferencePane::showAxesChanged);
-            connect(m_backgroundColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::backgroundColorChanged);
-            connect(m_gridColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::gridColorChanged);
-            connect(m_edgeColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::edgeColorChanged);
             connect(m_themeCombo, QOverload<int>::of(&QComboBox::activated), this, &ViewPreferencePane::themeChanged);
             connect(m_textureModeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureModeChanged);
             connect(m_textureBrowserIconSizeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureBrowserIconSizeChanged);
@@ -219,9 +204,6 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::ShowAxes);
             prefs.resetToDefault(Preferences::TextureMinFilter);
             prefs.resetToDefault(Preferences::TextureMagFilter);
-            prefs.resetToDefault(Preferences::BackgroundColor);
-            prefs.resetToDefault(Preferences::GridColor2D);
-            prefs.resetToDefault(Preferences::EdgeColor);
             prefs.resetToDefault(Preferences::Theme);
             prefs.resetToDefault(Preferences::TextureBrowserIconSize);
             prefs.resetToDefault(Preferences::RendererFontSize);
@@ -237,10 +219,6 @@ namespace TrenchBroom {
             m_textureModeCombo->setCurrentIndex(int(textureModeIndex));
 
             m_showAxes->setChecked(pref(Preferences::ShowAxes));
-
-            m_backgroundColorButton->setColor(toQColor(pref(Preferences::BackgroundColor)));
-            m_gridColorButton->setColor(toQColor(pref(Preferences::GridColor2D)));
-            m_edgeColorButton->setColor(toQColor(pref(Preferences::EdgeColor)));
             m_themeCombo->setCurrentIndex(findThemeIndex(pref(Preferences::Theme)));
 
             const auto textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
@@ -324,24 +302,6 @@ namespace TrenchBroom {
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::TextureMinFilter, minFilter);
             prefs.set(Preferences::TextureMagFilter, magFilter);
-        }
-
-        void ViewPreferencePane::backgroundColorChanged(const QColor& color) {
-            const auto value = Color(fromQColor(color), 1.0f);
-            auto& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::BackgroundColor, value);
-        }
-
-        void ViewPreferencePane::gridColorChanged(const QColor& color) {
-            const auto value = Color(fromQColor(color), 1.0f);
-            auto& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::GridColor2D, value);
-        }
-
-        void ViewPreferencePane::edgeColorChanged(const QColor& color) {
-            const auto value = Color(fromQColor(color), 1.0f);
-            auto& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::EdgeColor, value);
         }
 
         void ViewPreferencePane::themeChanged(int /*index*/) {

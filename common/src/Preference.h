@@ -126,12 +126,14 @@ namespace TrenchBroom {
         T m_defaultValue;
         T m_value;
         bool m_valid;
+        bool m_readOnly;
     public:
-        Preference(const IO::Path& path, const T& defaultValue) :
+        Preference(const IO::Path& path, const T& defaultValue, const bool readOnly = false) :
         m_path(path),
         m_defaultValue(defaultValue),
         m_value(m_defaultValue),
-        m_valid(false) {}
+        m_valid(false),
+        m_readOnly(readOnly) {}
 
         Preference(const Preference& other) = default;
         Preference(Preference&& other) = default; // cannot be noexcept because it will call QKeySequence's copy constructor
@@ -149,6 +151,7 @@ namespace TrenchBroom {
 
     public: // PreferenceManager private
         void setValue(const T& value) {
+            assert(!m_readOnly);
             m_value = value;
         }
 
@@ -188,6 +191,10 @@ namespace TrenchBroom {
 
         bool isDefault() const override {
             return m_defaultValue == m_value;
+        }
+
+        bool isReadOnly() const {
+            return m_readOnly;
         }
     };
 }

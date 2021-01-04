@@ -40,9 +40,10 @@ namespace TrenchBroom {
                 PrefPane_First = 0,
                 PrefPane_Games = 0,
                 PrefPane_View = 1,
-                PrefPane_Mouse = 2,
-                PrefPane_Keyboard = 3,
-                PrefPane_Last = 3
+                PrefPane_Colors = 2,
+                PrefPane_Mouse = 3,
+                PrefPane_Keyboard = 4,
+                PrefPane_Last = 4
             } PrefPane;
 
             std::shared_ptr<MapDocument> m_document;
@@ -54,6 +55,7 @@ namespace TrenchBroom {
 
         protected: // QWidget overrides
             void closeEvent(QCloseEvent* event) override;
+            bool eventFilter(QObject* o, QEvent* e) override;
         private:
             void createGui();
             void switchToPane(PrefPane pane);

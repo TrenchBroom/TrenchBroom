@@ -41,9 +41,9 @@ namespace TrenchBroom {
         Preference<Color> SoftMapBoundsColor(IO::Path("Renderer/Colors/Soft map bounds color"), Color(241, 125, 37));
         Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(38, 38, 38));
         Preference<float> AxisLength(IO::Path("Renderer/Axis length"), 128.0f);
-        Preference<Color> XAxisColor(IO::Path("Renderer/Colors/X axis"), Color(0xFF, 0x3D, 0x00, 0.7f));
-        Preference<Color> YAxisColor(IO::Path("Renderer/Colors/Y axis"), Color(0x4B, 0x95, 0x00, 0.7f));
-        Preference<Color> ZAxisColor(IO::Path("Renderer/Colors/Z axis"), Color(0x10, 0x9C, 0xFF, 0.7f));
+        Preference<Color> XAxisColor(IO::Path("Renderer/Colors/X axis"), Color(0xFF, 0x3D, 0x00, 0.7f), true);
+        Preference<Color> YAxisColor(IO::Path("Renderer/Colors/Y axis"), Color(0x4B, 0x95, 0x00, 0.7f), true);
+        Preference<Color> ZAxisColor(IO::Path("Renderer/Colors/Z axis"), Color(0x10, 0x9C, 0xFF, 0.7f), true);
         Preference<Color> PointFileColor(IO::Path("Renderer/Colors/Point file"), Color(0.0f, 1.0f, 0.0f, 1.0f));
         Preference<Color> PortalFileBorderColor(IO::Path("Renderer/Colors/Portal file border"), Color(1.0f, 1.0f, 1.0f, 0.5f));
         Preference<Color> PortalFileFillColor(IO::Path("Renderer/Colors/Portal file fill"), Color(1.0f, 0.4f, 0.4f, 0.2f));
@@ -61,9 +61,9 @@ namespace TrenchBroom {
             }
         }
 
-        Preference<Color> CompassBackgroundColor(IO::Path("Renderer/Colors/Compass background"), Color(0.5f, 0.5f, 0.5f, 0.5f));
-        Preference<Color> CompassBackgroundOutlineColor(IO::Path("Renderer/Colors/Compass background outline"), Color(1.0f, 1.0f, 1.0f, 0.5f));
-        Preference<Color> CompassAxisOutlineColor(IO::Path("Renderer/Colors/Compass axis outline"), Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> CompassBackgroundColor(IO::Path("Renderer/Colors/Compass background"), Color(0.5f, 0.5f, 0.5f, 0.5f), true);
+        Preference<Color> CompassBackgroundOutlineColor(IO::Path("Renderer/Colors/Compass background outline"), Color(1.0f, 1.0f, 1.0f, 0.5f), true);
+        Preference<Color> CompassAxisOutlineColor(IO::Path("Renderer/Colors/Compass axis outline"), Color(1.0f, 1.0f, 1.0f, 1.0f), true);
 
         Preference<Color> CameraFrustumColor(IO::Path("Renderer/Colors/Camera frustum"), Color(0.0f, 1.0f, 1.0f, 1.0f));
 
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         Preference<float> TransparentFaceAlpha(IO::Path("Renderer/Colors/Transparent faces"), 0.4f);
         Preference<Color> EdgeColor(IO::Path("Renderer/Colors/Edges"), Color(0.9f,  0.9f,  0.9f,  1.0f));
         Preference<Color> SelectedEdgeColor(IO::Path("Renderer/Colors/Selected edges"), Color(1.0f,  0.0f,  0.0f,  1.0f));
-        Preference<Color> OccludedSelectedEdgeColor(IO::Path("Renderer/Colors/Occluded selected edges"), Color(1.0f,  0.0f,  0.0f,  0.4f));
+        Preference<float> OccludedSelectedEdgeAlpha(IO::Path("Renderer/Colors/Occluded selected edge alpha"), 0.4f);
         Preference<Color> LockedEdgeColor(IO::Path("Renderer/Colors/Locked edges"), Color(0.13f, 0.3f,  1.0f,  1.0f));
         Preference<Color> UndefinedEntityColor(IO::Path("Renderer/Colors/Undefined entity"), Color(0.5f,  0.5f,  0.5f,  1.0f));
 
@@ -87,7 +87,7 @@ namespace TrenchBroom {
         Preference<Color> InfoOverlayTextColor(IO::Path("Renderer/Colors/Info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> GroupInfoOverlayTextColor(IO::Path("Renderer/Colors/Group info overlay text"), Color(0.7f,  0.4f,  1.0f,  1.0f));
         Preference<Color> InfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.6f));
-        Preference<Color> WeakInfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Weak info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.3f));
+        Preference<float> WeakInfoOverlayBackgroundAlpha(IO::Path("Renderer/Colors/Weak info overlay background alpha"), 0.3f);
         Preference<Color> SelectedInfoOverlayTextColor(IO::Path("Renderer/Colors/Selected info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> SelectedInfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Selected info overlay background"), Color(1.0f, 0.0f, 0.0f, 0.6f));
         Preference<Color> LockedInfoOverlayTextColor(IO::Path("Renderer/Colors/Locked info overlay text"), Color(0.35f, 0.35f, 0.6f,  1.0f));
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         Preference<Color> ScaleHandleColor(IO::Path("Renderer/Colors/Scale handle"),   Color(77, 255, 80, 1.0f));
         Preference<Color> ScaleFillColor(IO::Path("Renderer/Colors/Scale fill"),       Color(77, 255, 80, 0.125f));
         Preference<Color> ScaleOutlineColor(IO::Path("Renderer/Colors/Scale outline"), Color(77, 255, 80, 1.0f));
-        Preference<Color> ScaleOutlineDimColor(IO::Path("Renderer/Colors/Scale outline dim"), Color(77, 255, 80, 0.3f));
+        Preference<float> ScaleOutlineDimAlpha(IO::Path("Renderer/Colors/Scale outline dim alpha"), 0.3f);
         Preference<Color> ShearFillColor(IO::Path("Renderer/Colors/Shear fill"),       Color(45, 133, 255, 0.125f));
         Preference<Color> ShearOutlineColor(IO::Path("Renderer/Colors/Shear outline"), Color(45, 133, 255, 1.0f));
 
@@ -139,12 +139,13 @@ namespace TrenchBroom {
             return fontPath;
         }
 
-    Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
+        Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
 
         Preference<int> BrowserFontSize(IO::Path("Browser/Font size"), 13);
         Preference<Color> BrowserTextColor(IO::Path("Browser/Text color"), Color(1.0f, 1.0f, 1.0f, 1.0f));
-        Preference<Color> BrowserSubTextColor(IO::Path("Browser/Text color"), Color(0.65f, 0.65f, 0.65f, 1.0f));
-        Preference<Color> BrowserGroupBackgroundColor(IO::Path("Browser/Group background color"), Color(0.8f, 0.8f, 0.8f, 0.8f));
+        Preference<Color> BrowserSubTextColor(IO::Path("Browser/Sub text color"), Color(0.65f, 0.65f, 0.65f, 1.0f));
+        Preference<Color> BrowserGroupBackgroundColor(IO::Path("Browser/Group background color"), Color(0.1f, 0.1f, 0.1f, 0.8f));
+        Preference<Color> BrowserBackgroundColor(IO::Path("Browser/Background color"), Color(0.14f, 0.14f, 0.14f, 1.0f));
         Preference<float> TextureBrowserIconSize(IO::Path("Texture Browser/Icon size"), 1.0f);
         Preference<Color> TextureBrowserDefaultColor(IO::Path("Texture Browser/Default color"), Color(0.0f, 0.0f, 0.0f, 0.0f));
         Preference<Color> TextureBrowserSelectedColor(IO::Path("Texture Browser/Selected color"), Color(1.0f, 0.0f, 0.0f, 1.0f));
@@ -253,14 +254,14 @@ namespace TrenchBroom {
                 &TransparentFaceAlpha,
                 &EdgeColor,
                 &SelectedEdgeColor,
-                &OccludedSelectedEdgeColor,
+                &OccludedSelectedEdgeAlpha,
                 &LockedEdgeColor,
                 &UndefinedEntityColor,
                 &SelectionBoundsColor,
                 &InfoOverlayTextColor,
                 &GroupInfoOverlayTextColor,
                 &InfoOverlayBackgroundColor,
-                &WeakInfoOverlayBackgroundColor,
+                &WeakInfoOverlayBackgroundAlpha,
                 &SelectedInfoOverlayTextColor,
                 &SelectedInfoOverlayBackgroundColor,
                 &LockedInfoOverlayTextColor,
@@ -279,7 +280,7 @@ namespace TrenchBroom {
                 &ScaleHandleColor,
                 &ScaleFillColor,
                 &ScaleOutlineColor,
-                &ScaleOutlineDimColor,
+                &ScaleOutlineDimAlpha,
                 &ShearFillColor,
                 &ShearOutlineColor,
                 &MoveTraceColor,
@@ -300,6 +301,7 @@ namespace TrenchBroom {
                 &BrowserFontSize,
                 &BrowserTextColor,
                 &BrowserSubTextColor,
+                &BrowserBackgroundColor,
                 &BrowserGroupBackgroundColor,
                 &TextureBrowserIconSize,
                 &TextureBrowserDefaultColor,
