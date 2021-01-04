@@ -143,7 +143,7 @@ namespace TrenchBroom {
 
         Preference<int> BrowserFontSize(IO::Path("Browser/Font size"), 13);
         Preference<Color> BrowserTextColor(IO::Path("Browser/Text color"), Color(1.0f, 1.0f, 1.0f, 1.0f));
-        Preference<Color> BrowserSubTextColor(IO::Path("Browser/Text color"), Color(0.65f, 0.65f, 0.65f, 1.0f)); // FIXME: key collides with BrowserTextColor
+        Preference<Color> BrowserSubTextColor(IO::Path("Browser/Sub text color"), Color(0.65f, 0.65f, 0.65f, 1.0f));
         Preference<Color> BrowserGroupBackgroundColor(IO::Path("Browser/Group background color"), Color(0.1f, 0.1f, 0.1f, 0.8f));
         Preference<Color> BrowserBackgroundColor(IO::Path("Browser/Background color"), Color(0.14f, 0.14f, 0.14f, 1.0f));
         Preference<float> TextureBrowserIconSize(IO::Path("Texture Browser/Icon size"), 1.0f);
