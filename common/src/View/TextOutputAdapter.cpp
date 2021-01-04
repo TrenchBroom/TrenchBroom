@@ -40,10 +40,6 @@ namespace TrenchBroom {
             m_insertionCursor.movePosition(QTextCursor::End);
         }
 
-        void TextOutputAdapter::appendStdString(const std::string& string) {
-            appendString(QString::fromLocal8Bit(QByteArray::fromStdString(string)));
-        }
-
         void TextOutputAdapter::appendString(const QString& string) {
             QScrollBar* scrollBar = m_textEdit->verticalScrollBar();
             const bool wasAtBottom = (scrollBar->value() >= scrollBar->maximum());

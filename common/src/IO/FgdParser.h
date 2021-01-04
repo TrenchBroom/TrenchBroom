@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FgdParser
-#define TrenchBroom_FgdParser
+#pragma once
 
 #include "FloatType.h"
 #include "Color.h"
@@ -105,20 +104,20 @@ namespace TrenchBroom {
             Assets::ModelDefinition parseModel(ParserStatus& status);
             Assets::SpriteDefinition parseSprite(ParserStatus& status);
             std::string parseNamedValue(ParserStatus& status, const std::string& name);
-            void skipClassAttribute(ParserStatus& status);
+            void skipClassProperty(ParserStatus& status);
 
-            AttributeDefinitionList parseProperties(ParserStatus& status);
-            AttributeDefinitionPtr parseTargetSourceAttribute(ParserStatus& status, const std::string& name);
-            AttributeDefinitionPtr parseTargetDestinationAttribute(ParserStatus& status, const std::string& name);
-            AttributeDefinitionPtr parseStringAttribute(ParserStatus& status, const std::string& name);
-            AttributeDefinitionPtr parseIntegerAttribute(ParserStatus& status, const std::string& name);
-            AttributeDefinitionPtr parseFloatAttribute(ParserStatus& status, const std::string& name);
-            AttributeDefinitionPtr parseChoicesAttribute(ParserStatus& status, const std::string& name);
-            AttributeDefinitionPtr parseFlagsAttribute(ParserStatus& status, const std::string& name);
-            AttributeDefinitionPtr parseUnknownAttribute(ParserStatus& status, const std::string& name);
+            PropertyDefinitionList parsePropertyDefinitions(ParserStatus& status);
+            PropertyDefinitionPtr parseTargetSourcePropertyDefinition(ParserStatus& status, const std::string& propertyKey);
+            PropertyDefinitionPtr parseTargetDestinationPropertyDefinition(ParserStatus& status, const std::string& propertyKey);
+            PropertyDefinitionPtr parseStringPropertyDefinition(ParserStatus& status, const std::string& propertyKey);
+            PropertyDefinitionPtr parseIntegerPropertyDefinition(ParserStatus& status, const std::string& propertyKey);
+            PropertyDefinitionPtr parseFloatPropertyDefinition(ParserStatus& status, const std::string& propertyKey);
+            PropertyDefinitionPtr parseChoicesPropertyDefinition(ParserStatus& status, const std::string& propertyKey);
+            PropertyDefinitionPtr parseFlagsPropertyDefinition(ParserStatus& status, const std::string& propertyKey);
+            PropertyDefinitionPtr parseUnknownPropertyDefinition(ParserStatus& status, const std::string& propertyKey);
 
             bool parseReadOnlyFlag(ParserStatus& status);
-            std::string parseAttributeDescription(ParserStatus& status);
+            std::string parsePropertyDescription(ParserStatus& status);
             std::optional<std::string> parseDefaultStringValue(ParserStatus& status);
             std::optional<int> parseDefaultIntegerValue(ParserStatus& status);
             std::optional<float> parseDefaultFloatValue(ParserStatus& status);
@@ -135,4 +134,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FgdParser) */

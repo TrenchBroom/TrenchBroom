@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EntityDefinitionTestUtils_h
-#define EntityDefinitionTestUtils_h
+#pragma once
 
 #include "Color.h"
 #include "IO/Path.h"
@@ -50,4 +49,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* EntityDefinitionTestUtils_h */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_UVViewHelper
-#define TrenchBroom_UVViewHelper
+#pragma once
 
 #include "FloatType.h"
 #include "Model/HitType.h"
@@ -105,4 +104,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_UVViewHelper) */

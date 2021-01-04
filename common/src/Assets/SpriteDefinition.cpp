@@ -22,7 +22,7 @@
 #include "EL/EvaluationContext.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
-#include "Model/EntityAttributesVariableStore.h"
+#include "EL/VariableStore.h"
 
 #include <kdl/string_compare.h>
 
@@ -63,9 +63,8 @@ namespace TrenchBroom::Assets {
         m_expression = EL::Expression(EL::SwitchExpression(std::move(cases)), line, column);
     }
 
-    std::string SpriteDefinition::spritePath(const Model::EntityAttributes& attributes) const {
-        const Model::EntityAttributesVariableStore store(attributes);
-        const EL::EvaluationContext context(store);
+    std::string SpriteDefinition::spritePath(const EL::VariableStore& variableStore) const {
+        const EL::EvaluationContext context(variableStore);
         return convertToSprite(m_expression.evaluate(context));
     }
 

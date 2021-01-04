@@ -74,7 +74,7 @@ namespace TrenchBroom {
         Model::MapFormat GameDialog::currentMapFormat() const {
             const auto formatName = m_mapFormatComboBox->currentText();
             assert(!formatName.isEmpty());
-            return Model::mapFormat(formatName.toStdString());
+            return Model::formatFromName(formatName.toStdString());
         }
 
         void GameDialog::currentGameChanged(const QString& gameName) {

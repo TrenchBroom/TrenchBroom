@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapViewBar
-#define TrenchBroom_MapViewBar
+#pragma once
 
 #include "View/ContainerBar.h"
 
@@ -48,4 +47,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapViewBar) */

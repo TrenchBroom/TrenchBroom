@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_IDTYPE_H
-#define TRENCHBROOM_IDTYPE_H
+#pragma once
 
 #include <cstddef>
 
@@ -28,4 +27,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_IDTYPE_H

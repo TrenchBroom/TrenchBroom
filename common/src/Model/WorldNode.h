@@ -17,14 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_WorldNode
-#define TrenchBroom_WorldNode
+#pragma once
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/AttributableNode.h"
+#include "Model/EntityNodeBase.h"
+#include "Model/IdType.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelFactory.h"
 #include "Model/Node.h"
 
 #include <kdl/result_forward.h>
@@ -37,26 +36,31 @@ namespace TrenchBroom {
     template <typename T, size_t S, typename U> class AABBTree;
 
     namespace Model {
-        class AttributableNodeIndex;
+        class EntityNodeIndex;
         enum class BrushError;
         class BrushFace;
         class IssueGeneratorRegistry;
         class IssueQuickFix;
+        enum class MapFormat;
         class PickResult;
 
-        class WorldNode : public AttributableNode, public ModelFactory {
+        class WorldNode : public EntityNodeBase {
         private:
-            std::unique_ptr<ModelFactory> m_factory;
+            MapFormat m_mapFormat;
             LayerNode* m_defaultLayer;
-            std::unique_ptr<AttributableNodeIndex> m_attributableIndex;
+            std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
             std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
             std::unique_ptr<NodeTree> m_nodeTree;
             bool m_updateNodeTree;
+
+            IdType m_nextPersistentId = 1;
         public:
-            WorldNode(MapFormat mapFormat);
+            WorldNode(Entity entity, MapFormat mapFormat);
             ~WorldNode() override;
+
+            MapFormat mapFormat() const;
         public: // layer management
             LayerNode* defaultLayer();
 
@@ -104,7 +108,7 @@ namespace TrenchBroom {
         private:
             void createDefaultLayer();
         public: // index
-            const AttributableNodeIndex& attributableNodeIndex() const;
+            const EntityNodeIndex& entityNodeIndex() const;
         public: // selection
             // issue generator registration
             const std::vector<IssueGenerator*>& registeredIssueGenerators() const;
@@ -137,25 +141,14 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-            void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const override;
-            void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const override;
-            void doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
-            void doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
-        private: // implement AttributableNode interface
-            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
-            bool doIsAttributeNameMutable(const std::string& name) const override;
-            bool doIsAttributeValueMutable(const std::string& name) const override;
+            void doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doAddToIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
+            void doRemoveFromIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
+        private: // implement EntityNodeBase interface
+            void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
-        private: // implement ModelFactory interface
-            MapFormat doGetFormat() const override;
-            WorldNode* doCreateWorld() const override;
-            LayerNode* doCreateLayer(const std::string& name) const override;
-            GroupNode* doCreateGroup(const std::string& name) const override;
-            EntityNode* doCreateEntity() const override;
-            kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
-            kdl::result<BrushFace, BrushError> doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
-            kdl::result<BrushFace, BrushError> doCreateFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
         private: // implement Taggable interface
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
@@ -165,4 +158,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_WorldNode) */

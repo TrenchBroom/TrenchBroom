@@ -167,8 +167,9 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolPage::centerChanged() {
-            const auto center = vm::parse<FloatType, 3>(m_recentlyUsedCentersList->currentText().toStdString());
-            m_tool->setRotationCenter(center);
+            if (const auto center = vm::parse<FloatType, 3>(m_recentlyUsedCentersList->currentText().toStdString())) {
+                m_tool->setRotationCenter(*center);
+            }
         }
 
         void RotateObjectsToolPage::resetCenterClicked() {

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ENABLEDISABLETAGCALLBACK_H
-#define TRENCHBROOM_ENABLEDISABLETAGCALLBACK_H
+#pragma once
 
 #include "Model/Tag.h"
 
@@ -42,4 +41,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_ENABLEDISABLETAGCALLBACK_H

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PopupWindow_h
-#define PopupWindow_h
+#pragma once
 
 #include <QWidget>
 
@@ -40,4 +39,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* PopupWindow_h */

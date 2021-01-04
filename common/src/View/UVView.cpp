@@ -187,6 +187,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        const Color& UVView::getBackgroundColor() {
+            return pref(Preferences::BrowserBackgroundColor);
+        }
+
         void UVView::setupGL(Renderer::RenderContext& renderContext) {
             const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
             const qreal r = devicePixelRatioF();

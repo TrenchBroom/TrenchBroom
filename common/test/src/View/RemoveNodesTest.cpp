@@ -29,25 +29,24 @@
 #include <cstdio>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
         class RemoveNodesTest : public MapDocumentTest {};
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeLayer") {
-            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
             document->removeNode(layer);
-            ASSERT_TRUE(layer->parent() == nullptr);
+            CHECK(layer->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(document->world(), layer->parent());
+            CHECK(layer->parent() == document->world());
         }
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyBrushEntity") {
-            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
             Model::EntityNode* entity = new Model::EntityNode();
@@ -57,16 +56,16 @@ namespace TrenchBroom {
             document->addNode(brush, entity);
 
             document->removeNode(brush);
-            ASSERT_TRUE(brush->parent() == nullptr);
-            ASSERT_TRUE(entity->parent() == nullptr);
+            CHECK(brush->parent() == nullptr);
+            CHECK(entity->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(entity, brush->parent());
-            ASSERT_EQ(layer, entity->parent());
+            CHECK(brush->parent() == entity);
+            CHECK(entity->parent() == layer);
         }
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyGroup") {
-            Model::GroupNode* group = new Model::GroupNode("group");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("group"));
             document->addNode(group, document->parentForNodes());
 
             document->openGroup(group);
@@ -75,23 +74,23 @@ namespace TrenchBroom {
             document->addNode(brush, document->parentForNodes());
 
             document->removeNode(brush);
-            ASSERT_TRUE(document->currentGroup() == nullptr);
-            ASSERT_TRUE(brush->parent() == nullptr);
-            ASSERT_TRUE(group->parent() == nullptr);
+            CHECK(document->currentGroup() == nullptr);
+            CHECK(brush->parent() == nullptr);
+            CHECK(group->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(group, document->currentGroup());
-            ASSERT_EQ(group, brush->parent());
-            ASSERT_EQ(document->world()->defaultLayer(), group->parent());
+            CHECK(document->currentGroup() == group);
+            CHECK(brush->parent() == group);
+            CHECK(group->parent() == document->world()->defaultLayer());
         }
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups") {
-            Model::GroupNode* outer = new Model::GroupNode("outer");
+            Model::GroupNode* outer = new Model::GroupNode(Model::Group("outer"));
             document->addNode(outer, document->parentForNodes());
 
             document->openGroup(outer);
 
-            Model::GroupNode* inner = new Model::GroupNode("inner");
+            Model::GroupNode* inner = new Model::GroupNode(Model::Group("inner"));
             document->addNode(inner, document->parentForNodes());
 
             document->openGroup(inner);
@@ -100,16 +99,16 @@ namespace TrenchBroom {
             document->addNode(brush, document->parentForNodes());
 
             document->removeNode(brush);
-            ASSERT_TRUE(document->currentGroup() == nullptr);
-            ASSERT_TRUE(brush->parent() == nullptr);
-            ASSERT_TRUE(inner->parent() == nullptr);
-            ASSERT_TRUE(outer->parent() == nullptr);
+            CHECK(document->currentGroup() == nullptr);
+            CHECK(brush->parent() == nullptr);
+            CHECK(inner->parent() == nullptr);
+            CHECK(outer->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(inner, document->currentGroup());
-            ASSERT_EQ(inner, brush->parent());
-            ASSERT_EQ(outer, inner->parent());
-            ASSERT_EQ(document->world()->defaultLayer(), outer->parent());
+            CHECK(document->currentGroup() == inner);
+            CHECK(brush->parent() == inner);
+            CHECK(inner->parent() == outer);
+            CHECK(outer->parent() == document->world()->defaultLayer());
         }
     }
 }

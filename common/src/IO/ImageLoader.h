@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ImageLoader
-#define TrenchBroom_ImageLoader
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -68,4 +67,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ImageLoader) */

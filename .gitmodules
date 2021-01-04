@@ -10,3 +10,6 @@
 [submodule "lib/BinaryLibs"]
 	path = lib/BinaryLibs
 	url = https://github.com/TrenchBroom/BinaryLibs
+[submodule "lib/fmt"]
+	path = lib/fmt
+	url = https://github.com/fmtlib/fmt

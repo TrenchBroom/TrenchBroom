@@ -26,92 +26,91 @@
 #include "View/MapDocument.h"
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
         class ReparentNodesTest : public MapDocumentTest {};
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentLayerToLayer") {
-            Model::LayerNode* layer1 = new Model::LayerNode("Layer 1");
+            Model::LayerNode* layer1 = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer1, document->world());
 
-            Model::LayerNode* layer2 = new Model::LayerNode("Layer 2");
+            Model::LayerNode* layer2 = new Model::LayerNode(Model::Layer("Layer 2"));
             document->addNode(layer2, document->world());
 
-            ASSERT_FALSE(document->reparentNodes(layer2, { layer1 }));
+            CHECK_FALSE(document->reparentNodes(layer2, { layer1 }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentBetweenLayers") {
-            Model::LayerNode* oldParent = new Model::LayerNode("Layer 1");
+            Model::LayerNode* oldParent = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(oldParent, document->world());
 
-            Model::LayerNode* newParent = new Model::LayerNode("Layer 2");
+            Model::LayerNode* newParent = new Model::LayerNode(Model::Layer("Layer 2"));
             document->addNode(newParent, document->world());
 
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, oldParent);
 
             assert(entity->parent() == oldParent);
-            ASSERT_TRUE(document->reparentNodes(newParent, { entity }));
-            ASSERT_EQ(newParent, entity->parent());
+            CHECK(document->reparentNodes(newParent, { entity }));
+            CHECK(entity->parent() == newParent);
 
             document->undoCommand();
-            ASSERT_EQ(oldParent, entity->parent());
+            CHECK(entity->parent() == oldParent);
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToItself") {
-            Model::GroupNode* group = new Model::GroupNode("Group");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             document->addNode(group, document->parentForNodes());
 
-            ASSERT_FALSE(document->reparentNodes(group, { group }));
+            CHECK_FALSE(document->reparentNodes(group, { group }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToChild") {
-            Model::GroupNode* outer = new Model::GroupNode("Outer");
+            Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
             document->addNode(outer, document->parentForNodes());
 
-            Model::GroupNode* inner = new Model::GroupNode("Inner");
+            Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
             document->addNode(inner, outer);
 
-            ASSERT_FALSE(document->reparentNodes(inner, { outer }));
+            CHECK_FALSE(document->reparentNodes(inner, { outer }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroup") {
-            Model::GroupNode* group = new Model::GroupNode("Group");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             document->addNode(group, document->parentForNodes());
 
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, group);
 
-            ASSERT_TRUE(document->reparentNodes(document->parentForNodes(), { entity }));
-            ASSERT_EQ(document->parentForNodes(), entity->parent());
-            ASSERT_TRUE(group->parent() == nullptr);
+            CHECK(document->reparentNodes(document->parentForNodes(), { entity }));
+            CHECK(entity->parent() == document->parentForNodes());
+            CHECK(group->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(document->parentForNodes(), group->parent());
-            ASSERT_EQ(group, entity->parent());
+            CHECK(group->parent() == document->parentForNodes());
+            CHECK(entity->parent() == group);
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.recursivelyRemoveEmptyGroups") {
-            Model::GroupNode* outer = new Model::GroupNode("Outer");
+            Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
             document->addNode(outer, document->parentForNodes());
 
-            Model::GroupNode* inner = new Model::GroupNode("Inner");
+            Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
             document->addNode(inner, outer);
 
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, inner);
 
-            ASSERT_TRUE(document->reparentNodes(document->parentForNodes(), { entity }));
-            ASSERT_EQ(document->parentForNodes(), entity->parent());
-            ASSERT_TRUE(inner->parent() == nullptr);
-            ASSERT_TRUE(outer->parent() == nullptr);
+            CHECK(document->reparentNodes(document->parentForNodes(), { entity }));
+            CHECK(entity->parent() == document->parentForNodes());
+            CHECK(inner->parent() == nullptr);
+            CHECK(outer->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(document->parentForNodes(), outer->parent());
-            ASSERT_EQ(outer, inner->parent());
-            ASSERT_EQ(inner, entity->parent());
+            CHECK(outer->parent() == document->parentForNodes());
+            CHECK(inner->parent() == outer);
+            CHECK(entity->parent() == inner);
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyEntity") {
@@ -121,17 +120,17 @@ namespace TrenchBroom {
             Model::BrushNode* brush = createBrushNode();
             document->addNode(brush, entity);
 
-            ASSERT_TRUE(document->reparentNodes(document->parentForNodes(), { brush }));
-            ASSERT_EQ(document->parentForNodes(), brush->parent());
-            ASSERT_TRUE(entity->parent() == nullptr);
+            CHECK(document->reparentNodes(document->parentForNodes(), { brush }));
+            CHECK(brush->parent() == document->parentForNodes());
+            CHECK(entity->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(document->parentForNodes(), entity->parent());
-            ASSERT_EQ(entity, brush->parent());
+            CHECK(entity->parent() == document->parentForNodes());
+            CHECK(brush->parent() == entity);
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroupAndEntity") {
-            Model::GroupNode* group = new Model::GroupNode("Group");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             document->addNode(group, document->parentForNodes());
 
             Model::EntityNode* entity = new Model::EntityNode();
@@ -140,15 +139,15 @@ namespace TrenchBroom {
             Model::BrushNode* brush = createBrushNode();
             document->addNode(brush, entity);
 
-            ASSERT_TRUE(document->reparentNodes(document->parentForNodes(), { brush }));
-            ASSERT_EQ(document->parentForNodes(), brush->parent());
-            ASSERT_TRUE(group->parent() == nullptr);
-            ASSERT_TRUE(entity->parent() == nullptr);
+            CHECK(document->reparentNodes(document->parentForNodes(), { brush }));
+            CHECK(brush->parent() == document->parentForNodes());
+            CHECK(group->parent() == nullptr);
+            CHECK(entity->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(document->parentForNodes(), group->parent());
-            ASSERT_EQ(group, entity->parent());
-            ASSERT_EQ(entity, brush->parent());
+            CHECK(group->parent() == document->parentForNodes());
+            CHECK(entity->parent() == group);
+            CHECK(brush->parent() == entity);
         }
     }
 }

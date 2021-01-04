@@ -20,6 +20,10 @@
 #include "FreeTypeFontFactory.h"
 
 #include "Exceptions.h"
+#include "Macros.h"
+#include "IO/DiskIO.h"
+#include "IO/File.h"
+#include "IO/Reader.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontGlyph.h"
@@ -49,18 +53,25 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<TextureFont> FreeTypeFontFactory::doCreateFont(const FontDescriptor& fontDescriptor) {
-            FT_Face face = loadFont(fontDescriptor);
+            auto [face, bufferedReader] = loadFont(fontDescriptor);
             auto font = buildFont(face, fontDescriptor.minChar(), fontDescriptor.charCount());
             FT_Done_Face(face);
+
+            // NOTE: bufferedReader is returned from loadFont() just to keep the buffer from
+            // being deallocated until after we call FT_Done_Face
+            unused(bufferedReader);
 
             return font;
         }
 
-        FT_Face FreeTypeFontFactory::loadFont(const FontDescriptor& fontDescriptor) {
+        std::pair<FT_Face, IO::BufferedReader> FreeTypeFontFactory::loadFont(const FontDescriptor& fontDescriptor) {
             const auto fontPath = fontDescriptor.path().isAbsolute() ? fontDescriptor.path() : IO::SystemPaths::findResourceFile(fontDescriptor.path());
 
+            auto file = IO::Disk::openFile(fontPath);
+            auto reader = file->reader().buffer();
+
             FT_Face face;
-            const FT_Error error = FT_New_Face(m_library, fontPath.asString().c_str(), 0, &face);
+            const FT_Error error = FT_New_Memory_Face(m_library, reinterpret_cast<const FT_Byte*>(reader.begin()), static_cast<FT_Long>(reader.size()), 0, &face);
             if (error != 0) {
                 throw RenderException("Error loading font '" + fontDescriptor.name() + "': " + std::to_string(error));
             }
@@ -68,7 +79,7 @@ namespace TrenchBroom {
             const auto fontSize = static_cast<FT_UInt>(fontDescriptor.size());
             FT_Set_Pixel_Sizes(face, 0, fontSize);
 
-            return face;
+            return {face, std::move(reader)};
         }
 
         std::unique_ptr<TextureFont> FreeTypeFontFactory::buildFont(FT_Face face, const unsigned char firstChar, const unsigned char charCount) {

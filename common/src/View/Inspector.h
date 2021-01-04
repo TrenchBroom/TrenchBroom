@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Inspector
-#define TrenchBroom_Inspector
+#pragma once
 
 #include <memory>
 
@@ -61,4 +60,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Inspector) */

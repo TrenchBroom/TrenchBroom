@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushFaceAttributes
-#define TrenchBroom_BrushFaceAttributes
+#pragma once
 
 #include "Color.h"
 
 #include <vecmath/forward.h>
 
 #include <string>
+#include <string_view>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -48,16 +48,14 @@ namespace TrenchBroom {
 
             Color m_color;
         public:
-            BrushFaceAttributes(const std::string& textureName);
+            explicit BrushFaceAttributes(std::string_view textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
-            BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other);
+            BrushFaceAttributes(std::string_view textureName, const BrushFaceAttributes& other);
 
             BrushFaceAttributes& operator=(BrushFaceAttributes other);
             
             friend bool operator==(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs);
             friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
-
-            BrushFaceAttributes takeSnapshot() const;
 
             const std::string& textureName() const;
 
@@ -98,4 +96,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_BrushFaceAttributes) */

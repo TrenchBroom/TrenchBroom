@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Polyhedron_Queries_h
-#define Polyhedron_Queries_h
+#pragma once
 
 #include "Polyhedron.h"
 
@@ -431,4 +430,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Polyhedron_Queries_h */

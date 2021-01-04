@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextAnchor
-#define TrenchBroom_TextAnchor
+#pragma once
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -71,4 +70,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_TextAnchor) */

@@ -230,6 +230,10 @@ namespace TrenchBroom {
         m_mode(mode),
         m_tokenizer(std::move(str)) {}
 
+        TokenizerState ELParser::tokenizerState() const {
+            return m_tokenizer.snapshot();
+        }
+
         EL::Expression ELParser::parseStrict(const std::string& str) {
             return ELParser(Mode::Strict, str).parse();
         }

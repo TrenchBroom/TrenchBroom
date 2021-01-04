@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GameEngineConfig_h
-#define GameEngineConfig_h
+#pragma once
 
 #include <memory>
 #include <string>
@@ -39,8 +38,6 @@ namespace TrenchBroom {
 
             GameEngineConfig& operator=(GameEngineConfig other);
             friend void swap(GameEngineConfig& lhs, GameEngineConfig& rhs);
-            bool operator==(const GameEngineConfig& other) const;
-            bool operator!=(const GameEngineConfig& other) const;
 
             size_t profileCount() const;
             bool hasProfile(const std::string& name) const;
@@ -48,8 +45,10 @@ namespace TrenchBroom {
 
             void addProfile(std::unique_ptr<GameEngineProfile> profile);
             void removeProfile(size_t index);
+
+            friend bool operator==(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
+            friend bool operator!=(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
         };
     }
 }
 
-#endif /* GameEngineConfig_h */

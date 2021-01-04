@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PathQt
-#define TrenchBroom_PathQt
+#pragma once
 
 #include "IO/Path.h"
 
@@ -33,4 +32,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_PathQt) */

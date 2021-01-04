@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VertexTool_h
-#define VertexTool_h
+#pragma once
 
 #include "Renderer/PointGuideRenderer.h"
 #include "View/VertexToolBase.h"
@@ -41,10 +40,10 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class BrushVertexCommandBase;
         class Grid;
         class Lasso;
         class Selection;
-        class VertexCommand;
 
         class VertexTool : public VertexToolBase<vm::vec3> {
         private:
@@ -95,12 +94,11 @@ namespace TrenchBroom {
             void addHandles(const std::vector<Model::Node*>& nodes) override;
             void removeHandles(const std::vector<Model::Node*>& nodes) override;
 
-            void addHandles(VertexCommand* command) override;
-            void removeHandles(VertexCommand* command) override;
+            void addHandles(BrushVertexCommandBase* command) override;
+            void removeHandles(BrushVertexCommandBase* command) override;
         private: // General helper methods
             void resetModeAfterDeselection();
         };
     }
 }
 
-#endif /* VertexTool_h */

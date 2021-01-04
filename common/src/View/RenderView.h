@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RenderView
-#define TrenchBroom_RenderView
+#pragma once
 
 #include "Color.h"
 #include "Renderer/GL.h" // must be included here, before QOpenGLWidget, because it includes glew
@@ -90,6 +89,7 @@ namespace TrenchBroom {
             // called by initializeGL by default
             virtual bool doInitializeGL();
         private:
+            virtual const Color& getBackgroundColor();
             virtual void doUpdateViewport(int x, int y, int width, int height);
             virtual bool doShouldRenderFocusIndicator() const = 0;
             virtual void doRender() = 0;
@@ -97,4 +97,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_RenderView) */

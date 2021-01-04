@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceAttribsEditor
-#define TrenchBroom_FaceAttribsEditor
+#pragma once
 
 #include <QWidget>
 
@@ -32,6 +31,7 @@ class QGridLayout;
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceHandle;
+        class Node;
     }
 
     namespace View {
@@ -90,6 +90,7 @@ namespace TrenchBroom {
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
             void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
@@ -113,4 +114,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FaceAttribsEditor) */

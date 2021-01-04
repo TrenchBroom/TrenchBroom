@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateBrushToolController2D
-#define TrenchBroom_CreateBrushToolController2D
+#pragma once
 
 #include "FloatType.h"
 #include "View/ToolController.h"
@@ -61,4 +60,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CreateBrushToolController2D) */

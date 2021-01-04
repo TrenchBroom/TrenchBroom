@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TestGame_h
-#define TestGame_h
+#pragma once
 
 #include "Model/BrushFaceAttributes.h"
 #include "Model/Game.h"
@@ -39,6 +38,7 @@ namespace TrenchBroom {
         private:
             std::vector<SmartTag> m_smartTags;
             Model::BrushFaceAttributes m_defaultFaceAttributes;
+            std::vector<CompilationTool> m_compilationTools;
         public:
             TestGame();
         public:
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             IO::Path doGamePath() const override;
             void doSetGamePath(const IO::Path& gamePath, Logger& logger) override;
             std::optional<vm::bbox3> doSoftMapBounds() const override;
-            Game::SoftMapBounds doExtractSoftMapBounds(const AttributableNode& node) const override;
+            Game::SoftMapBounds doExtractSoftMapBounds(const Entity& entity) const override;
             void doSetAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) override;
             PathErrors doCheckAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const override;
 
@@ -63,32 +63,33 @@ namespace TrenchBroom {
             void doWriteMap(WorldNode& world, const IO::Path& path) const override;
             void doExportMap(WorldNode& world, Model::ExportFormat format, const IO::Path& path) const override;
 
-            std::vector<Node*> doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const override;
-            std::vector<BrushFace> doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<Node*> doParseNodes(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const override;
+            std::vector<BrushFace> doParseBrushFaces(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const override;
             void doWriteNodesToStream(WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const override;
             void doWriteBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const override;
 
             TexturePackageType doTexturePackageType() const override;
-            void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;
+            void doLoadTextureCollections(const Entity& entity, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const override;
             bool doIsTextureCollection(const IO::Path& path) const override;
             std::vector<std::string> doFileTextureCollectionExtensions() const override;
             std::vector<IO::Path> doFindTextureCollections() const override;
-            std::vector<IO::Path> doExtractTextureCollections(const AttributableNode& node) const override;
-            void doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const override;
+            std::vector<IO::Path> doExtractTextureCollections(const Entity& entity) const override;
+            void doUpdateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const override;
             void doReloadShaders() override;
 
             bool doIsEntityDefinitionFile(const IO::Path& path) const override;
             std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const override;
-            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode& node) const override;
+            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Entity& entity) const override;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const override;
 
             std::vector<std::string> doAvailableMods() const override;
-            std::vector<std::string> doExtractEnabledMods(const AttributableNode& node) const override;
+            std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
             std::string doDefaultMod() const override;
 
             const FlagsConfig& doSurfaceFlags() const override;
             const FlagsConfig& doContentFlags() const override;
             const BrushFaceAttributes& doDefaultFaceAttribs() const override;
+            const std::vector<CompilationTool>& doCompilationTools() const override;
 
             std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
             std::unique_ptr<Assets::EntityModel> doInitializeModel(const IO::Path& path, Logger& logger) const override;
@@ -97,4 +98,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TestGame_h */

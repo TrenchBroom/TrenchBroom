@@ -17,50 +17,50 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_LayerNode
-#define TrenchBroom_LayerNode
+#pragma once
 
-#include "Color.h"
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/AttributableNode.h"
+#include "Model/IdType.h"
+#include "Model/Layer.h"
+#include "Model/Node.h"
 
 #include <vecmath/bbox.h>
 
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
 
 namespace TrenchBroom {
     namespace Model {
-        class LayerNode : public AttributableNode {
+        class LayerNode : public Node {
         private:
+            Layer m_layer;
+
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
-        public:
-            LayerNode(const std::string& name);
 
-            void setName(const std::string& name);
+            /**
+             * The ID used to serialize layer nodes (see MapReader and NodeSerializer). This is set by MapReader when a
+             * layer is read, or by WorldNode when a layer is added that doesn't yet have a persistent ID.
+             */
+            std::optional<IdType> m_persistentId;
+        public:
+            explicit LayerNode(Layer layer);
+
+            const Layer& layer() const;
+            Layer setLayer(Layer layer);
 
             bool isDefaultLayer() const;
-
-            static int invalidSortIndex();
-            static int defaultLayerSortIndex();
-
-            int sortIndex() const;
-            void setSortIndex(int index);
 
             /**
              * Stable sort the given vector using `sortIndex()` as the sort key.
              */
             static void sortLayers(std::vector<LayerNode*>& layers);
 
-            std::optional<Color> layerColor() const;
-            void setLayerColor(const Color& color);
-
-            bool omitFromExport() const;
-            void setOmitFromExport(bool omitFromExport);
+            const std::optional<IdType>& persistentId() const;
+            void setPersistentId(IdType persistentId);
         private: // implement Node interface
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;
@@ -80,12 +80,6 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-        private: // implement AttributableNode interface
-            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
-            bool doIsAttributeNameMutable(const std::string& name) const override;
-            bool doIsAttributeValueMutable(const std::string& name) const override;
-            vm::vec3 doGetLinkSourceAnchor() const override;
-            vm::vec3 doGetLinkTargetAnchor() const override;
         private:
             void invalidateBounds();
             void validateBounds() const;
@@ -98,4 +92,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_LayerNode) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityModel
-#define TrenchBroom_EntityModel
+#pragma once
 
 #include "Assets/EntityModel_Forward.h"
 
@@ -416,4 +415,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityModel) */

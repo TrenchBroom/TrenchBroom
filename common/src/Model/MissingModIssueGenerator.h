@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MissingModIssueGenerator_h
-#define MissingModIssueGenerator_h
+#pragma once
 
 #include "Model/IssueGenerator.h"
 
@@ -40,9 +39,8 @@ namespace TrenchBroom {
         public:
             MissingModIssueGenerator(std::weak_ptr<Game> game);
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const override;
+            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
         };
     }
 }
 
-#endif /* MissingModIssueGenerator_h */

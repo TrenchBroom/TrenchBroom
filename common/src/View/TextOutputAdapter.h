@@ -17,16 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TextCtrlOutputAdapter_h
-#define TextCtrlOutputAdapter_h
+#pragma once
 
+#include <QString>
 #include <QTextCursor>
-
-#include <sstream>
-#include <string>
+#include <QTextStream>
 
 class QTextEdit;
-class QString;
 
 namespace TrenchBroom {
     namespace View {
@@ -45,26 +42,19 @@ namespace TrenchBroom {
 
             /**
              * Appends the given value to the text widget.
-             * Objects are formatted using std::stringstream.
-             * 8-bit to Unicode conversion is performed with QString::fromLocal8Bit.
+             * Objects are formatted using QTextStream.
              */
             template <typename T>
             TextOutputAdapter& operator<<(const T& t) {
-                append(t);
+                QString string;
+                QTextStream stream(&string);
+                stream << t;
+                appendString(string);
                 return *this;
             }
         private:
-            template <typename T>
-            void append(const T& t) {
-                std::stringstream s;
-                s << t;
-                appendStdString(s.str());
-            }
-
-            void appendStdString(const std::string& string);
             void appendString(const QString& string);
         };
     }
 }
 
-#endif /* TextCtrlOutputAdapter_h */

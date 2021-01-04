@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_NonIntegerVerticesIssueGenerator
-#define TrenchBroom_NonIntegerVerticesIssueGenerator
+#pragma once
 
 #include "Model/IssueGenerator.h"
 
@@ -38,4 +37,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_NonIntegerVerticesIssueGenerator) */

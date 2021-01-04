@@ -26,6 +26,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModelManager.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Renderer/Camera.h"
 #include "Renderer/PrimType.h"
@@ -233,7 +234,7 @@ namespace TrenchBroom {
 
                 for (const Model::EntityNode* entity : m_entities) {
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
-                        if (entity->group() == nullptr || entity->group() == m_editorContext.currentGroup()) {
+                        if (entity->containingGroup() == nullptr || entity->containingGroup() == m_editorContext.currentGroup()) {
                             if (m_showOccludedOverlays)
                                 renderService.setShowOccludedObjects();
                             else
@@ -258,14 +259,14 @@ namespace TrenchBroom {
             renderService.setForegroundColor(m_angleColor);
 
             std::vector<vm::vec3f> vertices(3);
-            for (const auto* entity : m_entities) {
-                if (!m_showHiddenEntities && !m_editorContext.visible(entity)) {
+            for (const auto* entityNode : m_entities) {
+                if (!m_showHiddenEntities && !m_editorContext.visible(entityNode)) {
                     continue;
                 }
 
-                const auto rotation = vm::mat4x4f(entity->rotation());
+                const auto rotation = vm::mat4x4f(entityNode->entity().rotation());
                 const auto direction = rotation * vm::vec3f::pos_x();
-                const auto center = vm::vec3f(entity->logicalBounds().center());
+                const auto center = vm::vec3f(entityNode->logicalBounds().center());
 
                 const auto toCam = renderContext.camera().position() - center;
                 // only distance cull for perspective camera, since the 2D one is always very far from the level
@@ -365,18 +366,18 @@ namespace TrenchBroom {
                 BuildWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices);
                 BuildWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices);
 
-                for (const Model::EntityNode* entity : m_entities) {
-                    if (m_editorContext.visible(entity)) {
-                        const bool pointEntity = !entity->hasChildren();
+                for (const Model::EntityNode* entityNode : m_entities) {
+                    if (m_editorContext.visible(entityNode)) {
+                        const bool pointEntity = !entityNode->hasChildren();
                         if (pointEntity) {
-                            entity->definitionBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
+                            entityNode->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                         } else {
-                            entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
+                            entityNode->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                         }
 
-                        if (pointEntity && !entity->hasPointEntityModel() && !entity->hasPointEntitySprite()) {
-                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->logicalBounds().for_each_face(solidBoundsBuilder);
+                        if (pointEntity && entityNode->entity().model() == nullptr && entityNode->entity().sprite() == nullptr) {
+                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entityNode));
+                            entityNode->logicalBounds().for_each_face(solidBoundsBuilder);
                         }
                     }
                 }
@@ -391,21 +392,21 @@ namespace TrenchBroom {
                 pointEntityWireframeVertices.reserve(24 * m_entities.size());
                 brushEntityWireframeVertices.reserve(24 * m_entities.size());
 
-                for (const Model::EntityNode* entity : m_entities) {
-                    if (m_editorContext.visible(entity)) {
-                        const bool pointEntity = !entity->hasChildren();
+                for (const Model::EntityNode* entityNode : m_entities) {
+                    if (m_editorContext.visible(entityNode)) {
+                        const bool pointEntity = !entityNode->hasChildren();
 
-                        if (pointEntity && !entity->hasPointEntityModel() && !entity->hasPointEntitySprite()) {
-                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->definitionBounds().for_each_face(solidBoundsBuilder);
+                        if (pointEntity && entityNode->entity().model() == nullptr && entityNode->entity().sprite() == nullptr) {
+                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entityNode));
+                            entityNode->logicalBounds().for_each_face(solidBoundsBuilder);
                         } else {
-                            BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entity));
-                            BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entity));
+                            BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entityNode));
+                            BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entityNode));
 
                             if (pointEntity) {
-                                entity->definitionBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
+                                entityNode->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                             } else {
-                                entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
+                                entityNode->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                             }
                         }
                     }
@@ -419,8 +420,8 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        AttrString EntityRenderer::entityString(const Model::EntityNode* entity) const {
-            const auto& classname = entity->classname();
+        AttrString EntityRenderer::entityString(const Model::EntityNode* entityNode) const {
+            const auto& classname = entityNode->entity().classname();
             // const Model::AttributeValue& targetname = entity->attribute(Model::AttributeNames::Targetname);
 
             AttrString str;
@@ -430,8 +431,8 @@ namespace TrenchBroom {
             return str;
         }
 
-        const Color& EntityRenderer::boundsColor(const Model::EntityNode* entity) const {
-            const Assets::EntityDefinition* definition = entity->definition();
+        const Color& EntityRenderer::boundsColor(const Model::EntityNode* entityNode) const {
+            const Assets::EntityDefinition* definition = entityNode->entity().definition();
             if (definition == nullptr) {
                 return m_boundsColor;
             } else {

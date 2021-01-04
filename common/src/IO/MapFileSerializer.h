@@ -17,21 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapFileSerializer
-#define TrenchBroom_MapFileSerializer
+#pragma once
 
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
 
-#include <cstdio> // for FILE*
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
         class BrushNode;
         class BrushFace;
-        class EntityAttribute;
+        class EntityProperty;
         class Node;
     }
 
@@ -41,28 +41,28 @@ namespace TrenchBroom {
             using LineStack = std::vector<size_t>;
             LineStack m_startLineStack;
             size_t m_line;
-            FILE* m_stream;
+            std::ostream& m_stream;
+            std::unordered_map<const Model::Node*, std::string> m_nodeToPrecomputedString;
         public:
-            static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, FILE* stream);
+            static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
         protected:
-            explicit MapFileSerializer(FILE* file);
+            explicit MapFileSerializer(std::ostream& stream);
         private:
-            void doBeginFile() override;
+            void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
             void doEndFile() override;
 
             void doBeginEntity(const Model::Node* node) override;
             void doEndEntity(const Model::Node* node) override;
-            void doEntityAttribute(const Model::EntityAttribute& attribute) override;
-            void doBeginBrush(const Model::BrushNode* brush) override;
-            void doEndBrush(const Model::BrushNode* brush) override;
+            void doEntityProperty(const Model::EntityProperty& attribute) override;
+            void doBrush(const Model::BrushNode* brush) override;
             void doBrushFace(const Model::BrushFace& face) override;
         private:
             void setFilePosition(const Model::Node* node);
             size_t startLine();
-        private:
-            virtual size_t doWriteBrushFace(FILE* stream, const Model::BrushFace& face) = 0;
+        private: // threadsafe
+            virtual void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const = 0;
+            std::string writeBrushFaces(const Model::Brush& brush) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_MapFileSerializer) */

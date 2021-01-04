@@ -21,12 +21,11 @@
 #include "Macros.h"
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Ensure {
         TEST_CASE("EnsureTest.successfulEnsure", "[EnsureTest]") {
-            EXPECT_NO_THROW([](){
+            CHECK_NOTHROW([](){
                 ensure(true, "this shouldn't fail");
             }());
         }

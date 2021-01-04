@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ResizeBrushesToolController
-#define TrenchBroom_ResizeBrushesToolController
+#pragma once
 
 #include "Renderer/EdgeRenderer.h"
 #include "View/ToolController.h"
@@ -91,4 +90,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ResizeBrushesToolController) */

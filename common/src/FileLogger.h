@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FileLogger_h
-#define FileLogger_h
+#pragma once
 
 #include "Macros.h"
 #include "Logger.h"
@@ -48,4 +47,3 @@ namespace TrenchBroom {
     };
 }
 
-#endif /* FileLogger_h */

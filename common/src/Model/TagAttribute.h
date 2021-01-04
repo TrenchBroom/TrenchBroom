@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_TAGATTRIBUTE_H
-#define TRENCHBROOM_TAGATTRIBUTE_H
+#pragma once
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,4 +29,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_TAGATTRIBUTE_H

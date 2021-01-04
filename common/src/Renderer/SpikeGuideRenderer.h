@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SpikeGuideRenderer
-#define TrenchBroom_SpikeGuideRenderer
+#pragma once
 
 #include "Color.h"
 #include "FloatType.h"
@@ -74,4 +73,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_SpikeGuideRenderer) */

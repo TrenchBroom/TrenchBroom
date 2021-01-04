@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Reader_h
-#define Reader_h
+#pragma once
 
 #include <vecmath/vec.h>
 
@@ -562,4 +561,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Reader_h */

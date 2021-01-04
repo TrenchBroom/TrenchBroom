@@ -20,8 +20,8 @@
 #include "EntityDefinitionClassInfo.h"
 
 #include "Macros.h"
-#include "Assets/AttributeDefinition.h"
-#include "Model/EntityAttributes.h"
+#include "Assets/PropertyDefinition.h"
+#include "Model/EntityProperties.h"
 
 #include <kdl/opt_utils.h>
 #include <kdl/vector_utils.h>
@@ -51,13 +51,14 @@ namespace TrenchBroom {
             return str;
         }
 
-        bool addAttribute(std::vector<std::shared_ptr<Assets::AttributeDefinition>>& attributes, std::shared_ptr<Assets::AttributeDefinition> attribute) {
-            assert(attribute != nullptr);
-            if (kdl::vec_contains(attributes, [&](const auto& a) { return a->name() == attribute->name(); })) {
+        bool addPropertyDefinition(std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions, std::shared_ptr<Assets::PropertyDefinition> propertyDefinition) {
+            assert(propertyDefinition != nullptr);
+            if (kdl::vec_contains(propertyDefinitions, [&](const auto& a) { return a->key() ==
+                                                                                   propertyDefinition->key(); })) {
                 return false;
             }
             
-            attributes.push_back(std::move(attribute));
+            propertyDefinitions.push_back(std::move(propertyDefinition));
             return true;
         }
 
@@ -71,7 +72,7 @@ namespace TrenchBroom {
                 && lhs.size == rhs.size
                 && lhs.modelDefinition == rhs.modelDefinition
                 && lhs.spriteDefinition == rhs.spriteDefinition
-                && lhs.attributes == rhs.attributes
+                && lhs.propertyDefinitions == rhs.propertyDefinitions
                 && lhs.superClasses == rhs.superClasses;
         }
         
@@ -90,9 +91,9 @@ namespace TrenchBroom {
                 << "size: " << kdl::opt_to_string(classInfo.size) << ", "
                 << "modelDefinition: " << kdl::opt_to_string(classInfo.modelDefinition) << ", "
                 << "spriteDefinition: " << kdl::opt_to_string(classInfo.spriteDefinition) << ", "
-                << "attributes: {";
-            for (const auto& attribute : classInfo.attributes) {
-                str << "'" << attribute->name() << "', ";
+                << "propertyDefinnitions: {";
+            for (const auto& propertyDefinition : classInfo.propertyDefinitions) {
+                str << "'" << propertyDefinition->key() << "', ";
             }
             str << "}, "
                 << "superClasses: { ";

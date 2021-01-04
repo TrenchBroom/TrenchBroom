@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CollapsibleTitledPanel
-#define TrenchBroom_CollapsibleTitledPanel
+#pragma once
 
 #include "View/TitleBar.h"
 
@@ -66,4 +65,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CollapsibleTitledPanel) */

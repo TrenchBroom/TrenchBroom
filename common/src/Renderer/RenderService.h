@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RenderService
-#define TrenchBroom_RenderService
+#pragma once
 
 #include "Macros.h"
 #include "Color.h"
@@ -117,4 +116,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_RenderService) */

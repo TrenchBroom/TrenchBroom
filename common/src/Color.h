@@ -17,18 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Color_h
-#define TrenchBroom_Color_h
+#pragma once
 
 #include <vecmath/vec.h>
 
+#include <optional>
 #include <string>
 
 namespace TrenchBroom {
     class Color : public vm::vec<float, 4> {
     public:
-        static bool canParse(const std::string& str);
-        static Color parse(const std::string& str);
+        static std::optional<Color> parse(const std::string& str);
         std::string toString() const;
 
         Color();
@@ -65,4 +64,3 @@ namespace TrenchBroom {
     };
 }
 
-#endif

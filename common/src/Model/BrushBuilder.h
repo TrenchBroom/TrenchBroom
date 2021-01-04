@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushBuilder
-#define TrenchBroom_BrushBuilder
+#pragma once
 
 #include "FloatType.h"
 #include "Model/Polyhedron3.h"
@@ -35,17 +34,18 @@ namespace TrenchBroom {
     namespace Model {
         class Brush;
         class ModelFactory;
-        
+
         enum class BrushError;
+        enum class MapFormat;
 
         class BrushBuilder {
         private:
-            const ModelFactory* m_factory;
+            MapFormat m_mapFormat;
             const vm::bbox3 m_worldBounds;
             const BrushFaceAttributes m_defaultAttribs;
         public:
-            BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds);
-            BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs);
+            BrushBuilder(MapFormat mapFormat, const vm::bbox3& worldBounds);
+            BrushBuilder(MapFormat mapFormat, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs);
 
             kdl::result<Brush, BrushError> createCube(FloatType size, const std::string& textureName) const;
             kdl::result<Brush, BrushError> createCube(FloatType size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const;
@@ -62,4 +62,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_BrushBuilder) */

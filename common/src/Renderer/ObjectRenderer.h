@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ObjectRenderer
-#define TrenchBroom_ObjectRenderer
+#pragma once
 
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityRenderer.h"
@@ -101,4 +100,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ObjectRenderer) */

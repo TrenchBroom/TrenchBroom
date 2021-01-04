@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Palette
-#define TrenchBroom_Palette
+#pragma once
 
 #include "Color.h"
 #include "IO/Reader.h"
@@ -85,4 +84,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Palette) */

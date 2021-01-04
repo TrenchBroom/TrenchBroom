@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SelectionTool
-#define TrenchBroom_SelectionTool
+#pragma once
 
 #include "Model/HitType.h"
 #include "View/Tool.h"
@@ -90,4 +89,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_SelectionTool) */

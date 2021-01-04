@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ScaleObjectsToolPage
-#define TrenchBroom_ScaleObjectsToolPage
+#pragma once
 
 #include "FloatType.h"
 
 #include <vecmath/forward.h>
 
 #include <memory>
+#include <optional>
 
 #include <QWidget>
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             void updateGui();
 
             bool canScale() const;
-            vm::vec3 getScaleFactors() const;
+            std::optional<vm::vec3> getScaleFactors() const;
 
             void selectionDidChange(const Selection& selection);
 
@@ -71,4 +71,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ScaleObjectsToolPage) */

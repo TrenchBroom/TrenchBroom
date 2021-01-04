@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Issue
-#define TrenchBroom_Issue
+#pragma once
 
 #include "Model/IssueType.h"
 
@@ -74,15 +73,14 @@ namespace TrenchBroom {
             size_t doGetLineNumber() const override;
         };
 
-        class AttributeIssue : public Issue {
+        class EntityPropertyIssue : public Issue {
         public:
             using Issue::Issue;
 
-            ~AttributeIssue() override;
-            virtual const std::string& attributeName() const = 0;
-            const std::string& attributeValue() const;
+            ~EntityPropertyIssue() override;
+            virtual const std::string& propertyKey() const = 0;
+            const std::string& propertyValue() const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_Issue) */

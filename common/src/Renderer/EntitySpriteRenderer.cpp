@@ -65,7 +65,7 @@ namespace TrenchBroom::Renderer {
     }
 
     void EntitySpriteRenderer::addEntity(Model::EntityNode* entity) {
-        if (entity->hasPointEntitySprite()) {
+        if (entity->entity().sprite() != nullptr) {
             m_entities.insert(std::make_pair(entity, createEntityInfo(entity)));
             m_entitiesListChanged = true;
         }
@@ -75,12 +75,12 @@ namespace TrenchBroom::Renderer {
         const auto it = m_entities.find(entity);
 
         if (it == std::end(m_entities)) { // No such entity in collection?
-            if (entity->hasPointEntitySprite()) { // Add it
+            if (entity->entity().sprite() != nullptr) { // Add it
                 m_entities.insert(std::make_pair(entity, createEntityInfo(entity)));
                 m_entitiesListChanged = true;
             }
         } else { // Entity found
-            if (!entity->hasPointEntitySprite()) { // Sprite is unused. Remove from collection...
+            if (entity->entity().sprite() == nullptr) { // Sprite is unused. Remove from collection...
                 m_entities.erase(it);
                 m_entitiesListChanged = true;
             } else { // Update EntityInfo?
@@ -96,15 +96,15 @@ namespace TrenchBroom::Renderer {
     }
 
     EntitySpriteRenderer::EntityInfo EntitySpriteRenderer::createEntityInfo(const Model::EntityNode* entity) const {
-        const auto size = static_cast<float>(std::min(entity->definitionBounds().size().x(), entity->definitionBounds().size().y())) * 0.9f; // Scale down a bit so the sprite looks better
-        const auto colorAttributeList = entity->attributeWithName("_color");
+        const auto size = static_cast<float>(std::min(entity->entity().definitionBounds().size().x(), entity->entity().definitionBounds().size().y())) * 0.9f; // Scale down a bit so the sprite looks better
+        const auto colorAttributeList = entity->entity().propertiesWithKey("_color");
         Color tintColor;
         bool applyTint = false;
 
         if (!colorAttributeList.empty()) {
             for (const auto& attribute : colorAttributeList) {
-                if (Color::canParse(attribute.value())) {
-                    tintColor = Color(Color::parse(attribute.value()), 0.5f);
+                if (auto color = Color::parse(attribute.value())) {
+                    tintColor = Color(*color, 0.5f);
                     applyTint = true;
 
                     // Convert from [0..255] to [0.0f..1.0f]?
@@ -119,7 +119,7 @@ namespace TrenchBroom::Renderer {
             }
         }
 
-        const EntityInfo info(entity, entity->sprite(), size, tintColor, applyTint);
+        const EntityInfo info(entity, entity->entity().sprite(), size, tintColor, applyTint);
         return info;
     }
 
@@ -148,7 +148,7 @@ namespace TrenchBroom::Renderer {
         }
 
         const Camera& camera = renderContext.camera();
-        const float distance = camera.perpendicularDistanceTo(vm::vec3f(entity->origin()));
+        const float distance = camera.perpendicularDistanceTo(vm::vec3f(entity->entity().origin()));
 
         if (renderContext.render3D() && distance > m_maxViewDistance) {
             return false;
@@ -187,7 +187,7 @@ namespace TrenchBroom::Renderer {
                     continue;
                 }
 
-                const auto transformation = entity->modelTransformation();
+                const auto transformation = entity->entity().modelTransformation();
                 MultiplyModelMatrix multMatrix(renderContext.transformation(), vm::mat4x4f(transformation));
 
                 shader.set("ModelMatrix", vm::mat4x4f(transformation));

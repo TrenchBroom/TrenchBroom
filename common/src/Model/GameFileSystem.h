@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_GAMEFILESYSTEM_H
-#define TRENCHBROOM_GAMEFILESYSTEM_H
+#pragma once
 
 #include "IO/FileSystem.h"
 
@@ -58,4 +57,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_GAMEFILESYSTEM_H

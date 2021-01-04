@@ -22,7 +22,6 @@
 #include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
-#include "Model/GroupSnapshot.h"
 #include "Model/IssueGenerator.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
@@ -39,30 +38,51 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GroupNode::GroupNode(const std::string& name) :
-        m_editState(Edit_Closed),
-        m_boundsValid(false) {
-            setName(name);
+        GroupNode::GroupNode(Group group) :
+        m_group(std::move(group)),
+        m_editState(EditState::Closed),
+        m_boundsValid(false) {}
+
+        const Group& GroupNode::group() const {
+            return m_group;
         }
 
-        void GroupNode::setName(const std::string& name) {
-            addOrUpdateAttribute(AttributeNames::GroupName, name);
+        Group GroupNode::setGroup(Group group) {
+            using std::swap;
+            swap(m_group, group);
+            return group;
         }
 
         bool GroupNode::opened() const {
-            return m_editState == Edit_Open;
+            return m_editState == EditState::Open;
+        }
+
+        bool GroupNode::hasOpenedDescendant() const {
+            return m_editState == EditState::DescendantOpen;
+        }
+
+        bool GroupNode::closed() const {
+            return m_editState == EditState::Closed;
         }
 
         void GroupNode::open() {
-            assert(m_editState == Edit_Closed);
-            setEditState(Edit_Open);
+            assert(m_editState == EditState::Closed);
+            setEditState(EditState::Open);
             openAncestors();
         }
 
         void GroupNode::close() {
-            assert(m_editState == Edit_Open);
-            setEditState(Edit_Closed);
+            assert(m_editState == EditState::Open);
+            setEditState(EditState::Closed);
             closeAncestors();
+        }
+
+        const std::optional<IdType>& GroupNode::persistentId() const {
+            return m_persistentId;
+        }
+
+        void GroupNode::setPersistentId(const IdType persistentId) {
+            m_persistentId = persistentId;
         }
 
         void GroupNode::setEditState(const EditState editState) {
@@ -71,25 +91,24 @@ namespace TrenchBroom {
 
         void GroupNode::setAncestorEditState(const EditState editState) {
             visitParent(kdl::overload(
-                [=](auto&& thisLambda, GroupNode* group) -> void { group->setEditState(editState); group->visitParent(thisLambda); },
-                [=](auto&& thisLambda, auto* node)       -> void { node->visitParent(thisLambda); }
+                [=](auto&& thisLambda, WorldNode* world)   -> void { world->visitParent(thisLambda); },
+                [=](auto&& thisLambda, LayerNode* layer)   -> void { layer->visitParent(thisLambda); },
+                [=](auto&& thisLambda, GroupNode* group)   -> void { group->setEditState(editState); group->visitParent(thisLambda); },
+                [=](auto&& thisLambda, EntityNode* entity) -> void { entity->visitParent(thisLambda); },
+                [=](auto&& thisLambda, BrushNode* brush)   -> void { brush->visitParent(thisLambda); }
             ));
         }
 
         void GroupNode::openAncestors() {
-            setAncestorEditState(Edit_DescendantOpen);
+            setAncestorEditState(EditState::DescendantOpen);
         }
 
         void GroupNode::closeAncestors() {
-            setAncestorEditState(Edit_Closed);
-        }
-
-        bool GroupNode::hasOpenedDescendant() const {
-            return m_editState == Edit_DescendantOpen;
+            setAncestorEditState(EditState::Closed);
         }
 
         const std::string& GroupNode::doGetName() const {
-            return attribute(AttributeNames::GroupName);
+            return m_group.name();
         }
 
         const vm::bbox3& GroupNode::doGetLogicalBounds() const {
@@ -107,13 +126,9 @@ namespace TrenchBroom {
         }
 
         Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const {
-            GroupNode* group = new GroupNode(doGetName());
+            GroupNode* group = new GroupNode(m_group);
             cloneAttributes(group);
             return group;
-        }
-
-        NodeSnapshot* GroupNode::doTakeSnapshot() {
-            return new GroupSnapshot(this);
         }
 
         bool GroupNode::doCanAddChild(const Node* child) const {
@@ -193,62 +208,16 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void GroupNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {
-        }
-
-        bool GroupNode::doIsAttributeNameMutable(const std::string& /* name */) const {
-            return false;
-        }
-
-        bool GroupNode::doIsAttributeValueMutable(const std::string& /* name */) const {
-            return false;
-        }
-
-        vm::vec3 GroupNode::doGetLinkSourceAnchor() const {
-            return vm::vec3::zero();
-        }
-
-        vm::vec3 GroupNode::doGetLinkTargetAnchor() const {
-            return vm::vec3::zero();
-        }
-
         Node* GroupNode::doGetContainer() {
             return parent();
         }
 
-        LayerNode* GroupNode::doGetLayer() {
+        LayerNode* GroupNode::doGetContainingLayer() {
             return findContainingLayer(this);
         }
 
-        GroupNode* GroupNode::doGetGroup() {
+        GroupNode* GroupNode::doGetContainingGroup() {
             return findContainingGroup(this);
-        }
-
-        kdl::result<void, TransformError> GroupNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {
-            for (auto* child : children()) {
-                auto result = child->accept(kdl::overload(
-                    [](Model::WorldNode*) {
-                        return kdl::result<void, Model::TransformError>::success();
-                    },
-                    [](Model::LayerNode*) {
-                        return kdl::result<void, Model::TransformError>::success();
-                    },
-                    [&](Model::GroupNode* group) {
-                        return group->transform(worldBounds, transformation, lockTextures);
-                    },
-                    [&](Model::EntityNode* entity) {
-                        return entity->transform(worldBounds, transformation, lockTextures);
-                    },
-                    [&](Model::BrushNode* brush) {
-                        return brush->transform(worldBounds, transformation, lockTextures);
-                    }
-                ));
-                if (result.is_error()) {
-                    return result;
-                }
-            }
-
-            return kdl::result<void, TransformError>::success();
         }
 
         bool GroupNode::doContains(const Node* node) const {

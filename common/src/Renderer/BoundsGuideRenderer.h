@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BoundsGuideRenderer_h
-#define BoundsGuideRenderer_h
+#pragma once
 
 #include "Color.h"
 #include "FloatType.h"
@@ -56,4 +55,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* BoundsGuideRenderer_h */

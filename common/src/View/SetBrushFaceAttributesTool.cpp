@@ -236,7 +236,7 @@ namespace TrenchBroom {
                 auto snapshot = sourceFaceHandle.face().takeTexCoordSystemSnapshot();
                 document->setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
                 if (snapshot != nullptr) {
-                    document->copyTexCoordSystemFromFace(*snapshot, sourceFaceHandle.face().attributes().takeSnapshot(), sourceFaceHandle.face().boundary(), style);
+                    document->copyTexCoordSystemFromFace(*snapshot, sourceFaceHandle.face().attributes(), sourceFaceHandle.face().boundary(), style);
                 }
             }
 

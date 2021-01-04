@@ -20,6 +20,7 @@
 #include "MissingDefinitionIssueGenerator.h"
 
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -34,7 +35,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit MissingDefinitionIssue(AttributableNode* node) :
+            explicit MissingDefinitionIssue(EntityNodeBase* node) :
             Issue(node) {}
         private:
             IssueType doGetType() const override {
@@ -42,8 +43,8 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-                return attributableNode->classname() + " not found in entity definitions";
+                const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+                return entityNode->name() + " not found in entity definitions";
             }
         };
 
@@ -64,8 +65,8 @@ namespace TrenchBroom {
             addQuickFix(new MissingDefinitionIssueQuickFix());
         }
 
-        void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            if (node->definition() == nullptr)
+        void MissingDefinitionIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+            if (node->entity().definition() == nullptr)
                 issues.push_back(new MissingDefinitionIssue(node));
         }
     }

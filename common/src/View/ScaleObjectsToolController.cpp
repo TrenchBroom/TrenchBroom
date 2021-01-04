@@ -261,7 +261,7 @@ namespace TrenchBroom {
                 if (camera.orthographicProjection()) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setLineWidth(2.0);
-                    renderService.setForegroundColor(pref(Preferences::ScaleOutlineDimColor));
+                    renderService.setForegroundColor(Color(pref(Preferences::ScaleOutlineColor), pref(Preferences::ScaleOutlineDimAlpha)));
                     renderService.renderPolygonOutline(poly.vertices());
                 }
             }

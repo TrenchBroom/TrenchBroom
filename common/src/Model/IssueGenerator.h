@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_IssueGenerator
-#define TrenchBroom_IssueGenerator
+#pragma once
 
 #include "Model/IssueType.h"
 
@@ -27,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
         class BrushNode;
         class EntityNode;
         class GroupNode;
@@ -65,9 +64,8 @@ namespace TrenchBroom {
             virtual void doGenerate(GroupNode* groupNode,           IssueList& issues) const;
             virtual void doGenerate(EntityNode* entityNode,         IssueList& issues) const;
             virtual void doGenerate(BrushNode* brushNode,           IssueList& issues) const;
-            virtual void doGenerate(AttributableNode* node, IssueList& issues) const;
+            virtual void doGenerate(EntityNodeBase* node,           IssueList& issues) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_IssueGenerator) */

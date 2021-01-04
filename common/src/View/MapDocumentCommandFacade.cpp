@@ -30,13 +30,13 @@
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributeSnapshot.h"
 #include "Model/Game.h"
 #include "Model/GroupNode.h"
 #include "Model/Issue.h"
+#include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
-#include "Model/Snapshot.h"
 #include "Model/WorldNode.h"
 #include "View/CommandProcessor.h"
 #include "View/UndoableCommand.h"
@@ -267,6 +267,69 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
+        static auto notifySpecialWorldProperties(const Model::Game& game, const std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap) {
+            for (const auto& [node, contents] : nodesToSwap) {
+                if (const auto* worldNode = dynamic_cast<const Model::WorldNode*>(node)) {
+                    const auto& oldEntity = worldNode->entity();
+                    const auto& newEntity = std::get<Model::Entity>(contents.get());
+
+                    const auto oldTextureCollections = game.extractTextureCollections(oldEntity);
+                    const auto newTextureCollections = game.extractTextureCollections(newEntity);
+                    const bool notifyTextureCollectionChange = oldTextureCollections != newTextureCollections;
+
+                    const auto oldEntityDefinitionSpec = game.extractEntityDefinitionFile(oldEntity);
+                    const auto newEntityDefinitionSpec = game.extractEntityDefinitionFile(newEntity);
+                    const bool notifyEntityDefinitionsChange = oldEntityDefinitionSpec != newEntityDefinitionSpec;
+
+                    const auto oldMods = game.extractEnabledMods(oldEntity);
+                    const auto newMods = game.extractEnabledMods(newEntity);
+                    const bool notifyModsChange = oldMods != newMods;
+                    
+                    return std::make_tuple(notifyTextureCollectionChange, notifyEntityDefinitionsChange, notifyModsChange);
+                }
+            }
+
+            return std::make_tuple(false, false, false);
+        }
+
+        void MapDocumentCommandFacade::performSwapNodeContents(std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap) {
+            const auto nodes = kdl::vec_transform(nodesToSwap, [](const auto& pair) { return pair.first; });
+            const auto parents = collectParents(nodes);
+            const auto descendants = collectDescendants(nodes);
+
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
+
+            const auto [notifyTextureCollectionChange, notifyEntityDefinitionsChange, notifyModsChange] = notifySpecialWorldProperties(*game(), nodesToSwap);
+            Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(notifyTextureCollectionChange, textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
+            Notifier<>::NotifyBeforeAndAfter notifyEntityDefinitions(notifyEntityDefinitionsChange, entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
+            Notifier<>::NotifyBeforeAndAfter notifyMods(notifyModsChange, modsWillChangeNotifier, modsDidChangeNotifier);
+
+            for (auto& pair : nodesToSwap) {
+                auto* node = pair.first;
+                auto& contents = pair.second.get();
+
+                pair.second = node->accept(kdl::overload(
+                    [&](Model::WorldNode* worldNode)   -> Model::NodeContents { return Model::NodeContents(worldNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
+                    [&](Model::LayerNode* layerNode)   -> Model::NodeContents { return Model::NodeContents(layerNode->setLayer(std::get<Model::Layer>(std::move(contents)))); },
+                    [&](Model::GroupNode* groupNode)   -> Model::NodeContents { return Model::NodeContents(groupNode->setGroup(std::get<Model::Group>(std::move(contents)))); },
+                    [&](Model::EntityNode* entityNode) -> Model::NodeContents { return Model::NodeContents(entityNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
+                    [&](Model::BrushNode* brushNode)   -> Model::NodeContents { return Model::NodeContents(brushNode->setBrush(std::get<Model::Brush>(std::move(contents)))); }
+                ));
+            }
+
+            if (!notifyEntityDefinitionsChange && !notifyModsChange) {
+                setEntityDefinitions(nodes);
+                setEntityModels(nodes);
+            }
+            if (!notifyTextureCollectionChange) {
+                setTextures(nodes);
+            }
+
+            invalidateSelectionBounds();
+        }
+
         std::map<Model::Node*, Model::VisibilityState> MapDocumentCommandFacade::setVisibilityState(const std::vector<Model::Node*>& nodes, const Model::VisibilityState visibilityState) {
             std::map<Model::Node*, Model::VisibilityState> result;
 
@@ -349,46 +412,6 @@ namespace TrenchBroom {
             nodeLockingDidChangeNotifier(changedNodes);
         }
 
-        std::map<Model::GroupNode*, std::string> MapDocumentCommandFacade::performRenameGroups(const std::string& newName) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            std::map<Model::GroupNode*, std::string> oldNames;
-            for (auto* node : nodes) {
-                node->accept(kdl::overload(
-                    [&](Model::GroupNode* group) {
-                        oldNames[group] = group->name();
-                        group->setName(newName);
-                    },
-                    [](const auto*) {}
-                ));
-            }
-
-            return oldNames;
-        }
-
-        void MapDocumentCommandFacade::performUndoRenameGroups(const std::map<Model::GroupNode*, std::string>& newNames) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            for (auto* node : nodes) {
-                node->accept(kdl::overload(
-                    [&](Model::GroupNode* group) {
-                        assert(newNames.count(group) == 1);
-                        const std::string& newName = kdl::map_find_or_default(newNames, group, group->name());
-                        group->setName(newName);
-                    },
-                    [](const auto*) {}
-                ));
-            }
-        }
-
         void MapDocumentCommandFacade::performPushGroup(Model::GroupNode* group) {
             m_editorContext->pushGroup(group);
             groupWasOpenedNotifier(group);
@@ -398,585 +421,6 @@ namespace TrenchBroom {
             Model::GroupNode* previousGroup = m_editorContext->currentGroup();
             m_editorContext->popGroup();
             groupWasClosedNotifier(previousGroup);
-        }
-
-        bool MapDocumentCommandFacade::performTransform(const vm::mat4x4 &transform, const bool lockTextures) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            bool success = true;
-            for (auto nodeIt = std::begin(nodes); nodeIt != std::end(nodes) && success; ++nodeIt) {
-                success = (*nodeIt)->accept(kdl::overload(
-                    [](Model::WorldNode*) {
-                        return kdl::result<void, Model::TransformError>::success();
-                    },
-                    [](Model::LayerNode*) {
-                        return kdl::result<void, Model::TransformError>::success();
-                    },
-                    [&](Model::GroupNode* group) {
-                        return group->transform(m_worldBounds, transform, lockTextures);
-                    },
-                    [&](Model::EntityNode* entity) {
-                        return entity->transform(m_worldBounds, transform, lockTextures);
-                    },
-                    [&](Model::BrushNode* brush) {
-                        return brush->transform(m_worldBounds, transform, lockTextures);
-                    }
-                )).handle_errors(
-                    [&](Model::TransformError&& e) {
-                        error() << "Could not transform objects: " << e;
-                    });
-            }
-
-            invalidateSelectionBounds();
-            return success;
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttribute(const std::string& name, const std::string& value) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            return performSetAttributeForNodes(attributableNodes, name, value);
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttributeForNodes(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& name, const std::string& value) {            
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-
-            for (Model::AttributableNode* node : attributableNodes) {
-                snapshot[node].push_back(node->attributeSnapshot(name));
-                node->addOrUpdateAttribute(name, value);
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            setEntitySprites(nodes);
-            invalidateSelectionBounds();
-
-            return snapshot;
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRemoveAttribute(const std::string& name) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            return performRemoveAttributeForNodes(attributableNodes, name);
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRemoveAttributeForNodes(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& name) {            
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-
-            for (Model::AttributableNode* node : attributableNodes) {
-                snapshot[node].push_back(node->attributeSnapshot(name));
-                node->removeAttribute(name);
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            invalidateSelectionBounds();
-
-            return snapshot;
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performUpdateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            const std::vector<Model::Node*> nodes(attributableNodes.begin(), attributableNodes.end());
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-
-            std::vector<Model::AttributableNode*>::const_iterator it, end;
-            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
-                Model::AttributableNode* node = *it;
-                snapshot[node].push_back(node->attributeSnapshot(name));
-
-                int intValue = node->hasAttribute(name) ? std::atoi(node->attribute(name).c_str()) : 0;
-                const int flagValue = (1 << flagIndex);
-
-                if (setFlag)
-                    intValue |= flagValue;
-                else
-                    intValue &= ~flagValue;
-
-                node->addOrUpdateAttribute(name, kdl::str_to_string(intValue));
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            setEntitySprites(nodes);
-
-            return snapshot;
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            static const std::string DefaultValue = "";
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-
-            for (Model::AttributableNode* node : attributableNodes) {
-                const std::string& oldValue = node->attribute(name, DefaultValue);
-                if (oldValue != DefaultValue) {
-                    snapshot[node].push_back(node->attributeSnapshot(name));
-                    node->addOrUpdateAttribute(name, Model::convertEntityColor(oldValue, colorRange));
-                }
-            }
-
-            return snapshot;
-        }
-               
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRenameAttribute(const std::string& oldName, const std::string& newName) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            return performRenameAttributeForNodes(attributableNodes, oldName, newName);
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRenameAttributeForNodes(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& oldName, const std::string& newName) {
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-            for (Model::AttributableNode* node : attributableNodes) {
-                snapshot[node].push_back(node->attributeSnapshot(oldName));
-                snapshot[node].push_back(node->attributeSnapshot(newName));
-                node->renameAttribute(oldName, newName);
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            setEntitySprites(nodes);
-            invalidateSelectionBounds();
-
-            return snapshot;
-        }
-
-        void MapDocumentCommandFacade::restoreAttributes(const MapDocumentCommandFacade::EntityAttributeSnapshotMap& attributes) {
-            const std::vector<Model::AttributableNode*> attributableNodes = kdl::map_keys(attributes);
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            for (const auto& entry : attributes) {
-                auto* node = entry.first;
-
-                const auto& snapshots = entry.second;
-                for (const auto& snapshot : snapshots) {
-                    snapshot.restore(node);
-                }
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            setEntitySprites(nodes);
-            invalidateSelectionBounds();
-        }
-
-        std::optional<std::vector<vm::polygon3>> MapDocumentCommandFacade::performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta) {
-            const std::vector<Model::BrushNode*>& selectedBrushes = m_selectedNodes.brushes();
-
-            std::vector<vm::polygon3> result;
-            std::vector<Model::Node*> changedNodes;
-            std::map<Model::BrushNode*, Model::Brush> changes;
-
-            for (Model::BrushNode* brushNode : selectedBrushes) {
-                const Model::Brush& original = brushNode->brush();
-                const auto faceIndex = original.findFace(polygons);
-                if (!faceIndex) {
-                    // We allow resizing only some of the brushes
-                    continue;
-                }
-
-                const bool success = original.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& copy) -> bool {
-                            if (m_worldBounds.contains(copy.bounds())) {
-                                result.push_back(copy.face(*faceIndex).polygon());
-                                changedNodes.push_back(brushNode);
-                                changes.emplace(brushNode, std::move(copy));
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        },
-                        [&](const Model::BrushError e) -> bool {
-                            error() << "Could not resize brush: " << e;
-                            return false;
-                        }
-                    ));
-
-                if (!success) {
-                    return std::nullopt;
-                }
-            }
-
-            const auto parents = collectParents(changedNodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
-
-            for (auto& [brushNode, brush] : changes) {
-                brushNode->setBrush(std::move(brush));
-            }
-            invalidateSelectionBounds();
-
-            return { result };
-        }
-
-        void MapDocumentCommandFacade::performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
-            for (const auto& faceHandle : m_selectedBrushFaces) {
-                Model::BrushNode* node = faceHandle.node();
-                Model::Brush brush = node->brush();
-                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
-                face.moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
-                node->setBrush(brush);
-            }
-            brushFacesDidChangeNotifier(m_selectedBrushFaces);
-        }
-
-        void MapDocumentCommandFacade::performRotateTextures(const float angle) {
-            for (const auto& faceHandle : m_selectedBrushFaces) {
-                Model::BrushNode* node = faceHandle.node();
-                Model::Brush brush = node->brush();
-                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
-                face.rotateTexture(angle);
-                node->setBrush(brush);
-            }
-            brushFacesDidChangeNotifier(m_selectedBrushFaces);
-        }
-
-        void MapDocumentCommandFacade::performShearTextures(const vm::vec2f& factors) {
-            for (const auto& faceHandle : m_selectedBrushFaces) {
-                Model::BrushNode* node = faceHandle.node();
-                Model::Brush brush = node->brush();
-                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
-                face.shearTexture(factors);
-                node->setBrush(brush);
-            }
-            brushFacesDidChangeNotifier(m_selectedBrushFaces);
-        }
-
-        void MapDocumentCommandFacade::performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
-            for (const auto& faceHandle : m_selectedBrushFaces) {
-                Model::BrushNode* node = faceHandle.node();
-                Model::Brush brush = node->brush();
-                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
-                face.copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
-                node->setBrush(brush);
-            }
-            brushFacesDidChangeNotifier(m_selectedBrushFaces);
-        }
-
-        void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
-            if (request.evaluate(allSelectedBrushFaces())) {
-                setTextures(allSelectedBrushFaces());
-                brushFacesDidChangeNotifier(allSelectedBrushFaces());
-            }
-        }
-
-        bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
-            const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
-
-            const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            size_t succeededBrushCount = 0;
-            size_t failedBrushCount = 0;
-
-            for (Model::BrushNode* brushNode : brushNodes) {
-                if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
-                    brushNode->brush().snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
-                        .visit(kdl::overload(
-                            [&](Model::Brush&& brush) {
-                                brushNode->setBrush(std::move(brush));
-                                succeededBrushCount += 1;
-                            },
-                            [&](const Model::BrushError e) {
-                                error() << "Could not snap vertices: " << e;
-                                failedBrushCount += 1;
-                            }
-                        ));
-                } else {
-                    failedBrushCount += 1;
-                }
-            }
-
-            invalidateSelectionBounds();
-
-            if (succeededBrushCount > 0) {
-                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
-            }
-            if (failedBrushCount > 0) {
-                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
-            }
-
-            return true;
-        }
-
-        std::vector<vm::vec3> MapDocumentCommandFacade::performMoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            std::vector<vm::vec3> newVertexPositions;
-            for (const auto& entry : vertices) {
-                Model::BrushNode* brushNode = entry.first;
-                const std::vector<vm::vec3>& oldPositions = entry.second;
-                
-                brushNode->brush().moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& brush) {
-                            auto newPositions = brush.findClosestVertexPositions(oldPositions + delta);
-                            newVertexPositions = kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
-                            brushNode->setBrush(std::move(brush));
-                        },
-                        [&](const Model::BrushError e) {
-                            error() << "Could not move vertices: " << e;
-                        }
-                    ));
-            }
-
-            invalidateSelectionBounds();
-
-            return kdl::vec_sort_and_remove_duplicates(std::move(newVertexPositions));
-        }
-
-        std::vector<vm::segment3> MapDocumentCommandFacade::performMoveEdges(const std::map<Model::BrushNode*, std::vector<vm::segment3>>& edges, const vm::vec3& delta) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            std::vector<vm::segment3> newEdgePositions;
-            for (const auto& entry : edges) {
-                Model::BrushNode* brushNode = entry.first;
-                const std::vector<vm::segment3>& oldPositions = entry.second;
-                brushNode->brush().moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& brush) {
-                            auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(oldPositions, [&](const auto& s) {
-                                return s.translate(delta);
-                            }));
-                            newEdgePositions = kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
-                            brushNode->setBrush(std::move(brush));
-                        },
-                        [&](const Model::BrushError e) {
-                            error() << "Couild not move edges: " << e;
-                        }
-                    ));
-            }
-
-            invalidateSelectionBounds();
-
-            return kdl::vec_sort_and_remove_duplicates(std::move(newEdgePositions));
-        }
-
-        std::vector<vm::polygon3> MapDocumentCommandFacade::performMoveFaces(const std::map<Model::BrushNode*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            std::vector<vm::polygon3> newFacePositions;
-            for (const auto& entry : faces) {
-                Model::BrushNode* brushNode = entry.first;
-                const std::vector<vm::polygon3>& oldPositions = entry.second;
-                
-                brushNode->brush().moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& brush) {
-                            auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(oldPositions, [&](const auto& f) {
-                                return f.translate(delta);
-                            }));
-                            newFacePositions = kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
-                            brushNode->setBrush(std::move(brush));
-                        },
-                        [&](const Model::BrushError e) {
-                            error() << "Could not move faces: " << e;
-                        }
-                    ));
-            }
-
-            invalidateSelectionBounds();
-
-            return kdl::vec_sort_and_remove_duplicates(std::move(newFacePositions));
-        }
-
-        void MapDocumentCommandFacade::performAddVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            for (const auto& entry : vertices) {
-                const vm::vec3& position = entry.first;
-                const std::vector<Model::BrushNode*>& brushNodes = entry.second;
-                for (Model::BrushNode* brushNode : brushNodes) {
-                    brushNode->brush().addVertex(m_worldBounds, position)
-                        .visit(kdl::overload(
-                            [&](Model::Brush&& brush) {
-                                brushNode->setBrush(std::move(brush));
-                            },
-                            [&](const Model::BrushError e) {
-                                error() << "Could not add vertex: " << e;
-                            }
-                        ));
-                }
-            }
-
-            invalidateSelectionBounds();
-        }
-
-        void MapDocumentCommandFacade::performRemoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            for (const auto& entry : vertices) {
-                Model::BrushNode* brushNode = entry.first;
-                const std::vector<vm::vec3>& positions = entry.second;
-                
-                brushNode->brush().removeVertices(m_worldBounds, positions)
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& brush) {
-                            brushNode->setBrush(std::move(brush));
-                        },
-                        [&](const Model::BrushError e) {
-                            error() << "Could not remove vertex: " << e;
-                        }
-                    ));
-            }
-
-            invalidateSelectionBounds();
-        }
-
-        void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
-            const auto restoreNodesAndLogErrors = [&]() {
-                snapshot->restoreNodes(m_worldBounds).
-                    visit(kdl::overload(
-                        []() {},
-                        [&](const Model::SnapshotErrors& errors) {
-                            for (const auto& e : errors) {
-                                error() << kdl::str_to_string(e);
-                            }
-                        }
-                    ));
-            };
-        
-            if (!m_selectedNodes.empty()) {
-                const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-                const std::vector<Model::Node*> parents = collectParents(nodes);
-
-                Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-                Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-                restoreNodesAndLogErrors();
-
-                setTextures(m_selectedNodes.nodes());
-                invalidateSelectionBounds();
-            }
-
-            const auto& faceHandles = selectedBrushFaces();
-            if (!faceHandles.empty()) {
-                restoreNodesAndLogErrors();
-
-                // Restoring the snapshots will invalidate all texture pointers on the BrushNode,
-                // since the snapshot has a whole brush granularity, so we need to call
-                // setTextures on the whole node.
-                kdl::vector_set<Model::Node*> nodes;
-                nodes.reserve(faceHandles.size());
-                for (const auto& faceHandle : faceHandles) {
-                    nodes.insert(faceHandle.node());
-                }
-
-                setTextures(nodes.release_data());
-                brushFacesDidChangeNotifier(faceHandles);
-            }
-        }
-
-        void MapDocumentCommandFacade::performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
-            const std::vector<Model::Node*> nodes(1, m_world.get());
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyAfter notifyEntityDefinitions(entityDefinitionsDidChangeNotifier);
-
-            // to avoid backslashes being misinterpreted as escape sequences
-            const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
-            m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
-            reloadEntityDefinitionsInternal();
-        }
-
-        void MapDocumentCommandFacade::performSetTextureCollections(const std::vector<IO::Path>& paths) {
-            const std::vector<Model::Node*> nodes(1, m_world.get());
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
-
-            m_game->updateTextureCollections(*m_world, paths);
-            unsetTextures();
-            loadTextures();
-            setTextures();
-        }
-
-        void MapDocumentCommandFacade::performSetMods(const std::vector<std::string>& mods) {
-            const std::vector<Model::Node*> nodes(1, m_world.get());
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyAfter notifyMods(modsDidChangeNotifier);
-
-            unsetEntityModels();
-            unsetEntityDefinitions();
-            clearEntityModels();
-
-            if (mods.empty()) {
-                m_world->removeAttribute(Model::AttributeNames::Mods);
-            } else {
-                const std::string newValue = kdl::str_join(mods, ";");
-                m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
-            }
-
-            updateGameSearchPaths();
-            setEntityDefinitions();
-            setEntityModels();
         }
 
         void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PreferencePane
-#define TrenchBroom_PreferencePane
+#pragma once
 
 #include <QWidget>
 
@@ -46,4 +45,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_PreferencePane) */

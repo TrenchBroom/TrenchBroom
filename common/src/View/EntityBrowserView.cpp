@@ -93,6 +93,7 @@ namespace TrenchBroom {
         }
 
         EntityBrowserView::~EntityBrowserView() {
+            m_entityDefinitionManager.usageCountDidChangeNotifier.removeObserver(this, &EntityBrowserView::usageCountDidChange);
             clear();
         }
 
@@ -246,6 +247,10 @@ namespace TrenchBroom {
 
         bool EntityBrowserView::doShouldRenderFocusIndicator() const {
             return false;
+        }
+
+        const Color& EntityBrowserView::getBackgroundColor() {
+            return pref(Preferences::BrowserBackgroundColor);
         }
 
         template <typename Vertex>

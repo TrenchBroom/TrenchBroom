@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapRenderer
-#define TrenchBroom_MapRenderer
+#pragma once
 
 #include "Macros.h"
 
@@ -152,4 +151,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapRenderer) */

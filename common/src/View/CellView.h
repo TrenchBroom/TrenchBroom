@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CellView_h
-#define TrenchBroom_CellView_h
+#pragma once
 
 #include "View/CellLayout.h"
 #include "View/RenderView.h"
@@ -122,5 +121,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

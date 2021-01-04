@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_KEYBOARDSHORTCUTITEMDELEGATE_H
-#define TRENCHBROOM_KEYBOARDSHORTCUTITEMDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -35,4 +34,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_KEYBOARDSHORTCUTITEMDELEGATE_H

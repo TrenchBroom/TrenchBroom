@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VertexHandleManager_h
-#define VertexHandleManager_h
+#pragma once
 
 #include "FloatType.h"
 #include "Model/BrushNode.h"
@@ -659,4 +658,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* VertexHandleManager_h */

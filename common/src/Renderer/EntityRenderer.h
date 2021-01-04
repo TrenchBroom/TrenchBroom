@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityRenderer
-#define TrenchBroom_EntityRenderer
+#pragma once
 
 #include "Color.h"
 #include "Renderer/EdgeRenderer.h"
@@ -123,10 +122,9 @@ namespace TrenchBroom {
             void invalidateBounds();
             void validateBounds();
 
-            AttrString entityString(const Model::EntityNode* entity) const;
-            const Color& boundsColor(const Model::EntityNode* entity) const;
+            AttrString entityString(const Model::EntityNode* entityNode) const;
+            const Color& boundsColor(const Model::EntityNode* entityNode) const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_EntityRenderer) */

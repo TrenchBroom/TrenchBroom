@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Vertex_h
-#define TrenchBroom_Vertex_h
+#pragma once
 
 #include <cstddef>
 #include <vector>
@@ -262,5 +261,3 @@ namespace TrenchBroom {
         }
     }
 }
-
-#endif

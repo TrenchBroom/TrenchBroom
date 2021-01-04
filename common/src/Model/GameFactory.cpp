@@ -26,6 +26,7 @@
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/IOUtils.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/GameConfigParser.h"
@@ -122,6 +123,20 @@ namespace TrenchBroom {
             return pref.path() == prefPath;
         }
 
+        static Preference<IO::Path>& compilationToolPathPref(const std::string& gameName, const std::string& toolName) {
+            auto& prefs = PreferenceManager::instance();
+            auto& pref = prefs.dynamicPreference(IO::Path("Games") + IO::Path(gameName) + IO::Path("Tool Path") + IO::Path(toolName), IO::Path());
+            return pref;
+        }
+
+        IO::Path GameFactory::compilationToolPath(const std::string& gameName, const std::string& toolName) const {
+            return PreferenceManager::instance().get(compilationToolPathPref(gameName, toolName));
+        }
+
+        bool GameFactory::setCompilationToolPath(const std::string& gameName, const std::string& toolName, const IO::Path& gamePath) {
+            return PreferenceManager::instance().set(compilationToolPathPref(gameName, toolName), gamePath);
+        }
+
         GameConfig& GameFactory::gameConfig(const std::string& name) {
             const auto cIt = m_configs.find(name);
             if (cIt == std::end(m_configs)) {
@@ -139,7 +154,7 @@ namespace TrenchBroom {
         }
 
         std::pair<std::string, MapFormat> GameFactory::detectGame(const IO::Path& path) const {
-            std::fstream stream(path.asString().c_str(), std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             if (!stream.is_open()) {
                 throw FileSystemException("Cannot open file: " + path.asString());
             }
@@ -150,7 +165,7 @@ namespace TrenchBroom {
             }
             
             const std::string formatName = IO::readFormatComment(stream);
-            const MapFormat format = mapFormat(formatName);
+            const MapFormat format = formatFromName(formatName);
             
             return std::make_pair(gameName, format);
         }

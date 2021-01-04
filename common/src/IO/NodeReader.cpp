@@ -21,10 +21,10 @@
 
 #include "IO/ParserStatus.h"
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
-#include "Model/ModelFactory.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/vector_utils.h>
@@ -35,15 +35,13 @@
 
 namespace TrenchBroom {
     namespace IO {
-        NodeReader::NodeReader(std::string_view str, Model::ModelFactory& factory) :
-        MapReader(str),
-        m_factory(factory) {}
+        NodeReader::NodeReader(std::string_view str, const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat) :
+        MapReader(str, sourceMapFormat, targetMapFormat) {}
 
-        std::vector<Model::Node*> NodeReader::read(const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::Node*> NodeReader::read(const std::string& str, const Model::MapFormat preferredMapFormat, const vm::bbox3& worldBounds, ParserStatus& status) {
             // Try preferred format first
-            const Model::MapFormat preferredFormat = factory.format();
-            for (const auto format : Model::compatibleFormats(preferredFormat)) {
-                if (auto result = readAsFormat(format, str, factory, worldBounds, status); !result.empty()) {
+            for (const auto compatibleMapFormat : Model::compatibleFormats(preferredMapFormat)) {
+                if (auto result = readAsFormat(compatibleMapFormat, preferredMapFormat, str, worldBounds, status); !result.empty()) {
                     return result;
                 }
             }
@@ -53,48 +51,43 @@ namespace TrenchBroom {
         }
 
         /**
-         * Attempts to parse the string as one or more entities (in the given format), and if that fails,
+         * Attempts to parse the string as one or more entities (in the given source format), and if that fails,
          * as one or more brushes.
          *
          * Does not throw upon parsing failure, but instead logs the failure to `status` and returns {}.
          *
          * @returns the parsed nodes; caller is responsible for freeing them.
          */
-        std::vector<Model::Node*> NodeReader::readAsFormat(Model::MapFormat format, const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::Node*> NodeReader::readAsFormat(const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat, const std::string& str, const vm::bbox3& worldBounds, ParserStatus& status) {
             {
-                NodeReader reader(str, factory);
+                NodeReader reader(str, sourceMapFormat, targetMapFormat);
                 try {
-                    reader.readEntities(format, worldBounds, status);
-                    status.info("Parsed successfully as " + Model::formatName(format) + " entities");
+                    reader.readEntities(worldBounds, status);
+                    status.info("Parsed successfully as " + Model::formatName(sourceMapFormat) + " entities");
                     return reader.m_nodes;
                 } catch (const ParserException& e) {
-                    status.info("Couldn't parse as " + Model::formatName(format) + " entities: " + e.what());
+                    status.info("Couldn't parse as " + Model::formatName(sourceMapFormat) + " entities: " + e.what());
                     kdl::vec_clear_and_delete(reader.m_nodes);
                 }
             }
 
             {
-                NodeReader reader(str, factory);
+                NodeReader reader(str, sourceMapFormat, targetMapFormat);
                 try {
-                    reader.readBrushes(format, worldBounds, status);
-                    status.info("Parsed successfully as " + Model::formatName(format) + " brushes");
+                    reader.readBrushes(worldBounds, status);
+                    status.info("Parsed successfully as " + Model::formatName(sourceMapFormat) + " brushes");
                     return reader.m_nodes;
                 } catch (const ParserException& e) {
-                    status.info("Couldn't parse as " + Model::formatName(format) + " brushes: " + e.what());
+                    status.info("Couldn't parse as " + Model::formatName(sourceMapFormat) + " brushes: " + e.what());
                     kdl::vec_clear_and_delete(reader.m_nodes);
                 }
             }
             return {};
         }
 
-        Model::ModelFactory& NodeReader::initialize(const Model::MapFormat) {
-            // NOTE: m_factory.format() may be different than the passed in format
-            return m_factory;
-        }
-
-        Model::Node* NodeReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
-            Model::EntityNode* worldspawn = m_factory.createEntity();
-            worldspawn->setAttributes(attributes);
+        Model::Node* NodeReader::onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+            Model::EntityNode* worldspawn = new Model::EntityNode(Model::Entity());
+            worldspawn->setEntity(Model::Entity(properties));
             setExtraAttributes(worldspawn, extraAttributes);
 
             m_nodes.insert(std::begin(m_nodes), worldspawn);

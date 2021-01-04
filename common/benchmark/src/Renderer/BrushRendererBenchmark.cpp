@@ -22,8 +22,9 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
-#include "Model/WorldNode.h"
+#include "Model/Entity.h"
 #include "Model/MapFormat.h"
+#include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 
 #include <kdl/result.h>
@@ -36,7 +37,6 @@
 
 #include "BenchmarkUtils.h"
 #include "../../test/src/Catch2.h"
-#include "../../test/src/GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -56,9 +56,8 @@ namespace TrenchBroom {
 
             // make brushes, cycling through the textures for each face
             const vm::bbox3 worldBounds(4096.0);
-            Model::WorldNode world(Model::MapFormat::Standard);
 
-            Model::BrushBuilder builder(&world, worldBounds);
+            Model::BrushBuilder builder(Model::MapFormat::Standard, worldBounds);
 
             std::vector<Model::BrushNode*> result;
             size_t currentTextureIndex = 0;
@@ -67,7 +66,7 @@ namespace TrenchBroom {
                 for (Model::BrushFace& face : brush.faces()) {
                     face.setTexture(textures.at((currentTextureIndex++) % NumTextures));
                 }
-                Model::BrushNode* brushNode = world.createBrush(std::move(brush));
+                Model::BrushNode* brushNode = new Model::BrushNode(std::move(brush));
                 result.push_back(brushNode);
             }
 

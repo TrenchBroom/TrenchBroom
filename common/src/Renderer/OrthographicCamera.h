@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_OrthographicCamera
-#define TrenchBroom_OrthographicCamera
+#pragma once
 
 #include "Renderer/Camera.h"
 
@@ -52,4 +51,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_OrthographicCamera) */

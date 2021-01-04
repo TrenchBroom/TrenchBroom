@@ -31,7 +31,6 @@
 #include <kdl/result.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -42,13 +41,13 @@ namespace TrenchBroom {
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
 
-            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
-            Model::GroupNode* group = new Model::GroupNode("Unnamed");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
             document->addNode(group, layer);
 
-            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
@@ -64,7 +63,7 @@ namespace TrenchBroom {
             document->select(selectionBrush);
             document->selectTouching(true);
 
-            ASSERT_EQ(1u, document->selectedNodes().nodeCount());
+            CHECK(document->selectedNodes().nodeCount() == 1u);
         }
 
         TEST_CASE_METHOD(SelectionTest, "SelectionTest.selectInsideWithGroup") {
@@ -72,13 +71,13 @@ namespace TrenchBroom {
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
 
-            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             document->addNode(layer, document->world());
 
-            Model::GroupNode* group = new Model::GroupNode("Unnamed");
+            Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
             document->addNode(group, layer);
 
-            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
@@ -94,12 +93,13 @@ namespace TrenchBroom {
             document->select(selectionBrush);
             document->selectInside(true);
 
-            ASSERT_EQ(1u, document->selectedNodes().nodeCount());
+            CHECK(document->selectedNodes().nodeCount() == 1u);
         }
         
         TEST_CASE_METHOD(SelectionTest, "SelectionTest.updateLastSelectionBounds") {
-            auto* entityNode = new Model::EntityNode();
-            entityNode->addOrUpdateAttribute("classname", "point_entity");
+            auto* entityNode = new Model::EntityNode({
+                {"classname", "point_entity"}
+            });
             document->addNode(entityNode, document->parentForNodes());
             REQUIRE(!entityNode->logicalBounds().is_empty());
             

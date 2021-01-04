@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationVariables_h
-#define CompilationVariables_h
+#pragma once
 
 #include "EL/VariableStore.h"
 
@@ -67,4 +66,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationVariables_h */

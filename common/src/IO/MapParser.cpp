@@ -20,7 +20,7 @@
 #include "MapParser.h"
 
 #include "Exceptions.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <list>
 
@@ -52,12 +52,8 @@ namespace TrenchBroom {
 
         MapParser::~MapParser() = default;
 
-        void MapParser::formatSet(const Model::MapFormat format) {
-            onFormatSet(format);
-        }
-
-        void MapParser::beginEntity(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            onBeginEntity(line, attributes, extraAttributes, status);
+        void MapParser::beginEntity(const size_t line, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+            onBeginEntity(line, properties, extraAttributes, status);
         }
 
         void MapParser::endEntity(const size_t startLine, const size_t lineCount, ParserStatus& status) {
@@ -72,12 +68,12 @@ namespace TrenchBroom {
             onEndBrush(startLine, lineCount, extraAttributes, status);
         }
 
-        void MapParser::standardBrushFace(const size_t line, const Model::MapFormat format,  const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
-            onStandardBrushFace(line, format, point1, point2, point3, attribs, status);
+        void MapParser::standardBrushFace(const size_t line, const Model::MapFormat targetMapFormat,  const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
+            onStandardBrushFace(line, targetMapFormat, point1, point2, point3, attribs, status);
         }
 
-        void MapParser::valveBrushFace(const size_t line, const Model::MapFormat format,  const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
-            onValveBrushFace(line, format, point1, point2, point3, attribs, texAxisX, texAxisY, status);
+        void MapParser::valveBrushFace(const size_t line, const Model::MapFormat targetMapFormat,  const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
+            onValveBrushFace(line, targetMapFormat, point1, point2, point3, attribs, texAxisX, texAxisY, status);
         }
     }
 }

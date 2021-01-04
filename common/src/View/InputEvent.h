@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef InputEvent_h
-#define InputEvent_h
+#pragma once
 
 #include <QKeyEvent>
 
@@ -411,4 +410,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* InputEvent_hpp */

@@ -25,6 +25,7 @@
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "Model/BrushError.h"
+#include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/TagMatcher.h"
@@ -106,6 +107,48 @@ namespace TrenchBroom {
         }
 
         BrushFace::~BrushFace() = default;
+
+        kdl::result<BrushFace, BrushError> BrushFace::create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, const MapFormat mapFormat) {
+            return Model::isParallelTexCoordSystem(mapFormat)
+                   ? BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes))
+                   : BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
+        }
+
+        kdl::result<BrushFace, BrushError> BrushFace::createFromStandard(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& inputAttribs, const MapFormat mapFormat) {
+            assert(mapFormat != MapFormat::Unknown);
+
+            std::unique_ptr<TexCoordSystem> texCoordSystem;
+            BrushFaceAttributes attribs("");
+
+            if (Model::isParallelTexCoordSystem(mapFormat)) {
+                // Convert paraxial to parallel
+                std::tie(texCoordSystem, attribs) = ParallelTexCoordSystem::fromParaxial(point0, point1, point2, inputAttribs);
+            } else {
+                // Pass through paraxial
+                texCoordSystem = std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, inputAttribs);
+                attribs = inputAttribs;
+            }
+
+            return BrushFace::create(point0, point1, point2, attribs, std::move(texCoordSystem));
+        }
+
+        kdl::result<BrushFace, BrushError> BrushFace::createFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& inputAttribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, MapFormat mapFormat) {
+            assert(mapFormat != MapFormat::Unknown);
+
+            std::unique_ptr<TexCoordSystem> texCoordSystem;
+            BrushFaceAttributes attribs("");
+
+            if (Model::isParallelTexCoordSystem(mapFormat)) {
+                // Pass through parallel
+                texCoordSystem = std::make_unique<ParallelTexCoordSystem>(texAxisX, texAxisY);
+                attribs = inputAttribs;
+            } else {
+                // Convert parallel to paraxial
+                std::tie(texCoordSystem, attribs) = ParaxialTexCoordSystem::fromParallel(point1, point2, point3, inputAttribs, texAxisX, texAxisY);
+            }
+
+            return BrushFace::create(point1, point2, point3, attribs, std::move(texCoordSystem));
+        }
 
         kdl::result<BrushFace, BrushError> BrushFace::create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) {
             Points points = {{ vm::correct(point0), vm::correct(point1), vm::correct(point2) }};
@@ -299,7 +342,7 @@ namespace TrenchBroom {
         }
 
         const Assets::Texture* BrushFace::texture() const {
-            return m_textureReference.texture();
+            return m_textureReference.get();
         }
 
         vm::vec2f BrushFace::textureSize() const {
@@ -320,7 +363,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_textureReference = Assets::TextureReference(texture);
+            m_textureReference = Assets::AssetReference(texture);
             return true;
         }
 

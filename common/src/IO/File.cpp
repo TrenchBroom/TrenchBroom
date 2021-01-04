@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
         CFile::CFile(const Path& path) :
         File(path) {
-            m_file = std::fopen(path.asString().c_str(), "rb");
+            m_file = openPathAsFILE(path, "rb");
             if (m_file == nullptr) {
                 throw FileSystemException("Cannot open file " + path.asString());
             }

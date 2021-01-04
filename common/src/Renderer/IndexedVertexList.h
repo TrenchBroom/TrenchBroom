@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_IndexedVertexList_h
-#define TrenchBroom_IndexedVertexList_h
+#pragma once
 
 #include "Renderer/GL.h"
 
@@ -143,5 +142,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

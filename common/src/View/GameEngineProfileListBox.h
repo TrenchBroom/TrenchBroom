@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GameEngineProfileListBox_h
-#define GameEngineProfileListBox_h
+#pragma once
 
 #include "View/ControlListBox.h"
 
@@ -78,4 +77,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* GameEngineProfileListBox_h */

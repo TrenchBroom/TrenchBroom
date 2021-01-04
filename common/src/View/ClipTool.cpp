@@ -543,7 +543,7 @@ namespace TrenchBroom {
             m_remainingBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
             m_remainingBrushRenderer->setShowEdges(true);
             m_remainingBrushRenderer->setShowOccludedEdges(true);
-            m_remainingBrushRenderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
+            m_remainingBrushRenderer->setOccludedEdgeColor(Color(pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
             m_remainingBrushRenderer->setTint(true);
             m_remainingBrushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
             m_remainingBrushRenderer->render(renderContext, renderBatch);
@@ -744,28 +744,22 @@ namespace TrenchBroom {
 
         void ClipTool::updateBrushes() {
             auto document = kdl::mem_lock(m_document);
-            auto* world = document->world();
 
             const auto& brushNodes = document->selectedNodes().brushes();
             const auto& worldBounds = document->worldBounds();
 
             const auto clip = [&](auto* node, const auto& p1, const auto& p2, const auto& p3, auto& brushMap) {
-                world->createFace(p1, p2, p3, document->currentTextureName())
-                    .and_then(
-                        [&](Model::BrushFace&& clipFace) {
-                            setFaceAttributes(node->brush().faces(), clipFace);
-                            return node->brush().clip(worldBounds, std::move(clipFace));
-                        }
-                    ).and_then(
-                        [&](Model::Brush&& brush) {
+                auto brush = node->brush();
+                Model::BrushFace::create(p1, p2, p3, Model::BrushFaceAttributes(document->currentTextureName()), document->world()->mapFormat())
+                    .and_then([&](Model::BrushFace&& clipFace) {
+                            setFaceAttributes(brush.faces(), clipFace);
+                            return brush.clip(worldBounds, std::move(clipFace));
+                    }).and_then([&]() {
                             brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
                             return kdl::void_result;
-                        }
-                    ).handle_errors(
-                        [&](const Model::BrushError e) {
+                    }).handle_errors([&](const Model::BrushError e) {
                             document->error() << "Could not clip brush: " << e;
-                        }
-                    );
+                    });
             };
 
             if (canClip()) {
@@ -838,8 +832,11 @@ namespace TrenchBroom {
                 const auto& nodes = entry.second;
                 for (auto* node : nodes) {
                     node->accept(kdl::overload(
-                        [&](Model::BrushNode* brush) { brushes.push_back(brush); },
-                        [](auto*) {}
+                        [] (const Model::WorldNode*)  {},
+                        [] (const Model::LayerNode*)  {},
+                        [] (const Model::GroupNode*)  {},
+                        [] (const Model::EntityNode*) {},
+                        [&](Model::BrushNode* brush) { brushes.push_back(brush); }
                     ));
                 }
             }

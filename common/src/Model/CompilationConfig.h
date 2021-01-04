@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationConfig_h
-#define CompilationConfig_h
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -51,4 +50,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationConfig_h */

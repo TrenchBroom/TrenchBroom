@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_DefParser
-#define TrenchBroom_DefParser
+#pragma once
 
 #include "FloatType.h"
 #include "Color.h"
@@ -78,14 +77,14 @@ namespace TrenchBroom {
             std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
             std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
-            AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
-            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
-            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
+            PropertyDefinitionPtr parseSpawnflags(ParserStatus& status);
+            void parseProperties(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
+            bool parseProperty(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
 
-            void parseDefaultAttribute(ParserStatus& status);
-            std::string parseBaseAttribute(ParserStatus& status);
-            AttributeDefinitionPtr parseChoiceAttribute(ParserStatus& status);
-            Assets::ModelDefinition parseModel(ParserStatus& status);
+            void parseDefaultProperty(ParserStatus& status);
+            std::string parseBaseProperty(ParserStatus& status);
+            PropertyDefinitionPtr parseChoicePropertyDefinition(ParserStatus& status);
+            Assets::ModelDefinition parseModelDefinition(ParserStatus& status);
             Assets::SpriteDefinition parseSprite(ParserStatus& status);
 
             std::string parseDescription();
@@ -99,4 +98,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_DefParser) */

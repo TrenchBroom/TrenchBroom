@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_BENCHMARKUTILS_H
-#define TRENCHBROOM_BENCHMARKUTILS_H
+#pragma once
 
 #include <chrono>
 #include <string>
@@ -41,4 +40,3 @@ TB_NOINLINE static void timeLambda(L&& lambda, const std::string& message) {
 }
 
 
-#endif //TRENCHBROOM_BENCHMARKUTILS_H

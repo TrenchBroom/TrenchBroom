@@ -30,7 +30,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
@@ -992,7 +992,7 @@ namespace TrenchBroom {
             }
             mergeGroupAction->setEnabled(canMergeGroups());
 
-            QAction* renameAction = menu.addAction(tr("Rename"), mapFrame, &MapFrame::renameSelectedGroups);
+            QAction* renameAction = menu.addAction(tr("Rename Groups"), mapFrame, &MapFrame::renameSelectedGroups);
             renameAction->setEnabled(mapFrame->canRenameSelectedGroups());
 
             if (newGroup != nullptr && newGroup != currentGroup) {
@@ -1055,8 +1055,11 @@ namespace TrenchBroom {
                 moveToWorldAction->setEnabled(canMakeStructural());
 
                 const auto isEntity = newBrushParent->accept(kdl::overload(
+                    [](const Model::WorldNode*)  { return false; },
+                    [](const Model::LayerNode*)  { return false; },
+                    [](const Model::GroupNode*)  { return false; },
                     [](const Model::EntityNode*) { return true; },
-                    [](const auto*)              { return false; }
+                    [](const Model::BrushNode*)  { return false; }
                 ));
 
                 if (isEntity) {
@@ -1136,7 +1139,7 @@ namespace TrenchBroom {
 
                 std::vector<Assets::EntityDefinition*> filteredDefinitions;
                 for (auto* definition : definitions) {
-                    if (!kdl::cs::str_is_equal(definition->name(), Model::AttributeValues::WorldspawnClassname)) {
+                    if (!kdl::cs::str_is_equal(definition->name(), Model::PropertyValues::WorldspawnClassname)) {
                         filteredDefinitions.push_back(definition);
                     }
                 }

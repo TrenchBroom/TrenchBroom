@@ -89,10 +89,10 @@ namespace TrenchBroom {
         }
 
         void MoveObjectsToolPage::applyMove() {
-            const vm::vec3 delta = vm::parse<FloatType, 3>(m_offset->text().toStdString());
-
-            auto document = kdl::mem_lock(m_document);
-            document->translateObjects(delta);
+            if (const auto delta = vm::parse<FloatType, 3>(m_offset->text().toStdString())) {
+                auto document = kdl::mem_lock(m_document);
+                document->translateObjects(*delta);
+            }
         }
     }
 }

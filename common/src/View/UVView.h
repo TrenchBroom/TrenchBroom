@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_UVView
-#define TrenchBroom_UVView
+#pragma once
 
 #include "FloatType.h"
 #include "Model/HitType.h"
@@ -98,6 +97,7 @@ namespace TrenchBroom {
             void doUpdateViewport(int x, int y, int width, int height) override;
             void doRender() override;
             bool doShouldRenderFocusIndicator() const override;
+            const Color& getBackgroundColor() override;
 
             void setupGL(Renderer::RenderContext& renderContext);
 
@@ -118,4 +118,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_UVView) */

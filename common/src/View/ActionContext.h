@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ActionContext_h
-#define TrenchBroom_ActionContext_h
+#pragma once
 
 #include <string>
 
@@ -55,5 +54,3 @@ namespace TrenchBroom {
         static const size_t NumActionViews = 2;
     }
 }
-
-#endif

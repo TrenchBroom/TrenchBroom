@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureBrowserView
-#define TrenchBroom_TextureBrowserView
+#pragma once
 
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
@@ -107,6 +106,7 @@ namespace TrenchBroom {
             void doClear() override;
             void doRender(Layout& layout, float y, float height) override;
             bool doShouldRenderFocusIndicator() const override;
+            const Color& getBackgroundColor() override;
 
             void renderBounds(Layout& layout, float y, float height);
             const Color& textureColor(const Assets::Texture& texture) const;
@@ -127,4 +127,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_TextureBrowserView) */

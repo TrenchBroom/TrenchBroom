@@ -33,23 +33,6 @@ namespace TrenchBroom {
             return std::make_unique<GameEngineProfile>(m_name, m_path, m_parameterSpec);
         }
 
-        bool GameEngineProfile::operator==(const GameEngineProfile& other) const {
-            if (m_name != other.m_name) {
-                return false;
-            }
-            if (m_path != other.m_path) {
-                return false;
-            }
-            if (m_parameterSpec != other.m_parameterSpec) {
-                return false;
-            }
-            return true;
-        }
-
-        bool GameEngineProfile::operator!=(const GameEngineProfile& other) const {
-            return !(*this == other);
-        }
-
         const std::string& GameEngineProfile::name() const {
             return m_name;
         }
@@ -72,6 +55,16 @@ namespace TrenchBroom {
 
         void GameEngineProfile::setParameterSpec(const std::string& parameterSpec) {
             m_parameterSpec = parameterSpec;
+        }
+
+        bool operator==(const GameEngineProfile& lhs, const GameEngineProfile& rhs) {
+            return lhs.m_name == rhs.m_name &&
+                   lhs.m_path == rhs.m_path &&
+                   lhs.m_parameterSpec == rhs.m_parameterSpec;
+        }
+
+        bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs) {
+            return !(lhs == rhs);
         }
     }
 }

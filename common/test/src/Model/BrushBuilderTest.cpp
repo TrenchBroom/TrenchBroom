@@ -22,37 +22,33 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/MapFormat.h"
-#include "Model/WorldNode.h"
 
 #include <kdl/result.h>
 
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
         TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
 
-            BrushBuilder builder(&world, worldBounds);
+            BrushBuilder builder(MapFormat::Standard, worldBounds);
             const Brush cube = builder.createCube(128.0, "someName").value();
-            ASSERT_TRUE(cube.fullySpecified());
-            ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube.bounds());
+            CHECK(cube.fullySpecified());
+            CHECK(cube.bounds() == vm::bbox3d(-64.0, +64.0));
 
             const auto faces = cube.faces();
-            ASSERT_EQ(6u, faces.size());
+            CHECK(faces.size() == 6u);
 
             for (size_t i = 0; i < faces.size(); ++i) {
-                ASSERT_EQ(std::string("someName"), faces[i].attributes().textureName());
+                CHECK(faces[i].attributes().textureName() == "someName");
             }
         }
 
         TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
 
             BrushFaceAttributes defaultAttribs("defaultTexture");
             defaultAttribs.setOffset(vm::vec2f(0.5f, 0.5f));
@@ -63,23 +59,23 @@ namespace TrenchBroom {
             defaultAttribs.setSurfaceValue(0.1f);
             defaultAttribs.setColor(Color(255, 255, 255, 255));
 
-            BrushBuilder builder(&world, worldBounds, defaultAttribs);
+            BrushBuilder builder(MapFormat::Standard, worldBounds, defaultAttribs);
             const Brush cube = builder.createCube(128.0, "someName").value();
-            ASSERT_TRUE(cube.fullySpecified());
-            ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube.bounds());
+            CHECK(cube.fullySpecified());
+            CHECK(cube.bounds() == vm::bbox3d(-64.0, +64.0));
 
             const auto faces = cube.faces();
-            ASSERT_EQ(6u, faces.size());
+            CHECK(faces.size() == 6u);
 
             for (size_t i = 0; i < faces.size(); ++i) {
-                ASSERT_EQ(std::string("someName"), faces[i].attributes().textureName());
-                ASSERT_EQ(vm::vec2f(0.5f, 0.5f), faces[i].attributes().offset());
-                ASSERT_EQ(vm::vec2f(0.5f, 0.5f), faces[i].attributes().scale());
-                ASSERT_EQ(45.0f, faces[i].attributes().rotation());
-                ASSERT_EQ(1, faces[i].attributes().surfaceContents());
-                ASSERT_EQ(2, faces[i].attributes().surfaceFlags());
-                ASSERT_EQ(0.1f, faces[i].attributes().surfaceValue());
-                ASSERT_EQ(Color(255, 255, 255, 255), faces[i].attributes().color());
+                CHECK(faces[i].attributes().textureName() == "someName");
+                CHECK(faces[i].attributes().offset() == vm::vec2f(0.5f, 0.5f));
+                CHECK(faces[i].attributes().scale() == vm::vec2f(0.5f, 0.5f));
+                CHECK(faces[i].attributes().rotation() == 45.0f);
+                CHECK(faces[i].attributes().surfaceContents() == 1);
+                CHECK(faces[i].attributes().surfaceFlags() == 2);
+                CHECK(faces[i].attributes().surfaceValue() == 0.1f);
+                CHECK(faces[i].attributes().color() == Color(255, 255, 255, 255));
             }
         }
     }

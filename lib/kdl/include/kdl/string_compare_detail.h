@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_STRING_COMPARE_DETAIL_H
-#define KDL_STRING_COMPARE_DETAIL_H
+#pragma once
 
 #include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
 #include <string_view>
@@ -230,4 +229,3 @@ namespace kdl {
     }
 }
 
-#endif //KDL_STRING_COMPARE_DETAIL_H

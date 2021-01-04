@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_IssueQuickFix
-#define TrenchBroom_IssueQuickFix
+#pragma once
 
 #include "Model/IssueType.h"
 
@@ -49,4 +48,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_IssueQuickFix) */

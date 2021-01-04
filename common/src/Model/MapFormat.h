@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapFormat
-#define TrenchBroom_MapFormat
+#pragma once
 
 #include <string>
 #include <vector>
@@ -75,7 +74,7 @@ namespace TrenchBroom {
          * @param formatName the name
          * @return the enum value
          */
-        MapFormat mapFormat(const std::string& formatName);
+        MapFormat formatFromName(const std::string& formatName);
 
         /**
          * Returns the name of the given map format enum value.
@@ -95,4 +94,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapFormat) */

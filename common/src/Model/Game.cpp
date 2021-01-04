@@ -70,8 +70,8 @@ namespace TrenchBroom {
             return doSoftMapBounds();
         }
 
-        Game::SoftMapBounds Game::extractSoftMapBounds(const AttributableNode& node) const {
-            return doExtractSoftMapBounds(node);
+        Game::SoftMapBounds Game::extractSoftMapBounds(const Entity& entity) const {
+            return doExtractSoftMapBounds(entity);
         }
 
         std::unique_ptr<WorldNode> Game::newMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
@@ -90,12 +90,12 @@ namespace TrenchBroom {
             doExportMap(world, format, path);
         }
 
-        std::vector<Node*> Game::parseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
-            return doParseNodes(str, world, worldBounds, logger);
+        std::vector<Node*> Game::parseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const {
+            return doParseNodes(str, mapFormat, worldBounds, logger);
         }
 
-        std::vector<BrushFace> Game::parseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
-            return doParseBrushFaces(str, world, worldBounds, logger);
+        std::vector<BrushFace> Game::parseBrushFaces(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const {
+            return doParseBrushFaces(str, mapFormat, worldBounds, logger);
         }
 
         void Game::writeNodesToStream(WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const {
@@ -110,8 +110,8 @@ namespace TrenchBroom {
             return doTexturePackageType();
         }
 
-        void Game::loadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
-            doLoadTextureCollections(node, documentPath, textureManager, logger);
+        void Game::loadTextureCollections(const Entity& entity, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
+            doLoadTextureCollections(entity, documentPath, textureManager, logger);
         }
 
         bool Game::isTextureCollection(const IO::Path& path) const {
@@ -126,12 +126,12 @@ namespace TrenchBroom {
             return doFindTextureCollections();
         }
 
-        std::vector<IO::Path> Game::extractTextureCollections(const AttributableNode& node) const {
-            return doExtractTextureCollections(node);
+        std::vector<IO::Path> Game::extractTextureCollections(const Entity& entity) const {
+            return doExtractTextureCollections(entity);
         }
 
-        void Game::updateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {
-            doUpdateTextureCollections(node, paths);
+        void Game::updateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const {
+            doUpdateTextureCollections(entity, paths);
         }
 
         void Game::reloadShaders() {
@@ -146,8 +146,8 @@ namespace TrenchBroom {
             return doAllEntityDefinitionFiles();
         }
 
-        Assets::EntityDefinitionFileSpec Game::extractEntityDefinitionFile(const AttributableNode& node) const {
-            return doExtractEntityDefinitionFile(node);
+        Assets::EntityDefinitionFileSpec Game::extractEntityDefinitionFile(const Entity& entity) const {
+            return doExtractEntityDefinitionFile(entity);
         }
 
         IO::Path Game::findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const {
@@ -158,8 +158,8 @@ namespace TrenchBroom {
             return doAvailableMods();
         }
 
-        std::vector<std::string> Game::extractEnabledMods(const AttributableNode& node) const {
-            return doExtractEnabledMods(node);
+        std::vector<std::string> Game::extractEnabledMods(const Entity& entity) const {
+            return doExtractEnabledMods(entity);
         }
 
         std::string Game::defaultMod() const {
@@ -176,6 +176,10 @@ namespace TrenchBroom {
 
         const BrushFaceAttributes& Game::defaultFaceAttribs() const {
             return doDefaultFaceAttribs();
+        }
+
+        const std::vector<CompilationTool>& Game::compilationTools() const {
+            return doCompilationTools();
         }
     }
 }

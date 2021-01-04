@@ -19,7 +19,7 @@
 
 #include "FgdParser.h"
 
-#include "Assets/AttributeDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/File.h"
 #include "IO/DiskFileSystem.h"
@@ -279,24 +279,24 @@ namespace TrenchBroom {
                 const auto typeName = token.data();
                 if (kdl::ci::str_is_equal(typeName, "base")) {
                     if (!classInfo.superClasses.empty()) {
-                        status.warn(token.line(), token.column(), "Found multiple base attributes");
+                        status.warn(token.line(), token.column(), "Found multiple base properties");
                     }
                     classInfo.superClasses = parseSuperClasses(status);
                 } else if (kdl::ci::str_is_equal(typeName, "color")) {
                     if (classInfo.color) {
-                        status.warn(token.line(), token.column(), "Found multiple color attributes");
+                        status.warn(token.line(), token.column(), "Found multiple color properties");
                     }
                     classInfo.color = parseColor(status);
                 } else if (kdl::ci::str_is_equal(typeName, "size")) {
                     if (classInfo.size) {
-                        status.warn(token.line(), token.column(), "Found multiple size attributes");
+                        status.warn(token.line(), token.column(), "Found multiple size properties");
                     }
                     classInfo.size = parseSize(status);
                 } else if (kdl::ci::str_is_equal(typeName, "model") ||
                            kdl::ci::str_is_equal(typeName, "studio") ||
                            kdl::ci::str_is_equal(typeName, "studioprop")) {
                     if (classInfo.modelDefinition) {
-                        status.warn(token.line(), token.column(), "Found multiple model attributes");
+                        status.warn(token.line(), token.column(), "Found multiple model properties");
                     }
                     classInfo.modelDefinition = parseModel(status);
                 } else if (kdl::ci::str_is_equal(typeName, "iconsprite")) {
@@ -305,8 +305,8 @@ namespace TrenchBroom {
                     }
                     classInfo.spriteDefinition = parseSprite(status);
                 } else {
-                    status.warn(token.line(), token.column(), "Unknown entity definition header attribute '" + typeName + "'");
-                    skipClassAttribute(status);
+                    status.warn(token.line(), token.column(), "Unknown entity definition header properties '" + typeName + "'");
+                    skipClassProperty(status);
                 }
                 token = expect(status, FgdToken::Equality | FgdToken::Word, m_tokenizer.nextToken());
             }
@@ -321,7 +321,7 @@ namespace TrenchBroom {
                 classInfo.description = kdl::str_trim(description);
             }
 
-            classInfo.attributes = parseProperties(status);
+            classInfo.propertyDefinitions = parsePropertyDefinitions(status);
 
             return classInfo;
         }
@@ -362,8 +362,11 @@ namespace TrenchBroom {
             const auto column = m_tokenizer.column();
 
             try {
-                ELParser parser(m_tokenizer);
+                ELParser parser(ELParser::Mode::Lenient, m_tokenizer.remainder());
                 auto expression = parser.parse();
+
+                // advance our tokenizer by the amount that `parser` parsed
+                m_tokenizer.adoptState(parser.tokenizerState());
                 expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
                 expression.optimize();
@@ -372,8 +375,11 @@ namespace TrenchBroom {
                 try {
                     m_tokenizer.restore(snapshot);
 
-                    LegacyModelDefinitionParser parser(m_tokenizer);
+                    LegacyModelDefinitionParser parser(m_tokenizer.remainder());
                     auto expression = parser.parse(status);
+
+                    // advance our tokenizer by the amount that `parser` parsed
+                    m_tokenizer.adoptState(parser.tokenizerState());
                     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
                     expression.optimize();
@@ -393,8 +399,11 @@ namespace TrenchBroom {
             const auto column = m_tokenizer.column();
 
             try {
-                ELParser parser(m_tokenizer);
+                ELParser parser(ELParser::Mode::Lenient, m_tokenizer.remainder());
                 auto expression = parser.parse();
+
+                // advance our tokenizer by the amount that `parser` parsed
+                m_tokenizer.adoptState(parser.tokenizerState());
                 expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
                 expression.optimize();
@@ -405,7 +414,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FgdParser::skipClassAttribute(ParserStatus& /* status */) {
+        void FgdParser::skipClassProperty(ParserStatus& /* status */) {
             size_t depth = 0;
             Token token;
             do {
@@ -418,14 +427,14 @@ namespace TrenchBroom {
             } while (depth > 0 && token.type() != FgdToken::Eof);
         }
 
-        FgdParser::AttributeDefinitionList FgdParser::parseProperties(ParserStatus& status) {
-            AttributeDefinitionList attributes;
+        FgdParser::PropertyDefinitionList FgdParser::parsePropertyDefinitions(ParserStatus& status) {
+            PropertyDefinitionList propertyDefinitions;
 
             expect(status, FgdToken::OBracket, m_tokenizer.nextToken());
             auto token = expect(status, FgdToken::Word | FgdToken::CBracket, m_tokenizer.nextToken());
 
             while (token.type() != FgdToken::CBracket) {
-                const auto attributeName = token.data();
+                const auto propertyKey = token.data();
                 const auto line = token.line();
                 const auto column = token.column();
 
@@ -435,90 +444,90 @@ namespace TrenchBroom {
                 const auto typeName = token.data();
                 token = expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
-                std::shared_ptr<Assets::AttributeDefinition> attribute;
+                std::shared_ptr<Assets::PropertyDefinition> propertyDefinition;
                 if (kdl::ci::str_is_equal(typeName, "target_source")) {
-                    attribute = parseTargetSourceAttribute(status, attributeName);
+                    propertyDefinition = parseTargetSourcePropertyDefinition(status, propertyKey);
                 } else if (kdl::ci::str_is_equal(typeName, "target_destination")) {
-                    attribute = parseTargetDestinationAttribute(status, attributeName);
+                    propertyDefinition = parseTargetDestinationPropertyDefinition(status, propertyKey);
                 } else if (kdl::ci::str_is_equal(typeName, "string")) {
-                    attribute = parseStringAttribute(status, attributeName);
+                    propertyDefinition = parseStringPropertyDefinition(status, propertyKey);
                 } else if (kdl::ci::str_is_equal(typeName, "integer")) {
-                    attribute = parseIntegerAttribute(status, attributeName);
+                    propertyDefinition = parseIntegerPropertyDefinition(status, propertyKey);
                 } else if (kdl::ci::str_is_equal(typeName, "float")) {
-                    attribute = parseFloatAttribute(status, attributeName);
+                    propertyDefinition = parseFloatPropertyDefinition(status, propertyKey);
                 } else if (kdl::ci::str_is_equal(typeName, "choices")) {
-                    attribute = parseChoicesAttribute(status, attributeName);
+                    propertyDefinition = parseChoicesPropertyDefinition(status, propertyKey);
                 } else if (kdl::ci::str_is_equal(typeName, "flags")) {
-                    attribute = parseFlagsAttribute(status, attributeName);
+                    propertyDefinition = parseFlagsPropertyDefinition(status, propertyKey);
                 } else {
-                    status.debug(token.line(), token.column(), kdl::str_to_string("Unknown property definition type '", typeName, "' for attribute '", attributeName, "'"));
-                    attribute = parseUnknownAttribute(status, attributeName);
+                    status.debug(token.line(), token.column(), kdl::str_to_string("Unknown property definition type '", typeName, "' for property '", propertyKey, "'"));
+                    propertyDefinition = parseUnknownPropertyDefinition(status, propertyKey);
                 }
 
-                assert(attribute != nullptr);
-                if (!addAttribute(attributes, std::move(attribute))) {
-                    status.warn(line, column, "Skipping duplicate attribute definition: '" + attributeName + "'");
+                assert(propertyDefinition != nullptr);
+                if (!addPropertyDefinition(propertyDefinitions, std::move(propertyDefinition))) {
+                    status.warn(line, column, "Skipping duplicate property definition: '" + propertyKey + "'");
                 }
                 
 
                 token = expect(status, FgdToken::Word | FgdToken::CBracket, m_tokenizer.nextToken());
             }
 
-            return attributes;
+            return propertyDefinitions;
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseTargetSourceAttribute(ParserStatus& status, const std::string& name) {
+        FgdParser::PropertyDefinitionPtr FgdParser::parseTargetSourcePropertyDefinition(ParserStatus& status, const std::string& propertyKey) {
             const auto readOnly = parseReadOnlyFlag(status);
-            const auto shortDescription = parseAttributeDescription(status);
+            const auto shortDescription = parsePropertyDescription(status);
             parseDefaultStringValue(status);
-            const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinitionType::TargetSourceAttribute, shortDescription, longDescription, readOnly);
+            const auto longDescription = parsePropertyDescription(status);
+            return std::make_shared<Assets::PropertyDefinition>(propertyKey, Assets::PropertyDefinitionType::TargetSourceProperty, shortDescription, longDescription, readOnly);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseTargetDestinationAttribute(ParserStatus& status, const std::string& name) {
+        FgdParser::PropertyDefinitionPtr FgdParser::parseTargetDestinationPropertyDefinition(ParserStatus& status, const std::string& propertyKey) {
             const auto readOnly = parseReadOnlyFlag(status);
-            const auto shortDescription = parseAttributeDescription(status);
+            const auto shortDescription = parsePropertyDescription(status);
             parseDefaultStringValue(status);
-            const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinitionType::TargetDestinationAttribute, shortDescription, longDescription, readOnly);
+            const auto longDescription = parsePropertyDescription(status);
+            return std::make_shared<Assets::PropertyDefinition>(propertyKey, Assets::PropertyDefinitionType::TargetDestinationProperty, shortDescription, longDescription, readOnly);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseStringAttribute(ParserStatus& status, const std::string& name) {
+        FgdParser::PropertyDefinitionPtr FgdParser::parseStringPropertyDefinition(ParserStatus& status, const std::string& propertyKey) {
             const auto readOnly = parseReadOnlyFlag(status);
-            const auto shortDescription = parseAttributeDescription(status);
+            const auto shortDescription = parsePropertyDescription(status);
             const auto defaultValue = parseDefaultStringValue(status);
-            const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::StringAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
+            const auto longDescription = parsePropertyDescription(status);
+            return std::make_shared<Assets::StringPropertyDefinition>(propertyKey, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseIntegerAttribute(ParserStatus& status, const std::string& name) {
+        FgdParser::PropertyDefinitionPtr FgdParser::parseIntegerPropertyDefinition(ParserStatus& status, const std::string& propertyKey) {
             const auto readOnly = parseReadOnlyFlag(status);
-            const auto shortDescription = parseAttributeDescription(status);
+            const auto shortDescription = parsePropertyDescription(status);
             const auto defaultValue = parseDefaultIntegerValue(status);
-            const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::IntegerAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
+            const auto longDescription = parsePropertyDescription(status);
+            return std::make_shared<Assets::IntegerPropertyDefinition>(propertyKey, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseFloatAttribute(ParserStatus& status, const std::string& name) {
+        FgdParser::PropertyDefinitionPtr FgdParser::parseFloatPropertyDefinition(ParserStatus& status, const std::string& propertyKey) {
             const auto readOnly = parseReadOnlyFlag(status);
-            const auto shortDescription = parseAttributeDescription(status);
+            const auto shortDescription = parsePropertyDescription(status);
             const auto defaultValue = parseDefaultFloatValue(status);
-            const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::FloatAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
+            const auto longDescription = parsePropertyDescription(status);
+            return std::make_shared<Assets::FloatPropertyDefinition>(propertyKey, shortDescription, longDescription, readOnly, defaultValue);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(ParserStatus& status, const std::string& name) {
+        FgdParser::PropertyDefinitionPtr FgdParser::parseChoicesPropertyDefinition(ParserStatus& status, const std::string& propertyKey) {
             const auto readOnly = parseReadOnlyFlag(status);
-            const auto shortDescription = parseAttributeDescription(status);
+            const auto shortDescription = parsePropertyDescription(status);
             const auto defaultValue = parseDefaultChoiceValue(status);
-            const auto longDescription = parseAttributeDescription(status);
+            const auto longDescription = parsePropertyDescription(status);
 
             expect(status, FgdToken::Equality, m_tokenizer.nextToken());
             expect(status, FgdToken::OBracket, m_tokenizer.nextToken());
 
             auto token = expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, m_tokenizer.nextToken());
 
-            Assets::ChoiceAttributeOption::List options;
+            Assets::ChoicePropertyOption::List options;
             while (token.type() != FgdToken::CBracket) {
                 const auto value = token.data();
                 expect(status, FgdToken::Colon, m_tokenizer.nextToken());
@@ -528,18 +537,18 @@ namespace TrenchBroom {
                 token = expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, m_tokenizer.nextToken());
             }
 
-            return std::make_shared<Assets::ChoiceAttributeDefinition>(name, shortDescription, longDescription, options, readOnly, defaultValue);
+            return std::make_shared<Assets::ChoicePropertyDefinition>(propertyKey, shortDescription, longDescription, options, readOnly, defaultValue);
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseFlagsAttribute(ParserStatus& status, const std::string& name) {
-            // Flag attributes do not have descriptions or defaults, see https://developer.valvesoftware.com/wiki/FGD
+        FgdParser::PropertyDefinitionPtr FgdParser::parseFlagsPropertyDefinition(ParserStatus& status, const std::string& propertyKey) {
+            // Flag property definitions do not have descriptions or defaults, see https://developer.valvesoftware.com/wiki/FGD
 
             expect(status, FgdToken::Equality, m_tokenizer.nextToken());
             expect(status, FgdToken::OBracket, m_tokenizer.nextToken());
 
             auto token = expect(status, FgdToken::Integer | FgdToken::CBracket, m_tokenizer.nextToken());
 
-            auto definition = std::make_shared<Assets::FlagsAttributeDefinition>(name);
+            auto definition = std::make_shared<Assets::FlagsPropertyDefinition>(propertyKey);
 
             while (token.type() != FgdToken::CBracket) {
                 const auto value = token.toInteger<int>();
@@ -567,12 +576,12 @@ namespace TrenchBroom {
             return definition;
         }
 
-        FgdParser::AttributeDefinitionPtr FgdParser::parseUnknownAttribute(ParserStatus& status, const std::string& name) {
+        FgdParser::PropertyDefinitionPtr FgdParser::parseUnknownPropertyDefinition(ParserStatus& status, const std::string& propertyKey) {
             const auto readOnly = parseReadOnlyFlag(status);
-            const auto shortDescription = parseAttributeDescription(status);
+            const auto shortDescription = parsePropertyDescription(status);
             const auto defaultValue = parseDefaultStringValue(status);
-            const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
+            const auto longDescription = parsePropertyDescription(status);
+            return std::make_shared<Assets::UnknownPropertyDefinition>(propertyKey, shortDescription, longDescription, readOnly, defaultValue);
         }
 
         bool FgdParser::parseReadOnlyFlag(ParserStatus& /* status */) {
@@ -585,7 +594,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::string FgdParser::parseAttributeDescription(ParserStatus& status) {
+        std::string FgdParser::parsePropertyDescription(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
@@ -733,7 +742,7 @@ namespace TrenchBroom {
                 return {};
             }
         
-            const auto snapshot = m_tokenizer.snapshot();
+            const auto snapshot = m_tokenizer.snapshotStateAndSource();
             auto result = std::vector<EntityDefinitionClassInfo>();
             try {
                 status.debug(m_tokenizer.line(), "Parsing included file '" + path.asString() + "'");
@@ -753,7 +762,7 @@ namespace TrenchBroom {
                 status.error(m_tokenizer.line(), kdl::str_to_string("Failed to parse included file: ", e.what()));
             }
 
-            m_tokenizer.restore(snapshot);
+            m_tokenizer.restoreStateAndSource(snapshot);
             return result;
         }
     }

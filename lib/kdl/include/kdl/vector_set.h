@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_VECTOR_SET_H
-#define KDL_VECTOR_SET_H
+#pragma once
 
 #include "set_adapter.h"
 #include "vector_set_forward.h"
@@ -198,4 +197,3 @@ namespace kdl {
     vector_set(const typename vector_set<typename std::iterator_traits<I>::value_type, Compare, Allocator>::size_type capacity, I first, I last, const Compare& cmp = Compare(), const Allocator& alloc = Allocator()) -> vector_set<typename std::iterator_traits<I>::value_type, Compare, Allocator>;
 }
 
-#endif //KDL_VECTOR_SET_H

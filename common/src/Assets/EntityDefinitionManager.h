@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinitionManager
-#define TrenchBroom_EntityDefinitionManager
+#pragma once
 
 #include "Notifier.h"
 
@@ -34,7 +33,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
     }
 
     namespace Assets {
@@ -58,7 +57,7 @@ namespace TrenchBroom {
             void setDefinitions(const std::vector<EntityDefinition*>& newDefinitions);
             void clear();
 
-            EntityDefinition* definition(const Model::AttributableNode* attributable) const;
+            EntityDefinition* definition(const Model::EntityNodeBase* node) const;
             EntityDefinition* definition(const std::string& classname) const;
             std::vector<EntityDefinition*> definitions(EntityDefinitionType type, EntityDefinitionSortOrder order) const;
             const std::vector<EntityDefinition*>& definitions() const;
@@ -75,4 +74,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityDefinitionManager) */

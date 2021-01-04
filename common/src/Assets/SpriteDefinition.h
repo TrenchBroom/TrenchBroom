@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
             void append(const SpriteDefinition& other);
 
-            std::string spritePath(const Model::EntityAttributes& attributes) const;
+            std::string spritePath(const EL::VariableStore& variableStore) const;
             std::string defaultSpritePath() const;
 
         private:

@@ -24,6 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/Node.h"
@@ -129,11 +130,13 @@ namespace TrenchBroom {
             return face().lineNumber();
         }
 
-        AttributeIssue::~AttributeIssue() = default;
+        EntityPropertyIssue::~EntityPropertyIssue() = default;
 
-        const std::string& AttributeIssue::attributeValue() const {
-            const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-            return attributableNode->attribute(attributeName());
+        const std::string& EntityPropertyIssue::propertyValue() const {
+            static const auto NoValue = std::string("");
+            const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+            const auto* value = entityNode->entity().property(propertyKey());
+            return value ? *value : NoValue;
         }
     }
 }

@@ -21,19 +21,20 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/BrushBuilder.h"
-#include "Model/EditorContext.h"
-#include "Model/LockState.h"
-#include "Model/VisibilityState.h"
-#include "Model/WorldNode.h"
-#include "Model/LayerNode.h"
-#include "Model/GroupNode.h"
-#include "Model/EntityNode.h"
 #include "Model/BrushNode.h"
+#include "Model/EditorContext.h"
+#include "Model/Entity.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/LockState.h"
+#include "Model/MapFormat.h"
+#include "Model/WorldNode.h"
+#include "Model/VisibilityState.h"
 
 #include <kdl/result.h>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -45,7 +46,7 @@ namespace TrenchBroom {
 
             EditorContextTest() {
                 worldBounds = vm::bbox3d(8192.0);
-                world = new WorldNode(MapFormat::Standard);
+                world = new WorldNode(Model::Entity(), MapFormat::Standard);
             }
 
             virtual ~EditorContextTest() {
@@ -61,25 +62,25 @@ namespace TrenchBroom {
             }
 
             EntityNode* createTopLevelPointEntity() {
-                auto* entity = world->createEntity();
-                world->defaultLayer()->addChild(entity);
-                return entity;
+                auto* entityNode = new Model::EntityNode(Model::Entity());
+                world->defaultLayer()->addChild(entityNode);
+                return entityNode;
             }
 
             std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity() {
-                BrushBuilder builder(world, worldBounds);
-                auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* entity = world->createEntity();
-                entity->addChild(brush);
-                world->defaultLayer()->addChild(entity);
-                return std::make_tuple(entity, brush);
+                BrushBuilder builder(world->mapFormat(), worldBounds);
+                auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
+                auto* entityNode = new Model::EntityNode(Model::Entity());
+                entityNode->addChild(brushNode);
+                world->defaultLayer()->addChild(entityNode);
+                return std::make_tuple(entityNode, brushNode);
             }
 
             BrushNode* createTopLevelBrush() {
-                BrushBuilder builder(world, worldBounds);
-                auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                world->defaultLayer()->addChild(brush);
-                return brush;
+                BrushBuilder builder(world->mapFormat(), worldBounds);
+                auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
+                world->defaultLayer()->addChild(brushNode);
+                return brushNode;
             }
 
             std::tuple<GroupNode*, GroupNode*> createNestedGroup() {
@@ -91,71 +92,71 @@ namespace TrenchBroom {
             }
 
             std::tuple<GroupNode*, BrushNode*> createGroupedBrush() {
-                BrushBuilder builder(world, worldBounds);
-                auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* group = world->createGroup("somegroup");
+                BrushBuilder builder(world->mapFormat(), worldBounds);
+                auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
+                auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
-                group->addChild(brush);
-                world->defaultLayer()->addChild(group);
+                groupNode->addChild(brushNode);
+                world->defaultLayer()->addChild(groupNode);
 
-                return std::make_tuple(group, brush);
+                return std::make_tuple(groupNode, brushNode);
             }
 
             std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity() {
-                BrushBuilder builder(world, worldBounds);
-                auto* entity = world->createEntity();
-                auto* group = world->createGroup("somegroup");
+                BrushBuilder builder(world->mapFormat(), worldBounds);
+                auto* entityNode = new Model::EntityNode(Model::Entity());
+                auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
-                group->addChild(entity);
-                world->defaultLayer()->addChild(group);
+                groupNode->addChild(entityNode);
+                world->defaultLayer()->addChild(groupNode);
 
-                return std::make_tuple(group, entity);
+                return std::make_tuple(groupNode, entityNode);
             }
 
             std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
-                BrushBuilder builder(world, worldBounds);
-                auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* entity = world->createEntity();
-                auto* group = world->createGroup("somegroup");
+                BrushBuilder builder(world->mapFormat(), worldBounds);
+                auto* brushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
+                auto* entityNode = new Model::EntityNode(Model::Entity());
+                auto* groupNode = new Model::GroupNode(Model::Group("somegroup"));
 
-                entity->addChild(brush);
-                group->addChild(entity);
-                world->defaultLayer()->addChild(group);
+                entityNode->addChild(brushNode);
+                groupNode->addChild(entityNode);
+                world->defaultLayer()->addChild(groupNode);
 
-                return std::make_tuple(group, entity, brush);
+                return std::make_tuple(groupNode, entityNode, brushNode);
             }
 
             std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush() {
-                BrushBuilder builder(world, worldBounds);
-                auto* innerBrush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* innerGroup = world->createGroup("inner");
-                auto* outerGroup = world->createGroup("outer");
+                BrushBuilder builder(world->mapFormat(), worldBounds);
+                auto* innerBrushNode = new Model::BrushNode(builder.createCube(32.0, "sometex").value());
+                auto* innerGroupNode = new Model::GroupNode(Model::Group("inner"));
+                auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));
 
-                innerGroup->addChild(innerBrush);
-                outerGroup->addChild(innerGroup);
-                world->defaultLayer()->addChild(outerGroup);
+                innerGroupNode->addChild(innerBrushNode);
+                outerGroupNode->addChild(innerGroupNode);
+                world->defaultLayer()->addChild(outerGroupNode);
 
-                return std::make_tuple(outerGroup, innerGroup, innerBrush);
+                return std::make_tuple(outerGroupNode, innerGroupNode, innerBrushNode);
             }
 
             void assertVisible(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.visible(node));
+                CHECK(context.visible(node) == expected);
             }
 
             void assertEditable(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.editable(node));
+                CHECK(context.editable(node) == expected);
             }
 
             void assertPickable(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.pickable(node));
+                CHECK(context.pickable(node) == expected);
             }
 
             void assertSelectable(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
                 setState(node, visibilityState, lockState);
-                ASSERT_EQ(expected, context.selectable(node));
+                CHECK(context.selectable(node) == expected);
             }
         private:
             void setState(Node* node, const VisibilityState visibilityState, const LockState lockState) {

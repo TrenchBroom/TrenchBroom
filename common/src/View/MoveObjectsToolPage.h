@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveObjectsToolPage
-#define TrenchBroom_MoveObjectsToolPage
+#pragma once
 
 #include <memory>
 
@@ -56,4 +55,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MoveObjectsToolPage) */

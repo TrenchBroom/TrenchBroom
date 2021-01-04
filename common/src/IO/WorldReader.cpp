@@ -20,8 +20,10 @@
 #include "WorldReader.h"
 
 #include "IO/ParserStatus.h"
+#include "Color.h"
 #include "Model/BrushNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/Entity.h"
+#include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
 #include "Model/WorldNode.h"
@@ -35,11 +37,14 @@
 
 namespace TrenchBroom {
     namespace IO {
-        WorldReader::WorldReader(std::string_view str) :
-        MapReader(std::move(str)) {}
+        WorldReader::WorldReader(std::string_view str, const Model::MapFormat sourceAndTargetMapFormat) :
+        MapReader(std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat),
+        m_world(std::make_unique<Model::WorldNode>(Model::Entity(), sourceAndTargetMapFormat)) {
+            m_world->disableNodeTreeUpdates();
+        }
 
-        std::unique_ptr<Model::WorldNode> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
-            readEntities(format, worldBounds, status);
+        std::unique_ptr<Model::WorldNode> WorldReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
+            readEntities(worldBounds, status);
             sanitizeLayerSortIndicies(status);
             m_world->rebuildNodeTree();
             m_world->enableNodeTreeUpdates();
@@ -61,51 +66,58 @@ namespace TrenchBroom {
             std::vector<Model::LayerNode*> invalidLayers;
             std::vector<Model::LayerNode*> validLayers;
             kdl::vector_set<int> usedIndices;
-            for (auto* layer : customLayers) {
+            for (auto* layerNode : customLayers) {
                 // Check for a totally invalid index
-                if (layer->sortIndex() < 0  || layer->sortIndex() == Model::LayerNode::invalidSortIndex()) {
-                    invalidLayers.push_back(layer);
+                const auto sortIndex = layerNode->layer().sortIndex();
+                if (sortIndex < 0  || sortIndex == Model::Layer::invalidSortIndex()) {
+                    invalidLayers.push_back(layerNode);
                     continue;
                 }
 
                 // Check for an index that has already been used
-                const bool wasInserted = usedIndices.insert(layer->sortIndex()).second;
+                const bool wasInserted = usedIndices.insert(sortIndex).second;
                 if (!wasInserted) {
-                    invalidLayers.push_back(layer);
+                    invalidLayers.push_back(layerNode);
                     continue;
                 }
 
-                validLayers.push_back(layer);
+                validLayers.push_back(layerNode);
             }
 
             assert(invalidLayers.size() + validLayers.size() == customLayers.size());
 
             // Renumber the invalid layers
-            int nextValidLayerIndex = (validLayers.empty() ? 0 : (validLayers.back()->sortIndex() + 1));            
-            for (auto* layer : invalidLayers) {
-                layer->setSortIndex(nextValidLayerIndex++);
+            int nextValidLayerIndex = (validLayers.empty() ? 0 : (validLayers.back()->layer().sortIndex() + 1));            
+            for (auto* layerNode : invalidLayers) {
+                auto layer = layerNode->layer();
+                layer.setSortIndex(nextValidLayerIndex++);
+                layerNode->setLayer(std::move(layer));
             }
         }
 
-        Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format) {
-            m_world = std::make_unique<Model::WorldNode>(format);
-            m_world->disableNodeTreeUpdates();
-            return *m_world;
-        }
-
-        Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
-            m_world->setAttributes(attributes);
+        Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+            m_world->setEntity(Model::Entity(properties));
             setExtraAttributes(m_world.get(), extraAttributes);
 
             // handle default layer attributes, which are stored in worldspawn
-            for (const Model::EntityAttribute& attribute : attributes) {
-                if (attribute.name() == Model::AttributeNames::LayerColor
-                    || attribute.name() == Model::AttributeNames::LayerOmitFromExport) {
-                    m_world->defaultLayer()->addOrUpdateAttribute(attribute.name(), attribute.value());
-                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue)) {
-                    m_world->defaultLayer()->setLockState(Model::LockState::Lock_Locked);
-                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue)) {
-                    m_world->defaultLayer()->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+            auto* defaultLayerNode = m_world->defaultLayer();
+            for (const Model::EntityProperty& property : properties) {
+                if (property.key() == Model::PropertyKeys::LayerColor) {
+                    if (const auto color = Color::parse(property.value())) {
+                        auto defaultLayer = defaultLayerNode->layer();
+                        defaultLayer.setColor(*color);
+                        defaultLayerNode->setLayer(std::move(defaultLayer));
+                    }
+                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue)) {
+                    auto defaultLayer = defaultLayerNode->layer();
+                    defaultLayer.setOmitFromExport(true);
+                    defaultLayerNode->setLayer(std::move(defaultLayer));
+                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerLocked,
+                    Model::PropertyValues::LayerLockedValue)) {
+                    defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
+                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerHidden,
+                    Model::PropertyValues::LayerHiddenValue)) {
+                    defaultLayerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
                 }
             }
             return m_world->defaultLayer();

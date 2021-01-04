@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityInspector
-#define TrenchBroom_EntityInspector
+#pragma once
 
 #include "View/TabBook.h"
 
@@ -28,9 +27,9 @@ class QSplitter;
 
 namespace TrenchBroom {
     namespace View {
-        class EntityAttributeEditor;
         class EntityBrowser;
         class EntityDefinitionFileChooser;
+        class EntityPropertyEditor;
         class GLContextManager;
         class MapDocument;
 
@@ -38,7 +37,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             QSplitter* m_splitter;
-            EntityAttributeEditor* m_attributeEditor;
+            EntityPropertyEditor* m_attributeEditor;
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
@@ -53,4 +52,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityInspector) */

@@ -283,7 +283,7 @@ namespace TrenchBroom {
             renderer.setOverlayBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
             renderer.setShowBrushEdges(true);
             renderer.setShowOccludedObjects(true);
-            renderer.setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
+            renderer.setOccludedEdgeColor(Color(pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
             renderer.setTint(true);
             renderer.setTintColor(pref(Preferences::SelectedFaceColor));
 

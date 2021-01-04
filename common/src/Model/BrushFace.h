@@ -17,12 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Face
-#define TrenchBroom_Face
+#pragma once
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Assets/TextureReference.h"
+#include "Assets/AssetReference.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Tag.h" // BrushFace inherits from Taggable
@@ -50,6 +49,7 @@ namespace TrenchBroom {
         class TexCoordSystemSnapshot;
         enum class WrapStyle;
         enum class BrushError;
+        enum class MapFormat;
 
         class BrushFace : public Taggable {
         public:
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             vm::plane3 m_boundary;
             BrushFaceAttributes m_attributes;
 
-            Assets::TextureReference m_textureReference;
+            Assets::AssetReference<Assets::Texture> m_textureReference;
             std::unique_ptr<TexCoordSystem> m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
 
@@ -104,6 +104,35 @@ namespace TrenchBroom {
             friend void swap(BrushFace& lhs, BrushFace& rhs) noexcept;
 
             ~BrushFace();
+
+            /**
+             * Creates a face using TB's default texture projection for the given map format and the given plane.
+             *
+             * Used when creating new faces when we don't have a particular texture alignment to request.
+             * On Valve format maps, this differs from createFromStandard() by creating a face-aligned texture projection,
+             * whereas createFromStandard() creates an axis-aligned texture projection.
+             *
+             * The returned face has a TexCoordSystem matching the given format.
+             */
+            static kdl::result<BrushFace, BrushError> create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, MapFormat mapFormat);
+
+            /**
+             * Creates a face from a Standard texture projection, converting it to Valve if necessary.
+             *
+             * Used when loading/pasting a Standard format map.
+             *
+             * The returned face has a TexCoordSystem matching the given format.
+             */
+            static kdl::result<BrushFace, BrushError> createFromStandard(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, MapFormat mapFormat);
+
+            /**
+             * Creates a face from a Valve texture projection, converting it to Standard if necessary.
+             *
+             * Used when loading/pasting a Valve format map.
+             *
+             * The returned face has a TexCoordSystem matching the given format.
+             */
+            static kdl::result<BrushFace, BrushError> createFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attributes, const vm::vec3& texAxisX, const vm::vec3& texAxisY, MapFormat mapFormat);
 
             static kdl::result<BrushFace, BrushError> create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
 
@@ -200,4 +229,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Face) */

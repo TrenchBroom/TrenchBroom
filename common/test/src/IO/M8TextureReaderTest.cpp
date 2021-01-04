@@ -30,7 +30,6 @@
 #include <memory>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {

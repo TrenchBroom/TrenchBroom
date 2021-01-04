@@ -37,7 +37,6 @@
 
 #include "BenchmarkUtils.h"
 #include "../../test/src/Catch2.h"
-#include "../../test/src/GTestCompat.h"
 
 namespace TrenchBroom {
     using AABB = AABBTree<double, 3, Model::Node*>;
@@ -49,10 +48,10 @@ namespace TrenchBroom {
         auto fileReader = file->reader().buffer();
 
         IO::TestParserStatus status;
-        IO::WorldReader worldReader(fileReader.stringView());
+        IO::WorldReader worldReader(fileReader.stringView(), Model::MapFormat::Standard);
 
         const vm::bbox3 worldBounds(8192.0);
-        auto world = worldReader.read(Model::MapFormat::Standard, worldBounds, status);
+        auto world = worldReader.read(worldBounds, status);
 
         std::vector<AABB> trees(100);
         timeLambda([&world, &trees]() {

@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "IO/DiskIO.h"
+#include "IO/IOUtils.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 
@@ -34,7 +35,7 @@ namespace TrenchBroom {
     m_file(nullptr) {
         const auto fixedPath = IO::Disk::fixPath(filePath);
         IO::Disk::ensureDirectoryExists(fixedPath.deleteLastComponent());
-        m_file = fopen(fixedPath.asString().c_str(), "w");
+        m_file = openPathAsFILE(fixedPath, "w");
         ensure(m_file != nullptr, "log file could not be opened");
     }
 

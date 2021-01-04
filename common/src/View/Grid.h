@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Grid
-#define TrenchBroom_Grid
+#pragma once
 
 #include "Ensure.h"
 #include "Macros.h"
@@ -384,4 +383,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Grid) */

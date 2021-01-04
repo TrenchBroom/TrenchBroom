@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CachingLogger
-#define TrenchBroom_CachingLogger
+#pragma once
 
 #include "Logger.h"
 
@@ -54,4 +53,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CachingLogger) */

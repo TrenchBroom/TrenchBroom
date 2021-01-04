@@ -19,8 +19,9 @@
 
 #include "LinkSourceIssueGenerator.h"
 
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
@@ -34,7 +35,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit LinkSourceIssue(AttributableNode* node) :
+            explicit LinkSourceIssue(EntityNodeBase* node) :
             Issue(node) {}
 
             IssueType doGetType() const override {
@@ -42,8 +43,8 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-                return attributableNode->classname() + " has unused targetname key";
+                const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+                return entityNode->name() + " has unused targetname key";
             }
         };
 
@@ -58,11 +59,11 @@ namespace TrenchBroom {
                 const PushSelection push(facade);
 
                 // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeAttribute call will correctly affect worldspawn either way.
+                // the removeProperty call will correctly affect worldspawn either way.
 
                 facade->deselectAll();
                 facade->select(issue->node());
-                facade->removeAttribute(AttributeNames::Targetname);
+                facade->removeProperty(PropertyKeys::Targetname);
             }
         };
 
@@ -71,7 +72,7 @@ namespace TrenchBroom {
             addQuickFix(new LinkSourceIssueQuickFix());
         }
 
-        void LinkSourceIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void LinkSourceIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             if (node->hasMissingSources())
                 issues.push_back(new LinkSourceIssue(node));
         }

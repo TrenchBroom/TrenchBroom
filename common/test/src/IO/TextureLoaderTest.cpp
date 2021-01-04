@@ -29,23 +29,9 @@
 #include <string>
 
 #include "Catch2.h"
-#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
-        static void assertTexture(const std::string& name, const size_t width, const size_t height, const Assets::TextureManager& manager) {
-            const Assets::Texture* texture = manager.texture(name);
-            ASSERT_TRUE(texture != nullptr);
-            ASSERT_EQ(name, texture->name());
-            ASSERT_EQ(width, texture->width());
-            ASSERT_EQ(height, texture->height());
-        }
-
-        static void assertTextureMissing(const std::string& name, const Assets::TextureManager& manager) {
-            const Assets::Texture* texture = manager.texture(name);
-            ASSERT_TRUE(texture == nullptr);
-        }
-
         TEST_CASE("TextureLoaderTest.testLoad", "[TextureLoaderTest]") {
             const std::vector<IO::Path> paths({ Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
@@ -68,27 +54,39 @@ namespace TrenchBroom {
             IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
             textureLoader.loadTextures(paths, textureManager);
 
-            assertTexture("cr8_czg_1", 64, 64, textureManager);
-            assertTexture("cr8_czg_2", 64, 64, textureManager);
-            assertTexture("cr8_czg_3", 64, 128, textureManager);
-            assertTexture("cr8_czg_4", 64, 128, textureManager);
-            assertTexture("cr8_czg_5", 64, 128, textureManager);
-            assertTexture("speedM_1", 128, 128, textureManager);
-            assertTexture("cap4can-o-jam", 64, 64, textureManager);
-            assertTexture("can-o-jam", 64, 64, textureManager);
-            assertTexture("eat_me", 64, 64, textureManager);
-            assertTexture("coffin1", 128, 128, textureManager);
-            assertTexture("coffin2", 128, 128, textureManager);
-            assertTexture("czg_fronthole", 128, 128, textureManager);
-            assertTexture("czg_backhole", 128, 128, textureManager);
-            assertTexture("u_get_this", 64, 64, textureManager);
-            assertTexture("for_sux-m-ass", 64, 64, textureManager);
-            assertTexture("dex_5", 128, 128, textureManager);
-            assertTexture("polished_turd", 64, 64, textureManager);
-            assertTexture("crackpipes", 128, 128, textureManager);
-            assertTexture("bongs2", 128, 128, textureManager);
-            assertTexture("blowjob_machine", 128, 128, textureManager);
-            assertTexture("lasthopeofhuman", 128, 128, textureManager);
+            using TexInfo = std::tuple<std::string, size_t, size_t>;
+            const auto expectedTextures = std::vector<TexInfo>{
+                {"cr8_czg_1", 64, 64},
+                {"cr8_czg_2", 64, 64},
+                {"cr8_czg_3", 64, 128},
+                {"cr8_czg_4", 64, 128},
+                {"cr8_czg_5", 64, 128},
+                {"speedM_1", 128, 128},
+                {"cap4can-o-jam", 64, 64},
+                {"can-o-jam", 64, 64},
+                {"eat_me", 64, 64},
+                {"coffin1", 128, 128},
+                {"coffin2", 128, 128},
+                {"czg_fronthole", 128, 128},
+                {"czg_backhole", 128, 128},
+                {"u_get_this", 64, 64},
+                {"for_sux-m-ass", 64, 64},
+                {"dex_5", 128, 128},
+                {"polished_turd", 64, 64},
+                {"crackpipes", 128, 128},
+                {"bongs2", 128, 128},
+                {"blowjob_machine", 128, 128},
+                {"lasthopeofhuman", 128, 128},
+            };
+
+            CHECK(textureManager.textures().size() == expectedTextures.size());
+            for (const auto& [name, width, height] : expectedTextures) {
+                const auto* texture = textureManager.texture(name);
+                CHECK(texture != nullptr);
+                CHECK(texture->name() == name);
+                CHECK(texture->width() == width);
+                CHECK(texture->height() == height);
+            }
         }
 
         TEST_CASE("TextureLoaderTest.testLoadExclusions", "[TextureLoaderTest]") {
@@ -117,27 +115,34 @@ namespace TrenchBroom {
             IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
             textureLoader.loadTextures(paths, textureManager);
 
-            assertTexture("cr8_czg_1", 64, 64, textureManager);
-            assertTexture("cr8_czg_2", 64, 64, textureManager);
-            assertTexture("cr8_czg_3", 64, 128, textureManager);
-            assertTexture("cr8_czg_4", 64, 128, textureManager);
-            assertTexture("cr8_czg_5", 64, 128, textureManager);
-            assertTexture("speedM_1", 128, 128, textureManager);
-            assertTextureMissing("cap4can-o-jam", textureManager);
-            assertTextureMissing("can-o-jam", textureManager);
-            assertTexture("eat_me", 64, 64, textureManager);
-            assertTexture("coffin1", 128, 128, textureManager);
-            assertTextureMissing("coffin2", textureManager);
-            assertTextureMissing("czg_fronthole", textureManager);
-            assertTextureMissing("czg_backhole", textureManager);
-            assertTexture("u_get_this", 64, 64, textureManager);
-            assertTexture("for_sux-m-ass", 64, 64, textureManager);
-            assertTexture("dex_5", 128, 128, textureManager);
-            assertTexture("polished_turd", 64, 64, textureManager);
-            assertTexture("crackpipes", 128, 128, textureManager);
-            assertTexture("bongs2", 128, 128, textureManager);
-            assertTexture("blowjob_machine", 128, 128, textureManager);
-            assertTexture("lasthopeofhuman", 128, 128, textureManager);
+            using TexInfo = std::tuple<std::string, size_t, size_t>;
+            const auto expectedTextures = std::vector<TexInfo>{
+                {"cr8_czg_1", 64, 64},
+                {"cr8_czg_2", 64, 64},
+                {"cr8_czg_3", 64, 128},
+                {"cr8_czg_4", 64, 128},
+                {"cr8_czg_5", 64, 128},
+                {"speedM_1", 128, 128},
+                {"eat_me", 64, 64},
+                {"coffin1", 128, 128},
+                {"u_get_this", 64, 64},
+                {"for_sux-m-ass", 64, 64},
+                {"dex_5", 128, 128},
+                {"polished_turd", 64, 64},
+                {"crackpipes", 128, 128},
+                {"bongs2", 128, 128},
+                {"blowjob_machine", 128, 128},
+                {"lasthopeofhuman", 128, 128},
+            };
+
+            CHECK(textureManager.textures().size() == expectedTextures.size());
+            for (const auto& [name, width, height] : expectedTextures) {
+                const auto* texture = textureManager.texture(name);
+                CHECK(texture != nullptr);
+                CHECK(texture->name() == name);
+                CHECK(texture->width() == width);
+                CHECK(texture->height() == height);
+            }
         }
     }
 }

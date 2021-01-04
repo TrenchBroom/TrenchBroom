@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GTestCompat.h"
-
 #include "TestLogger.h"
 
 #include "Exceptions.h"
@@ -38,27 +36,33 @@ namespace TrenchBroom {
             std::optional<ModelSpecification> actual;
             
             // regular execution is fine
-            ASSERT_NO_THROW(actual = safeGetModelSpecification(logger, "", [&]() {
-                return expected;
-            }));
-            ASSERT_EQ(0u, logger.countMessages());
-            ASSERT_TRUE(actual.has_value());
-            ASSERT_EQ(expected, *actual);
+            SECTION("Regular execution") {
+                CHECK_NOTHROW(actual = safeGetModelSpecification(logger, "", [&]() {
+                    return expected;
+                }));
+                CHECK(logger.countMessages() == 0u);
+                CHECK(actual.has_value());
+                CHECK(*actual == expected);
+            }
             
             // only ELExceptions are caught, and nothing is logged
-            ASSERT_THROW(safeGetModelSpecification(logger, "", []() -> ModelSpecification {
-                throw AssetException();
-            }), AssetException);
-            ASSERT_EQ(0u, logger.countMessages());
+            SECTION("Only ELExceptions are caught, and nothing is logged") {
+                CHECK_THROWS_AS(safeGetModelSpecification(logger, "", []() -> ModelSpecification {
+                    throw AssetException();
+                }), AssetException);
+                CHECK(logger.countMessages() == 0u);
+            }
 
             // throwing an EL exception logs and returns an empty model spec
-            ASSERT_NO_THROW(actual = safeGetModelSpecification(logger, "", []() -> ModelSpecification {
-                throw EL::Exception();
-            }));
-            ASSERT_EQ(1u, logger.countMessages());
-            ASSERT_EQ(1u, logger.countMessages(LogLevel::Error));
-            ASSERT_TRUE(actual.has_value());
-            ASSERT_EQ(ModelSpecification(), *actual);
+            SECTION("Throwing an EL exception logs and returns an empty model spec") {
+                CHECK_NOTHROW(actual = safeGetModelSpecification(logger, "", []() -> ModelSpecification {
+                    throw EL::Exception();
+                }));
+                CHECK(logger.countMessages() == 1u);
+                CHECK(logger.countMessages(LogLevel::Error) == 1u);
+                CHECK(actual.has_value());
+                CHECK(*actual == ModelSpecification());
+            }
         }
     }
 }
