@@ -38,7 +38,7 @@ namespace TrenchBroom::View {
         m_proxy = new QSortFilterProxyModel(this);
         m_proxy->setSourceModel(m_model);
         m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-        m_proxy->setFilterKeyColumn(2); // Filter based on the text in the Description column
+        m_proxy->setFilterKeyColumn(-1); // Filter based on all columns
 
         m_table = new QTableView();
         m_table->setCornerButtonEnabled(false);
