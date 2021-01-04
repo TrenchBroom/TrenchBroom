@@ -116,7 +116,7 @@ namespace TrenchBroom::View {
         auto& prefs = PreferenceManager::instance();
         prefs.set(*colorPreference, fromQColor(newColor));
 
-        emit dataChanged(index, index, { Qt::DisplayRole });
+        emit dataChanged(index, index);
         return true;
     }
 
@@ -128,21 +128,24 @@ namespace TrenchBroom::View {
         return Qt::ItemIsEnabled;
     }
 
-    void ColorModel::pickColor(const QModelIndex& index) {
-        if (!checkIndex(index)) {
+    void ColorModel::pickColor(const QModelIndex& mi) {
+        if (!checkIndex(mi)) {
             return;
         }
 
         // Get current color
-        auto *colorPreference = getColorPreference(index.row());
+        auto* colorPreference = getColorPreference(mi.row());
         auto color = toQColor(pref(*colorPreference));
 
         // Show dialog
         auto newColor = QColorDialog::getColor(color, nullptr, "Select new color", QColorDialog::DontUseNativeDialog);
 
-        // Apply color. We need to apply it even when user canceled the color picker dialog,
-        // because setData will be called regardless (and will have 0,0,0 color if we don't set it here...)
-        setData(index, (newColor.isValid() ? newColor : color), Qt::EditRole);
+        // Apply color (QColorDialog::getColor() returns an invalid color if the user cancels the dialog)
+        if (newColor.isValid()) {
+            // pickColor() can be called for column 1 or 2 if the user double-clicks those
+            // columns, but we always edit column 0 (where the color is displayed)
+            setData(index(mi.row(), 0), newColor, Qt::EditRole);
+        }
     }
 
     Preference<Color>* ColorModel::getColorPreference(const int index) const {
