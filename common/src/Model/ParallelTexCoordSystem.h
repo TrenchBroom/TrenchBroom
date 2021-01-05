@@ -55,6 +55,8 @@ namespace TrenchBroom {
             ParallelTexCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis);
 
             static std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> fromParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs);
+
+            static void computeInitialAxesBP(const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis);
         private:
             std::unique_ptr<TexCoordSystem> doClone() const override;
             std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() const override;

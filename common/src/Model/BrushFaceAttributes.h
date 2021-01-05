@@ -22,6 +22,7 @@
 #include "Color.h"
 
 #include <vecmath/forward.h>
+#include <vecmath/mat.h>
 
 #include <string>
 #include <string_view>
@@ -47,6 +48,11 @@ namespace TrenchBroom {
             float m_surfaceValue;
 
             Color m_color;
+
+            // RB: Quake 3 / Doom 3 brush primitives that require the ComputeAxisBase rule for projection
+            bool m_bpMode;
+            vm::mat4x4f m_bpMatrix; // usually 2x3 affine transform in 2D space
+
         public:
             explicit BrushFaceAttributes(std::string_view textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
@@ -92,6 +98,8 @@ namespace TrenchBroom {
             bool setSurfaceFlags(int surfaceFlags);
             bool setSurfaceValue(float surfaceValue);
             bool setColor(const Color& color);
+
+            bool setBrushPrimitMatrix(const vm::mat4x4f& matrix);
         };
     }
 }

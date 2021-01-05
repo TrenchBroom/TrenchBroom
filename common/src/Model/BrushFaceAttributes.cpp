@@ -35,7 +35,10 @@ namespace TrenchBroom {
         m_rotation(0.0f),
         m_surfaceContents(0),
         m_surfaceFlags(0),
-        m_surfaceValue(0.0f) {}
+        m_surfaceValue(0.0f),
+        m_bpMode(false),
+        m_bpMatrix(vm::mat4x4f::identity()) 
+        {}
 
         BrushFaceAttributes::BrushFaceAttributes(const BrushFaceAttributes& other) :
         m_textureName(other.m_textureName),
@@ -45,7 +48,10 @@ namespace TrenchBroom {
         m_surfaceContents(other.m_surfaceContents),
         m_surfaceFlags(other.m_surfaceFlags),
         m_surfaceValue(other.m_surfaceValue),
-        m_color(other.m_color) {}
+        m_color(other.m_color),
+        m_bpMode(other.m_bpMode),
+        m_bpMatrix(other.m_bpMatrix)
+        {}
 
         BrushFaceAttributes::BrushFaceAttributes(std::string_view textureName, const BrushFaceAttributes& other) :
         m_textureName(textureName),
@@ -55,7 +61,10 @@ namespace TrenchBroom {
         m_surfaceContents(other.m_surfaceContents),
         m_surfaceFlags(other.m_surfaceFlags),
         m_surfaceValue(other.m_surfaceValue),
-        m_color(other.m_color) {}
+        m_color(other.m_color),
+        m_bpMode(other.m_bpMode),
+        m_bpMatrix(other.m_bpMatrix)
+        {}
 
         BrushFaceAttributes& BrushFaceAttributes::operator=(BrushFaceAttributes other) {
             using std::swap;
@@ -254,6 +263,16 @@ namespace TrenchBroom {
                 return false;
             } else {
                 m_color = color;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setBrushPrimitMatrix(const vm::mat4x4f& matrix) {
+            if( matrix == m_bpMatrix ) {
+                return false;
+            } else {
+                m_bpMode = true;
+                m_bpMatrix = matrix;
                 return true;
             }
         }

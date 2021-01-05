@@ -113,6 +113,7 @@ namespace TrenchBroom {
                 case MapFormat::Valve:
                 case MapFormat::Quake2_Valve:
                 case MapFormat::Quake3_Valve:
+                case MapFormat::Doom3:
                     return true;
                 case MapFormat::Standard:
                 case MapFormat::Quake2:
@@ -120,7 +121,6 @@ namespace TrenchBroom {
                 case MapFormat::Daikatana:
                 case MapFormat::Quake3_Legacy:
                 case MapFormat::Quake3:
-                case MapFormat::Doom3:
                 case MapFormat::Unknown:
                     return false;
                 switchDefault()

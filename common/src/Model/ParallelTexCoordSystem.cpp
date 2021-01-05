@@ -338,6 +338,34 @@ namespace TrenchBroom {
             yAxis = vm::normalize(vm::cross(m_xAxis, normal));
         }
 
+         /**
+         * ComputeAxisBase from Doom 3 and is also the same as in q3map2
+         * WARNING : special case behaviour of atan2(y,x) <-> atan(y/x) might not be the same everywhere when x == 0
+         * rotation by (0,RotY,RotZ) assigns X to normal
+         */
+        void ParallelTexCoordSystem::computeInitialAxesBP(const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis) {
+            float RotY, RotZ;
+	        vm::vec3 n;
+
+	        // do some cleaning
+	        n[0] = (std::fabs(normal[0]) < 1e-6f) ? 0.0f : normal[0];
+	        n[1] = (std::fabs(normal[1]) < 1e-6f) ? 0.0f : normal[1];
+	        n[2] = (std::fabs(normal[2]) < 1e-6f) ? 0.0f : normal[2];
+
+	        RotY = -atan2( n[2], sqrt( n[1] * n[1] + n[0] * n[0] ) );
+	        RotZ = atan2( n[1], n[0] );
+	       
+            // rotate (0,1,0) and (0,0,1) to compute texS and texT
+	        xAxis[0] = -std::sin(RotZ);
+	        xAxis[1] = std::cos(RotZ);
+	        xAxis[2] = 0;
+	        
+            // the yAxis vector is along -Z ( T texture coorinates axis )
+	        yAxis[0] = -std::sin(RotY) * std::cos(RotZ);
+	        yAxis[1] = -std::sin(RotY) * std::sin(RotZ);
+	        yAxis[2] = -std::cos(RotY);
+        }
+
         std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::doToParallel(const vm::vec3&, const vm::vec3&, const vm::vec3&, const BrushFaceAttributes& attribs) const {
             return { clone(), attribs };
         }
