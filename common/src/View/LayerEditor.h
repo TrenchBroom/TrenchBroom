@@ -67,6 +67,7 @@ namespace TrenchBroom {
             void isolateLayer(Model::LayerNode* layer);
 
             void onSelectAllInLayer();
+            bool canSelectAllInLayer() const;
 
             void onAddLayer();
             std::string queryLayerName(const std::string& suggestion);
