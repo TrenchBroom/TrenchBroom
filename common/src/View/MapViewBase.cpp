@@ -1045,7 +1045,7 @@ namespace TrenchBroom {
             QAction* selectAllInLayersAction = menu.addAction(tr("Select All in Layers"), this, [=](){
                 document->selectAllInLayers(selectedObjectLayers);
             });
-            isolateLayersAction->setEnabled(document->canSelectAllInLayers(selectedObjectLayers));
+            selectAllInLayersAction->setEnabled(document->canSelectAllInLayers(selectedObjectLayers));
 
             menu.addSeparator();
 
