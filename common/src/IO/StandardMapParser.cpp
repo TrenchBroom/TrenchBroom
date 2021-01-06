@@ -549,6 +549,11 @@ namespace TrenchBroom {
             // brushFace(line, p1, p2, p3, attribs, texX, texY, status);
         }
 
+        inline bool bpDegenerate(const vm::vec3& bpTexMatX, const vm::vec3& bpTexMatY) {
+            // 2D cross product
+	        return (bpTexMatX[0]*bpTexMatY[1] - bpTexMatY[1]*bpTexMatY[0]) == 0;
+        }
+
         void StandardMapParser::parseDoom3PrimitiveFace(ParserStatus& status) {
             const auto line = m_tokenizer.line();
 
@@ -600,57 +605,76 @@ namespace TrenchBroom {
 
             attribs.setBrushPrimitMatrix(bpMatrix);
 
-            // from D3 TexMatToFakeTexCoords
-            // compute a fake shift scale rot representation from the texture matrix these shift scale rot values are to be
-            // understood in the local axis base
+            // from Valve220_from_BP by Netradiant-custom and same as in D3 idMapBrushSide::GetTextureVectors
 
-            const double ZERO_EPSILON = 1.0E-6;
+            vm::vec3 texX, texY;
+            Model::ParallelTexCoordSystem::computeInitialAxesBP(forward, texX, texY);
 
-#if 1 //def _DEBUG
+            vm::vec3 texAxisX = texX;
+            vm::vec3 texAxisY = texY;
 
-	        // check this matrix is orthogonal
-	        if( std::fabs( bpTexMatX[0] * bpTexMatX[1] + bpTexMatY[0] *bpTexMatY[1] ) > ZERO_EPSILON ) {
-	            status.warn("non orthogonal texture matrix in parseDoom3PrimitiveFace");
-	        }
-#endif
+            if(!bpDegenerate(bpTexMatX,bpTexMatY)) {
 
-            vm::vec2f scale;
-            scale[0] = sqrt( bpTexMatX[0] * bpTexMatX[0] + bpTexMatY[0] * bpTexMatY[0] );
-            scale[1] = sqrt( bpTexMatX[1] * bpTexMatX[1] + bpTexMatY[1] * bpTexMatY[1] );
+                // rotate initial axes
+                texAxisX = normalize(texX * bpTexMatX[0] + texY * bpTexMatX[1]);
+                texAxisY = normalize(texY * bpTexMatY[0] + texY * bpTexMatY[1]);
 
-            attribs.setScale(scale);
+                // from D3 TexMatToFakeTexCoords
+                // compute a fake shift scale rot representation from the texture matrix these shift scale rot values are to be
+                // understood in the local axis base
 
-#if 1 //def _DEBUG
-	        if( scale[0] < ZERO_EPSILON || scale[1] < ZERO_EPSILON ) {
-		        status.warn("unexpected scale==0 in parseDoom3PrimitiveFace");
-	        }
-#endif
+                const double ZERO_EPSILON = 1.0E-6;
 
-#if 0
-            // compute rotate value
-	        if( idMath::Fabs( texMat[0][0] ) < ZERO_EPSILON ) {
-#ifdef _DEBUG
-		        // check brushprimit_texdef[1][0] is not zero
-		        if( idMath::Fabs( texMat[1][0] ) < ZERO_EPSILON )
-		        {
-			        common->Printf( "Warning : unexpected texdef[1][0]==0 in TexMatToFakeTexCoords\n" );
-		        }
-#endif
-		        // rotate is +-90
-		        if( texMat[1][0] > 0 ) {
-			        *rot = 90.0f;
-		        } else {
-			        *rot = -90.0f;
-		        }
-	        }
-	        else
-	        {
-		        *rot = RAD2DEG( atan2( texMat[1][0], texMat[0][0] ) );
-	        }
+    #if 1 //def _DEBUG
 
-	        shift[0] = -texMat[0][2];
-	        shift[1] = texMat[1][2];
-#endif
+	            // check this matrix is orthogonal
+	            if( std::fabs( bpTexMatX[0] * bpTexMatX[1] + bpTexMatY[0] *bpTexMatY[1] ) > ZERO_EPSILON ) {
+	                status.warn("non orthogonal texture matrix in parseDoom3PrimitiveFace");
+	            }
+    #endif
+
+                vm::vec2f scale;
+                scale[0] = static_cast<float>( 1.0 / sqrt( bpTexMatX[0] * bpTexMatX[0] + bpTexMatY[0] * bpTexMatY[0] ) );
+                scale[1] = static_cast<float>( 1.0 / sqrt( bpTexMatX[1] * bpTexMatX[1] + bpTexMatY[1] * bpTexMatY[1] ) );
+
+    #if 1 //def _DEBUG
+	            if( scale[0] < ZERO_EPSILON || scale[1] < ZERO_EPSILON ) {
+		            status.warn("unexpected scale==0 in parseDoom3PrimitiveFace");
+	            }
+    #endif
+
+    #if 1
+                // compute rotate value
+                float rot = 0;
+
+	            if( std::fabs( bpTexMatX[0] ) < ZERO_EPSILON ) {
+    #if 1 //def _DEBUG
+		            // check brushprimit_texdef[1][0] is not zero
+		            if( std::fabs( bpTexMatY[0] ) < ZERO_EPSILON ) {
+			           status.warn("unexpected bpTexMatY[0]==0 in parseDoom3PrimitiveFace");
+		            }
+    #endif
+		            // rotate is +-90
+		            if( bpTexMatY[0] > 0 ) {
+			            rot = 90.0f;
+		            } else {
+			            rot = -90.0f;
+		            }
+	            }
+	            else
+	            {
+		            rot = static_cast<float>( vm::to_degrees(atan2(bpTexMatY[0], bpTexMatX[0])) );
+	            }
+
+	            float shiftX = static_cast<float>( -bpTexMatX[2] );
+	            float shiftY = static_cast<float>( bpTexMatY[2] );
+    #endif
+
+                attribs.setScale(scale);
+                //attribs.setRotation(rot);
+                attribs.setXOffset(shiftX);
+                attribs.setYOffset(shiftY);
+            }
 
             // Quake 2 extra info is unused in Doom 3 and got removed in Quake 4
             if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
@@ -659,11 +683,10 @@ namespace TrenchBroom {
                 attribs.setSurfaceValue(parseFloat());
             }
 
-            vm::vec3 xAxis, yAxis;
-            Model::ParallelTexCoordSystem::computeInitialAxesBP(forward, xAxis, yAxis);
+            
 
             // TODO 2427: create a brush face
-            valveBrushFace(line, m_format, p1, p2, p3, attribs, xAxis, yAxis, status);
+            valveBrushFace(line, m_format, p1, p2, p3, attribs, texAxisX, texAxisY, status);
         }
 
         void StandardMapParser::parseQuake3Patch(ParserStatus& status, const size_t startLine) {

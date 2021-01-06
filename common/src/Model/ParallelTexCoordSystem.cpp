@@ -126,7 +126,11 @@ namespace TrenchBroom {
         }
 
         vm::vec2f ParallelTexCoordSystem::doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const {
-            return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
+            //if(attribs.hasBrushPrimitMode()) {
+                return (computeTexCoords(point, attribs.scale()) + attribs.offset());
+            //} else {
+            //    return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
+            //}
         }
 
         /**

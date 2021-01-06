@@ -99,6 +99,9 @@ namespace TrenchBroom {
             bool setSurfaceValue(float surfaceValue);
             bool setColor(const Color& color);
 
+            bool hasBrushPrimitMode() const {
+                return m_bpMode;
+            }
             bool setBrushPrimitMatrix(const vm::mat4x4f& matrix);
         };
     }
