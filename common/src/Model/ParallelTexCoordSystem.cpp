@@ -130,40 +130,40 @@ namespace TrenchBroom {
             if(attribs.hasBrushPrimitMode()) {
 
 #if 0
-            // evaluate texcoords like in Doom 3
-            vm::vec3 texX, texY;
-            computeInitialAxesBP(getZAxis(), texX, texY);
+                // evaluate texcoords exactly like in Doom 3
+                vm::vec3 texX, texY;
+                computeInitialAxesBP(getZAxis(), texX, texY);
 
-            const vm::mat4x4f& texMat = attribs.bpMatrix();
+                const vm::mat4x4f& texMat = attribs.bpMatrix();
 
-            vm::vec3 texVec[2];
-            for( int i = 0; i < 2; i++ ) {
-		        texVec[i][0] = texX[0] * texMat[i][0] + texY[0] * texMat[i][1];
-		        texVec[i][1] = texX[1] * texMat[i][0] + texY[1] * texMat[i][1];
-		        texVec[i][2] = texX[2] * texMat[i][0] + texY[2] * texMat[i][1];
-		        //texVec[i][3] = texMat[i][2];// FIXME + ( origin * v[i].ToVec3() );
-            }
+                vm::vec4d texVec[2];
+                for( int i = 0; i < 2; i++ ) {
+		            texVec[i][0] = texX[0] * texMat[i][0] + texY[0] * texMat[i][1];
+		            texVec[i][1] = texX[1] * texMat[i][0] + texY[1] * texMat[i][1];
+		            texVec[i][2] = texX[2] * texMat[i][0] + texY[2] * texMat[i][1];
+		            
+                    texVec[i][3] = texMat[i][2];// FIXME + ( origin * texVec[i].ToVec3() );
+                }
             
-            vm::vec2f st;
-            st[0] = dot(point, texVec[0]) + texMat[3][0];
-			st[1] = dot(point, texVec[1]) + texMat[3][1];
+                vm::vec2f st;
+                st[0] = dot(point, texVec[0].xyz()) + texVec[0][3];
+			    st[1] = dot(point, texVec[1].xyz()) + texVec[1][3];
 
-            return st;
+                return st;
 #else
-            // use converted BP matrix to valve axis
+                // use converted BP matrix to valve axis
 
-            // RB: safeScaleAxis actually divides so undo the divide by scaling with 1.0 / scale ...
-            vm::vec2f scale;
-            scale[0] = (1.0f) / attribs.xScale();
-            scale[1] = (1.0f) / attribs.yScale();
+                // RB: safeScaleAxis actually divides by scale so undo the divide by scaling with 1.0 / scale ...
+                vm::vec2f scale;
+                scale[0] = (1.0f) / attribs.xScale();
+                scale[1] = (1.0f) / attribs.yScale();
 
-            vm::vec2f st;
-            st[0] = dot(point, safeScaleAxis(getXAxis(),scale[0])) + attribs.xOffset();
-			st[1] = dot(point, safeScaleAxis(getYAxis(),scale[1])) + attribs.yOffset();
+                vm::vec2f st;
+                st[0] = dot(point, safeScaleAxis(getXAxis(),scale[0])) + attribs.xOffset();
+			    st[1] = dot(point, safeScaleAxis(getYAxis(),scale[1])) + attribs.yOffset();
 
-            return st;
+                return st;
 #endif
-
             } else {
                 return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
             }
