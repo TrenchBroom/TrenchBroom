@@ -551,7 +551,7 @@ namespace TrenchBroom {
 
         inline bool bpDegenerate(const vm::vec3& bpTexMatX, const vm::vec3& bpTexMatY) {
             // 2D cross product
-	        return (bpTexMatX[0]*bpTexMatY[1] - bpTexMatY[1]*bpTexMatY[0]) == 0;
+	        return (bpTexMatX[0]*bpTexMatY[1] - bpTexMatX[1]*bpTexMatY[0]) == 0;
         }
 
         void StandardMapParser::parseDoom3PrimitiveFace(ParserStatus& status) {
@@ -601,7 +601,7 @@ namespace TrenchBroom {
 
             // x,y offset
             bpMatrix[3][0] = static_cast<float>( bpTexMatX[2] );
-            bpMatrix[3][0] = static_cast<float>( bpTexMatX[2] );
+            bpMatrix[3][1] = static_cast<float>( bpTexMatY[2] );
 
             attribs.setBrushPrimitMatrix(bpMatrix);
 
@@ -634,8 +634,19 @@ namespace TrenchBroom {
     #endif
 
                 vm::vec2f scale;
-                scale[0] = static_cast<float>( 1.0 / sqrt( bpTexMatX[0] * bpTexMatX[0] + bpTexMatY[0] * bpTexMatY[0] ) );
-                scale[1] = static_cast<float>( 1.0 / sqrt( bpTexMatX[1] * bpTexMatX[1] + bpTexMatY[1] * bpTexMatY[1] ) );
+                //scale[0] = static_cast<float>( 1.0 / sqrt( bpTexMatX[0] * bpTexMatX[0] + bpTexMatY[0] * bpTexMatY[0] ) );
+                //scale[1] = static_cast<float>( 1.0 / sqrt( bpTexMatX[1] * bpTexMatX[1] + bpTexMatY[1] * bpTexMatY[1] ) );
+
+                scale[0] = static_cast<float>( sqrt( bpTexMatX[0] * bpTexMatX[0] + bpTexMatY[0] * bpTexMatY[0] ) );
+                scale[1] = static_cast<float>( sqrt( bpTexMatX[1] * bpTexMatX[1] + bpTexMatY[1] * bpTexMatY[1] ) );
+
+                if( scale[0] < ZERO_EPSILON ) {
+		            texAxisX = -texAxisX;
+	            }
+
+                if( scale[1] < ZERO_EPSILON ) {
+		            texAxisY = -texAxisY;
+	            }
 
     #if 1 //def _DEBUG
 	            if( scale[0] < ZERO_EPSILON || scale[1] < ZERO_EPSILON ) {
@@ -666,7 +677,7 @@ namespace TrenchBroom {
 		            rot = static_cast<float>( vm::to_degrees(atan2(bpTexMatY[0], bpTexMatX[0])) );
 	            }
 
-	            float shiftX = static_cast<float>( -bpTexMatX[2] );
+	            float shiftX = static_cast<float>( bpTexMatX[2] );
 	            float shiftY = static_cast<float>( bpTexMatY[2] );
     #endif
 
