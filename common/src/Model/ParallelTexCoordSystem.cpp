@@ -129,10 +129,10 @@ namespace TrenchBroom {
 #if 1
             if(attribs.hasBrushPrimitMode()) {
 
-#if 0
+#if 1
                 // evaluate texcoords exactly like in Doom 3
                 vm::vec3 texX, texY;
-                computeInitialAxesBP(getZAxis(), texX, texY);
+                computeInitialAxesBP(-getZAxis(), texX, texY);
 
                 const vm::mat4x4f& texMat = attribs.bpMatrix();
 

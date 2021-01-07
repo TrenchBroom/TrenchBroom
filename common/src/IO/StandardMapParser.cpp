@@ -595,9 +595,11 @@ namespace TrenchBroom {
             // copy rotation/scale part
             bpMatrix[0][0] = static_cast<float>( bpTexMatX[0] );
             bpMatrix[0][1] = static_cast<float>( bpTexMatX[1] );
+            bpMatrix[0][2] = static_cast<float>( bpTexMatX[2] );
 
             bpMatrix[1][0] = static_cast<float>( bpTexMatY[0] );
             bpMatrix[1][1] = static_cast<float>( bpTexMatY[1] );
+            bpMatrix[1][2] = static_cast<float>( bpTexMatY[2] );
 
             // x,y offset
             bpMatrix[3][0] = static_cast<float>( bpTexMatX[2] );
@@ -616,8 +618,8 @@ namespace TrenchBroom {
             if(!bpDegenerate(bpTexMatX,bpTexMatY)) {
 
                 // rotate initial axes
-                texAxisX = normalize(texX * bpTexMatX[0] + texY * bpTexMatX[1]);
-                texAxisY = normalize(texY * bpTexMatY[0] + texY * bpTexMatY[1]);
+                //texAxisX = normalize(texX * bpTexMatX[0] + texY * bpTexMatX[1]);
+                //texAxisY = normalize(texY * bpTexMatY[0] + texY * bpTexMatY[1]);
 
                 // from D3 TexMatToFakeTexCoords
                 // compute a fake shift scale rot representation from the texture matrix these shift scale rot values are to be
@@ -640,11 +642,11 @@ namespace TrenchBroom {
                 scale[0] = static_cast<float>( sqrt( bpTexMatX[0] * bpTexMatX[0] + bpTexMatY[0] * bpTexMatY[0] ) );
                 scale[1] = static_cast<float>( sqrt( bpTexMatX[1] * bpTexMatX[1] + bpTexMatY[1] * bpTexMatY[1] ) );
 
-                if( scale[0] < ZERO_EPSILON ) {
+                if( bpTexMatX[0] < ZERO_EPSILON ) {
 		            texAxisX = -texAxisX;
 	            }
 
-                if( scale[1] < ZERO_EPSILON ) {
+                if( bpTexMatY[1] < ZERO_EPSILON ) {
 		            texAxisY = -texAxisY;
 	            }
 
