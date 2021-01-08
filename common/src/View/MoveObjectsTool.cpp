@@ -65,9 +65,7 @@ namespace TrenchBroom {
 
             if (m_duplicateObjects) {
                 m_duplicateObjects = false;
-                if (!document->duplicateObjects()) {
-                    return MR_Cancel;
-                }
+                document->duplicateObjects();
             }
 
             if (!document->translateObjects(delta)) {

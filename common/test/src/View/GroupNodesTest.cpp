@@ -228,7 +228,7 @@ namespace TrenchBroom {
             document->openGroup(group);
 
             document->select(brush);
-            REQUIRE(document->duplicateObjects());
+            document->duplicateObjects();
 
             Model::BrushNode* brushCopy = document->selectedNodes().brushes().at(0u);
             CHECK(brushCopy->parent() == group);

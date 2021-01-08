@@ -85,7 +85,6 @@
 #include "View/Actions.h"
 #include "View/BrushVertexCommands.h"
 #include "View/CurrentGroupCommand.h"
-#include "View/DuplicateNodesCommand.h"
 #include "View/Grid.h"
 #include "View/MapTextEncoding.h"
 #include "View/PasteType.h"
@@ -1106,16 +1105,64 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocument::duplicateObjects() {
-            const auto result = executeAndStore(DuplicateNodesCommand::duplicate());
-            if (result->success()) {
-                if (m_viewEffectsService) {
-                    m_viewEffectsService->flashSelection();
+        /**
+         * Returns whether, for UI reasons, duplicating the given node should also cause its parent to be duplicated.
+         *
+         * Applies when duplicating a brush inside a brush entity.
+         */
+        static bool shouldCloneParentWhenCloningNode(const Model::Node* node) {
+            return node->parent()->accept(kdl::overload(
+                [] (const Model::WorldNode*)  { return false; },
+                [] (const Model::LayerNode*)  { return false; },
+                [] (const Model::GroupNode*)  { return false; },
+                [&](const Model::EntityNode*) { return true; },
+                [] (const Model::BrushNode*)  { return false; }
+            ));
+        }
+
+        void MapDocument::duplicateObjects() {
+            auto nodesToAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+            auto nodesToSelect = std::vector<Model::Node*>{};
+            auto newParentMap = std::map<Model::Node*, Model::Node*>{};
+
+            for (Model::Node* original : selectedNodes().nodes()) {
+                Model::Node* suggestedParent = parentForNodes(std::vector<Model::Node*>{original});
+                Model::Node* clone = original->cloneRecursively(m_worldBounds);
+
+                if (shouldCloneParentWhenCloningNode(original)) {
+                    // e.g. original is a brush in a brush entity, so we need to clone the entity (parent)
+                    // see if the parent was already cloned and if not, clone it and store it
+                    Model::Node* parent = original->parent();
+                    Model::Node* newParent = nullptr;
+                    const auto it = newParentMap.find(parent);
+                    if (it != std::end(newParentMap)) {
+                        // parent was already cloned
+                        newParent = it->second;
+                    } else {
+                        // parent was not cloned yet
+                        newParent = parent->clone(m_worldBounds);
+                        newParentMap.insert({ parent, newParent });
+                        nodesToAdd[suggestedParent].push_back(newParent);
+                    }
+
+                    // the hierarchy will look like (parent -> child): suggestedParent -> newParent -> clone
+                    newParent->addChild(clone);
+                } else {
+                    nodesToAdd[suggestedParent].push_back(clone);
                 }
-                m_repeatStack->push([=]() { this->duplicateObjects(); });
-                return true;
+
+                nodesToSelect.push_back(clone);
             }
-            return false;
+
+            Transaction transaction(this, "Duplicate Objects");
+            deselectAll();
+            addNodes(nodesToAdd);
+            select(nodesToSelect);
+
+            if (m_viewEffectsService) {
+                m_viewEffectsService->flashSelection();
+            }
+            m_repeatStack->push([=]() { this->duplicateObjects(); });
         }
 
         Model::EntityNode* MapDocument::createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) {
