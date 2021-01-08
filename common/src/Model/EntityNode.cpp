@@ -94,7 +94,7 @@ namespace TrenchBroom {
             return m_cachedBounds->physicalBounds;
         }
 
-        Node* EntityNode::doClone(const vm::bbox3& /* worldBounds */) const {
+        Node* EntityNode::doClone(const vm::bbox3& /* worldBounds */) {
             auto* entity = new EntityNode(m_entity);
             cloneAttributes(entity);
             return entity;

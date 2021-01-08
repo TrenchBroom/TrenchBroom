@@ -91,7 +91,7 @@ namespace TrenchBroom {
             return m_physicalBounds;
         }
 
-        Node* LayerNode::doClone(const vm::bbox3&) const {
+        Node* LayerNode::doClone(const vm::bbox3&) {
             LayerNode* layerNode = new LayerNode(m_layer);
             cloneAttributes(layerNode);
             return layerNode;

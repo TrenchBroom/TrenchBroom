@@ -201,13 +201,13 @@ namespace TrenchBroom {
             return logicalBounds();
         }
 
-        Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const {
+        Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) {
             WorldNode* worldNode = new WorldNode(entity(), mapFormat());
             cloneAttributes(worldNode);
             return worldNode;
         }
 
-        Node* WorldNode::doCloneRecursively(const vm::bbox3& worldBounds) const {
+        Node* WorldNode::doCloneRecursively(const vm::bbox3& worldBounds) {
             const std::vector<Node*>& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
 

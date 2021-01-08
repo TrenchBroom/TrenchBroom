@@ -125,7 +125,7 @@ namespace TrenchBroom {
             return m_physicalBounds;
         }
 
-        Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const {
+        Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) {
             GroupNode* group = new GroupNode(m_group);
             cloneAttributes(group);
             return group;

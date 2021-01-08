@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 return expectedCall;
             }
         private: // implement Node interface
-            Node* doClone(const vm::bbox3& /* worldBounds */) const override {
+            Node* doClone(const vm::bbox3& /* worldBounds */) override {
                 return new MockNode();
             }
 
@@ -172,7 +172,7 @@ namespace TrenchBroom {
 
         class TestNode : public Node {
         private: // implement Node interface
-            Node* doClone(const vm::bbox3& /* worldBounds */) const override {
+            Node* doClone(const vm::bbox3& /* worldBounds */) override {
                 return new TestNode();
             }
 

@@ -67,11 +67,11 @@ namespace TrenchBroom {
             return doGetPhysicalBounds();
         }
 
-        Node* Node::clone(const vm::bbox3& worldBounds) const {
+        Node* Node::clone(const vm::bbox3& worldBounds) {
             return doClone(worldBounds);
         }
 
-        Node* Node::cloneRecursively(const vm::bbox3& worldBounds) const {
+        Node* Node::cloneRecursively(const vm::bbox3& worldBounds) {
             return doCloneRecursively(worldBounds);
         }
 
@@ -637,7 +637,7 @@ namespace TrenchBroom {
             doRemoveFromIndex(node, key, value);
         }
 
-        Node* Node::doCloneRecursively(const vm::bbox3& worldBounds) const {
+        Node* Node::doCloneRecursively(const vm::bbox3& worldBounds) {
             Node* clone = Node::clone(worldBounds);
             clone->addChildren(Node::cloneRecursively(worldBounds, children()));
             return clone;

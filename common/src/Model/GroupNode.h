@@ -80,7 +80,7 @@ namespace TrenchBroom {
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
 
-            Node* doClone(const vm::bbox3& worldBounds) const override;
+            Node* doClone(const vm::bbox3& worldBounds) override;
 
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;

@@ -84,8 +84,8 @@ namespace TrenchBroom {
              */
             const vm::bbox3& physicalBounds() const;
         public: // cloning and snapshots
-            Node* clone(const vm::bbox3& worldBounds) const;
-            Node* cloneRecursively(const vm::bbox3& worldBounds) const;
+            Node* clone(const vm::bbox3& worldBounds);
+            Node* cloneRecursively(const vm::bbox3& worldBounds);
         protected:
             void cloneAttributes(Node* node) const;
 
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             template <typename I, typename O>
             static void clone(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
-                    const Node* node = *cur;
+                    Node* node = *cur;
                     result++ = node->clone(worldBounds);
                     ++cur;
                 }
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             template <typename I, typename O>
             static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
-                    const Node* node = *cur;
+                    Node* node = *cur;
                     result++ = node->cloneRecursively(worldBounds);
                     ++cur;
                 }
@@ -414,8 +414,8 @@ namespace TrenchBroom {
             virtual const vm::bbox3& doGetLogicalBounds() const = 0;
             virtual const vm::bbox3& doGetPhysicalBounds() const = 0;
 
-            virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;
-            virtual Node* doCloneRecursively(const vm::bbox3& worldBounds) const;
+            virtual Node* doClone(const vm::bbox3& worldBounds) = 0;
+            virtual Node* doCloneRecursively(const vm::bbox3& worldBounds);
 
             virtual bool doCanAddChild(const Node* child) const = 0;
             virtual bool doCanRemoveChild(const Node* child) const = 0;

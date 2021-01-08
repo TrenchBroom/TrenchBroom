@@ -71,7 +71,7 @@ namespace TrenchBroom {
 
         BrushNode::~BrushNode() = default;
 
-        BrushNode* BrushNode::clone(const vm::bbox3& worldBounds) const {
+        BrushNode* BrushNode::clone(const vm::bbox3& worldBounds) {
             return static_cast<BrushNode*>(Node::clone(worldBounds));
         }
 
@@ -154,7 +154,7 @@ namespace TrenchBroom {
             return logicalBounds();
         }
 
-        Node* BrushNode::doClone(const vm::bbox3& /* worldBounds */) const {
+        Node* BrushNode::doClone(const vm::bbox3& /* worldBounds */) {
             auto* result = new BrushNode(m_brush);
             cloneAttributes(result);
             return result;
