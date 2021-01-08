@@ -1530,6 +1530,17 @@ namespace TrenchBroom {
             swapNodeContents(commandName, {{layerNode, Model::NodeContents(std::move(layer))}});
         }
 
+        void MapDocument::selectAllInLayers(const std::vector<Model::LayerNode*>& layers) {
+            const auto nodes = Model::collectSelectableNodes(kdl::vec_element_cast<Model::Node*>(layers), editorContext());
+
+            deselectAll();
+            select(nodes);
+        }
+
+        bool MapDocument::canSelectAllInLayers(const std::vector<Model::LayerNode*>& /* layers */) const {
+            return editorContext().canChangeSelection();
+        }
+
         void MapDocument::hide(const std::vector<Model::Node*> nodes) {
             const Transaction transaction(this, "Hide Objects");
 

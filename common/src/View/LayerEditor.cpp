@@ -83,7 +83,7 @@ namespace TrenchBroom {
                 onSetCurrentLayer(layerNode);
             });
             QAction* moveSelectionToLayerAction = popupMenu.addAction(tr("Move selection to layer"), this, &LayerEditor::onMoveSelectionToLayer);
-            popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::onSelectAllInLayer);
+            QAction* selectAllInLayerAction = popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::onSelectAllInLayer);
             popupMenu.addSeparator();
             QAction* toggleLayerVisibleAction = popupMenu.addAction(layerNode->hidden() ? tr("Show layer") : tr("Hide layer"), this, [this, layerNode](){
                 toggleLayerVisible(layerNode);
@@ -109,6 +109,7 @@ namespace TrenchBroom {
 
             makeActiveAction->setEnabled(canSetCurrentLayer(layerNode));
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
+            selectAllInLayerAction->setEnabled(canSelectAllInLayer());
             toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
             isolateLayerAction->setEnabled(document->canIsolateLayers({layerNode}));
             toggleLayerOmitFromExportAction->setCheckable(true);
@@ -187,11 +188,16 @@ namespace TrenchBroom {
             auto* layer = m_layerList->selectedLayer();
             ensure(layer != nullptr, "layer is null");
 
-            auto document = kdl::mem_lock(m_document);
-            const auto nodes = Model::collectSelectableNodes(layer->children(), document->editorContext());
+            kdl::mem_lock(m_document)->selectAllInLayers({layer});
+        }
 
-            document->deselectAll();
-            document->select(nodes);
+        bool LayerEditor::canSelectAllInLayer() const {
+            auto* layer = m_layerList->selectedLayer();
+            if (layer == nullptr) {
+                return false;
+            }
+
+            return kdl::mem_lock(m_document)->canSelectAllInLayers({layer});
         }
 
         void LayerEditor::onAddLayer() {
