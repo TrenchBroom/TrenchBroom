@@ -1405,7 +1405,7 @@ namespace TrenchBroom {
             document->select({entity1, brush1});
 
             // Duplicate entity1 and brush1
-            CHECK(document->duplicateObjects());
+            document->duplicateObjects();
             REQUIRE(document->selectedNodes().entityCount() == 1u);
             REQUIRE(document->selectedNodes().brushCount() == 1u);
             Model::EntityNode* entity2 = document->selectedNodes().entities().front();

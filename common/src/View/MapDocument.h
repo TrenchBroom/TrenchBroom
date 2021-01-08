@@ -344,7 +344,7 @@ namespace TrenchBroom {
             bool checkReparenting(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const;
         public:
             bool deleteObjects() override;
-            bool duplicateObjects() override;
+            void duplicateObjects() override;
         public: // entity management
             Model::EntityNode* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) override;
             Model::EntityNode* createBrushEntity(const Assets::BrushEntityDefinition* definition) override;
