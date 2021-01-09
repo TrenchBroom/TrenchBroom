@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 auto document = kdl::mem_lock(m_document);
                 const Transaction transaction(document, "Create Brush");
                 document->deselectAll();
-                document->addNode(m_brush, document->parentForNodes());
+                document->addNodes({{document->parentForNodes(), {m_brush}}});
                 document->select(m_brush);
                 m_brush = nullptr;
                 doBrushWasCreated();

@@ -36,7 +36,7 @@ namespace TrenchBroom {
             Model::BrushNode* brushNode = createBrushNode();
             CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
 
-            document->addNode(brushNode, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
 
             const auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
             REQUIRE(topFaceIndex);

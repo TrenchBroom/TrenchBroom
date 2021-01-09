@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 {"classname", "large_entity"}
             });
             
-            document->addNode(entityNode, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {entityNode}}});
             REQUIRE(entityNode->entity().definition() == largeEntityDef);
             
             document->deselectAll();            

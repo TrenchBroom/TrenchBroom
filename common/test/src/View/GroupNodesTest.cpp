@@ -40,7 +40,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithOneNode", "[GroupNodesTest]") {
             Model::BrushNode* brush = createBrushNode();
-            document->addNode(brush, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush}}});
             document->select(brush);
 
             Model::GroupNode* group = document->groupSelection("test");
@@ -58,13 +58,13 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithPartialBrushEntity", "[GroupNodesTest]") {
             Model::BrushNode* brush1 = createBrushNode();
-            document->addNode(brush1, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush1}}});
 
             Model::BrushNode* brush2 = createBrushNode();
-            document->addNode(brush2, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush2}}});
 
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {entity}}});
             document->reparentNodes(entity, { brush1, brush2 });
 
             document->select(brush1);
@@ -89,13 +89,13 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithFullBrushEntity", "[GroupNodesTest]") {
             Model::BrushNode* brush1 = createBrushNode();
-            document->addNode(brush1, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush1}}});
 
             Model::BrushNode* brush2 = createBrushNode();
-            document->addNode(brush2, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush2}}});
 
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {entity}}});
             document->reparentNodes(entity, { brush1, brush2 });
 
             document->select(std::vector<Model::Node*>({ brush1, brush2 }));
@@ -129,7 +129,7 @@ namespace TrenchBroom {
                               "}");
 
             Model::BrushNode* brush = createBrushNode();
-            document->addNode(brush, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush}}});
             document->select(brush);
 
             Model::GroupNode* group = document->groupSelection("test");
@@ -156,10 +156,10 @@ namespace TrenchBroom {
             // Test for issue #1715
 
             Model::BrushNode* brush1 = createBrushNode();
-            document->addNode(brush1, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush1}}});
 
             Model::EntityNode* entityNode = new Model::EntityNode();
-            document->addNode(entityNode, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {entityNode}}});
             document->reparentNodes(entityNode, { brush1 });
 
             document->select(brush1);
@@ -180,10 +180,10 @@ namespace TrenchBroom {
             // Test for issue #1754
 
             Model::BrushNode* brush1 = createBrushNode();
-            document->addNode(brush1, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush1}}});
 
             Model::EntityNode* entityNode = new Model::EntityNode();
-            document->addNode(entityNode, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {entityNode}}});
             document->reparentNodes(entityNode, { brush1 });
 
             document->select(brush1);
@@ -202,7 +202,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {
             Model::BrushNode* brush1 = createBrushNode();
-            document->addNode(brush1, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush1}}});
             document->select(brush1);
 
             Model::GroupNode* group = document->groupSelection("test");
@@ -219,7 +219,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.duplicateNodeInGroup", "[GroupNodesTest]") {
             Model::BrushNode* brush = createBrushNode();
-            document->addNode(brush, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush}}});
             document->select(brush);
 
             Model::GroupNode* group = document->groupSelection("test");

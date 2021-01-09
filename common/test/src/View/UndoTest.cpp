@@ -43,7 +43,7 @@ namespace TrenchBroom {
             document->setEnabledTextureCollections(std::vector<IO::Path>{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
             Model::BrushNode* brushNode = createBrushNode("coffin1");
-            document->addNode(brushNode, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
 
             const Assets::Texture* texture = document->textureManager().texture("coffin1");
             CHECK(texture != nullptr);
@@ -91,7 +91,7 @@ namespace TrenchBroom {
                 {Model::PropertyKeys::Classname, "test"}
             });
 
-            document->addNode(entityNode, document->parentForNodes());            
+            document->addNodes({{document->parentForNodes(), {entityNode}}});            
             CHECK(!entityNode->entity().hasProperty("angle"));
 
             document->select(entityNode);

@@ -219,7 +219,7 @@ namespace TrenchBroom {
                 auto* layerNode = new Model::LayerNode(std::move(layer));
 
                 Transaction transaction(document, "Create Layer " + layerNode->name());
-                document->addNode(layerNode, world);
+                document->addNodes({{world, {layerNode}}});
                 document->setCurrentLayer(layerNode);
                 m_layerList->setSelectedLayer(layerNode);
             }
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             if (document->currentLayer() == layer) {
                 document->setCurrentLayer(defaultLayer);
             }
-            document->removeNode(layer);
+            document->removeNodes({layer});
         }
 
         bool LayerEditor::canRemoveLayer() const {

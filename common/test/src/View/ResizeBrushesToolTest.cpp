@@ -57,7 +57,7 @@ namespace TrenchBroom {
             Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 =new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3::fill(0.0), bboxMax), "texture").value());
 
-            document->addNode(brushNode1, document->currentLayer());
+            document->addNodes({{document->currentLayer(), {brushNode1}}});
             document->select(brushNode1);
 
             const Model::Hit hit = tool.pick3D(PickRay, Model::PickResult());

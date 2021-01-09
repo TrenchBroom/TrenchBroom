@@ -36,9 +36,9 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeLayer") {
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
-            document->addNode(layer, document->world());
+            document->addNodes({{document->world(), {layer}}});
 
-            document->removeNode(layer);
+            document->removeNodes({layer});
             CHECK(layer->parent() == nullptr);
 
             document->undoCommand();
@@ -47,15 +47,15 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyBrushEntity") {
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
-            document->addNode(layer, document->world());
+            document->addNodes({{document->world(), {layer}}});
 
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, layer);
+            document->addNodes({{layer, {entity}}});
 
             Model::BrushNode* brush = createBrushNode();
-            document->addNode(brush, entity);
+            document->addNodes({{entity, {brush}}});
 
-            document->removeNode(brush);
+            document->removeNodes({brush});
             CHECK(brush->parent() == nullptr);
             CHECK(entity->parent() == nullptr);
 
@@ -66,14 +66,14 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyGroup") {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("group"));
-            document->addNode(group, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {group}}});
 
             document->openGroup(group);
 
             Model::BrushNode* brush = createBrushNode();
-            document->addNode(brush, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush}}});
 
-            document->removeNode(brush);
+            document->removeNodes({brush});
             CHECK(document->currentGroup() == nullptr);
             CHECK(brush->parent() == nullptr);
             CHECK(group->parent() == nullptr);
@@ -86,19 +86,19 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups") {
             Model::GroupNode* outer = new Model::GroupNode(Model::Group("outer"));
-            document->addNode(outer, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {outer}}});
 
             document->openGroup(outer);
 
             Model::GroupNode* inner = new Model::GroupNode(Model::Group("inner"));
-            document->addNode(inner, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {inner}}});
 
             document->openGroup(inner);
 
             Model::BrushNode* brush = createBrushNode();
-            document->addNode(brush, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brush}}});
 
-            document->removeNode(brush);
+            document->removeNodes({brush});
             CHECK(document->currentGroup() == nullptr);
             CHECK(brush->parent() == nullptr);
             CHECK(inner->parent() == nullptr);

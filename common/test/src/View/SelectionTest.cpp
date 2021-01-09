@@ -42,23 +42,23 @@ namespace TrenchBroom {
             assert(document->selectedNodes().nodeCount() == 0);
 
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
-            document->addNode(layer, document->world());
+            document->addNodes({{document->world(), {layer}}});
 
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
-            document->addNode(group, layer);
+            document->addNodes({{layer, {group}}});
 
             Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
             Model::BrushNode* brush = new Model::BrushNode(builder.createCuboid(brushBounds, "texture").value());
-            document->addNode(brush, group);
+            document->addNodes({{group, {brush}}});
 
             const vm::bbox3 selectionBounds(vm::vec3(-16.0, -16.0, -48.0),
                                         vm::vec3(+16.0, +16.0, +48.0));
 
             Model::BrushNode* selectionBrush = new Model::BrushNode(builder.createCuboid(selectionBounds, "texture").value());
-            document->addNode(selectionBrush, layer);
+            document->addNodes({{layer, {selectionBrush}}});
 
             document->select(selectionBrush);
             document->selectTouching(true);
@@ -72,23 +72,23 @@ namespace TrenchBroom {
             assert(document->selectedNodes().nodeCount() == 0);
 
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
-            document->addNode(layer, document->world());
+            document->addNodes({{document->world(), {layer}}});
 
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
-            document->addNode(group, layer);
+            document->addNodes({{layer, {group}}});
 
             Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
             Model::BrushNode* brush = new Model::BrushNode(builder.createCuboid(brushBounds, "texture").value());
-            document->addNode(brush, group);
+            document->addNodes({{group, {brush}}});
 
             const vm::bbox3 selectionBounds(vm::vec3(-48.0, -48.0, -48.0),
                                         vm::vec3(+48.0, +48.0, +48.0));
 
             Model::BrushNode* selectionBrush = new Model::BrushNode(builder.createCuboid(selectionBounds, "texture").value());
-            document->addNode(selectionBrush, layer);
+            document->addNodes({{layer, {selectionBrush}}});
 
             document->select(selectionBrush);
             document->selectInside(true);
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             auto* entityNode = new Model::EntityNode({
                 {"classname", "point_entity"}
             });
-            document->addNode(entityNode, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {entityNode}}});
             REQUIRE(!entityNode->logicalBounds().is_empty());
             
             document->selectAllNodes();
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             CHECK(document->lastSelectionBounds() == bounds);
             
             auto* brushNode = createBrushNode();
-            document->addNode(brushNode, document->parentForNodes());
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
             
             document->select(brushNode);
             CHECK(document->lastSelectionBounds() == bounds);
