@@ -155,6 +155,60 @@ namespace TrenchBroom {
             CHECK(innerGroupNode->connectedToLinkSet());
         }
 
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.addNodes") {
+            SECTION("Update linked groups") {
+                auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
+                auto* brushNode = createBrushNode();
+                groupNode->addChild(brushNode);
+
+                auto* linkedGroupNode = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+                groupNode->addToLinkSet(*linkedGroupNode);
+
+                document->deselectAll();
+                document->addNodes({{document->parentForNodes(), {groupNode}}});
+                document->addNodes({{document->parentForNodes(), {linkedGroupNode}}});
+
+                auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                document->addNodes({{groupNode, {entityNode}}});
+
+                CHECK(linkedGroupNode->childCount() == 2u);
+                
+                auto* linkedEntityNode = dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().back());
+                CHECK(linkedEntityNode != nullptr);
+                CHECK(linkedEntityNode->entity() == entityNode->entity());
+
+                document->undoCommand();
+
+                REQUIRE(groupNode->childCount() == 1u);
+                CHECK(linkedGroupNode->childCount() == 1u);
+            }
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.removeNodes") {
+            SECTION("Update linked groups") {
+                auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
+                auto* brushNode = createBrushNode();
+                auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                groupNode->addChildren({brushNode, entityNode});
+
+                auto* linkedGroupNode = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+                groupNode->addToLinkSet(*linkedGroupNode);
+
+                document->deselectAll();
+                document->addNodes({{document->parentForNodes(), {groupNode}}});
+                document->addNodes({{document->parentForNodes(), {linkedGroupNode}}});
+
+                document->removeNodes({entityNode});
+
+                CHECK(linkedGroupNode->childCount() == 1u);
+
+                document->undoCommand();
+
+                REQUIRE(groupNode->childCount() == 2u);
+                CHECK(linkedGroupNode->childCount() == 2u);
+            }
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.flip") {
             Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(30.0, 31.0, 31.0)), "texture").value());

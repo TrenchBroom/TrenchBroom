@@ -123,6 +123,50 @@
 
 namespace TrenchBroom {
     namespace View {
+        template <typename T>
+        static std::vector<Model::GroupNode*> findLinkedGroupsToUpdate(const std::vector<T*>& nodes, const bool includeGivenNodes) {
+            auto result = std::vector<Model::GroupNode*>{};
+
+            const auto addGroupNode = [&](Model::GroupNode* groupNode) {
+                while (groupNode) {
+                    if (groupNode->linkedGroups().size() > 1) {
+                        result.push_back(groupNode);
+                        return;
+                    }
+                    groupNode = groupNode->containingGroup();
+                }
+            };
+
+            Model::Node::visitAll(nodes, kdl::overload(
+                [] (const Model::WorldNode*) {},
+                [] (const Model::LayerNode*) {},
+                [&](Model::GroupNode* groupNode) {
+                    if (includeGivenNodes) {
+                        addGroupNode(groupNode);
+                    } else {
+                        addGroupNode(groupNode->containingGroup());
+                    }
+                },
+                [&](Model::EntityNode* entityNode) {
+                    addGroupNode(entityNode->containingGroup());
+                },
+                [&](Model::BrushNode* brushNode) {
+                    addGroupNode(brushNode->containingGroup());
+                }
+            ));
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
+        }
+
+        template <typename T>
+        static std::vector<Model::GroupNode*> findContainingLinkedGroupsToUpdate(const std::vector<T*>& nodes) {
+            return findLinkedGroupsToUpdate(nodes, false);
+        }
+
+        template <typename T>
+        static std::vector<Model::GroupNode*> findAllLinkedGroupsToUpdate(const std::vector<T*>& nodes) {
+            return findLinkedGroupsToUpdate(nodes, true);
+        }
+
         /**
          * Applies the given lambda to a copy of the contents of each of the given nodes and returns a vector of pairs of the original node and the modified contents.
          *
@@ -973,7 +1017,7 @@ namespace TrenchBroom {
 
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
             Transaction transaction(this, "Add Objects");
-            const auto result = executeAndStore(AddRemoveNodesCommand::add(nodes));
+            const auto result = executeAndStore(AddRemoveNodesCommand::add(nodes, findAllLinkedGroupsToUpdate(kdl::map_keys(nodes))));
             if (!result->success()) {
                 return {};
             }
@@ -990,7 +1034,7 @@ namespace TrenchBroom {
             Transaction transaction(this);
             while (!removableNodes.empty()) {
                 closeRemovedGroups(removableNodes);
-                executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
+                executeAndStore(AddRemoveNodesCommand::remove(removableNodes, findAllLinkedGroupsToUpdate(kdl::map_keys(removableNodes))));
 
                 removableNodes = collectRemovableParents(removableNodes);
             }
@@ -1074,17 +1118,19 @@ namespace TrenchBroom {
                 downgradeShownToInherit(nodesToDowngrade);
             }
 
-            executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
+            auto linkedGroupsToUpdate = kdl::vec_concat(findAllLinkedGroupsToUpdate(kdl::vec_concat(kdl::map_keys(nodesToAdd), kdl::map_keys(nodesToRemove))));
+            const auto success = executeAndStore(ReparentNodesCommand::reparent(std::move(nodesToAdd), nodesToRemove, std::move(linkedGroupsToUpdate)))->success();
+            if (success) {
+                std::map<Model::Node*, std::vector<Model::Node*>> removableNodes = collectRemovableParents(nodesToRemove);
+                while (!removableNodes.empty()) {
+                    closeRemovedGroups(removableNodes);
+                    executeAndStore(AddRemoveNodesCommand::remove(removableNodes, findAllLinkedGroupsToUpdate(kdl::map_keys(removableNodes))));
 
-            std::map<Model::Node*, std::vector<Model::Node*>> removableNodes = collectRemovableParents(nodesToRemove);
-            while (!removableNodes.empty()) {
-                closeRemovedGroups(removableNodes);
-                executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
-
-                removableNodes = collectRemovableParents(removableNodes);
+                    removableNodes = collectRemovableParents(removableNodes);
+                }
             }
 
-            return true;
+            return success;
         }
 
         bool MapDocument::checkReparenting(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const {

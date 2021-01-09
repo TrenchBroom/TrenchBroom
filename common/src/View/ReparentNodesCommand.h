@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "View/DocumentCommand.h"
+#include "View/UpdateLinkedGroupsHelper.h"
 
 #include <map>
 #include <memory>
@@ -28,6 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class GroupNode;
         class Node;
     }
 
@@ -38,13 +40,17 @@ namespace TrenchBroom {
         private:
             std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
             std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
+            UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
         public:
-            static std::unique_ptr<ReparentNodesCommand> reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove);
+            static std::unique_ptr<ReparentNodesCommand> reparent(std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd, std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove, std::vector<Model::GroupNode*> linkedGroupsToUpdate);
 
-            ReparentNodesCommand(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove);
+            ReparentNodesCommand(std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd, std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove, std::vector<Model::GroupNode*> linkedGroupsToUpdate);
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+
+            void doAction(MapDocumentCommandFacade* document);
+            void undoAction(MapDocumentCommandFacade* document);
 
             bool doCollateWith(UndoableCommand* command) override;
 

@@ -17,9 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Model/BrushNode.h"
 #include "Model/GroupNode.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/bbox.h>
+#include <vecmath/bbox_io.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+#include <vecmath/mat_io.h>
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 #include "Catch2.h"
 
@@ -49,6 +58,60 @@ namespace TrenchBroom {
             document->undoCommand();
             CHECK_FALSE(outer->connectedToLinkSet());
             CHECK_FALSE(inner->connectedToLinkSet());
+        }
+
+        TEST_CASE_METHOD(AddNodesTest, "AddNodesTest.updateLinkedGroups") {
+            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+            auto* linkedGroupNode = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+            groupNode->addToLinkSet(*linkedGroupNode);
+
+            document->addNodes({{document->parentForNodes(), {groupNode, linkedGroupNode}}});
+            document->deselectAll();
+            document->select(linkedGroupNode);
+
+            document->translateObjects(vm::vec3(32.0, 0.0, 0.0));
+
+            document->deselectAll();
+
+            auto* brushNode = createBrushNode();
+            document->addNodes({{groupNode, {brushNode}}});
+
+            REQUIRE(groupNode->childCount() == 1u);
+            CHECK(linkedGroupNode->childCount() == 1u);
+            
+            auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+            CHECK(linkedBrushNode != nullptr);
+
+            CHECK(linkedBrushNode->physicalBounds() == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+
+            document->undoCommand();
+            REQUIRE(groupNode->childCount() == 0u);
+            CHECK(linkedGroupNode->childCount() == 0u);
+
+            document->redoCommand();
+            REQUIRE(groupNode->childCount() == 1u);
+            CHECK(linkedGroupNode->childCount() == 1u);
+        }
+
+        TEST_CASE_METHOD(AddNodesTest, "AddNodesTest.updateLinkedGroupsFails") {
+            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+            auto* linkedGroupNode = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+            groupNode->addToLinkSet(*linkedGroupNode);
+
+            document->addNodes({{document->parentForNodes(), {groupNode, linkedGroupNode}}});
+            document->deselectAll();
+            document->select(linkedGroupNode);
+
+            // adding a brush to the linked group node will fail because it will go out of world bounds
+            document->translateObjects(document->worldBounds().max);
+
+            document->deselectAll();
+
+            auto* brushNode = createBrushNode();
+            CHECK(document->addNodes({{groupNode, {brushNode}}}).empty());
+
+            CHECK(groupNode->childCount() == 0u);
+            CHECK(linkedGroupNode->childCount() == 0u);
         }
     }
 }
