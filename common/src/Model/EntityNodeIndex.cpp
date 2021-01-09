@@ -27,6 +27,7 @@
 #include <kdl/compact_trie.h>
 #include <kdl/vector_utils.h>
 
+#include <iterator>
 #include <list>
 #include <string>
 #include <vector>
@@ -129,14 +130,15 @@ namespace TrenchBroom {
 
         std::vector<EntityNodeBase*> EntityNodeIndex::findEntityNodes(const EntityNodeIndexQuery& keyQuery, const std::string& value) const {
             // first, find Nodes which have `value` as the value for any key
-            std::set<EntityNodeBase*> valueResult;
-            m_valueIndex->find_matches(value, std::inserter(valueResult, std::end(valueResult)));
-            if (valueResult.empty()) {
+            std::vector<EntityNodeBase*> result;
+            m_valueIndex->find_matches(value, std::back_inserter(result));
+            if (result.empty()) {
                 return {};
             }
 
+            result = kdl::vec_sort_and_remove_duplicates(std::move(result));
+
             // next, remove results from the result set that don't match `keyQuery`
-            auto result = std::vector<EntityNodeBase*>(std::begin(valueResult), std::end(valueResult));
             auto it = std::begin(result);
             while (it != std::end(result)) {
                 const EntityNodeBase* node = *it;
