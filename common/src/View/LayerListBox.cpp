@@ -58,7 +58,7 @@ namespace TrenchBroom {
             makeInfo(m_infoText);
 
             m_activeButton = new QRadioButton();
-            m_omitFromExportButton = createBitmapButton("OmitFromExport.svg", tr("Omit from export"));
+            m_omitFromExportButton = createBitmapToggleButton("OmitFromExport.svg", tr("Toggle omit from export"));
             m_hiddenButton = createBitmapToggleButton("Hidden.svg", tr("Toggle hidden state"));
             m_lockButton = createBitmapToggleButton("Lock.svg", tr("Toggle locked state"));
 
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             m_activeButton->setChecked(document->currentLayer() == m_layer);
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
-            m_omitFromExportButton->setVisible(m_layer->layer().omitFromExport());
+            m_omitFromExportButton->setChecked(m_layer->layer().omitFromExport());
         }
 
         Model::LayerNode* LayerListBoxWidget::layer() const {
