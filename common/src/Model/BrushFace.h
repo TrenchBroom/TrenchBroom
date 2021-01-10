@@ -171,6 +171,7 @@ namespace TrenchBroom {
             vm::vec3 textureXAxis() const;
             vm::vec3 textureYAxis() const;
             void resetTextureAxes();
+            void resetTextureAxesToParaxial();
 
             void convertToParaxial();
             void convertToParallel();
