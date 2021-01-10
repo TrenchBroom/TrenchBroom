@@ -379,6 +379,10 @@ namespace TrenchBroom {
             m_texCoordSystem->resetTextureAxes(m_boundary.normal);
         }
 
+        void BrushFace::resetTextureAxesToParaxial() {
+            m_texCoordSystem->resetTextureAxesToParaxial(m_boundary.normal, 0.0f);
+        }
+
         void BrushFace::convertToParaxial() {
             auto [newTexCoordSystem, newAttributes] = m_texCoordSystem->toParaxial(m_points[0], m_points[1], m_points[2], m_attributes);
 

@@ -284,7 +284,11 @@ namespace TrenchBroom {
                     result |= true;
                     break;
                 case AxisOp_None:
+                    break;
                 case AxisOp_ToParaxial:
+                    brushFace.resetTextureAxesToParaxial();
+                    result |= true;
+                    break;
                 case AxisOp_ToParallel:
                     break;
                 switchDefault()
@@ -293,9 +297,15 @@ namespace TrenchBroom {
             return result;
         }
 
-
         void ChangeBrushFaceAttributesRequest::resetAll(const BrushFaceAttributes& defaultFaceAttributes) {
             resetTextureAxes();
+            setOffset(vm::vec2f::zero());
+            setRotation(0.0f);
+            setScale(defaultFaceAttributes.scale());
+        }
+
+        void ChangeBrushFaceAttributesRequest::resetAllToParaxial(const BrushFaceAttributes& defaultFaceAttributes) {
+            resetTextureAxesToParaxial();
             setOffset(vm::vec2f::zero());
             setRotation(0.0f);
             setScale(defaultFaceAttributes.scale());

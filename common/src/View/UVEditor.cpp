@@ -44,6 +44,7 @@ namespace TrenchBroom {
         m_xSubDivisionEditor(nullptr),
         m_ySubDivisionEditor(nullptr),
         m_resetTextureButton(nullptr),
+        m_resetTextureToWorldButton(nullptr),
         m_flipTextureHButton(nullptr),
         m_flipTextureVButton(nullptr),
         m_rotateTextureCCWButton(nullptr),
@@ -65,6 +66,7 @@ namespace TrenchBroom {
             const bool enabled = !document->allSelectedBrushFaces().empty();
 
             m_resetTextureButton->setEnabled(enabled);
+            m_resetTextureToWorldButton->setEnabled(enabled);
             m_flipTextureHButton->setEnabled(enabled);
             m_flipTextureVButton->setEnabled(enabled);
             m_rotateTextureCCWButton->setEnabled(enabled);
@@ -75,6 +77,7 @@ namespace TrenchBroom {
             m_uvView = new UVView(m_document, contextManager);
 
             m_resetTextureButton = createBitmapButton("ResetTexture.svg", tr("Reset texture alignment"), this);
+            m_resetTextureToWorldButton = createBitmapButton("ResetTextureToWorld.svg", tr("Reset texture alignment to world aligned"), this);
             m_flipTextureHButton = createBitmapButton("FlipTextureH.svg", tr("Flip texture X axis"), this);
             m_flipTextureVButton = createBitmapButton("FlipTextureV.svg", tr("Flip texture Y axis"), this);
             m_rotateTextureCCWButton = createBitmapButton("RotateTextureCCW.svg",
@@ -83,7 +86,7 @@ namespace TrenchBroom {
                                                          this);
 
             connect(m_resetTextureButton, &QAbstractButton::clicked, this, &UVEditor::resetTextureClicked);
-
+            connect(m_resetTextureToWorldButton, &QAbstractButton::clicked, this, &UVEditor::resetTextureToWorldClicked);
             connect(m_flipTextureHButton, &QAbstractButton::clicked, this, &UVEditor::flipTextureHClicked);
             connect(m_flipTextureVButton, &QAbstractButton::clicked, this, &UVEditor::flipTextureVClicked);
             connect(m_rotateTextureCCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateTextureCCWClicked);
@@ -108,6 +111,7 @@ namespace TrenchBroom {
             bottomLayout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
             bottomLayout->setSpacing(LayoutConstants::NarrowHMargin);
             bottomLayout->addWidget(m_resetTextureButton);
+            bottomLayout->addWidget(m_resetTextureToWorldButton);
             bottomLayout->addWidget(m_flipTextureHButton);
             bottomLayout->addWidget(m_flipTextureVButton);
             bottomLayout->addWidget(m_rotateTextureCCWButton);
@@ -146,12 +150,19 @@ namespace TrenchBroom {
             }
         }
 
-
         void UVEditor::resetTextureClicked() {
             Model::ChangeBrushFaceAttributesRequest request;
 
             auto document = kdl::mem_lock(m_document);
             request.resetAll(document->game()->defaultFaceAttribs());
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::resetTextureToWorldClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+
+            auto document = kdl::mem_lock(m_document);
+            request.resetAllToParaxial(document->game()->defaultFaceAttribs());
             document->setFaceAttributes(request);
         }
 

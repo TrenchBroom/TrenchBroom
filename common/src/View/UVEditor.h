@@ -44,6 +44,7 @@ namespace TrenchBroom {
             QSpinBox* m_ySubDivisionEditor;
 
             QAbstractButton* m_resetTextureButton;
+            QAbstractButton* m_resetTextureToWorldButton;
             QAbstractButton* m_flipTextureHButton;
             QAbstractButton* m_flipTextureVButton;
             QAbstractButton* m_rotateTextureCCWButton;
@@ -64,6 +65,7 @@ namespace TrenchBroom {
             void unbindObservers();
 
             void resetTextureClicked();
+            void resetTextureToWorldClicked();
             void flipTextureHClicked();
             void flipTextureVClicked();
             void rotateTextureCCWClicked();
