@@ -631,6 +631,30 @@ namespace TrenchBroom {
                     context.frame()->revealTexture();
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Flip textures horizontally"), QObject::tr("Flip textures horizontally"),
+                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::CTRL + Qt::Key_F),
+                 [](ActionExecutionContext& context) {
+                     context.view()->flipTextures(vm::direction::right);
+                 },
+                 [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Flip textures vertically"), QObject::tr("Flip textures vertically"),
+                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_F),
+                 [](ActionExecutionContext& context) {
+                     context.view()->flipTextures(vm::direction::up);
+                 },
+                 [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Reset texture alignment"), QObject::tr("Reset texture alignment"),
+                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(),
+                 [](ActionExecutionContext& context) {
+                     context.view()->resetTextures();
+                 },
+                 [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Reset texture alignment to world aligned"), QObject::tr("Reset texture alignment to world aligned"),
+                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(),
+                 [](ActionExecutionContext& context) {
+                     context.view()->resetTexturesToWorld();
+                 },
+                 [](ActionExecutionContext& context) { return context.hasDocument(); });
 
             /* ========== Tag Actions ========== */
             createAction(IO::Path("Controls/Map view/Make structural"), QObject::tr("Make Structural"),

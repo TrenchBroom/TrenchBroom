@@ -171,6 +171,9 @@ namespace TrenchBroom {
             float moveTextureDistance(TextureActionMode mode) const;
             void rotateTextures(bool clockwise, TextureActionMode mode);
             float rotateTextureAngle(bool clockwise, TextureActionMode mode) const;
+            void flipTextures(vm::direction direction);
+            void resetTextures();
+            void resetTexturesToWorld();
         public: // tool mode actions
             void createComplexBrush();
 
