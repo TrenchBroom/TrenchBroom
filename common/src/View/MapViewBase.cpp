@@ -495,16 +495,10 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::flipTextures(const vm::direction direction) {
-            Model::ChangeBrushFaceAttributesRequest request;
-
-            if (direction == vm::direction::left || direction == vm::direction::right) {
-                request.mulXScale(-1.0f);
-            } else {
-                request.mulYScale(-1.0f);
-            }
-
             auto document = kdl::mem_lock(m_document);
-            document->setFaceAttributes(request);
+            if (document->hasSelectedBrushFaces()) {
+                document->flipTextures(doGetCamera().up(), doGetCamera().right(), direction);
+            }
         }
 
         void MapViewBase::resetTextures() {

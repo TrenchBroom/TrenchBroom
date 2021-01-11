@@ -179,6 +179,7 @@ namespace TrenchBroom {
             void moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset);
             void rotateTexture(float angle);
             void shearTexture(const vm::vec2f& factors);
+            void flipTexture(const vm::vec3& cameraUp, const vm::vec3& cameraRight, vm::direction cameraRelativeFlipDirection);
 
             kdl::result<void, BrushError> transform(const vm::mat4x4& transform, bool lockTexture);
             void invert();

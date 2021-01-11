@@ -433,6 +433,7 @@ namespace TrenchBroom {
             bool moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) override;
             bool rotateTextures(float angle) override;
             bool shearTextures(const vm::vec2f& factors) override;
+            bool flipTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, vm::direction cameraRelativeFlipDirection);
         public: // modifying vertices, declared in MapFacade interface
             bool snapVertices(FloatType snapTo) override;
 

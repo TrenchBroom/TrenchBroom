@@ -412,6 +412,39 @@ namespace TrenchBroom {
             m_texCoordSystem->shearTexture(m_boundary.normal, factors);
         }
 
+        void BrushFace::flipTexture(const vm::vec3& /* cameraUp */, const vm::vec3& cameraRight, const vm::direction cameraRelativeFlipDirection) {
+            const vm::mat4x4 texToWorld = m_texCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one());
+
+            const vm::vec3 texUAxisInWorld = vm::normalize((texToWorld * vm::vec4d(1, 0, 0, 0)).xyz());
+            const vm::vec3 texVAxisInWorld = vm::normalize((texToWorld * vm::vec4d(0, 1, 0, 0)).xyz());
+
+            // Get the cos(angle) between cameraRight and the texUAxisInWorld _line_ (so, take the smaller of the angles
+            // among -texUAxisInWorld and texUAxisInWorld). Note that larger cos(angle) means smaller angle.
+            const FloatType UAxisCosAngle = vm::max(vm::dot(texUAxisInWorld, cameraRight),
+                                                    vm::dot(-texUAxisInWorld, cameraRight));
+
+            const FloatType VAxisCosAngle = vm::max(vm::dot(texVAxisInWorld, cameraRight),
+                                                    vm::dot(-texVAxisInWorld, cameraRight));
+
+            // If this is true, it means the texture's V axis is closer to the camera's right vector than the
+            // texture's U axis is (i.e. we're looking at the texture sideways), so we should map
+            // "camera relative horizontal" to "texture space Y".
+            const bool cameraRightCloserToTexV = (VAxisCosAngle > UAxisCosAngle);
+
+            bool flipTextureX = (cameraRelativeFlipDirection == vm::direction::left
+                                 || cameraRelativeFlipDirection == vm::direction::right);
+
+            if (cameraRightCloserToTexV) {
+                flipTextureX = !flipTextureX;
+            }
+
+            if (flipTextureX) {
+                m_attributes.setXScale(-1.0f * m_attributes.xScale());
+            } else {
+                m_attributes.setYScale(-1.0f * m_attributes.yScale());
+            }
+        }
+
         kdl::result<void, BrushError> BrushFace::transform(const vm::mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
