@@ -125,26 +125,35 @@ namespace TrenchBroom {
             return static_cast<size_t>(pathStrs.size());
         }
 
-        std::string queryGroupName(QWidget* parent) {
+        static std::string queryObjectName(QWidget* parent, const QString& objectType, const std::string& suggestion) {
             while (true) {
-                bool ok;
-                QString text = QInputDialog::getText(parent, "Enter a name", "Group Name", QLineEdit::Normal, "Unnamed", &ok);
+                bool ok = false;
+                const std::string name = QInputDialog::getText(parent, "Enter a name", QObject::tr("%1 Name").arg(objectType), QLineEdit::Normal, QString::fromStdString(suggestion), &ok).toStdString();
 
                 if (!ok) {
                     return "";
                 }
 
-                const auto name = text.toStdString();
                 if (kdl::str_is_blank(name)) {
-                    if (QMessageBox::warning(parent, "Error", "Group names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
+                    if (QMessageBox::warning(parent, "Error", QObject::tr("%1 names cannot be blank.").arg(objectType), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
                         return "";
+                    }
                 } else if (kdl::ci::str_contains(name, "\"")) {
-                    if (QMessageBox::warning(parent, "Error", "Group names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
+                    if (QMessageBox::warning(parent, "Error", QObject::tr("%1 names cannot contain double quotes.").arg(objectType), QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
                         return "";
+                    }
                 } else {
                     return name;
                 }
             }
+        }
+
+        std::string queryGroupName(QWidget* parent, const std::string& suggestion) {
+            return queryObjectName(parent, QObject::tr("Group"), suggestion);
+        }
+
+        std::string queryLayerName(QWidget* parent, const std::string& suggestion) {
+            return queryObjectName(parent, QObject::tr("Layer"), suggestion);
         }
     }
 }
