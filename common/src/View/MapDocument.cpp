@@ -2077,6 +2077,14 @@ namespace TrenchBroom {
             });
         }
 
+        bool MapDocument::flipTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::direction cameraRelativeFlipDirection) {
+            const bool isHFlip = (cameraRelativeFlipDirection == vm::direction::left || cameraRelativeFlipDirection == vm::direction::right);
+            return applyAndSwap(*this, isHFlip ? "Flip Textures Horizontally" : "Flip Textures Vertically", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+                face.flipTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
+                return true;
+            });
+        }
+
         bool MapDocument::snapVertices(const FloatType snapTo) {
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
