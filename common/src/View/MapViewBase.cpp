@@ -28,6 +28,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
@@ -491,6 +492,35 @@ namespace TrenchBroom {
                     break;
             }
             return clockwise ? angle : -angle;
+        }
+
+        void MapViewBase::flipTextures(const vm::direction direction) {
+            Model::ChangeBrushFaceAttributesRequest request;
+
+            if (direction == vm::direction::left || direction == vm::direction::right) {
+                request.mulXScale(-1.0f);
+            } else {
+                request.mulYScale(-1.0f);
+            }
+
+            auto document = kdl::mem_lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void MapViewBase::resetTextures() {
+            Model::ChangeBrushFaceAttributesRequest request;
+
+            auto document = kdl::mem_lock(m_document);
+            request.resetAll(document->game()->defaultFaceAttribs());
+            document->setFaceAttributes(request);
+        }
+
+        void MapViewBase::resetTexturesToWorld() {
+            Model::ChangeBrushFaceAttributesRequest request;
+
+            auto document = kdl::mem_lock(m_document);
+            request.resetAllToParaxial(document->game()->defaultFaceAttribs());
+            document->setFaceAttributes(request);
         }
 
         void MapViewBase::createComplexBrush() {
