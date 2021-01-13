@@ -99,6 +99,28 @@ namespace TrenchBroom {
             std::optional<Assets::Texture> loadMaterial(const std::string& name, Logger& logger) override;
             std::optional<Assets::Texture> loadFallbackMaterial(Logger& logger) override;
         };
+
+        /**
+         * The specific instantiation of the ObjParser as it applies to Neverball.
+         */
+        class Doom3ObjParser : public ObjParser {
+        private:
+            Path m_path;
+            const FileSystem& m_fs;
+        public:
+            /**
+             *
+             * @param path the path of the model (important for texture lookup)
+             * @param begin the start of the text
+             * @param end the end of the text
+             * @param fs the filesystem used to lookup textures
+             */
+            Doom3ObjParser(const Path& path, const char* begin, const char* end, const FileSystem& fs);
+
+            bool transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) override;
+            std::optional<Assets::Texture> loadMaterial(const std::string& name, Logger& logger) override;
+            std::optional<Assets::Texture> loadFallbackMaterial(Logger& logger) override;
+        };
     }
 }
 

@@ -208,9 +208,11 @@ namespace TrenchBroom {
 
         void Quake3ShaderParser::parseStageEntry(Assets::Quake3ShaderStage& stage, ParserStatus& status) {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
-            expect(Quake3ShaderToken::String, token);
+            expect(Quake3ShaderToken::String | Quake3ShaderToken::Number, token); // RB: make this more flexible for Doom 3
             const auto key = token.data();
             if (key == "map") {
+
+                // RB: TODO check for heightmap(texture, float) and use texture
                 token = expect(Quake3ShaderToken::String | Quake3ShaderToken::Variable, m_tokenizer.nextToken());
                 stage.map = Path(token.data());
             } else if (key == "blendFunc") {

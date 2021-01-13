@@ -478,7 +478,12 @@ namespace TrenchBroom {
                     // has to be the whole path for implicit textures!
                     IO::NvObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
-                } else {
+                } else if (extension == "obj" && kdl::vec_contains(supported, "obj_doom3")) {
+                    auto reader = file->reader().buffer();
+                    // has to be the whole path for implicit textures!
+                    IO::Doom3ObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
+                    return parser.initializeModel(logger);
+                }else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
                 }
             } catch (const FileSystemException& e) {
@@ -537,6 +542,11 @@ namespace TrenchBroom {
                     auto reader = file->reader().buffer();
                     // has to be the whole path for implicit textures!
                     IO::NvObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (extension == "obj" && kdl::vec_contains(supported, "obj_doom3")) {
+                    auto reader = file->reader().buffer();
+                    // has to be the whole path for implicit textures!
+                    IO::Doom3ObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");

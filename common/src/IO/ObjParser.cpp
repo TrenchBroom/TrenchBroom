@@ -26,6 +26,7 @@
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "IO/SkinLoader.h" // load D3 materials
 #include "Model/BrushFaceAttributes.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
@@ -211,9 +212,6 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         bool NvObjParser::transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) {
-
-        // RB FIXME, we don't need this for Doom 3 but we also shouldn't break Neverball support
-#if 0
             for (vm::vec3f& pos : positions) {
                 // The transform we want to perform is OBJ-To-MAP.
                 // The transform used in make_body is MAP-To-OBJ, as Neverball uses the OBJ coordinate space natively.
@@ -223,7 +221,7 @@ namespace TrenchBroom {
                 pos[1] = pos[2] * -64.0f;
                 pos[2] = y * 64.0f;
             }
-#endif
+
             for (vm::vec2f& uv : texcoords) {
                 // This should be checked using the __TB_info_player_start model; Blender-defaults-output files are consistent with Neverball.
                 uv[1] = 1.0f - uv[1];
@@ -232,6 +230,7 @@ namespace TrenchBroom {
         }
 
         std::optional<Assets::Texture> NvObjParser::loadMaterial(const std::string& text, Logger& logger) {
+
             // NOTE: A reasonable solution here would be to use the same material handling as the brushes unless otherwise required.
             // Then Neverball just gets an additional texture search directory.
             // But there's raw pointers all over the Texture system, so without further details on how memory is managed there, that's a bad idea.
@@ -257,6 +256,38 @@ namespace TrenchBroom {
         }
 
         std::optional<Assets::Texture> NvObjParser::loadFallbackMaterial(Logger& logger) {
+            // Try to remove the '.obj' extension and grab that as a texture.
+            // This isn't really how it works, but the Neverball-side truth involves MAP files acting as a replacement for something like JSON.
+            // This is a less Neverball-specific set of logic which should be useful for any game.
+            const auto basic_skin_name = m_path.lastComponent().deleteExtension().asString();
+            if (auto material = loadMaterial(basic_skin_name, logger)) {
+                return material;
+            } else {
+                return loadMaterial(Model::BrushFaceAttributes::NoTextureName, logger);
+            }
+        }
+
+        // -- Doom 3 --
+
+        Doom3ObjParser::Doom3ObjParser(const Path& path, const char* begin, const char* end, const FileSystem& fs) :
+        ObjParser(path.lastComponent().asString(), begin, end),
+        m_path(path),
+        m_fs(fs) {}
+
+        bool Doom3ObjParser::transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) {
+            for (vm::vec2f& uv : texcoords) {
+                // This should be checked using the __TB_info_player_start model; Blender-defaults-output files are consistent with Neverball.
+                uv[1] = 1.0f - uv[1];
+            }
+            return true;
+        }
+
+        std::optional<Assets::Texture> Doom3ObjParser::loadMaterial(const std::string& text, Logger& logger) {
+            const auto shaderPath = Path(text).deleteExtension();
+            return IO::loadShader(shaderPath, m_fs, logger);
+        }
+
+        std::optional<Assets::Texture> Doom3ObjParser::loadFallbackMaterial(Logger& logger) {
             // Try to remove the '.obj' extension and grab that as a texture.
             // This isn't really how it works, but the Neverball-side truth involves MAP files acting as a replacement for something like JSON.
             // This is a less Neverball-specific set of logic which should be useful for any game.
