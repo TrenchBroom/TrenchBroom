@@ -211,6 +211,9 @@ namespace TrenchBroom {
         m_fs(fs) {}
 
         bool NvObjParser::transformObjCoordinateSet(std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) {
+
+        // RB FIXME, we don't need this for Doom 3 but we also shouldn't break Neverball support
+#if 0
             for (vm::vec3f& pos : positions) {
                 // The transform we want to perform is OBJ-To-MAP.
                 // The transform used in make_body is MAP-To-OBJ, as Neverball uses the OBJ coordinate space natively.
@@ -220,6 +223,7 @@ namespace TrenchBroom {
                 pos[1] = pos[2] * -64.0f;
                 pos[2] = y * 64.0f;
             }
+#endif
             for (vm::vec2f& uv : texcoords) {
                 // This should be checked using the __TB_info_player_start model; Blender-defaults-output files are consistent with Neverball.
                 uv[1] = 1.0f - uv[1];
