@@ -18,7 +18,7 @@
    viewBox="0, 0, 16, 16"
    id="svg84"
    sodipodi:docname="ResetTexture.svg"
-   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+   inkscape:version="1.0 (4035a4f, 2020-05-01)">
   <metadata
      id="metadata90">
     <rdf:RDF>
@@ -42,36 +42,35 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="2488"
-     inkscape:window-height="1373"
+     inkscape:window-width="2560"
+     inkscape:window-height="1314"
      id="namedview86"
      showgrid="true"
      inkscape:zoom="40.4375"
      inkscape:cx="3.2148377"
      inkscape:cy="8"
-     inkscape:window-x="72"
-     inkscape:window-y="30"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg84">
     <inkscape:grid
        id="grid1992"
        type="xygrid" />
   </sodipodi:namedview>
-  <g
-     style="fill:#3f3f3f;fill-opacity:1;stroke:none"
-     id="Layer_1"
-     transform="translate(1)">
-    <path
-       style="fill:#3f3f3f;fill-opacity:1;stroke:none"
-       d="m 6,5 h 2 c 3,0 4,1 4,4 0,3 -1,4 -4,4 H 4 v -2 c 5,0 6,0 6,-2 0,-2 0,-2 -4,-2 z"
-       id="path79"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="csssccscc" />
-    <path
-       style="fill:#3f3f3f;fill-opacity:1;stroke:none"
-       d="M 6,3 V 9 L 2,6"
-       id="path81"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccc" />
-  </g>
+  <rect
+     transform="rotate(45)"
+     y="-1"
+     x="5.3137083"
+     height="2"
+     width="12"
+     id="rect1582"
+     style="fill:#3f3f3f" />
+  <rect
+     transform="rotate(135)"
+     style="fill:#3f3f3f"
+     id="rect1582-3"
+     width="12"
+     height="2"
+     x="-6"
+     y="-12.313708" />
 </svg>
