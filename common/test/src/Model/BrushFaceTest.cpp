@@ -781,5 +781,66 @@ namespace TrenchBroom {
 
             CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status).empty());
         }
+
+        TEST_CASE("BrushFaceTest.flipTexture", "[BrushFaceTest]") {
+            const std::string data(R"(
+// entity 0
+{
+"mapversion" "220"
+"classname" "worldspawn"
+// brush 0
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) skip [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) skip [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) skip [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) hint [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) skip [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) skip [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+}
+}
+)");
+
+            const vm::bbox3 worldBounds(4096.0);
+
+            IO::TestParserStatus status;
+
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
+            auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
+            REQUIRE(brushNode != nullptr);
+
+            Brush brush = brushNode->brush();
+            BrushFace& face = brush.face(*brush.findFace(vm::vec3::pos_z()));
+            CHECK(face.attributes().scale() == vm::vec2f(1,1));
+
+            SECTION("Default camera angle") {
+                const auto cameraUp = vm::vec3(0.284427, 0.455084, 0.843801);
+                const auto cameraRight = vm::vec3(0.847998, -0.529999, 0);
+
+                SECTION("Left flip") {
+                    face.flipTexture(cameraUp, cameraRight, vm::direction::left);
+                    CHECK(face.attributes().scale() == vm::vec2f(-1,1));
+                }
+
+                SECTION("Up flip") {
+                    face.flipTexture(cameraUp, cameraRight, vm::direction::up);
+                    CHECK(face.attributes().scale() == vm::vec2f(1,-1));
+                }
+            }
+
+            SECTION("Camera is aimed at +x") {
+                const auto cameraUp = vm::vec3(0.419431, -0.087374, 0.903585);
+                const auto cameraRight = vm::vec3(-0.203938, -0.978984, 0);
+
+                SECTION("left arrow (does vertical flip)") {
+                    face.flipTexture(cameraUp, cameraRight, vm::direction::left);
+                    CHECK(face.attributes().scale() == vm::vec2f(1,-1));
+                }
+
+                SECTION("up arrow (does horizontal flip)") {
+                    face.flipTexture(cameraUp, cameraRight, vm::direction::up);
+                    CHECK(face.attributes().scale() == vm::vec2f(-1,1));
+                }
+            }
+        }
     }
 }
