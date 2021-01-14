@@ -1261,7 +1261,7 @@ namespace TrenchBroom {
 
         void MapFrame::groupSelectedObjects() {
             if (canGroupSelectedObjects()) {
-                const std::string name = queryGroupName(this);
+                const std::string name = queryGroupName(this, "Unnamed");
                 if (!name.empty()) {
                     m_document->groupSelection(name);
                 }
@@ -1286,7 +1286,9 @@ namespace TrenchBroom {
             if (canRenameSelectedGroups()) {
                 auto document = kdl::mem_lock(m_document);
                 assert(document->selectedNodes().hasOnlyGroups());
-                const std::string name = queryGroupName(this);
+
+                const std::string suggestion = document->selectedNodes().groups().front()->name();
+                const std::string name = queryGroupName(this, suggestion);
                 if (!name.empty()) {
                     document->renameGroups(name);
                 }

@@ -201,7 +201,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::onAddLayer() {
-            const std::string name = queryLayerName("Unnamed");
+            const std::string name = queryLayerName(this, "Unnamed");
             if (!name.empty()) {
                 auto document = kdl::mem_lock(m_document);
                 auto* world = document->world();
@@ -222,29 +222,6 @@ namespace TrenchBroom {
                 document->addNode(layerNode, world);
                 document->setCurrentLayer(layerNode);
                 m_layerList->setSelectedLayer(layerNode);
-            }
-        }
-
-        std::string LayerEditor::queryLayerName(const std::string& suggestion) {
-            while (true) {
-                bool ok = false;
-                const std::string name = QInputDialog::getText(this, "Enter a name", "Layer Name", QLineEdit::Normal, QString::fromStdString(suggestion), &ok).toStdString();
-
-                if (!ok) {
-                    return "";
-                }
-
-                if (kdl::str_is_blank(name)) {
-                    if (QMessageBox::warning(this, "Error", "Layer names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
-                        return "";
-                    }
-                } else if (kdl::ci::str_contains(name, "\"")) {
-                    if (QMessageBox::warning(this, "Error", "Layer names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
-                        return "";
-                    }
-                } else {
-                    return name;
-                }
             }
         }
 
@@ -285,7 +262,7 @@ namespace TrenchBroom {
                 auto document = kdl::mem_lock(m_document);
                 Model::LayerNode* layer = m_layerList->selectedLayer();
 
-                const std::string name = queryLayerName(layer->name());
+                const std::string name = queryLayerName(this, layer->name());
                 if (!name.empty()) {                    
                     document->renameLayer(layer, name);
                 }

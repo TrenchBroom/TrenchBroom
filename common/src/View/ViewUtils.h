@@ -40,7 +40,8 @@ namespace TrenchBroom {
         bool loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
         size_t loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
 
-        std::string queryGroupName(QWidget* parent);
+        std::string queryGroupName(QWidget* parent, const std::string& suggestion);
+        std::string queryLayerName(QWidget* parent, const std::string& suggestion);
     }
 }
 
