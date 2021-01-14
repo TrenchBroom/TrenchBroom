@@ -1287,13 +1287,7 @@ namespace TrenchBroom {
                 auto document = kdl::mem_lock(m_document);
                 assert(document->selectedNodes().hasOnlyGroups());
 
-                std::string suggestion;
-                if (document->selectedNodes().groupCount() == 1) {
-                    suggestion = document->selectedNodes().groups().front()->name();
-                } else {
-                    suggestion = "Multiple";
-                }
-
+                const std::string suggestion = document->selectedNodes().groups().front()->name();
                 const std::string name = queryGroupName(this, suggestion);
                 if (!name.empty()) {
                     document->renameGroups(name);
