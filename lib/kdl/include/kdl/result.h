@@ -686,5 +686,5 @@ namespace kdl {
         }
     };
 
-    constexpr auto void_result = kdl::result<void>();
+    constexpr auto void_success = kdl::result<void>();
 }

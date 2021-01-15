@@ -417,7 +417,7 @@ namespace TrenchBroom {
                         auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                         newNodes[brushNode->parent()].push_back(newBrushNode);
                         newDragHandles.emplace_back(newBrushNode, newDragFaceNormal);
-                        return kdl::void_result;
+                        return kdl::void_success;
                     }).handle_errors(
                         [&](const Model::BrushError e) {
                             document->error() << "Could not extrude brush: " << e;
@@ -480,7 +480,7 @@ namespace TrenchBroom {
                         auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                         newNodes[brushNode->parent()].push_back(newBrushNode);
                         newDragHandles.emplace_back(newBrushNode, clipFace.boundary().normal);
-                        return kdl::void_result;
+                        return kdl::void_success;
                     }).handle_errors([&](const Model::BrushError e) {
                         document->error() << "Could not extrude inwards: " << e;
                     });
