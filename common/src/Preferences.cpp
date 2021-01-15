@@ -130,6 +130,7 @@ namespace TrenchBroom {
 
         Preference<int> TextureMinFilter(IO::Path("Renderer/Texture mode min filter"), 0x2700);
         Preference<int> TextureMagFilter(IO::Path("Renderer/Texture mode mag filter"), 0x2600);
+        Preference<bool>  EnableMSAA(IO::Path("Renderer/Enable multisampling"), true);
 
         Preference<bool> TextureLock(IO::Path("Editor/Texture lock"), true);
         Preference<bool> UVLock(IO::Path("Editor/UV lock"), false);

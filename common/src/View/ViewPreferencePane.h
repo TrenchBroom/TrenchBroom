@@ -37,6 +37,7 @@ namespace TrenchBroom {
             SliderWithLabel* m_fovSlider;
             QCheckBox* m_showAxes;
             QComboBox* m_textureModeCombo;
+            QCheckBox* m_enableMsaa;
             QComboBox* m_themeCombo;
             QComboBox* m_textureBrowserIconSizeCombo;
             QComboBox* m_rendererFontSizeCombo;
@@ -61,6 +62,7 @@ namespace TrenchBroom {
             void gridAlphaChanged(int value);
             void fovChanged(int value);
             void showAxesChanged(int state);
+            void enableMsaaChanged(int state);
             void textureModeChanged(int index);
             void themeChanged(int index);
             void textureBrowserIconSizeChanged(int index);

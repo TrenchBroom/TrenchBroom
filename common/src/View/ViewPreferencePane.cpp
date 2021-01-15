@@ -134,6 +134,9 @@ namespace TrenchBroom {
                 m_textureModeCombo->addItem(QString::fromStdString(textureMode.name));
             }
 
+            m_enableMsaa = new QCheckBox();
+            m_enableMsaa->setToolTip("Enable multisampling");
+
             m_textureBrowserIconSizeCombo = new QComboBox();
             m_textureBrowserIconSizeCombo->addItem("25%");
             m_textureBrowserIconSizeCombo->addItem("50%");
@@ -166,6 +169,7 @@ namespace TrenchBroom {
             layout->addRow("FOV", m_fovSlider);
             layout->addRow("Show axes", m_showAxes);
             layout->addRow("Texture mode", m_textureModeCombo);
+            layout->addRow("Enable multisampling", m_enableMsaa);
 
             layout->addSection("Texture Browser");
             layout->addRow("Icon size", m_textureBrowserIconSizeCombo);
@@ -185,6 +189,7 @@ namespace TrenchBroom {
             connect(m_gridAlphaSlider, &SliderWithLabel::valueChanged, this, &ViewPreferencePane::gridAlphaChanged);
             connect(m_fovSlider, &SliderWithLabel::valueChanged, this, &ViewPreferencePane::fovChanged);
             connect(m_showAxes, &QCheckBox::stateChanged, this, &ViewPreferencePane::showAxesChanged);
+            connect(m_enableMsaa, &QCheckBox::stateChanged, this, &ViewPreferencePane::enableMsaaChanged);
             connect(m_themeCombo, QOverload<int>::of(&QComboBox::activated), this, &ViewPreferencePane::themeChanged);
             connect(m_textureModeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureModeChanged);
             connect(m_textureBrowserIconSizeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureBrowserIconSizeChanged);
@@ -202,6 +207,7 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::GridAlpha);
             prefs.resetToDefault(Preferences::CameraFov);
             prefs.resetToDefault(Preferences::ShowAxes);
+            prefs.resetToDefault(Preferences::EnableMSAA);
             prefs.resetToDefault(Preferences::TextureMinFilter);
             prefs.resetToDefault(Preferences::TextureMagFilter);
             prefs.resetToDefault(Preferences::Theme);
@@ -219,6 +225,7 @@ namespace TrenchBroom {
             m_textureModeCombo->setCurrentIndex(int(textureModeIndex));
 
             m_showAxes->setChecked(pref(Preferences::ShowAxes));
+            m_enableMsaa->setChecked(pref(Preferences::EnableMSAA));
             m_themeCombo->setCurrentIndex(findThemeIndex(pref(Preferences::Theme)));
 
             const auto textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
@@ -291,6 +298,12 @@ namespace TrenchBroom {
             const auto value = state == Qt::Checked;
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::ShowAxes, value);
+        }
+
+        void ViewPreferencePane::enableMsaaChanged(const int state) {
+            const auto value = state == Qt::Checked;
+            auto& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::EnableMSAA, value);
         }
 
         void ViewPreferencePane::textureModeChanged(const int value) {
