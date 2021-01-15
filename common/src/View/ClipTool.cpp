@@ -756,7 +756,7 @@ namespace TrenchBroom {
                             return brush.clip(worldBounds, std::move(clipFace));
                     }).and_then([&]() {
                             brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
-                            return kdl::void_result;
+                            return kdl::void_success;
                     }).handle_errors([&](const Model::BrushError e) {
                             document->error() << "Could not clip brush: " << e;
                     });

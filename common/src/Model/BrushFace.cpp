@@ -463,7 +463,7 @@ namespace TrenchBroom {
             return setPoints(m_points[0], m_points[1], m_points[2])
                 .and_then([&]() {
                     m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, textureSize(), lockTexture, invariant);
-                    return kdl::void_result;
+                    return kdl::void_success;
                 });
         }
 
@@ -500,7 +500,7 @@ namespace TrenchBroom {
                     const auto offsetChange = desriedCoords - currentCoords;
                     m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
                 }
-                return kdl::void_result;
+                return kdl::void_success;
             });
         }
 
@@ -616,7 +616,7 @@ namespace TrenchBroom {
             const auto [result, plane] = vm::from_points(m_points[0], m_points[1], m_points[2]);
             if (result) {
                 m_boundary = plane;
-                return kdl::void_result;
+                return kdl::void_success;
             } else {
                 return BrushError::InvalidFace;
             }

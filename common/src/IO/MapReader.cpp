@@ -318,7 +318,7 @@ namespace TrenchBroom {
 
                         onBrush(parent, brushNode, status);
 
-                        return kdl::void_result;
+                        return kdl::void_success;
                     }
                 ).handle_errors(
                     [&](const Model::BrushError e) {

@@ -142,7 +142,7 @@ namespace TrenchBroom {
             
             assert(checkFaceLinks());
 
-            return kdl::void_result;
+            return kdl::void_success;
         }
         
         const vm::bbox3& Brush::bounds() const {
@@ -261,7 +261,7 @@ namespace TrenchBroom {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-                        return kdl::void_result;
+                        return kdl::void_success;
 #if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER) && __GNUC__ == 8
 #pragma GCC diagnostic pop
 #endif

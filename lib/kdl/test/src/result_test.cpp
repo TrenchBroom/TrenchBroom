@@ -326,10 +326,10 @@ namespace kdl {
         CHECK(y.copies == 0u);
     }
 
-    TEST_CASE("result_test.void_result", "[result_test]") {
+    TEST_CASE("result_test.void_success", "[result_test]") {
         kdl::result<void, Error1> r1 = result<int, Error1>(1).and_then(
             [](int) {
-                return void_result;
+                return void_success;
             }
         );
         
