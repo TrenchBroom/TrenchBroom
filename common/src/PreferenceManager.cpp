@@ -662,10 +662,10 @@ namespace TrenchBroom {
     PreferencesResult readV2SettingsFromPath(const QString& path) {
         QFile file(path);
         if (!file.exists()) {
-            return PreferencesResult::error(PreferenceErrors::NoFilePresent{});
+            return PreferenceErrors::NoFilePresent{};
         }
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            return PreferencesResult::error(PreferenceErrors::FileReadError{});
+            return PreferenceErrors::FileReadError{};
         }
 
         return parseV2SettingsFromJSON(file.readAll());
@@ -702,7 +702,7 @@ namespace TrenchBroom {
         const QJsonDocument document = QJsonDocument::fromJson(jsonData, &error);
 
         if (error.error != QJsonParseError::NoError || !document.isObject()) {
-            return PreferencesResult::error(PreferenceErrors::JsonParseError{error});
+            return PreferenceErrors::JsonParseError{error};
         }
 
         const QJsonObject object = document.object();
@@ -713,7 +713,7 @@ namespace TrenchBroom {
 
             result[IO::pathFromQString(key)] = value;
         }
-        return PreferencesResult::success(result);
+        return result;
     }
 
     QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs) {

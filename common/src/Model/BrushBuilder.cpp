@@ -90,7 +90,7 @@ namespace TrenchBroom {
                     ));
 
                 if (error) {
-                    return kdl::result<Brush, BrushError>::error(*error);
+                    return *error;
                 }
             }
 
@@ -133,7 +133,7 @@ namespace TrenchBroom {
                     ));
 
                 if (error) {
-                    return kdl::result<Brush, BrushError>::error(*error);
+                    return *error;
                 }
             }
 
