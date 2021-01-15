@@ -154,9 +154,9 @@ namespace TrenchBroom {
             Points points = {{ vm::correct(point0), vm::correct(point1), vm::correct(point2) }};
             const auto [result, plane] = vm::from_points(points[0], points[1], points[2]);
             if (result) {
-                return kdl::result<BrushFace, BrushError>::success(BrushFace(points, plane, attributes, std::move(texCoordSystem)));
+                return BrushFace(points, plane, attributes, std::move(texCoordSystem));
             } else {
-                return kdl::result<BrushFace, BrushError>::error(BrushError::InvalidFace);
+                return BrushError::InvalidFace;
             }
         }
 
@@ -463,7 +463,7 @@ namespace TrenchBroom {
             return setPoints(m_points[0], m_points[1], m_points[2])
                 .and_then([&]() {
                     m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, textureSize(), lockTexture, invariant);
-                    return kdl::result<void, BrushError>::success();
+                    return kdl::void_result;
                 });
         }
 
@@ -500,7 +500,7 @@ namespace TrenchBroom {
                     const auto offsetChange = desriedCoords - currentCoords;
                     m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
                 }
-                return kdl::result<void, BrushError>::success();
+                return kdl::void_result;
             });
         }
 
@@ -616,9 +616,9 @@ namespace TrenchBroom {
             const auto [result, plane] = vm::from_points(m_points[0], m_points[1], m_points[2]);
             if (result) {
                 m_boundary = plane;
-                return kdl::result<void, BrushError>::success();
+                return kdl::void_result;
             } else {
-                return kdl::result<void, BrushError>::error(BrushError::InvalidFace);
+                return BrushError::InvalidFace;
             }
         }
 

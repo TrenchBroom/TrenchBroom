@@ -94,10 +94,10 @@ namespace kdl {
      */
     template <typename ResultType, typename... V>
     void test_construct_success(V&&... v) {
-        auto result = ResultType::success(std::forward<V>(v)...);
+        auto result = ResultType(std::forward<V>(v)...);
         CHECK(result.is_success());
         CHECK_FALSE(result.is_error());
-        CHECK(result == result.is_success());
+        CHECK(result);
     }
     
     /**
@@ -105,10 +105,10 @@ namespace kdl {
      */
     template <typename ResultType, typename E>
     void test_construct_error(E&& e) {
-        auto result = ResultType::error(std::forward<E>(e));
+        auto result = ResultType(std::forward<E>(e));
         CHECK_FALSE(result.is_success());
         CHECK(result.is_error());
-        CHECK(result == result.is_success());
+        CHECK_FALSE(result);
     }
     
     /**
@@ -116,7 +116,7 @@ namespace kdl {
      */
     template <typename ResultType, typename V>
     void test_visit_success_const_lvalue_ref(V&& v) {
-        auto result = ResultType::success(std::forward<V>(v));
+        auto result = ResultType(std::forward<V>(v));
 
         CHECK(result.visit(overload(
             [&] (const auto& x) { return x == v; },
@@ -130,7 +130,7 @@ namespace kdl {
      */
     template <typename ResultType, typename V>
     void test_visit_success_rvalue_ref(V&& v) {
-        auto result = ResultType::success(std::forward<V>(v));
+        auto result = ResultType(std::forward<V>(v));
 
         CHECK(std::move(result).visit(overload(
             [&] (auto&&)   { return true; },
@@ -153,7 +153,7 @@ namespace kdl {
      */
     template <typename ResultType, typename E>
     void test_visit_error_const_lvalue_ref(E&& e) {
-        auto result = ResultType::error(std::forward<E>(e));
+        auto result = ResultType(std::forward<E>(e));
 
         CHECK(result.visit(overload(
             []  (const auto&)   { return false; },
@@ -167,7 +167,7 @@ namespace kdl {
      */
     template <typename ResultType, typename E>
     void test_visit_error_rvalue_ref(E&& e) {
-        auto result = ResultType::error(std::forward<E>(e));
+        auto result = ResultType(std::forward<E>(e));
 
         CHECK(std::move(result).visit(overload(
             []  (auto&&)   { return false; },
@@ -190,14 +190,14 @@ namespace kdl {
      */
     template <typename FromResult, typename ToValueType, typename V>
     void test_and_then_const_lvalue_ref(V&& v) {
-        auto from = FromResult::success(std::forward<V>(v));
+        auto from = FromResult(std::forward<V>(v));
         
         const auto to = from.and_then([](const typename FromResult::value_type& x) {
-            return kdl::result<ToValueType, Error3>::success(static_cast<ToValueType>(x));
+            return kdl::result<ToValueType, Error3>(static_cast<ToValueType>(x));
         });
         CHECK(to.is_success());
         CHECK_FALSE(to.is_error());
-        CHECK(to == to.is_success());
+        CHECK(to);
 
         CHECK(to.visit(overload(
             [](const ToValueType&) { return true; },
@@ -210,13 +210,13 @@ namespace kdl {
      */
     template <typename FromResult, typename ToValueType, typename V>
     void test_and_then_rvalue_ref(V&& v) {
-        auto from = FromResult::success(std::forward<V>(v));
+        auto from = FromResult(std::forward<V>(v));
         const auto to = std::move(from).and_then([](typename FromResult::value_type&& x) {
-            return kdl::result<ToValueType, Error3>::success(std::move(static_cast<ToValueType>(x)));
+            return kdl::result<ToValueType, Error3>(std::move(static_cast<ToValueType>(x)));
         });
         CHECK(to.is_success());
         CHECK_FALSE(to.is_error());
-        CHECK(to == to.is_success());
+        CHECK(to);
 
         CHECK(to.visit(overload(
             [](const ToValueType&) { return true; },
@@ -237,7 +237,7 @@ namespace kdl {
      */
     template <typename ResultType>
     void test_visit_success_with_opt_value() {
-        auto result = ResultType::success();
+        auto result = ResultType();
         
         CHECK(result.visit(overload(
             []()            { return true; },
@@ -251,7 +251,7 @@ namespace kdl {
      */
     template <typename ResultType, typename V>
     void test_visit_success_const_lvalue_ref_with_opt_value(V&& v) {
-        auto result = ResultType::success(std::forward<V>(v));
+        auto result = ResultType(std::forward<V>(v));
         
         CHECK(result.visit(overload(
             []  ()              { return false; },
@@ -267,7 +267,7 @@ namespace kdl {
      */
     template <typename ResultType, typename V>
     void test_visit_success_rvalue_ref_with_opt_value(V&& v) {
-        auto result = ResultType::success(std::forward<V>(v));
+        auto result = ResultType(std::forward<V>(v));
 
         CHECK(std::move(result).visit(overload(
             []  ()         { return false; },
@@ -293,7 +293,7 @@ namespace kdl {
      */
     template <typename ResultType, typename E>
     void test_visit_error_const_lvalue_ref_with_opt_value(E&& e) {
-        auto result = ResultType::error(std::forward<E>(e));
+        auto result = ResultType(std::forward<E>(e));
         
         CHECK(result.visit(overload(
             []  ()            { return false; },
@@ -308,7 +308,7 @@ namespace kdl {
      */
     template <typename ResultType, typename E>
     void test_visit_error_rvalue_ref_with_opt_value(E&& e) {
-        auto result = ResultType::error(std::forward<E>(e));
+        auto result = ResultType(std::forward<E>(e));
 
         CHECK(std::move(result).visit(overload(
             [] ()       { return false; },
@@ -327,19 +327,19 @@ namespace kdl {
     }
 
     TEST_CASE("result_test.void_result", "[result_test]") {
-        kdl::result<void, Error1> r1 = result<int, Error1>::success(1).and_then(
+        kdl::result<void, Error1> r1 = result<int, Error1>(1).and_then(
             [](int) {
                 return void_result;
             }
         );
         
-        CHECK(r1.success());
+        CHECK(r1.is_success());
     }
 
     TEST_CASE("result_test.constructor", "[result_test]") {
-        CHECK((result<int, float, std::string>::success(1).is_success()));
-        CHECK((result<int, float, std::string>::error(1.0f).is_error()));
-        CHECK((result<int, float, std::string>::error("").is_error()));
+        CHECK((result<int, float, std::string>(1).is_success()));
+        CHECK((result<int, float, std::string>(1.0f).is_error()));
+        CHECK((result<int, float, std::string>("").is_error()));
 
         test_construct_success<const result<int, Error1, Error2>>(1);
         test_construct_success<result<int, Error1, Error2>>(1);
@@ -355,6 +355,23 @@ namespace kdl {
         test_construct_error<result<int, Error1, Error2>>(Error2{});
         test_construct_error<const result<const int, Error1, Error2>>(Error2{});
         test_construct_error<result<const int, Error1, Error2>>(Error2{});
+    }
+
+    TEST_CASE("result_test.converting_constructor", "[result_test]") {
+        CHECK(result<int, std::string, float>{result<int, std::string, float>{1}}.is_success());
+        CHECK(result<int, std::string, float>{result<int, std::string, float>{"asdf"}}.is_error());
+        
+        CHECK(result<int, std::string, float>{result<int, float, std::string>{1}}.is_success());
+        CHECK(result<int, std::string, float>{result<int, float, std::string>{"asdf"}}.is_error());
+        
+        CHECK(result<int, std::string, float>{result<int, std::string>{1}}.is_success());
+        CHECK(result<int, std::string, float>{result<int, std::string>{"asdf"}}.is_error());
+        
+        CHECK(result<int, std::string, float>{result<int, float>{1}}.is_success());
+        CHECK(result<int, std::string, float>{result<int, float>{1.0f}}.is_error());
+
+        // must trigger static assert
+        // CHECK(result<int, std::string, float>{result<int, float, double>{1.0f}}.is_error());
     }
 
     TEST_CASE("result_test.visit", "[result_test]") {
@@ -380,9 +397,9 @@ namespace kdl {
     }
     
     TEST_CASE("void_result_test.constructor", "[void_result_test]") {
-        CHECK((result<void, float, std::string>::success().is_success()));
-        CHECK((result<void, float, std::string>::error(1.0f).is_error()));
-        CHECK((result<void, float, std::string>::error("").is_error()));
+        CHECK((result<void, float, std::string>().is_success()));
+        CHECK((result<void, float, std::string>(1.0f).is_error()));
+        CHECK((result<void, float, std::string>("").is_error()));
 
         test_construct_success<const result<void, Error1, Error2>>();
         test_construct_success<result<void, Error1, Error2>>();
@@ -392,6 +409,23 @@ namespace kdl {
 
         test_construct_error<const result<void, Error1, Error2>>(Error2{});
         test_construct_error<result<void, Error1, Error2>>(Error2{});
+    }
+
+    TEST_CASE("void_result_test.converting_constructor", "[result_test]") {
+        CHECK(result<void, std::string, float>{result<void, std::string, float>{}}.is_success());
+        CHECK(result<void, std::string, float>{result<void, std::string, float>{"asdf"}}.is_error());
+        
+        CHECK(result<void, std::string, float>{result<void, float, std::string>{}}.is_success());
+        CHECK(result<void, std::string, float>{result<void, float, std::string>{"asdf"}}.is_error());
+        
+        CHECK(result<void, std::string, float>{result<void, std::string>{}}.is_success());
+        CHECK(result<void, std::string, float>{result<void, std::string>{"asdf"}}.is_error());
+        
+        CHECK(result<void, std::string, float>{result<void, float>{}}.is_success());
+        CHECK(result<void, std::string, float>{result<void, float>{1.0f}}.is_error());
+
+        // must trigger static assert
+        // CHECK(result<void, std::string, float>{result<void, float, double>{1.0f}}.is_error());
     }
 
     TEST_CASE("void_result_test.visit", "[void_result_test]") {
@@ -404,26 +438,26 @@ namespace kdl {
     }
     
     TEST_CASE("void_result_test.and_then", "[void_result_test]") {
-        const auto r_success = result<void, Error1, Error2>::success();
-        const auto r_error   = result<void, Error1, Error2>::error(Error2{});
+        const auto r_success = result<void, Error1, Error2>();
+        const auto r_error   = result<void, Error1, Error2>(Error2{});
         
-        const auto f_success = []() { return kdl::result<bool, Error3>::success(true); };
-        const auto f_error   = []() { return kdl::result<bool, Error3>::error(Error3{}); };
-        const auto f_void    = []() { return kdl::result<void, Error3>::success(); };
+        const auto f_success = []() { return kdl::result<bool, Error3>(true); };
+        const auto f_error   = []() { return kdl::result<bool, Error3>(Error3{}); };
+        const auto f_void    = []() { return kdl::result<void, Error3>(); };
 
-        CHECK(r_success.and_then(f_success) == result<bool, Error1, Error2, Error3>::success(true));
-        CHECK(r_success.and_then(f_error)   == result<bool, Error1, Error2, Error3>::error(Error3{}));
-        CHECK(r_error.and_then(f_success)   == result<bool, Error1, Error2, Error3>::error(Error2{}));
-        CHECK(r_success.and_then(f_void)    == result<void, Error1, Error2, Error3>::success());
+        CHECK(r_success.and_then(f_success) == result<bool, Error1, Error2, Error3>(true));
+        CHECK(r_success.and_then(f_error)   == result<bool, Error1, Error2, Error3>(Error3{}));
+        CHECK(r_error.and_then(f_success)   == result<bool, Error1, Error2, Error3>(Error2{}));
+        CHECK(r_success.and_then(f_void)    == result<void, Error1, Error2, Error3>());
     }
     
     TEST_CASE("combine_results", "result_test") {
         using R1 = result<int, Error1, Error2>;
         using R2 = result<double, Error2, Error3>;
         
-        auto r1 = R1::success(1);
-        auto r2 = R2::success(2.0);
-        auto r3 = R2::error(Error2{});
+        auto r1 = R1(1);
+        auto r2 = R2(2.0);
+        auto r3 = R2(Error2{});
         
         CHECK(combine_results(r1, r2).is_success());
         CHECK(combine_results(r1, r2).visit(kdl::overload(
@@ -449,8 +483,8 @@ namespace kdl {
             }
         )));
 
-        CHECK(combine_results(r1, R2::success(2.0)).is_success());
-        CHECK(combine_results(r1, R2::success(2.0)).visit(kdl::overload(
+        CHECK(combine_results(r1, R2(2.0)).is_success());
+        CHECK(combine_results(r1, R2(2.0)).visit(kdl::overload(
             [](const std::tuple<int, double>& t) {
                 CHECK(t == std::make_tuple(1, 2.0));
                 return true;
@@ -460,8 +494,8 @@ namespace kdl {
             }
         )));
         
-        CHECK(combine_results(r1, R2::error(Error2{})).is_error());
-        CHECK(combine_results(r1, R2::error(Error2{})).visit(kdl::overload(
+        CHECK(combine_results(r1, R2(Error2{})).is_error());
+        CHECK(combine_results(r1, R2(Error2{})).visit(kdl::overload(
             [](const std::tuple<int, double>&) {
                 return false;
             },

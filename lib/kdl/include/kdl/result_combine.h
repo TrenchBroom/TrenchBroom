@@ -55,13 +55,13 @@ namespace kdl {
         
         return result.visit(kdl::overload(
             [](value_type&& v) {
-                return result_type::success(std::make_tuple(std::move(v)));
+                return result_type(std::make_tuple(std::move(v)));
             },
             [](const value_type& v) {
-                return result_type::success(std::make_tuple(v));
+                return result_type(std::make_tuple(v));
             },
             [](auto&& e) {
-                return result_type::error(std::forward<decltype(e)>(e));
+                return result_type(std::forward<decltype(e)>(e));
             }
         ));
     }
@@ -99,39 +99,39 @@ namespace kdl {
             [&](first_value_type&& firstValue) {
                 return combine_results(std::forward<MoreResults>(moreResults)...).visit(kdl::overload(
                     [&](typename combined_more_result_type::value_type&& remainingValues) {
-                        return result_type::success(std::tuple_cat(
+                        return result_type(std::tuple_cat(
                             std::make_tuple(std::move(firstValue)),
                             std::move(remainingValues)));
                     },
                     [&](const typename combined_more_result_type::value_type& remainingValues) {
-                        return result_type::success(std::tuple_cat(
+                        return result_type(std::tuple_cat(
                             std::make_tuple(std::move(firstValue)),
                             remainingValues));
                     },
                     [](auto&& combinedError) {
-                        return result_type::error(std::forward<decltype(combinedError)>(combinedError));
+                        return result_type(std::forward<decltype(combinedError)>(combinedError));
                     }
                 ));
             },
             [&](const first_value_type& firstValue) {
                 return combine_results(std::forward<MoreResults>(moreResults)...).visit(kdl::overload(
                     [&](typename combined_more_result_type::value_type&& remainingValues) {
-                        return result_type::success(std::tuple_cat(
+                        return result_type(std::tuple_cat(
                             std::make_tuple(firstValue),
                             std::move(remainingValues)));
                     },
                     [&](const typename combined_more_result_type::value_type& remainingValues) {
-                        return result_type::success(std::tuple_cat(
+                        return result_type(std::tuple_cat(
                             std::make_tuple(firstValue),
                             remainingValues));
                     },
                     [](auto&& combinedError) {
-                        return result_type::error(std::forward<decltype(combinedError)>(combinedError));
+                        return result_type(std::forward<decltype(combinedError)>(combinedError));
                     }
                 ));
             },
             [&](auto&& firstError) {
-                return result_type::error(std::forward<decltype(firstError)>(firstError));
+                return result_type(std::forward<decltype(firstError)>(firstError));
             }
         ));
     }

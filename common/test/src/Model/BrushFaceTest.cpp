@@ -681,7 +681,7 @@ namespace TrenchBroom {
                             BrushFace& face = brush.face(i);
                             face.setTexture(&texture);
                         }
-                        return kdl::result<Brush>::success(brush);
+                        return kdl::result<Brush>(std::move(brush));
                     }).value();
 
             auto testTransform = [&](const vm::mat4x4& transform){

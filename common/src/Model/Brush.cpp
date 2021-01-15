@@ -97,7 +97,7 @@ namespace TrenchBroom {
         kdl::result<Brush, BrushError> Brush::create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces) {
             Brush brush(std::move(faces));
             return brush.updateGeometryFromFaces(worldBounds)
-                .and_then([&]() { return kdl::result<Brush, BrushError>::success(std::move(brush)); });
+                .and_then([&]() { return kdl::result<Brush, BrushError>(std::move(brush)); });
         }
 
         kdl::result<void, BrushError> Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds) {
@@ -114,14 +114,14 @@ namespace TrenchBroom {
                     face.setGeometry(faceGeometry);
                     faceGeometry->setPayload(i);
                 } else  if (result.empty()) {
-                    return kdl::result<void, BrushError>::error(BrushError::EmptyBrush);
+                    return BrushError::EmptyBrush;
                 }
             }
 
             // Correct vertex positions and heal short edges
             geometry->correctVertexPositions();
             if (!geometry->healEdges()) {
-                return kdl::result<void, BrushError>::error(BrushError::InvalidBrush);
+                return BrushError::InvalidBrush;
             }
             
             // Now collect all faces which still remain
@@ -133,7 +133,7 @@ namespace TrenchBroom {
                     remainingFaces.push_back(std::move(m_faces[*faceIndex]));
                     faceGeometry->setPayload(remainingFaces.size() - 1u);
                 } else {
-                    return kdl::result<void, BrushError>::error(BrushError::IncompleteBrush);
+                    return BrushError::IncompleteBrush;
                 }
             }
 
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             
             assert(checkFaceLinks());
 
-            return kdl::result<void, BrushError>::success();
+            return kdl::void_result;
         }
         
         const vm::bbox3& Brush::bounds() const {
@@ -254,10 +254,20 @@ namespace TrenchBroom {
             return m_faces[faceIndex].transform(vm::translation_matrix(delta), lockTexture)
                 .and_then([&]() {
                     return updateGeometryFromFaces(worldBounds);
-                }).and_then([&]() {
-                    return faceCount() == originalFaceCount
-                        ? kdl::result<void, BrushError>::success()
-                        : kdl::result<void, BrushError>::error(BrushError::InvalidBrush);
+                }).and_then([&]() -> kdl::result<void, BrushError> {
+                    if (faceCount() == originalFaceCount) {
+// GCC 8 incorrectly complains about an unitialized variable use here
+#if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER) && __GNUC__ == 8
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+                        return kdl::void_result;
+#if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER) && __GNUC__ == 8
+#pragma GCC diagnostic pop
+#endif
+                    } else {
+                        return BrushError::InvalidBrush;
+                    }
                 });
         }
 
@@ -265,7 +275,7 @@ namespace TrenchBroom {
             for (auto& face : m_faces) {
                 const vm::vec3 moveAmount = face.boundary().normal * delta;
                 if (!face.transform(vm::translation_matrix(moveAmount), lockTexture)) {
-                    return kdl::result<void, BrushError>::error(BrushError::InvalidFace);
+                    return BrushError::InvalidFace;
                 }
             }
 
@@ -821,7 +831,7 @@ namespace TrenchBroom {
             });
 
             if (error) {
-                return kdl::result<void, BrushError>::error(*error);
+                return *error;
             }
 
             m_faces = std::move(newFaces);
@@ -862,11 +872,11 @@ namespace TrenchBroom {
                     ));
 
                 if (error) {
-                    return kdl::result<std::vector<Brush>, BrushError>::error(*error);
+                    return *error;
                 }
             }
 
-            return kdl::result<std::vector<Brush>, BrushError>::success(brushes);
+            return brushes;
         }
 
         kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const {
@@ -881,7 +891,7 @@ namespace TrenchBroom {
         kdl::result<void, BrushError> Brush::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {
             for (auto& face : m_faces) {
                 if (const auto transformResult = face.transform(transformation, lockTextures); !transformResult) {
-                    return kdl::result<void, BrushError>::error(BrushError::InvalidFace);
+                    return BrushError::InvalidFace;
                 }
             }
             
@@ -939,7 +949,7 @@ namespace TrenchBroom {
                     ));
                 
                 if (error) {
-                    return kdl::result<Brush, BrushError>::error(*error);
+                    return *error;
                 }
             }
 
@@ -950,7 +960,7 @@ namespace TrenchBroom {
                         for (const auto* subtrahend : subtrahends) {
                             b.cloneInvertedFaceAttributesFrom(*subtrahend);
                         }
-                        return kdl::result<Brush, BrushError>::success(std::move(b));
+                        return kdl::result<Brush, BrushError>(std::move(b));
                     }
                 );
         }

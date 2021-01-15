@@ -80,40 +80,41 @@ namespace kdl {
     private:
         using variant_type = std::variant<value_type, Errors...>;
         variant_type m_value;
-    private:
-        result(variant_type&& v)
+
+        explicit result(variant_type&& v)
         : m_value(std::move(v)) {}
     public:
         /**
-         * Creates a new successful result that wraps the given value.
-         * If the value is passed by (const) lvalue reference, it is copied into the given result, if it is passed by
-         * rvalue reference, then it is moved into the given result.
+         * Creates a new result that wraps the given value.
          *
-         * @tparam V the type of the value, must be convertible to value_type
+         * v must be convertible to the value type or one of the error types of this result.
+         * If the value is passed by (const) lvalue reference, it is copied into this result, if it s passed by rvalue
+         * reference, then it is moved into this result.
+         *
+         * @tparam T the type of the value, must match the value type or one of the error types of this result
          * @param v the value
-         * @return a successful result that wraps the given value
          */
-        template <typename V>
-        static result success(V&& v) {
-            static_assert(std::is_convertible_v<V, Value>, "argument must be convertible to the value type");
-            return result(variant_type(std::in_place_index_t<0>(), std::forward<V>(v)));
-        }
-        
+        template <typename T>
+        result(T&& v)
+        : m_value(std::forward<T>(v)) {}
+
         /**
-         * Creates a new failure result that wraps the given error.
-         * If the error is passed by (const) lvalue reference, it is copied into the given result, if it s passed by rvalue
-         * reference, then it is moved into the given result.
+         * Converting constructor.
          *
-         * @tparam E the type of the error, must match one of the error types of the given result
-         * @param e the error
-         * @return a failure result that wraps the given error
+         * The given result type must have the same value type and a subset of the error types of this result type.
+         * The value or error wrapped by the given result is moved into this result.
+         *
+         * @param other the result to convert
          */
-        template <typename E>
-        static result error(E&& e) {
-            static_assert((... || std::is_convertible_v<E, Errors>), "argument must be convertible to an error type");
-            return result(variant_type(std::forward<E>(e)));
+        template <typename... ErrorSubset>
+        result(result<Value, ErrorSubset...> other) {
+            static_assert(meta_is_subset<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>::value, "Error types of result type to convert must be a subset of target result type");
+            std::move(other).visit(overload(
+                [&](Value&& v) { m_value = std::move(v); },
+                [&](auto&& e) { m_value = std::move(e); }
+            ));
         }
-        
+    public:
         /**
          * Visits the value or error contained in this result.
          *
@@ -182,17 +183,17 @@ namespace kdl {
          * f1().and_then(
          *     [](const int i) {
          *         if (i < 0) {
-         *             return result<float, Error2>::error(Error2{"invalid"});
+         *             return result<float, Error2>(Error2{"invalid"});
          *         } else {
-         *             return result<float, Error2>::success(std::sqrt(float(i)));
+         *             return result<float, Error2>(std::sqrt(float(i)));
          *         }
          *     }
          * ).and_then(
          *     [](const float f) {
          *         if (f > 1000.0f) {
-         *             return result<std::string, Error3>::error(Error3{"out of bounds"});
+         *             return result<std::string, Error3>(Error3{"out of bounds"});
          *         } else {
-         *             return result<std::string, Error3>::success("good value");
+         *             return result<std::string, Error3>("good value");
          *         }
          *     }
          * ).visit(
@@ -232,28 +233,28 @@ namespace kdl {
                     [&](const value_type& v) {
                         return f(v).visit(kdl::overload(
                             []() {
-                                return Cm_Result::success();
+                                return Cm_Result();
                             },
                             [](auto&& fn_e) {
-                                return Cm_Result::error(std::move(fn_e));
+                                return Cm_Result(std::move(fn_e));
                             }
                         ));
                     },
-                    [] (const auto& e) { return Cm_Result::error(e); }
+                    [] (const auto& e) { return Cm_Result(e); }
                 ));
             } else {
                 return visit(kdl::overload(
                     [&](const value_type& v) {
                         return f(v).visit(kdl::overload(
                             [](Fn_Value&& fn_v) {
-                                return Cm_Result::success(std::move(fn_v));
+                                return Cm_Result(std::move(fn_v));
                             },
                             [](auto&& fn_e) {
-                                return Cm_Result::error(std::move(fn_e));
+                                return Cm_Result(std::move(fn_e));
                             }
                         ));
                     },
-                    [] (const auto& e) { return Cm_Result::error(e); }
+                    [] (const auto& e) { return Cm_Result(e); }
                 ));
             }
         }
@@ -276,28 +277,28 @@ namespace kdl {
                     [&](value_type&& v) {
                         return f(std::move(v)).visit(kdl::overload(
                             []() {
-                                return Cm_Result::success();
+                                return Cm_Result();
                             },
                             [](auto&& fn_e) {
-                                return Cm_Result::error(std::move(fn_e));
+                                return Cm_Result(std::move(fn_e));
                             }
                         ));
                     },
-                    [] (auto&& e) { return Cm_Result::error(e); }
+                    [] (auto&& e) { return Cm_Result(e); }
                 ));
             } else {
                 return std::move(*this).visit(kdl::overload(
                     [&](value_type&& v) {
                         return f(std::move(v)).visit(kdl::overload(
                             [](Fn_Value&& fn_v) {
-                                return Cm_Result::success(std::move(fn_v));
+                                return Cm_Result(std::move(fn_v));
                             },
                             [](auto&& fn_e) {
-                                return Cm_Result::error(std::move(fn_e));
+                                return Cm_Result(std::move(fn_e));
                             }
                         ));
                     },
-                    [] (auto&& e) { return Cm_Result::error(e); }
+                    [] (auto&& e) { return Cm_Result(e); }
                 ));
             }
         }
@@ -418,6 +419,13 @@ namespace kdl {
         }
     };
     
+    namespace detail {
+        struct void_success_value_type {
+            friend bool operator==(const void_success_value_type&, const void_success_value_type&) { return true; }
+            friend bool operator!=(const void_success_value_type&, const void_success_value_type&) { return false; }
+        };
+    }
+
     /**
      * Wrapper class that can contain either nothing or one of several errors.
      *
@@ -433,44 +441,49 @@ namespace kdl {
     public:
         using value_type = void;
     private:
-        struct success_value_type {
-            friend bool operator==(const success_value_type&, const success_value_type&) { return true; }
-            friend bool operator!=(const success_value_type&, const success_value_type&) { return false; }
-        };
-        using variant_type = std::variant<success_value_type, Errors...>;
+        using variant_type = std::variant<detail::void_success_value_type, Errors...>;
         variant_type m_value;
-    private:
-        result() :
-        m_value(success_value_type{}) {}
-        
-        result(variant_type&& v)
+
+        explicit result(variant_type&& v)
         : m_value(std::move(v)) {}
     public:
         /**
          * Creates a new successful result.
-         *
-         * @return a successful result
          */
-        static result success() {
-            return result();
-        }
-        
+        constexpr result() :
+        m_value(detail::void_success_value_type{}) {}
+
         /**
-         * Creates a new failure result that wraps the given error.
-         * If the error is passed by (const) lvalue reference, it is copied into this result, if it s passed by rvalue
+         * Creates a new result that wraps the given value.
+         *
+         * v must be convertible to detail::void_success_value_type or one of the error types of this result.
+         * If the value is passed by (const) lvalue reference, it is copied into this result, if it s passed by rvalue
          * reference, then it is moved into this result.
          *
-         * @tparam E the type of the error, must match one of the error types of this result
-         * @param e the error
-         * @return a failure result that wraps the given error
+         * @tparam T the type of the value, must match detail::void_success_value_type or one of the error types of this result
+         * @param v the value
          */
-        template <typename E>
-        static result error(E&& e) {
-            static_assert((... || std::is_convertible_v<E, Errors>), "argument must be an error type");
+        template <typename T>
+        result(T&& v)
+        : m_value(std::forward<T>(v)) {}
 
-            return result(variant_type(std::forward<E>(e)));
+        /**
+         * Converting constructor.
+         *
+         * The given result type must have void as its value type and a subset of the error types of this result type.
+         * The value or error wrapped by the given result is moved into this result.
+         *
+         * @param other the result to convert
+         */
+        template <typename... ErrorSubset>
+        result(result<void, ErrorSubset...> other) {
+            static_assert(meta_is_subset<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>::value, "Error types of result type to convert must be a subset of target result type");
+            std::move(other).visit(overload(
+                [&]() { m_value = detail::void_success_value_type{}; },
+                [&](auto&& e) { m_value = std::move(e); }
+            ));
         }
-        
+    public:
         /**
          * Applies the given visitor this result.
          *
@@ -484,7 +497,7 @@ namespace kdl {
         template <typename Visitor>
         auto visit(Visitor&& visitor) const & {
             return std::visit(kdl::overload(
-                [&](const success_value_type&) {
+                [&](const detail::void_success_value_type&) {
                     return visitor();
                 },
                 [&](const auto& e) {
@@ -506,7 +519,7 @@ namespace kdl {
         template <typename Visitor>
         auto visit(Visitor&& visitor) && {
             return std::visit(kdl::overload(
-                [&](success_value_type&&) {
+                [&](detail::void_success_value_type&&) {
                     return visitor();
                 },
                 [&](auto&& e) {
@@ -532,28 +545,28 @@ namespace kdl {
                     [&]() {
                         return f().visit(kdl::overload(
                             []() {
-                                return Cm_Result::success();
+                                return Cm_Result();
                             },
                             [](auto&& fn_e) {
-                                return Cm_Result::error(std::move(fn_e));
+                                return Cm_Result(std::move(fn_e));
                             }
                         ));
                     },
-                    [] (const auto& e) { return Cm_Result::error(e); }
+                    [] (const auto& e) { return Cm_Result(e); }
                 ));
             } else {
                 return visit(kdl::overload(
                     [&]() {
                         return f().visit(kdl::overload(
                             [](Fn_Value&& fn_v) {
-                                return Cm_Result::success(std::move(fn_v));
+                                return Cm_Result(std::move(fn_v));
                             },
                             [](auto&& fn_e) {
-                                return Cm_Result::error(std::move(fn_e));
+                                return Cm_Result(std::move(fn_e));
                             }
                         ));
                     },
-                    [] (const auto& e) { return Cm_Result::error(e); }
+                    [] (const auto& e) { return Cm_Result(e); }
                 ));
             }
         }
@@ -575,28 +588,28 @@ namespace kdl {
                     [&]() {
                         return f().visit(kdl::overload(
                             []() {
-                                return Cm_Result::success();
+                                return Cm_Result();
                             },
                             [](auto&& fn_e) {
-                                return Cm_Result::error(std::move(fn_e));
+                                return Cm_Result(std::move(fn_e));
                             }
                         ));
                     },
-                    [] (auto&& e) { return Cm_Result::error(e); }
+                    [] (auto&& e) { return Cm_Result(e); }
                 ));
             } else {
                 return std::move(*this).visit(kdl::overload(
                     [&]() {
                         return f().visit(kdl::overload(
                             [](Fn_Value&& fn_v) {
-                                return Cm_Result::success(std::move(fn_v));
+                                return Cm_Result(std::move(fn_v));
                             },
                             [](auto&& fn_e) {
-                                return Cm_Result::error(std::move(fn_e));
+                                return Cm_Result(std::move(fn_e));
                             }
                         ));
                     },
-                    [] (auto&& e) { return Cm_Result::error(e); }
+                    [] (auto&& e) { return Cm_Result(e); }
                 ));
             }
         }
@@ -637,7 +650,7 @@ namespace kdl {
          * Indicates whether this result is empty.
          */
         bool is_success() const {
-            return std::holds_alternative<success_value_type>(m_value);
+            return std::holds_alternative<detail::void_success_value_type>(m_value);
         }
         
         /**
@@ -673,5 +686,5 @@ namespace kdl {
         }
     };
 
-    static const auto void_result = kdl::result<void>::success();
+    constexpr auto void_result = kdl::result<void>();
 }
