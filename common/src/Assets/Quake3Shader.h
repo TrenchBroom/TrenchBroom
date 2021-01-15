@@ -51,9 +51,24 @@ namespace TrenchBroom {
                 void reset();
 
             };
+
+            // Doom 3
+            enum class StageLighting {
+                None,
+	            Diffuse,
+                Normal,
+                Specular,
+                Ambient
+            };
+
         public:
             IO::Path map;
             BlendFunc blendFunc;
+            StageLighting lighting;
+
+            //Quake3ShaderStage() {
+            //    lighting = StageLighting::Diffuse;
+            //}
         };
 
         bool operator==(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs);
@@ -72,6 +87,7 @@ namespace TrenchBroom {
         public:
             IO::Path shaderPath;
             IO::Path editorImage;
+			IO::Path diffuseImage; // RB: Doom 3 but was also used in XreaL based projects
             IO::Path lightImage;
             Culling culling = Culling::Front;
             std::set<std::string> surfaceParms;

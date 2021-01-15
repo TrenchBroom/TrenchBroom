@@ -92,6 +92,19 @@ namespace TrenchBroom {
         Path Quake3ShaderTextureReader::findTexturePath(const Assets::Quake3Shader& shader) const {
             Path texturePath = findTexture(shader.editorImage);
             if (texturePath.isEmpty()) {
+                texturePath = findTexture(shader.diffuseImage);
+            }
+            if (texturePath.isEmpty()) {
+                for (const auto& stage : shader.stages) {
+                    if(stage.lighting == Assets::Quake3ShaderStage::StageLighting::Diffuse) {
+                        texturePath = findTexture(stage.map);
+                        if (!texturePath.isEmpty()) {
+                            break;
+                        }
+                    }
+                }
+            }
+            if (texturePath.isEmpty()) {
                 texturePath = findTexture(shader.shaderPath);
             }
             if (texturePath.isEmpty()) {

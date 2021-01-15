@@ -51,6 +51,7 @@ textures/liquids/lavahell2 //path and name of new texture
                 {
                     IO::Path("textures/liquids/lavahell2"), // shaderPath
                     IO::Path(), // editorImage
+                    IO::Path(), // diffuseImage
                     IO::Path(), // lightImage
                     Assets::Quake3Shader::Culling::Front, // culling
                     {}, // surfaceParms
@@ -98,13 +99,15 @@ textures/liquids/lavahell2 //path and name of new texture
                 {
                     IO::Path("textures/liquids/lavahell2"), // shaderPath
                     IO::Path(), // editorImage
+                    IO::Path(), // diffuseImage
                     IO::Path(), // lightImage
                     Assets::Quake3Shader::Culling::None, // culling
                     {"noimpact", "lava", "nolightmap" }, // surfaceParms
                     {
                         {
                             Path("textures/eerie/lavahell.tga"), // map
-                            { "", "" } // blendFunc
+                            { "", "" }, // blendFunc
+                            Assets::Quake3ShaderStage::StageLighting::None, // lighting
                         }
                     } // stages
                 }
@@ -151,13 +154,15 @@ textures/liquids/lavahell2 //path and name of new texture
                 {
                     IO::Path("textures/liquids/lavahell2"), // shaderPath
                     IO::Path("textures/eerie/lavahell.tga"), // editorImage
+                    IO::Path(), // diffuseImage
                     IO::Path(), // lightImage
                     Assets::Quake3Shader::Culling::None, // culling
                     {"noimpact", "lava", "nolightmap" }, // surfaceParms
                     {
                         {
                             Path("textures/eerie/lavahell.tga"), // map
-                            { "", "" } // blendFunc
+                            { "", "" }, // blendFunc
+                            Assets::Quake3ShaderStage::StageLighting::None, // lighting
                         }
                     } // stages
                 }
@@ -204,21 +209,25 @@ textures/eerie/ironcrosslt2_10000
                 {
                     IO::Path("textures/eerie/ironcrosslt2_10000"), // shaderPath
                     IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
+                    IO::Path(), // diffuseImage
                     IO::Path("textures/gothic_light/ironcrosslt2.blend.tga"), // lightImage
                     Assets::Quake3Shader::Culling::Front, // culling
                     {}, // surfaceParms
                     {
                         {
                             Path("$lightmap"), // map
-                            { "","" } // blendFunc
+                            { "","" }, // blendFunc
+                            Assets::Quake3ShaderStage::StageLighting::None, // lighting
                         },
                         {
                             Path("textures/gothic_light/ironcrosslt2.tga"), // map
-                            { "GL_DST_COLOR", "GL_ZERO" } // blendFunc
+                            { "GL_DST_COLOR", "GL_ZERO" }, // blendFunc
+                            Assets::Quake3ShaderStage::StageLighting::None, // lighting
                         },
                         {
                             Path("textures/gothic_light/ironcrosslt2.blend.tga"), // map
-                            { "GL_ONE", "GL_ONE" } // blendFunc
+                            { "GL_ONE", "GL_ONE" }, // blendFunc
+                            Assets::Quake3ShaderStage::StageLighting::None, // lighting
                         }
                     } // stages
                 }
@@ -300,34 +309,40 @@ textures/liquids/lavahell2 //path and name of new texture
                 {
                     IO::Path("textures/eerie/ironcrosslt2_10000"), // shaderPath
                     IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
+                    IO::Path(), // diffuseImage
                     IO::Path("textures/gothic_light/ironcrosslt2.blend.tga"), // lightImage
                     Assets::Quake3Shader::Culling::Front, // culling
                     {}, // surfaceParms
                     {
                         {
                             Path("$lightmap"), // map
-                            { "","" } // blendFunc
+                            { "","" }, // blendFunc
+                            Assets::Quake3ShaderStage::StageLighting::None, // lighting
                         },
                         {
                             Path("textures/gothic_light/ironcrosslt2.tga"), // map
-                            { "GL_DST_COLOR", "GL_ZERO" } // blendFunc
+                            { "GL_DST_COLOR", "GL_ZERO" }, // blendFunc
+                            Assets::Quake3ShaderStage::StageLighting::None, // lighting
                         },
                         {
                             Path("textures/gothic_light/ironcrosslt2.blend.tga"), // map
-                            { "GL_ONE", "GL_ONE" } // blendFunc
+                            { "GL_ONE", "GL_ONE" }, // blendFunc
+                            Assets::Quake3ShaderStage::StageLighting::None, // lighting
                         }
                     } // stages
                 },
                 {
                     IO::Path("textures/liquids/lavahell2"), // shaderPath
                     IO::Path("textures/eerie/lavahell.tga"), // editorImage
+                    IO::Path(), // diffuseImage
                     IO::Path(), // lightImage
                     Assets::Quake3Shader::Culling::None, // culling
                     {"noimpact", "lava", "nolightmap" }, // surfaceParms
                     {
                         {
                             Path("textures/eerie/lavahell.tga"), // map
-                            { "", "" } // blendFunc
+                            { "", "" }, // blendFunc
+                            Assets::Quake3ShaderStage::StageLighting::None, // lighting
                         }
                     } // stages
                 }
@@ -538,6 +553,7 @@ waterBubble
                 {
                     IO::Path("textures/eerie/ironcrosslt2_10000"), // shaderPath
                     IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
+                    IO::Path(), // diffuseImage
                     IO::Path(), // lightImage
                     Assets::Quake3Shader::Culling::Front, // culling
                     {}, // surfaceParms

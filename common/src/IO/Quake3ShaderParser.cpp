@@ -59,6 +59,15 @@ namespace TrenchBroom {
                     case '\t':
                         advance();
                         break;
+                    // FIXME
+                    case ',': {
+                        const auto* e = readUntil(Whitespace());
+                        if (e == nullptr) {
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
+                        }
+                        return Token(Quake3ShaderToken::String, c, e, offset(c), startLine, startColumn);
+                        //return Token(Quake3ShaderToken::Comma, c, c + 1, offset(c), startLine, startColumn);
+                    }
                     case '$': {
                         const auto* e = readUntil(Whitespace());
                         if (e == nullptr) {
@@ -87,12 +96,14 @@ namespace TrenchBroom {
                         // fall through into the default case to parse a string that starts with '/'
                         switchFallthrough();
                     default:
-                        auto* e = readDecimal(Whitespace());
+                        //auto* e = readDecimal(Whitespace());
+                        auto* e = readDecimal(", \t\n\r");//Whitespace());
                         if (e != nullptr) {
                             return Token(Quake3ShaderToken::Number, c, e, offset(c), startLine, startColumn);
                         }
 
-                        e = readUntil(Whitespace());
+                        //e = readUntil(Whitespace());
+                        e = readUntil(", \t\n\r");//Whitespace());
                         if (e == nullptr) {
                             throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                         }
@@ -177,7 +188,7 @@ namespace TrenchBroom {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
-            if (key == "qer_editorimage") {
+            if (kdl::ci::str_is_equal(key,"qer_editorimage")) {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
 
                 // RB: FIXME remove
@@ -185,6 +196,9 @@ namespace TrenchBroom {
                 //    shader.editorImage = Path(token.data());
                 //}
                 shader.editorImage = Path(token.data());
+            } else if (kdl::ci::str_is_equal(key,"diffusemap")) {
+                token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
+				shader.diffuseImage = Path(token.data());
             } else if (key == "q3map_lightimage") {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
                 shader.lightImage = Path(token.data());
@@ -226,6 +240,7 @@ namespace TrenchBroom {
                     token = m_tokenizer.nextToken();
                     const auto param2 = token.data();
                     const auto param2Column = token.column();
+
                     stage.blendFunc.srcFactor = kdl::str_to_upper(param1);
                     stage.blendFunc.destFactor = kdl::str_to_upper(param2);
 
@@ -253,6 +268,61 @@ namespace TrenchBroom {
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
                     } else {
                         status.warn(line, param1Column, "Unknown blendFunc name '" + param1 + "'");
+                    }
+                }
+            } else if (key == "blend") {
+                // RB: this is like blendFunc but with a , in between and allows to specify material properties like normalmaps
+                const auto line = token.line();
+
+                token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
+                const auto param1 = token.data();
+                const auto param1Column = token.column();
+
+                if (m_tokenizer.peekToken().hasType(Quake3ShaderToken::String)) {
+                    token = m_tokenizer.nextToken();
+                    auto param2 = token.data();
+                    auto param2Column = token.column();
+
+                    if(param2==",") {
+                        token = m_tokenizer.nextToken();
+                        param2 = token.data();
+                        param2Column = token.column();
+                    } else if(param2[0]==',') {
+                        param2 = param2.substr(1, param2.size());
+                    }
+
+                    stage.blendFunc.srcFactor = kdl::str_to_upper(param1);
+                    stage.blendFunc.destFactor = kdl::str_to_upper(param2);
+
+                    bool valid = true;
+                    if (!stage.blendFunc.validateSrcFactor()) {
+                        valid = false;
+                        status.warn(line, param1Column, "Unknown blendFunc source factor '" + param1 + "'");
+                    }
+                    if (!stage.blendFunc.validateDestFactor()) {
+                        valid = false;
+                        status.warn(line, param2Column, "Unknown blendFunc destination factor '" + param2 + "'");
+                    }
+                    // RB: parsing works but skip Doom 3 blends for now
+                    //if (!valid) {
+                        stage.blendFunc.reset();
+                    //}
+                } else {
+                    if (kdl::ci::str_is_equal(param1, "add")) {
+                        stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::One;
+                        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::One;
+                    } else if (kdl::ci::str_is_equal(param1, "filter")) {
+                        stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::DestColor;
+                        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::Zero;
+                    } else if (kdl::ci::str_is_equal(param1, "blend")) {
+                        stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
+                        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
+                    } else if (kdl::ci::str_is_equal(param1, "diffusemap") || kdl::ci::str_is_equal(param1, "basecolormap")) {
+                        stage.lighting = Assets::Quake3ShaderStage::StageLighting::Diffuse;
+					} else if (kdl::ci::str_is_equal(param1, "bumpmap") || kdl::ci::str_is_equal(param1, "normalmap") || kdl::ci::str_is_equal(param1, "specularmap") || kdl::ci::str_is_equal(param1, "rmaomap")) {
+                        // RB: ignore but don't print warning message
+                    } else {
+                        status.warn(line, param1Column, "Unknown blend name '" + param1 + "'");
                     }
                 }
             } else {
