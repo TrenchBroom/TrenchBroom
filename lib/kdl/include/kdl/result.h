@@ -77,6 +77,9 @@ namespace kdl {
     class [[nodiscard]] result {
     public:
         using value_type = Value;
+
+        template <typename OtherValue>
+        using with_value_type = result<OtherValue, Errors...>;
     private:
         using variant_type = std::variant<value_type, Errors...>;
         variant_type m_value;
@@ -380,6 +383,34 @@ namespace kdl {
         }
 
         /**
+         * Returns a the error contained in this result if it not successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return a std::variant<Errors...> containing a copy of the error in this result
+         *
+         * @throw bad_result_access if this result is an error
+         */
+        auto error() const & {
+            return visit(kdl::overload(
+                [](const value_type&) -> std::variant<Errors...> { throw bad_result_access(); },
+                [](const auto& e)     -> std::variant<Errors...> { return e; }
+            ));
+        }
+
+        /**
+         * Returns a the error contained in this result if it not successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return a std::variant<Errors...> containing the error in this result
+         *
+         * @throw bad_result_access if this result is an error
+         */
+        auto error() && {
+            return visit(kdl::overload(
+                [](const value_type&) -> std::variant<Errors...> { throw bad_result_access(); },
+                [](auto&& e)          -> std::variant<Errors...> { return std::move(e); }
+            ));
+        }
+
+        /**
          * Indicates whether the given result contains a value.
          */
         bool is_success() const {
@@ -440,6 +471,9 @@ namespace kdl {
     class [[nodiscard]] result<void, Errors...> {
     public:
         using value_type = void;
+
+        template <typename OtherValue>
+        using with_value_type = result<OtherValue, Errors...>;
     private:
         using variant_type = std::variant<detail::void_success_value_type, Errors...>;
         variant_type m_value;
@@ -643,6 +677,34 @@ namespace kdl {
                     f(error);
                     return false;
                 }
+            ));
+        }
+
+        /**
+         * Returns a the error contained in this result if it not successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return a std::variant<Errors...> containing a copy of the error in this result
+         *
+         * @throw bad_result_access if this result is an error
+         */
+        auto error() const & {
+            return visit(kdl::overload(
+                []()              -> std::variant<Errors...> { throw bad_result_access(); },
+                [](const auto& e) -> std::variant<Errors...> { return e; }
+            ));
+        }
+
+        /**
+         * Returns a the error contained in this result if it not successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return a std::variant<Errors...> containing the error in this result
+         *
+         * @throw bad_result_access if this result is an error
+         */
+        auto error() && {
+            return visit(kdl::overload(
+                []()         -> std::variant<Errors...> { throw bad_result_access(); },
+                [](auto&& e) -> std::variant<Errors...> { return std::move(e); }
             ));
         }
 
