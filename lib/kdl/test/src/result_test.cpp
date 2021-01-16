@@ -18,6 +18,7 @@
 #include "kdl/overload.h"
 #include "kdl/result.h"
 #include "kdl/result_combine.h"
+#include "kdl/result_for_each.h"
 #include "kdl/result_io.h"
 
 #include <iostream>
@@ -294,6 +295,7 @@ namespace kdl {
     template <typename ResultType, typename E>
     void test_visit_error_const_lvalue_ref_with_opt_value(E&& e) {
         auto result = ResultType(std::forward<E>(e));
+        REQUIRE(result.is_error());
         
         CHECK(result.visit(overload(
             []  ()            { return false; },
@@ -506,5 +508,63 @@ namespace kdl {
                 return false;
             }
         )));
+    }
+
+    TEST_CASE("result.for_each_result", "result_test") {
+        SECTION("with empty range") {
+            const auto vec = std::vector<int>{};
+            auto r = for_each_result(std::begin(vec), std::end(vec), [](const auto i) { return result<int, std::string>{i * 2}; });
+            CHECK(r.is_success());
+            CHECK_THAT(r.value(), Catch::UnorderedEquals(std::vector<int>{}));
+        }
+
+        SECTION("success case") {
+            const auto vec = std::vector<int>{1, 2, 3};
+            auto r = for_each_result(std::begin(vec), std::end(vec), [](const auto i) { return result<int, std::string>{i * 2}; });
+            CHECK(r.is_success());
+            CHECK_THAT(r.value(), Catch::UnorderedEquals(std::vector<int>{2, 4, 6}));
+        }
+
+        SECTION("error case") {
+            const auto vec = std::vector<int>{1, 2, 3};
+            auto r = for_each_result(std::begin(vec), std::end(vec), [](const auto i) { 
+                if (i % 2 != 0) {
+                    return result<int, std::string>{i * 2}; 
+                } else {
+                    return result<int, std::string>{"error"};
+                }
+            });
+            CHECK(r.is_error());
+            CHECK(std::visit([](const auto& e) { return e; }, r.error()) == "error");
+        }
+    }
+
+    TEST_CASE("void_result.for_each_result", "result_test") {
+        SECTION("with empty range") {
+            const auto vec = std::vector<int>{};
+            auto r = for_each_result(std::begin(vec), std::end(vec), [](const auto) { return void_success; });
+            CHECK(r.is_success());
+        }
+
+        SECTION("success case") {
+            const auto vec = std::vector<int>{1, 2, 3};
+            auto vec_transformed = std::vector<int>{};
+            auto r = for_each_result(std::begin(vec), std::end(vec), [&](const auto i) { vec_transformed.push_back(i * 2); return void_success; });
+            CHECK(r.is_success());
+            CHECK_THAT(vec_transformed, Catch::UnorderedEquals(std::vector<int>{2, 4, 6}));
+        }
+
+        SECTION("error case") {
+            const auto vec = std::vector<int>{1, 2, 3};
+            auto r = for_each_result(std::begin(vec), std::end(vec), [](const auto i) -> result<void, std::string> { 
+                if (i % 2 != 0) {
+                    return void_success;
+                } else {
+                    return "error";
+                }
+            });
+            CHECK(r.is_error());
+            CHECK(std::visit([](const auto& e) { return e; }, r.error()) == "error");
+        }
     }
 }
