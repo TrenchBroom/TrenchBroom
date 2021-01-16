@@ -86,6 +86,14 @@ namespace kdl {
         using remainder = meta_type_list<Remainder...>;
     };
 
+    template <typename Subset, typename Superset>
+    struct meta_is_subset {};
+
+    template <typename... Subset, typename... Superset>
+    struct meta_is_subset<meta_type_list<Subset...>, meta_type_list<Superset...>> {
+        static constexpr bool value = (meta_contains<Subset, Superset...>::value && ...);
+    };
+
     namespace detail {
         template <typename Result, typename Cur, typename Remainder>
         struct meta_remove_duplicates_impl {};
