@@ -201,7 +201,11 @@ namespace TrenchBroom {
 
             glAssert(glViewport(x, y, width, height))
 
-            glAssert(glEnable(GL_MULTISAMPLE))
+            if (pref(Preferences::EnableMSAA)) {
+                glAssert(glEnable(GL_MULTISAMPLE))
+            } else {
+                glAssert(glDisable(GL_MULTISAMPLE))
+            }
             glAssert(glEnable(GL_BLEND))
             glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
             glAssert(glShadeModel(GL_SMOOTH))

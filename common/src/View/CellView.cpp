@@ -20,6 +20,7 @@
 #include "CellView.h"
 
 #include "Preferences.h"
+#include "PreferenceManager.h"
 #include "View/CellLayout.h"
 #include "View/RenderView.h"
 
@@ -298,7 +299,11 @@ namespace TrenchBroom {
         }
 
         void CellView::setupGL() {
-            glAssert(glEnable(GL_MULTISAMPLE))
+            if (pref(Preferences::EnableMSAA)) {
+                glAssert(glEnable(GL_MULTISAMPLE))
+            } else {
+                glAssert(glDisable(GL_MULTISAMPLE))
+            }
             glAssert(glEnable(GL_BLEND))
             glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
             glAssert(glEnable(GL_CULL_FACE))
