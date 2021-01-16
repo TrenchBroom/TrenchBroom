@@ -27,6 +27,7 @@
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
+#include <kdl/result_for_each.h>
 #include <kdl/string_utils.h>
 
 #include <cassert>
@@ -74,27 +75,12 @@ namespace TrenchBroom {
                 { bounds.min, bounds.min + vm::vec3::pos_x(), bounds.min + vm::vec3::pos_y(), BrushFaceAttributes(bottomTexture, m_defaultAttribs) }, // bottom
             });
             
-            std::vector<BrushFace> faces;
-            faces.reserve(6u);
-            
-            for (const auto& [p1, p2, p3, attrs] : specs) {
-                std::optional<BrushError> error;
-                BrushFace::create(p1, p2, p3, attrs, m_mapFormat)
-                    .visit(kdl::overload(
-                        [&](BrushFace&& face) {
-                            faces.push_back(std::move(face));
-                        },
-                        [&](const BrushError e) {
-                            error = e;
-                        }
-                    ));
-
-                if (error) {
-                    return *error;
-                }
-            }
-
-            return Brush::create(m_worldBounds, std::move(faces));
+            return kdl::for_each_result(specs, [&](const auto spec) {
+                const auto& [p1, p2, p3, attrs] = spec;
+                return BrushFace::create(p1, p2, p3, attrs, m_mapFormat);
+            }).and_then([&](auto&& faces) {
+                return Brush::create(m_worldBounds, std::move(faces));
+            });
         }
         
         kdl::result<Brush, BrushError> BrushBuilder::createBrush(const std::vector<vm::vec3>& points, const std::string& textureName) const {
@@ -104,40 +90,22 @@ namespace TrenchBroom {
         kdl::result<Brush, BrushError> BrushBuilder::createBrush(const Polyhedron3& polyhedron, const std::string& textureName) const {
             assert(polyhedron.closed());
 
-            std::vector<BrushFace> brushFaces;
+            return kdl::for_each_result(polyhedron.faces(), [&](const auto* face) {
+                const auto& boundary = face->boundary();
 
-            const Polyhedron3::FaceList& faces = polyhedron.faces();
-            Polyhedron3::FaceList::const_iterator fIt, fEnd;
-            for (fIt = std::begin(faces), fEnd = std::end(faces); fIt != fEnd; ++fIt) {
-                const Polyhedron3::Face* face = *fIt;
-                const Polyhedron3::HalfEdgeList& boundary = face->boundary();
+                auto bIt = std::begin(boundary);
+                const auto* edge1 = *bIt++;
+                const auto* edge2 = *bIt++;
+                const auto* edge3 = *bIt++;
 
-                Polyhedron3::HalfEdgeList::const_iterator bIt = std::begin(boundary);
-                const Polyhedron3::HalfEdge* edge1 = *bIt++;
-                const Polyhedron3::HalfEdge* edge2 = *bIt++;
-                const Polyhedron3::HalfEdge* edge3 = *bIt++;
+                const auto& p1 = edge1->origin()->position();
+                const auto& p2 = edge2->origin()->position();
+                const auto& p3 = edge3->origin()->position();
 
-                const vm::vec3& p1 = edge1->origin()->position();
-                const vm::vec3& p2 = edge2->origin()->position();
-                const vm::vec3& p3 = edge3->origin()->position();
-
-                std::optional<BrushError> error;
-                BrushFace::create(p1, p3, p2, Model::BrushFaceAttributes(textureName), m_mapFormat)
-                    .visit(kdl::overload(
-                        [&](BrushFace&& f) {
-                            brushFaces.push_back(std::move(f));
-                        },
-                        [&](const BrushError e) {
-                            error = e;
-                        }
-                    ));
-
-                if (error) {
-                    return *error;
-                }
-            }
-
-            return Brush::create(m_worldBounds, std::move(brushFaces));
+                return BrushFace::create(p1, p3, p2, Model::BrushFaceAttributes(textureName), m_mapFormat);
+            }).and_then([&](auto&& faces) {
+                return Brush::create(m_worldBounds, std::move(faces));
+            });
         }
     }
 }
