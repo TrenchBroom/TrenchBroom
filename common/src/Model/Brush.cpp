@@ -31,6 +31,7 @@
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
+#include <kdl/result_for_each.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -856,27 +857,9 @@ namespace TrenchBroom {
                 result = std::move(nextResults);
             }
 
-            std::vector<Brush> brushes;
-            brushes.reserve(result.size());
-
-            for (const auto& geometry : result) {
-                std::optional<BrushError> error;
-                createBrush(mapFormat, worldBounds, defaultTextureName, geometry, subtrahends)
-                    .visit(kdl::overload(
-                        [&](Brush&& brush) {
-                            brushes.push_back(std::move(brush));
-                        },
-                        [&](const BrushError e) {
-                            error = e;
-                        }
-                    ));
-
-                if (error) {
-                    return *error;
-                }
-            }
-
-            return brushes;
+            return kdl::for_each_result(result, [&](const auto& geometry) {
+                return createBrush(mapFormat, worldBounds, defaultTextureName, geometry, subtrahends);
+            });
         }
 
         kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const {
@@ -925,10 +908,7 @@ namespace TrenchBroom {
         }
 
         kdl::result<Brush, BrushError> Brush::createBrush(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const {
-            std::vector<BrushFace> faces;
-            faces.reserve(geometry.faceCount());
-
-            for (const auto* face : geometry.faces()) {
+            return kdl::for_each_result(geometry.faces(), [&](const auto* face) {
                 const auto* h1 = face->boundary().front();
                 const auto* h0 = h1->next();
                 const auto* h2 = h0->next();
@@ -937,32 +917,16 @@ namespace TrenchBroom {
                 const auto& p1 = h1->origin()->position();
                 const auto& p2 = h2->origin()->position();
 
-                std::optional<BrushError> error;
-                BrushFace::create(p0, p1, p2, BrushFaceAttributes(defaultTextureName), mapFormat)
-                    .visit(kdl::overload(
-                        [&](BrushFace&& f) {
-                            faces.push_back(std::move(f));
-                        },
-                        [&](const BrushError e) {
-                            error = e;
-                        }
-                    ));
-                
-                if (error) {
-                    return *error;
+                return BrushFace::create(p0, p1, p2, BrushFaceAttributes(defaultTextureName), mapFormat);
+            }).and_then([&](std::vector<BrushFace>&& faces) {
+                return Brush::create(worldBounds, std::move(faces));
+            }).and_then([&](Brush&& brush) {
+                brush.cloneFaceAttributesFrom(*this);
+                for (const auto* subtrahend : subtrahends) {
+                    brush.cloneInvertedFaceAttributesFrom(*subtrahend);
                 }
-            }
-
-            return Brush::create(worldBounds, std::move(faces))
-                .and_then(
-                    [&](Brush&& b) {
-                        b.cloneFaceAttributesFrom(*this);
-                        for (const auto* subtrahend : subtrahends) {
-                            b.cloneInvertedFaceAttributesFrom(*subtrahend);
-                        }
-                        return kdl::result<Brush, BrushError>(std::move(b));
-                    }
-                );
+                return kdl::result<Brush>{std::move(brush)};
+            });
         }
 
         Brush Brush::convertToParaxial() const {
