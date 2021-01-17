@@ -193,17 +193,33 @@ namespace kdl {
     void test_and_then_const_lvalue_ref(V&& v) {
         auto from = FromResult(std::forward<V>(v));
         
-        const auto to = from.and_then([](const typename FromResult::value_type& x) {
-            return kdl::result<ToValueType, Error3>(static_cast<ToValueType>(x));
-        });
-        CHECK(to.is_success());
-        CHECK_FALSE(to.is_error());
-        CHECK(to);
+        SECTION("mapping function returns a result type") {
+            const auto to = from.and_then([](const typename FromResult::value_type& x) {
+                return kdl::result<ToValueType, Error3>(static_cast<ToValueType>(x));
+            });
+            CHECK(to.is_success());
+            CHECK_FALSE(to.is_error());
+            CHECK(to);
 
-        CHECK(to.visit(overload(
-            [](const ToValueType&) { return true; },
-            [](const auto&) { return false; }
-        )));
+            CHECK(to.visit(overload(
+                [](const ToValueType&) { return true; },
+                [](const auto&) { return false; }
+            )));
+        }
+
+        SECTION("mapping function returns some other type") {
+            const auto to = from.and_then([](const typename FromResult::value_type& x) {
+                return static_cast<ToValueType>(x);
+            });
+            CHECK(to.is_success());
+            CHECK_FALSE(to.is_error());
+            CHECK(to);
+
+            CHECK(to.visit(overload(
+                [](const ToValueType&) { return true; },
+                [](const auto&) { return false; }
+            )));
+        }
     }
     
     /**
@@ -212,25 +228,50 @@ namespace kdl {
     template <typename FromResult, typename ToValueType, typename V>
     void test_and_then_rvalue_ref(V&& v) {
         auto from = FromResult(std::forward<V>(v));
-        const auto to = std::move(from).and_then([](typename FromResult::value_type&& x) {
-            return kdl::result<ToValueType, Error3>(std::move(static_cast<ToValueType>(x)));
-        });
-        CHECK(to.is_success());
-        CHECK_FALSE(to.is_error());
-        CHECK(to);
 
-        CHECK(to.visit(overload(
-            [](const ToValueType&) { return true; },
-            [](const auto&) { return false; }
-        )));
+        SECTION("mapping function returns a result type") {
+            const auto to = std::move(from).and_then([](typename FromResult::value_type&& x) {
+                return kdl::result<ToValueType, Error3>(std::move(static_cast<ToValueType>(x)));
+            });
+            CHECK(to.is_success());
+            CHECK_FALSE(to.is_error());
+            CHECK(to);
 
-        ToValueType y;
-        std::move(to).visit(overload(
-            [&] (ToValueType&& x) { y = x; },
-            [] (auto&&) {}
-        ));
-        
-        CHECK(y.copies == 0u);
+            CHECK(to.visit(overload(
+                [](const ToValueType&) { return true; },
+                [](const auto&) { return false; }
+            )));
+
+            ToValueType y;
+            std::move(to).visit(overload(
+                [&] (ToValueType&& x) { y = x; },
+                [] (auto&&) {}
+            ));
+            
+            CHECK(y.copies == 0u);
+        }
+
+        SECTION("mapping function returns some other type") {
+            const auto to = std::move(from).and_then([](typename FromResult::value_type&& x) {
+                return std::move(static_cast<ToValueType>(x));
+            });
+            CHECK(to.is_success());
+            CHECK_FALSE(to.is_error());
+            CHECK(to);
+
+            CHECK(to.visit(overload(
+                [](const ToValueType&) { return true; },
+                [](const auto&) { return false; }
+            )));
+
+            ToValueType y;
+            std::move(to).visit(overload(
+                [&] (ToValueType&& x) { y = x; },
+                [] (auto&&) {}
+            ));
+            
+            CHECK(y.copies == 0u);
+        }
     }
     
     /**
@@ -443,14 +484,25 @@ namespace kdl {
         const auto r_success = result<void, Error1, Error2>();
         const auto r_error   = result<void, Error1, Error2>(Error2{});
         
-        const auto f_success = []() { return kdl::result<bool, Error3>(true); };
-        const auto f_error   = []() { return kdl::result<bool, Error3>(Error3{}); };
-        const auto f_void    = []() { return kdl::result<void, Error3>(); };
+        SECTION("mapping function returns a result type") {
+            const auto f_success = []() { return kdl::result<bool, Error3>(true); };
+            const auto f_error   = []() { return kdl::result<bool, Error3>(Error3{}); };
+            const auto f_void    = []() { return kdl::result<void, Error3>(); };
 
-        CHECK(r_success.and_then(f_success) == result<bool, Error1, Error2, Error3>(true));
-        CHECK(r_success.and_then(f_error)   == result<bool, Error1, Error2, Error3>(Error3{}));
-        CHECK(r_error.and_then(f_success)   == result<bool, Error1, Error2, Error3>(Error2{}));
-        CHECK(r_success.and_then(f_void)    == result<void, Error1, Error2, Error3>());
+            CHECK(r_success.and_then(f_success) == result<bool, Error1, Error2, Error3>(true));
+            CHECK(r_success.and_then(f_error)   == result<bool, Error1, Error2, Error3>(Error3{}));
+            CHECK(r_error.and_then(f_success)   == result<bool, Error1, Error2, Error3>(Error2{}));
+            CHECK(r_success.and_then(f_void)    == result<void, Error1, Error2, Error3>());
+        }
+
+        SECTION("mapping function returns some other type") {
+            const auto f_success = []() { return true; };
+            const auto f_void    = []() {};
+
+            CHECK(r_success.and_then(f_success) == result<bool, Error1, Error2>(true));
+            CHECK(r_error.and_then(f_success)   == result<bool, Error1, Error2>(Error2{}));
+            CHECK(r_success.and_then(f_void)    == result<void, Error1, Error2>());
+        }
     }
     
     TEST_CASE("combine_results", "result_test") {

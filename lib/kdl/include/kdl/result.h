@@ -152,11 +152,14 @@ namespace kdl {
          * Applies the given function to the value contained in this result, and returns a combination of this result
          * and the result of the given function.
          *
-         * The given function is expected to return a result of its own. Let the function's result type be
-         * `result<Fn_Value, Fn_Errors...>` and let this result's type be `result<My_Value, My_Errors...>`. Then
-         * `Fn_Value` and `My_Value` can be the same types, or they can be totally unrelated types. Likewise, there is
-         * no restriction on the types in `Fn_Errors` and `My_Errors`. They can be disjoint sets, but they may also
-         * intersect.
+         * The given function can return a result type of its own, or it can return any other type including `void`.
+         * In the following discussion, we assume that the function returns a result type. If the function does
+         * return another type `T`, then we treat it as if it had returned `result<T>`.
+         *
+         * Let the function's result type be `result<Fn_Value, Fn_Errors...>` and let this result's type be 
+         * `result<My_Value, My_Errors...>`. Then `Fn_Value` and `My_Value` can be the same types, or they can be 
+         * totally unrelated types. Likewise, there is no restriction on the types in `Fn_Errors` and `My_Errors`. 
+         * They can be disjoint sets, but they may also intersect.
          *
          * The type of the result returned by this function is a combination of `result<Fn_Value, Fn_Errors...>` and
          * `result<My_Value, My_Errors...>`. Let `result<Rs_Value, Rs_Errors>` be the type of the returned result, then
@@ -226,39 +229,54 @@ namespace kdl {
         auto and_then(F&& f) const & {
             using My_Result = result<Value, Errors...>;
             using Fn_Result = std::invoke_result_t<F, Value>;
-            static_assert(detail::is_result<Fn_Result>::value, "Function must return result type");
-            
-            using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-            using Fn_Value  = typename Fn_Result::value_type;
-            
-            if constexpr (std::is_same_v<Fn_Value, void>) {
-                return visit(kdl::overload(
-                    [&](const value_type& v) {
-                        return f(v).visit(kdl::overload(
-                            []() {
-                                return Cm_Result();
-                            },
-                            [](auto&& fn_e) {
-                                return Cm_Result(std::move(fn_e));
-                            }
-                        ));
-                    },
-                    [] (const auto& e) { return Cm_Result(e); }
-                ));
+
+            if constexpr(detail::is_result<Fn_Result>::value) {
+                using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+                using Fn_Value  = typename Fn_Result::value_type;
+                
+                if constexpr (std::is_same_v<Fn_Value, void>) {
+                    return visit(kdl::overload(
+                        [&](const value_type& v) {
+                            return f(v).visit(kdl::overload(
+                                []() {
+                                    return Cm_Result();
+                                },
+                                [](auto&& fn_e) {
+                                    return Cm_Result(std::move(fn_e));
+                                }
+                            ));
+                        },
+                        [] (const auto& e) { return Cm_Result(e); }
+                    ));
+                } else {
+                    return visit(kdl::overload(
+                        [&](const value_type& v) {
+                            return f(v).visit(kdl::overload(
+                                [](Fn_Value&& fn_v) {
+                                    return Cm_Result(std::move(fn_v));
+                                },
+                                [](auto&& fn_e) {
+                                    return Cm_Result(std::move(fn_e));
+                                }
+                            ));
+                        },
+                        [] (const auto& e) { return Cm_Result(e); }
+                    ));
+                }
             } else {
-                return visit(kdl::overload(
-                    [&](const value_type& v) {
-                        return f(v).visit(kdl::overload(
-                            [](Fn_Value&& fn_v) {
-                                return Cm_Result(std::move(fn_v));
-                            },
-                            [](auto&& fn_e) {
-                                return Cm_Result(std::move(fn_e));
-                            }
-                        ));
-                    },
-                    [] (const auto& e) { return Cm_Result(e); }
-                ));
+                using Cm_Result = kdl::result<Fn_Result, Errors...>;
+                
+                if constexpr (std::is_same_v<Fn_Result, void>) {
+                    return visit(kdl::overload(
+                        [&](const value_type& v) { f(v); return Cm_Result{}; },
+                        [] (const auto& e)       { return Cm_Result{e}; }
+                    ));
+                } else {
+                    return visit(kdl::overload(
+                        [&](const value_type& v) { return Cm_Result{f(v)}; },
+                        [] (const auto& e)       { return Cm_Result{e}; }
+                    ));
+                }
             }
         }
         
@@ -270,39 +288,54 @@ namespace kdl {
         auto and_then(F&& f) && {
             using My_Result = result<Value, Errors...>;
             using Fn_Result = std::invoke_result_t<F, Value>;
-            static_assert(detail::is_result<Fn_Result>::value, "Function must return result type");
 
-            using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-            using Fn_Value  = typename Fn_Result::value_type;
-            
-            if constexpr (std::is_same_v<Fn_Value, void>) {
-                return std::move(*this).visit(kdl::overload(
-                    [&](value_type&& v) {
-                        return f(std::move(v)).visit(kdl::overload(
-                            []() {
-                                return Cm_Result();
-                            },
-                            [](auto&& fn_e) {
-                                return Cm_Result(std::move(fn_e));
-                            }
-                        ));
-                    },
-                    [] (auto&& e) { return Cm_Result(e); }
-                ));
+            if constexpr(detail::is_result<Fn_Result>::value) {
+                using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+                using Fn_Value  = typename Fn_Result::value_type;
+                
+                if constexpr (std::is_same_v<Fn_Value, void>) {
+                    return std::move(*this).visit(kdl::overload(
+                        [&](value_type&& v) {
+                            return f(std::move(v)).visit(kdl::overload(
+                                []() {
+                                    return Cm_Result();
+                                },
+                                [](auto&& fn_e) {
+                                    return Cm_Result(std::move(fn_e));
+                                }
+                            ));
+                        },
+                        [] (auto&& e) { return Cm_Result(e); }
+                    ));
+                } else {
+                    return std::move(*this).visit(kdl::overload(
+                        [&](value_type&& v) {
+                            return f(std::move(v)).visit(kdl::overload(
+                                [](Fn_Value&& fn_v) {
+                                    return Cm_Result(std::move(fn_v));
+                                },
+                                [](auto&& fn_e) {
+                                    return Cm_Result(std::move(fn_e));
+                                }
+                            ));
+                        },
+                        [] (auto&& e) { return Cm_Result(e); }
+                    ));
+                }
             } else {
-                return std::move(*this).visit(kdl::overload(
-                    [&](value_type&& v) {
-                        return f(std::move(v)).visit(kdl::overload(
-                            [](Fn_Value&& fn_v) {
-                                return Cm_Result(std::move(fn_v));
-                            },
-                            [](auto&& fn_e) {
-                                return Cm_Result(std::move(fn_e));
-                            }
-                        ));
-                    },
-                    [] (auto&& e) { return Cm_Result(e); }
-                ));
+                using Cm_Result = kdl::result<Fn_Result, Errors...>;
+                
+                if constexpr (std::is_same_v<Fn_Result, void>) {
+                    return std::move(*this).visit(kdl::overload(
+                        [&](value_type&& v) { f(std::move(v)); return Cm_Result{}; },
+                        [] (auto&& e)       { return Cm_Result{std::move(e)}; }
+                    ));
+                } else {
+                    return std::move(*this).visit(kdl::overload(
+                        [&](value_type&& v) { return Cm_Result{f(std::move(v))}; },
+                        [] (auto&& e)       { return Cm_Result{std::move(e)}; }
+                    ));
+                }
             }
         }
 
@@ -569,39 +602,54 @@ namespace kdl {
         auto and_then(F&& f) const & {
             using My_Result = result<void, Errors...>;
             using Fn_Result = std::invoke_result_t<F>;
-            static_assert(detail::is_result<Fn_Result>::value, "Function must return result type");
 
-            using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-            using Fn_Value  = typename Fn_Result::value_type;
-            
-            if constexpr (std::is_same_v<Fn_Value, void>) {
-                return visit(kdl::overload(
-                    [&]() {
-                        return f().visit(kdl::overload(
-                            []() {
-                                return Cm_Result();
-                            },
-                            [](auto&& fn_e) {
-                                return Cm_Result(std::move(fn_e));
-                            }
-                        ));
-                    },
-                    [] (const auto& e) { return Cm_Result(e); }
-                ));
+            if constexpr(detail::is_result<Fn_Result>::value) {
+                using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+                using Fn_Value  = typename Fn_Result::value_type;
+                
+                if constexpr (std::is_same_v<Fn_Value, void>) {
+                    return visit(kdl::overload(
+                        [&]() {
+                            return f().visit(kdl::overload(
+                                []() {
+                                    return Cm_Result();
+                                },
+                                [](auto&& fn_e) {
+                                    return Cm_Result(std::move(fn_e));
+                                }
+                            ));
+                        },
+                        [] (const auto& e) { return Cm_Result(e); }
+                    ));
+                } else {
+                    return visit(kdl::overload(
+                        [&]() {
+                            return f().visit(kdl::overload(
+                                [](Fn_Value&& fn_v) {
+                                    return Cm_Result(std::move(fn_v));
+                                },
+                                [](auto&& fn_e) {
+                                    return Cm_Result(std::move(fn_e));
+                                }
+                            ));
+                        },
+                        [] (const auto& e) { return Cm_Result(e); }
+                    ));
+                }
             } else {
-                return visit(kdl::overload(
-                    [&]() {
-                        return f().visit(kdl::overload(
-                            [](Fn_Value&& fn_v) {
-                                return Cm_Result(std::move(fn_v));
-                            },
-                            [](auto&& fn_e) {
-                                return Cm_Result(std::move(fn_e));
-                            }
-                        ));
-                    },
-                    [] (const auto& e) { return Cm_Result(e); }
-                ));
+                using Cm_Result = kdl::result<Fn_Result, Errors...>;
+                
+                if constexpr (std::is_same_v<Fn_Result, void>) {
+                    return visit(kdl::overload(
+                        [&]()              { f(); return Cm_Result{}; },
+                        [] (const auto& e) { return Cm_Result{e}; }
+                    ));
+                } else {
+                    return visit(kdl::overload(
+                        [&]()              { return Cm_Result{f()}; },
+                        [] (const auto& e) { return Cm_Result{e}; }
+                    ));
+                }
             }
         }
         
@@ -612,39 +660,54 @@ namespace kdl {
         auto and_then(F&& f) && {
             using My_Result = result<void, Errors...>;
             using Fn_Result = std::invoke_result_t<F>;
-            static_assert(detail::is_result<Fn_Result>::value, "Function must return result type");
 
-            using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-            using Fn_Value  = typename Fn_Result::value_type;
-            
-            if constexpr (std::is_same_v<Fn_Value, void>) {
-                return std::move(*this).visit(kdl::overload(
-                    [&]() {
-                        return f().visit(kdl::overload(
-                            []() {
-                                return Cm_Result();
-                            },
-                            [](auto&& fn_e) {
-                                return Cm_Result(std::move(fn_e));
-                            }
-                        ));
-                    },
-                    [] (auto&& e) { return Cm_Result(e); }
-                ));
+            if constexpr(detail::is_result<Fn_Result>::value) {
+                using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+                using Fn_Value  = typename Fn_Result::value_type;
+                
+                if constexpr (std::is_same_v<Fn_Value, void>) {
+                    return std::move(*this).visit(kdl::overload(
+                        [&]() {
+                            return f().visit(kdl::overload(
+                                []() {
+                                    return Cm_Result();
+                                },
+                                [](auto&& fn_e) {
+                                    return Cm_Result(std::move(fn_e));
+                                }
+                            ));
+                        },
+                        [] (auto&& e) { return Cm_Result(e); }
+                    ));
+                } else {
+                    return std::move(*this).visit(kdl::overload(
+                        [&]() {
+                            return f().visit(kdl::overload(
+                                [](Fn_Value&& fn_v) {
+                                    return Cm_Result(std::move(fn_v));
+                                },
+                                [](auto&& fn_e) {
+                                    return Cm_Result(std::move(fn_e));
+                                }
+                            ));
+                        },
+                        [] (auto&& e) { return Cm_Result(e); }
+                    ));
+                }
             } else {
-                return std::move(*this).visit(kdl::overload(
-                    [&]() {
-                        return f().visit(kdl::overload(
-                            [](Fn_Value&& fn_v) {
-                                return Cm_Result(std::move(fn_v));
-                            },
-                            [](auto&& fn_e) {
-                                return Cm_Result(std::move(fn_e));
-                            }
-                        ));
-                    },
-                    [] (auto&& e) { return Cm_Result(e); }
-                ));
+                using Cm_Result = kdl::result<Fn_Result, Errors...>;
+                
+                if constexpr (std::is_same_v<Fn_Result, void>) {
+                    return std::move(*this).visit(kdl::overload(
+                        [&]()         { f(); return Cm_Result{}; },
+                        [] (auto&& e) { return Cm_Result{std::move(e)}; }
+                    ));
+                } else {
+                    return std::move(*this).visit(kdl::overload(
+                        [&]()         { return Cm_Result{f()}; },
+                        [] (auto&& e) { return Cm_Result{std::move(e)}; }
+                    ));
+                }
             }
         }
 
