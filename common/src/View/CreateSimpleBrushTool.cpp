@@ -45,7 +45,6 @@ namespace TrenchBroom {
             builder.createCuboid(bounds, document->currentTextureName())
                 .and_then([&](Model::Brush&& b) {
                     updateBrush(new Model::BrushNode(std::move(b)));
-                    return kdl::void_success;
                 }).handle_errors([&](const Model::BrushError e) {
                     updateBrush(nullptr);
                     document->error() << "Could not update brush: " << e;

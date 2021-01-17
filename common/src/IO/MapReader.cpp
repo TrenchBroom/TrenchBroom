@@ -131,8 +131,6 @@ namespace TrenchBroom {
                 .and_then([&](Model::BrushFace&& face) {
                     face.setFilePosition(line, 1u);
                     onBrushFace(std::move(face), status);
-                    
-                    return kdl::void_success;
                 }).handle_errors([&](const Model::BrushError e) {
                     status.error(line, kdl::str_to_string("Skipping face: ", e));
                 });
@@ -143,8 +141,6 @@ namespace TrenchBroom {
             .and_then([&](Model::BrushFace&& face) {
                 face.setFilePosition(line, 1u);
                 onBrushFace(std::move(face), status);
-
-                return kdl::void_success;
             }).handle_errors([&](const Model::BrushError e) {
                 status.error(line, kdl::str_to_string("Skipping face: ", e));
             });
@@ -316,8 +312,6 @@ namespace TrenchBroom {
                         setExtraAttributes(brushNode, extraAttributes);
 
                         onBrush(parent, brushNode, status);
-
-                        return kdl::void_success;
                     }
                 ).handle_errors(
                     [&](const Model::BrushError e) {
