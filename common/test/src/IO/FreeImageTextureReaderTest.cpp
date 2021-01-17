@@ -64,7 +64,7 @@ namespace TrenchBroom {
             const auto texture = loadTexture("corruptPngTest.png");
 
             // TextureReader::readTexture is supposed to return a placeholder for corrupt textures
-            CHECK(texture.name() == "corruptPngTest.png");
+            CHECK(texture.name() == "corruptPngTest");
             CHECK(texture.width() != 0u);
             CHECK(texture.height() != 0u);
         }
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             const auto texture = loadTexture("16bitGrayscale.png");
 
             // we don't support this format currently
-            CHECK(texture.name() == "16bitGrayscale.png");
+            CHECK(texture.name() == "16bitGrayscale");
             CHECK(texture.width() != 0u);
             CHECK(texture.height() != 0u);
         }

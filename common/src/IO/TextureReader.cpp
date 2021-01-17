@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 return doReadTexture(file);
             } catch (const AssetException& e) {
                 m_logger.error() << "Could not read texture '" << file->path() << "': " << e.what();
-                return loadDefaultTexture(m_fs, m_logger, textureName(file->path()));
+                return loadDefaultTexture(m_fs, m_logger, textureName(file->path().deleteExtension()));
             }
         }
 
