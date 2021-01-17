@@ -28,6 +28,8 @@
 #include <vecmath/vec.h>
 
 #include <optional>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -59,6 +61,7 @@ namespace TrenchBroom {
             static const vm::bbox3 DefaultBounds;
         private:
             std::vector<EntityProperty> m_properties;
+            std::vector<std::string> m_preservedProperties;
 
             /**
              * Specifies whether this entity has children or not. This does not necessarily correspond to the
@@ -94,6 +97,15 @@ namespace TrenchBroom {
 
             const std::vector<EntityProperty>& properties() const;
             void setProperties(std::vector<EntityProperty> properties);
+
+            /**
+             * Sets the preserved property keys of this entity.
+             *
+             * Preserved entity properties are not propagated into linked groups and are not overwritten
+             * when a linked group updates this entity. See also GroupNode::updateLinkedGroups
+             */
+            const std::vector<std::string>& preservedProperties() const;
+            void setPreservedProperties(std::vector<std::string> preservedProperties);
 
             bool pointEntity() const;
             void setPointEntity(bool pointEntity);

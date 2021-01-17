@@ -205,6 +205,67 @@ namespace TrenchBroom {
             }
         }
 
+        static void preserveEntityProperties(EntityNode& clonedEntityNode, const EntityNode& correspondingEntityNode) {
+            if (clonedEntityNode.entity().preservedProperties().empty() && 
+                correspondingEntityNode.entity().preservedProperties().empty()) {
+                return;
+            }
+
+            auto clonedEntity = clonedEntityNode.entity();
+            const auto& correspondingEntity = correspondingEntityNode.entity();
+
+            const auto allPreservedProperties = kdl::vec_sort_and_remove_duplicates(
+                kdl::vec_concat(
+                    clonedEntity.preservedProperties(),
+                    correspondingEntity.preservedProperties()));
+
+            clonedEntity.setPreservedProperties(correspondingEntity.preservedProperties());
+
+            for (const auto& propertyKey : allPreservedProperties) {
+                // this can change the order of properties
+                clonedEntity.removeProperty(propertyKey);
+                if (const auto* propertyValue = correspondingEntity.property(propertyKey)) {
+                    clonedEntity.addOrUpdateProperty(propertyKey, *propertyValue);
+                }
+
+                clonedEntity.removeNumberedProperty(propertyKey);
+                for (const auto& numberedProperty : correspondingEntity.numberedProperties(propertyKey)) {
+                    clonedEntity.addOrUpdateProperty(numberedProperty.key(), numberedProperty.value());
+                }
+            }
+
+            clonedEntityNode.setEntity(std::move(clonedEntity));
+        }
+
+        template <typename T>
+        static void preserveEntityProperties(const std::vector<T>& clonedNodes, const std::vector<Node*>& correspondingNodes) {
+            auto clIt = std::begin(clonedNodes);
+            auto coIt = std::begin(correspondingNodes);
+            while (clIt != std::end(clonedNodes) && coIt != std::end(correspondingNodes)) {
+                auto& clonedNode = *clIt; // deduces either to std::unique_ptr<Node>& or Node*& depending on T
+                const auto* correspondingNode = *coIt;
+
+                clonedNode->accept(kdl::overload(
+                    [] (WorldNode*) {},
+                    [] (LayerNode*) {},
+                    [&](GroupNode* clonedGroupNode) {
+                        if (const auto* correspondingGroupNode = dynamic_cast<const GroupNode*>(correspondingNode)) {
+                            preserveEntityProperties(clonedGroupNode->children(), correspondingGroupNode->children());
+                        }
+                    },
+                    [&](EntityNode* clonedEntityNode) {
+                        if (const auto* correspondingEntityNode = dynamic_cast<const EntityNode*>(correspondingNode)) {
+                            preserveEntityProperties(*clonedEntityNode, *correspondingEntityNode);
+                        }
+                    },
+                    [] (BrushNode*) {}
+                ));
+
+                ++clIt;
+                ++coIt;
+            }
+        }
+
         kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> GroupNode::updateLinkedGroups(const vm::bbox3& worldBounds) {
             assert(connectedToLinkSet());
 
@@ -220,6 +281,7 @@ namespace TrenchBroom {
                 return cloneAndTransformChildren(*this, worldBounds, transformation)
                     .and_then([&](std::vector<std::unique_ptr<Node>>&& newChildren) -> kdl::result<std::pair<Node*, std::vector<std::unique_ptr<Node>>>, UpdateLinkedGroupsError> {
                         preserveGroupNames(newChildren, linkedGroup->children());
+                        preserveEntityProperties(newChildren, linkedGroup->children());
 
                         return std::make_pair(linkedGroup, std::move(newChildren));
                     });

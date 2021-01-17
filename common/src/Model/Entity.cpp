@@ -72,6 +72,14 @@ namespace TrenchBroom {
             invalidateCachedProperties();
         }
 
+        const std::vector<std::string>& Entity::preservedProperties() const {
+            return m_preservedProperties;
+        }
+
+        void Entity::setPreservedProperties(std::vector<std::string> preservedProperties) {
+            m_preservedProperties = std::move(preservedProperties);
+        }
+
         bool Entity::pointEntity() const {
             return m_pointEntity;
         }

@@ -144,8 +144,16 @@ namespace TrenchBroom {
             /**
              * Updates all connected members of this groups' link set.
              *
-             * The children of this node are copied (recursively) and transformed into the linked nodes by means of the
+             * The children of this node are cloned (recursively) and transformed into the linked nodes by means of the
              * recorded transformations of this group and the linked groups.
+             *
+             * Depending on the preserved property keys of the cloned entities and their corresponding entities in the
+             * linked groups, some entity property changes may not be propagated from this group to the linked groups.
+             * Specifically, if an entity property is preserved in either the cloned entity or its corresponding entity
+             * in a linked group, then changes to that entity property incl. removal are not propagated. This also
+             * applies to numbered properties, i.e. properties whose names end in a number. So if the entity property
+             * "target" is preserved, then changes to the property "target2" are not propagated or overwritten during
+             * propagation.
              *
              * If this operation fails for any child and linked group, then an error is returned. The operation can fail
              * if any of the following conditions arises:

@@ -522,5 +522,199 @@ namespace TrenchBroom {
                 ));
             }
         }
+
+        TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveEntityProperties", "[GroupNodeTest]") {
+            const auto worldBounds = vm::bbox3(8192.0);
+
+            auto sourceGroupNode = GroupNode(Group("name"));
+            sourceGroupNode.connectToLinkSet();
+
+            auto* sourceEntityNode = new EntityNode();
+            sourceGroupNode.addChild(sourceEntityNode);
+
+            auto targetGroupNode = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(sourceGroupNode.cloneRecursively(worldBounds))};
+            sourceGroupNode.addToLinkSet(*targetGroupNode);
+            targetGroupNode->connectToLinkSet();
+
+            auto* targetEntityNode = static_cast<EntityNode*>(targetGroupNode->children().front());
+            REQUIRE_THAT(targetEntityNode->entity().properties(), Catch::Equals(sourceEntityNode->entity().properties()));
+
+            using T = std::tuple<std::vector<std::string>, std::vector<std::string>, std::vector<EntityProperty>, std::vector<EntityProperty>, std::vector<EntityProperty>>;
+
+            const auto
+            [ srcPresProperties, trgtPresProperties, sourceProperties, 
+                                                     targetProperties, 
+                                                     expectedProperties ] = GENERATE(values<T>({
+            // properties remain unchanged
+            { {},                {},                 { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            { {},                { "some_key" },     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            { { "some_key" },    {},                 { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            { { "some_key" },    { "some_key" },     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            // property was added to source
+            { {},                {},                 { { "some_key", "some_value" } },
+                                                     {},
+                                                     { { "some_key", "some_value" } } },
+
+            { {},                { "some_key" },     { { "some_key", "some_value" } },
+                                                     {},
+                                                     {} },
+
+            { { "some_key" },    {},                 { { "some_key", "some_value" } },
+                                                     {},
+                                                     {} },
+
+            { { "some_key" },    { "some_key" },     { { "some_key", "some_value" } },
+                                                     {},
+                                                     {} },
+
+            // property was changed in source
+            { {},                {},                 { { "some_key", "other_value" } },
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "other_value" } } },
+
+            { { "some_key" },    {},                 { { "some_key", "other_value" } },
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            { {},                { "some_key" },     { { "some_key", "other_value" } },
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            { { "some_key" },    { "some_key" },     { { "some_key", "other_value" } },
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            // property was removed in source
+            { {},                {},                 {},
+                                                     { { "some_key", "some_value" } },
+                                                     {} },
+
+            { { "some_key" },    {},                 {},
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            { {},                { "some_key" },     {},
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            { { "some_key" },    { "some_key" },     {},
+                                                     { { "some_key", "some_value" } },
+                                                     { { "some_key", "some_value" } } },
+
+            // numbered property was added to source
+            { {},                {},                 { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" } },
+                                                     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } } },
+
+            { {},                { "some_key" },     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" } },
+                                                     { { "some_key1", "some_value1" } } },
+
+            { { "some_key" },    {},                 { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" } },
+                                                     { { "some_key1", "some_value1" } } },
+
+            { { "some_key" },    { "some_key" },     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" } },
+                                                     { { "some_key1", "some_value1" } } },
+
+            // numbered property was changed in source
+            { {},                {},                 { { "some_key1", "other_value" } },
+                                                     { { "some_key1", "some_value" } },
+                                                     { { "some_key1", "other_value" } } },
+
+            { { "some_key" },    {},                 { { "some_key1", "other_value" } },
+                                                     { { "some_key1", "some_value" } },
+                                                     { { "some_key1", "some_value" } } },
+
+            { {},                { "some_key" },     { { "some_key1", "other_value" } },
+                                                     { { "some_key1", "some_value" } },
+                                                     { { "some_key1", "some_value" } } },
+
+            { { "some_key" },    { "some_key" },     { { "some_key1", "other_value" } },
+                                                     { { "some_key1", "some_value" } },
+                                                     { { "some_key1", "some_value" } } },
+
+            // numbered property was removed in source
+            { {},                {},                 { { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } },
+                                                     { { "some_key2", "some_value2" } } },
+
+            { { "some_key" },    {},                 { { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } } },
+
+            { {},                { "some_key" },     { { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } } },
+
+            { { "some_key" },    { "some_key" },     { { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } },
+                                                     { { "some_key1", "some_value1" },
+                                                       { "some_key2", "some_value2" } } },
+            }));
+
+            CAPTURE(srcPresProperties, trgtPresProperties, sourceProperties, targetProperties, expectedProperties);
+
+            {
+                auto entity = sourceEntityNode->entity();
+                entity.setProperties(sourceProperties);
+                entity.setPreservedProperties(srcPresProperties);
+                sourceEntityNode->setEntity(std::move(entity));
+            }
+
+            {
+                auto entity = targetEntityNode->entity();
+                entity.setProperties(targetProperties);
+                entity.setPreservedProperties(trgtPresProperties);
+                targetEntityNode->setEntity(std::move(entity));
+            }
+
+            // lambda can't capture structured bindings
+            const auto expectedTargetProperties = expectedProperties;
+
+            const auto updateResult = sourceGroupNode.updateLinkedGroups(worldBounds);
+            updateResult.visit(kdl::overload(
+                [&](const UpdateLinkedGroupsResult& r) {
+                    REQUIRE(r.size() == 1u);
+                    const auto& p = r.front();
+
+                    const auto& newChildren = p.second;
+                    REQUIRE(newChildren.size() == 1u);
+
+                    const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
+                    REQUIRE(newEntityNode != nullptr);
+
+                    CHECK_THAT(newEntityNode->entity().properties(), Catch::UnorderedEquals(expectedTargetProperties));
+                    CHECK_THAT(newEntityNode->entity().preservedProperties(), Catch::UnorderedEquals(targetEntityNode->entity().preservedProperties()));
+                },
+                [](const auto&) {
+                    FAIL();
+                }
+            ));
+        }
     }
 }
