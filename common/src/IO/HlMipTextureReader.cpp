@@ -30,10 +30,12 @@ namespace TrenchBroom {
         MipTextureReader(nameStrategy, fs, logger) {}
 
         Assets::Palette HlMipTextureReader::doGetPalette(Reader& reader, const size_t offset[], const size_t width, const size_t height) const {
+            // each texture has two bytes after the last mip and before the palette data starts
             const size_t start = offset[0] + (width * height * 85 >> 6) + 2;
             reader.seekFromBegin(start);
 
-            std::vector<unsigned char> data(reader.size() - start);
+            // each texture has two bytes of padding at the end
+            std::vector<unsigned char> data(reader.size() - start - 2);
             reader.read(data.data(), data.size());
 
             return Assets::Palette(std::move(data));
