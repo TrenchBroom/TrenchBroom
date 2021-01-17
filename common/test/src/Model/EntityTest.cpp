@@ -67,6 +67,14 @@ namespace TrenchBroom {
 
             entity.addOrUpdateProperty("test", "newValue");
             CHECK(*entity.property("test") == "newValue");
+
+            SECTION("Setting a new property to protected by default") {
+                entity.addOrUpdateProperty("newKey", "newValue", true);
+                CHECK_THAT(entity.protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+
+                entity.addOrUpdateProperty("test", "anotherValue", true);
+                CHECK_THAT(entity.protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+            }
         }
 
         TEST_CASE("EntityTest.renameProperty") {
@@ -95,6 +103,12 @@ namespace TrenchBroom {
                 CHECK(!entity.hasProperty("originalKey"));
                 CHECK(*entity.property("newKey") == "originalValue");
             }
+
+            SECTION("Rename existing protected property") {
+                entity.setProtectedProperties({"originalKey"});
+                entity.renameProperty("originalKey", "newKey");
+                CHECK_THAT(entity.protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+            }
         }
 
         TEST_CASE("EntityTest.removeProperty") {
@@ -110,6 +124,15 @@ namespace TrenchBroom {
                 entity.addOrUpdateProperty("key", "value");
                 entity.removeProperty("key");
                 CHECK(!entity.hasProperty("key"));
+            }
+
+            SECTION("Remove protected property") {
+                entity.addOrUpdateProperty("newKey", "value", true);
+                REQUIRE_THAT(entity.protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+                
+                entity.removeProperty("newKey");
+                REQUIRE(!entity.hasProperty("newKey"));
+                CHECK_THAT(entity.protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
             }
         }
 
