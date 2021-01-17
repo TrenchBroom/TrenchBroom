@@ -370,7 +370,6 @@ namespace TrenchBroom {
         readV2SettingsFromPath(m_preferencesFilePath)
             .and_then([&](std::map<IO::Path, QJsonValue>&& prefs) {
                     m_cache = std::move(prefs);
-                    return kdl::void_success;
             }).handle_errors(kdl::overload(
                 [&] (const PreferenceErrors::FileReadError&) {
                     // This happens e.g. if you don't have read permissions for m_preferencesFilePath

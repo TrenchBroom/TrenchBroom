@@ -97,7 +97,7 @@ namespace TrenchBroom {
         kdl::result<Brush, BrushError> Brush::create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces) {
             Brush brush(std::move(faces));
             return brush.updateGeometryFromFaces(worldBounds)
-                .and_then([&]() { return kdl::result<Brush, BrushError>(std::move(brush)); });
+                .and_then([&]() { return std::move(brush); });
         }
 
         kdl::result<void, BrushError> Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds) {
@@ -794,8 +794,6 @@ namespace TrenchBroom {
                         rightFace.copyTexCoordSystemFromFace(*snapshot, leftClone.attributes(), leftClone.boundary(), WrapStyle::Rotation);
                     }
                     rightFace.resetTexCoordSystemCache();
-
-                    return kdl::void_success;
                 }).handle_errors([](const BrushError) {
                     // do nothing
                 });
@@ -817,7 +815,6 @@ namespace TrenchBroom {
                             if (uvLock) {
                                 applyUVLock(matcher, leftFace, rightFace);
                             }
-                            return kdl::void_success;
                         }).handle_errors([&](const BrushError e) {
                             if (!error) {
                                 error = e;
@@ -920,7 +917,7 @@ namespace TrenchBroom {
                 for (const auto* subtrahend : subtrahends) {
                     brush.cloneInvertedFaceAttributesFrom(*subtrahend);
                 }
-                return kdl::result<Brush>{std::move(brush)};
+                return std::move(brush);
             });
         }
 

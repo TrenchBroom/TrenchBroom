@@ -906,7 +906,7 @@ namespace TrenchBroom {
 
                 return brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
                     .and_then([](Model::Brush&& brush) {
-                        return kdl::result<std::unique_ptr<Model::BrushNode>>{std::make_unique<Model::BrushNode>(std::move(brush))};
+                        return std::make_unique<Model::BrushNode>(std::move(brush));
                     });
             }).and_then([&](const std::vector<std::unique_ptr<Model::BrushNode>>& tallBrushes) {
                 // delete the original selection brushes before searching for the objects to select
@@ -917,8 +917,6 @@ namespace TrenchBroom {
                     Model::collectContainedNodes(std::vector<Model::Node*>{world()}, kdl::vec_transform(tallBrushes, [](const auto& b) { return b.get(); })), 
                     [&](const auto* node) { return editorContext().selectable(node); });
                 select(nodesToSelect);
-
-                return kdl::void_success;
             }).handle_errors([&](const Model::BrushError& e) {
                 logger().error() << "Could not create selection brush: " << e;
             });
@@ -1714,8 +1712,6 @@ namespace TrenchBroom {
                     deselectAll();
                     addNode(brushNode, parentForNodes());
                     select(brushNode);
-
-                    return kdl::void_success;
                 }).handle_errors([&](const Model::BrushError e) {
                     error() << "Could not create brush: " << e;
                 });
@@ -1775,8 +1771,6 @@ namespace TrenchBroom {
                     addNode(brushNode, parentNode);
                     removeNodes(toRemove);
                     select(brushNode);
-                    
-                    return kdl::void_success;
                 }).handle_errors([&](const Model::BrushError e) {
                     error() << "Could not create brush: " << e;
                 });
@@ -1818,8 +1812,6 @@ namespace TrenchBroom {
                 const auto added = addNodes(toAdd);
                 removeNodes(toRemove);
                 select(added);
-
-                return kdl::void_success;
             }).handle_errors([&](const Model::BrushError& e) {
                 error() << "Could not create brush: " << e;
             });
@@ -1896,8 +1888,6 @@ namespace TrenchBroom {
                 const auto added = addNodes(toAdd);
                 removeNodes(toRemove);
                 select(added);
-
-                return kdl::void_success;
             }).handle_errors([&](const Model::BrushError& e) {
                 error() << "Could not hollow brush: " << e;
             });
@@ -1926,8 +1916,6 @@ namespace TrenchBroom {
 
                 const auto addedNodes = addNodes(toAdd);
                 select(addedNodes);
-
-                return kdl::void_success;
             }).handle_errors([&](const Model::BrushError e) {
                 error() << "Could not clip brushes: " << e;
             });
@@ -2086,7 +2074,6 @@ namespace TrenchBroom {
                         originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
                             .and_then([&]() {
                                 succeededBrushCount += 1;
-                                return kdl::void_success;
                             }).handle_errors([&](const Model::BrushError e) {
                                 error() << "Could not snap vertices: " << e;
                                 failedBrushCount += 1;
@@ -2128,7 +2115,6 @@ namespace TrenchBroom {
                         .and_then([&]() {
                             auto newPositions = brush.findClosestVertexPositions(verticesToMove + delta);
                             newVertexPositions = kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
-                            return kdl::void_success;
                         }).handle_errors([&](const Model::BrushError e) {
                             error() << "Could not move brush vertices: " << e;
                         });
@@ -2172,7 +2158,6 @@ namespace TrenchBroom {
                                 return edge.translate(delta);
                             }));
                             newEdgePositions = kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
-                            return kdl::void_success;
                         }).handle_errors([&](const Model::BrushError e) {
                             error() << "Could not move brush edges: " << e;
                         });
@@ -2211,7 +2196,6 @@ namespace TrenchBroom {
                                 return face.translate(delta);
                             }));
                             newFacePositions = kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
-                            return kdl::void_success;
                         }).handle_errors([&](const Model::BrushError e) {
                             error() << "Could not move brush faces: " << e;
                         });
