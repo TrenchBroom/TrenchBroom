@@ -72,6 +72,14 @@ namespace TrenchBroom {
             invalidateCachedProperties();
         }
 
+        const std::vector<std::string>& Entity::protectedProperties() const {
+            return m_protectedProperties;
+        }
+
+        void Entity::setProtectedProperties(std::vector<std::string> protectedProperties) {
+            m_protectedProperties = std::move(protectedProperties);
+        }
+
         bool Entity::pointEntity() const {
             return m_pointEntity;
         }
@@ -134,12 +142,16 @@ namespace TrenchBroom {
             return vm::translation_matrix(origin()) * rotation();
         }
 
-        void Entity::addOrUpdateProperty(std::string key, std::string value) {
+        void Entity::addOrUpdateProperty(std::string key, std::string value, const bool defaultToProtected) {
             auto it = findProperty(key);
             if (it != std::end(m_properties)) {
                 it->setValue(value);
             } else {
                 m_properties.emplace_back(key, value);
+
+                if (defaultToProtected && !kdl::vec_contains(m_protectedProperties, key)) {
+                    m_protectedProperties.push_back(key);
+                }
             }
             invalidateCachedProperties();
         }
@@ -151,6 +163,11 @@ namespace TrenchBroom {
 
             const auto oldIt = findProperty(oldKey);
             if (oldIt != std::end(m_properties)) {
+                if (const auto protIt = std::find(std::begin(m_protectedProperties), std::end(m_protectedProperties), oldKey); protIt != std::end(m_protectedProperties)) {
+                    m_protectedProperties.erase(protIt);
+                    m_protectedProperties.push_back(newKey);
+                }
+
                 const auto newIt = findProperty(newKey);
                 if (newIt != std::end(m_properties)) {
                     m_properties.erase(newIt);

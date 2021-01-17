@@ -28,6 +28,8 @@
 #include <vecmath/vec.h>
 
 #include <optional>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -46,6 +48,11 @@ namespace TrenchBroom {
          * numbered properties. Note that any property counts as a numbered property even if it does not have a number as its
          * suffix, so even an property named "target" is implicitly a numbered property.
          *
+         * Entity properties can be protected, which protects them from being updated by a corresponding entity in a linked group.
+         * If an entity property is protected, any change to the same property from a corresponding entity in a linked group is
+         * ignored. This means that the entity value remains unchanged. Note that properties can be protected even if they don't
+         * exist; in this case, adding this property in a corresponding entity will not add the property here.
+         *
          * Entities are geometric objects and as such can be transformed. Rotation is handled specially by a set of rules to make
          * it easier for users to apply rotation to entities. Point entities are rotated by the center of their bounding box and
          * not their origin property, which denotes their position. Furthermore, when a point entity is rotated, certain rules
@@ -59,6 +66,7 @@ namespace TrenchBroom {
             static const vm::bbox3 DefaultBounds;
         private:
             std::vector<EntityProperty> m_properties;
+            std::vector<std::string> m_protectedProperties;
 
             /**
              * Specifies whether this entity has children or not. This does not necessarily correspond to the
@@ -95,6 +103,15 @@ namespace TrenchBroom {
             const std::vector<EntityProperty>& properties() const;
             void setProperties(std::vector<EntityProperty> properties);
 
+            /**
+             * Sets the protected property keys of this entity.
+             *
+             * Protected entity properties are not propagated into linked groups and are not overwritten
+             * when a linked group updates this entity. See also GroupNode::updateLinkedGroups
+             */
+            const std::vector<std::string>& protectedProperties() const;
+            void setProtectedProperties(std::vector<std::string> protectedProperties);
+
             bool pointEntity() const;
             void setPointEntity(bool pointEntity);
 
@@ -109,7 +126,7 @@ namespace TrenchBroom {
             Assets::ModelSpecification modelSpecification() const;
             const vm::mat4x4 modelTransformation() const;
 
-            void addOrUpdateProperty(std::string key, std::string value);
+            void addOrUpdateProperty(std::string key, std::string value, bool defaultToProtected = false);
             void renameProperty(const std::string& oldKey, std::string newKey);
             void removeProperty(const std::string& key);
             void removeNumberedProperty(const std::string& prefix);

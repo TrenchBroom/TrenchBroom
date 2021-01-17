@@ -47,6 +47,14 @@ namespace TrenchBroom {
          * The children of the source node are cloned (recursively) and transformed into the target nodes by means of the
          * recorded transformations of the source group and the corresponding target groups.
          *
+         * Depending on the protected property keys of the cloned entities and their corresponding entities in the
+         * target groups, some entity property changes may not be propagated from the source group to the target groups.
+         * Specifically, if an entity property is protected in either the cloned entity or its corresponding entity
+         * in a target group, then changes to that entity property incl. removal are not propagated. This also
+         * applies to numbered properties, i.e. properties whose names end in a number. So if the entity property
+         * "target" is protected, then changes to the property "target2" are not propagated or overwritten during
+         * propagation.
+         *
          * If this operation fails for any child and target group, then an error is returned. The operation can fail
          * if any of the following conditions arises:
          *
