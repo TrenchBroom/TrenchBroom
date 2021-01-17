@@ -30,7 +30,6 @@
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
-#include <kdl/overload.h>
 #include <kdl/result.h>
 
 namespace TrenchBroom {
@@ -44,15 +43,13 @@ namespace TrenchBroom {
             const auto builder = Model::BrushBuilder(document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
 
             builder.createCuboid(bounds, document->currentTextureName())
-                .visit(kdl::overload(
-                    [&](Model::Brush&& b) {
-                        updateBrush(new Model::BrushNode(std::move(b)));
-                    },
-                    [&](const Model::BrushError e) {
-                        updateBrush(nullptr);
-                        document->error() << "Could not update brush: " << e;
-                    }
-                ));
+                .and_then([&](Model::Brush&& b) {
+                    updateBrush(new Model::BrushNode(std::move(b)));
+                    return kdl::void_success;
+                }).handle_errors([&](const Model::BrushError e) {
+                    updateBrush(nullptr);
+                    document->error() << "Could not update brush: " << e;
+                });
         }
 
     }

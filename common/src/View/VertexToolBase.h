@@ -273,21 +273,20 @@ namespace TrenchBroom {
                 
                 const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
                 builder.createBrush(polyhedron, document->currentTextureName())
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& b) {
-                            for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
-                                b.cloneFaceAttributesFrom(selectedBrushNode->brush());
-                            }
-
-                            Model::Node* newParent = document->parentForNodes(document->selectedNodes().nodes());
-                            const Transaction transaction(document, "CSG Convex Merge");
-                            deselectAll();
-                            document->addNode(new Model::BrushNode(std::move(b)), newParent);
-                        },
-                        [&](const Model::BrushError e) {
-                            document->error() << "Could not create brush: " << e;
+                    .and_then([&](Model::Brush&& b) {
+                        for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
+                            b.cloneFaceAttributesFrom(selectedBrushNode->brush());
                         }
-                    ));
+
+                        Model::Node* newParent = document->parentForNodes(document->selectedNodes().nodes());
+                        const Transaction transaction(document, "CSG Convex Merge");
+                        deselectAll();
+                        document->addNode(new Model::BrushNode(std::move(b)), newParent);
+
+                        return kdl::void_success;
+                    }).handle_errors([&](const Model::BrushError e) {
+                        document->error() << "Could not create brush: " << e;
+                    });
             }
 
             virtual H getHandlePosition(const Model::Hit& hit) const {

@@ -33,7 +33,6 @@
 #include "Model/VisibilityState.h"
 
 #include <kdl/map_utils.h>
-#include <kdl/overload.h>
 #include <kdl/parallel.h>
 #include <kdl/result.h>
 #include <kdl/string_format.h>
@@ -128,27 +127,27 @@ namespace TrenchBroom {
         }
 
         void MapReader::onStandardBrushFace(const size_t line, const Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
-            Model::BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat).visit(kdl::overload(
-                    [&](Model::BrushFace&& face) {
-                        face.setFilePosition(line, 1u);
-                        onBrushFace(std::move(face), status);
-                    },
-                    [&](const Model::BrushError e) {
-                        status.error(line, kdl::str_to_string("Skipping face: ", e));
-                    }
-            ));
+            Model::BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat)
+                .and_then([&](Model::BrushFace&& face) {
+                    face.setFilePosition(line, 1u);
+                    onBrushFace(std::move(face), status);
+                    
+                    return kdl::void_success;
+                }).handle_errors([&](const Model::BrushError e) {
+                    status.error(line, kdl::str_to_string("Skipping face: ", e));
+                });
         }
 
         void MapReader::onValveBrushFace(const size_t line, const Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
-           Model::BrushFace::createFromValve(point1, point2, point3, attribs, texAxisX, texAxisY, targetMapFormat).visit(kdl::overload(
-                    [&](Model::BrushFace&& face) {
-                        face.setFilePosition(line, 1u);
-                        onBrushFace(std::move(face), status);
-                    },
-                    [&](const Model::BrushError e) {
-                        status.error(line, kdl::str_to_string("Skipping face: ", e));
-                    }
-                ));
+           Model::BrushFace::createFromValve(point1, point2, point3, attribs, texAxisX, texAxisY, targetMapFormat)
+            .and_then([&](Model::BrushFace&& face) {
+                face.setFilePosition(line, 1u);
+                onBrushFace(std::move(face), status);
+
+                return kdl::void_success;
+            }).handle_errors([&](const Model::BrushError e) {
+                status.error(line, kdl::str_to_string("Skipping face: ", e));
+            });
         }
 
         // helper methods

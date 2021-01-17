@@ -368,10 +368,10 @@ namespace TrenchBroom {
 
         // Reload m_cache
         readV2SettingsFromPath(m_preferencesFilePath)
-            .visit(kdl::overload(
-                [&](std::map<IO::Path, QJsonValue>&& prefs) {
+            .and_then([&](std::map<IO::Path, QJsonValue>&& prefs) {
                     m_cache = std::move(prefs);
-                },
+                    return kdl::void_success;
+            }).handle_errors(kdl::overload(
                 [&] (const PreferenceErrors::FileReadError&) {
                     // This happens e.g. if you don't have read permissions for m_preferencesFilePath
                     showErrorAndDisableFileReadWrite(tr("A file IO error occurred while attempting to read the preference file:"), tr("ensure the file is readable"));

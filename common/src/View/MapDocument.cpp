@@ -1707,21 +1707,18 @@ namespace TrenchBroom {
         bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
             Model::BrushBuilder builder(m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs());
             return builder.createBrush(points, currentTextureName())
-                .visit(kdl::overload(
-                    [&](Model::Brush&& b) {
-                        Model::BrushNode* brushNode = new Model::BrushNode(std::move(b));
-                        
-                        Transaction transaction(this, "Create Brush");
-                        deselectAll();
-                        addNode(brushNode, parentForNodes());
-                        select(brushNode);
-                        return true;
-                    },
-                    [&](const Model::BrushError e) {
-                        error() << "Could not create brush: " << e;
-                        return false;
-                    }
-                ));
+                .and_then([&](Model::Brush&& b) {
+                    Model::BrushNode* brushNode = new Model::BrushNode(std::move(b));
+                    
+                    Transaction transaction(this, "Create Brush");
+                    deselectAll();
+                    addNode(brushNode, parentForNodes());
+                    select(brushNode);
+
+                    return kdl::void_success;
+                }).handle_errors([&](const Model::BrushError e) {
+                    error() << "Could not create brush: " << e;
+                });
         }
 
         bool MapDocument::csgConvexMerge() {
@@ -1753,39 +1750,36 @@ namespace TrenchBroom {
 
             const Model::BrushBuilder builder(m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs());
             return builder.createBrush(polyhedron, currentTextureName())
-                .visit(kdl::overload(
-                    [&](Model::Brush&& b) {
-                        for (const Model::BrushNode* selectedBrushNode : selectedNodes().brushes()) {
-                            b.cloneFaceAttributesFrom(selectedBrushNode->brush());
-                        }
-
-                        // The nodelist is either empty or contains only brushes.
-                        const auto toRemove = selectedNodes().nodes();
-
-                        // We could be merging brushes that have different parents; use the parent of the first brush.
-                        Model::Node* parentNode = nullptr;
-                        if (!selectedNodes().brushes().empty()) {
-                            parentNode = selectedNodes().brushes().front()->parent();
-                        } else if (!selectedBrushFaces().empty()) {
-                            parentNode = selectedBrushFaces().front().node()->parent();
-                        } else {
-                            parentNode = parentForNodes();
-                        }
-
-                        Model::BrushNode* brushNode = new Model::BrushNode(std::move(b));
-                        
-                        const Transaction transaction(this, "CSG Convex Merge");
-                        deselectAll();
-                        addNode(brushNode, parentNode);
-                        removeNodes(toRemove);
-                        select(brushNode);
-                        return true;
-                    },
-                    [&](const Model::BrushError e) {
-                        error() << "Could not create brush: " << e;
-                        return false;
+                .and_then([&](Model::Brush&& b) {
+                    for (const Model::BrushNode* selectedBrushNode : selectedNodes().brushes()) {
+                        b.cloneFaceAttributesFrom(selectedBrushNode->brush());
                     }
-                ));
+
+                    // The nodelist is either empty or contains only brushes.
+                    const auto toRemove = selectedNodes().nodes();
+
+                    // We could be merging brushes that have different parents; use the parent of the first brush.
+                    Model::Node* parentNode = nullptr;
+                    if (!selectedNodes().brushes().empty()) {
+                        parentNode = selectedNodes().brushes().front()->parent();
+                    } else if (!selectedBrushFaces().empty()) {
+                        parentNode = selectedBrushFaces().front().node()->parent();
+                    } else {
+                        parentNode = parentForNodes();
+                    }
+
+                    Model::BrushNode* brushNode = new Model::BrushNode(std::move(b));
+                    
+                    const Transaction transaction(this, "CSG Convex Merge");
+                    deselectAll();
+                    addNode(brushNode, parentNode);
+                    removeNodes(toRemove);
+                    select(brushNode);
+                    
+                    return kdl::void_success;
+                }).handle_errors([&](const Model::BrushError e) {
+                    error() << "Could not create brush: " << e;
+                });
         }
 
         bool MapDocument::csgSubtract() {
@@ -2012,10 +2006,10 @@ namespace TrenchBroom {
 
                     return brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
                         .visit(kdl::overload(
-                            [&]() -> bool {
+                            [&]() {
                                 return m_worldBounds.contains(brush.bounds());
                             },
-                            [&](const Model::BrushError e) -> bool {
+                            [&](const Model::BrushError e) {
                                 error() << "Could not resize brush: " << e;
                                 return false;
                             }
