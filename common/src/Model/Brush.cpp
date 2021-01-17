@@ -29,7 +29,6 @@
 #include "Model/MapFormat.h"
 #include "Model/TexCoordSystem.h"
 
-#include <kdl/overload.h>
 #include <kdl/result.h>
 #include <kdl/result_for_each.h>
 #include <kdl/string_utils.h>
@@ -787,21 +786,19 @@ namespace TrenchBroom {
             // FP error) to `rightFace`.
             BrushFace leftClone = leftFace;
             leftClone.transform(M, true)
-                .visit(kdl::overload(
-                    [&]() {
-                        auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
-                        rightFace.setAttributes(leftClone.attributes());
-                        if (snapshot) {
-                            // Note, the wrap style doesn't matter because the source and destination faces should have the same plane
-                            rightFace.copyTexCoordSystemFromFace(*snapshot, leftClone.attributes(),
-                                leftClone.boundary(), WrapStyle::Rotation);
-                        }
-                        rightFace.resetTexCoordSystemCache();
-                    },
-                    [](const BrushError) {
-                        // do nothing
+                .and_then([&]() {
+                    auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
+                    rightFace.setAttributes(leftClone.attributes());
+                    if (snapshot) {
+                        // Note, the wrap style doesn't matter because the source and destination faces should have the same plane
+                        rightFace.copyTexCoordSystemFromFace(*snapshot, leftClone.attributes(), leftClone.boundary(), WrapStyle::Rotation);
                     }
-                ));
+                    rightFace.resetTexCoordSystemCache();
+
+                    return kdl::void_success;
+                }).handle_errors([](const BrushError) {
+                    // do nothing
+                });
         }
 
         kdl::result<void, BrushError> Brush::updateFacesFromGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
@@ -816,18 +813,16 @@ namespace TrenchBroom {
 
                     rightFace.setGeometry(right);
                     rightFace.updatePointsFromVertices()
-                        .visit(kdl::overload(
-                            [&]() {
-                                if (uvLock) {
-                                    applyUVLock(matcher, leftFace, rightFace);
-                                }
-                            },
-                            [&](const BrushError e) {
-                                if (!error) {
-                                    error = e;
-                                }
+                        .and_then([&]() {
+                            if (uvLock) {
+                                applyUVLock(matcher, leftFace, rightFace);
                             }
-                        ));
+                            return kdl::void_success;
+                        }).handle_errors([&](const BrushError e) {
+                            if (!error) {
+                                error = e;
+                            }
+                        });
                 }
             });
 
