@@ -438,6 +438,34 @@ namespace kdl {
         test_and_then_const_lvalue_ref<result<const int, Error1, Error2>, float>(1);
         test_and_then_rvalue_ref<result<Counter, Error1, Error2>, Counter>(Counter{});
     }
+
+    TEST_CASE("result_test.map_errors", "[result_test]") {
+        SECTION("map error of success result by const lvalue") {
+            const auto r = result<int, Error1>{1};
+            const auto rm = r.map_errors([](const Error1&) { return result<int, Error2>{Error2{}}; });
+            CHECK(rm.is_success());
+            CHECK(rm.value() == 1);
+        }
+
+        SECTION("map error of success result by rvalue") {
+            const auto rm = result<int, Error1>{1}.map_errors([](Error1&&) { return result<int, Error2>{Error2{}}; });
+            CHECK(rm.is_success());
+            CHECK(rm.value() == 1);
+        }
+
+        SECTION("map error of error result by const lvalue") {
+            const auto r = result<int, Error1>{Error1{}};
+            const auto rm = r.map_errors([](const Error1&) { return result<int, Error2>{Error2{}}; });
+            CHECK(rm.is_error());
+            CHECK(rm.error() == std::variant<Error2>{Error2{}});
+        }
+
+        SECTION("map error of error result by rvalue") {
+            const auto rm = result<int, Error1>{Error1{}}.map_errors([](Error1&&) { return result<int, Error2>{Error2{}}; });
+            CHECK(rm.is_error());
+            CHECK(rm.error() == std::variant<Error2>{Error2{}});
+        }
+    }
     
     TEST_CASE("void_result_test.constructor", "[void_result_test]") {
         CHECK((result<void, float, std::string>().is_success()));
