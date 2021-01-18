@@ -733,6 +733,36 @@ namespace kdl {
         return result;
     }
 
+
+    /**
+     * Given a vector of nested vectors, this function returns a vector that contains the elements of the nested
+     * vectors.
+     *
+     * The resulting vector contains the elements of the given vector in the order in which they appear.
+     *
+     * @tparam T the element type
+     * @tparam A1 the nested vector allocator type
+     * @tparam A2 the outer vector allocator type
+     * @param vec the vector to flatten
+     * @result the flattened vector
+     */
+    template <typename T, typename A1, typename A2>
+    auto vec_flatten(std::vector<std::vector<T, A1>, A2> vec) {
+        std::size_t totalSize = 0u;
+        for (const auto& nested : vec) {
+            totalSize += nested.size();
+        }
+        
+        auto result = std::vector<T, A1>{};
+        result.reserve(totalSize);
+
+        for (auto& nested : vec) {
+            result = vec_concat(std::move(result), std::move(nested));
+        }
+
+        return result;
+    }
+
     /**
      * Returns a vector containing those values from s1 which are not also in s2. Values from s1 and s2 are compared
      * using the common comparator from both sets.

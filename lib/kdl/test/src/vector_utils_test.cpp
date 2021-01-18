@@ -311,6 +311,17 @@ namespace kdl {
         CHECK(vec_transform(std::vector<X>{ X() }, [](X&& x, std::size_t) { return std::move(x); }).size() == 1u);
     }
 
+    TEST_CASE("vector_utils_test.vec_flatten", "[vector_utils_test]") {
+        CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{}), Catch::Equals(std::vector<int>{}));
+        CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{{1}}), Catch::Equals(std::vector<int>{1}));
+        CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{{}, {}}), Catch::Equals(std::vector<int>{}));
+        CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{{1}, {}}), Catch::Equals(std::vector<int>{1}));
+        CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{{}, {1}}), Catch::Equals(std::vector<int>{1}));
+        CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{{1}, {2}}), Catch::Equals(std::vector<int>{1, 2}));
+        CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{{1, 2}, {3}}), Catch::Equals(std::vector<int>{1, 2, 3}));
+        CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{{1, 2}, {3}}), Catch::Equals(std::vector<int>{1, 2, 3}));
+        CHECK_THAT(vec_flatten(std::vector<std::vector<int>>{{1, 2}, {2, 3}}), Catch::Equals(std::vector<int>{1, 2, 2, 3}));
+    }
 
     TEST_CASE("vector_utils_test.set_difference", "[vector_utils_test]") {
         using vec = std::vector<int>;
