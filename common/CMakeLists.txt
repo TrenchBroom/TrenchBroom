@@ -424,6 +424,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ToolController.cpp
         ${COMMON_SOURCE_DIR}/View/TwoPaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/UndoableCommand.cpp
+        ${COMMON_SOURCE_DIR}/View/UpdateLinkedGroupsHelper.cpp
         ${COMMON_SOURCE_DIR}/View/UVCameraTool.cpp
         ${COMMON_SOURCE_DIR}/View/UVEditor.cpp
         ${COMMON_SOURCE_DIR}/View/UVOffsetTool.cpp
@@ -922,6 +923,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ToolController.h
         ${COMMON_SOURCE_DIR}/View/TwoPaneMapView.h
         ${COMMON_SOURCE_DIR}/View/UndoableCommand.h
+        ${COMMON_SOURCE_DIR}/View/UpdateLinkedGroupsHelper.h
         ${COMMON_SOURCE_DIR}/View/UVCameraTool.h
         ${COMMON_SOURCE_DIR}/View/UVEditor.h
         ${COMMON_SOURCE_DIR}/View/UVOffsetTool.h
