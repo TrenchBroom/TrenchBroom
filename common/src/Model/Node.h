@@ -27,6 +27,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -144,6 +145,8 @@ namespace TrenchBroom {
             }
 
             void addChild(Node* child);
+
+            std::vector<std::unique_ptr<Node>> replaceChildren(std::vector<std::unique_ptr<Node>> newChildren);
 
             template <typename I>
             void removeChildren(I cur, I end) {
