@@ -342,6 +342,30 @@ namespace TrenchBroom {
             CHECK(child->familySize() == 3u);
         }
 
+        TEST_CASE("NodeTest.replaceChildren") {
+            auto root = TestNode{};
+            auto* child1 = new TestNode{};
+            auto* child2 = new TestNode{};
+
+            root.addChildren({child1, child2});
+
+            auto child3Ptr = std::make_unique<TestNode>();
+            auto* child3 = child3Ptr.get();
+
+            auto newChildren = std::vector<std::unique_ptr<Node>>{};
+            newChildren.push_back(std::move(child3Ptr));
+
+            const auto oldChildren = root.replaceChildren(std::move(newChildren));
+            
+            CHECK(oldChildren.size() == 2u);
+            CHECK_THAT(kdl::vec_transform(oldChildren, [](const auto& c) { return c.get(); }), Catch::UnorderedEquals(std::vector<Node*>{child1, child2}));
+            CHECK(child1->parent() == nullptr);
+            CHECK(child2->parent() == nullptr);
+
+            CHECK_THAT(root.children(), Catch::UnorderedEquals(std::vector<Node*>{child3}));
+            CHECK(child3->parent() == &root);
+        }
+
         TEST_CASE("NodeTest.partialSelection", "[NodeTest]") {
             TestNode root;
             TestNode* child1 = new TestNode();

@@ -175,6 +175,33 @@ namespace TrenchBroom {
             incDescendantSelectionCount(child->descendantSelectionCount());
         }
 
+        std::vector<std::unique_ptr<Node>> Node::replaceChildren(std::vector<std::unique_ptr<Node>> newChildren) {
+            // nodeWillChange();
+
+            for (auto* child : m_children) {
+                ensure(child != nullptr, "child is null");
+                assert(child->parent() == this);
+                assert(canRemoveChild(child));
+
+                childWillBeRemoved(child);
+                child->setParent(nullptr);
+            }
+
+            auto oldChildren = kdl::vec_transform(m_children, [](Node* child) { return std::unique_ptr<Node>(child); });
+            m_children.clear();
+
+            for (auto& child : oldChildren) {
+                childWasRemoved(child.get());
+            }
+
+            decDescendantCount(descendantCount());
+            addChildren(kdl::vec_transform(std::move(newChildren), [](std::unique_ptr<Node>&& child) { return child.release(); }));
+
+            // nodeDidChange();
+
+            return oldChildren;
+        }
+
         void Node::removeChild(Node* child) {
             doRemoveChild(child);
             decDescendantCount(child->descendantCount() + 1u);
