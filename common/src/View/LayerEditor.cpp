@@ -235,7 +235,7 @@ namespace TrenchBroom {
             Transaction transaction(document, "Remove Layer " + layer->name());
             document->deselectAll();
             if (layer->hasChildren()) {
-                document->reparentNodes(defaultLayer, layer->children());
+                document->reparentNodes({{defaultLayer, layer->children()}});
             }
             if (document->currentLayer() == layer) {
                 document->setCurrentLayer(defaultLayer);

@@ -1048,12 +1048,6 @@ namespace TrenchBroom {
             }
         }
 
-        bool MapDocument::reparentNodes(Model::Node* newParent, const std::vector<Model::Node*>& children) {
-            std::map<Model::Node*, std::vector<Model::Node*>> nodes;
-            nodes.insert(std::make_pair(newParent, children));
-            return reparentNodes(nodes);
-        }
-
         bool MapDocument::reparentNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) {
             if (!checkReparenting(nodesToAdd))
                 return false;
@@ -1177,7 +1171,7 @@ namespace TrenchBroom {
             const Transaction transaction(this, name.str());
             deselectAll();
             addNodes({{parentForNodes(), {entityNode}}});
-            reparentNodes(entityNode, nodes);
+            reparentNodes({{entityNode, nodes}});
             select(nodes);
 
             return entityNode;
@@ -1196,7 +1190,7 @@ namespace TrenchBroom {
             const Transaction transaction(this, "Group Selected Objects");
             deselectAll();
             addNodes({{parentForNodes(nodes), {group}}});
-            reparentNodes(group, nodes);
+            reparentNodes({{group, nodes}});
             select(group);
 
             return group;
@@ -1215,7 +1209,7 @@ namespace TrenchBroom {
                     continue;
 
                 const std::vector<Model::Node*> children = groupToMerge->children();
-                reparentNodes(group, children);
+                reparentNodes({{group, children}});
             }
             select(group);
         }
@@ -1251,7 +1245,7 @@ namespace TrenchBroom {
             for (Model::Node* group : groups) {
                 Model::Node* parent = group->parent();
                 const std::vector<Model::Node*> children = group->children();
-                reparentNodes(parent, children);
+                reparentNodes({{parent, children}});
                 allChildren = kdl::vec_concat(std::move(allChildren), children);
             }
 
@@ -1420,7 +1414,7 @@ namespace TrenchBroom {
 
             if (!nodesToMove.empty()) {
                 deselectAll();
-                reparentNodes(layer, nodesToMove);
+                reparentNodes({{layer, nodesToMove}});
                 if (!layer->hidden() && !layer->locked()) {
                     select(nodesToSelect);
                 }

@@ -1379,7 +1379,7 @@ namespace TrenchBroom {
 
             const Transaction transaction(document, name.str());
             document->deselectAll();
-            document->reparentNodes(newParent, reparentableNodes);
+            document->reparentNodes({{newParent, reparentableNodes}});
             document->select(reparentableNodes);
         }
 

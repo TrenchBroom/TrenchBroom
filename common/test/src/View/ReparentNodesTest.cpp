@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Model::LayerNode* layer2 = new Model::LayerNode(Model::Layer("Layer 2"));
             document->addNodes({{document->world(), {layer2}}});
 
-            CHECK_FALSE(document->reparentNodes(layer2, { layer1 }));
+            CHECK_FALSE(document->reparentNodes({{layer2, { layer1 }}}));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentBetweenLayers") {
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             document->addNodes({{oldParent, {entity}}});
 
             assert(entity->parent() == oldParent);
-            CHECK(document->reparentNodes(newParent, { entity }));
+            CHECK(document->reparentNodes({{newParent, { entity }}}));
             CHECK(entity->parent() == newParent);
 
             document->undoCommand();
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             document->addNodes({{document->parentForNodes(), {group}}});
 
-            CHECK_FALSE(document->reparentNodes(group, { group }));
+            CHECK_FALSE(document->reparentNodes({{group, { group }}}));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToChild") {
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
             document->addNodes({{outer, {inner}}});
 
-            CHECK_FALSE(document->reparentNodes(inner, { outer }));
+            CHECK_FALSE(document->reparentNodes({{inner, { outer }}}));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroup") {
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNodes({{group, {entity}}});
 
-            CHECK(document->reparentNodes(document->parentForNodes(), { entity }));
+            CHECK(document->reparentNodes({{document->parentForNodes(), { entity }}}));
             CHECK(entity->parent() == document->parentForNodes());
             CHECK(group->parent() == nullptr);
 
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNodes({{inner, {entity}}});
 
-            CHECK(document->reparentNodes(document->parentForNodes(), { entity }));
+            CHECK(document->reparentNodes({{document->parentForNodes(), { entity }}}));
             CHECK(entity->parent() == document->parentForNodes());
             CHECK(inner->parent() == nullptr);
             CHECK(outer->parent() == nullptr);
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             Model::BrushNode* brush = createBrushNode();
             document->addNodes({{entity, {brush}}});
 
-            CHECK(document->reparentNodes(document->parentForNodes(), { brush }));
+            CHECK(document->reparentNodes({{document->parentForNodes(), { brush }}}));
             CHECK(brush->parent() == document->parentForNodes());
             CHECK(entity->parent() == nullptr);
 
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             Model::BrushNode* brush = createBrushNode();
             document->addNodes({{entity, {brush}}});
 
-            CHECK(document->reparentNodes(document->parentForNodes(), { brush }));
+            CHECK(document->reparentNodes({{document->parentForNodes(), { brush }}}));
             CHECK(brush->parent() == document->parentForNodes());
             CHECK(group->parent() == nullptr);
             CHECK(entity->parent() == nullptr);

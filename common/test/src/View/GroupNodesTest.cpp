@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNodes({{document->parentForNodes(), {entity}}});
-            document->reparentNodes(entity, { brush1, brush2 });
+            document->reparentNodes({{entity, { brush1, brush2 }}});
 
             document->select(brush1);
 
@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNodes({{document->parentForNodes(), {entity}}});
-            document->reparentNodes(entity, { brush1, brush2 });
+            document->reparentNodes({{entity, { brush1, brush2 }}});
 
             document->select(std::vector<Model::Node*>({ brush1, brush2 }));
 
@@ -160,7 +160,7 @@ namespace TrenchBroom {
 
             Model::EntityNode* entityNode = new Model::EntityNode();
             document->addNodes({{document->parentForNodes(), {entityNode}}});
-            document->reparentNodes(entityNode, { brush1 });
+            document->reparentNodes({{entityNode, { brush1 }}});
 
             document->select(brush1);
 
@@ -184,7 +184,7 @@ namespace TrenchBroom {
 
             Model::EntityNode* entityNode = new Model::EntityNode();
             document->addNodes({{document->parentForNodes(), {entityNode}}});
-            document->reparentNodes(entityNode, { brush1 });
+            document->reparentNodes({{entityNode, { brush1 }}});
 
             document->select(brush1);
 
