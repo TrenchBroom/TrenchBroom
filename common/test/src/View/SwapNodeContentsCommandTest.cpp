@@ -26,6 +26,8 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/NodeContents.h"
 #include "View/MapDocument.h"
 #include "View/SwapNodeContentsCommand.h"
@@ -61,7 +63,7 @@ namespace TrenchBroom {
             auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
             nodesToSwap.emplace_back(brushNode, modifiedBrush);
             
-            document->swapNodeContents("Swap Nodes", std::move(nodesToSwap));
+            document->swapNodeContents("Swap Nodes", std::move(nodesToSwap), {});
             CHECK(brushNode->brush() == modifiedBrush);
             
             document->undoCommand();
@@ -87,7 +89,7 @@ namespace TrenchBroom {
             
             REQUIRE(texture->usageCount() == 6u);
 
-            document->swapNodeContents("Swap Nodes", std::move(nodesToSwap));
+            document->swapNodeContents("Swap Nodes", std::move(nodesToSwap), {});
             CHECK(texture->usageCount() == 6u);
             
             document->undoCommand();
@@ -112,11 +114,78 @@ namespace TrenchBroom {
             
             REQUIRE(m_pointEntityDef->usageCount() == 1u);
 
-            document->swapNodeContents("Swap Nodes", std::move(nodesToSwap));
+            document->swapNodeContents("Swap Nodes", std::move(nodesToSwap), {});
             CHECK(m_pointEntityDef->usageCount() == 1u);
             
             document->undoCommand();
             CHECK(m_pointEntityDef->usageCount() == 1u);
-        }    
+        }
+
+        TEST_CASE_METHOD(SwapNodeContentsCommandTest, "SwapNodesContentCommandTest.updateLinkedGroups") {
+            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+            auto* brushNode = createBrushNode();
+            groupNode->addChild(brushNode);
+
+            auto* linkedGroupNode = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+            groupNode->addToLinkSet(*linkedGroupNode);
+
+            document->addNodes({{document->parentForNodes(), {groupNode, linkedGroupNode}}});
+
+            document->deselectAll();
+            document->select(linkedGroupNode);
+            document->translateObjects(vm::vec3(32.0, 0.0, 0.0));
+            document->deselectAll();
+
+            const auto originalBrushBounds = brushNode->physicalBounds();
+
+            document->select(brushNode);
+            document->translateObjects(vm::vec3(0.0, 16.0, 0.0));
+
+            REQUIRE(brushNode->physicalBounds() == originalBrushBounds.translate(vm::vec3(0.0, 16.0, 0.0)));
+
+            REQUIRE(linkedGroupNode->childCount() == 1u);
+            auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+            REQUIRE(linkedBrushNode != nullptr);
+
+            CHECK(linkedBrushNode->physicalBounds() == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+
+            document->undoCommand();
+
+            linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+            REQUIRE(linkedBrushNode != nullptr);
+
+            CHECK(linkedBrushNode->physicalBounds() == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+        }
+
+        TEST_CASE_METHOD(SwapNodeContentsCommandTest, "SwapNodesContentCommandTest.updateLinkedGroupsFails") {
+            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+            auto* brushNode = createBrushNode();
+            groupNode->addChild(brushNode);
+
+            auto* linkedGroupNode = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+            groupNode->addToLinkSet(*linkedGroupNode);
+
+            document->addNodes({{document->parentForNodes(), {groupNode, linkedGroupNode}}});
+
+            document->deselectAll();
+            document->select(linkedGroupNode);
+
+            // moving the brush in linked group node will fail because it will go out of world bounds
+            REQUIRE(document->translateObjects(document->worldBounds().max - linkedGroupNode->physicalBounds().size()));
+            document->deselectAll();
+
+            const auto originalBrushBounds = brushNode->physicalBounds();
+
+            document->select(brushNode);
+            CHECK_FALSE(document->translateObjects(vm::vec3(0.0, 16.0, 0.0)));
+
+            REQUIRE(brushNode->physicalBounds() == originalBrushBounds);
+
+            REQUIRE(linkedGroupNode->childCount() == 1u);
+            auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+            REQUIRE(linkedBrushNode != nullptr);
+
+            CHECK(linkedBrushNode->physicalBounds() == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+        }
     }
 }

@@ -22,6 +22,7 @@
 #include "Macros.h"
 #include "Model/NodeContents.h"
 #include "View/DocumentCommand.h"
+#include "View/UpdateLinkedGroupsHelper.h"
 
 #include <memory>
 #include <string>
@@ -32,6 +33,7 @@ namespace TrenchBroom {
     namespace Model {
         class Brush;
         class Entity;
+        class GroupNode;
         class Node;
     }
 
@@ -41,8 +43,9 @@ namespace TrenchBroom {
             static const CommandType Type;
         protected:
             std::vector<std::pair<Model::Node*, Model::NodeContents>> m_nodes;
+            UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
         public:
-            SwapNodeContentsCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
+            SwapNodeContentsCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<Model::GroupNode*> linkedGroupsToUpdate);
             ~SwapNodeContentsCommand();
 
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;

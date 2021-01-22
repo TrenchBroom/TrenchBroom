@@ -38,7 +38,7 @@ namespace TrenchBroom {
 
         class BrushVertexCommandBase : public SwapNodeContentsCommand {
         protected:
-            BrushVertexCommandBase(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
+            BrushVertexCommandBase(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<Model::GroupNode*> linkedGroupsToUpdate);
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             virtual std::unique_ptr<CommandResult> createCommandResult(std::unique_ptr<CommandResult> swapResult);
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             std::vector<vm::vec3> m_oldVertexPositions;
             std::vector<vm::vec3> m_newVertexPositions;
         public:
-            BrushVertexCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions);
+            BrushVertexCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions, std::vector<Model::GroupNode*> linkedGroupsToUpdate);
         private:
             std::unique_ptr<CommandResult> createCommandResult(std::unique_ptr<CommandResult> swapResult) override;
 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             std::vector<vm::segment3> m_oldEdgePositions;
             std::vector<vm::segment3> m_newEdgePositions;
         public:
-            BrushEdgeCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions);
+            BrushEdgeCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions, std::vector<Model::GroupNode*> linkedGroupsToUpdate);
         private:
             bool doCollateWith(UndoableCommand* command) override;
 
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             std::vector<vm::polygon3> m_oldFacePositions;
             std::vector<vm::polygon3> m_newFacePositions;
         public:
-            BrushFaceCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions);
+            BrushFaceCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions, std::vector<Model::GroupNode*> linkedGroupsToUpdate);
         private:
             bool doCollateWith(UndoableCommand* command) override;
 

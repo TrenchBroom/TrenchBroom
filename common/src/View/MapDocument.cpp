@@ -211,18 +211,19 @@ namespace TrenchBroom {
          *
          * The given node contents should be modified in place and the lambda should return true if it was applied successfully and false otherwise.
          *
+         * For each linked group in the given list of linked groups, its changes are distributed to the connected members of its link set.
+         *
          * Returns true if the given lambda could be applied successfully to all node contents and false otherwise. If the lambda fails, then no
          * node contents will be swapped, and the original nodes remain unmodified.
          */
         template <typename N, typename L>
-        static bool applyAndSwap(MapDocument& document, const std::string& commandName, const std::vector<N*>& nodes, L lambda) {
+        static bool applyAndSwap(MapDocument& document, const std::string& commandName, const std::vector<N*>& nodes, std::vector<Model::GroupNode*> linkedGroupsToUpdate, L lambda) {
             if (nodes.empty()) {
                 return true;
             }
 
             if (auto newNodes = applyToNodeContents(nodes, std::move(lambda))) {
-                document.swapNodeContents(commandName, std::move(*newNodes));
-                return true;
+                return document.swapNodeContents(commandName, std::move(*newNodes), std::move(linkedGroupsToUpdate));
             }
 
             return false;
@@ -238,6 +239,8 @@ namespace TrenchBroom {
          * - bool operator()(Model::BrushFace&);
          *
          * The given node contents should be modified in place and the lambda should return true if it was applied successfully and false otherwise.
+         *
+         * For each linked group in the given list of linked groups, its changes are distributed to the connected members of its link set.
          *
          * Returns true if the given lambda could be applied successfully to each face and false otherwise. If the lambda fails, then no
          * node contents will be swapped, and the original nodes remain unmodified.
@@ -270,7 +273,8 @@ namespace TrenchBroom {
                     newNodes.emplace_back(brushNode, Model::NodeContents(std::move(brush)));
                 }
 
-                document.swapNodeContents(commandName, std::move(newNodes));
+                auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(kdl::vec_transform(newNodes, [](const auto& p) { return p.first; }));
+                document.swapNodeContents(commandName, std::move(newNodes), std::move(linkedGroupsToUpdate));
             }
 
             return success;
@@ -1350,7 +1354,7 @@ namespace TrenchBroom {
                 return;
             
             const auto commandName = kdl::str_plural("Rename ", m_selectedNodes.groupCount(), "Group", "Groups");
-            applyAndSwap(*this, commandName, m_selectedNodes.groups(), kdl::overload(
+            applyAndSwap(*this, commandName, m_selectedNodes.groups(), {}, kdl::overload(
                 [] (Model::Layer&)       { return true; },
                 [&](Model::Group& group) { group.setName(name); return true; },
                 [] (Model::Entity&)      { return true; },
@@ -1388,7 +1392,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::renameLayer(Model::LayerNode* layerNode, const std::string& name) {
-            applyAndSwap(*this, "Rename Layer", std::vector<Model::Node*>{layerNode}, kdl::overload(
+            applyAndSwap(*this, "Rename Layer", std::vector<Model::Node*>{layerNode}, {}, kdl::overload(
                 [&](Model::Layer& layer) { layer.setName(name); return true; },
                 [] (Model::Group&)       { return true; },
                 [] (Model::Entity&)      { return true; },
@@ -1423,7 +1427,7 @@ namespace TrenchBroom {
             swapNodeContents("Swap Layer Positions", {
                 {layerNode, Model::NodeContents(std::move(layer))}, 
                 {neighbourNode, Model::NodeContents(std::move(neighbourLayer))}
-            });
+            }, {});
 
             return true;
         }
@@ -1591,7 +1595,7 @@ namespace TrenchBroom {
 
             auto layer = layerNode->layer();
             layer.setOmitFromExport(omitFromExport);
-            swapNodeContents(commandName, {{layerNode, Model::NodeContents(std::move(layer))}});
+            swapNodeContents(commandName, {{layerNode, Model::NodeContents(std::move(layer))}}, {});
         }
 
         void MapDocument::selectAllInLayers(const std::vector<Model::LayerNode*>& layers) {
@@ -1697,8 +1701,8 @@ namespace TrenchBroom {
             resetLock(nodesToReset);
         }
 
-        void MapDocument::swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap) {
-            executeAndStore(std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap)));
+        bool MapDocument::swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap, std::vector<Model::GroupNode*> linkedGroupsToUpdate) {
+            return executeAndStore(std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap), std::move(linkedGroupsToUpdate)))->success();
         }
 
         bool MapDocument::transformObjects(const std::string& commandName, const vm::mat4x4& transformation) {
@@ -1724,7 +1728,7 @@ namespace TrenchBroom {
                 ));
             }
 
-            const auto success = applyAndSwap(*this, commandName, nodesToTransform, kdl::overload(
+            const auto success = applyAndSwap(*this, commandName, nodesToTransform, findContainingLinkedGroupsToUpdate(m_selectedNodes.nodes()), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [&](Model::Group& group) { 
                     group.transform(transformation);
@@ -1998,7 +2002,8 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::setProperty(const std::string& key, const std::string& value) {
-            return applyAndSwap(*this, "Set Property", allSelectedEntityNodes(), kdl::overload(
+            const auto entityNodes = allSelectedEntityNodes();
+            return applyAndSwap(*this, "Set Property", entityNodes, findContainingLinkedGroupsToUpdate(entityNodes), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
                 [&](Model::Entity& entity) { entity.addOrUpdateProperty(key, value); return true; },
@@ -2007,7 +2012,8 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::renameProperty(const std::string& oldKey, const std::string& newKey) {
-            return applyAndSwap(*this, "Rename Property", allSelectedEntityNodes(), kdl::overload(
+            const auto entityNodes = allSelectedEntityNodes();
+            return applyAndSwap(*this, "Rename Property", entityNodes, findContainingLinkedGroupsToUpdate(entityNodes), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
                 [&](Model::Entity& entity) { entity.renameProperty(oldKey, newKey); return true; },
@@ -2016,7 +2022,8 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::removeProperty(const std::string& key) {
-            return applyAndSwap(*this, "Remove Property", allSelectedEntityNodes(), kdl::overload(
+            const auto entityNodes = allSelectedEntityNodes();
+            return applyAndSwap(*this, "Remove Property", entityNodes, findContainingLinkedGroupsToUpdate(entityNodes), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
                 [&](Model::Entity& entity) { entity.removeProperty(key); return true; },
@@ -2025,7 +2032,8 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::convertEntityColorRange(const std::string& key, Assets::ColorRange::Type range) {
-            return applyAndSwap(*this, "Convert Color", allSelectedEntityNodes(), kdl::overload(
+            const auto entityNodes = allSelectedEntityNodes();
+            return applyAndSwap(*this, "Convert Color", entityNodes, findContainingLinkedGroupsToUpdate(entityNodes), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
@@ -2039,7 +2047,8 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::updateSpawnflag(const std::string& key, const size_t flagIndex, const bool setFlag) {
-            return applyAndSwap(*this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", m_selectedNodes.nodes(), kdl::overload(
+            const auto entityNodes = allSelectedEntityNodes();
+            return applyAndSwap(*this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", entityNodes, findContainingLinkedGroupsToUpdate(entityNodes), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
@@ -2058,7 +2067,7 @@ namespace TrenchBroom {
 
         bool MapDocument::setPreservedProperties(const std::vector<std::string>& preservedProperties) {
             const auto entityNodes = kdl::vec_filter(allSelectedEntityNodes(), [](auto* node) { return Model::findContainingGroup(node) != nullptr; });
-            return applyAndSwap(*this, "Set Preserved Properties", entityNodes, kdl::overload(
+            return applyAndSwap(*this, "Set Preserved Properties", entityNodes, {}, kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
@@ -2070,7 +2079,8 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
-            return applyAndSwap(*this, "Resize Brushes", m_selectedNodes.nodes(), kdl::overload(
+            const auto nodes = m_selectedNodes.nodes();
+            return applyAndSwap(*this, "Resize Brushes", nodes, findContainingLinkedGroupsToUpdate(nodes), kdl::overload(
                 [] (Model::Layer&)       { return true; },
                 [] (Model::Group&)       { return true; },
                 [] (Model::Entity&)      { return true; },
@@ -2154,7 +2164,8 @@ namespace TrenchBroom {
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
 
-            applyAndSwap(*this, "Snap Brush Vertices", m_selectedNodes.brushesRecursively(), kdl::overload(
+            const auto allSelectedBrushes = m_selectedNodes.brushesRecursively();
+            applyAndSwap(*this, "Snap Brush Vertices", allSelectedBrushes, findContainingLinkedGroupsToUpdate(allSelectedBrushes), kdl::overload(
                 [] (Model::Layer&)  { return true; },
                 [] (Model::Group&)  { return true; },
                 [] (Model::Entity&) { return true; },
@@ -2214,7 +2225,8 @@ namespace TrenchBroom {
                 kdl::vec_sort_and_remove_duplicates(newVertexPositions);
 
                 const auto commandName = kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
-                const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(commandName, std::move(*newNodes), std::move(vertexPositions), std::move(newVertexPositions)));
+                auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+                const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(commandName, std::move(*newNodes), std::move(vertexPositions), std::move(newVertexPositions), std::move(linkedGroupsToUpdate)));
 
                 const auto* moveVerticesResult = dynamic_cast<BrushVertexCommandResult*>(result.get());
                 ensure(moveVerticesResult != nullptr, "command processor returned unexpected command result type");
@@ -2257,7 +2269,8 @@ namespace TrenchBroom {
                 kdl::vec_sort_and_remove_duplicates(newEdgePositions);
 
                 const auto commandName = kdl::str_plural(edgePositions.size(), "Move Brush Edge", "Move Brush Edges");
-                return executeAndStore(std::make_unique<BrushEdgeCommand>(commandName, std::move(*newNodes), std::move(edgePositions), std::move(newEdgePositions)))->success();
+                auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+                return executeAndStore(std::make_unique<BrushEdgeCommand>(commandName, std::move(*newNodes), std::move(edgePositions), std::move(newEdgePositions), std::move(linkedGroupsToUpdate)))->success();
             }
 
             return false;
@@ -2295,7 +2308,8 @@ namespace TrenchBroom {
                 kdl::vec_sort_and_remove_duplicates(newFacePositions);
 
                 const auto commandName = kdl::str_plural(facePositions.size(), "Move Brush Face", "Move Brush Faces");
-                return executeAndStore(std::make_unique<BrushFaceCommand>(commandName, std::move(*newNodes), std::move(facePositions), std::move(newFacePositions)))->success();
+                auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+                return executeAndStore(std::make_unique<BrushFaceCommand>(commandName, std::move(*newNodes), std::move(facePositions), std::move(newFacePositions), std::move(linkedGroupsToUpdate)))->success();
             }
 
             return false;
@@ -2319,7 +2333,8 @@ namespace TrenchBroom {
             ));
 
             if (newNodes) {
-                return executeAndStore(std::make_unique<BrushVertexCommand>("Add Brush Vertex", std::move(*newNodes), std::vector<vm::vec3>{}, std::vector<vm::vec3>{vertexPosition}))->success();
+                auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+                return executeAndStore(std::make_unique<BrushVertexCommand>("Add Brush Vertex", std::move(*newNodes), std::vector<vm::vec3>{}, std::vector<vm::vec3>{vertexPosition}, std::move(linkedGroupsToUpdate)))->success();
             }
 
             return false;
@@ -2348,7 +2363,8 @@ namespace TrenchBroom {
             ));
 
             if (newNodes) {
-                return executeAndStore(std::make_unique<BrushVertexCommand>(commandName, std::move(*newNodes), std::move(vertexPositions), std::vector<vm::vec3>{}))->success();
+                auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+                return executeAndStore(std::make_unique<BrushVertexCommand>(commandName, std::move(*newNodes), std::move(vertexPositions), std::vector<vm::vec3>{}, std::move(linkedGroupsToUpdate)))->success();
             }
 
             return false;
@@ -2553,7 +2569,7 @@ namespace TrenchBroom {
 
             auto entity = m_world->entity();
             entity.addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, formatted);
-            swapNodeContents("Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}});
+            swapNodeContents("Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}}, {});
         }
 
         void MapDocument::setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions) {
@@ -2571,7 +2587,7 @@ namespace TrenchBroom {
         void MapDocument::setEnabledTextureCollections(const std::vector<IO::Path>& paths) {
             auto entity = m_world->entity();
             m_game->updateTextureCollections(entity, paths);
-            swapNodeContents("Set Texture Collections", {{world(), Model::NodeContents(std::move(entity))}});
+            swapNodeContents("Set Texture Collections", {{world(), Model::NodeContents(std::move(entity))}}, {});
         }
 
         void MapDocument::reloadTextureCollections() {
@@ -2849,7 +2865,7 @@ namespace TrenchBroom {
                 const std::string newValue = kdl::str_join(mods, ";");
                 entity.addOrUpdateProperty(Model::PropertyKeys::Mods, newValue);
             }
-            swapNodeContents("Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}});
+            swapNodeContents("Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}}, {});
         }
 
         std::string MapDocument::defaultMod() const {
@@ -2877,7 +2893,7 @@ namespace TrenchBroom {
                     break;
                 switchDefault()
             }
-            swapNodeContents("Set Soft Map Bounds", {{world(), Model::NodeContents(std::move(entity))}});
+            swapNodeContents("Set Soft Map Bounds", {{world(), Model::NodeContents(std::move(entity))}}, {});
         }
 
         Model::Game::SoftMapBounds MapDocument::softMapBounds() const {
