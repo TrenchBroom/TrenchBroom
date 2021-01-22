@@ -1391,6 +1391,34 @@ namespace TrenchBroom {
             }
         }
 
+        Model::GroupNode* MapDocument::createLinkedGroup() {
+            if (!canCreateLinkedGroup()) {
+                return nullptr;
+            }
+
+            auto* originalGroupNode = m_selectedNodes.groups().front();
+            auto linkedGroupNode = static_cast<Model::GroupNode*>(originalGroupNode->cloneRecursively(m_worldBounds));
+            originalGroupNode->addToLinkSet(*linkedGroupNode);
+
+            auto* parentNode = parentForNodes({});
+            
+            const Transaction transaction(this, "Create Linked Group");
+            addNodes({{parentNode, {linkedGroupNode}}});
+
+            deselectAll();
+            select(linkedGroupNode);
+
+            if (m_viewEffectsService) {
+                m_viewEffectsService->flashSelection();
+            }
+
+            return linkedGroupNode;
+        }
+
+        bool MapDocument::canCreateLinkedGroup() const {
+            return hasSelectedNodes() && m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groupCount() == 1u;
+        }
+
         void MapDocument::renameLayer(Model::LayerNode* layerNode, const std::string& name) {
             applyAndSwap(*this, "Rename Layer", std::vector<Model::Node*>{layerNode}, {}, kdl::overload(
                 [&](Model::Layer& layer) { layer.setName(name); return true; },

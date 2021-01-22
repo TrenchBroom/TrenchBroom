@@ -26,6 +26,8 @@
 #include "View/MapDocumentTest.h"
 #include "View/PasteType.h"
 
+#include <kdl/vector_utils.h>
+
 #include <set>
 
 #include "Catch2.h"
@@ -232,6 +234,27 @@ namespace TrenchBroom {
 
             Model::BrushNode* brushCopy = document->selectedNodes().brushes().at(0u);
             CHECK(brushCopy->parent() == group);
+        }
+
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createLinkedGroup", "[GroupNodesTest]") {
+            auto* brushNode = createBrushNode();
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
+            document->select(brushNode);
+
+            auto* groupNode = document->groupSelection("test");
+            REQUIRE(groupNode != nullptr);
+
+            document->deselectAll();
+            document->select(groupNode);
+
+            auto* linkedGroupNode = document->createLinkedGroup();
+            CHECK(linkedGroupNode != nullptr);
+
+            CHECK(groupNode->connectedToLinkSet());
+            CHECK_THAT(groupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode, linkedGroupNode}));
+            
+            CHECK(linkedGroupNode->connectedToLinkSet());
+            CHECK_THAT(linkedGroupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode, linkedGroupNode}));
         }
     }
 }

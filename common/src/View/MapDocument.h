@@ -359,6 +359,15 @@ namespace TrenchBroom {
 
             void openGroup(Model::GroupNode* group);
             void closeGroup();
+
+            /**
+             * Creates a new group that is linked to the currently selected group and returns the newly created group.
+             * The group is added to the document and connected with the link set.
+             *
+             * If the current selection does not consist of exactly one group, then null is returned.
+             */
+            Model::GroupNode* createLinkedGroup();
+            bool canCreateLinkedGroup() const;
         public: // layer management
             void renameLayer(Model::LayerNode* layer, const std::string& name);
         private:
