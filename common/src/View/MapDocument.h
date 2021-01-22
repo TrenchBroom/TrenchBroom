@@ -401,7 +401,7 @@ namespace TrenchBroom {
             void downgradeShownToInherit(const std::vector<Model::Node*>& nodes);
             void downgradeUnlockedToInherit(const std::vector<Model::Node*>& nodes);
         public: // modifying objects, declared in MapFacade interface
-            void swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap);
+            bool swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
             bool transformObjects(const std::string& commandName, const vm::mat4x4& transformation);
 
             bool translateObjects(const vm::vec3& delta) override;

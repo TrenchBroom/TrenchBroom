@@ -22,27 +22,38 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Node.h"
+#include "Model/UpdateLinkedGroupsError.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SwapNodeContentsCommand::Type = Command::freeType();
 
-        SwapNodeContentsCommand::SwapNodeContentsCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes) :
+        SwapNodeContentsCommand::SwapNodeContentsCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate) :
         UndoableCommand(Type, name, true),
-        m_nodes(std::move(nodes)) {}
+        m_nodes(std::move(nodes)),
+        m_updateLinkedGroupsHelper(std::move(linkedGroupsToUpdate)) {}
 
         SwapNodeContentsCommand::~SwapNodeContentsCommand() = default;
 
         std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             document->performSwapNodeContents(m_nodes);
-            return std::make_unique<CommandResult>(true);
+
+            const auto success = m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document)
+                .handle_errors([&](const Model::UpdateLinkedGroupsError& e) {
+                    document->error() << e;
+                    document->performSwapNodeContents(m_nodes);
+                });
+
+            return std::make_unique<CommandResult>(success);
         }
 
         std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performSwapNodeContents(m_nodes);
+            m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(*document);
             return std::make_unique<CommandResult>(true);
         }
 
@@ -54,7 +65,13 @@ namespace TrenchBroom {
 
             kdl::vec_sort(myNodes);
             kdl::vec_sort(theirNodes);
-            return myNodes == theirNodes;
+            
+            if (myNodes == theirNodes) {
+                m_updateLinkedGroupsHelper.collateWith(other->m_updateLinkedGroupsHelper);
+                return true;
+            }
+
+            return false;
         }
     }
 }
