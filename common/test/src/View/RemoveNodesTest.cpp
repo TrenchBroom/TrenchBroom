@@ -110,5 +110,52 @@ namespace TrenchBroom {
             CHECK(inner->parent() == outer);
             CHECK(outer->parent() == document->world()->defaultLayer());
         }
+
+        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.disconnectRemovedSingletonGroups") {
+            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+            
+            document->addNodes({{document->parentForNodes(), {groupNode}}});
+            REQUIRE(groupNode->connectedToLinkSet());
+
+            document->removeNodes({groupNode});
+            CHECK_FALSE(groupNode->connectedToLinkSet());
+
+            document->undoCommand();
+            CHECK(groupNode->connectedToLinkSet());
+        }
+
+        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.disconnectRemovedLinkedGroups") {
+            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+            auto* linkedGroupNode = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+            document->addNodes({{document->parentForNodes(), {groupNode, linkedGroupNode}}});
+
+            REQUIRE(groupNode->connectedToLinkSet());
+            REQUIRE(linkedGroupNode->connectedToLinkSet());
+
+            document->removeNodes({groupNode});
+            CHECK_FALSE(groupNode->connectedToLinkSet());
+            CHECK(linkedGroupNode->connectedToLinkSet());
+
+            document->undoCommand();
+            CHECK(groupNode->connectedToLinkSet());
+        }
+
+        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.recursivelyDisconnectRemovedSingletonGroups") {
+            auto* outer = new Model::GroupNode{Model::Group{"outer"}};
+            auto* inner = new Model::GroupNode{Model::Group{"inner"}};
+            outer->addChild(inner);
+
+            document->addNodes({{document->parentForNodes(), {outer}}});
+            REQUIRE(outer->connectedToLinkSet());
+            REQUIRE(inner->connectedToLinkSet());
+
+            document->removeNodes({outer});
+            CHECK_FALSE(outer->connectedToLinkSet());
+            CHECK_FALSE(inner->connectedToLinkSet());
+
+            document->undoCommand();
+            CHECK(outer->connectedToLinkSet());
+            CHECK(inner->connectedToLinkSet());
+        }
     }
 }

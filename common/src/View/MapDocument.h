@@ -481,6 +481,9 @@ namespace TrenchBroom {
             void createWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game);
             void loadWorld(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game, const IO::Path& path);
             void clearWorld();
+        protected: // connect or disconnect link sets
+            void connectGroupsToLinkSets(const std::vector<Model::Node*>& nodes);
+            void disconnectGroupsFromLinkSets(const std::vector<Model::Node*>& nodes);
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;

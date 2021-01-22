@@ -2448,6 +2448,27 @@ namespace TrenchBroom {
             m_currentLayer = nullptr;
         }
 
+
+        void MapDocument::connectGroupsToLinkSets(const std::vector<Model::Node*>& nodes) {
+            Model::Node::visitAll(nodes, kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layerNode) { layerNode->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::GroupNode* groupNode) { groupNode->connectToLinkSet(); groupNode->visitChildren(thisLambda); },
+                [](auto&&, Model::EntityNode*)                     {},
+                [](auto&&, Model::BrushNode*)                      {}
+            ));
+        }
+
+        void MapDocument::disconnectGroupsFromLinkSets(const std::vector<Model::Node*>& nodes) {
+            Model::Node::visitAll(nodes, kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layerNode) { layerNode->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::GroupNode* groupNode) { groupNode->disconnectFromLinkSet(); groupNode->visitChildren(thisLambda); },
+                [](auto&&, Model::EntityNode*)                     {},
+                [](auto&&, Model::BrushNode*)                      {}
+            ));
+        }
+
         Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
             if (m_world != nullptr) {
                 return m_game->extractEntityDefinitionFile(m_world->entity());

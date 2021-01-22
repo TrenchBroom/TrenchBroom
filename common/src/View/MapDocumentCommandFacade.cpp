@@ -238,6 +238,7 @@ namespace TrenchBroom {
                 addedNodes = kdl::vec_concat(std::move(addedNodes), children);
             }
 
+            connectGroupsToLinkSets(addedNodes);
             setEntityDefinitions(addedNodes);
             setEntityModels(addedNodes);
             setTextures(addedNodes);
@@ -259,6 +260,7 @@ namespace TrenchBroom {
                 unsetEntityModels(children);
                 unsetEntityDefinitions(children);
                 unsetTextures(children);
+                disconnectGroupsFromLinkSets(children);
                 parent->removeChildren(std::begin(children), std::end(children));
             }
 

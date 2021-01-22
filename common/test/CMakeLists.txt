@@ -66,6 +66,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Renderer/AllocationTrackerTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Renderer/CameraTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Renderer/VertexTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/AddNodesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/AutosaverTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ChangeBrushFaceAttributesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ClipToolControllerTest.cpp"
