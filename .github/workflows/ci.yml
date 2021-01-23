@@ -1,7 +1,8 @@
 on:
   # Run on pushes to tags, the "master" branch, and PR's
   push:
-    tags-ignore:
+    tags:
+      - '**'
     branches:
       - master
   pull_request:
