@@ -368,6 +368,16 @@ namespace TrenchBroom {
              */
             Model::GroupNode* createLinkedGroup();
             bool canCreateLinkedGroup() const;
+
+            /**
+             * Unlinks the selected linked groups.
+             *
+             * For every selected linked groups that belong to the same link set, the selected groups will be added to a new
+             * link set with the effect that these groups will still be linked to each other, but they will no longer be linked
+             * to any other member of their original link set that was not selected.
+             */
+            void unlinkGroups();
+            bool canUnlinkGroups() const;
         public: // layer management
             void renameLayer(Model::LayerNode* layer, const std::string& name);
         private:

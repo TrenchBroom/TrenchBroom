@@ -256,5 +256,81 @@ namespace TrenchBroom {
             CHECK(linkedGroupNode->connectedToLinkSet());
             CHECK_THAT(linkedGroupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode, linkedGroupNode}));
         }
+
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodestTest.unlinkGroups", "[GroupNodesTest]") {
+            auto* brushNode = createBrushNode();
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
+            document->select(brushNode);
+
+            auto* groupNode = document->groupSelection("test");
+            REQUIRE(groupNode != nullptr);
+
+            document->deselectAll();
+            document->select(groupNode);
+
+            SECTION("Unlinking a group from a singleton link set") {
+                CHECK_FALSE(document->canUnlinkGroups());
+                document->unlinkGroups();
+
+                CHECK(groupNode->parent() != nullptr);
+                CHECK_THAT(groupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode}));
+            }
+
+            SECTION("Unlinking a group from a link set with two members") {
+                auto* linkedGroupNode = document->createLinkedGroup();
+                REQUIRE(linkedGroupNode != nullptr);
+                REQUIRE_THAT(groupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode, linkedGroupNode}));
+
+                document->select(std::vector<Model::Node*>{groupNode, linkedGroupNode});
+                CHECK_FALSE(document->canUnlinkGroups());
+
+                document->deselectAll();
+                document->select(linkedGroupNode);
+
+                CHECK(document->canUnlinkGroups());
+                document->unlinkGroups();
+
+                CHECK_THAT(groupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode}));
+                CHECK(document->selectedNodes().groupCount() == 1u);
+                
+                auto* newLinkedGroupNode = document->selectedNodes().groups().front();
+                CHECK_THAT(newLinkedGroupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{newLinkedGroupNode}));
+
+                document->undoCommand();
+                REQUIRE(linkedGroupNode->parent() != nullptr);
+                REQUIRE_THAT(groupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode, linkedGroupNode}));
+            }
+
+            SECTION("Unlinking multiple groups from a link set with several members") {
+                auto* linkedGroupNode1 = document->createLinkedGroup();
+                auto* linkedGroupNode2 = document->createLinkedGroup();
+                auto* linkedGroupNode3 = document->createLinkedGroup();
+
+                REQUIRE(linkedGroupNode1 != nullptr);
+                REQUIRE(linkedGroupNode2 != nullptr);
+                REQUIRE(linkedGroupNode3 != nullptr);
+                REQUIRE_THAT(groupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode, linkedGroupNode1, linkedGroupNode2, linkedGroupNode3}));
+
+                document->deselectAll();
+                document->select(std::vector<Model::Node*>{linkedGroupNode2, linkedGroupNode3});
+                CHECK(document->canUnlinkGroups());
+
+                document->unlinkGroups();
+
+                CHECK_THAT(groupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode, linkedGroupNode1}));
+                CHECK(document->selectedNodes().groupCount() == 2u);
+                
+                const auto& newLinkedGroupNodes = document->selectedNodes().groups();
+                for (const auto* newLinkedGroupNode : newLinkedGroupNodes) {
+                    CHECK_THAT(newLinkedGroupNode->linkedGroups(), Catch::UnorderedEquals(newLinkedGroupNodes));
+                }
+
+                document->undoCommand();
+
+                CHECK(linkedGroupNode2->parent() != nullptr);
+                CHECK(linkedGroupNode3->parent() != nullptr);
+                CHECK_THAT(groupNode->linkedGroups(), Catch::UnorderedEquals(std::vector<Model::GroupNode*>{groupNode, linkedGroupNode1, linkedGroupNode2, linkedGroupNode3}));
+            }
+        }
     }
 }

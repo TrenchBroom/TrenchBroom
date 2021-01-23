@@ -1419,6 +1419,67 @@ namespace TrenchBroom {
             return hasSelectedNodes() && m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groupCount() == 1u;
         }
 
+        static bool canUnlinkGroup(const Model::GroupNode* groupNode) {
+            assert(groupNode != nullptr);
+            assert(groupNode->selected());
+
+            const auto& linkedGroups = groupNode->linkedGroups();
+            return linkedGroups.size() > 1u && std::any_of(std::begin(linkedGroups), std::end(linkedGroups), [](const auto* linkedGroupNode) {
+                return !linkedGroupNode->selected();
+            });
+        }
+
+        void MapDocument::unlinkGroups() {
+            auto newLinkSets = std::unordered_map<std::string, std::vector<Model::GroupNode*>>{};
+            for (auto* groupNode : m_selectedNodes.groups()) {
+                if (canUnlinkGroup(groupNode)) {
+                    assert(groupNode->sharedPersistentId().has_value());
+                    newLinkSets[*groupNode->sharedPersistentId()].push_back(groupNode);
+                }
+            }
+
+            if (newLinkSets.empty()) {
+                return;
+            }
+
+            auto nodesToRemove = std::vector<Model::Node*>{};
+            auto nodesToAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+            auto nodesToSelect = std::vector<Model::Node*>{};
+
+            for (auto& entry : newLinkSets) {
+                const auto& groupsToUnlink = entry.second;
+                assert(!groupsToUnlink.empty());
+
+                nodesToRemove = kdl::vec_concat(std::move(nodesToRemove), groupsToUnlink);
+
+                const auto* firstOriginal = groupsToUnlink.front();
+                auto firstClone = firstOriginal->cloneRecursivelyWithoutLinking(m_worldBounds);
+
+                for (auto it = std::next(std::begin(groupsToUnlink)), end = std::end(groupsToUnlink); it != end; ++it) {
+                    const auto* original = *it;
+                    auto clone = original->cloneRecursivelyWithoutLinking(m_worldBounds);
+                    firstClone->addToLinkSet(*clone);
+
+                    nodesToSelect.push_back(clone.get());
+                    nodesToAdd[original->parent()].push_back(clone.release());
+                }
+
+                nodesToSelect.push_back(firstClone.get());
+                nodesToAdd[firstOriginal->parent()].push_back(firstClone.release());
+            }
+
+            Transaction transaction(this, "Unlink Groups");
+            deselectAll();
+            removeNodes(std::move(nodesToRemove));
+            addNodes(std::move(nodesToAdd));
+            select(nodesToSelect);
+        }
+
+        bool MapDocument::canUnlinkGroups() const {
+            const auto& selectedGroupNodes = m_selectedNodes.groups();
+            return std::any_of(std::begin(selectedGroupNodes), std::end(selectedGroupNodes), canUnlinkGroup);
+        }
+
         void MapDocument::renameLayer(Model::LayerNode* layerNode, const std::string& name) {
             applyAndSwap(*this, "Rename Layer", std::vector<Model::Node*>{layerNode}, {}, kdl::overload(
                 [&](Model::Layer& layer) { layer.setName(name); return true; },
