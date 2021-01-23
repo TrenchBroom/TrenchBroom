@@ -1012,6 +1012,14 @@ namespace TrenchBroom {
                     [](ActionExecutionContext& context) {
                         return context.hasDocument() && context.document()->canCreateLinkedDuplicate();
                     }));
+            editMenu.addItem(
+                createAction(IO::Path("Menu/Edit/Separate Linked Groups"), QObject::tr("Separate Selected Groups"), ActionContext::Any, 0,
+                    [](ActionExecutionContext& context) {
+                        context.document()->separateLinkedGroups();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.document()->canSeparateLinkedGroups();
+                    }));
             editMenu.addSeparator();
 
             editMenu.addItem(
