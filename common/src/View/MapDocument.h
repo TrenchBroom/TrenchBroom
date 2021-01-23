@@ -592,6 +592,8 @@ namespace TrenchBroom {
             void preferenceDidChange(const IO::Path& path);
             void commandDone(Command* command);
             void commandUndone(UndoableCommand* command);
+            void transactionDone(const std::string& name);
+            void transactionUndone(const std::string& name);
         };
 
         class Transaction {

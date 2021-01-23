@@ -3156,6 +3156,8 @@ namespace TrenchBroom {
             m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
             commandDoneNotifier.addObserver(this, &MapDocument::commandDone);
             commandUndoneNotifier.addObserver(this, &MapDocument::commandUndone);
+            transactionDoneNotifier.addObserver(this, &MapDocument::transactionDone);
+            transactionUndoneNotifier.addObserver(this, &MapDocument::transactionUndone);
 
             // tag management
             documentWasNewedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
@@ -3183,6 +3185,8 @@ namespace TrenchBroom {
             m_editorContext->editorContextDidChangeNotifier.removeObserver(editorContextDidChangeNotifier);
             commandDoneNotifier.removeObserver(this, &MapDocument::commandDone);
             commandUndoneNotifier.removeObserver(this, &MapDocument::commandUndone);
+            transactionDoneNotifier.removeObserver(this, &MapDocument::transactionDone);
+            transactionUndoneNotifier.removeObserver(this, &MapDocument::transactionUndone);
 
             // tag management
             documentWasNewedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
@@ -3246,11 +3250,19 @@ namespace TrenchBroom {
         }
 
         void MapDocument::commandDone(Command* command) {
-            debug() << "Command " << command->name() << "' executed";
+            debug() << "Command '" << command->name() << "' executed";
         }
 
         void MapDocument::commandUndone(UndoableCommand* command) {
-            debug() << "Command " << command->name() << " undone";
+            debug() << "Command '" << command->name() << "' undone";
+        }
+
+        void MapDocument::transactionDone(const std::string& name) {
+            debug() << "Transaction '" << name << "' executed";
+        }
+
+        void MapDocument::transactionUndone(const std::string& name) {
+            debug() << "Transaction '" << name << "' undone";
         }
 
         Transaction::Transaction(std::weak_ptr<MapDocument> document, const std::string& name) :
