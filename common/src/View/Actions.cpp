@@ -1010,6 +1010,14 @@ namespace TrenchBroom {
                     [](ActionExecutionContext& context) {
                         return context.hasDocument() && context.document()->canCreateLinkedGroup();
                     }));
+            editMenu.addItem(
+                createAction(IO::Path("Menu/Edit/Unlink Groups"), QObject::tr("Unlink Groups"), ActionContext::Any, 0,
+                    [](ActionExecutionContext& context) {
+                        context.document()->unlinkGroups();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.document()->canUnlinkGroups();
+                    }));
             editMenu.addSeparator();
 
             editMenu.addItem(
