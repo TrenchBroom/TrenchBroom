@@ -168,7 +168,9 @@ macro(GET_APP_VERSION GIT_DESCRIBE VERSION_YEAR VERSION_NUMBER)
 endmacro(GET_APP_VERSION)
 
 macro(GET_GIT_DESCRIBE GIT SOURCE_DIR GIT_DESCRIBE)
-    execute_process(COMMAND ${GIT} describe --dirty WORKING_DIRECTORY ${SOURCE_DIR} OUTPUT_VARIABLE ${GIT_DESCRIBE} OUTPUT_STRIP_TRAILING_WHITESPACE)
+    # When building tags, GitHub Actions checks them out as lightweight tags even if the original tag was annotated.
+    # Pass --tags to enable git describe to match non-annotated tags.
+    execute_process(COMMAND ${GIT} describe --dirty --tags WORKING_DIRECTORY ${SOURCE_DIR} OUTPUT_VARIABLE ${GIT_DESCRIBE} OUTPUT_STRIP_TRAILING_WHITESPACE)
 endmacro(GET_GIT_DESCRIBE)
 
 macro(GET_BUILD_PLATFORM PLATFORM_NAME)
