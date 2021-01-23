@@ -644,13 +644,13 @@ namespace TrenchBroom {
                  },
                  [](ActionExecutionContext& context) { return context.hasDocument(); });
             createAction(IO::Path("Controls/Map view/Reset texture alignment"), QObject::tr("Reset texture alignment"),
-                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(),
+                 ActionContext::View3D | ActionContext::AnyTool | ActionContext::AnySelection, QKeySequence(Qt::CTRL + Qt::Key_W),
                  [](ActionExecutionContext& context) {
                      context.view()->resetTextures();
                  },
                  [](ActionExecutionContext& context) { return context.hasDocument(); });
             createAction(IO::Path("Controls/Map view/Reset texture alignment to world aligned"), QObject::tr("Reset texture alignment to world aligned"),
-                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(),
+                 ActionContext::View3D | ActionContext::AnyTool | ActionContext::AnySelection, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_W),
                  [](ActionExecutionContext& context) {
                      context.view()->resetTexturesToWorld();
                  },
