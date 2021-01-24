@@ -13,3 +13,6 @@
 [submodule "lib/fmt"]
 	path = lib/fmt
 	url = https://github.com/fmtlib/fmt
+[submodule "lib/stduuid"]
+	path = lib/stduuid
+	url = https://github.com/TrenchBroom/stduuid
