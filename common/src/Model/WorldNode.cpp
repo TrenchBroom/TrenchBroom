@@ -30,9 +30,11 @@
 #include "Model/IssueGeneratorRegistry.h"
 #include "Model/LayerNode.h"
 #include "Model/TagVisitor.h"
+#include "Model/UuidGenerator.h"
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/bbox_io.h>
@@ -49,7 +51,8 @@ namespace TrenchBroom {
         m_entityNodeIndex(std::make_unique<EntityNodeIndex>()),
         m_issueGeneratorRegistry(std::make_unique<IssueGeneratorRegistry>()),
         m_nodeTree(std::make_unique<NodeTree>()),
-        m_updateNodeTree(true) {
+        m_updateNodeTree(true),
+        m_uuidGenerator(std::make_unique<UuidGenerator>()) {
             entity.addOrUpdateProperty(PropertyKeys::Classname, PropertyValues::WorldspawnClassname);
             entity.setPointEntity(false);
             setEntity(std::move(entity));
@@ -275,10 +278,16 @@ namespace TrenchBroom {
                 }
             };
 
+            const auto updateSharedPersistentId = [&](GroupNode* groupNode) {
+                if (!groupNode->sharedPersistentId()) {
+                    groupNode->setSharedPersistentId(m_uuidGenerator->generateId());
+                }
+            };
+
             node->accept(kdl::overload(
                 [&](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); if (layer != defaultLayer()) { updatePersistentId(layer); } },
-                [&](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); updatePersistentId(group); },
+                [&](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); updatePersistentId(group); updateSharedPersistentId(group); },
                 [&](EntityNode*)                         {},
                 [&](BrushNode*)                          {}
                 ));

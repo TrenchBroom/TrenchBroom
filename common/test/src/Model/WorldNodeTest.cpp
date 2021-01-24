@@ -127,5 +127,20 @@ namespace TrenchBroom {
             layerNode->addChild(groupNode);
             CHECK(groupNode->persistentId() == 2u);
         }
+
+        TEST_CASE("WorldNodeTest.setSharedPersistentIdWhenAddingGroup", "[WorldNodeTest]") {
+            auto worldNode = WorldNode{Entity{}, MapFormat::Standard};
+
+            auto* groupNode = new GroupNode{Group{"name"}};
+            worldNode.defaultLayer()->addChild(groupNode);
+
+            CHECK(groupNode->sharedPersistentId());
+
+            auto* linkedGroupNode = new GroupNode{Group{"name"}};
+            groupNode->addToLinkSet(*linkedGroupNode);
+            worldNode.defaultLayer()->addChild(linkedGroupNode);
+
+            CHECK(linkedGroupNode->sharedPersistentId() == groupNode->sharedPersistentId());
+        }
     }
 }

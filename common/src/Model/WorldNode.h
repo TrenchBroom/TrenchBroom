@@ -43,6 +43,7 @@ namespace TrenchBroom {
         class IssueQuickFix;
         enum class MapFormat;
         class PickResult;
+        class UuidGenerator;
 
         class WorldNode : public EntityNodeBase {
         private:
@@ -56,6 +57,7 @@ namespace TrenchBroom {
             bool m_updateNodeTree;
 
             IdType m_nextPersistentId = 1;
+            std::unique_ptr<UuidGenerator> m_uuidGenerator;
         public:
             WorldNode(Entity entity, MapFormat mapFormat);
             ~WorldNode() override;

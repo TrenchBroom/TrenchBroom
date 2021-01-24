@@ -48,6 +48,7 @@ namespace TrenchBroom {
     namespace Model {
         struct GroupNode::LinkSet {
             std::vector<GroupNode*> members;
+            std::optional<std::string> persistentId;
         };
 
         GroupNode::GroupNode(Group group) :
@@ -103,6 +104,14 @@ namespace TrenchBroom {
 
         void GroupNode::setPersistentId(const IdType persistentId) {
             m_persistentId = persistentId;
+        }
+
+        const std::optional<std::string>& GroupNode::sharedPersistentId() const {
+            return m_linkSet->persistentId;
+        }
+
+        void GroupNode::setSharedPersistentId(std::string sharedPersistentId) {
+            m_linkSet->persistentId = std::move(sharedPersistentId);
         }
 
         const std::vector<GroupNode*> GroupNode::linkedGroups() const {
