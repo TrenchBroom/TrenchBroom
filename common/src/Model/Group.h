@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 
 namespace TrenchBroom {
@@ -26,11 +27,16 @@ namespace TrenchBroom {
         class Group {
         private:
             std::string m_name;
+            std::optional<std::string> m_linkedGroupId;
         public:
             explicit Group(std::string name);
 
             const std::string& name() const;
             void setName(std::string name);
+
+            std::optional<std::string> linkedGroupId() const;
+            void setLinkedGroupId(std::string linkedGroupId);
+            void resetLinkedGroupId();
 
             friend bool operator==(const Group& lhs, const Group& rhs);
             friend bool operator!=(const Group& lhs, const Group& rhs);
