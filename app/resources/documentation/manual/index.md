@@ -908,16 +908,23 @@ The text field for content flags will display "multi" if the currently selected 
 
 The surface flags text field will also display "multi" if the selected faces have different sets of surface flags, but this is not necessarily a situation that needs to be corrected. It is often valid to have different surface flags on different faces of a brush.
 
-#### Keyboard Shortcuts
+#### Texture Alignment Keyboard Shortcuts
 
-In the 3D viewport, you can change the offset and angle of the currently selected brush faces using the following keyboard shortcuts:
+The following shortcuts work in the 3D viewport, and affect all selected brushes or brush faces:
 
 Attribute    Keys                                    Default      #key(Shift) pressed  #key(Ctrl) pressed
 ---------    ----                                    -------      -------------------  -----------------
 Offset       #key(Left)#key(Right)#key(Up)#key(Down) Grid size    2 * grid size        1.0
 Angle        #key(PgUp)#key(PgDown)                  15°          90°                  1°
 
-Note that TrenchBroom attempts to match the shortcuts to the directions in which the textures will move visually. This means that pressing #key(Up) will move a texture roughly in that directiony visually instead of always applying to the same face attribute. So depending on the camera angle and the orientation of the face itself, pressing #key(Up) may affect the X or Y offset by incrementing or decrementing it. The angle is treated similarly: Pressing #key(PgUp) will rotate the texture counter clockwise visually, and pressing #key(PgDown) will rotate it clockwise.
+Command                                   Keys
+-------                                   ----
+Flip Horizontally                         #action(Controls/Map view/Flip textures horizontally)
+Flip Vertically                           #action(Controls/Map view/Flip textures vertically)
+Reset texture alignment                   #action(Controls/Map view/Reset texture alignment)
+Reset texture alignment to world aligned  #action(Controls/Map view/Reset texture alignment to world aligned)
+
+These are interpreted relative to the 3D camera (except "Reset"). This means that pressing #key(Up) will move a texture roughly in that direction visually, possibly increasing or decreasing the X or Y offset depending on the camera and face orientation. The angle is treated similarly: Pressing #key(PgUp) will rotate the texture counterclockwise visually, and pressing #key(PgDown) will rotate it clockwise.
 
 #### The UV Editor {#uv_editor}
 
@@ -935,7 +942,15 @@ To rotate the texture about the origin, left click and drag the large yellow cir
 
 Shearing the texture is possible if the map uses a [parallel texture projection](#texture_projection_modes). Shear by holding #key(Alt) while left clicking and dragging the gray texture grid lines.
 
-At the bottom of the UV editor, you can find a number of controls. On the left, there are five buttons. The first button resets the face attributes to their defaults. The second and third buttons flip the texture horizontally and vertically, respectively, and the fourth and firth buttons rotate the texture by 90° counter clockwise and clockwise. The two controls on the right allow you to subdivide the texture grid. This can be useful to align the texture to smaller brush faces.
+At the bottom of the UV editor are the following controls:
+
+- Reset texture alignment. All attributes are reset, and in [parallel texture projection](#texture_projection_modes) format maps, the texture is projected from the face plane. In standard format maps, acts the same as "Reset texture alignment to world aligned".
+- Reset texture alignment to world aligned. All attributes are reset and the texture is projected from an axial plane.
+- Flip texture horizontally
+- Flip texture vertically
+- Rotate texture 90° counterclockwise
+- Rotate texture 90° clockwise
+- Grid controls for subdividing the texture grid. This can be useful to align part of a larger trim sheet to the face.
 
 ## Entity Properties {#entity_properties}
 
