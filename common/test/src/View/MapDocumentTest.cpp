@@ -1213,6 +1213,28 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(issueGenerators);
         }
 
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.updateSpawnflagOnBrushEntity") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+
+            auto* brushNode = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
+            document->addNode(brushNode, document->parentForNodes());
+
+            document->selectAllNodes();
+
+            Model::EntityNode* brushEntNode = document->createBrushEntity(m_brushEntityDef);
+            REQUIRE_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode}));
+
+            REQUIRE(!brushEntNode->entity().hasProperty("spawnflags"));
+            CHECK(document->updateSpawnflag("spawnflags", 1, true));
+
+            REQUIRE(brushEntNode->entity().hasProperty("spawnflags"));
+            CHECK(*brushEntNode->entity().property("spawnflags") == "2");
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.defaultLayerSortIndexImmutable", "[LayerTest]") {
             Model::LayerNode* defaultLayerNode = document->world()->defaultLayer();
             setLayerSortIndex(*defaultLayerNode, 555);
