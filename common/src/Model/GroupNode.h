@@ -34,6 +34,13 @@
 
 namespace TrenchBroom {
     namespace Model {
+        /**
+         * A group of nodes that can be edited as one.
+         *
+         * Group nodes can be linked together via a linked group ID. All groups sharing the same linked group id form
+         * a link set. When a member of a link set is changed, all other members of that link set are updated to reflect
+         * these changes via `updateLinkedGroups`.
+         */
         class GroupNode : public Node, public Object {
         private:
             enum class EditState {

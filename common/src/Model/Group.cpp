@@ -32,8 +32,20 @@ namespace TrenchBroom {
             m_name = std::move(name);
         }
 
+        std::optional<std::string> Group::linkedGroupId() const {
+            return m_linkedGroupId;
+        }
+
+        void Group::setLinkedGroupId(std::string linkedGroupId) {
+            m_linkedGroupId = std::move(linkedGroupId);
+        }
+
+        void Group::resetLinkedGroupId() {
+            m_linkedGroupId = std::nullopt;
+        }
+
         bool operator==(const Group& lhs, const Group& rhs) {
-            return lhs.m_name == rhs.m_name;
+            return lhs.m_name == rhs.m_name && lhs.m_linkedGroupId == rhs.m_linkedGroupId;
         }
 
         bool operator!=(const Group& lhs, const Group& rhs) {
