@@ -1963,7 +1963,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::updateSpawnflag(const std::string& key, const size_t flagIndex, const bool setFlag) {
-            return applyAndSwap(*this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", m_selectedNodes.nodes(), kdl::overload(
+            return applyAndSwap(*this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
