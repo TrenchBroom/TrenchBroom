@@ -392,7 +392,44 @@ The grid size can be set via the menu, or by scrolling the mouse wheel while hol
 
 Right clicking in a map view gives the following context menu:
 
-![Map View Context Menu (macOS)](images/MapViewContextMenu.png)
+Group
+:   [Groups](#groups) the selected objects.
+
+Ungroup
+:   [Ungroups](#groups) the selected objects.
+
+Merge groups
+:   When multiple groups are selected, merges them into a single group.
+
+Rename Groups
+:   Rename the selected groups.
+
+Move to Layer
+:   Move the selected objects to the chosen [layer](#layers).
+
+Make Layer LAYERNAME Active
+:   Changes the [current layer](#layers) to the chosen layer.
+
+Hide Layers
+:   Hide all layers which contain selected objects.
+
+Isolate Layers
+:   Isolate the layers containing selected objects.
+
+Select All in Layers
+:   Select all objects in the layers which contain the selected objects.
+
+Make Structural
+:   Moves brushes back into the world and clears any content flags. See [Brush Entities](#brush_entities).
+
+Reveal TEXTURENAME in Texture Browser
+:   Switches to the face inspector and scroll to the clicked texture in the [Texture Browser](#texture_browser).
+
+Create Point Entity
+:   Create a [Point Entity](#point_entities) of the chosen type.
+
+Create Brush Entity
+:   Create a [Brush Entity](#brush_entities) with the selected brushes.
 
 ## Creating Objects
 
@@ -422,7 +459,7 @@ It is not possible to modify or remove points after they have been placed, excep
 
 There are two types of entities: point entities and brush entities, and it depends on the type how an entity is created. In the following sections, we present three ways of creating point entities and two ways to create brush entities.
 
-#### Point Entities
+#### Point Entities {#point_entities}
 
 There are three ways of creating new point entities. Firstly, you can drop new entities in the 3D and 2D viewports by using the [map view context menu](#map_view_context_menu). To open the context menu, right click into the viewport. To create a point entity such as a pickup weapon or a monster, open the "Create Point Entity" sub menu and select the correct entity definition from the sub menus.
 
@@ -438,9 +475,9 @@ To create a new entity, simply drag it out of the browser and onto the 3D or a 2
 
 Finally, you can create specific entities by assigning a keyboard shorcut in the [preferences](#keyboard_shortcuts). This is useful for entities that are used very often such as lights. The entity will be created under the mouse cursor; its position will be computed in the same way as if the context menu was used.
 
-#### Brush Entities
+#### Brush Entities {#brush_entities}
 
-![Moving brushes to brush entities](images/MoveBrushesToEntity.png) Creating brush entities is also done using the context menu. Select a couple of brushes and right click on them, then select the desired brush entity from the menu. To move brushes from one brush entity to another, select the brushes you wish to move and right click on a brush belonging to the brush entity to which you want to move the brushes, and select "Move brushes to Entity ENTITY", where "ENTITY" is the name of the target brush entity, for example "func_door" in the picture on the left. If the brush entity containing the brushes to be moved becomes empty, it will be automatically deleted. To move brushes from a brush entity back into the world, select the brushes, right click and select "Make Structural".
+![Moving brushes to brush entities](images/MoveBrushesToEntity.png) Creating brush entities is also done using the context menu. Select a couple of brushes and right click on them, then select the desired brush entity from the menu. To move brushes from one brush entity to another, select the brushes you wish to move and right click on a brush belonging to the brush entity to which you want to move the brushes, and select "Move brushes to Entity ENTITY", where "ENTITY" is the name of the target brush entity, for example "func_door" in the picture on the left. If the brush entity containing the brushes to be moved becomes empty, it will be automatically deleted. To move brushes from a brush entity back into the world and clear content flags, select the brushes, right click and select "Make Structural".
 
 Additionally, you can also assign a keyboard shorcut to create a specific brush entity in the [preferences](#keyboard_shortcuts).
 
