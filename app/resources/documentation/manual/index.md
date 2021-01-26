@@ -1196,6 +1196,8 @@ Working directory
 Tasks
 :   A list of tasks which are executed sequentially when the compilation profile is run.
 
+The checkbox on each task lets you selectively exclude a task from running when you run the compilation profile. 
+
 There are three types of tasks, each with different parameters:
 
 Export Map
