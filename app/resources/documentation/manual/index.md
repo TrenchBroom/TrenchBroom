@@ -215,7 +215,7 @@ Navigating the 2D viewports is naturally a lot simpler than navigating the 3D vi
 
 ## FOV and Zoom
 
-For the 3D view, the camera FOV (field of vision) can be adjusted in the view preferences by dragging the slider. This is a permanent setting.
+For the 3D view, the camera FOV (field of vision) can be adjusted in the [view preferences](#view_layout_and_rendering) by dragging the slider. This is a permanent setting.
 
 To temporarily adjust the camera's zoom, hold #key(Shift) and scroll the mouse wheel. To reset the zoom factor, hit #action(Controls/Map view/Reset camera zoom).
 
@@ -1099,7 +1099,7 @@ In this dialog, you can add a game engine profile by clicking on the '+' button 
 
 ## View Layout and Rendering {#view_layout_and_rendering}
 
-![View Configuration Dialog (Ubuntu Linux)](images/ViewPreferences.png)
+![View Preferences (macOS)](images/ViewPreferences.png)
 
 In this preference pane, you can choose the layout of the editing area. There are four layouts available:
 
@@ -1119,9 +1119,10 @@ Setting 					Description
 Brightness 					The brightness of the textures (affects the 3D viewport, the entity and the texture browser)
 Grid 						Opacity of the grid in the 3D and 2D viewports
 Coordinate System Axes 		Show the coordinate system axes in the 3D and 2D viewports
-Background Color 			The background color of the 3D and 2D viewports
 Texture Mode 				Texture filtering mode in the 3D viewport
-Texture Browser Icon Size 	The size of the texture icons in the texture browser
+Enable multisampling        Whether rendering is antialiased
+Texture Browser Icon Size   The size of the texture icons in the texture browser
+Renderer Font Size          Text size in the map viewports (e.g. entity classnames)
 
 ## Mouse Input {#mouse_input}
 
