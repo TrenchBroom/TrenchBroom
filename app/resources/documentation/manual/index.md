@@ -1071,7 +1071,7 @@ The layer editor, part of the map inspector, displays all layers in your map.
 - Hide or show a layer by clicking on the eye icon
 - Lock or unlock a layer by clicking on the lock icon
 - Create a new layer by clicking the plus button at the bottom of the layer list
-- Remove one ore more layers by selecting them and click on the minus button
+- Remove one or more layers by selecting them and click on the minus button
 
 New objects created from scratch or pasted from the clipboard are inserted into the current layer (unless you are working in a group). Objects created from other objects (e.g. by duplicating or extrusion) are inserted into the layer of the source object.
 
