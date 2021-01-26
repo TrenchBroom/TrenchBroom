@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "View/UndoableCommand.h"
+#include "View/UpdateLinkedGroupsHelper.h"
 
 #include <map>
 #include <memory>
@@ -28,6 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class GroupNode;
         class Node;
     }
 
@@ -44,18 +46,22 @@ namespace TrenchBroom {
             Action m_action;
             std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
             std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
+            UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
         public:
-            static std::unique_ptr<AddRemoveNodesCommand> add(Model::Node* parent, const std::vector<Model::Node*>& children);
-            static std::unique_ptr<AddRemoveNodesCommand> add(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
-            static std::unique_ptr<AddRemoveNodesCommand> remove(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+            static std::unique_ptr<AddRemoveNodesCommand> add(Model::Node* parent, const std::vector<Model::Node*>& children, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
+            static std::unique_ptr<AddRemoveNodesCommand> add(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
+            static std::unique_ptr<AddRemoveNodesCommand> remove(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
 
-            AddRemoveNodesCommand(Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+            AddRemoveNodesCommand(Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
             ~AddRemoveNodesCommand() override;
         private:
             static std::string makeName(Action action);
 
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+
+            void doAction(MapDocumentCommandFacade* document);
+            void undoAction(MapDocumentCommandFacade* document);
 
             bool doCollateWith(UndoableCommand* command) override;
 

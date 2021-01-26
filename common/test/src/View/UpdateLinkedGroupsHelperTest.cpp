@@ -241,17 +241,19 @@ namespace TrenchBroom {
             // inner group node
             auto* linkedInnerGroupNode = static_cast<Model::GroupNode*>(innerGroupNode->cloneRecursively(document->worldBounds()));
             setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
+            REQUIRE(linkedInnerGroupNode->group().linkedGroupId() == innerGroupNode->group().linkedGroupId());
 
             document->addNodes({{document->parentForNodes(), {linkedInnerGroupNode}}});
 
             auto* linkedOuterGroupNode = static_cast<Model::GroupNode*>(outerGroupNode->cloneRecursively(document->worldBounds()));
             setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
+            REQUIRE(linkedOuterGroupNode->group().linkedGroupId() == outerGroupNode->group().linkedGroupId());
 
             document->addNodes({{document->parentForNodes(), {linkedOuterGroupNode}}});
 
             auto* nestedLinkedInnerGroupNode = static_cast<Model::GroupNode*>(linkedOuterGroupNode->children().front());
             setGroupName(*nestedLinkedInnerGroupNode, "nestedLinkedInnerGroupNode");
-            REQUIRE(innerGroupNode->group().linkedGroupId() == nestedLinkedInnerGroupNode->group().linkedGroupId());
+            REQUIRE(nestedLinkedInnerGroupNode->group().linkedGroupId() == innerGroupNode->group().linkedGroupId());
 
             /*
             world
