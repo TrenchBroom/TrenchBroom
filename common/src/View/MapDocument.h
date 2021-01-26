@@ -367,6 +367,16 @@ namespace TrenchBroom {
              */
             Model::GroupNode* createLinkedDuplicate();
             bool canCreateLinkedDuplicate() const;
+
+            /**
+             * Separates the selected linked groups.
+             *
+             * For every set of selected linked groups that belong to the same link set, the selected groups will be added to a new
+             * link set with the effect that these groups will still be linked to each other, but they will no longer be linked
+             * to any other member of their original link set that was not selected.
+             */
+            void separateLinkedGroups();
+            bool canSeparateLinkedGroups() const;
         private:
             void separateSelectedLinkedGroups(bool relinkGroups);
         public: // layer management
