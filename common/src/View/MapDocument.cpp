@@ -1464,6 +1464,24 @@ namespace TrenchBroom {
             return m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groupCount() == 1u;
         }
 
+        void MapDocument::separateLinkedGroups() {
+            Transaction transaction(this, "Separate Linked Groups");
+            separateSelectedLinkedGroups(true);
+        }
+
+        bool MapDocument::canSeparateLinkedGroups() const {
+            const auto& selectedGroupNodes = m_selectedNodes.groups();
+            return std::any_of(std::begin(selectedGroupNodes), std::end(selectedGroupNodes), [&](const auto* groupNode) {
+                if (const auto linkedGroupId = groupNode->group().linkedGroupId()) {
+                    const auto linkedGroups = Model::findLinkedGroups(*m_world, *linkedGroupId);
+                    return linkedGroups.size() > 1u && std::any_of(std::begin(linkedGroups), std::end(linkedGroups), [](const auto* linkedGroupNode) {
+                        return !linkedGroupNode->selected();
+                    });
+                }
+                return false;
+            });
+        }
+
         void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups) {
             const auto selectedGroupsWithLinkGroupIds = kdl::vec_filter(m_selectedNodes.groups(), [](const auto& g) { return g->group().linkedGroupId() != std::nullopt; });
             auto selectedLinkedGroupIds = kdl::vec_transform(selectedGroupsWithLinkGroupIds, [](const auto& g) { return *g->group().linkedGroupId(); });
