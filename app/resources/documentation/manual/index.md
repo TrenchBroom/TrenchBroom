@@ -388,6 +388,12 @@ TrenchBroom provides you with a static grid to align your objects to each other.
 
 The grid size can be set via the menu, or by scrolling the mouse wheel while holding both #key(Alt) and #key(Ctrl).
 
+### Map View Context Menu {#map_view_context_menu}
+
+Right clicking in a map view gives the following context menu:
+
+![Map View Context Menu (macOS)](images/MapViewContextMenu.png)
+
 ## Creating Objects
 
 TrenchBroom gives you various options on how to create new objects. In the following sections, we will introduce these options one by one.
@@ -418,7 +424,7 @@ There are two types of entities: point entities and brush entities, and it depen
 
 #### Point Entities
 
-There are three ways of creating new point entities. Firstly, you can drop new entities in the 3D and 2D viewports by using the context menu. To open the context menu, right click into the viewport. To create a point entity such as a pickup weapon or a monster, open the "Create Point Entity" sub menu and select the correct entity definition from the sub menus.
+There are three ways of creating new point entities. Firstly, you can drop new entities in the 3D and 2D viewports by using the [map view context menu](#map_view_context_menu). To open the context menu, right click into the viewport. To create a point entity such as a pickup weapon or a monster, open the "Create Point Entity" sub menu and select the correct entity definition from the sub menus.
 
 ![Dropping an entity with the context menu (Mac OS X)](images/CreateEntityContextMenu.png)
 
@@ -1057,7 +1063,7 @@ Groups allow you to treat several objects as one and to give them a name. A grou
 
 To create a group, make sure that no tool is currently active and select some objects and choose #menu(Menu/Edit/Group). The editor will ask you for a name. Group names need not be unique, so you can have several groups with the same name. To select a group, you can click on any of the objects contained in it. This will not select the individual object, but the entire group, which is why you can only editor all objects within a group as one. If you want to edit individual objects in a group, you have to open the group by double clicking on it with the left mouse button. This will lock every other object in the map (locked objects are not editable and rendered in blue). Once the group is opened, you can edit the individual objects in it, or you can create new objects within the group in the usual ways. Once you are done editing the group, you can close it again by left double clicking anywhere outside of the group. Finally, you can remove a group by selecting it and choosing #menu(Menu/Edit/Ungroup). Note that removing a group does not remove the objects in the group from the map, the objects are merely ungrouped.
 
-To add objects to an existing group, select the objects you wish to add to the group, then right click on an object already existing to that group and select "Add Objects to GROUPNAME", where GROUPNAME is the name of the group. Likewise, you can remove objects from a group by opening that group, selecting the objects you wish to remove from the group, and selecting "Remove Objects from GROUPNAME" from the right click context menu. The removed objects are added to the current layer. If you remove all objects from a group, the group is deleted automatically.
+To add objects to an existing group, select the objects you wish to add to the group, then right click on an object already existing to that group and select "Add Objects to GROUPNAME", where GROUPNAME is the name of the group. Likewise, you can remove objects from a group by opening that group, selecting the objects you wish to remove from the group, and selecting "Remove Objects from GROUPNAME" from the [map view context menu](#map_view_context_menu). The removed objects are added to the current layer. If you remove all objects from a group, the group is deleted automatically.
 
 ## Layers {#layers}
 
@@ -1077,9 +1083,11 @@ New objects created from scratch or pasted from the clipboard are inserted into 
 
 The current layer is indicated in the layer list by a radio button and by having its name in bold, and you can set the current layer by double clicking on a layer in the layer list.
 
-The map view context menu also has various layer shortcuts:
+Right click on a layer in the layer editor for more commands:
 
-![Layer Commands in Map View Context Menu](images/LayerMapViewContextMenu.png)
+![Layer Context Menu)](images/LayerContextMenu.png)
+
+The [map view context menu](#map_view_context_menu) also has various shortcuts for manipulating the layers which the selected objects belong to.
 
 # Preferences
 
