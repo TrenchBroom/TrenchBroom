@@ -151,5 +151,103 @@ namespace TrenchBroom {
             CHECK(entity->parent() == group);
             CHECK(brush->parent() == entity);
         }
+
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.updateLinkedGroups") {
+            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+            auto* brushNode = createBrushNode();
+            groupNode->addChild(brushNode);
+            document->addNodes({{document->parentForNodes(), {groupNode}}});
+
+            document->select(groupNode);
+            auto* linkedGroupNode = document->createLinkedDuplicate();
+            document->deselectAll();
+
+            document->select(linkedGroupNode);
+            document->translateObjects(vm::vec3(32.0, 0.0, 0.0));
+            document->deselectAll();
+
+            SECTION("Move node into group node") {
+                auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                document->addNodes({{document->parentForNodes(), {entityNode}}});
+
+                REQUIRE(groupNode->childCount() == 1u);
+                REQUIRE(linkedGroupNode->childCount() == 1u);
+
+                document->reparentNodes({{groupNode, {entityNode}}});
+
+                CHECK(groupNode->childCount() == 2u);
+                CHECK(linkedGroupNode->childCount() == 2u);
+
+                auto* linkedEntityNode = dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().back());
+                CHECK(linkedEntityNode != nullptr);
+
+                CHECK(linkedEntityNode->physicalBounds() == entityNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+
+                document->undoCommand();
+
+                CHECK(entityNode->parent() == document->parentForNodes());
+                CHECK(groupNode->childCount() == 1u);
+                CHECK(linkedGroupNode->childCount() == 1u);
+            }
+
+            SECTION("Move node out of group node") {
+                auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                document->addNodes({{groupNode, {entityNode}}});
+
+                REQUIRE(groupNode->childCount() == 2u);
+                REQUIRE(linkedGroupNode->childCount() == 2u);
+
+                document->reparentNodes({{document->parentForNodes(), {entityNode}}});
+
+                CHECK(entityNode->parent() == document->parentForNodes());
+                CHECK(groupNode->childCount() == 1u);
+                CHECK(linkedGroupNode->childCount() == 1u);
+
+                document->undoCommand();
+
+                CHECK(entityNode->parent() == groupNode);
+                CHECK(groupNode->childCount() == 2u);
+                CHECK(linkedGroupNode->childCount() == 2u);
+            }
+        }
+
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.updateLinkedGroupsFails") {
+            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+            document->addNodes({{document->parentForNodes(), {groupNode}}});
+
+            document->select(groupNode);
+            auto* linkedGroupNode = document->createLinkedDuplicate();
+            document->deselectAll();
+
+            // adding a brush to the linked group node will fail because it will go out of world bounds
+            document->select(linkedGroupNode);
+            document->translateObjects(document->worldBounds().max);
+            document->deselectAll();
+
+            auto* brushNode = createBrushNode();
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
+
+            CHECK_FALSE(document->reparentNodes({{groupNode, {brushNode}}}));
+
+            CHECK(groupNode->childCount() == 0u);
+            CHECK(linkedGroupNode->childCount() == 0u);
+        }
+
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.updateLinkedGroupsFailsAfterMovingNodeBetweenLinkedGroups") {
+            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+            auto* brushNode = createBrushNode();
+            groupNode->addChild(brushNode);
+
+            document->addNodes({{document->parentForNodes(), {groupNode}}});
+
+            document->select(groupNode);
+            auto* linkedGroupNode = document->createLinkedDuplicate();
+            document->deselectAll();
+
+            CHECK_FALSE(document->reparentNodes({{linkedGroupNode, {brushNode}}}));
+
+            CHECK(groupNode->childCount() == 1u);
+            CHECK(linkedGroupNode->childCount() == 1u);
+        }
     }
 }
