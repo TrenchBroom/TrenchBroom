@@ -1165,17 +1165,19 @@ namespace TrenchBroom {
                 downgradeShownToInherit(nodesToDowngrade);
             }
 
-            executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
+            auto linkedGroupsToUpdate = findAllLinkedGroupsToUpdate(*m_world, kdl::vec_concat(kdl::map_keys(nodesToAdd), kdl::map_keys(nodesToRemove)));
+            const auto success = executeAndStore(ReparentNodesCommand::reparent(std::move(nodesToAdd), nodesToRemove, std::move(linkedGroupsToUpdate)))->success();
+            if (success) {
+                std::map<Model::Node*, std::vector<Model::Node*>> removableNodes = collectRemovableParents(nodesToRemove);
+                while (!removableNodes.empty()) {
+                    closeRemovedGroups(removableNodes);
+                    executeAndStore(AddRemoveNodesCommand::remove(removableNodes, findAllLinkedGroupsToUpdate(*m_world, kdl::map_keys(removableNodes))));
 
-            std::map<Model::Node*, std::vector<Model::Node*>> removableNodes = collectRemovableParents(nodesToRemove);
-            while (!removableNodes.empty()) {
-                closeRemovedGroups(removableNodes);
-                executeAndStore(AddRemoveNodesCommand::remove(removableNodes, findAllLinkedGroupsToUpdate(*m_world, kdl::map_keys(removableNodes))));
-
-                removableNodes = collectRemovableParents(removableNodes);
+                    removableNodes = collectRemovableParents(removableNodes);
+                }
             }
 
-            return true;
+            return success;
         }
 
         bool MapDocument::checkReparenting(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const {
