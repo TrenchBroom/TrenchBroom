@@ -1120,11 +1120,23 @@ New objects created from scratch or pasted from the clipboard are inserted into 
 
 The current layer is indicated in the layer list by a radio button and by having its name in bold, and you can set the current layer by double clicking on a layer in the layer list.
 
-Right click on a layer in the layer editor for more commands:
+Right click on a layer in the layer editor for the layer context menu:
 
-![Layer Context Menu)](images/LayerContextMenu.png)
+- Make active layer
+- Move selection to layer
+- Select all in layer
+- Hide layer
+- Isolate layer
+- Lock layer
+- Omit from export
+- Show all Layers
+- Hide all Layers
+- Unlock All Layers
+- Lock All Layers
+- Rename Layer
+- Remove Layer
 
-The [map view context menu](#map_view_context_menu) also has various shortcuts for manipulating the layers which the selected objects belong to.
+The [map view context menu](#map_view_context_menu) also has some layer related shortcuts.
 
 # Preferences
 
