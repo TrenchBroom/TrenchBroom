@@ -773,10 +773,10 @@ namespace TrenchBroom {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             bool hasChange = false;
-            const std::string& name = m_rows.at(rowIndex).key();
+            const std::string& key = m_rows.at(rowIndex).key();
             for (const Model::EntityNodeBase* node : nodes) {
-                if (const auto* oldValue = node->entity().property(name)) {
-                    ensure(isPropertyValueMutable(node->entity(), name), "tried to modify immutable property value"); // this should be guaranteed by the PropertyRow constructor
+                if (const auto* oldValue = node->entity().property(key)) {
+                    ensure(isPropertyValueMutable(node->entity(), key), "tried to modify immutable property value"); // this should be guaranteed by the PropertyRow constructor
                     if (*oldValue != newValue) {
                         hasChange = true;
                     }
@@ -789,7 +789,7 @@ namespace TrenchBroom {
                 return true;
 
             auto document = kdl::mem_lock(m_document);
-            return document->setProperty(name, newValue);
+            return document->setProperty(key, newValue);
         }
 
         bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const {
