@@ -6,14 +6,13 @@ To see how releases of TrenchBroom are packaged, consult our CI scripts instead.
 
 ## All Platforms
 
-First, clone the TrenchBroom repository. If you are using the official repository and not a fork, you can clone the
-repository by running
+First, clone the TrenchBroom repository. `--recursive` is needed because we use git submodules:
 
 ```bash
-git clone --recursive https://github.com/kduske/TrenchBroom.git
+git clone --recursive https://github.com/TrenchBroom/TrenchBroom.git
 ```
 
-If you have an existing git clone, you might need to update submodules using
+If you have an existing git clone, you can update submodules using:
 
 ```bash
 git submodule update --init --recursive
