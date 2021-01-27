@@ -144,8 +144,8 @@ namespace TrenchBroom {
 
         private: // helpers
             bool hasRowWithPropertyKey(const std::string& propertyKey) const;
-            bool renameProperty(const size_t rowIndex, const std::string& newKey, const std::vector<Model::EntityNodeBase*>& nodes);
-            bool updateProperty(const size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& nodes);
+            bool renameProperty(size_t rowIndex, const std::string& newKey, const std::vector<Model::EntityNodeBase*>& nodes);
+            bool updateProperty(size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& nodes);
 
         public: // EntityPropertyGrid helpers
             std::string propertyKey(int row) const;

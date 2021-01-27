@@ -266,7 +266,7 @@ namespace TrenchBroom {
             return result.release_data();
         }
 
-        std::map<std::string, PropertyRow> PropertyRow::rowsForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows) {
+        std::map<std::string, PropertyRow> PropertyRow::rowsForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes, const bool showDefaultRows) {
             std::map<std::string, PropertyRow> result;
             for (const std::string& key : allKeys(nodes, showDefaultRows)) {
                 result[key] = rowForEntityNodes(key, nodes);
@@ -596,7 +596,7 @@ namespace TrenchBroom {
             return flags;
         }
 
-        QVariant EntityPropertyModel::data(const QModelIndex& index, int role) const {
+        QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) const {
             if (!index.isValid()
                 || index.row() < 0
                 || index.row() >= static_cast<int>(m_rows.size())
@@ -668,7 +668,7 @@ namespace TrenchBroom {
             return QVariant();
         }
 
-        bool EntityPropertyModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+        bool EntityPropertyModel::setData(const QModelIndex& index, const QVariant& value, const int role) {
             const auto& propertyRow = m_rows.at(static_cast<size_t>(index.row()));
             unused(propertyRow);
 
@@ -704,7 +704,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        QVariant EntityPropertyModel::headerData(int section, Qt::Orientation orientation, int role) const {
+        QVariant EntityPropertyModel::headerData(const int section, const Qt::Orientation orientation, const int role) const {
             if (role != Qt::DisplayRole) {
                 return QVariant();
             }
@@ -773,7 +773,7 @@ namespace TrenchBroom {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             bool hasChange = false;
-            const std::string name = m_rows.at(rowIndex).key();
+            const std::string& name = m_rows.at(rowIndex).key();
             for (const Model::EntityNodeBase* node : nodes) {
                 if (const auto* oldValue = node->entity().property(name)) {
                     ensure(isPropertyValueMutable(node->entity(), name), "tried to modify immutable property value"); // this should be guaranteed by the PropertyRow constructor
