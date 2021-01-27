@@ -1203,10 +1203,10 @@ In this preference pane, you can change the keybaord shortcuts used in TrenchBro
 If you open the preference dialog when a map is currently opened, the list of shortcuts will contain additional entries depending on the loaded entity configuration file and the game configuration file. For each entity and special brush or face types, the following keyboard shortcuts are available.
 
 * **Entity**
-	- `View Filter > Toggle CLASSNAME visible` to toggle entities with this classname visible and invisible ([more info](filtering_rendering_options))
+	- `View Filter > Toggle CLASSNAME visible` to toggle entities with this classname visible and invisible ([more info](#filtering_rendering_options))
 	- `Create CLASSNAME` to create entities with this classname ([more info](#creating_entities))
 * **Brush / Face Type**
-	- `View Filter > Toggle TYPE visible` to toggle brushes or faces with this type visible and invisible ([more info](filtering_rendering_options))
+	- `View Filter > Toggle TYPE visible` to toggle brushes or faces with this type visible and invisible ([more info](#filtering_rendering_options))
 	- `Turn selection into TYPE` to set this type to the selected brushes or faces
 	- `Turn selection into non-TYPE` to unset this type from the selected brushes or faces
 
