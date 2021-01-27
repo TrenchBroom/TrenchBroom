@@ -249,6 +249,15 @@
 
 @PointClass base(Item, Appearflags) model({ "path": ":progs/flashlight.mdl" }) = 
 	item_flashlight : "Flashlight" []
+	
+@SolidClass = func_group : "Group of brushes for in-editor use" [
+_phong(string) : "Applies Phong to this entity"]
+@SolidClass = func_detail : "Group of brushes for certain compilers" [
+_phong(string) : "Applies Phong to this entity"]
+@SolidClass = func_detail_illusionary : "func_detail variant with no collision (players / monsters / gunfire) and doesn't split world faces." [
+_phong(string) : "Applies Phong to this entity"]
+@SolidClass = func_detail_wall : "func_detail variant that doesn't split world faces." [
+_phong(string) : "Applies Phong to this entity"]
 
 //
 // weaponses
@@ -766,8 +775,8 @@ monster_vermis: "Vermis"
 
 @PointClass size(0 0 0, 32 32 64) model({ "path": ":progs/b_bio_l.bsp" }) = misc_biobox : "Large bio-waste container" []
 @PointClass size(0 0 0, 32 32 32) model({ "path": ":progs/b_bio_s.bsp" }) = misc_biobox2 : "Small bio-waste container" []
-@PointClass size(0 0 0, 32 32 64) model({ "path": ":progs/b_plas_l.bsp" }) = misc_plasmabox : "Large plasma container" []
-@PointClass size(0 0 0, 32 32 32) model({ "path": ":progs/b_plas_s.bsp" }) = misc_plasmabox2 : "Small plasma container" []
+@PointClass size(0 0 0, 32 32 64) model({ "path": ":progs/b_plas_l.bsp" }) = misc_plasmabox_l : "Large plasma container" []
+@PointClass size(0 0 0, 32 32 32) model({ "path": ":progs/b_plas_s.bsp" }) = misc_plasmabox_s : "Small plasma container" []
 
 
 @SolidClass = func_illusionary : "Static model"  
