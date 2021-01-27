@@ -33,6 +33,8 @@ namespace kdl {
     /**
      * Splits the given strings along the given delimiters and returns a list of the nonempty parts.
      *
+     * Delimiters can be escaped with a backslash ('\'). Backslashes can be escaped with backslashes too.
+     *
      * @param str the string to split
      * @param delims the delimiters to split with
      * @return the parts
@@ -42,33 +44,41 @@ namespace kdl {
             return {};
         }
 
-        const auto first = str.find_first_not_of(delims);
-        if (first == std::string::npos) {
-            return {};
+        if (delims.empty()) {
+            return {std::string{str}};
         }
-
-        const auto last = str.find_last_not_of(delims);
-        assert(last != std::string::npos);
-        assert(first <= last);
 
         std::vector<std::string> result;
+        std::stringstream buf;
 
-        auto lastPos = first;
-        auto pos = lastPos;
-        while ((pos = str.find_first_of(delims, pos)) < last) {
-            auto part = str_trim(str.substr(lastPos, pos - lastPos));
+        const auto appendPart = [&]() {
+            auto part = str_trim(buf.str());
             if (!part.empty()) {
                 result.push_back(std::move(part));
             }
-            lastPos = ++pos;
-        }
+            buf.str("");
+        };
 
-        if (lastPos <= last) {
-            auto part = str_trim(str.substr(lastPos, last - lastPos + 1));
-            if (!part.empty()) {
-                result.push_back(std::move(part));
+        for (auto i = 0u; i < str.size(); ++i) {
+            const auto c = str[i];
+            if (c == '\\' && i < str.size() - 1u) {
+                // maybe escaped delimiter or backslash
+                const auto n = str[i+1];
+                if (n == '\\' || delims.find(n) != std::string_view::npos) {
+                    buf << n;
+                    ++i;
+                    continue;
+                }
+            }
+
+            if (delims.find(c) != std::string_view::npos) {
+                appendPart();
+            } else {
+                buf << c;
             }
         }
+
+        appendPart();
 
         return result;
     }
