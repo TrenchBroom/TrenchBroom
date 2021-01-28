@@ -1,0 +1,189 @@
+/* ##### Specific ########## */
+
+/* Code */
+
+pre {
+    padding: var(--spacing-x10000);
+    margin-left: var(--spacing-x10000);
+    margin-right: var(--spacing-x10000);
+    line-height: var(--typography-line-height-tight);
+    overflow-x: auto;
+    overflow-y: hidden;
+    background-color: var(--color-gray-93);
+    border: var(--border);
+    border-radius: var(--border-radius);
+}
+
+code {
+    font-family: var(--typography-font-family-code);
+    font-size: var(--typography-font-size-x07500);
+}
+
+/* Typography */
+
+h1, h2, h3, h4 {
+    font-weight: var(--typography-font-weight-bold);
+}
+
+h1 {
+    font-size: var(--typography-font-size-x20000);
+}
+
+h2 {
+    font-size: var(--typography-font-size-x15000);
+}
+
+h3, h4 {
+    font-size: var(--typography-font-size-x12500);
+}
+
+p {
+    text-align: justify;
+}
+
+b, strong {
+    font-weight: var(--typography-font-weight-bold);
+}
+
+i, em {
+    font-style: italic;
+}
+
+/* List */
+
+dl dt {
+    font-weight: var(--typography-font-weight-bold);
+}
+
+dl dd {
+    margin-left: var(--spacing-x20000);
+}
+
+ol, ul {
+    margin-left: var(--spacing-x20000);
+}
+
+ol {
+    list-style-type: decimal;
+}
+
+ul {
+    list-style-type: disc;
+}
+
+ul li ul li {
+    list-style-type: circle;
+}
+
+ul li ul li ul li {
+    list-style-type: square;
+}
+
+ul li ul {
+    margin-bottom: 0;
+}
+
+/* Link */
+
+a:link, a:visited {
+    text-decoration: none;
+    color: var(--color-azureradiance);
+}
+
+a:hover, a:focus {
+    text-decoration: underline;
+}
+
+/* Figure */
+
+figure {
+    display: inline-block;
+    margin-left: var(--spacing-x10000);
+    margin-right: var(--spacing-x10000);
+    border-radius: var(--border-radius);
+    background-color: var(--color-gray-93);
+}
+
+figure figcaption {
+    padding: var(--spacing-x02500) 0 var(--spacing-x05000);
+    font-size: var(--typography-font-size-x07500);
+    font-weight: var(--typography-font-weight-bold);
+    text-align: center;
+    color: var(--color-gray-20);
+}
+
+/* Image */
+
+img {
+    max-width: 100%;
+    padding: calc(var(--spacing-x10000) / 20);
+    border-radius: var(--border-radius);
+    background-color: var(--color-gray-93);
+}
+
+figure img {
+    margin: 0;
+    background-color: unset;
+}
+
+p img {
+    float: left;
+    margin: 0 var(--spacing-x10000) var(--spacing-x10000) 0;
+}
+
+/* Table */
+
+table {
+    display: block;
+    margin-left: var(--spacing-x10000);
+    margin-right: var(--spacing-x10000);
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+table colgroup col {
+    width: unset !important;
+}
+
+table tr th, table tr td {
+    padding: var(--spacing-x05000);
+    border: var(--border);
+    vertical-align: middle;
+}
+
+table thead tr th {
+    font-weight: var(--typography-font-weight-bold);
+    text-align: left;
+}
+
+table tbody tr.odd {
+    background-color: var(--color-gray-93);
+}
+
+/* Shortcut */
+
+.shortcut {
+    display: inline-block;
+    min-width: var(--sizing-x15000);
+    margin: 0 var(--spacing-x00625);
+    padding: var(--spacing-x00625) var(--spacing-x02500);
+    font-size: var(--typography-font-size-x07500);
+    font-family: var(--typography-font-family-base);
+    font-weight: var(--typography-font-weight-bold);
+    text-align: center;
+    border: var(--border);
+    border-radius: var(--border-radius);
+    background-color: var(--color-gray-93);
+}
+
+/* Line break */
+
+br {
+    display: none;
+}
+
+/* Space */
+
+h1, h2, h3, h4, img, ul, ol, dl, p, pre, table, figure {
+    margin-bottom: var(--spacing-x10000);
+}

@@ -1,0 +1,66 @@
+/* ##### Responsive ########## */
+
+@media only screen and (max-width: 768px) {
+    /* Code, Figure and Table */
+
+    pre, figure, table {
+        max-width: max-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Figure */
+
+    figure {
+        display: block;
+    }
+
+    /* Table of Contents */
+
+    body #toc_toggler {
+        display: flex;
+    }
+
+    body #toc {
+        display: none;
+        width: 100vw;
+    }
+
+    body #toc_inner_header {
+        text-align: left;
+    }
+
+    body #toc_inner_header > img {
+        display: none;
+    }
+
+    body #toc:target {
+        display: block;
+    }
+
+    body #toc:target ~ #content {
+        width: 0;
+        height: 0;
+        position: absolute;
+        left: 0;
+        top: 0;
+        overflow: hidden;
+    }
+
+    /* Content Version */
+
+    body #content_version p span {
+        display: list-item;
+        list-style: none;
+    }
+
+    body #content_version p span::before {
+        content: unset;
+    }
+
+    /* Content */
+
+    body #content {
+        padding: var(--spacing-x10000);
+    }
+}
