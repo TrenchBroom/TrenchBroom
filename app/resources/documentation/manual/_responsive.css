@@ -58,9 +58,9 @@
         content: unset;
     }
 
-    /* Content */
+    /* Table of Contents and Content */
 
-    body #content {
+    body #toc_toggler, body #toc, body #content {
         padding: var(--spacing-x10000);
     }
 }
