@@ -987,6 +987,8 @@ Shearing the texture is possible if the map uses a [parallel texture projection]
 
 At the bottom of the UV editor are the following controls:
 
+![UV Editor Toolbar](images/UVEditorToolbar.png)
+
 - Reset texture alignment. All attributes are reset, and in [parallel texture projection](#texture_projection_modes) format maps, the texture is projected from the face plane. In standard format maps, acts the same as "Reset texture alignment to world aligned".
 - Reset texture alignment to world aligned. All attributes are reset and the texture is projected from an axial plane.
 - Flip texture horizontally
