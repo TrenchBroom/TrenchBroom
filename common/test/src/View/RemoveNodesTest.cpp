@@ -112,5 +112,19 @@ namespace TrenchBroom {
             CHECK(inner->parent() == outer);
             CHECK(outer->parent() == document->world()->defaultLayer());
         }
+
+        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.unlinkSingletonLinkedGroups") {
+            auto* entityNode = new Model::EntityNode{};
+            document->addNodes({{document->parentForNodes(), {entityNode}}});
+
+            document->select(entityNode);
+            auto* groupNode = document->groupSelection("group");
+            auto* linkedGroupNode = document->createLinkedDuplicate();
+
+            REQUIRE(groupNode->group().linkedGroupId().has_value());
+            
+            document->removeNodes({linkedGroupNode});
+            CHECK_FALSE(groupNode->group().linkedGroupId().has_value());
+        }
     }
 }
