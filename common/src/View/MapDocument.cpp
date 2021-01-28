@@ -1037,16 +1037,54 @@ namespace TrenchBroom {
             return addedNodes;
         }
 
+        std::vector<std::string> getLinkedGroupIdsRecursively(const std::map<Model::Node*, std::vector<Model::Node*>>& parentChildrenMap) {
+            std::vector<std::string> linkedGroupIds;
+            for (const auto& pair : parentChildrenMap) {
+                Model::Node::visitAll(pair.second, kdl::overload(
+                    [] (auto&& thisLambda, const Model::WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, const Model::LayerNode* layerNode) { layerNode->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, const Model::GroupNode* groupNode) { 
+                        if (const auto& linkedGroupId = groupNode->group().linkedGroupId()) {
+                            linkedGroupIds.push_back(*linkedGroupId);
+                        }
+                        groupNode->visitChildren(thisLambda);
+                    },
+                    [] (const Model::EntityNode*) {},
+                    [] (const Model::BrushNode*)  {}
+                ));
+            }
+
+            return kdl::vec_sort_and_remove_duplicates(std::move(linkedGroupIds));
+        }
+
         void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes) {
             std::map<Model::Node*, std::vector<Model::Node*>> removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
+            auto linkedGroupIdsOfRemovedGroups = std::vector<std::string>{};
 
             Transaction transaction(this);
             while (!removableNodes.empty()) {
+                linkedGroupIdsOfRemovedGroups = kdl::vec_concat(std::move(linkedGroupIdsOfRemovedGroups), getLinkedGroupIdsRecursively(removableNodes));
+
                 closeRemovedGroups(removableNodes);
                 executeAndStore(AddRemoveNodesCommand::remove(removableNodes, findAllLinkedGroupsToUpdate(*m_world, kdl::map_keys(removableNodes))));
 
                 removableNodes = collectRemovableParents(removableNodes);
             }
+
+            auto singletonLinkSetsAfterRemoval = std::vector<Model::GroupNode*>{};
+            for (const auto& linkedGroupId : linkedGroupIdsOfRemovedGroups) {
+                const auto linkedGroups = Model::findLinkedGroups(*m_world, linkedGroupId);
+                if (linkedGroups.size() == 1u) {
+                    singletonLinkSetsAfterRemoval.push_back(linkedGroups.front());
+                }
+            }
+
+            applyAndSwap(*this, "Reset Linked Group ID", singletonLinkSetsAfterRemoval, findContainingLinkedGroupsToUpdate(*m_world, singletonLinkSetsAfterRemoval), kdl::overload(
+                [] (Model::Layer&)       { return true; },
+                [&](Model::Group& group) { group.resetLinkedGroupId(); return true; },
+                [] (Model::Entity&)      { return true; },
+                [] (Model::Brush&)       { return true; }
+            ));
         }
 
         std::map<Model::Node*, std::vector<Model::Node*>> MapDocument::collectRemovableParents(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) const {
