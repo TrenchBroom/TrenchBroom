@@ -215,7 +215,7 @@ Navigating the 2D viewports is naturally a lot simpler than navigating the 3D vi
 
 ## FOV and Zoom
 
-For the 3D view, the camera FOV (field of vision) can be adjusted in the view preferences by dragging the slider. This is a permanent setting.
+For the 3D view, the camera FOV (field of vision) can be adjusted in the [view preferences](#view_layout_and_rendering) by dragging the slider. This is a permanent setting.
 
 To temporarily adjust the camera's zoom, hold #key(Shift) and scroll the mouse wheel. To reset the zoom factor, hit #action(Controls/Map view/Reset camera zoom).
 
@@ -388,6 +388,49 @@ TrenchBroom provides you with a static grid to align your objects to each other.
 
 The grid size can be set via the menu, or by scrolling the mouse wheel while holding both #key(Alt) and #key(Ctrl).
 
+### Map View Context Menu {#map_view_context_menu}
+
+Right clicking in a map view gives the following context menu:
+
+Group
+:   [Groups](#groups) the selected objects.
+
+Ungroup
+:   [Ungroups](#groups) the selected objects.
+
+Merge groups
+:   When multiple groups are selected, merges them into a single group.
+
+Rename Groups
+:   Rename the selected groups.
+
+Move to Layer
+:   Move the selected objects to the chosen [layer](#layers).
+
+Make Layer LAYERNAME Active
+:   Changes the [current layer](#layers) to the chosen layer.
+
+Hide Layers
+:   Hide all layers which contain selected objects.
+
+Isolate Layers
+:   Isolate the layers containing selected objects.
+
+Select All in Layers
+:   Select all objects in the layers which contain the selected objects.
+
+Make Structural
+:   Moves brushes back into the world and clears any content flags. See [Brush Entities](#brush_entities).
+
+Reveal TEXTURENAME in Texture Browser
+:   Switches to the face inspector and scroll to the clicked texture in the [Texture Browser](#texture_browser).
+
+Create Point Entity
+:   Create a [Point Entity](#point_entities) of the chosen type.
+
+Create Brush Entity
+:   Create a [Brush Entity](#brush_entities) with the selected brushes.
+
 ## Creating Objects
 
 TrenchBroom gives you various options on how to create new objects. In the following sections, we will introduce these options one by one.
@@ -416,9 +459,9 @@ It is not possible to modify or remove points after they have been placed, excep
 
 There are two types of entities: point entities and brush entities, and it depends on the type how an entity is created. In the following sections, we present three ways of creating point entities and two ways to create brush entities.
 
-#### Point Entities
+#### Point Entities {#point_entities}
 
-There are three ways of creating new point entities. Firstly, you can drop new entities in the 3D and 2D viewports by using the context menu. To open the context menu, right click into the viewport. To create a point entity such as a pickup weapon or a monster, open the "Create Point Entity" sub menu and select the correct entity definition from the sub menus.
+There are three ways of creating new point entities. Firstly, you can drop new entities in the 3D and 2D viewports by using the [map view context menu](#map_view_context_menu). To open the context menu, right click into the viewport. To create a point entity such as a pickup weapon or a monster, open the "Create Point Entity" sub menu and select the correct entity definition from the sub menus.
 
 ![Dropping an entity with the context menu (Mac OS X)](images/CreateEntityContextMenu.png)
 
@@ -432,9 +475,9 @@ To create a new entity, simply drag it out of the browser and onto the 3D or a 2
 
 Finally, you can create specific entities by assigning a keyboard shorcut in the [preferences](#keyboard_shortcuts). This is useful for entities that are used very often such as lights. The entity will be created under the mouse cursor; its position will be computed in the same way as if the context menu was used.
 
-#### Brush Entities
+#### Brush Entities {#brush_entities}
 
-![Moving brushes to brush entities](images/MoveBrushesToEntity.png) Creating brush entities is also done using the context menu. Select a couple of brushes and right click on them, then select the desired brush entity from the menu. To move brushes from one brush entity to another, select the brushes you wish to move and right click on a brush belonging to the brush entity to which you want to move the brushes, and select "Move brushes to Entity ENTITY", where "ENTITY" is the name of the target brush entity, for example "func_door" in the picture on the left. If the brush entity containing the brushes to be moved becomes empty, it will be automatically deleted. To move brushes from a brush entity back into the world, select the brushes, right click and select "Make Structural".
+![Moving brushes to brush entities](images/MoveBrushesToEntity.png) Creating brush entities is also done using the context menu. Select a couple of brushes and right click on them, then select the desired brush entity from the menu. To move brushes from one brush entity to another, select the brushes you wish to move and right click on a brush belonging to the brush entity to which you want to move the brushes, and select "Move brushes to Entity ENTITY", where "ENTITY" is the name of the target brush entity, for example "func_door" in the picture on the left. If the brush entity containing the brushes to be moved becomes empty, it will be automatically deleted. To move brushes from a brush entity back into the world and clear content flags, select the brushes, right click and select "Make Structural".
 
 Additionally, you can also assign a keyboard shorcut to create a specific brush entity in the [preferences](#keyboard_shortcuts).
 
@@ -908,16 +951,23 @@ The text field for content flags will display "multi" if the currently selected 
 
 The surface flags text field will also display "multi" if the selected faces have different sets of surface flags, but this is not necessarily a situation that needs to be corrected. It is often valid to have different surface flags on different faces of a brush.
 
-#### Keyboard Shortcuts
+#### Texture Alignment Keyboard Shortcuts
 
-In the 3D viewport, you can change the offset and angle of the currently selected brush faces using the following keyboard shortcuts:
+The following shortcuts work in the 3D viewport, and affect all selected brushes or brush faces:
 
 Attribute    Keys                                    Default      #key(Shift) pressed  #key(Ctrl) pressed
 ---------    ----                                    -------      -------------------  -----------------
 Offset       #key(Left)#key(Right)#key(Up)#key(Down) Grid size    2 * grid size        1.0
 Angle        #key(PgUp)#key(PgDown)                  15°          90°                  1°
 
-Note that TrenchBroom attempts to match the shortcuts to the directions in which the textures will move visually. This means that pressing #key(Up) will move a texture roughly in that directiony visually instead of always applying to the same face attribute. So depending on the camera angle and the orientation of the face itself, pressing #key(Up) may affect the X or Y offset by incrementing or decrementing it. The angle is treated similarly: Pressing #key(PgUp) will rotate the texture counter clockwise visually, and pressing #key(PgDown) will rotate it clockwise.
+Command                                   Keys
+-------                                   ----
+Flip Horizontally                         #action(Controls/Map view/Flip textures horizontally)
+Flip Vertically                           #action(Controls/Map view/Flip textures vertically)
+Reset texture alignment                   #action(Controls/Map view/Reset texture alignment)
+Reset texture alignment to world aligned  #action(Controls/Map view/Reset texture alignment to world aligned)
+
+These are interpreted relative to the 3D camera (except "Reset"). This means that pressing #key(Up) will move a texture roughly in that direction visually, possibly increasing or decreasing the X or Y offset depending on the camera and face orientation. The angle is treated similarly: Pressing #key(PgUp) will rotate the texture counterclockwise visually, and pressing #key(PgDown) will rotate it clockwise.
 
 #### The UV Editor {#uv_editor}
 
@@ -935,7 +985,17 @@ To rotate the texture about the origin, left click and drag the large yellow cir
 
 Shearing the texture is possible if the map uses a [parallel texture projection](#texture_projection_modes). Shear by holding #key(Alt) while left clicking and dragging the gray texture grid lines.
 
-At the bottom of the UV editor, you can find a number of controls. On the left, there are five buttons. The first button resets the face attributes to their defaults. The second and third buttons flip the texture horizontally and vertically, respectively, and the fourth and firth buttons rotate the texture by 90° counter clockwise and clockwise. The two controls on the right allow you to subdivide the texture grid. This can be useful to align the texture to smaller brush faces.
+At the bottom of the UV editor are the following controls:
+
+![UV Editor Toolbar](images/UVEditorToolbar.png)
+
+- Reset texture alignment. All attributes are reset, and in [parallel texture projection](#texture_projection_modes) format maps, the texture is projected from the face plane. In standard format maps, acts the same as "Reset texture alignment to world aligned".
+- Reset texture alignment to world aligned. All attributes are reset and the texture is projected from an axial plane.
+- Flip texture horizontally
+- Flip texture vertically
+- Rotate texture 90° counterclockwise
+- Rotate texture 90° clockwise
+- Grid controls for subdividing the texture grid. This can be useful to align part of a larger trim sheet to the face.
 
 ## Entity Properties {#entity_properties}
 
@@ -1042,19 +1102,43 @@ Groups allow you to treat several objects as one and to give them a name. A grou
 
 To create a group, make sure that no tool is currently active and select some objects and choose #menu(Menu/Edit/Group). The editor will ask you for a name. Group names need not be unique, so you can have several groups with the same name. To select a group, you can click on any of the objects contained in it. This will not select the individual object, but the entire group, which is why you can only editor all objects within a group as one. If you want to edit individual objects in a group, you have to open the group by double clicking on it with the left mouse button. This will lock every other object in the map (locked objects are not editable and rendered in blue). Once the group is opened, you can edit the individual objects in it, or you can create new objects within the group in the usual ways. Once you are done editing the group, you can close it again by left double clicking anywhere outside of the group. Finally, you can remove a group by selecting it and choosing #menu(Menu/Edit/Ungroup). Note that removing a group does not remove the objects in the group from the map, the objects are merely ungrouped.
 
-To add objects to an existing group, select the objects you wish to add to the group, then right click on an object already existing to that group and select "Add Objects to GROUPNAME", where GROUPNAME is the name of the group. Likewise, you can remove objects from a group by opening that group, selecting the objects you wish to remove from the group, and selecting "Remove Objects from GROUPNAME" from the right click context menu. The removed objects are added to the current layer. If you remove all objects from a group, the group is deleted automatically.
+To add objects to an existing group, select the objects you wish to add to the group, then right click on an object already existing to that group and select "Add Objects to GROUPNAME", where GROUPNAME is the name of the group. Likewise, you can remove objects from a group by opening that group, selecting the objects you wish to remove from the group, and selecting "Remove Objects from GROUPNAME" from the [map view context menu](#map_view_context_menu). The removed objects are added to the current layer. If you remove all objects from a group, the group is deleted automatically.
 
 ## Layers {#layers}
 
-Layers decompose your map into several parts. For example, you might create a layer for separate rooms or areas. Layers can contain groups, entities, or brushes, and each of these objects can belong to one layer only. Each layer has a name and can be set to hidden or locked, or omitted from exported maps. Every map contains a "Default Layer" that cannot be removed. This layer receives all objects that haven't been assigned to another layer.
+Layers decompose your map into several parts. For example, you might create a layer for separate rooms or areas. Layers can contain groups, entities, or brushes, and each of these objects can belong to one layer only. Each layer has a name and can be set to hidden or locked, or omitted from exported maps. Every map contains a "Default Layer" that cannot be removed.
 
 ![Layer Editor](images/LayerEditor.png)
 
-Layers are managed in the layer editor, which is part of the map inspector. The layer editor displays a list of all layers in your map. You can hide or show a layer by clicking on the eye icon beside the layer name, and you can lock or unlock a layer by clicking on the lock icon. To create a new layer, click the plus button at the bottom of the layer list, and to remove one ore more layers, select them and click on the minus button.
+The layer editor, part of the map inspector, displays all layers in your map.
+
+- Omit a layer from export by clicking the hollow circle icon (the "X" indicates the layer is omitted from export)
+- Hide or show a layer by clicking on the eye icon
+- Lock or unlock a layer by clicking on the lock icon
+- Create a new layer by clicking the plus button at the bottom of the layer list
+- Remove one or more layers by selecting them and click on the minus button
 
 New objects created from scratch or pasted from the clipboard are inserted into the current layer (unless you are working in a group). Objects created from other objects (e.g. by duplicating or extrusion) are inserted into the layer of the source object.
 
 The current layer is indicated in the layer list by a radio button and by having its name in bold, and you can set the current layer by double clicking on a layer in the layer list.
+
+Right click on a layer in the layer editor for the layer context menu:
+
+- Make active layer
+- Move selection to layer
+- Select all in layer
+- Hide layer
+- Isolate layer
+- Lock layer
+- Omit from export
+- Show all Layers
+- Hide all Layers
+- Unlock All Layers
+- Lock All Layers
+- Rename Layer
+- Remove Layer
+
+The [map view context menu](#map_view_context_menu) also has some layer related shortcuts.
 
 # Preferences
 
@@ -1074,7 +1158,7 @@ In this dialog, you can add a game engine profile by clicking on the '+' button 
 
 ## View Layout and Rendering {#view_layout_and_rendering}
 
-![View Configuration Dialog (Ubuntu Linux)](images/ViewPreferences.png)
+![View Preferences (macOS)](images/ViewPreferences.png)
 
 In this preference pane, you can choose the layout of the editing area. There are four layouts available:
 
@@ -1094,9 +1178,10 @@ Setting 					Description
 Brightness 					The brightness of the textures (affects the 3D viewport, the entity and the texture browser)
 Grid 						Opacity of the grid in the 3D and 2D viewports
 Coordinate System Axes 		Show the coordinate system axes in the 3D and 2D viewports
-Background Color 			The background color of the 3D and 2D viewports
 Texture Mode 				Texture filtering mode in the 3D viewport
-Texture Browser Icon Size 	The size of the texture icons in the texture browser
+Enable multisampling        Whether rendering is antialiased
+Texture Browser Icon Size   The size of the texture icons in the texture browser
+Renderer Font Size          Text size in the map viewports (e.g. entity classnames)
 
 ## Mouse Input {#mouse_input}
 
@@ -1120,10 +1205,10 @@ In this preference pane, you can change the keybaord shortcuts used in TrenchBro
 If you open the preference dialog when a map is currently opened, the list of shortcuts will contain additional entries depending on the loaded entity configuration file and the game configuration file. For each entity and special brush or face types, the following keyboard shortcuts are available.
 
 * **Entity**
-	- `View Filter > Toggle CLASSNAME visible` to toggle entities with this classname visible and invisible ([more info](filtering_rendering_options))
+	- `View Filter > Toggle CLASSNAME visible` to toggle entities with this classname visible and invisible ([more info](#filtering_rendering_options))
 	- `Create CLASSNAME` to create entities with this classname ([more info](#creating_entities))
 * **Brush / Face Type**
-	- `View Filter > Toggle TYPE visible` to toggle brushes or faces with this type visible and invisible ([more info](filtering_rendering_options))
+	- `View Filter > Toggle TYPE visible` to toggle brushes or faces with this type visible and invisible ([more info](#filtering_rendering_options))
 	- `Turn selection into TYPE` to set this type to the selected brushes or faces
 	- `Turn selection into non-TYPE` to unset this type from the selected brushes or faces
 
@@ -1169,6 +1254,8 @@ Working directory
 
 Tasks
 :   A list of tasks which are executed sequentially when the compilation profile is run.
+
+The checkbox on each task lets you selectively exclude a task from running when you run the compilation profile. 
 
 There are three types of tasks, each with different parameters:
 
@@ -1222,7 +1309,7 @@ The last step will copy the bsp file to the appropriate directory within the gam
 
 To run a compilation profile, click the 'Run' button in the compilation dialog. Note that the 'Run' button changes into a 'Stop' button once the compilation profile is running. If you click on this button again, TrenchBroom will terminate the currently running tool. A running compilation will also be terminated if you close the compilation dialog or if you close the main window, but TrenchBroom will ask you before this happens. Note that the compilation tools are run in the background. You can keep working on your map if you wish.
 
-If you want to test your compilation profile without actually running it, you can hold the #key(Alt) when clicking on the 'Run' button. A test run will only print what each task will do without actually executing it.
+If you want to test your compilation profile without actually running it, click the 'Test' button. A test run will only print what each task will do without actually executing it.
 
 Once the compilation is done, you can launch a game engine and check out your map in the game. The following section explains how you can configure game engines and launch them from within the editor.
 
