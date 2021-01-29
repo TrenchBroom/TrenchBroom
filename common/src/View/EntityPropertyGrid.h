@@ -59,6 +59,7 @@ namespace TrenchBroom {
             EntityPropertyModel* m_model;
             QSortFilterProxyModel* m_proxyModel;
             EntityPropertyTable* m_table;
+            QAbstractButton* m_addProtectedPropertyButton;
             QAbstractButton* m_addPropertyButton;
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             void backupSelection();
             void restoreSelection();
 
-            void addProperty();
+            void addProperty(bool defaultToProtected);
             void removeSelectedProperties();
 
             bool canRemoveSelectedProperties() const;
