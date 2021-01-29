@@ -9,9 +9,9 @@ pre {
     line-height: var(--typography-line-height-tight);
     overflow-x: auto;
     overflow-y: hidden;
-    background-color: var(--color-gray-93);
     border: var(--border);
     border-radius: var(--border-radius);
+    background-color: var(--color-gray-93);
 }
 
 code {
@@ -105,7 +105,7 @@ figure {
 }
 
 figure figcaption {
-    padding: var(--spacing-x02500) 0 var(--spacing-x05000);
+    padding: var(--spacing-x05000) 0;
     font-size: var(--typography-font-size-x07500);
     font-weight: var(--typography-font-weight-bold);
     text-align: center;
@@ -114,16 +114,12 @@ figure figcaption {
 
 /* Image */
 
-img {
+figure img {
+    display: block;
     max-width: 100%;
-    padding: calc(var(--spacing-x10000) / 20);
+    margin: 0;
     border-radius: var(--border-radius);
     background-color: var(--color-gray-93);
-}
-
-figure img {
-    margin: 0;
-    background-color: unset;
 }
 
 p img {
@@ -147,8 +143,8 @@ table colgroup col {
 
 table tr th, table tr td {
     padding: var(--spacing-x05000);
-    border: var(--border);
     vertical-align: middle;
+    border: var(--border);
 }
 
 table thead tr th {
