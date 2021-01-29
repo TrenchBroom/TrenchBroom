@@ -36,18 +36,29 @@ body #toc_toggler {
     display: none;
     flex-direction: column;
     align-items: center;
-    min-width: 48px;
+    min-width: 50px;
+    max-width: 50px;
     padding: var(--spacing-x10000) 0;
     font-size: var(--typography-font-size-x12500);
 }
 
-body #toc_toggler > img {
+body #toc_toggler img {
     width: var(--sizing-x12500);
     height: var(--sizing-x12500);
 }
 
-body #toc_toggler > a {
+body #toc_toggler a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--sizing-x20000);
+    height: var(--sizing-x20000);
+    text-decoration: none;
     color: var(--color-gray-20);
+}
+
+body #toc_toggler a span {
+    line-height: var(--typography-line-height-reset);
 }
 
 body #toc_inner #toc_inner_header {
@@ -55,7 +66,7 @@ body #toc_inner #toc_inner_header {
     text-align: center;
 }
 
-body #toc_inner #toc_inner_header > img {
+body #toc_inner #toc_inner_header img {
     display: inline-block;
     margin-bottom: var(--spacing-x05000);
 }
@@ -81,7 +92,7 @@ body #content {
     overflow: auto;
 }
 
-body #content > :last-child {
+body #content :last-child {
     margin-bottom: 0;
 }
 

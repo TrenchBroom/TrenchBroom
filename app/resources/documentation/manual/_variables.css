@@ -13,6 +13,7 @@
   --typography-font-size-x20000: calc(var(--typography-font-size-x10000) * 2);
   --typography-font-weight-regular: 400;
   --typography-font-weight-bold: 700;
+  --typography-line-height-reset: 1;
   --typography-line-height-tight: 1.2;
   --typography-line-height-normal: 1.5;
 

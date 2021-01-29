@@ -23,14 +23,14 @@
 
     body #toc {
         display: none;
-        width: 100vw;
+        width: calc(100vw - 50px);
     }
 
     body #toc_inner #toc_inner_header {
         text-align: left;
     }
 
-    body #toc_inner #toc_inner_header > img {
+    body #toc_inner #toc_inner_header img {
         display: none;
     }
 
