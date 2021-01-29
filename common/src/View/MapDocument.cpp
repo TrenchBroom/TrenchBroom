@@ -2203,6 +2203,65 @@ namespace TrenchBroom {
             ));
         }
 
+        /**
+         * Search the given linked groups for an entity node at the given node path, and return its unprotected value for the given property key.
+         */
+        static std::optional<std::string> findUnprotectedPropertyValue(const std::string& key, const Model::NodePath& nodePath, const std::vector<Model::GroupNode*> linkedGroups) {
+            for (const auto* linkedGroup : linkedGroups) {
+                if (const auto* node = linkedGroup->resolvePath(nodePath)) {
+                    if (const auto* entityNode = dynamic_cast<const Model::EntityNode*>(node)) {
+                        if (!kdl::vec_contains(entityNode->entity().protectedProperties(), key)) {
+                            if (const auto* value = entityNode->entity().property(key)) {
+                                return *value;
+                            }
+                        }
+                    }
+                }
+            }
+            return std::nullopt;
+        }
+
+        /**
+         * Find the unprotected property value of the given key in the corresponding linked nodes of the given entity nodes. This value is used to restore the original value
+         * when a property is set from protected to unprotected.
+         */
+        static std::optional<std::string> findUnprotectedPropertyValue(const std::string& key, const Model::EntityNodeBase& entityNode, Model::WorldNode& worldNode) {
+            if (const auto* containingLinkedGroup = Model::findContainingLinkedGroup(entityNode)) {
+                if (const auto linkedGroupId = containingLinkedGroup->group().linkedGroupId()) {
+                    const auto linkedGroups = Model::findLinkedGroups(worldNode, *linkedGroupId);
+                    const auto pathFromContainingLinkedGroup = entityNode.pathFrom(*containingLinkedGroup);
+                    if (const auto newValue = findUnprotectedPropertyValue(key, pathFromContainingLinkedGroup, linkedGroups)) {
+                        return newValue;
+                    }
+                }
+            }
+            return std::nullopt;
+        }
+
+        bool MapDocument::setProtectedProperty(const std::string& key, const bool value) {
+            const auto entityNodes = allSelectedEntityNodes();
+
+            auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+            for (auto* entityNode : entityNodes) {
+                auto entity = entityNode->entity();
+                auto protectedProperties = entity.protectedProperties();
+                if (value && !kdl::vec_contains(protectedProperties, key)) {
+                    protectedProperties.push_back(key);
+                } else if (!value && kdl::vec_contains(protectedProperties, key)) {
+                    if (const auto newValue = findUnprotectedPropertyValue(key, *entityNode, *m_world.get())) {
+                        entity.addOrUpdateProperty(key, *newValue);
+                    }
+
+                    protectedProperties = kdl::vec_erase(std::move(protectedProperties), key);
+                }
+                entity.setProtectedProperties(std::move(protectedProperties));
+                nodesToUpdate.emplace_back(entityNode, std::move(entity));
+            }
+
+            // The linked groups are not affected!
+            return swapNodeContents("Set Protected Property", nodesToUpdate, {});
+        }
+
         bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
             const auto nodes = m_selectedNodes.nodes();
             return applyAndSwap(*this, "Resize Brushes", nodes, findContainingLinkedGroupsToUpdate(*m_world, nodes), kdl::overload(
