@@ -224,11 +224,6 @@ namespace TrenchBroom {
 
             std::optional<PropertyRow> result;
             for (const Model::EntityNodeBase* node : nodes) {
-                // this happens at startup when the world is still null
-                if (node == nullptr) {
-                    continue;
-                }
-
                 if (!result.has_value()) {
                     result = PropertyRow(key, node);
                 }  else {
@@ -242,12 +237,8 @@ namespace TrenchBroom {
 
         std::vector<std::string> PropertyRow::allKeys(const std::vector<Model::EntityNodeBase*>& nodes, const bool showDefaultRows) {
             kdl::vector_set<std::string> result;
-            for (const Model::EntityNodeBase* node : nodes) {
-                // this happens at startup when the world is still null
-                if (node == nullptr) {
-                    continue;
-                }
 
+            for (const Model::EntityNodeBase* node : nodes) {
                 // Add explicitly set properties
                 for (const Model::EntityProperty& property : node->entity().properties()) {
                     result.insert(property.key());

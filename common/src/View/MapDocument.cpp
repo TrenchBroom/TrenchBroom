@@ -745,7 +745,7 @@ namespace TrenchBroom {
 
         std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const {
             if (!hasSelection()) {
-                return std::vector<Model::EntityNodeBase*>({ m_world.get() });
+                return m_world ? std::vector<Model::EntityNodeBase*>({ m_world.get() }) : std::vector<Model::EntityNodeBase*>{};
             }
 
             std::vector<Model::EntityNodeBase*> nodes;
