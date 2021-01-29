@@ -68,6 +68,26 @@ namespace TrenchBroom {
             )).value_or(nullptr);
         }
 
+        const GroupNode* findContainingGroup(const Node* node) {
+            return findContainingGroup(const_cast<Node*>(node));
+        }
+
+        GroupNode* findContainingLinkedGroup(Node& node) {
+            auto* containingGroupNode = findContainingGroup(&node);
+            while (containingGroupNode) {
+                if (containingGroupNode->group().linkedGroupId().has_value()) {
+                    return containingGroupNode;
+                }
+                containingGroupNode = findContainingGroup(containingGroupNode);
+            }
+
+            return nullptr;
+        }
+
+        const GroupNode* findContainingLinkedGroup(const Node& node) {
+            return findContainingLinkedGroup(const_cast<Node&>(node));
+        }
+
         GroupNode* findOutermostClosedGroup(Node* node) {
             return node->visitParent(kdl::overload(
                 [](WorldNode*)                            -> GroupNode* { return nullptr; },
