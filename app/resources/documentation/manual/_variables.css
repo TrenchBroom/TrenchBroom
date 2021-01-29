@@ -6,6 +6,7 @@
   --typography-font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --typography-font-family-code: 'Lucida Console', Monaco, monospace;
   --typography-font-size-x07500: calc(var(--typography-font-size-x10000) * 0.75);
+  --typography-font-size-x08750: calc(var(--typography-font-size-x10000) * 0.875);
   --typography-font-size-x10000: 16px;
   --typography-font-size-x12500: calc(var(--typography-font-size-x10000) * 1.25);
   --typography-font-size-x15000: calc(var(--typography-font-size-x10000) * 1.5);
@@ -18,6 +19,7 @@
   /* Colors */
 
   --color-gray-20: hsl(0, 0%, 20%);
+  --color-gray-40: hsl(0, 0%, 40%);
   --color-gray-60: hsl(0, 0%, 60%);
   --color-gray-80: hsl(0, 0%, 80%);
   --color-gray-93: hsl(0, 0%, 93%);

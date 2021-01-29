@@ -26,11 +26,11 @@
         width: 100vw;
     }
 
-    body #toc_inner_header {
+    body #toc_inner #toc_inner_header {
         text-align: left;
     }
 
-    body #toc_inner_header > img {
+    body #toc_inner #toc_inner_header > img {
         display: none;
     }
 
@@ -49,13 +49,17 @@
 
     /* Content Version */
 
-    body #content_version p span {
-        display: list-item;
-        list-style: none;
+    body #content_version, body #content_version #content_version_details, body #content_version #content_version_links {
+        align-items: center;
     }
 
-    body #content_version p span::before {
-        content: unset;
+    body #content_version {
+        flex-direction: column;
+    }
+
+    body #content_version #content_version_links {
+        margin-top: var(--spacing-x05000);
+        margin-left: inherit;
     }
 
     /* Table of Contents and Content */
