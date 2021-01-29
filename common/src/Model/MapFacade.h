@@ -129,7 +129,7 @@ namespace TrenchBroom {
             virtual bool shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) = 0;
             virtual bool flipObjects(const vm::vec3& center, vm::axis::type axis) = 0;
         public: // modifying entity properties
-            virtual bool setProperty(const std::string& key, const std::string& value) = 0;
+            virtual bool setProperty(const std::string& key, const std::string& value, bool defaultToProtected = false) = 0;
             virtual bool renameProperty(const std::string& oldKey, const std::string& newKey) = 0;
             virtual bool removeProperty(const std::string& key) = 0;
 

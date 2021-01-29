@@ -95,12 +95,12 @@ namespace TrenchBroom {
             GRID_LOG(qDebug() << "Restore selection: current is " << QString::fromStdString(selectedRowName()));
         }
 
-        void EntityPropertyGrid::addProperty() {
+        void EntityPropertyGrid::addProperty(const bool defaultToProtected) {
             auto document = kdl::mem_lock(m_document);
             const std::string newPropertyKey = PropertyRow::newPropertyKeyForEntityNodes(
                 document->allSelectedEntityNodes());
 
-            document->setProperty(newPropertyKey, "");
+            document->setProperty(newPropertyKey, "", defaultToProtected);
 
             // Force an immediate update to the table rows (by default, updates are delayed - see EntityPropertyGrid::updateControls),
             // so we can select the new row.
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             ensure(row != -1, "row should have been inserted");
 
             // Select the newly inserted property key
-            const QModelIndex mi = m_proxyModel->mapFromSource(m_model->index(row, 0));
+            const QModelIndex mi = m_proxyModel->mapFromSource(m_model->index(row, 1));
 
             m_table->clearSelection();
             m_table->setCurrentIndex(mi);
@@ -212,13 +212,24 @@ namespace TrenchBroom {
 
             m_table->verticalHeader()->setVisible(false);
             m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-            m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+            m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+            m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
             m_table->horizontalHeader()->setSectionsClickable(false);
             m_table->setSelectionBehavior(QAbstractItemView::SelectItems);
 
             m_addPropertyButton = createBitmapButton("Add.svg", tr("Add a new property (%1)").arg(EntityPropertyTable::insertRowShortcutString()), this);
             connect(m_addPropertyButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
-                addProperty();
+                addProperty(false);
+            });
+
+            m_addPropertyButton = createBitmapButton("Add.svg", tr("Add a new property (%1)").arg(EntityPropertyTable::insertRowShortcutString()), this);
+            connect(m_addPropertyButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
+                addProperty(false);
+            });
+
+            m_addProtectedPropertyButton = createBitmapButton("AddProtected.svg", tr("Add a new protected property"), this);
+            connect(m_addProtectedPropertyButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
+                addProperty(true);
             });
 
             m_removePropertiesButton = createBitmapButton("Remove.svg", tr("Remove the selected properties (%1)").arg(EntityPropertyTable::removeRowShortcutString()), this);
@@ -233,7 +244,7 @@ namespace TrenchBroom {
             m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 
             connect(m_table, &EntityPropertyTable::addRowShortcutTriggered, this, [=](){
-                addProperty();
+                addProperty(false);
             });
             connect(m_table, &EntityPropertyTable::removeRowsShortcutTriggered, this, [=](){
                 removeSelectedProperties();
@@ -275,6 +286,7 @@ namespace TrenchBroom {
             // Shortcuts
 
             auto* toolBar = createMiniToolBarLayout(
+                m_addProtectedPropertyButton,
                 m_addPropertyButton,
                 m_removePropertiesButton,
                 LayoutConstants::WideHMargin,
@@ -345,6 +357,10 @@ namespace TrenchBroom {
                     restoreSelection();
                 }
                 ensureSelectionVisible();
+
+                const auto shouldShowProtectedProperties = m_model->shouldShowProtectedProperties();
+                m_table->setColumnHidden(0, !shouldShowProtectedProperties);
+                m_addProtectedPropertyButton->setHidden(!shouldShowProtectedProperties);
             });
             updateControlsEnabled();
         }

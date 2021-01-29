@@ -431,7 +431,7 @@ namespace TrenchBroom {
         public: // Clipping operations, declared in MapFacade interface
             bool clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3);
         public: // modifying entity properties, declared in MapFacade interface
-            bool setProperty(const std::string& key, const std::string& value) override;
+            bool setProperty(const std::string& key, const std::string& value, bool defaultToProtected = false) override;
             bool renameProperty(const std::string& oldKey, const std::string& newKey) override;
             bool removeProperty(const std::string& key) override;
 

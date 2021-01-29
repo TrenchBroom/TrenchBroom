@@ -54,6 +54,13 @@ namespace TrenchBroom {
             MultipleValues
         };
 
+        enum class PropertyProtection {
+            NotProtectable,
+            Protected,
+            NotProtected,
+            Mixed
+        };
+
         /**
          * Viewmodel (as in MVVM) for a single row in the table
          */
@@ -65,6 +72,7 @@ namespace TrenchBroom {
 
             bool m_keyMutable;
             bool m_valueMutable;
+            PropertyProtection m_protected;
             std::string m_tooltip;
         public:
             PropertyRow();
@@ -77,14 +85,15 @@ namespace TrenchBroom {
             std::string value() const;
             bool keyMutable() const;
             bool valueMutable() const;
+            PropertyProtection isProtected() const;
             const std::string& tooltip() const;
             bool isDefault() const;
             bool multi() const;
             bool subset() const;
 
             static PropertyRow rowForEntityNodes(const std::string& key, const std::vector<Model::EntityNodeBase*>& nodes);
-            static std::vector<std::string> allKeys(const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows);
-            static std::map<std::string, PropertyRow> rowsForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows);
+            static std::vector<std::string> allKeys(const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows, const bool showPreservedProperties);
+            static std::map<std::string, PropertyRow> rowsForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows, const bool showPreservedProperties);
             /**
              * Suggests a new, unused property name of the form "property X".
              */
@@ -112,12 +121,15 @@ namespace TrenchBroom {
         private:
             std::vector<PropertyRow> m_rows;
             bool m_showDefaultRows;
+            bool m_shouldShowProtectedProperties;
             std::weak_ptr<MapDocument> m_document;
         public:
             explicit EntityPropertyModel(std::weak_ptr<MapDocument> document, QObject* parent);
 
             bool showDefaultRows() const;
             void setShowDefaultRows(bool showDefaultRows);
+
+            bool shouldShowProtectedProperties() const;
 
             void setRows(const std::map<std::string, PropertyRow>& newRows);
 
@@ -146,6 +158,7 @@ namespace TrenchBroom {
             bool hasRowWithPropertyKey(const std::string& propertyKey) const;
             bool renameProperty(size_t rowIndex, const std::string& newKey, const std::vector<Model::EntityNodeBase*>& nodes);
             bool updateProperty(size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& nodes);
+            bool setProtectedProperty(size_t rowIndex, bool newValue);
 
         public: // EntityPropertyGrid helpers
             std::string propertyKey(int row) const;

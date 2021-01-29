@@ -28,6 +28,9 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityNodeIndex.h"
 #include "Model/EntityProperties.h"
+#include "Model/Group.h"
+#include "Model/GroupNode.h"
+#include "Model/ModelUtils.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
@@ -98,12 +101,29 @@ namespace TrenchBroom {
             return true;
         }
 
+        static bool isPropertyProtectable(const Model::EntityNodeBase& entityNode, const std::string& key) {
+            return Model::findContainingLinkedGroup(entityNode) != nullptr && key != Model::PropertyKeys::Origin;
+        }
+
+        static PropertyProtection isPropertyProtected(const Model::EntityNodeBase& entityNode, const std::string& key) {
+            if (isPropertyProtectable(entityNode, key)) {
+                for (const auto& protectedKey : entityNode.entity().protectedProperties()) {
+                    if (Model::isNumberedProperty(protectedKey, key)) {
+                        return PropertyProtection::Protected;
+                    }
+                }
+                return PropertyProtection::NotProtected;
+            }
+            return PropertyProtection::NotProtectable;
+        }
+
         // AttributeRow
 
         PropertyRow::PropertyRow() :
         m_valueType(ValueType::Unset),
         m_keyMutable(true),
-        m_valueMutable(true) {}
+        m_valueMutable(true),
+        m_protected(PropertyProtection::NotProtectable) {}
 
         bool PropertyRow::operator==(const PropertyRow& other) const {
             return m_key == other.m_key
@@ -111,7 +131,8 @@ namespace TrenchBroom {
                 && m_valueType == other.m_valueType
                 && m_keyMutable == other.m_keyMutable
                 && m_valueMutable == other.m_valueMutable
-                   && m_tooltip == other.m_tooltip;
+                && m_protected == other.m_protected
+                && m_tooltip == other.m_tooltip;
         }
 
         bool PropertyRow::operator<(const PropertyRow& other) const {
@@ -129,6 +150,9 @@ namespace TrenchBroom {
 
             if (m_valueMutable < other.m_valueMutable) return true;
             if (m_valueMutable > other.m_valueMutable) return false;
+
+            if (m_protected < other.m_protected) return true;
+            if (m_protected > other.m_protected) return false;
 
             if (m_tooltip < other.m_tooltip) return true;
             if (m_tooltip > other.m_tooltip) return false;
@@ -153,6 +177,7 @@ namespace TrenchBroom {
 
             m_keyMutable = isPropertyKeyMutable(node->entity(), key);
             m_valueMutable = isPropertyValueMutable(node->entity(), key);
+            m_protected = isPropertyProtected(*node, key);
             m_tooltip = (definition != nullptr ? definition->shortDescription() : "");
             if (m_tooltip.empty()) {
                 m_tooltip = "No description found";
@@ -182,6 +207,15 @@ namespace TrenchBroom {
 
             m_keyMutable = (m_keyMutable && isPropertyKeyMutable(other->entity(), m_key));
             m_valueMutable = (m_valueMutable && isPropertyValueMutable(other->entity(), m_key));
+
+            const auto otherProtected = isPropertyProtected(*other, m_key);
+            if (m_protected != otherProtected) {
+                if (m_protected == PropertyProtection::NotProtectable || otherProtected == PropertyProtection::NotProtectable) {
+                    m_protected = PropertyProtection::NotProtectable;
+                } else {
+                    m_protected = PropertyProtection::Mixed;
+                }
+            }
         }
 
         const std::string& PropertyRow::key() const {
@@ -201,6 +235,10 @@ namespace TrenchBroom {
 
         bool PropertyRow::valueMutable() const {
             return m_valueMutable;
+        }
+
+        PropertyProtection PropertyRow::isProtected() const {
+            return m_protected;
         }
 
         const std::string& PropertyRow::tooltip() const {
@@ -235,7 +273,7 @@ namespace TrenchBroom {
             return result.value();
         }
 
-        std::vector<std::string> PropertyRow::allKeys(const std::vector<Model::EntityNodeBase*>& nodes, const bool showDefaultRows) {
+        std::vector<std::string> PropertyRow::allKeys(const std::vector<Model::EntityNodeBase*>& nodes, const bool showDefaultRows, const bool showProtectedProperties) {
             kdl::vector_set<std::string> result;
 
             for (const Model::EntityNodeBase* node : nodes) {
@@ -254,19 +292,27 @@ namespace TrenchBroom {
                     }
                 }
             }
+
+            if (showProtectedProperties) {
+                for (const Model::EntityNodeBase* node : nodes) {
+                    const auto& protectedProperties = node->entity().protectedProperties();
+                    result.insert(std::begin(protectedProperties), std::end(protectedProperties));
+                }
+            }
+
             return result.release_data();
         }
 
-        std::map<std::string, PropertyRow> PropertyRow::rowsForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes, const bool showDefaultRows) {
+        std::map<std::string, PropertyRow> PropertyRow::rowsForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes, const bool showDefaultRows, const bool showProtectedProperties) {
             std::map<std::string, PropertyRow> result;
-            for (const std::string& key : allKeys(nodes, showDefaultRows)) {
+            for (const std::string& key : allKeys(nodes, showDefaultRows, showProtectedProperties)) {
                 result[key] = rowForEntityNodes(key, nodes);
             }
             return result;
         }
 
         std::string PropertyRow::newPropertyKeyForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes) {
-            const std::map<std::string, PropertyRow> rows = rowsForEntityNodes(nodes, true);
+            const std::map<std::string, PropertyRow> rows = rowsForEntityNodes(nodes, true, false);
 
             for (int i = 1; ; ++i) {
                 const std::string newKey = kdl::str_to_string("property ", i);
@@ -282,6 +328,7 @@ namespace TrenchBroom {
         EntityPropertyModel::EntityPropertyModel(std::weak_ptr<MapDocument> document, QObject* parent) :
         QAbstractTableModel(parent),
         m_showDefaultRows(true),
+        m_shouldShowProtectedProperties(false),
         m_document(std::move(document)) {
             updateFromMapDocument();
         }
@@ -340,6 +387,10 @@ namespace TrenchBroom {
             }
             m_showDefaultRows = showDefaultRows;
             updateFromMapDocument();
+        }
+
+        bool EntityPropertyModel::shouldShowProtectedProperties() const {
+            return m_shouldShowProtectedProperties;
         }
 
         void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newRowMap) {
@@ -540,15 +591,31 @@ namespace TrenchBroom {
             return result;
         }
 
+        static bool computeShouldShowProtectedProperties(const std::vector<Model::EntityNodeBase*>& entityNodes) {
+            if (entityNodes.empty()) {
+                return false;
+            }
+
+            for (const auto* entityNode : entityNodes) {
+                if (Model::findContainingLinkedGroup(*entityNode) == nullptr) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         void EntityPropertyModel::updateFromMapDocument() {
             MODEL_LOG(qDebug() << "updateFromMapDocument");
 
             auto document = kdl::mem_lock(m_document);
 
+            const auto entityNodes = document->allSelectedEntityNodes();
             const std::map<std::string, PropertyRow> rowsMap =
-                PropertyRow::rowsForEntityNodes(document->allSelectedEntityNodes(), m_showDefaultRows);
+                PropertyRow::rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
 
             setRows(rowsMap);
+            m_shouldShowProtectedProperties = computeShouldShowProtectedProperties(entityNodes);
         }
 
         int EntityPropertyModel::rowCount(const QModelIndex& parent) const {
@@ -562,7 +629,8 @@ namespace TrenchBroom {
             if (parent.isValid()) {
                 return 0;
             }
-            return 2;
+
+            return 3;
         }
 
         Qt::ItemFlags EntityPropertyModel::flags(const QModelIndex &index) const {
@@ -575,10 +643,14 @@ namespace TrenchBroom {
             Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
             if (index.column() == 0) {
+                if (row.isProtected() != PropertyProtection::NotProtectable) {
+                    flags |= Qt::ItemIsUserCheckable;
+                }
+            } else if (index.column() == 1) {
                 if (row.keyMutable()) {
                     flags |= Qt::ItemIsEditable;
                 }
-            } else {
+            } else if (index.column() == 2) {
                 if (row.valueMutable()) {
                     flags |= Qt::ItemIsEditable;
                 }
@@ -592,7 +664,7 @@ namespace TrenchBroom {
                 || index.row() < 0
                 || index.row() >= static_cast<int>(m_rows.size())
                 || index.column() < 0
-                || index.column() >= 2) {
+                || index.column() >= 3) {
                 return QVariant();
             }
 
@@ -601,11 +673,11 @@ namespace TrenchBroom {
 
             if (role == Qt::DecorationRole) {
                 // lock icon
-                if (index.column() == 0) {
+                if (index.column() == 1) {
                     if (!row.keyMutable()) {
                         return QVariant(IO::loadSVGIcon(IO::Path("Locked_small.svg")));
                     }
-                } else if (index.column() == 1) {
+                } else if (index.column() == 2) {
                     if (!row.valueMutable()) {
                         return QVariant(IO::loadSVGIcon(IO::Path("Locked_small.svg")));
                     }
@@ -618,7 +690,7 @@ namespace TrenchBroom {
                 if (row.isDefault() || row.subset()) {
                     return QVariant(QBrush(Colors::disabledCellText()));
                 }
-                if (index.column() == 1) {
+                if (index.column() == 2) {
                     if (row.multi()) {
                         return QVariant(QBrush(Colors::disabledCellText()));
                     }
@@ -632,7 +704,7 @@ namespace TrenchBroom {
                     italicFont.setItalic(true);
                     return QVariant(italicFont);
                 }
-                if (index.column() == 1) {
+                if (index.column() == 2) {
                     if (row.multi()) {
                         QFont italicFont;
                         italicFont.setItalic(true);
@@ -643,16 +715,32 @@ namespace TrenchBroom {
             }
 
             if (role == Qt::DisplayRole || role == Qt::EditRole) {
-                if (index.column() == 0) {
+                if (index.column() == 1) {
                     return QVariant(mapStringToUnicode(document->encoding(), row.key()));
-                } else {
+                } else if (index.column() == 2) {
                     return QVariant(mapStringToUnicode(document->encoding(), row.value()));
+                }
+            }
+            
+            if (role == Qt::CheckStateRole) {
+                if (index.column() == 0) {
+                    if (row.isProtected() == PropertyProtection::Protected) {
+                        return QVariant(Qt::CheckState::Checked);
+                    } else if (row.isProtected() == PropertyProtection::Mixed) {
+                        return QVariant(Qt::CheckState::PartiallyChecked);
+                    } else {
+                        return QVariant(Qt::CheckState::Unchecked);
+                    }
                 }
             }
 
             if (role == Qt::ToolTipRole) {
-                if (!row.tooltip().empty()) {
-                    return QVariant(mapStringToUnicode(document->encoding(), row.tooltip()));
+                if (index.column() == 0) {
+                    return QVariant("Property is protected from changes in linked groups if checked");
+                } else {
+                    if (!row.tooltip().empty()) {
+                        return QVariant(mapStringToUnicode(document->encoding(), row.tooltip()));
+                    }
                 }
             }
 
@@ -663,7 +751,7 @@ namespace TrenchBroom {
             const auto& propertyRow = m_rows.at(static_cast<size_t>(index.row()));
             unused(propertyRow);
 
-            if (role != Qt::EditRole) {
+            if (role != Qt::EditRole && role != Qt::CheckStateRole) {
                 return false;
             }
 
@@ -675,7 +763,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (index.column() == 0) {
+            if (index.column() == 1 && role == Qt::EditRole) {
                 // rename key
                 MODEL_LOG(qDebug() << "tried to rename " << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to " << value.toString());
 
@@ -683,12 +771,20 @@ namespace TrenchBroom {
                 if (renameProperty(rowIndex, newName, nodes)) {
                     return true;
                 }
-            } else if (index.column() == 1) {
+            } else if (index.column() == 2 && role == Qt::EditRole) {
                 MODEL_LOG(qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to "
                                    << value.toString());
 
                 if (updateProperty(rowIndex, mapStringFromUnicode(document->encoding(), value.toString()), nodes)) {
                     return true;
+                }
+            } else if (index.column() == 0 && role == Qt::CheckStateRole) {
+                if (value == Qt::CheckState::Checked) {
+                    MODEL_LOG(qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to protected");
+                    setProtectedProperty(rowIndex, true);
+                } else {
+                    MODEL_LOG(qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to non protected");
+                    setProtectedProperty(rowIndex, false);
                 }
             }
 
@@ -696,17 +792,24 @@ namespace TrenchBroom {
         }
 
         QVariant EntityPropertyModel::headerData(const int section, const Qt::Orientation orientation, const int role) const {
-            if (role != Qt::DisplayRole) {
-                return QVariant();
-            }
-
-            if (orientation == Qt::Horizontal) {
+            if (role == Qt::DisplayRole) {
+                if (orientation == Qt::Horizontal) {
+                    if (section == 1) {
+                        return QVariant(tr("Key"));
+                    } else if (section == 2) {
+                        return QVariant(tr("Value"));
+                    }
+                }
+            } else if (role == Qt::DecorationRole) {
                 if (section == 0) {
-                    return QVariant(tr("Key"));
-                } else if (section == 1) {
-                    return QVariant(tr("Value"));
+                    return QVariant(IO::loadSVGIcon(IO::Path("Protected_small.svg")));
+                }
+            } else if (role == Qt::ToolTipRole) {
+                if (section == 0) {
+                    return QVariant(tr("Protect properties from changes in linked groups"));
                 }
             }
+
             return QVariant();
         }
 
@@ -781,6 +884,14 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
             return document->setProperty(key, newValue);
+        }
+
+        bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool newValue) {
+            ensure(rowIndex < m_rows.size(), "row index out of bounds");
+
+            const auto& key = m_rows.at(rowIndex).key();
+            auto document = kdl::mem_lock(m_document);
+            return document->setProtectedProperty(key, newValue);
         }
 
         bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const {

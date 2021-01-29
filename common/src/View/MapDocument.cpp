@@ -2139,12 +2139,12 @@ namespace TrenchBroom {
             });
         }
 
-        bool MapDocument::setProperty(const std::string& key, const std::string& value) {
+        bool MapDocument::setProperty(const std::string& key, const std::string& value, const bool defaultToProtected) {
             const auto entityNodes = allSelectedEntityNodes();
             return applyAndSwap(*this, "Set Property", entityNodes, findContainingLinkedGroupsToUpdate(*m_world, entityNodes), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.addOrUpdateProperty(key, value); return true; },
+                [&](Model::Entity& entity) { entity.addOrUpdateProperty(key, value, defaultToProtected); return true; },
                 [] (Model::Brush&)         { return true; }
             ));
         }
