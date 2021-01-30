@@ -63,7 +63,7 @@ namespace TrenchBroom {
             return out;
         }
         
-        MouseEvent::MouseEvent(const Type i_type, const Button i_button, const WheelAxis i_wheelAxis, const int i_posX, const int i_posY, const float i_scrollDistance):
+        MouseEvent::MouseEvent(const Type i_type, const Button i_button, const WheelAxis i_wheelAxis, const float i_posX, const float i_posY, const float i_scrollDistance):
         type(i_type),
         button(i_button),
         wheelAxis(i_wheelAxis),
@@ -209,8 +209,8 @@ namespace TrenchBroom {
         InputEventRecorder::InputEventRecorder() :
         m_dragging(false),
         m_anyMouseButtonDown(false),
-        m_lastClickX(0),
-        m_lastClickY(0),
+        m_lastClickX(0.0f),
+        m_lastClickY(0.0f),
         m_lastClickTime(std::chrono::high_resolution_clock::now()),
         m_nextMouseUpIsRMB(false),
         m_nextMouseUpIsDblClick(false) {}
@@ -223,8 +223,8 @@ namespace TrenchBroom {
         void InputEventRecorder::recordEvent(const QMouseEvent& qEvent) {
                   auto type = getEventType(qEvent);
                   auto button = getButton(qEvent);
-            const auto posX = qEvent.x();
-            const auto posY = qEvent.y();
+            const auto posX = static_cast<float>(qEvent.localPos().x());
+            const auto posY = static_cast<float>(qEvent.localPos().y());
 
             const auto wheelAxis = MouseEvent::WheelAxis::None;
             const float scrollDistance = 0.0f;
@@ -307,9 +307,9 @@ namespace TrenchBroom {
         }
 
         void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent) {
-            // These are the mouse X and Y position, not the wheel delta
-            const int posX = qtEvent.x();
-            const int posY = qtEvent.y();
+            // These are the mouse X and Y position, not the wheel delta, in points relative to top left of widget.
+            const auto posX = static_cast<float>(qtEvent.x());
+            const auto posY = static_cast<float>(qtEvent.y());
             
             // Number of "lines" to scroll
             QPointF scrollDistance = scrollLinesForEvent(qtEvent);
@@ -339,8 +339,8 @@ namespace TrenchBroom {
             m_queue.processEvents(processor);
         }
 
-        bool InputEventRecorder::isDrag(int posX, int posY) const {
-            static const auto MinDragDistance = 2;
+        bool InputEventRecorder::isDrag(const float posX, const float posY) const {
+            static const auto MinDragDistance = 2.0f;
             return std::abs(posX - m_lastClickX) > MinDragDistance || std::abs(posY - m_lastClickY) > MinDragDistance;
         }
 

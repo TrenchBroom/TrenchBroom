@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
         static void updatePickState(InputState& inputState, const Renderer::Camera& camera, const MapDocument& document) {
             Model::PickResult pickResult = Model::PickResult::byDistance(document.editorContext());
-            const PickRequest pickRequest(vm::ray3(camera.pickRay(inputState.mouseX(), inputState.mouseY())), camera);
+            const PickRequest pickRequest(vm::ray3(camera.pickRay(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()))), camera);
 
             document.pick(pickRequest.pickRay(), pickResult);
 
@@ -84,19 +84,19 @@ namespace TrenchBroom {
             const auto clipPoint1 = vm::vec3(-16, -16, 52);
             const auto clipPoint2 = vm::vec3( 20, -16, 52);
 
-            auto clipPoint1ScreenSpace = vm::vec2i(vm::round(camera.project(vm::vec3f(clipPoint1))));
-            auto clipPoint2ScreenSpace = vm::vec2i(vm::round(camera.project(vm::vec3f(clipPoint2))));
+            auto clipPoint1ScreenSpace = vm::vec2f(camera.project(vm::vec3f(clipPoint1)));
+            auto clipPoint2ScreenSpace = vm::vec2f(camera.project(vm::vec3f(clipPoint2)));
 
             // Transform the points so (0, 0) is in the upper left
-            clipPoint1ScreenSpace = vm::vec2i(clipPoint1ScreenSpace.x(), viewport.height - clipPoint1ScreenSpace.y());
-            clipPoint2ScreenSpace = vm::vec2i(clipPoint2ScreenSpace.x(), viewport.height - clipPoint2ScreenSpace.y());
+            clipPoint1ScreenSpace = vm::vec2f(clipPoint1ScreenSpace.x(), static_cast<float>(viewport.height) - clipPoint1ScreenSpace.y());
+            clipPoint2ScreenSpace = vm::vec2f(clipPoint2ScreenSpace.x(), static_cast<float>(viewport.height) - clipPoint2ScreenSpace.y());
 
             CHECK_FALSE(tool.canClip());
             CHECK(tool.canAddPoint( clipPoint1));
 
             // HACK: bias the points towards the center of the screen a bit
             // There's no way around this unless the clip tool allowed the mouse to be slightly outside of the brush
-            InputState inputState(clipPoint1ScreenSpace.x() + 2, clipPoint1ScreenSpace.y());
+            InputState inputState(clipPoint1ScreenSpace.x() + 2.0f, clipPoint1ScreenSpace.y());
             updatePickState(inputState, camera, *document);
             REQUIRE(inputState.pickResult().size() == 1u);
 
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             CHECK(tool.canAddPoint(clipPoint2));
 
             // HACK: bias the points towards the center of the screen a bit
-            inputState.mouseMove(clipPoint2ScreenSpace.x() - 2, clipPoint2ScreenSpace.y(), 0, 0);
+            inputState.mouseMove(clipPoint2ScreenSpace.x() - 2.0f, clipPoint2ScreenSpace.y(), 0.0f, 0.0f);
             updatePickState(inputState, camera, *document);
             REQUIRE(inputState.pickResult().size() == 1u);
 

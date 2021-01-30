@@ -63,7 +63,7 @@ namespace TrenchBroom {
             void unbindObservers();
             void cameraDidChange(const Renderer::Camera* camera);
         private: // implement ToolBoxConnector interface
-            PickRequest doGetPickRequest(int x, int y) const override;
+            PickRequest doGetPickRequest(float x, float y) const override;
             Model::PickResult doPick(const vm::ray3& pickRay) const override;
         protected: // QOpenGLWidget overrides
             void initializeGL() override;
