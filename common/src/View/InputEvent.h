@@ -172,8 +172,10 @@ namespace TrenchBroom {
             Type type;
             Button button;
             WheelAxis wheelAxis;
-            int posX;
-            int posY;
+            
+            /** Cursor position in Points, relative to top left of widget. */
+            float posX;
+            float posY;
             float scrollDistance;
         public:
             /**
@@ -186,7 +188,7 @@ namespace TrenchBroom {
              * @param posY the current Y position of the mouse pointer
              * @param scrollDistance the distance by which the mouse wheel was scrolled, in lines
              */
-            MouseEvent(Type type, Button button, WheelAxis wheelAxis, int posX, int posY, float scrollDistance);
+            MouseEvent(Type type, Button button, WheelAxis wheelAxis, float posX, float posY, float scrollDistance);
         public:
             /**
              * Collates this mouse event with the given mouse event. Only successive Motion, Drag and Scroll events are
@@ -297,11 +299,11 @@ namespace TrenchBroom {
             /**
              * The X position of the last mouse down event.
              */
-            int m_lastClickX;
+            float m_lastClickX;
             /**
              * The Y position of the last mouse down event.
              */
-            int m_lastClickY;
+            float m_lastClickY;
             /**
              * The time at which the last mouse down event was recorded.
              */
@@ -352,7 +354,7 @@ namespace TrenchBroom {
              * @param posY the Y position
              * @return true if the given position should start a drag and false otherwise
              */
-            bool isDrag(int posX, int posY) const;
+            bool isDrag(float posX, float posY) const;
 
             /**
              * Decodes the event type of the given key event.
