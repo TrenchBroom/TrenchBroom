@@ -243,8 +243,7 @@ namespace TrenchBroom {
 
         void EntityDefinitionFileChooser::reloadExternalClicked() {
             auto document = kdl::mem_lock(m_document);
-            const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
-            document->setEntityDefinitionFile(spec);
+            document->reloadEntityDefinitions();
         }
     }
 }

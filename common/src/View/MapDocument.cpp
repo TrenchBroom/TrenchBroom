@@ -2475,8 +2475,11 @@ namespace TrenchBroom {
         }
 
         void MapDocument::reloadEntityDefinitions() {
-            auto oldSpec = entityDefinitionFile();
-            setEntityDefinitionFile(oldSpec);
+            const std::vector<Model::Node*> nodes(1, m_world.get());
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            Notifier<>::NotifyBeforeAndAfter notifyEntityDefinitions(entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
+
+            info("Reloading entity definitions");
         }
 
         void MapDocument::loadAssets() {
