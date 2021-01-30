@@ -276,7 +276,7 @@ namespace TrenchBroom {
             }
 
             std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& /* clipPoint */) const override {
-                return std::vector<vm::vec3>(1, vm::vec3(inputState.camera().direction()));
+                return std::vector<vm::vec3>{vm::vec3(inputState.camera().direction())};
             }
 
             bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const override {
