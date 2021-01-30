@@ -183,7 +183,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            if (!m_dragTargetFaceHandle && !m_dragTargetFaceHandle) {
+            if (!m_dragSourceFaceHandle && !m_dragTargetFaceHandle) {
                 // Start drag
                 m_dragSourceFaceHandle = m_dragInitialSelectedFaceHandle;
                 m_dragTargetFaceHandle = faceHandle;
