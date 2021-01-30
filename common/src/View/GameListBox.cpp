@@ -52,6 +52,8 @@ namespace TrenchBroom {
         }
 
         void GameListBox::reloadGameInfos() {
+            const auto currentGameName = selectedGameName();
+
             m_gameInfos.clear();
 
             const auto& gameFactory = Model::GameFactory::instance();
@@ -60,6 +62,14 @@ namespace TrenchBroom {
             }
 
             reload();
+
+            const std::vector<std::string>& gameList = gameFactory.gameList();
+            for (size_t i = 0u; i < gameList.size(); ++i) {
+                if (gameList[i] == currentGameName) {
+                    selectGame(i);
+                    break;
+                }
+            }
         }
 
         void GameListBox::updateGameInfos() {
