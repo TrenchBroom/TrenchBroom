@@ -325,18 +325,18 @@ namespace TrenchBroom {
              *
              * @param event the event to record
              */
-            void recordEvent(const QKeyEvent* event);
+            void recordEvent(const QKeyEvent& event);
 
             /**
              * Records the given mouse event.
              *
              * @param event the event to record
              */
-            void recordEvent(const QMouseEvent* event);
+            void recordEvent(const QMouseEvent& event);
 
-            static QPointF scrollLinesForEvent(const QWheelEvent* qtEvent);
+            static QPointF scrollLinesForEvent(const QWheelEvent& event);
 
-            void recordEvent(const QWheelEvent* event);
+            void recordEvent(const QWheelEvent& event);
 
             /**
              * Processes all recorded events using the given event processor.
@@ -357,26 +357,26 @@ namespace TrenchBroom {
             /**
              * Decodes the event type of the given key event.
              *
-             * @param wxEvent the event to decode
+             * @param event the event to decode
              * @return the event type
              */
-            static KeyEvent::Type getEventType(const QKeyEvent* wxEvent);
+            static KeyEvent::Type getEventType(const QKeyEvent& event);
 
             /**
              * Decodes the event type of the given mouse event.
              *
-             * @param wxEvent the event to decode
+             * @param event the event to decode
              * @return the event type
              */
-            static MouseEvent::Type getEventType(const QMouseEvent* wxEvent);
+            static MouseEvent::Type getEventType(const QMouseEvent& event);
 
             /**
              * Decodes the button of the given mouse event, if any.
              *
-             * @param wxEvent the event to decode
+             * @param event the event to decode
              * @return the mouse button
              */
-            static MouseEvent::Button getButton(const QMouseEvent* wxEvent);
+            static MouseEvent::Button getButton(const QMouseEvent& event);
         };
 
         /**
