@@ -216,15 +216,15 @@ namespace TrenchBroom {
         m_nextMouseUpIsDblClick(false) {}
 
 
-        void InputEventRecorder::recordEvent(const QKeyEvent* wxEvent) {
-            m_queue.enqueueEvent(std::make_unique<KeyEvent>(getEventType(wxEvent)));
+        void InputEventRecorder::recordEvent(const QKeyEvent& qEvent) {
+            m_queue.enqueueEvent(std::make_unique<KeyEvent>(getEventType(qEvent)));
         }
 
-        void InputEventRecorder::recordEvent(const QMouseEvent* wxEvent) {
-                  auto type = getEventType(wxEvent);
-                  auto button = getButton(wxEvent);
-            const auto posX = wxEvent->x();
-            const auto posY = wxEvent->y();
+        void InputEventRecorder::recordEvent(const QMouseEvent& qEvent) {
+                  auto type = getEventType(qEvent);
+                  auto button = getButton(qEvent);
+            const auto posX = qEvent.x();
+            const auto posY = qEvent.y();
 
             const auto wheelAxis = MouseEvent::WheelAxis::None;
             const float scrollDistance = 0.0f;
@@ -232,7 +232,7 @@ namespace TrenchBroom {
             if (type == MouseEvent::Type::Down) {
                 // macOS: apply Ctrl+click = right click emulation
                 // (Implemented ourselves rather than using Qt's implementation to work around Qt bug, see Main.cpp)
-                if (wxEvent->modifiers() & Qt::MetaModifier) {
+                if (qEvent.modifiers() & Qt::MetaModifier) {
                     button = MouseEvent::Button::Right;
                     m_nextMouseUpIsRMB = true;
                 }
@@ -296,20 +296,20 @@ namespace TrenchBroom {
             }
         }
         
-        QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent* qtEvent) {
-            // TODO: support pixel scrolling via qtEvent->pixelDelta()?
+        QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent& qtEvent) {
+            // TODO: support pixel scrolling via qtEvent.pixelDelta()?
             const int linesPerStep = QApplication::wheelScrollLines();
-            const QPointF angleDelta = QPointF(qtEvent->angleDelta()); // in eighths-of-degrees
+            const QPointF angleDelta = QPointF(qtEvent.angleDelta()); // in eighths-of-degrees
             constexpr float EighthsOfDegreesPerStep = 120.0f; // see: https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
 
             const QPointF lines = (angleDelta / EighthsOfDegreesPerStep) * linesPerStep;
             return lines;
         }
 
-        void InputEventRecorder::recordEvent(const QWheelEvent* qtEvent) {
+        void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent) {
             // These are the mouse X and Y position, not the wheel delta
-            const int posX = qtEvent->x();
-            const int posY = qtEvent->y();
+            const int posX = qtEvent.x();
+            const int posY = qtEvent.y();
             
             // Number of "lines" to scroll
             QPointF scrollDistance = scrollLinesForEvent(qtEvent);
@@ -321,7 +321,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
                 false;
 #else
-                qtEvent->modifiers().testFlag(Qt::AltModifier);
+                qtEvent.modifiers().testFlag(Qt::AltModifier);
 #endif
             if (swapXY) {
                 scrollDistance = QPointF(scrollDistance.y(), scrollDistance.x());
@@ -344,41 +344,41 @@ namespace TrenchBroom {
             return std::abs(posX - m_lastClickX) > MinDragDistance || std::abs(posY - m_lastClickY) > MinDragDistance;
         }
 
-        KeyEvent::Type InputEventRecorder::getEventType(const QKeyEvent* wxEvent) {
-            const auto wxType = wxEvent->type();
-            if (wxType == QEvent::KeyPress) {
+        KeyEvent::Type InputEventRecorder::getEventType(const QKeyEvent& qEvent) {
+            const auto qEventType = qEvent.type();
+            if (qEventType == QEvent::KeyPress) {
                 return KeyEvent::Type::Down;
-            } else if (wxType == QEvent::KeyRelease) {
+            } else if (qEventType == QEvent::KeyRelease) {
                 return KeyEvent::Type::Up;
             } else {
-                throw std::runtime_error("Unexpected wxEvent type");
+                throw std::runtime_error("Unexpected qEvent type");
             }
         }
 
-        MouseEvent::Type InputEventRecorder::getEventType(const QMouseEvent* wxEvent) {
-            if (wxEvent->type() == QEvent::MouseButtonPress) {
+        MouseEvent::Type InputEventRecorder::getEventType(const QMouseEvent& qEvent) {
+            if (qEvent.type() == QEvent::MouseButtonPress) {
                 return MouseEvent::Type::Down;
-            } else if (wxEvent->type() == QEvent::MouseButtonRelease) {
+            } else if (qEvent.type() == QEvent::MouseButtonRelease) {
                 return MouseEvent::Type::Up;
-            } else if (wxEvent->type() == QEvent::MouseButtonDblClick) {
+            } else if (qEvent.type() == QEvent::MouseButtonDblClick) {
                 return MouseEvent::Type::DoubleClick;
-            } else if (wxEvent->type() == QEvent::MouseMove) {
+            } else if (qEvent.type() == QEvent::MouseMove) {
                 return MouseEvent::Type::Motion;
             } else {
-                throw std::runtime_error("Unexpected wxEvent type");
+                throw std::runtime_error("Unexpected qEvent type");
             }
         }
 
-        MouseEvent::Button InputEventRecorder::getButton(const QMouseEvent* wxEvent) {
-            if (wxEvent->button() == Qt::LeftButton) {
+        MouseEvent::Button InputEventRecorder::getButton(const QMouseEvent& qEvent) {
+            if (qEvent.button() == Qt::LeftButton) {
                 return MouseEvent::Button::Left;
-            } else if (wxEvent->button() == Qt::MiddleButton) {
+            } else if (qEvent.button() == Qt::MiddleButton) {
                 return MouseEvent::Button::Middle;
-            } else if (wxEvent->button() == Qt::RightButton) {
+            } else if (qEvent.button() == Qt::RightButton) {
                 return MouseEvent::Button::Right;
-            } else if (wxEvent->button() == Qt::XButton1) {
+            } else if (qEvent.button() == Qt::XButton1) {
                 return MouseEvent::Button::Aux1;
-            } else if (wxEvent->button() == Qt::XButton2) {
+            } else if (qEvent.button() == Qt::XButton2) {
                 return MouseEvent::Button::Aux2;
             } else {
                 return MouseEvent::Button::None;

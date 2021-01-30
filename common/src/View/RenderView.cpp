@@ -121,37 +121,37 @@ namespace TrenchBroom {
         RenderView::~RenderView() = default;
 
         void RenderView::keyPressEvent(QKeyEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 
         void RenderView::keyReleaseEvent(QKeyEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 
         void RenderView::mouseDoubleClickEvent(QMouseEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 
         void RenderView::mouseMoveEvent(QMouseEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 
         void RenderView::mousePressEvent(QMouseEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 
         void RenderView::mouseReleaseEvent(QMouseEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 
         void RenderView::wheelEvent(QWheelEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 
