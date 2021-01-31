@@ -33,6 +33,8 @@
 
 #include <vecmath/vec.h>
 
+#include <fmt/format.h>
+
 #include <string>
 
 #include "Catch2.h"
@@ -1460,6 +1462,52 @@ common/caulk
                 CHECK(!face.attributes().textureName().empty());
                 CHECK(face.attributes().textureName() == Model::BrushFaceAttributes::NoTextureName);
             }
+        }
+
+        TEST_CASE("WorldReaderTest.parseQuotedTextureNames", "[WorldReaderTest]") {
+            using NameInfo = std::tuple<std::string, std::string>;
+            const auto [textureName, expectedName] = GENERATE(values<NameInfo>({
+                { R"(some_name)",    R"(some_name)"},
+                { R"("some name")",  R"(some name)"},
+                { R"("some\\name")", R"(some\name)"},
+                { R"("some\"name")", R"(some"name)"},
+                { R"("")",           R"()"},
+            }));
+
+            CAPTURE(textureName, expectedName);
+
+            const auto data = fmt::format(R"(
+// entity 0
+{{
+"classname" "worldspawn"
+// brush 0
+{{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) {0} 0 0 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) {0} 0 0 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) {0} 0 0 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) {0} 0 0 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) {0} 0 0 0 1 1
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) {0} 0 0 0 1 1
+}}
+}})", textureName);
+
+            const auto worldBounds = vm::bbox3{8192.0};
+
+            auto status = IO::TestParserStatus{};
+            auto reader = WorldReader{data, Model::MapFormat::Standard};
+
+            auto worldNode = reader.read(worldBounds, status);
+            REQUIRE(worldNode != nullptr);
+            REQUIRE(worldNode->childCount() == 1u);
+
+            const auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(worldNode->children().front());
+            REQUIRE(defaultLayerNode != nullptr);
+            REQUIRE(defaultLayerNode->childCount() == 1u);
+
+            const auto* brushNode = dynamic_cast<Model::BrushNode*>(defaultLayerNode->children().front());
+            REQUIRE(brushNode != nullptr);
+
+            CHECK(brushNode->brush().face(0).attributes().textureName() == expectedName);
         }
     }
 }
