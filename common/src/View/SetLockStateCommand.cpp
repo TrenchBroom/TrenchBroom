@@ -20,7 +20,15 @@
 #include "SetLockStateCommand.h"
 #include "Macros.h"
 #include "Model/LockState.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/Node.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <kdl/overload.h>
 
 #include <string>
 
@@ -40,8 +48,24 @@ namespace TrenchBroom {
             return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Inherited);
         }
 
+        static bool shouldUpdateModificationCount(const std::vector<Model::Node*>& nodes) {
+            for (const auto* node : nodes) {
+                const auto modifiesLayer = node->accept(kdl::overload(
+                    [](const Model::WorldNode*)  { return false; },
+                    [](const Model::LayerNode*)  { return true; },
+                    [](const Model::GroupNode*)  { return false; },
+                    [](const Model::EntityNode*) { return false; },
+                    [](const Model::BrushNode*)  { return false; }
+                ));
+                if (modifiesLayer) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         SetLockStateCommand::SetLockStateCommand(const std::vector<Model::Node*>& nodes, const Model::LockState lockState) :
-        UndoableCommand(Type, makeName(lockState), false),
+        UndoableCommand(Type, makeName(lockState), shouldUpdateModificationCount(nodes)),
         m_nodes(nodes),
         m_lockState(lockState) {}
 

@@ -84,6 +84,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/SelectionCommandTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SelectionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SetEntityPropertiesTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/SetLockStateTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SnapBrushVerticesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SwapNodeContentsCommandTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/TagManagementTest.cpp"
