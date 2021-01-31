@@ -31,7 +31,7 @@ namespace TrenchBroom {
         const Command::CommandType SwapNodeContentsCommand::Type = Command::freeType();
 
         SwapNodeContentsCommand::SwapNodeContentsCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes) :
-        DocumentCommand(Type, name),
+        UndoableCommand(Type, name, true),
         m_nodes(std::move(nodes)) {}
 
         SwapNodeContentsCommand::~SwapNodeContentsCommand() = default;

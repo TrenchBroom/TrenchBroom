@@ -54,7 +54,7 @@ namespace TrenchBroom {
         }
 
         AddRemoveNodesCommand::AddRemoveNodesCommand(const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) :
-        DocumentCommand(Type, makeName(action)),
+        UndoableCommand(Type, makeName(action), true),
         m_action(action) {
             switch (m_action) {
                 case Action::Add:

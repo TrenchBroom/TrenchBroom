@@ -34,7 +34,7 @@ namespace TrenchBroom {
         }
 
         CurrentGroupCommand::CurrentGroupCommand(Model::GroupNode* group) :
-        UndoableCommand(Type, group != nullptr ? "Push Group" : "Pop Group"),
+        UndoableCommand(Type, group != nullptr ? "Push Group" : "Pop Group", false),
         m_group(group) {}
 
         std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(MapDocumentCommandFacade* document) {

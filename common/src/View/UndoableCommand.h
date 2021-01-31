@@ -30,11 +30,14 @@ namespace TrenchBroom {
         class MapDocumentCommandFacade;
 
         class UndoableCommand : public Command {
+        private:
+            size_t m_modificationCount;
         protected:
-            UndoableCommand(CommandType type, const std::string& name);
+            UndoableCommand(CommandType type, const std::string& name, bool updateModificationCount);
         public:
             virtual ~UndoableCommand();
 
+            std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
             virtual std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document);
 
             virtual bool collateWith(UndoableCommand* command);
@@ -42,8 +45,6 @@ namespace TrenchBroom {
             virtual std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) = 0;
 
             virtual bool doCollateWith(UndoableCommand* command) = 0;
-        public: // this method is just a service for DocumentCommand and should never be called from anywhere else
-            virtual size_t documentModificationCount() const;
 
             deleteCopyAndMove(UndoableCommand)
         };

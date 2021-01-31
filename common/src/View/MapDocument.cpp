@@ -2289,12 +2289,12 @@ namespace TrenchBroom {
             }
         }
 
-        class ThrowExceptionCommand : public DocumentCommand {
+        class ThrowExceptionCommand : public UndoableCommand {
         public:
             static const CommandType Type;
             using Ptr = std::shared_ptr<ThrowExceptionCommand>;
         public:
-            ThrowExceptionCommand() : DocumentCommand(Type, "Throw Exception") {}
+            ThrowExceptionCommand() : UndoableCommand(Type, "Throw Exception", false) {}
 
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override {

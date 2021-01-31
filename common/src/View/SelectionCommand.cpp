@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         SelectionCommand::SelectionCommand(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFaceHandle>& faces) :
-        UndoableCommand(Type, makeName(action, nodes.size(), faces.size())),
+        UndoableCommand(Type, makeName(action, nodes.size(), faces.size()), false),
         m_action(action),
         m_nodes(nodes),
         m_faceRefs(Model::createRefs(faces)) {}
