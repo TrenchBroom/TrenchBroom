@@ -583,8 +583,9 @@ namespace TrenchBroom {
             return std::make_tuple(p1, p2, p3);
         }
 
-        std::string_view StandardMapParser::parseTextureName(ParserStatus& /* status */) {
-            return m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
+        std::string StandardMapParser::parseTextureName(ParserStatus& /* status */) {
+            const auto [textureName, wasQuoted] = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
+            return wasQuoted ? kdl::str_unescape(textureName, "\"\\") : std::string(textureName);
         }
 
         std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveTextureAxes(ParserStatus& /* status */) {
