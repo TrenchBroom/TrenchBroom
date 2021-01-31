@@ -31,7 +31,7 @@ namespace TrenchBroom {
         }
 
         ReparentNodesCommand::ReparentNodesCommand(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove) :
-        DocumentCommand(Type, "Reparent Objects"),
+        UndoableCommand(Type, "Reparent Objects", true),
         m_nodesToAdd(nodesToAdd),
         m_nodesToRemove(nodesToRemove) {}
 

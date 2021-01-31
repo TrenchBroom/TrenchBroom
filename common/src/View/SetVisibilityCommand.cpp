@@ -45,7 +45,7 @@ namespace TrenchBroom {
         }
 
         SetVisibilityCommand::SetVisibilityCommand(const std::vector<Model::Node*>& nodes, const Action action) :
-        UndoableCommand(Type, makeName(action)),
+        UndoableCommand(Type, makeName(action), false),
         m_nodes(nodes),
         m_action(action) {}
 

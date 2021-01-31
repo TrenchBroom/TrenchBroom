@@ -114,7 +114,7 @@ namespace TrenchBroom {
             }
 
             explicit TestCommand(const std::string& name) :
-            UndoableCommand(Type, name) {}
+            UndoableCommand(Type, name, false) {}
 
             ~TestCommand() {
                 CHECK(m_expectedCalls.empty());

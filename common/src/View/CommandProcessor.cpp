@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 Notifier<Command*>& i_commandDoneNotifier,
                 Notifier<UndoableCommand*>& i_commandUndoNotifier,
                 Notifier<UndoableCommand*>& i_commandUndoneNotifier) :
-                UndoableCommand(Type, name),
+                UndoableCommand(Type, name, false),
                 m_commands(std::move(commands)),
                 m_commandDoNotifier(i_commandDoNotifier),
                 m_commandDoneNotifier(i_commandDoneNotifier),

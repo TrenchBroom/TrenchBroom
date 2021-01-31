@@ -41,7 +41,7 @@ namespace TrenchBroom {
         }
 
         SetLockStateCommand::SetLockStateCommand(const std::vector<Model::Node*>& nodes, const Model::LockState lockState) :
-        UndoableCommand(Type, makeName(lockState)),
+        UndoableCommand(Type, makeName(lockState), false),
         m_nodes(nodes),
         m_lockState(lockState) {}
 
