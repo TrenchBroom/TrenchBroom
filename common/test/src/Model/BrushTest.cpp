@@ -3132,8 +3132,8 @@ namespace TrenchBroom {
             CHECK(top->findFace(vm::plane3(0.0, vm::vec3::neg_z())));
 
             // top brush textures
-            CHECK(top->face(*top->findFace(vm::vec3::pos_x())).attributes().textureName() == defaultTexture);
-            CHECK(top->face(*top->findFace(vm::vec3::neg_x())).attributes().textureName() == defaultTexture);
+            CHECK(top->face(*top->findFace(vm::vec3::pos_x())).attributes().textureName() == subtrahendTexture);
+            CHECK(top->face(*top->findFace(vm::vec3::neg_x())).attributes().textureName() == subtrahendTexture);
             CHECK(top->face(*top->findFace(vm::vec3::pos_y())).attributes().textureName() == minuendTexture);
             CHECK(top->face(*top->findFace(vm::vec3::neg_y())).attributes().textureName() == minuendTexture);
             CHECK(top->face(*top->findFace(vm::vec3::pos_z())).attributes().textureName() == minuendTexture);
