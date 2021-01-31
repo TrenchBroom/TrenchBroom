@@ -911,6 +911,7 @@ namespace TrenchBroom {
             }).and_then([&](Brush&& brush) {
                 brush.cloneFaceAttributesFrom(*this);
                 for (const auto* subtrahend : subtrahends) {
+                    brush.cloneFaceAttributesFrom(*subtrahend);
                     brush.cloneInvertedFaceAttributesFrom(*subtrahend);
                 }
                 return std::move(brush);
