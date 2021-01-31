@@ -32,6 +32,7 @@
 
 #include <kdl/overload.h>
 #include <kdl/parallel.h>
+#include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
 #include <fmt/format.h>
@@ -70,11 +71,19 @@ namespace TrenchBroom {
                                points[2].z());
             }
 
+            static bool shouldQuoteTextureName(const std::string& textureName) {
+                return textureName.empty() || textureName.find_first_of("\"\\ \t") != std::string::npos;
+            }
+
+            static std::string quoteTextureName(const std::string& textureName) {
+                return "\"" + kdl::str_escape(textureName, "\"") + "\"";
+            }
+
             void writeTextureInfo(std::ostream& stream, const Model::BrushFace& face) const {
                 const std::string& textureName = face.attributes().textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face.attributes().textureName();
 
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {} {} {} {}",
-                               textureName,
+                               shouldQuoteTextureName(textureName) ? quoteTextureName(textureName) : textureName,
                                face.attributes().xOffset(),
                                face.attributes().yOffset(),
                                face.attributes().rotation(),
