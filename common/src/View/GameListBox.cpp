@@ -39,8 +39,8 @@ namespace TrenchBroom {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const std::vector<std::string>& gameList = gameFactory.gameList();
 
-            const auto index = currentRow();
-            if (index >= static_cast<int>(gameList.size())) {
+            const int index = currentRow();
+            if (index < 0 || index >= static_cast<int>(gameList.size())) {
                 return "";
             } else {
                 return gameList[static_cast<size_t>(index)];
