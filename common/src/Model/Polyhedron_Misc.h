@@ -770,6 +770,8 @@ namespace TrenchBroom {
             m_edges.remove(edge);
 
             // Merge faces that may have become coplanar
+#if 0
+            // Disabled to work around: https://github.com/TrenchBroom/TrenchBroom/issues/3655
             {
                 auto* firstEdge = firstVertex->leaving();
                 auto* currentEdge = firstEdge;
@@ -783,7 +785,7 @@ namespace TrenchBroom {
                     currentEdge = nextEdge;
                 } while (currentEdge != firstEdge);
             }
-
+#endif
             return result;
         }
 
