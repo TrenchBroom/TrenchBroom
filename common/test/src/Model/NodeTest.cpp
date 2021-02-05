@@ -673,5 +673,43 @@ namespace TrenchBroom {
                 CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{}));
             }
         }
+
+        TEST_CASE("NodeTest.pathFrom", "[NodeTest]") {
+            auto root = TestNode{};
+            auto& child1 = root.addChild(new TestNode{});
+            auto& child2 = root.addChild(new TestNode{});
+            auto& child1_1 = child1.addChild(new TestNode{});
+            auto& child1_2 = child1.addChild(new TestNode{});
+            auto& child1_1_1 = child1_1.addChild(new TestNode{});
+
+            CHECK(child1_1_1.pathFrom(root) == NodePath{{0, 0, 0}});
+            CHECK(child1_1_1.pathFrom(child1) == NodePath{{0, 0}});
+            CHECK(child1_1_1.pathFrom(child1_1) == NodePath{{0}});
+            CHECK(child1_1_1.pathFrom(child1_1_1) == NodePath{{}});
+
+            CHECK(child2.pathFrom(root) == NodePath{{1}});
+            CHECK(child1_2.pathFrom(root) == NodePath{{0, 1}});
+            CHECK(root.pathFrom(root) == NodePath{{}});
+        }
+
+        TEST_CASE("Nodepath.resolvePath", "[NodeTest]") {
+            auto root = TestNode{};
+            auto& child1 = root.addChild(new TestNode{});
+            auto& child2 = root.addChild(new TestNode{});
+            auto& child1_1 = child1.addChild(new TestNode{});
+            auto& child1_2 = child1.addChild(new TestNode{});
+            auto& child1_1_1 = child1_1.addChild(new TestNode{});
+
+            CHECK(root.resolvePath(NodePath{{}}) == &root);
+            CHECK(root.resolvePath(NodePath{{0}}) == &child1);
+            CHECK(root.resolvePath(NodePath{{1}}) == &child2);
+            CHECK(root.resolvePath(NodePath{{2}}) == nullptr);
+            CHECK(root.resolvePath(NodePath{{0, 0}}) == &child1_1);
+            CHECK(root.resolvePath(NodePath{{0, 0, 0}}) == &child1_1_1);
+            CHECK(root.resolvePath(NodePath{{0, 1}}) == &child1_2);
+            CHECK(child1.resolvePath(NodePath{{0, 0}}) == &child1_1_1);
+            CHECK(child1_1.resolvePath(NodePath{{0}}) == &child1_1_1);
+            CHECK(child1_1_1.resolvePath(NodePath{{}}) == &child1_1_1);
+        }
     }
 }

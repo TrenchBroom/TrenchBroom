@@ -27,6 +27,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>
@@ -41,6 +42,14 @@ namespace TrenchBroom {
         class NodeVisitor;
         class PickResult;
         enum class VisibilityState;
+
+        struct NodePath {
+            std::vector<std::size_t> indices;
+        };
+
+        bool operator==(const NodePath& lhs, const NodePath& rhs);
+        bool operator!=(const NodePath& lhs, const NodePath& rhs);
+        std::ostream& operator<<(std::ostream& str, const NodePath& path);
 
         class Node : public Taggable {
         private:
@@ -70,6 +79,23 @@ namespace TrenchBroom {
             ~Node() override;
         public: // getters
             const std::string& name() const;
+
+            /**
+             * Returns a path from the given ancestor to this node.
+             *
+             * If the given node is not an ancestor of this node, then the returned path is undefined.
+             */
+            NodePath pathFrom(const Node& fromAncestor) const;
+            
+            /**
+             * Resolves the given path starting at this node.
+             *
+             * Returns the descendant of this node to which the given path resolves or null if the given
+             * path is not valid from this node.
+             */
+            Node* resolvePath(const NodePath& path);
+            const Node* resolvePath(const NodePath& path) const;
+
             /**
              * Returns a box that encloses the "logical" part of this node and its children; these are the bounds that are
              * used in game (for entities, the bounds specified in the entity definition file), and used
@@ -144,7 +170,7 @@ namespace TrenchBroom {
                 incDescendantCount(descendantCountDelta);
             }
 
-            void addChild(Node* child);
+            Node& addChild(Node* child);
 
             std::vector<std::unique_ptr<Node>> replaceChildren(std::vector<std::unique_ptr<Node>> newChildren);
 
