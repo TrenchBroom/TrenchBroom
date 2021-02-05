@@ -2227,7 +2227,12 @@ The game configuration is an [expression language](#expression_language) map wit
                     "description": "The brush is water"
                 }
             ]
-        }
+        },
+        "compilationTools": [
+            { "name": "qbsp" },
+            { "name": "vis" },
+            { "name": "light" }
+        ]
     }
 
 #### Versions
@@ -2236,10 +2241,11 @@ The game configuration files are versioned. Whenever a breaking change to the ga
 
 **Current Versions**
 
-TrenchBroom currently supports game config versions 3 and 4. Version 4 is identical to version 3 with two exceptions:
+TrenchBroom currently supports game config versions 3 and 4. Version 4 has the following changes from version 3:
 
 * Version 4 adds support for the `unused` key in surface flags and content flags; this key does not exist in version 3.
 * Version 4 adds support for specifying a list of values for the `pattern` key in surfaceparm-type smart tags; in version 3 only a single value is allowed.
+* Version 4 adds the optional `compilationTools` key.
 
 **Migrating from Version 2**
 
