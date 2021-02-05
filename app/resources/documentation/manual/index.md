@@ -1156,6 +1156,15 @@ Additionally, you can configure the game engines for the selected game by clicki
 
 In this dialog, you can add a game engine profile by clicking on the '+' button below the profile list on the left, and you can delete the selected profile by clicking on the '-' button. To the right of the list, you can edit the details of the selected game engine profile, specifically its name and path. Similar to the game path, if you edit the engine path manually, you have to apply the changes by pressing #key(Return) while in the path text box. Click [here](#launching_game_engines) to find out how to launch game engines from within TrenchBroom.
 
+For some game configurations (such as for Quake, shown above) you can also optionally enter paths for a set of compilation tools. If you do, then the name shown to the left of the path can be used as a variable in your [compilation profiles](#compiling_maps) for this game. Wherever that variable occurs, the path specified here will be used. For example if your path to the `qbsp` tool is `C:\mapping\ericw-tools-v0.18.1-win64\bin\qbsp.exe`, and you set that path here... then in your compilation profiles you can enter `${qbsp}` wherever you need to refer to that whole qbsp.exe path.
+
+The benefits of specifying your tool paths here (if the game configuration allows) are:
+
+- It will be easier to create, edit, and share your compilation profiles.
+- If your tool paths need to be changed, you only have to change them here.
+
+So in the example above, if you wanted to try a later version of ericw-tools that are located in a different folder like `C:\mapping\ericw-tools-v0.19-win64\bin`, then you would only need to change the paths in this dialog. You wouldn't need to edit all of your compilation profiles.
+
 ## View Layout and Rendering {#view_layout_and_rendering}
 
 ![View Preferences (macOS)](images/ViewPreferences.png)
@@ -1269,7 +1278,7 @@ Export Map
     Target 		The path of the exported file. Variables are allowed.
 
 Run Tool
-:	Runs an external tool and captures its output.
+:	Runs an external tool and captures its output. Note that for the Tool parameter's value, you can use a compilation tool variable defined in the [game configuration](#game_configuration), as discussed below.
 
     Parameter 	Description
     ---------   -----------
@@ -1297,6 +1306,10 @@ Variable 		Scope 			Description
 `MODS` 			Tool, Workdir 	An array containing all enabled mods for the current map.
 `APP_DIR_PATH` 	Tool, Workdir 	The full path to the directory containing the TrenchBroom application binary.
 `CPU_COUNT` 	Tool 			The number of CPUs in the current machine.
+
+If the [game configuration](#game_configuration) for the current game includes compilation tools, then the names of those tools are also available as variables in the Tool scope. The following screenshot is a section of a compilation profile showing the use of such variables.
+
+![Compilation Dialog Section, with Tool Variables (Ubuntu Linux)](images/CompilationDialogToolVars.png)
 
 It is recommended to use the following general process for compiling maps and to adapt it to your specified needs:
 
@@ -2125,6 +2138,7 @@ Game configuration files need to specify the following information.
 	* The supported **model formats**, e.g. mdl
 * **Tags** to attach additional information to faces or brushes in the editor, e.g. whether a face is detail or hint. (optional)
 * **Face attributes** to specify which additional attributes to allow on brush faces (optional)
+* **Compilation tools** that can have their paths configured by the user (optional)
 
 The game configuration is an [expression language](#expression_language) map with a specific structure, which is explained using an example.
 
@@ -2490,6 +2504,18 @@ List values must be given in array format, e.g. a default scale of 0.5 along eac
 The flag names specified for `surfaceFlags` or `surfaceContents` must correspond to the `name` value for existing flags defined in the `surfaceflags` or `contentflags` (respectively) of the `faceattribs` object.
 
 The `color` value must be a string of the form "R G B" or "R G B A". R G B and A are each a floating-point number from 0.0 to 1.0. If A is omitted it is assumed to be 1.0.
+
+#### Compilation Tools
+
+The optional `compilationTools` list identifies tool names that will appear in the [game configuration dialog](#game_configuration), allowing the user to associate these names with paths to tool executables. Such a name can be used as a variable in this game's [compilation profiles](#compiling_maps) to represent the associated path.
+
+Each element in the list is just an object with a `name` key. An example from the Quake game configuration that defines three compilation tools:
+
+    "compilationTools": [
+        { "name": "qbsp"},
+        { "name": "vis"},
+        { "name": "light"}
+    ]
 
 # Getting Involved
 
