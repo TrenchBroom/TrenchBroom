@@ -32,11 +32,32 @@
 
 #include <cassert>
 #include <iterator>
+#include <ostream>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        bool operator==(const NodePath& lhs, const NodePath& rhs) {
+            return lhs.indices == rhs.indices;
+        }
+
+        bool operator!=(const NodePath& lhs, const NodePath& rhs) {
+            return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const NodePath& path) {
+            str << "NodePath{";
+            for (size_t i = 0u; i < path.indices.size(); ++i) {
+                str << i;
+                if (i < path.indices.size() - 1u) {
+                    str << ", ";
+                }
+            }
+            str << "}";
+            return str;
+        }
+
         Node::Node() :
         m_parent(nullptr),
         m_descendantCount(0),
@@ -57,6 +78,41 @@ namespace TrenchBroom {
 
         const std::string& Node::name() const {
             return doGetName();
+        }
+
+        NodePath Node::pathFrom(const Node& ancestor) const {
+            auto result = NodePath{};
+
+            auto* parent = m_parent;
+            auto* child = this;
+            while (parent && child != &ancestor) {
+                const auto index = kdl::vec_index_of(parent->children(), child);
+
+                result.indices.push_back(*index);
+                child = parent;
+                parent = parent->m_parent;
+            }
+
+            assert(child == &ancestor);
+
+            std::reverse(std::begin(result.indices), std::end(result.indices));
+            return result;
+        }
+
+        Node* Node::resolvePath(const NodePath& path) {
+            auto* node = this;
+            for (const auto index : path.indices) {
+                if (index >= node->childCount()) {
+                    return nullptr;
+                }
+
+                node = node->children()[index];
+            }
+            return node;
+        }
+
+        const Node* Node::resolvePath(const NodePath& path) const {
+            return const_cast<Node*>(this)->resolvePath(path);
         }
 
         const vm::bbox3& Node::logicalBounds() const {
@@ -168,11 +224,12 @@ namespace TrenchBroom {
             addChildren(std::begin(children), std::end(children), children.size());
         }
 
-        void Node::addChild(Node* child) {
+        Node& Node::addChild(Node* child) {
             doAddChild(child);
             incDescendantCount(child->descendantCount() + 1u);
             incChildSelectionCount(child->selected() ? 1u : 0u);
             incDescendantSelectionCount(child->descendantSelectionCount());
+            return *child;
         }
 
         std::vector<std::unique_ptr<Node>> Node::replaceChildren(std::vector<std::unique_ptr<Node>> newChildren) {
