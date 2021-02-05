@@ -704,6 +704,9 @@ namespace TrenchBroom {
                 const T length2 = vm::squared_length(currentEdge->vector());
                 if (length2 < minLength2) {
                     currentEdge = removeEdge(currentEdge);
+                    if (currentEdge == nullptr) {
+                        return false;
+                    }
                 } else {
                     currentEdge = currentEdge->next();
                 }
@@ -722,69 +725,88 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge) {
-            // First, transfer all edges from the second to the first vertex of the given edge.
-            // This results in the edge being a loop and the second vertex to be orphaned.
-            auto* firstVertex = edge->firstVertex();
-            auto* secondVertex = edge->secondVertex();
-            while (secondVertex->leaving() != nullptr) {
-                auto* leaving = secondVertex->leaving();
-                auto* newLeaving = leaving->previous()->twin();
-                leaving->setOrigin(firstVertex);
-                if (newLeaving->origin() == secondVertex) {
-                    secondVertex->setLeaving(newLeaving);
-                } else {
-                    secondVertex->setLeaving(nullptr);
-                }
-            }
+            /*
 
-            // Remove the edge's first edge from its first face and delete the face if it degenerates
-            {
-                auto* firstFace = edge->firstFace();
-                auto* firstEdge = edge->firstEdge();
-                auto* nextEdge = firstEdge->next();
+                | f1 | n1
+                v1-e-v2
+                | f2 | n2
 
-                firstVertex->setLeaving(firstEdge->previous()->twin());
-                firstFace->removeFromBoundary(firstEdge);
-                nextEdge->setOrigin(firstVertex);
+                Let e be the edge to remove. If f1 is a triangle, we merge f1 into n1. Then, if
+                f2 is a triangle, we merge that into n2.
+                This can have two outcomes: 
+                
+                - v2 becomes redundant and is removed to repair the topological error. In that case,
+                  e is also removed and we are done.
+                - v2 remains, and we need to remove e manually. To do that, we transfer all edges 
+                  from v2 to v1, so e becomes a loop, and we can safely remove it after.
 
-                if (firstFace->vertexCount() == 2) {
-                    removeDegenerateFace(firstFace);
-                }
-            }
+                Note that n1 and n2 can be identical. If that is the case, then v2 is immediately removed.
+                We also need to be aware that removing v2 may remove e, so we cannot access e again.
+            */
 
-            // Remove the edges's second edge from its second face and delete the face if it degenerates
-            {
-                auto* secondFace = edge->secondFace();
-                auto* secondEdge = edge->secondEdge();
+            auto* validEdge = edge->next();
+            auto* v1 = edge->firstVertex();
+            auto* v2 = edge->secondVertex();
 
-                secondFace->removeFromBoundary(secondEdge);
-
-                if (secondFace->vertexCount() == 2) {
-                    removeDegenerateFace(secondFace);
-                }
-            }
-
-            m_vertices.remove(secondVertex);
-
-            auto* result = edge->next();
-            m_edges.remove(edge);
-
-            // Merge faces that may have become coplanar
-            {
-                auto* firstEdge = firstVertex->leaving();
-                auto* currentEdge = firstEdge;
+            // Lambda to check if v2 was removed. We check if v2 is still incident to v1. This is safe to do
+            // even if v2 was deleted because just check the addresses, and we also do not create additional
+            // vertices so we can be sure that v2's address does not contain a new valid vertex.
+            const auto v2WasRemoved = [&]() {
+                auto* curEdge = v1->leaving();
                 do {
-                    auto* nextEdge = currentEdge->nextIncident();
-                    auto* currentFace = firstEdge->face();
-                    auto* neighbour = firstEdge->twin()->face();
-                    if (currentFace->coplanar(neighbour, vm::constants<T>::point_status_epsilon())) {
-                        result = mergeNeighbours(currentEdge, result);
+                    if (curEdge->destination() == v2) {
+                        return false;
                     }
-                    currentEdge = nextEdge;
-                } while (currentEdge != firstEdge);
+                    curEdge = curEdge->nextIncident();
+                } while (curEdge != v1->leaving());
+                return true;
+            };
+
+            // merge f1 into n1:
+            if (edge->firstFace()->vertexCount() == 3u && !mergeNeighbours(edge->firstEdge()->next()->twin(), validEdge)) {
+                return nullptr;
+            }
+            
+            // merge f2 into n2 if necessary:
+            if (!v2WasRemoved()) {
+                if (edge->secondFace()->vertexCount() == 3u && !mergeNeighbours(edge->secondEdge()->previous()->twin(), validEdge)) {
+                    return nullptr;
+                }
+
+                if (!v2WasRemoved()) {
+                    // Transfer all edges from v2 to v1.
+                    // This results in e being a loop and v2 to be orphaned.
+                    while (v2->leaving() != nullptr) {
+                        auto* leaving = v2->leaving();
+                        auto* newLeaving = leaving->previous()->twin();
+                        leaving->setOrigin(v1);
+                        if (newLeaving->origin() == v2) {
+                            v2->setLeaving(newLeaving);
+                        } else {
+                            v2->setLeaving(nullptr);
+                        }
+                    }
+
+                    // Remove the edge's first edge from its first face
+                    auto* f1 = edge->firstFace();
+                    auto* h1 = edge->firstEdge();
+                    auto* n = h1->next();
+                    v1->setLeaving(h1->previous()->twin());
+                    f1->removeFromBoundary(h1);
+                    n->setOrigin(v1);
+
+                    // Remove the edges's second edge from its second face
+                    auto* f2 = edge->secondFace();
+                    auto* h2 = edge->secondEdge();
+                    f2->removeFromBoundary(h2);
+
+                    // Finally, remove v2 and e
+                    m_vertices.remove(v2);
+                    m_edges.remove(edge);
+                }
             }
 
-            return result;
+            return validEdge;
         }
 
         template <typename T, typename FP, typename VP>
@@ -842,7 +864,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge) {
+        bool Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Edge*& validEdge) {
             Face* face = borderFirst->face();
             Face* neighbour = borderFirst->twin()->face();
 
@@ -906,6 +928,10 @@ namespace TrenchBroom {
             
             // Fix topological errors
             const auto fixTopologicalErrors = [&](Vertex* vertex) {
+                if (!polyhedron()) {
+                    return false;
+                }
+
                 if (vertex->hasTwoIncidentEdges()) {
                     // vertex has become redundant, so we need to remove it.
                     
@@ -920,7 +946,7 @@ namespace TrenchBroom {
                             // to mergeNeighbours.
                             borderEdge = borderEdge->twin();
                         }
-                        validEdge = mergeNeighbours(borderEdge, validEdge);
+                        return mergeNeighbours(borderEdge, validEdge);
                     } else {
                         assert(face1->vertexCount() > 3u && face2->vertexCount() > 3u);
                         if (validEdge == vertex->leaving()->edge()) {
@@ -929,12 +955,17 @@ namespace TrenchBroom {
                         mergeIncidentEdges(vertex);
                     }
                 }
+
+                return polyhedron();
             };
 
-            fixTopologicalErrors(borderFirstOrigin);
-            fixTopologicalErrors(twinFirstOrigin);
-            
-            return validEdge;
+            return fixTopologicalErrors(borderFirstOrigin) && fixTopologicalErrors(twinFirstOrigin);
+        }
+
+        template <typename T, typename FP, typename VP>
+        bool Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst) {
+            Edge* e = nullptr;
+            return mergeNeighbours(borderFirst, e);
         }
 
         template <typename T, typename FP, typename VP>

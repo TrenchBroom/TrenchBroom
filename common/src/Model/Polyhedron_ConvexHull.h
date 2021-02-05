@@ -810,10 +810,10 @@ namespace TrenchBroom {
                     if (firstFace->maximumVertexDistance(secondFace->plane()) <
                         secondFace->maximumVertexDistance(firstFace->plane())) {
                         // firstFace->plane() will introduce a smaller error, so merge secondFace into firstFace
-                        mergeNeighbours(edge->firstEdge(), nullptr);
+                        assertResult(mergeNeighbours(edge->firstEdge()));
                     } else {
                         // secondFace->plane() will introduce a smaller error, so merge firstFace into secondFace
-                        mergeNeighbours(edge->secondEdge(), nullptr);
+                        assertResult(mergeNeighbours(edge->secondEdge()));
                     }
                     
                     if (hasThreeIncidentEdges) {
