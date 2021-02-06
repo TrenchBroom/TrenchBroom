@@ -96,7 +96,6 @@ namespace TrenchBroom {
             void setupDefaultRenderer(ObjectRenderer& renderer);
             void setupSelectionRenderer(ObjectRenderer& renderer);
             void setupLockedRenderer(ObjectRenderer& renderer);
-            void setupEntityLinkRenderer();
 
             typedef enum {
                 Renderer_Default            = 1,
