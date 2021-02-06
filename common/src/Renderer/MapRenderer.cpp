@@ -260,7 +260,6 @@ namespace TrenchBroom {
             setupDefaultRenderer(*m_defaultRenderer);
             setupSelectionRenderer(*m_selectionRenderer);
             setupLockedRenderer(*m_lockedRenderer);
-            setupEntityLinkRenderer();
         }
 
         void MapRenderer::setupDefaultRenderer(ObjectRenderer& renderer) {
@@ -317,9 +316,6 @@ namespace TrenchBroom {
 
             renderer.setBrushFaceColor(pref(Preferences::FaceColor));
             renderer.setBrushEdgeColor(pref(Preferences::LockedEdgeColor));
-        }
-
-        void MapRenderer::setupEntityLinkRenderer() {
         }
 
         void MapRenderer::updateRenderers(const Renderer renderers) {
