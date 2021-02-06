@@ -204,6 +204,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/FreeTypeFontFactory.cpp
         ${COMMON_SOURCE_DIR}/Renderer/GL.cpp
         ${COMMON_SOURCE_DIR}/Renderer/GridRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/GroupLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/GroupRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMap.cpp
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.cpp
@@ -696,6 +697,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/GLVertexAttributeType.h
         ${COMMON_SOURCE_DIR}/Renderer/GLVertexType.h
         ${COMMON_SOURCE_DIR}/Renderer/GridRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/GroupLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/GroupRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexedVertexList.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMap.h
