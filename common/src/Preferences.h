@@ -61,6 +61,7 @@ namespace TrenchBroom {
         extern Preference<Color> CameraFrustumColor;
 
         extern Preference<Color> DefaultGroupColor;
+        extern Preference<Color> LinkedGroupColor;
 
         extern Preference<Color> TutorialOverlayTextColor;
         extern Preference<Color> TutorialOverlayBackgroundColor;

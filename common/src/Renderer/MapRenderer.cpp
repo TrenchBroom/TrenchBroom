@@ -33,6 +33,7 @@
 #include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityLinkRenderer.h"
+#include "Renderer/GroupLinkRenderer.h"
 #include "Renderer/ObjectRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -130,7 +131,8 @@ namespace TrenchBroom {
         m_defaultRenderer(createDefaultRenderer(m_document)),
         m_selectionRenderer(createSelectionRenderer(m_document)),
         m_lockedRenderer(createLockRenderer(m_document)),
-        m_entityLinkRenderer(std::make_unique<EntityLinkRenderer>(m_document)) {
+        m_entityLinkRenderer(std::make_unique<EntityLinkRenderer>(m_document)),
+        m_groupLinkRenderer(std::make_unique<GroupLinkRenderer>(m_document)) {
             bindObservers();
             setupRenderers();
         }
@@ -169,6 +171,7 @@ namespace TrenchBroom {
             m_selectionRenderer->clear();
             m_lockedRenderer->clear();
             m_entityLinkRenderer->invalidate();
+            m_groupLinkRenderer->invalidate();
         }
 
         void MapRenderer::overrideSelectionColors(const Color& color, const float mix) {
@@ -198,6 +201,7 @@ namespace TrenchBroom {
             renderSelectionTransparent(renderContext, renderBatch);
 
             renderEntityLinks(renderContext, renderBatch);
+            renderGroupLinks(renderContext, renderBatch);
         }
 
         void MapRenderer::commitPendingChanges() {
@@ -254,6 +258,10 @@ namespace TrenchBroom {
 
         void MapRenderer::renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch) {
             m_entityLinkRenderer->render(renderContext, renderBatch);
+        }
+
+        void MapRenderer::renderGroupLinks(RenderContext& renderContext, RenderBatch& renderBatch) {
+            m_groupLinkRenderer->render(renderContext, renderBatch);
         }
 
         void MapRenderer::setupRenderers() {
@@ -416,6 +424,10 @@ namespace TrenchBroom {
             m_entityLinkRenderer->invalidate();
         }
 
+        void MapRenderer::invalidateGroupLinkRenderer() {
+            m_groupLinkRenderer->invalidate();
+        }
+
         void MapRenderer::reloadEntityModels() {
             m_defaultRenderer->reloadModels();
             m_selectionRenderer->reloadModels();
@@ -482,15 +494,18 @@ namespace TrenchBroom {
 
         void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>&) {
             updateRenderers(Renderer_All);
+            invalidateGroupLinkRenderer();
         }
 
         void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>&) {
             updateRenderers(Renderer_All);
+            invalidateGroupLinkRenderer();
         }
 
         void MapRenderer::nodesDidChange(const std::vector<Model::Node*>&) {
             invalidateRenderers(Renderer_Selection);
             invalidateEntityLinkRenderer();
+            invalidateGroupLinkRenderer();
         }
 
         void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>&) {
@@ -503,10 +518,12 @@ namespace TrenchBroom {
 
         void MapRenderer::groupWasOpened(Model::GroupNode*) {
             updateRenderers(Renderer_Default_Selection);
+            invalidateGroupLinkRenderer();
         }
 
         void MapRenderer::groupWasClosed(Model::GroupNode*) {
             updateRenderers(Renderer_Default_Selection);
+            invalidateGroupLinkRenderer();
         }
 
         void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
@@ -526,6 +543,8 @@ namespace TrenchBroom {
                 brushes = kdl::vec_sort_and_remove_duplicates(std::move(brushes));
                 invalidateBrushesInRenderers(Renderer_All, brushes);
             }
+
+            invalidateGroupLinkRenderer();
         }
 
         void MapRenderer::textureCollectionsWillChange() {
@@ -547,6 +566,7 @@ namespace TrenchBroom {
         void MapRenderer::editorContextDidChange() {
             invalidateRenderers(Renderer_All);
             invalidateEntityLinkRenderer();
+            invalidateGroupLinkRenderer();
         }
 
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
@@ -557,11 +577,13 @@ namespace TrenchBroom {
                 reloadEntityModels();
                 invalidateRenderers(Renderer_All);
                 invalidateEntityLinkRenderer();
+                invalidateGroupLinkRenderer();
             }
 
             if (path.hasPrefix(IO::Path("Map view"), true)) {
                 invalidateRenderers(Renderer_All);
                 invalidateEntityLinkRenderer();
+                invalidateGroupLinkRenderer();
             }
         }
     }

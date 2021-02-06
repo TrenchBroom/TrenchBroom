@@ -48,6 +48,7 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class EntityLinkRenderer;
+        class GroupLinkRenderer;
         class ObjectRenderer;
         class RenderBatch;
         class RenderContext;
@@ -66,6 +67,7 @@ namespace TrenchBroom {
             std::unique_ptr<ObjectRenderer> m_selectionRenderer;
             std::unique_ptr<ObjectRenderer> m_lockedRenderer;
             std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
+            std::unique_ptr<GroupLinkRenderer> m_groupLinkRenderer;
         public:
             explicit MapRenderer(std::weak_ptr<View::MapDocument> document);
             ~MapRenderer();
@@ -91,6 +93,7 @@ namespace TrenchBroom {
             void renderLockedOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderLockedTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderGroupLinks(RenderContext& renderContext, RenderBatch& renderBatch);
 
             void setupRenderers();
             void setupDefaultRenderer(ObjectRenderer& renderer);
@@ -116,6 +119,7 @@ namespace TrenchBroom {
             void invalidateRenderers(Renderer renderers);
             void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes);
             void invalidateEntityLinkRenderer();
+            void invalidateGroupLinkRenderer();
             void reloadEntityModels();
         private: // notification
             void bindObservers();
