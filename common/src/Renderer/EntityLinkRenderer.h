@@ -24,11 +24,8 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-#include <vecmath/forward.h>
-
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -42,7 +39,6 @@ namespace TrenchBroom {
         class EntityLinkRenderer : public DirectRenderable {
         public:
             using Vertex = GLVertexTypes::P3C4::Vertex;
-        private:
             struct ArrowPositionName {
                 static inline const std::string name{"arrowPosition"};
             };
@@ -55,7 +51,7 @@ namespace TrenchBroom {
                     GLVertexAttributeTypes::C4,  // arrow color (exposed in shader as gl_Color)
                     GLVertexAttributeUser<ArrowPositionName, GL_FLOAT, 3, false>,          // arrow position
                     GLVertexAttributeUser<LineDirName,       GL_FLOAT, 3, false>>::Vertex; // direction the arrow is pointing
-
+        private:
             std::weak_ptr<View::MapDocument> m_document;
 
             Color m_defaultColor;
@@ -80,14 +76,6 @@ namespace TrenchBroom {
             void renderArrows(RenderContext& renderContext);
         private:
             void validate();
-
-            static void getArrows(std::vector<ArrowVertex>& arrows, const std::vector<Vertex>& links);
-            static void addArrow(std::vector<ArrowVertex>& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir);
-
-            void getLinks(std::vector<Vertex>& links) const;
-            void getAllLinks(std::vector<Vertex>& links) const;
-            void getTransitiveSelectedLinks(std::vector<Vertex>& links) const;
-            void getDirectSelectedLinks(std::vector<Vertex>& links) const;
 
             EntityLinkRenderer(const EntityLinkRenderer& other);
             EntityLinkRenderer& operator=(const EntityLinkRenderer& other);

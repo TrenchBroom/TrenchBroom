@@ -124,60 +124,6 @@ namespace TrenchBroom {
             m_entityLinkArrows.render(PrimType::Lines);
         }
 
-        void EntityLinkRenderer::validate() {
-            std::vector<Vertex> links;
-            getLinks(links);
-
-            // build the arrows before destroying `links`
-            std::vector<ArrowVertex> arrows;
-            getArrows(arrows, links);
-
-            m_entityLinks = VertexArray::move(std::move(links));
-            m_entityLinkArrows = VertexArray::move(std::move(arrows));
-
-            m_valid = true;
-        }
-
-        void EntityLinkRenderer::getArrows(std::vector<ArrowVertex>& arrows, const std::vector<Vertex>& links) {
-            assert((links.size() % 2) == 0);
-            for (size_t i = 0; i < links.size(); i += 2) {
-                const auto& startVertex = links[i];
-                const auto& endVertex = links[i + 1];
-
-                const auto lineVec = (getVertexComponent<0>(endVertex) - getVertexComponent<0>(startVertex));
-                const auto lineLength = length(lineVec);
-                const auto lineDir = lineVec / lineLength;
-                const auto color = getVertexComponent<1>(startVertex);
-
-                if (lineLength < 512) {
-                    const auto arrowPosition = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
-                    addArrow(arrows, color, arrowPosition, lineDir);
-                } else if (lineLength < 1024) {
-                    const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.2f);
-                    const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
-
-                    addArrow(arrows, color, arrowPosition1, lineDir);
-                    addArrow(arrows, color, arrowPosition2, lineDir);
-                } else {
-                    const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.1f);
-                    const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.4f);
-                    const auto arrowPosition3 = getVertexComponent<0>(startVertex) + (lineVec * 0.7f);
-
-                    addArrow(arrows, color, arrowPosition1, lineDir);
-                    addArrow(arrows, color, arrowPosition2, lineDir);
-                    addArrow(arrows, color, arrowPosition3, lineDir);
-                }
-            }
-        }
-
-        void EntityLinkRenderer::addArrow(std::vector<ArrowVertex>& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir) {
-            arrows.emplace_back(vm::vec3f{0, 3, 0}, color, arrowPosition, lineDir);
-            arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
-
-            arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
-            arrows.emplace_back(vm::vec3f{0,-3, 0}, color, arrowPosition, lineDir);
-        }
-
         namespace {
             class CollectLinksVisitor {
             protected:
@@ -293,26 +239,29 @@ namespace TrenchBroom {
             };
         }
 
-        void EntityLinkRenderer::getLinks(std::vector<Vertex>& links) const {
-            const QString entityLinkMode = pref(Preferences::EntityLinkMode);
-
-            if (entityLinkMode == Preferences::entityLinkModeAll()) {
-                getAllLinks(links);
-            } else if (entityLinkMode == Preferences::entityLinkModeTransitive()) {
-                getTransitiveSelectedLinks(links);
-            } else if (entityLinkMode == Preferences::entityLinkModeDirect()) {
-                getDirectSelectedLinks(links);
+        static void collectSelectedLinks(const Model::NodeCollection& selectedNodes, CollectLinksVisitor& collectLinks) {
+            for (auto* node : selectedNodes) {
+                node->accept(kdl::overload(
+                    [](Model::WorldNode*) {},
+                    [](Model::LayerNode*) {},
+                    [](Model::GroupNode*) {},
+                    [&](Model::EntityNode* entity) {
+                        collectLinks.visit(entity);
+                    },
+                    [](auto&& thisLambda, Model::BrushNode* brush) {
+                        brush->parent()->accept(thisLambda);
+                    }
+                ));
             }
         }
 
-        void EntityLinkRenderer::getAllLinks(std::vector<Vertex>& links) const {
-            auto document = kdl::mem_lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
+        static void getAllLinks(View::MapDocument& document, const Color& defaultColor, const Color& selectedColor, std::vector<EntityLinkRenderer::Vertex>& links) {
+            const Model::EditorContext& editorContext = document.editorContext();
 
-            CollectAllLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
+            CollectAllLinksVisitor collectLinks(editorContext, defaultColor, selectedColor, links);
 
-            if (document->world() != nullptr) {
-                document->world()->accept(kdl::overload(
+            if (document.world() != nullptr) {
+                document.world()->accept(kdl::overload(
                     [](auto&& thisLambda, Model::WorldNode* world) {
                         world->visitChildren(thisLambda);
                     },
@@ -330,36 +279,86 @@ namespace TrenchBroom {
             }
         }
 
-        static void collectSelectedLinks(const Model::NodeCollection& selectedNodes, CollectLinksVisitor& collectLinks) {
-            for (auto* node : selectedNodes) {
-                node->accept(kdl::overload(
-                    [](Model::WorldNode*) {},
-                    [](Model::LayerNode*) {},
-                    [](Model::GroupNode*) {},
-                    [&](Model::EntityNode* entity) {
-                        collectLinks.visit(entity);
-                    },
-                    [](auto&& thisLambda, Model::BrushNode* brush) {
-                        brush->parent()->accept(thisLambda);
-                    }
-                ));
+        static void getTransitiveSelectedLinks(View::MapDocument& document, const Color& defaultColor, const Color& selectedColor, std::vector<EntityLinkRenderer::Vertex>& links) {
+            const Model::EditorContext& editorContext = document.editorContext();
+
+            CollectTransitiveSelectedLinksVisitor collectLinks(editorContext, defaultColor, selectedColor, links);
+            collectSelectedLinks(document.selectedNodes(), collectLinks);
+        }
+
+        static void getDirectSelectedLinks(View::MapDocument& document, const Color& defaultColor, const Color& selectedColor, std::vector<EntityLinkRenderer::Vertex>& links) {
+            const Model::EditorContext& editorContext = document.editorContext();
+
+            CollectDirectSelectedLinksVisitor collectLinks(editorContext, defaultColor, selectedColor, links);
+            collectSelectedLinks(document.selectedNodes(), collectLinks);
+        }
+
+        static void getLinks(View::MapDocument& document, const Color& defaultColor, const Color& selectedColor, std::vector<EntityLinkRenderer::Vertex>& links) {
+            const QString entityLinkMode = pref(Preferences::EntityLinkMode);
+
+            if (entityLinkMode == Preferences::entityLinkModeAll()) {
+                getAllLinks(document, defaultColor, selectedColor, links);
+            } else if (entityLinkMode == Preferences::entityLinkModeTransitive()) {
+                getTransitiveSelectedLinks(document, defaultColor, selectedColor, links);
+            } else if (entityLinkMode == Preferences::entityLinkModeDirect()) {
+                getDirectSelectedLinks(document, defaultColor, selectedColor, links);
             }
         }
 
-        void EntityLinkRenderer::getTransitiveSelectedLinks(std::vector<Vertex>& links) const {
-            auto document = kdl::mem_lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
+        static void addArrow(std::vector<EntityLinkRenderer::ArrowVertex>& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir) {
+            arrows.emplace_back(vm::vec3f{0, 3, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
 
-            CollectTransitiveSelectedLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
-            collectSelectedLinks(document->selectedNodes(), collectLinks);
+            arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vm::vec3f{0,-3, 0}, color, arrowPosition, lineDir);
         }
 
-        void EntityLinkRenderer::getDirectSelectedLinks(std::vector<Vertex>& links) const {
-            auto document = kdl::mem_lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
+        static void getArrows(std::vector<EntityLinkRenderer::ArrowVertex>& arrows, const std::vector<EntityLinkRenderer::Vertex>& links) {
+            assert((links.size() % 2) == 0);
+            for (size_t i = 0; i < links.size(); i += 2) {
+                const auto& startVertex = links[i];
+                const auto& endVertex = links[i + 1];
 
-            CollectDirectSelectedLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
-            collectSelectedLinks(document->selectedNodes(), collectLinks);
+                const auto lineVec = (getVertexComponent<0>(endVertex) - getVertexComponent<0>(startVertex));
+                const auto lineLength = length(lineVec);
+                const auto lineDir = lineVec / lineLength;
+                const auto color = getVertexComponent<1>(startVertex);
+
+                if (lineLength < 512) {
+                    const auto arrowPosition = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
+                    addArrow(arrows, color, arrowPosition, lineDir);
+                } else if (lineLength < 1024) {
+                    const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.2f);
+                    const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
+
+                    addArrow(arrows, color, arrowPosition1, lineDir);
+                    addArrow(arrows, color, arrowPosition2, lineDir);
+                } else {
+                    const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.1f);
+                    const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.4f);
+                    const auto arrowPosition3 = getVertexComponent<0>(startVertex) + (lineVec * 0.7f);
+
+                    addArrow(arrows, color, arrowPosition1, lineDir);
+                    addArrow(arrows, color, arrowPosition2, lineDir);
+                    addArrow(arrows, color, arrowPosition3, lineDir);
+                }
+            }
+        }
+
+        void EntityLinkRenderer::validate() {
+            auto document = kdl::mem_lock(m_document);
+
+            std::vector<Vertex> links;
+            getLinks(*document, m_defaultColor, m_selectedColor, links);
+
+            // build the arrows before destroying `links`
+            std::vector<ArrowVertex> arrows;
+            getArrows(arrows, links);
+
+            m_entityLinks = VertexArray::move(std::move(links));
+            m_entityLinkArrows = VertexArray::move(std::move(arrows));
+
+            m_valid = true;
         }
     }
 }
