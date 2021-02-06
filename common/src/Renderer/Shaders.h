@@ -40,8 +40,8 @@ namespace TrenchBroom {
             extern const ShaderConfig CompassShader;
             extern const ShaderConfig CompassOutlineShader;
             extern const ShaderConfig CompassBackgroundShader;
-            extern const ShaderConfig EntityLinkShader;
-            extern const ShaderConfig EntityLinkArrowShader;
+            extern const ShaderConfig LinkLineShader;
+            extern const ShaderConfig LinkArrowShader;
             extern const ShaderConfig TriangleShader;
             extern const ShaderConfig UVViewShader;
         }
