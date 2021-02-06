@@ -265,6 +265,44 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
+        std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>> MapDocumentCommandFacade::performReplaceChildren(std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>> nodes) {
+            const std::vector<Model::Node*> parents = collectParents(nodes);
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+
+            const std::vector<Model::Node*> allChildren = collectChildren(nodes);
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyChildren(nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
+
+            auto result = std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>{};
+            auto allOldChildren = std::vector<Model::Node*>{};
+            auto allNewChildren = std::vector<Model::Node*>{};
+
+            for (auto& entry : nodes) {
+                Model::Node* parent = entry.first;
+
+                auto& newChildren = entry.second;
+                allNewChildren = kdl::vec_concat(std::move(allNewChildren), kdl::vec_transform(newChildren, [](auto& child) { return child.get(); }));
+                
+                auto oldChildren = parent->replaceChildren(std::move(newChildren));
+                allOldChildren = kdl::vec_concat(std::move(allOldChildren), kdl::vec_transform(oldChildren, [](auto& child) { return child.get(); }));
+
+                result.emplace_back(parent, std::move(oldChildren));
+            }
+
+            unsetEntityModels(allOldChildren);
+            unsetEntityDefinitions(allOldChildren);
+            unsetTextures(allOldChildren);
+
+            setEntityDefinitions(allNewChildren);
+            setEntityModels(allNewChildren);
+            setTextures(allNewChildren);
+
+            invalidateSelectionBounds();
+
+            nodesWereAddedNotifier(allNewChildren);
+
+            return result;
+        }
+
         static auto notifySpecialWorldProperties(const Model::Game& game, const std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap) {
             for (const auto& [node, contents] : nodesToSwap) {
                 if (const auto* worldNode = dynamic_cast<const Model::WorldNode*>(node)) {

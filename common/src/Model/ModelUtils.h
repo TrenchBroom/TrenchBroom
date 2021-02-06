@@ -25,6 +25,7 @@
 #include <vecmath/bbox.h>
 
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -46,10 +47,14 @@ namespace TrenchBroom {
          */
         GroupNode* findOutermostClosedGroup(Node* node);
 
+        std::vector<Model::GroupNode*> findLinkedGroups(Model::WorldNode& worldNode, const std::string& linkedGroupId);
+
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
+        std::vector<Node*> collectParents(const std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>& nodes);
 
         std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes);
+        std::vector<Node*> collectChildren(const std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>& nodes);
         std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes);
         std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
 
