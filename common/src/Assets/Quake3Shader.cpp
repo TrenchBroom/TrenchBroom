@@ -90,7 +90,7 @@ namespace TrenchBroom {
         }
 
         bool operator==(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs) {
-            return lhs.srcFactor == rhs.srcFactor && lhs.destFactor == rhs.destFactor && lhs.lighting == rhs.lighting;
+            return lhs.srcFactor == rhs.srcFactor && lhs.destFactor == rhs.destFactor;
         }
 
         bool operator!=(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs) {
@@ -98,7 +98,7 @@ namespace TrenchBroom {
         }
         
         bool operator==(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs) {
-            return lhs.map == rhs.map && lhs.blendFunc == rhs.blendFunc;
+            return lhs.map == rhs.map && lhs.blendFunc == rhs.blendFunc && lhs.lighting == rhs.lighting;
         }
 
         bool operator!=(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs) {

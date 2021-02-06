@@ -462,6 +462,7 @@ waterBubble
                 {
                     IO::Path("waterBubble"), // shaderPath
                     IO::Path(), // editorImage
+                    IO::Path(), // diffuseImage
                     IO::Path(), // lightImage
                     Assets::Quake3Shader::Culling::Front, // culling
                     {}, // surfaceParms

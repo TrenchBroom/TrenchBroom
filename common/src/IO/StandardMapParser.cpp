@@ -1,6 +1,6 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- Copyright (C) 2020 Robert Beckebans (Doom 3 support)
+ Copyright (C) 2020-2021 Robert Beckebans (Doom 3 support)
 
  This file is part of TrenchBroom.
 
@@ -155,7 +155,7 @@ namespace TrenchBroom {
         void StandardMapParser::parseEntities(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
 
-            if(format==Model::MapFormat::Doom3) {
+            if(m_sourceMapFormat==Model::MapFormat::Doom3) {
                 // Version 2
                 expect(QuakeMapToken::String, token);
                 m_tokenizer.discardLine();
@@ -339,7 +339,7 @@ namespace TrenchBroom {
                             }
                             onEndBrush(startLine, token.line() - startLine, status);
                         } else {
-                            endBrush(startLine, token.line() - startLine, extraAttributes, status);
+                            onEndBrush(startLine, token.line() - startLine, extraAttributes, status);
                         }
                         return;
                     default: {
@@ -696,10 +696,8 @@ namespace TrenchBroom {
                 attribs.setSurfaceValue(parseFloat());
             }
 
-            
-
             // TODO 2427: create a brush face
-            valveBrushFace(line, m_format, p1, p2, p3, attribs, texAxisX, texAxisY, status);
+            onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texAxisX, texAxisY, status);
         }
 
         void StandardMapParser::parseQuake3Patch(ParserStatus& status, const size_t startLine) {

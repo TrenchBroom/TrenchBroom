@@ -98,8 +98,6 @@ namespace TrenchBroom {
             swap(lhs.m_color, rhs.m_color);
             swap(lhs.m_bpMode, rhs.m_bpMode);
             swap(lhs.m_bpMatrix, rhs.m_bpMatrix);
-            result.m_bpMode = m_bpMode;
-            result.m_bpMatrix = m_bpMatrix;
         }
 
         const std::string& BrushFaceAttributes::textureName() const {

@@ -67,7 +67,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                // RB: ugly but do the same with Doom 3 materials
+                // RB: ugly but do the same with Doom 3 materials again
                 paths = next().findItems(m_shaderSearchPath, FileExtensionMatcher("mtr"));
                 for (const auto& path : paths) {
                     const auto file = next().openFile(path);
