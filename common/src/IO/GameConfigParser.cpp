@@ -497,12 +497,16 @@ namespace TrenchBroom {
                         value[i],
                         "["
                         "{'name': 'String'},"
-                        "{}"
+                        "{'description': 'String'}"
                         "]");
 
                 const std::string name = value[i]["name"].stringValue();
-
-                result.push_back(Model::CompilationTool{name});
+                if (!value[i]["description"].null()) {
+                    const std::string desc = value[i]["description"].stringValue();
+                    result.push_back(Model::CompilationTool{name, desc});
+                } else {
+                    result.push_back(Model::CompilationTool{name, std::nullopt});
+                }
             }
 
             return result;

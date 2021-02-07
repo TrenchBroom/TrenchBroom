@@ -225,7 +225,8 @@ namespace TrenchBroom {
         }
 
         bool operator==(const CompilationTool& lhs, const CompilationTool& rhs) {
-            return lhs.name == rhs.name;
+            return lhs.name == rhs.name && 
+                   lhs.description == rhs.description;
         }
 
         bool operator!=(const CompilationTool& lhs, const CompilationTool& rhs) {
