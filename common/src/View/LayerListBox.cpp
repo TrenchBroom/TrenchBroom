@@ -212,7 +212,9 @@ namespace TrenchBroom {
             for (const auto* node : nodes) {
                 if (dynamic_cast<const Model::LayerNode*>(node) != nullptr) {
                     // A layer was added or removed or modified, so we need to clear and repopulate the list
+                    auto* previouslySelectedLayer = selectedLayer();
                     reload();
+                    setSelectedLayer(previouslySelectedLayer);
                     return;
                 }
             }
