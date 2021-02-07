@@ -170,7 +170,7 @@ namespace TrenchBroom {
             for (int i = 0; i < count(); ++i) {
                 if (layerForRow(i) == layer) {
                     setCurrentRow(i);
-                    break;
+                    return;
                 }
             }
             setCurrentRow(-1);
