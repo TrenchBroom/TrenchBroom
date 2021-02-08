@@ -199,7 +199,7 @@ namespace TrenchBroom {
             return group->name();
         }
 
-        const Color& GroupRenderer::groupColor(const Model::GroupNode* /* group */) const {
+        Color GroupRenderer::groupColor(const Model::GroupNode* /* group */) const {
             return pref(Preferences::DefaultGroupColor);
         }
     }
