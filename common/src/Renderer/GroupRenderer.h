@@ -105,7 +105,7 @@ namespace TrenchBroom {
             bool shouldRenderGroup(const Model::GroupNode* group) const;
 
             AttrString groupString(const Model::GroupNode* group) const;
-            const Color& boundsColor(const Model::GroupNode* group) const;
+            const Color& groupColor(const Model::GroupNode* group) const;
         };
     }
 }

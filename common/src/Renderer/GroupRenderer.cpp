@@ -175,7 +175,7 @@ namespace TrenchBroom {
 
                 for (const Model::GroupNode* group : m_groups) {
                     if (shouldRenderGroup(group)) {
-                        const auto color = boundsColor(group);
+                        const auto color = groupColor(group);
                         group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
                             vertices.emplace_back(vm::vec3f(v1), color);
                             vertices.emplace_back(vm::vec3f(v2), color);
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             return group->name();
         }
 
-        const Color& GroupRenderer::boundsColor(const Model::GroupNode* /* group */) const {
+        const Color& GroupRenderer::groupColor(const Model::GroupNode* /* group */) const {
             return pref(Preferences::DefaultGroupColor);
         }
     }
