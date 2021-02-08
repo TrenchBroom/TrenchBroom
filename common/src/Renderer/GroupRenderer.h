@@ -99,9 +99,6 @@ namespace TrenchBroom {
             void renderBounds(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderNames(RenderContext& renderContext, RenderBatch& renderBatch);
 
-            struct BuildColoredBoundsVertices;
-            struct BuildBoundsVertices;
-
             void invalidateBounds();
             void validateBounds();
 

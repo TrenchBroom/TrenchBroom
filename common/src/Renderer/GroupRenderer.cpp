@@ -154,42 +154,17 @@ namespace TrenchBroom {
             m_boundsValid = false;
         }
 
-        struct GroupRenderer::BuildColoredBoundsVertices {
-            using Vertex = GLVertexTypes::P3C4::Vertex;
-            std::vector<Vertex>& vertices;
-            Color color;
-
-            BuildColoredBoundsVertices(std::vector<Vertex>& i_vertices, const Color& i_color) :
-            vertices(i_vertices),
-            color(i_color) {}
-
-            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
-                vertices.emplace_back(vm::vec3f(v1), color);
-                vertices.emplace_back(vm::vec3f(v2), color);
-            }
-        };
-
-        struct GroupRenderer::BuildBoundsVertices {
-            std::vector<GLVertexTypes::P3::Vertex>& vertices;
-
-            BuildBoundsVertices(std::vector<GLVertexTypes::P3::Vertex>& i_vertices) :
-            vertices(i_vertices) {}
-
-            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
-                vertices.emplace_back(vm::vec3f(v1));
-                vertices.emplace_back(vm::vec3f(v2));
-            }
-        };
-
         void GroupRenderer::validateBounds() {
             if (m_overrideBoundsColor) {
                 std::vector<GLVertexTypes::P3::Vertex> vertices;
                 vertices.reserve(24 * m_groups.size());
 
-                BuildBoundsVertices boundsBuilder(vertices);
                 for (const Model::GroupNode* group : m_groups) {
                     if (shouldRenderGroup(group)) {
-                        group->logicalBounds().for_each_edge(boundsBuilder);
+                        group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
+                            vertices.emplace_back(vm::vec3f(v1));
+                            vertices.emplace_back(vm::vec3f(v2));
+                        });
                     }
                 }
 
@@ -200,8 +175,11 @@ namespace TrenchBroom {
 
                 for (const Model::GroupNode* group : m_groups) {
                     if (shouldRenderGroup(group)) {
-                        BuildColoredBoundsVertices boundsBuilder(vertices, boundsColor(group));
-                        group->logicalBounds().for_each_edge(boundsBuilder);
+                        const auto color = boundsColor(group);
+                        group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
+                            vertices.emplace_back(vm::vec3f(v1), color);
+                            vertices.emplace_back(vm::vec3f(v2), color);
+                        });
                     }
                 }
 
