@@ -103,8 +103,8 @@ namespace TrenchBroom {
             m_entityRenderer.setAngleColor(color);
         }
 
-        void ObjectRenderer::setOverrideGroupBoundsColor(const bool overrideGroupBoundsColor) {
-            m_groupRenderer.setOverrideBoundsColor(overrideGroupBoundsColor);
+        void ObjectRenderer::setOverrideGroupColors(const bool overrideGroupColors) {
+            m_groupRenderer.setOverrideColors(overrideGroupColors);
         }
 
         void ObjectRenderer::setGroupBoundsColor(const Color& color) {

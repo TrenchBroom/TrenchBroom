@@ -58,9 +58,9 @@ namespace TrenchBroom {
         GroupRenderer::GroupRenderer(const Model::EditorContext& editorContext) :
         m_editorContext(editorContext),
         m_boundsValid(false),
+        m_overrideColors(false),
         m_showOverlays(true),
         m_showOccludedOverlays(false),
-        m_overrideBoundsColor(false),
         m_showOccludedBounds(false) {}
 
         void GroupRenderer::setGroups(const std::vector<Model::GroupNode*>& groups) {
@@ -77,6 +77,10 @@ namespace TrenchBroom {
             m_boundsRenderer = DirectEdgeRenderer();
         }
 
+        void GroupRenderer::setOverrideColors(const bool overrideColors) {
+            m_overrideColors = overrideColors;
+        }
+
         void GroupRenderer::setShowOverlays(const bool showOverlays) {
             m_showOverlays = showOverlays;
         }
@@ -91,10 +95,6 @@ namespace TrenchBroom {
 
         void GroupRenderer::setShowOccludedOverlays(const bool showOccludedOverlays) {
             m_showOccludedOverlays = showOccludedOverlays;
-        }
-
-        void GroupRenderer::setOverrideBoundsColor(const bool overrideBoundsColor) {
-            m_overrideBoundsColor = overrideBoundsColor;
         }
 
         void GroupRenderer::setBoundsColor(const Color& boundsColor) {
@@ -124,20 +124,27 @@ namespace TrenchBroom {
             }
 
             if (m_showOccludedBounds) {
-                m_boundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
+                m_boundsRenderer.renderOnTop(renderBatch, m_overrideColors, m_occludedBoundsColor);
             }
 
-            m_boundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
+            m_boundsRenderer.render(renderBatch, m_overrideColors, m_boundsColor);
         }
 
         void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (m_showOverlays) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
+
+                if (m_overrideColors) {
+                    renderService.setForegroundColor(m_overlayTextColor);
+                }
 
                 for (const auto* group : m_groups) {
                     if (shouldRenderGroup(group)) {
+                        if (!m_overrideColors) {
+                            renderService.setForegroundColor(groupColor(group));
+                        }
+
                         const GroupNameAnchor anchor(group);
                         if (m_showOccludedOverlays) {
                             renderService.setShowOccludedObjects();
@@ -155,7 +162,7 @@ namespace TrenchBroom {
         }
 
         void GroupRenderer::validateBounds() {
-            if (m_overrideBoundsColor) {
+            if (m_overrideColors) {
                 std::vector<GLVertexTypes::P3::Vertex> vertices;
                 vertices.reserve(24 * m_groups.size());
 

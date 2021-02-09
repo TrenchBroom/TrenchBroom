@@ -78,7 +78,7 @@ namespace TrenchBroom {
             void setShowEntityAngles(bool showAngles);
             void setEntityAngleColor(const Color& color);
 
-            void setOverrideGroupBoundsColor(bool overrideGroupBoundsColor);
+            void setOverrideGroupColors(bool overrideGroupColors);
             void setGroupBoundsColor(const Color& color);
 
             void setOverrideEntityBoundsColor(bool overrideEntityBoundsColor);
