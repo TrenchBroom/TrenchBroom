@@ -287,7 +287,7 @@ namespace TrenchBroom {
             renderer.setTint(true);
             renderer.setTintColor(pref(Preferences::SelectedFaceColor));
 
-            renderer.setOverrideGroupBoundsColor(true);
+            renderer.setOverrideGroupColors(true);
             renderer.setGroupBoundsColor(pref(Preferences::SelectedEdgeColor));
 
             renderer.setOverrideEntityBoundsColor(true);
@@ -308,7 +308,7 @@ namespace TrenchBroom {
             renderer.setTintColor(pref(Preferences::LockedFaceColor));
             renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
 
-            renderer.setOverrideGroupBoundsColor(true);
+            renderer.setOverrideGroupColors(true);
             renderer.setGroupBoundsColor(pref(Preferences::LockedEdgeColor));
 
             renderer.setOverrideEntityBoundsColor(true);
