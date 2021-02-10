@@ -202,12 +202,16 @@ namespace TrenchBroom {
             return parentGroup == currentGroup && m_editorContext.visible(group);
         }
 
-        AttrString GroupRenderer::groupString(const Model::GroupNode* group) const {
-            return group->name();
+        AttrString GroupRenderer::groupString(const Model::GroupNode* groupNode) const {
+            if (groupNode->group().linkedGroupId()) {
+                return groupNode->name() + " (linked)";
+            } else {
+                return groupNode->name();
+            }
         }
 
-        Color GroupRenderer::groupColor(const Model::GroupNode* /* group */) const {
-            return pref(Preferences::DefaultGroupColor);
+        Color GroupRenderer::groupColor(const Model::GroupNode* groupNode) const {
+            return groupNode->group().linkedGroupId() ? pref(Preferences::LinkedGroupColor) : pref(Preferences::DefaultGroupColor);
         }
     }
 }
