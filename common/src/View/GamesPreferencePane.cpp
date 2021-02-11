@@ -176,7 +176,7 @@ namespace TrenchBroom {
                 auto* edit = new QLineEdit();
                 edit->setText(IO::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
                 if (tool.description) {
-                    edit->setToolTip(tool.description->c_str());
+                    edit->setToolTip(QString::fromStdString(*tool.description));
                 }
                 connect(edit, &QLineEdit::editingFinished, this, [=](){
                     Model::GameFactory::instance().setCompilationToolPath(m_gameName, toolName, IO::pathFromQString(edit->text()));
