@@ -3,8 +3,6 @@
 /* Body */
 
 body {
-    display: flex;
-    height: 100vh;
     font-family: var(--typography-font-family-base);
     font-size: var(--typography-font-size-x10000);
     font-weight: var(--typography-font-weight-regular);
@@ -16,20 +14,21 @@ body {
 
 body #toc_toggler, body #toc, body #content {
     padding: var(--spacing-x20000);
-    overflow-x: hidden;
-    overflow-y: auto;
 }
 
 /* Table of Contents */
 
 body #toc, body #toc_toggler {
     background-color: var(--color-gray-93);
-    z-index: 100;
 }
 
 body #toc {
-    min-width: max-content;
-    user-select: none;
+    min-width: 340px;
+    max-width: 340px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
 }
 
 body #toc_toggler {
@@ -38,8 +37,9 @@ body #toc_toggler {
     align-items: center;
     min-width: 50px;
     max-width: 50px;
-    padding: var(--spacing-x10000) 0;
-    font-size: var(--typography-font-size-x12500);
+    position: fixed;
+    top: 0;
+    bottom: 0;
 }
 
 body #toc_toggler img {
@@ -53,6 +53,7 @@ body #toc_toggler a {
     justify-content: center;
     width: var(--sizing-x20000);
     height: var(--sizing-x20000);
+    font-size: var(--typography-font-size-x12500);
     text-decoration: none;
     color: var(--color-gray-20);
 }
@@ -89,7 +90,7 @@ body #toc_inner > ul > li > a {
 /* Content */
 
 body #content {
-    overflow: auto;
+    margin-left: 340px;
 }
 
 body #content :last-child {

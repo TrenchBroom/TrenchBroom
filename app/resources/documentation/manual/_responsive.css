@@ -1,6 +1,6 @@
 /* ##### Responsive ########## */
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 930px) {
     /* Code, Figure and Table */
 
     pre, figure, table {
@@ -15,6 +15,12 @@
         display: block;
     }
 
+    /* Table of Contents & Content */
+
+    body #toc, body #content {
+        margin-left: 50px;
+    }
+
     /* Table of Contents */
 
     body #toc_toggler {
@@ -23,7 +29,8 @@
 
     body #toc {
         display: none;
-        width: calc(100vw - 50px);
+        min-width: calc(100vw - 50px);
+        max-width: calc(100vw - 50px);
     }
 
     body #toc_inner #toc_inner_header {
@@ -39,12 +46,7 @@
     }
 
     body #toc:target ~ #content {
-        width: 0;
-        height: 0;
-        position: absolute;
-        left: 0;
-        top: 0;
-        overflow: hidden;
+        display: none;
     }
 
     /* Content Version */
