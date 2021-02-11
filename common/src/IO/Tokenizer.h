@@ -27,6 +27,7 @@
 #include <kdl/string_format.h>
 
 #include <cassert>
+#include <tuple>
 #include <string>
 #include <string_view>
 
@@ -262,13 +263,21 @@ namespace TrenchBroom {
                 return std::string_view(startPos, static_cast<size_t>(endPos - startPos));
             }
 
-            std::string_view readAnyString(std::string_view delims) {
+            std::tuple<std::string_view, bool> readAnyString(std::string_view delims) {
                 while (isWhitespace(curChar())) {
                     advance();
                 }
+
+                if (curChar() == '"') {
+                    advance();
+                    const char* startPos = curPos();
+                    const char* endPos = readQuotedString();
+                    return {std::string_view(startPos, static_cast<size_t>(endPos - startPos)), true};
+                }
+
                 const char* startPos = curPos();
-                const char* endPos = (curChar() == '"' ? readQuotedString() : readUntil(delims));
-                return std::string_view(startPos, static_cast<size_t>(endPos - startPos));
+                const char* endPos = readUntil(delims);
+                return {std::string_view(startPos, static_cast<size_t>(endPos - startPos)), false};
             }
 
             std::string unescapeString(std::string_view str) const {

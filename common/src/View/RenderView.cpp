@@ -121,37 +121,45 @@ namespace TrenchBroom {
         RenderView::~RenderView() = default;
 
         void RenderView::keyPressEvent(QKeyEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 
         void RenderView::keyReleaseEvent(QKeyEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 
+        static auto mouseEventWithFullPrecisionLocalPos(const QWidget* widget, const QMouseEvent* event) {
+            // The localPos of a Qt mouse event is only in integer coordinates, but window pos
+            // and screen pos have full precision. We can't directly map the windowPos because
+            // mapTo takes QPoint, so we just map the origin and subtract that.
+            const auto localPos = event->windowPos() - QPointF(widget->mapTo(widget->window(), QPoint(0, 0)));
+            return QMouseEvent(event->type(), localPos, event->windowPos(), event->screenPos(), event->button(), event->buttons(), event->modifiers(), event->source());
+        }
+
         void RenderView::mouseDoubleClickEvent(QMouseEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(mouseEventWithFullPrecisionLocalPos(this, event));
             update();
         }
 
         void RenderView::mouseMoveEvent(QMouseEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(mouseEventWithFullPrecisionLocalPos(this, event));
             update();
         }
 
         void RenderView::mousePressEvent(QMouseEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(mouseEventWithFullPrecisionLocalPos(this, event));
             update();
         }
 
         void RenderView::mouseReleaseEvent(QMouseEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(mouseEventWithFullPrecisionLocalPos(this, event));
             update();
         }
 
         void RenderView::wheelEvent(QWheelEvent* event) {
-            m_eventRecorder.recordEvent(event);
+            m_eventRecorder.recordEvent(*event);
             update();
         }
 

@@ -29,7 +29,7 @@ namespace TrenchBroom {
         }
 
         SetCurrentLayerCommand::SetCurrentLayerCommand(Model::LayerNode* layer) :
-        UndoableCommand(Type, "Set Current Layer"),
+        UndoableCommand(Type, "Set Current Layer", false),
         m_currentLayer(layer),
         m_oldCurrentLayer(nullptr) {}
 

@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Macros.h"
-#include "View/DocumentCommand.h"
+#include "View/UndoableCommand.h"
 
 #include <map>
 #include <memory>
@@ -32,7 +32,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class DuplicateNodesCommand : public DocumentCommand {
+        class DuplicateNodesCommand : public UndoableCommand {
         public:
             static const CommandType Type;
         private:

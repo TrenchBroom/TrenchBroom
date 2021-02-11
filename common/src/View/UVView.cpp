@@ -345,7 +345,7 @@ namespace TrenchBroom {
             ToolBoxConnector::processEvent(event);
         }
 
-        PickRequest UVView::doGetPickRequest(const int x, const int y) const {
+        PickRequest UVView::doGetPickRequest(const float x, const float y) const {
             return PickRequest(vm::ray3(m_camera.pickRay(x, y)), m_camera);
         }
 

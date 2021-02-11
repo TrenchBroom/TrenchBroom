@@ -1127,7 +1127,7 @@ namespace TrenchBroom {
          * Forward drag and drop events from QWidget to ToolBoxConnector
          */
         void MapViewBase::dragEnterEvent(QDragEnterEvent* dragEnterEvent) {
-            dragEnter(dragEnterEvent->pos().x(), dragEnterEvent->pos().y(), dragEnterEvent->mimeData()->text().toStdString());
+            dragEnter(static_cast<float>(dragEnterEvent->posF().x()), static_cast<float>(dragEnterEvent->posF().y()), dragEnterEvent->mimeData()->text().toStdString());
             dragEnterEvent->acceptProposedAction();
         }
 
@@ -1136,12 +1136,12 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::dragMoveEvent(QDragMoveEvent* dragMoveEvent) {
-            dragMove(dragMoveEvent->pos().x(), dragMoveEvent->pos().y(), dragMoveEvent->mimeData()->text().toStdString());
+            dragMove(static_cast<float>(dragMoveEvent->posF().x()), static_cast<float>(dragMoveEvent->posF().y()), dragMoveEvent->mimeData()->text().toStdString());
             dragMoveEvent->acceptProposedAction();
         }
 
         void MapViewBase::dropEvent(QDropEvent* dropEvent) {
-            dragDrop(dropEvent->pos().x(), dropEvent->pos().y(), dropEvent->mimeData()->text().toStdString());
+            dragDrop(static_cast<float>(dropEvent->posF().x()), static_cast<float>(dropEvent->posF().y()), dropEvent->mimeData()->text().toStdString());
             dropEvent->acceptProposedAction();
         }
 

@@ -56,10 +56,11 @@ namespace TrenchBroom {
         private:
             ModifierKeyState m_modifierKeys;
             MouseButtonState m_mouseButtons;
-            int m_mouseX;
-            int m_mouseY;
-            int m_mouseDX;
-            int m_mouseDY;
+            /** Mouse position in units of points, relative to top left of widget */
+            float m_mouseX;
+            float m_mouseY;
+            float m_mouseDX;
+            float m_mouseDY;
             float m_scrollX;
             float m_scrollY;
 
@@ -68,7 +69,7 @@ namespace TrenchBroom {
             Model::PickResult m_pickResult;
         public:
             InputState();
-            InputState(const int mouseX, const int mouseY);
+            InputState(const float mouseX, const float mouseY);
             virtual ~InputState();
 
             virtual ModifierKeyState modifierKeys() const;
@@ -84,10 +85,10 @@ namespace TrenchBroom {
              * Checks whether only the given buttons are down (and no others).
              */
             bool mouseButtonsPressed(const MouseButtonState buttons) const;
-            int mouseX() const;
-            int mouseY() const;
-            int mouseDX() const;
-            int mouseDY() const;
+            float mouseX() const;
+            float mouseY() const;
+            float mouseDX() const;
+            float mouseDY() const;
 
             /**
              * Number of "lines" to scroll horizontally.
@@ -103,7 +104,7 @@ namespace TrenchBroom {
             void mouseDown(const MouseButtonState button);
             void mouseUp(const MouseButtonState button);
             void clearMouseButtons();
-            void mouseMove(const int mouseX, const int mouseY, const int mouseDX, const int mouseDY);
+            void mouseMove(const float mouseX, const float mouseY, const float mouseDX, const float mouseDY);
             void scroll(const float scrollX, const float scrollY);
 
             bool anyToolDragging() const;

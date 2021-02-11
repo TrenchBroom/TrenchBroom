@@ -227,6 +227,7 @@ namespace TrenchBroom {
 
         void GameDialog::preferenceDidChange(const IO::Path& /* path */) {
             m_gameListBox->reloadGameInfos();
+            m_okButton->setEnabled(!currentGameName().empty());
         }
     }
 }

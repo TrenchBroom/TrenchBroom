@@ -103,7 +103,7 @@ namespace TrenchBroom {
                  */
                 assert(checkInvariant());
                 for (const Edge* edge : e.splitFaces()) {
-                    mergeNeighbours(edge->firstEdge(), nullptr);
+                    assertResult(mergeNeighbours(edge->firstEdge()));
                 }
                 assert(checkInvariant());
 

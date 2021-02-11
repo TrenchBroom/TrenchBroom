@@ -834,16 +834,12 @@ namespace TrenchBroom {
         kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
             auto result = std::vector<BrushGeometry>{*m_geometry};
 
-            for (auto* subtrahend : subtrahends) {
-                auto nextResults = std::vector<BrushGeometry>();
+            for (const auto* subtrahend : subtrahends) {
+                auto nextResults = std::vector<BrushGeometry>{};
 
                 for (const BrushGeometry& fragment : result) {
                     auto subFragments = fragment.subtract(*subtrahend->m_geometry);
-
-                    nextResults.reserve(nextResults.size() + subFragments.size());
-                    for (auto& subFragment : subFragments) {
-                        nextResults.push_back(std::move(subFragment));
-                    }
+                    nextResults = kdl::vec_concat(std::move(nextResults), std::move(subFragments));
                 }
 
                 result = std::move(nextResults);
@@ -915,6 +911,7 @@ namespace TrenchBroom {
             }).and_then([&](Brush&& brush) {
                 brush.cloneFaceAttributesFrom(*this);
                 for (const auto* subtrahend : subtrahends) {
+                    brush.cloneFaceAttributesFrom(*subtrahend);
                     brush.cloneInvertedFaceAttributesFrom(*subtrahend);
                 }
                 return std::move(brush);

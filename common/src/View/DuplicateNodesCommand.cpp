@@ -35,7 +35,7 @@ namespace TrenchBroom {
         }
 
         DuplicateNodesCommand::DuplicateNodesCommand() :
-        DocumentCommand(Type, "Duplicate Objects"),
+        UndoableCommand(Type, "Duplicate Objects", true),
         m_firstExecution(true) {}
 
         DuplicateNodesCommand::~DuplicateNodesCommand() {

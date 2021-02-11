@@ -186,7 +186,7 @@ namespace TrenchBroom {
             m_flyModeHelper->resetKeys();
         }
 
-        PickRequest MapView3D::doGetPickRequest(const int x, const int y) const {
+        PickRequest MapView3D::doGetPickRequest(const float x, const float y) const {
             return PickRequest(vm::ray3(m_camera->pickRay(x, y)), *m_camera);
         }
 
@@ -211,7 +211,7 @@ namespace TrenchBroom {
             const auto clientCoords = mapFromGlobal(pos);
 
             if (QRect(0, 0, width(), height()).contains(clientCoords)) {
-                const auto pickRay = vm::ray3(m_camera->pickRay(clientCoords.x(), clientCoords.y()));
+                const auto pickRay = vm::ray3(m_camera->pickRay(static_cast<float>(clientCoords.x()), static_cast<float>(clientCoords.y())));
 
                 const auto& editorContext = document->editorContext();
                 auto pickResult = Model::PickResult::byDistance(editorContext);
