@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 #include "Model/NodeContents.h"
-#include "View/DocumentCommand.h"
+#include "View/UndoableCommand.h"
 
 #include <memory>
 #include <string>
@@ -36,7 +36,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class SwapNodeContentsCommand : public DocumentCommand {
+        class SwapNodeContentsCommand : public UndoableCommand {
         public:
             static const CommandType Type;
         protected:

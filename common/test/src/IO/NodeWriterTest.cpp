@@ -934,5 +934,47 @@ R"(// entity 0
 )";
             CHECK(actual == expected);
         }
+
+        TEST_CASE("NodeWriterTest.quoteTextureNamesIfNecessary", "[NodeWriterTest]") {
+            using NameInfo = std::tuple<std::string, std::string>;
+            const auto [textureName, expectedName] = GENERATE(values<NameInfo>({
+                { R"(some_name)", R"(some_name)" },
+                { R"(some name)", R"("some name")" },
+                { R"(some\name)", R"("some\\name")" },
+                { R"(some"name)", R"("some\"name")" },
+            }));
+
+            CAPTURE(textureName, expectedName);
+
+            const auto worldBounds = vm::bbox3{8192.0};
+
+            auto map = Model::WorldNode{Model::Entity{}, Model::MapFormat::Standard};
+
+            auto builder = Model::BrushBuilder(map.mapFormat(), worldBounds);
+            auto brush = builder.createCube(64.0, textureName).value();
+            map.defaultLayer()->addChild(new Model::BrushNode{std::move(brush)});
+
+            auto str = std::stringstream{};
+            auto writer = NodeWriter{map, str};
+            writer.writeMap();
+
+            const auto actual = str.str();
+            const auto expected = fmt::format(
+R"(// entity 0
+{{
+"classname" "worldspawn"
+// brush 0
+{{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) {0} 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) {0} 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) {0} 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) {0} 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) {0} 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) {0} 0 0 0 1 1
+}}
+}}
+)", expectedName);
+            CHECK(actual == expected);
+        }
     }
 }

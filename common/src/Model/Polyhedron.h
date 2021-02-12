@@ -1431,10 +1431,10 @@ namespace TrenchBroom {
         private:
             /**
              * Removes the given edge from this polyhedron. The incident faces are updated accordingly, and they are
-             * removed if they become degenerate.
+             * removed if they become degenerate. This operation can fail if it results in a non polyhedron.
              *
              * @param edge the edge to remove
-             * @return removes the successor of the given edge in the containing circular list
+             * @return removes the successor of the given edge in the containing circular list or null if the operation fails
              */
             Edge* removeEdge(Edge* edge);
 
@@ -1448,8 +1448,10 @@ namespace TrenchBroom {
             void removeDegenerateFace(Face* face);
 
             /**
-             * Merges two adjacent faces. The faces to be merged are those that share the edge to which the given half
-             * edge belongs.
+             * Merges two adjacent faces of a polyhedron. The faces to be merged are those that share the edge to which 
+             * the given half edge belongs.
+             *
+             * If this is not a polyhedron (has less than four faces), then the outcome is undefined.
              *
              * Let f1 be the face to which the given half edge borderFirst belongs. Let f2 be the face to which the twin
              * of the given half edge belongs, and let e be the edge to which the given half edge belongs. Then f1 and
@@ -1474,17 +1476,24 @@ namespace TrenchBroom {
              * and f1 is retained. If f' is not a triangle, then v' is removed and f1 and f' are now separated by a
              * single edge.
              *
-             * Finally, if the given validEdge is deleted by this algorithm, than its first successor that is not deleted
-             * by this algorithm is returned. This return value can be used by the caller during iteration over all edges
+             * Finally, if the given validEdge is deleted by this algorithm, then it is set to its first successor that 
+             * is not deleted by this algorithm. This value can be used by the caller during iteration over all edges
              * of this polyhedron.
+             *
+             * The merge process can fail if it turns this polyhedron into an invalid polyhedron with less than four
+             * faces.
              *
              * @param borderFirst a half edge that belongs to the edge to which the faces to be merged are incident
              * @param validEdge an edge that is used for iteration of all edges (see result), can be null
-             * @return the given valid edge, or its first successor that was not deleted by this function, or null if
-             * validEdge was null
+             * @return true if the merge process was successful or false if it failed
              */
-            Edge* mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge);
-            
+            bool mergeNeighbours(HalfEdge* borderFirst, Edge*& validEdge);
+
+            /**
+             * Convenience overload that does not require passing an edge.
+             */
+            bool mergeNeighbours(HalfEdge* borderFirst);
+
             /**
              * Merges the two incident edges of the given vertex. If either of the two incident faces is a
              * triangle, the faces will be merged.

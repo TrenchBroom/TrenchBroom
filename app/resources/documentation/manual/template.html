@@ -1,66 +1,47 @@
 <!DOCTYPE html>
-$if(lang)$
-<html lang="$lang$">
-$else$
-<html>
-$endif$
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="pandoc">
 $for(author-meta)$
-<meta name="author" content="$author-meta$">
-$endfor$
-$if(date-meta)$
-<meta name="date" content="$date-meta$">
-$endif$
-$if(keywords)$
-<meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$">
-$endif$
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="$author-meta$">$endfor$
+<title>$pagetitle$</title>
 <link rel="icon" href="images/icon.png">
-<title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
-$if(highlighting-css)$
-<style>
-$highlighting-css$
-</style>
-$endif$
+<link rel="stylesheet" href="_reset.css">
+<link rel="stylesheet" href="_variables.css">
+<link rel="stylesheet" href="_specific.css">
 <link rel="stylesheet" href="default.css">
-$if(math)$
-$math$
-$endif$
-$for(header-includes)$
-$header-includes$
-$endfor$
+<link rel="stylesheet" href="_responsive.css">
+<script src="shortcuts.js"></script>
+<script src="shortcuts_helper.js"></script>
 </head>
 <body>
-<script src="shortcuts.js" charset="UTF-8"></script>
-<script src="shortcuts_helper.js" charset="UTF-8"></script>
-$for(include-before)$
-$include-before$
-$endfor$
-$if(toc)$
-<section id="toc_toggler">
+$if(toc)$<div id="toc_toggler">
 <img src="images/icon.png" alt="TrenchBroom Icon">
 <a href="#toc"><span>&#9776;</span></a>
-</section>
-<nav id="$idprefix$toc">
-<div id="$idprefix$toc_inner">
-<header id="$idprefix$toc_inner_header">
+</div>
+<nav id="toc">
+<div id="toc_inner">
+<header id="toc_inner_header">
 <img src="images/icon.png" alt="TrenchBroom Icon">
 <h2>Table of Contents</h2>
 </header>
 $toc$
 </div>
-</nav>
-$endif$
-<main id="$idprefix$content">
-<aside id="$idprefix$content_version">
-<p><span><strong>Version:</strong> __TB_VERSION__</span><span><strong>Build:</strong> __TB_BUILD_ID__</span></p>
+</nav>$endif$
+<main id="content">
+<aside id="content_version">
+<div id="content_version_details">
+<span id="content_version_heading">$pagetitle$</span>
+<span><strong>Build:</strong> __TB_BUILD_ID__</span>
+</div>
+<div id="content_version_links">
+<span><a href="https://trenchbroom.github.io/" target="_blank" rel="noopener noreferrer">Official website</a> - <a href="https://discord.com/invite/XaAuJVz" target="_blank" rel="noopener noreferrer">Keep in touch on Discord</a></span>
+<span><strong><a href="https://github.com/TrenchBroom/TrenchBroom/releases/latest" target="_blank" rel="noopener noreferrer">Download the latest available version</a></strong></span>
+</div>
 </aside>
 $body$
 </main>
-$for(include-after)$
-$include-after$
-$endfor$
 </body>
 </html>

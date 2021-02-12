@@ -135,9 +135,9 @@ namespace TrenchBroom {
             ensure(layer != nullptr, "layer is null");
             auto document = kdl::mem_lock(m_document);
             if (!layer->hidden()) {
-                document->hide(std::vector<Model::Node*>(1, layer));
+                document->hide(std::vector<Model::Node*>{layer});
             } else {
-                document->resetVisibility(std::vector<Model::Node*>(1, layer));
+                document->resetVisibility(std::vector<Model::Node*>{layer});
             }
         }
 
@@ -150,9 +150,9 @@ namespace TrenchBroom {
             ensure(layer != nullptr, "layer is null");
             auto document = kdl::mem_lock(m_document);
             if (!layer->locked()) {
-                document->lock(std::vector<Model::Node*>(1, layer));
+                document->lock(std::vector<Model::Node*>{layer});
             } else {
-                document->resetLock(std::vector<Model::Node*>(1, layer));
+                document->resetLock(std::vector<Model::Node*>{layer});
             }
         }
 

@@ -49,8 +49,8 @@ namespace TrenchBroom {
 
             InputState m_inputState;
 
-            int m_lastMouseX;
-            int m_lastMouseY;
+            float m_lastMouseX;
+            float m_lastMouseY;
             bool m_ignoreNextDrag;
         public:
             ToolBoxConnector();
@@ -65,10 +65,10 @@ namespace TrenchBroom {
             void setToolBox(ToolBox& toolBox);
             void addTool(ToolController* tool);
         public: // drag and drop
-            bool dragEnter(int x, int y, const std::string& text);
-            bool dragMove(int x, int y, const std::string& text);
+            bool dragEnter(float x, float y, const std::string& text);
+            bool dragMove(float x, float y, const std::string& text);
             void dragLeave();
-            bool dragDrop(int x, int y, const std::string& text);
+            bool dragDrop(float x, float y, const std::string& text);
         public: // cancel
             bool cancel();
         protected: // rendering
@@ -98,11 +98,11 @@ namespace TrenchBroom {
             void processDragEnd(const MouseEvent& event);
 
             MouseButtonState mouseButton(const MouseEvent& event);
-            void mouseMoved(int x, int y);
+            void mouseMoved(float x, float y);
         public:
             bool cancelDrag();
         private:
-            virtual PickRequest doGetPickRequest(int x, int y) const = 0;
+            virtual PickRequest doGetPickRequest(float x, float y) const = 0;
             virtual Model::PickResult doPick(const vm::ray3& pickRay) const = 0;
             virtual void doShowPopupMenu();
 

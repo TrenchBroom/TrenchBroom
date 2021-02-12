@@ -34,8 +34,8 @@ namespace TrenchBroom {
         ToolBoxConnector::ToolBoxConnector() :
         m_toolBox(nullptr),
         m_toolChain(new ToolChain()),
-        m_lastMouseX(0),
-        m_lastMouseY(0),
+        m_lastMouseX(0.0f),
+        m_lastMouseY(0.0f),
         m_ignoreNextDrag(false) {}
 
         ToolBoxConnector::~ToolBoxConnector() {
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             m_toolChain->append(tool);
         }
 
-        bool ToolBoxConnector::dragEnter(const int x, const int y, const std::string& text) {
+        bool ToolBoxConnector::dragEnter(const float x, const float y, const std::string& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(x, y);
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             return m_toolBox->dragEnter(m_toolChain, m_inputState, text);
         }
 
-        bool ToolBoxConnector::dragMove(const int x, const int y, const std::string& text) {
+        bool ToolBoxConnector::dragMove(const float x, const float y, const std::string& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(x, y);
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             m_toolBox->dragLeave(m_toolChain, m_inputState);
         }
 
-        bool ToolBoxConnector::dragDrop(const int /* x */, const int /* y */, const std::string& text) {
+        bool ToolBoxConnector::dragDrop(const float /* x */, const float /* y */, const std::string& text) {
             ensure(m_toolBox != nullptr, "toolBox is null");
 
             updatePickResult();
@@ -316,7 +316,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ToolBoxConnector::mouseMoved(int x, int y) {
+        void ToolBoxConnector::mouseMoved(const float x, const float y) {
             const auto dx = x - m_lastMouseX;
             const auto dy = y - m_lastMouseY;
             m_inputState.mouseMove(x, y, dx, dy);

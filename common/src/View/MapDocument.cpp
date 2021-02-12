@@ -849,7 +849,7 @@ namespace TrenchBroom {
 
         void MapDocument::select(Model::Node* node) {
             m_repeatStack->clearOnNextPush();
-            executeAndStore(SelectionCommand::select(std::vector<Model::Node*>(1, node)));
+            executeAndStore(SelectionCommand::select(std::vector<Model::Node*>{node}));
         }
 
         void MapDocument::select(const std::vector<Model::BrushFaceHandle>& handles) {
@@ -930,7 +930,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::deselect(Model::Node* node) {
-            deselect(std::vector<Model::Node*>(1, node));
+            deselect(std::vector<Model::Node*>{node});
         }
 
         void MapDocument::deselect(const std::vector<Model::Node*>& nodes) {
@@ -976,7 +976,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::removeNode(Model::Node* node) {
-            removeNodes(std::vector<Model::Node*>(1, node));
+            removeNodes(std::vector<Model::Node*>{node});
         }
 
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
@@ -1294,10 +1294,10 @@ namespace TrenchBroom {
             deselectAll();
             Model::GroupNode* previousGroup = m_editorContext->currentGroup();
             if (previousGroup == nullptr)
-                lock(std::vector<Model::Node*>(1, m_world.get()));
+                lock(std::vector<Model::Node*>{m_world.get()});
             else
-                resetLock(std::vector<Model::Node*>(1, previousGroup));
-            unlock(std::vector<Model::Node*>(1, group));
+                resetLock(std::vector<Model::Node*>{previousGroup});
+            unlock(std::vector<Model::Node*>{group});
             executeAndStore(CurrentGroupCommand::push(group));
         }
 
@@ -1306,14 +1306,14 @@ namespace TrenchBroom {
 
             deselectAll();
             Model::GroupNode* previousGroup = m_editorContext->currentGroup();
-            resetLock(std::vector<Model::Node*>(1, previousGroup));
+            resetLock(std::vector<Model::Node*>{previousGroup});
             executeAndStore(CurrentGroupCommand::pop());
 
             Model::GroupNode* currentGroup = m_editorContext->currentGroup();
             if (currentGroup != nullptr) {
-                unlock(std::vector<Model::Node*>(1, currentGroup));
+                unlock(std::vector<Model::Node*>{currentGroup});
             } else {
-                unlock(std::vector<Model::Node*>(1, m_world.get()));
+                unlock(std::vector<Model::Node*>{m_world.get()});
             }
         }
 
@@ -1963,7 +1963,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::updateSpawnflag(const std::string& key, const size_t flagIndex, const bool setFlag) {
-            return applyAndSwap(*this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", m_selectedNodes.nodes(), kdl::overload(
+            return applyAndSwap(*this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", allSelectedEntityNodes(), kdl::overload(
                 [] (Model::Layer&) { return true; },
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
@@ -2289,12 +2289,12 @@ namespace TrenchBroom {
             }
         }
 
-        class ThrowExceptionCommand : public DocumentCommand {
+        class ThrowExceptionCommand : public UndoableCommand {
         public:
             static const CommandType Type;
             using Ptr = std::shared_ptr<ThrowExceptionCommand>;
         public:
-            ThrowExceptionCommand() : DocumentCommand(Type, "Throw Exception") {}
+            ThrowExceptionCommand() : UndoableCommand(Type, "Throw Exception", false) {}
 
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override {
@@ -2464,7 +2464,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::reloadTextureCollections() {
-            const std::vector<Model::Node*> nodes(1, m_world.get());
+            const auto nodes = std::vector<Model::Node*>{m_world.get()};
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
 
@@ -2475,8 +2475,11 @@ namespace TrenchBroom {
         }
 
         void MapDocument::reloadEntityDefinitions() {
-            auto oldSpec = entityDefinitionFile();
-            setEntityDefinitionFile(oldSpec);
+            const auto nodes = std::vector<Model::Node*>{m_world.get()};
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            Notifier<>::NotifyBeforeAndAfter notifyEntityDefinitions(entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
+
+            info("Reloading entity definitions");
         }
 
         void MapDocument::loadAssets() {

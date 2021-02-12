@@ -33,25 +33,25 @@ namespace TrenchBroom {
         InputState::InputState() :
         m_modifierKeys(ModifierKeys::MKNone),
         m_mouseButtons(MouseButtons::MBNone),
-        m_mouseX(0),
-        m_mouseY(0),
-        m_mouseDX(0),
-        m_mouseDY(0),
+        m_mouseX(0.0f),
+        m_mouseY(0.0f),
+        m_mouseDX(0.0f),
+        m_mouseDY(0.0f),
         m_scrollX(0.0f),
         m_scrollY(0.0f),
         m_anyToolDragging(false) {
             const QPoint mouseState = QCursor::pos();
-            m_mouseX = mouseState.x();
-            m_mouseY = mouseState.y();
+            m_mouseX = static_cast<float>(mouseState.x());
+            m_mouseY = static_cast<float>(mouseState.y());
         }
 
-        InputState::InputState(const int mouseX, const int mouseY) :
+        InputState::InputState(const float mouseX, const float mouseY) :
         m_modifierKeys(ModifierKeys::MKNone),
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(mouseX),
         m_mouseY(mouseY),
-        m_mouseDX(0),
-        m_mouseDY(0),
+        m_mouseDX(0.0f),
+        m_mouseDY(0.0f),
         m_scrollX(0.0f),
         m_scrollY(0.0f),
         m_anyToolDragging(false) {}
@@ -113,19 +113,19 @@ namespace TrenchBroom {
             return mouseButtons() == buttons;
         }
 
-        int InputState::mouseX() const {
+        float InputState::mouseX() const {
             return m_mouseX;
         }
 
-        int InputState::mouseY() const {
+        float InputState::mouseY() const {
             return m_mouseY;
         }
 
-        int InputState::mouseDX() const {
+        float InputState::mouseDX() const {
             return m_mouseDX;
         }
 
-        int InputState::mouseDY() const {
+        float InputState::mouseDY() const {
             return m_mouseDY;
         }
 
@@ -157,7 +157,7 @@ namespace TrenchBroom {
             m_mouseButtons = MouseButtons::MBNone;
         }
 
-        void InputState::mouseMove(const int mouseX, const int mouseY, const int mouseDX, const int mouseDY) {
+        void InputState::mouseMove(const float mouseX, const float mouseY, const float mouseDX, const float mouseDY) {
             m_mouseX = mouseX;
             m_mouseY = mouseY;
             m_mouseDX = mouseDX;
