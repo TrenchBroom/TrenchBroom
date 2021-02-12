@@ -10,7 +10,7 @@ pre {
     overflow-x: auto;
     overflow-y: hidden;
     border: var(--border);
-    border-radius: var(--border-radius-25-25);
+    border-radius: var(--border-radius-25);
     background-color: var(--color-gray-93);
 }
 
