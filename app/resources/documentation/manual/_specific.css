@@ -124,6 +124,7 @@ figure img {
 
 p img {
     float: left;
+    max-width: 100%;
     margin: 0 var(--spacing-x10000) var(--spacing-x10000) 0;
 }
 
