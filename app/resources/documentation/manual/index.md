@@ -1,4 +1,4 @@
-% TrenchBroom Manual
+% TrenchBroom  \_\_TB_VERSION\_\_ Reference Manual
 % Kristian Duske
 % 11-13-2015
 
