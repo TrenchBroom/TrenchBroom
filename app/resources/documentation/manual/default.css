@@ -47,19 +47,8 @@ body #toc_toggler img {
     height: var(--sizing-x12500);
 }
 
-body #toc_toggler a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--sizing-x20000);
-    height: var(--sizing-x20000);
-    font-size: var(--typography-font-size-x12500);
-    text-decoration: none;
-    color: var(--color-gray-20);
-}
-
-body #toc_toggler a span {
-    line-height: var(--typography-line-height-reset);
+body #toc_toggler a[href="#"] {
+    margin-top: auto;
 }
 
 body #toc_inner #toc_inner_header {
@@ -93,7 +82,7 @@ body #content {
     margin-left: 340px;
 }
 
-body #content :last-child {
+body #content > :last-child {
     margin-bottom: 0;
 }
 
@@ -131,4 +120,12 @@ body #content_version #content_version_links {
     flex-direction: column;
     align-items: flex-end;
     margin-left: auto;
+}
+
+/* Back to Top */
+
+body #content a[href="#"] {
+    position: fixed;
+    right: var(--spacing-x20000);
+    bottom: var(--spacing-x20000);
 }
