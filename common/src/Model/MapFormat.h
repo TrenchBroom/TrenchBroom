@@ -69,7 +69,11 @@ namespace TrenchBroom {
             /**
              * Doom 3 with brush primitives but using normalized planes instead of 3 points
              */
-            Doom3
+            Doom3,
+             /**
+             * Doom 3 with Valve 220 format texturing, supported by https://github.com/RobertBeckebans/RBDOOM-3-BFG/tree/506-TrenchBroom-interop/neo/tools/compilers/dmap
+             */
+            Doom3_Valve,
         };
 
         /**

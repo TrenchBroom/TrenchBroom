@@ -130,7 +130,24 @@ namespace TrenchBroom {
                 const auto pathStr = token.data();
                 
                 if (token.data() == tableId ) {
-                   m_tokenizer.discardLine();
+                   //skipRemainderOfEntry();
+                   m_tokenizer.discardLine(); 
+
+                   //auto token2 = m_tokenizer.peekToken();
+                   //while (!token2.hasType(Quake3ShaderToken::CBrace)) {
+                   //    m_tokenizer.nextToken();
+                   //    token2 = m_tokenizer.peekToken();
+                   //}
+                   //if (token.hasType(Quake3ShaderToken::Eol)||token.hasType(Quake3ShaderToken::CBrace)) {
+                   //    m_tokenizer.skipToken();
+                   //}
+                   //expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
+                   //expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
+
+                   //m_tokenizer.discardUntil("}");
+                   //m_tokenizer.discardWhile("}");
+                   //m_tokenizer.discardUntil("}");
+                   //m_tokenizer.discardWhile("}");
                    continue;
                 } else if (token.data() == materialId ) {
                    m_tokenizer.nextToken();

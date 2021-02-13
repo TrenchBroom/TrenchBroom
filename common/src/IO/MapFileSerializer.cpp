@@ -222,6 +222,7 @@ namespace TrenchBroom {
                 case Model::MapFormat::Quake2_Valve:
                 case Model::MapFormat::Quake3_Valve:
                 case Model::MapFormat::Doom3:
+                case Model::MapFormat::Doom3_Valve:
                     return std::make_unique<Quake2ValveFileSerializer>(stream);
                 case Model::MapFormat::Daikatana:
                     return std::make_unique<DaikatanaFileSerializer>(stream);

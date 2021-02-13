@@ -428,6 +428,7 @@ namespace TrenchBroom {
                 return end;
             }
 
+        public:
             const char* discardWhile(std::string_view allow) {
                 while (!eof() && isAnyOf(curChar(), allow)) {
                     advance();
@@ -435,13 +436,14 @@ namespace TrenchBroom {
                 return curPos();
             }
 
+        
             const char* discardUntil(std::string_view delims) {
                 while (!eof() && !isAnyOf(curChar(), delims)) {
                     advance();
                 }
                 return curPos();
             }
-
+        protected:
             bool matchesPattern(std::string_view pattern) const {
                 if (pattern.empty() || isEscaped() || curChar() != pattern[0]) {
                     return false;

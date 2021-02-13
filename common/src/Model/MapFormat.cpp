@@ -1,6 +1,6 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- Copyright (C) 2020 Robert Beckebans (Doom 3 support)
+ Copyright (C) 2020-2021 Robert Beckebans (Doom 3 support)
 
  This file is part of TrenchBroom.
 
@@ -47,6 +47,8 @@ namespace TrenchBroom {
                 return MapFormat::Quake3;
             } else if (formatName == "Doom3") {
                 return MapFormat::Doom3;
+            } else if (formatName == "Doom3 (Valve)") {
+                return MapFormat::Doom3_Valve;
             } else {
                 return MapFormat::Unknown;
             }
@@ -74,6 +76,8 @@ namespace TrenchBroom {
                     return "Quake3";
                  case MapFormat::Doom3:
                     return "Doom3";
+                 case MapFormat::Doom3_Valve:
+                    return "Doom3 (Valve)";
                 case MapFormat::Unknown:
                     return "Unknown";
                 switchDefault()
@@ -101,7 +105,7 @@ namespace TrenchBroom {
                 case MapFormat::Quake3:
                     return { MapFormat::Quake3, MapFormat::Quake3_Valve, MapFormat::Quake3_Legacy };
                 case MapFormat::Doom3:
-                    return { MapFormat::Doom3 };
+                    return { MapFormat::Doom3, MapFormat::Doom3_Valve };
                 case MapFormat::Unknown:
                     return { MapFormat::Unknown };
                 switchDefault()
@@ -114,6 +118,7 @@ namespace TrenchBroom {
                 case MapFormat::Quake2_Valve:
                 case MapFormat::Quake3_Valve:
                 case MapFormat::Doom3:
+                case MapFormat::Doom3_Valve:
                     return true;
                 case MapFormat::Standard:
                 case MapFormat::Quake2:

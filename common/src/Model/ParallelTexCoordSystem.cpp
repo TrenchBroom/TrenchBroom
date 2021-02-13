@@ -126,7 +126,7 @@ namespace TrenchBroom {
         }
 
         vm::vec2f ParallelTexCoordSystem::doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const {
-#if 1
+#if 0
             if(attribs.hasBrushPrimitMode()) {
 
 #if 1

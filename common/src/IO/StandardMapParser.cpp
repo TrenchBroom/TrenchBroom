@@ -289,7 +289,8 @@ namespace TrenchBroom {
                     parseBrush(status, startLine, false);
                 }
             } else if (m_sourceMapFormat == Model::MapFormat::Quake3_Valve ||
-                       m_sourceMapFormat == Model::MapFormat::Quake3_Legacy) {
+                       m_sourceMapFormat == Model::MapFormat::Quake3_Legacy || 
+                       m_sourceMapFormat == Model::MapFormat::Doom3_Valve) {
                 // We expect either a patch or a regular brush.
                 expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
                 if (token.hasType(QuakeMapToken::String)) {
@@ -362,6 +363,7 @@ namespace TrenchBroom {
                     break;
                 case Model::MapFormat::Quake2_Valve:
                 case Model::MapFormat::Quake3_Valve:
+                case Model::MapFormat::Doom3_Valve:
                     parseQuake2ValveFace(status);
                     break;
                 case Model::MapFormat::Hexen2:

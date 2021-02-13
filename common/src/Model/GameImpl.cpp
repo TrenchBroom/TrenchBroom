@@ -154,7 +154,7 @@ namespace TrenchBroom {
                 return doLoadMap(format, worldBounds, initialMapFilePath, logger);
             } else {
                 auto worldEntity = Model::Entity();
-                if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
+                if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve || format == MapFormat::Doom3_Valve) {
                     worldEntity.addOrUpdateProperty(PropertyKeys::ValveVersion, "220");
                 }
 
