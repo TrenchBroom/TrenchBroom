@@ -1168,7 +1168,9 @@ Additionally, you can configure the game engines for the selected game by clicki
 
 In this dialog, you can add a game engine profile by clicking on the '+' button below the profile list on the left, and you can delete the selected profile by clicking on the '-' button. To the right of the list, you can edit the details of the selected game engine profile, specifically its name and path. Similar to the game path, if you edit the engine path manually, you have to apply the changes by pressing #key(Return) while in the path text box. Click [here](#launching_game_engines) to find out how to launch game engines from within TrenchBroom.
 
-For some game configurations (such as for Quake, shown above) you can also optionally enter paths for a set of compilation tools. If you do, then the name shown to the left of the path can be used as a variable in your [compilation profiles](#compiling_maps) for this game. Wherever that variable occurs, the path specified here will be used. For example if your path to the `qbsp` tool is `C:\mapping\ericw-tools-v0.18.1-win64\bin\qbsp.exe`, and you set that path here... then in your compilation profiles you can enter `${qbsp}` wherever you need to refer to that whole qbsp.exe path.
+For some game configurations (such as for Quake, shown above) you can also optionally enter paths for a set of compilation tools. If it's not clear what you should be specifying a path to here, then hovering over the path entry box may give you a tooltip with additional info about that compilation tool.
+
+If you do enter a path here, then the name shown to the left of the path can be used as a variable in your [compilation profiles](#compiling_maps) for this game. Wherever that variable occurs, the path specified here will be used. For example if your path to the `qbsp` tool is `C:\mapping\ericw-tools-v0.18.1-win64\bin\qbsp.exe`, and you set that path here... then in your compilation profiles you can enter `${qbsp}` wherever you need to refer to that whole qbsp.exe path.
 
 The benefits of specifying your tool paths here (if the game configuration allows) are:
 
@@ -2243,9 +2245,9 @@ The game configuration is an [expression language](#expression_language) map wit
         },
         "softMapBounds":"-4096 -4096 -4096 4096 4096 4096",
         "compilationTools": [
-            { "name": "qbsp" },
+            { "name": "bsp" },
             { "name": "vis" },
-            { "name": "light" }
+            { "name": "rad" }
         ]
     }
 
@@ -2536,12 +2538,11 @@ The optional `softMapBounds` key defines the default [map bounds](#map_bounds) t
 
 The optional `compilationTools` list identifies tool names that will appear in the [game configuration dialog](#game_configuration), allowing the user to associate these names with paths to tool executables. Such a name can be used as a variable in this game's [compilation profiles](#compiling_maps) to represent the associated path.
 
-Each element in the list is just an object with a `name` key. An example from the Quake game configuration that defines three compilation tools:
+Each element in the list is an object that must have a `name` key and may optionally have a `description` key (used for tooltips). An example from the Quake 3 game configuration that defines two tools:
 
     "compilationTools": [
-        { "name": "qbsp"},
-        { "name": "vis"},
-        { "name": "light"}
+        { "name": "q3map2", "description": "Path to your q3map2 executable, which performs the main bsp/vis/light compilation phases" },
+        { "name": "bspc", "description": "Path to your bspc or mbspc executable, which creates .aas files for bot support" }
     ]
 
 # Getting Involved
