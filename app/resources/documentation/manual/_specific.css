@@ -10,13 +10,14 @@ pre {
     overflow-x: auto;
     overflow-y: hidden;
     border: var(--border);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-25);
     background-color: var(--color-gray-93);
 }
 
 code {
     font-family: var(--typography-font-family-code);
     font-size: var(--typography-font-size-x07500);
+    word-break: break-word;
 }
 
 /* Typography */
@@ -100,7 +101,7 @@ figure {
     display: inline-block;
     margin-left: var(--spacing-x10000);
     margin-right: var(--spacing-x10000);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-25);
     background-color: var(--color-gray-93);
 }
 
@@ -118,7 +119,7 @@ figure img {
     display: block;
     max-width: 100%;
     margin: 0;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-25);
     background-color: var(--color-gray-93);
 }
 
@@ -169,7 +170,7 @@ table tbody tr.odd {
     font-weight: var(--typography-font-weight-bold);
     text-align: center;
     border: var(--border);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-25);
     background-color: var(--color-gray-93);
 }
 
@@ -183,4 +184,27 @@ br {
 
 h1, h2, h3, h4, img, ul, ol, dl, p, pre, table, figure {
     margin-bottom: var(--spacing-x10000);
+}
+
+/* Back to Top & Table of Contents anchors */
+
+a[href="#"], a[href="#toc"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--sizing-x20000);
+    height: var(--sizing-x20000);
+    font-size: var(--typography-font-size-x12500);
+    text-decoration: none;
+    border-radius: 50%;
+    background-color: var(--color-gray-93);
+    color: var(--color-gray-20);
+}
+
+a[href="#"]:hover, a[href="#"]:focus, a[href="#toc"]:hover, a[href="#toc"]:focus {
+    background-color: var(--color-gray-80);
+}
+
+a[href="#"] span, a[href="#toc"] span {
+    line-height: var(--typography-line-height-reset);
 }
