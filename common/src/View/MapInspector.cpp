@@ -160,12 +160,20 @@ namespace TrenchBroom {
             m_softBoundsFromGameMaxLabel = new QLabel();
             auto* softBoundsFromGameLabel = new ClickableLabel(tr("Use game default"));
 
+            auto* minCaptionLabel = new QLabel(tr("Min:"));
+            auto* maxCaptionLabel = new QLabel(tr("Max:"));
+
+            makeInfo(minCaptionLabel);
+            makeInfo(maxCaptionLabel);
+            makeInfo(m_softBoundsFromGameMinLabel);
+            makeInfo(m_softBoundsFromGameMaxLabel);
+
             auto* softBoundsFromGameValueLayout = new QHBoxLayout();
             softBoundsFromGameValueLayout->setContentsMargins(0, 0, 0, 0);
             softBoundsFromGameValueLayout->setSpacing(LayoutConstants::MediumHMargin);
-            softBoundsFromGameValueLayout->addWidget(new QLabel(tr("Min:")));
+            softBoundsFromGameValueLayout->addWidget(minCaptionLabel);
             softBoundsFromGameValueLayout->addWidget(m_softBoundsFromGameMinLabel);
-            softBoundsFromGameValueLayout->addWidget(new QLabel(tr("Max:")));
+            softBoundsFromGameValueLayout->addWidget(maxCaptionLabel);
             softBoundsFromGameValueLayout->addWidget(m_softBoundsFromGameMaxLabel);
             softBoundsFromGameValueLayout->addStretch(1);
             
