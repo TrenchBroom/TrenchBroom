@@ -44,6 +44,7 @@ namespace TrenchBroom {
 
         EntityInspector::~EntityInspector() {
             saveWindowState(m_splitter);
+            saveWindowState(m_entityDefinitionFileChooser);
         }
 
         void EntityInspector::createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
@@ -60,12 +61,14 @@ namespace TrenchBroom {
             m_attributeEditor->setMinimumSize(100, 150);
             m_entityBrowser->setMinimumSize(100, 150);
 
+            m_entityDefinitionFileChooser = createEntityDefinitionFileChooser(this, document);
+
             auto* outerSizer = new QVBoxLayout();
             outerSizer->setContentsMargins(0, 0, 0, 0);
             outerSizer->setSpacing(0);
             outerSizer->addWidget(m_splitter, 1);
             outerSizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
-            outerSizer->addWidget(createEntityDefinitionFileChooser(this, document), 0);
+            outerSizer->addWidget(m_entityDefinitionFileChooser, 0);
             setLayout(outerSizer);
 
             restoreWindowState(m_splitter);
@@ -88,14 +91,18 @@ namespace TrenchBroom {
             return panel;
         }
 
-        QWidget* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, std::weak_ptr<MapDocument> document) {
-            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(tr("Entity Definitions"), false, parent);
-            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(document);
+        CollapsibleTitledPanel* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, std::weak_ptr<MapDocument> document) {
+            auto* panel = new CollapsibleTitledPanel(tr("Entity Definitions"), false, parent);
+            panel->setObjectName("EntityInspector_EntityDefinitionFileChooser");
+
+            auto* entityDefinitionFileChooser = new EntityDefinitionFileChooser(document);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
-            sizer->addWidget(m_entityDefinitionFileChooser, 1);
+            sizer->addWidget(entityDefinitionFileChooser, 1);
             panel->getPanel()->setLayout(sizer);
+
+            restoreWindowState(panel);
 
             return panel;
         }

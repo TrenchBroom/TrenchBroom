@@ -48,12 +48,14 @@ namespace TrenchBroom {
         m_document(document),
         m_splitter(nullptr),
         m_faceAttribsEditor(nullptr),
-        m_textureBrowser(nullptr) {
+        m_textureBrowser(nullptr),
+        m_textureCollectionsEditor(nullptr) {
             createGui(document, contextManager);
         }
 
         FaceInspector::~FaceInspector() {
             saveWindowState(m_splitter);
+            saveWindowState(m_textureCollectionsEditor);
         }
 
         bool FaceInspector::cancelMouseDrag() {
@@ -76,12 +78,14 @@ namespace TrenchBroom {
             m_splitter->setStretchFactor(0, 0);
             m_splitter->setStretchFactor(1, 1);
 
+            m_textureCollectionsEditor = createTextureCollectionEditor(this, document);
+
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
             layout->addWidget(m_splitter, 1);
             layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
-            layout->addWidget(createTextureCollectionEditor(this, document));
+            layout->addWidget(m_textureCollectionsEditor);
             setLayout(layout);
 
             connect(m_textureBrowser, &TextureBrowser::textureSelected, this, &FaceInspector::textureSelected);
@@ -107,14 +111,18 @@ namespace TrenchBroom {
             return panel;
         }
 
-        QWidget* FaceInspector::createTextureCollectionEditor(QWidget* parent, std::weak_ptr<MapDocument> document) {
+        CollapsibleTitledPanel* FaceInspector::createTextureCollectionEditor(QWidget* parent, std::weak_ptr<MapDocument> document) {
             auto* panel = new CollapsibleTitledPanel(tr("Texture Collections"), false, parent);
+            panel->setObjectName("FaceInspector_TextureCollections");
+
             auto* collectionEditor = new TextureCollectionEditor(std::move(document));
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(collectionEditor, 1);
             panel->getPanel()->setLayout(layout);
+
+            restoreWindowState(panel);
 
             return panel;
         }
