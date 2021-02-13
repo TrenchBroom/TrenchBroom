@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
 
         CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(std::weak_ptr<MapDocument> document) {
-            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Map Properties"), false);
+            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Map Properties"));
             titledPanel->setObjectName("MapInspector_MapPropertiesPanel");
 
             auto* editor = new MapPropertiesEditor(document);
@@ -105,7 +105,7 @@ namespace TrenchBroom {
         }
 
         CollapsibleTitledPanel* MapInspector::createModEditor(std::weak_ptr<MapDocument> document) {
-            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Mods"), false);
+            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Mods"));
             titledPanel->setObjectName("MapInspector_ModsPanel");
 
             ModEditor* modEditor = new ModEditor(document);

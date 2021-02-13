@@ -112,7 +112,7 @@ namespace TrenchBroom {
         }
 
         CollapsibleTitledPanel* FaceInspector::createTextureCollectionEditor(QWidget* parent, std::weak_ptr<MapDocument> document) {
-            auto* panel = new CollapsibleTitledPanel(tr("Texture Collections"), false, parent);
+            auto* panel = new CollapsibleTitledPanel(tr("Texture Collections"), true, parent);
             panel->setObjectName("FaceInspector_TextureCollections");
 
             auto* collectionEditor = new TextureCollectionEditor(std::move(document));
