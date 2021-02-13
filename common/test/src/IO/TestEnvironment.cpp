@@ -20,6 +20,7 @@
 #include "TestEnvironment.h"
 
 #include "Macros.h"
+#include "Uuid.h"
 #include "IO/PathQt.h"
 
 #include <string>
@@ -34,7 +35,7 @@
 namespace TrenchBroom {
     namespace IO {
         TestEnvironment::TestEnvironment(const std::string& dir) :
-            m_dir(IO::pathFromQString(QDir::current().path()) + Path(dir)) {
+            m_dir(pathFromQString(QDir::current().path()) + Path(generateUuid()) + Path(dir)) {
             createTestEnvironment();
         }
 
