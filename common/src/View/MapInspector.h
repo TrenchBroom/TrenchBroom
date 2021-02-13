@@ -38,17 +38,22 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class CollapsibleTitledPanel;
         class MapDocument;
 
         class MapInspector : public TabBookPage {
             Q_OBJECT
+        private:
+            CollapsibleTitledPanel* m_mapPropertiesEditor;
+            CollapsibleTitledPanel* m_modEditor;
         public:
             explicit MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~MapInspector();
         private:
             void createGui(std::weak_ptr<MapDocument> document);
             QWidget* createLayerEditor(std::weak_ptr<MapDocument> document);
-            QWidget* createMapPropertiesEditor(std::weak_ptr<MapDocument> document);
-            QWidget* createModEditor(std::weak_ptr<MapDocument> document);
+            CollapsibleTitledPanel* createMapPropertiesEditor(std::weak_ptr<MapDocument> document);
+            CollapsibleTitledPanel* createModEditor(std::weak_ptr<MapDocument> document);
         };
 
         /**

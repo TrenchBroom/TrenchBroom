@@ -49,20 +49,30 @@ namespace TrenchBroom {
         // MapInspector
 
         MapInspector::MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent) :
-        TabBookPage(parent) {
+        TabBookPage(parent),
+        m_mapPropertiesEditor(nullptr),
+        m_modEditor(nullptr) {
             createGui(document);
         }
 
+        MapInspector::~MapInspector() {
+            saveWindowState(m_mapPropertiesEditor);
+            saveWindowState(m_modEditor);
+        }
+
         void MapInspector::createGui(std::weak_ptr<MapDocument> document) {
+            m_mapPropertiesEditor = createMapPropertiesEditor(document);
+            m_modEditor = createModEditor(document);
+
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->setSpacing(0);
 
             sizer->addWidget(createLayerEditor(document), 1);
             sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
-            sizer->addWidget(createMapPropertiesEditor(document), 0);
+            sizer->addWidget(m_mapPropertiesEditor, 0);
             sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
-            sizer->addWidget(createModEditor(document), 0);
+            sizer->addWidget(m_modEditor, 0);
             setLayout(sizer);
         }
 
@@ -78,8 +88,10 @@ namespace TrenchBroom {
             return titledPanel;
         }
 
-        QWidget* MapInspector::createMapPropertiesEditor(std::weak_ptr<MapDocument> document) {
+        CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(std::weak_ptr<MapDocument> document) {
             CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Map Properties"), false);
+            titledPanel->setObjectName("MapInspector_MapPropertiesPanel");
+
             auto* editor = new MapPropertiesEditor(document);
 
             auto* sizer = new QVBoxLayout();
@@ -87,17 +99,23 @@ namespace TrenchBroom {
             sizer->addWidget(editor, 1);
             titledPanel->getPanel()->setLayout(sizer);
 
+            restoreWindowState(titledPanel);
+
             return titledPanel;
         }
 
-        QWidget* MapInspector::createModEditor(std::weak_ptr<MapDocument> document) {
+        CollapsibleTitledPanel* MapInspector::createModEditor(std::weak_ptr<MapDocument> document) {
             CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Mods"), false);
+            titledPanel->setObjectName("MapInspector_ModsPanel");
+
             ModEditor* modEditor = new ModEditor(document);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->addWidget(modEditor, 1);
             titledPanel->getPanel()->setLayout(sizer);
+
+            restoreWindowState(titledPanel);
 
             return titledPanel;
         }
