@@ -59,6 +59,9 @@ namespace TrenchBroom {
             void collapse();
             bool expanded() const;
             void setExpanded(bool expanded);
+
+            QByteArray saveState() const;
+            bool restoreState(const QByteArray& state);
         private:
             void updateExpanded();
         };
