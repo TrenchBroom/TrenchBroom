@@ -60,7 +60,7 @@ namespace TrenchBroom {
 
             sizer->addWidget(createLayerEditor(document), 1);
             sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
-            sizer->addWidget(createMapProperties(document), 0);
+            sizer->addWidget(createMapPropertiesEditor(document), 0);
             sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
             sizer->addWidget(createModEditor(document), 0);
             setLayout(sizer);
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             return titledPanel;
         }
 
-        QWidget* MapInspector::createMapProperties(std::weak_ptr<MapDocument> document) {
+        QWidget* MapInspector::createMapPropertiesEditor(std::weak_ptr<MapDocument> document) {
             CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Map Properties"), false);
             auto* editor = new MapPropertiesEditor(document);
 

@@ -47,7 +47,7 @@ namespace TrenchBroom {
         private:
             void createGui(std::weak_ptr<MapDocument> document);
             QWidget* createLayerEditor(std::weak_ptr<MapDocument> document);
-            QWidget* createMapProperties(std::weak_ptr<MapDocument> document);
+            QWidget* createMapPropertiesEditor(std::weak_ptr<MapDocument> document);
             QWidget* createModEditor(std::weak_ptr<MapDocument> document);
         };
 
