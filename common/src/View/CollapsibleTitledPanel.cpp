@@ -95,6 +95,26 @@ namespace TrenchBroom {
             updateExpanded();
         }
 
+        QByteArray CollapsibleTitledPanel::saveState() const {
+            auto result = QByteArray();
+            auto stream = QDataStream(&result, QIODevice::WriteOnly);
+            stream << m_expanded;
+            return result;
+        }
+
+        bool CollapsibleTitledPanel::restoreState(const QByteArray& state) {
+            auto stream = QDataStream(state);
+            bool expanded;
+            stream >> expanded;
+
+            if (stream.status() == QDataStream::Ok) {
+                setExpanded(expanded);
+                return true;
+            }
+
+            return false;
+        }
+
         void CollapsibleTitledPanel::updateExpanded() {
             if (m_expanded) {
                 m_divider->show();
