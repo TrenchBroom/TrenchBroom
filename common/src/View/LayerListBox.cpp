@@ -170,7 +170,7 @@ namespace TrenchBroom {
             for (int i = 0; i < count(); ++i) {
                 if (layerForRow(i) == layer) {
                     setCurrentRow(i);
-                    break;
+                    return;
                 }
             }
             setCurrentRow(-1);
@@ -212,7 +212,9 @@ namespace TrenchBroom {
             for (const auto* node : nodes) {
                 if (dynamic_cast<const Model::LayerNode*>(node) != nullptr) {
                     // A layer was added or removed or modified, so we need to clear and repopulate the list
+                    auto* previouslySelectedLayer = selectedLayer();
                     reload();
+                    setSelectedLayer(previouslySelectedLayer);
                     return;
                 }
             }

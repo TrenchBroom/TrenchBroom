@@ -1978,5 +1978,22 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
                 vm::vec3d(+2.0, +2.0, 0.0),
             }, cube));
         }
+
+        TEST_CASE("PolyhedronTest.addVertexToPolygonAndAllFacesCoplanar", "[PolyhedronTest]") {
+            auto p = Polyhedron3d{
+                vm::vec3{-64.0, 64.0, -16.0},
+                vm::vec3{64.0, 64.0, -16.0},
+                vm::vec3{22288.0, 18208.0, 16.0},
+                vm::vec3{22288.0, 18336.0, 16.0}, // does not get added due to all incident faces being coplanar
+                vm::vec3{22416.0, 18336.0, 16.0},
+            };
+
+            CHECK(p.hasAllVertices({
+                vm::vec3{-64.0, 64.0, -16.0},
+                vm::vec3{64.0, 64.0, -16.0},
+                vm::vec3{22288.0, 18208.0, 16.0},
+                vm::vec3{22416.0, 18336.0, 16.0},
+            }, 0.0));
+        }
     }
 }

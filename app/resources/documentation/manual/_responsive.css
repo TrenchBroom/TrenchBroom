@@ -9,10 +9,28 @@
         margin-right: auto;
     }
 
+    /* List */
+
+    dl dd {
+        margin-left: var(--spacing-x15000);
+    }
+    
+    ol, ul {
+        margin-left: var(--spacing-x15000);
+    }
+
     /* Figure */
 
     figure {
         display: block;
+    }
+
+    /* Image */
+
+    p img {
+        display: block;
+        float: inherit;
+        margin: 0 auto var(--spacing-x10000);
     }
 
     /* Table of Contents & Content */
@@ -68,5 +86,11 @@
 
     body #toc_toggler, body #toc, body #content {
         padding: var(--spacing-x10000);
+    }
+
+    /* Back to Top */
+
+    body #content a[href="#"] {
+        display: none;
     }
 }

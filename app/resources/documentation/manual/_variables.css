@@ -1,51 +1,53 @@
 /* ##### Variables ########## */
 
 :root {
-  /* Typography */
+    /* Typography */
 
-  --typography-font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --typography-font-family-code: 'Lucida Console', Monaco, monospace;
-  --typography-font-size-x07500: calc(var(--typography-font-size-x10000) * 0.75);
-  --typography-font-size-x08750: calc(var(--typography-font-size-x10000) * 0.875);
-  --typography-font-size-x10000: 16px;
-  --typography-font-size-x12500: calc(var(--typography-font-size-x10000) * 1.25);
-  --typography-font-size-x15000: calc(var(--typography-font-size-x10000) * 1.5);
-  --typography-font-size-x20000: calc(var(--typography-font-size-x10000) * 2);
-  --typography-font-weight-regular: 400;
-  --typography-font-weight-bold: 700;
-  --typography-line-height-reset: 1;
-  --typography-line-height-tight: 1.2;
-  --typography-line-height-normal: 1.5;
+    --typography-font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --typography-font-family-code: 'Lucida Console', Monaco, monospace;
+    --typography-font-size-x07500: calc(var(--typography-font-size-x10000) * 0.75);
+    --typography-font-size-x08750: calc(var(--typography-font-size-x10000) * 0.875);
+    --typography-font-size-x10000: 16px;
+    --typography-font-size-x12500: calc(var(--typography-font-size-x10000) * 1.25);
+    --typography-font-size-x15000: calc(var(--typography-font-size-x10000) * 1.5);
+    --typography-font-size-x20000: calc(var(--typography-font-size-x10000) * 2);
+    --typography-font-weight-regular: 400;
+    --typography-font-weight-bold: 700;
+    --typography-line-height-reset: 1;
+    --typography-line-height-tight: 1.2;
+    --typography-line-height-normal: 1.5;
 
-  /* Colors */
+    /* Colors */
 
-  --color-gray-20: hsl(0, 0%, 20%);
-  --color-gray-40: hsl(0, 0%, 40%);
-  --color-gray-60: hsl(0, 0%, 60%);
-  --color-gray-80: hsl(0, 0%, 80%);
-  --color-gray-93: hsl(0, 0%, 93%);
-  --color-azureradiance: hsl(210, 100%, 50%);
+    --color-gray-20: hsl(0, 0%, 20%);
+    --color-gray-40: hsl(0, 0%, 40%);
+    --color-gray-60: hsl(0, 0%, 60%);
+    --color-gray-80: hsl(0, 0%, 80%);
+    --color-gray-93: hsl(0, 0%, 93%);
+    --color-gray-100: hsl(0, 0%, 100%);
+    --color-azureradiance: hsl(210, 100%, 50%);
 
-  /* Borders */
+    /* Borders */
 
-  --border: var(--sizing-x00625) solid var(--color-gray-80);
-  --border-radius: var(--sizing-x02500);
+    --border: var(--sizing-x00625) solid var(--color-gray-80);
+    --border-radius-25: var(--sizing-x02500);
 
-  /* Sizing */
+    /* Sizing */
 
-  --sizing-x00625: calc(var(--sizing-x10000) * 0.0625);
-  --sizing-x02500: calc(var(--sizing-x10000) * 0.25);
-  --sizing-x05000: calc(var(--sizing-x10000) * 0.5);
-  --sizing-x10000: 16px;
-  --sizing-x12500: calc(var(--sizing-x10000) * 1.25);
-  --sizing-x15000: calc(var(--sizing-x10000) * 1.5);
-  --sizing-x20000: calc(var(--sizing-x10000) * 2);
+    --sizing-x00625: calc(var(--sizing-x10000) * 0.0625);
+    --sizing-x02500: calc(var(--sizing-x10000) * 0.25);
+    --sizing-x05000: calc(var(--sizing-x10000) * 0.5);
+    --sizing-x10000: 16px;
+    --sizing-x12500: calc(var(--sizing-x10000) * 1.25);
+    --sizing-x15000: calc(var(--sizing-x10000) * 1.5);
+    --sizing-x20000: calc(var(--sizing-x10000) * 2);
 
-  /* Spacing */
+    /* Spacing */
 
-  --spacing-x00625: calc(var(--spacing-x10000) * 0.0625);
-  --spacing-x02500: calc(var(--spacing-x10000) * 0.25);
-  --spacing-x05000: calc(var(--spacing-x10000) * 0.5);
-  --spacing-x10000: 16px;
-  --spacing-x20000: calc(var(--spacing-x10000) * 2);
+    --spacing-x00625: calc(var(--spacing-x10000) * 0.0625);
+    --spacing-x02500: calc(var(--spacing-x10000) * 0.25);
+    --spacing-x05000: calc(var(--spacing-x10000) * 0.5);
+    --spacing-x10000: 16px;
+    --spacing-x15000: calc(var(--spacing-x10000) * 1.5);
+    --spacing-x20000: calc(var(--spacing-x10000) * 2);
 }

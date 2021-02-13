@@ -159,6 +159,7 @@ namespace TrenchBroom {
 
         struct CompilationTool {
             std::string name;
+            std::optional<std::string> description;
         };
 
         bool operator==(const CompilationTool& lhs, const CompilationTool& rhs);
