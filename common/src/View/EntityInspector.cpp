@@ -92,7 +92,7 @@ namespace TrenchBroom {
         }
 
         CollapsibleTitledPanel* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, std::weak_ptr<MapDocument> document) {
-            auto* panel = new CollapsibleTitledPanel(tr("Entity Definitions"), false, parent);
+            auto* panel = new CollapsibleTitledPanel(tr("Entity Definitions"), true, parent);
             panel->setObjectName("EntityInspector_EntityDefinitionFileChooser");
 
             auto* entityDefinitionFileChooser = new EntityDefinitionFileChooser(document);
