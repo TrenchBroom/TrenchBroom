@@ -1464,6 +1464,44 @@ namespace TrenchBroom {
             return m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groupCount() == 1u;
         }
 
+        void MapDocument::selectLinkedGroups() {
+            if (!canSelectLinkedGroups()) {
+                return;
+            }
+
+            const auto linkedGroupIdsToSelect = kdl::vec_sort_and_remove_duplicates(
+                kdl::vec_transform(
+                    kdl::vec_filter(
+                        m_selectedNodes.groups(), 
+                        [](const auto* g) { return g->group().linkedGroupId().has_value(); }),
+                    [](const auto* g) { return *g->group().linkedGroupId(); }));
+
+            auto groupNodesToSelect = std::vector<Model::Node*>{};
+            for (const auto& linkedGroupId : linkedGroupIdsToSelect) {
+                groupNodesToSelect = kdl::vec_concat(std::move(groupNodesToSelect), Model::findLinkedGroups(*m_world.get(), linkedGroupId));
+            }
+
+            groupNodesToSelect = kdl::vec_sort_and_remove_duplicates(std::move(groupNodesToSelect));
+
+            Transaction transaction{this, "Select Linked Groups"};
+            deselectAll();
+            select(groupNodesToSelect);
+        }
+
+        bool MapDocument::canSelectLinkedGroups() const {
+            if (!m_selectedNodes.hasOnlyGroups()) {
+                return false;
+            }
+
+            for (const auto* groupNode : m_selectedNodes.groups()) {
+                if (!groupNode->group().linkedGroupId()) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         void MapDocument::separateLinkedGroups() {
             Transaction transaction(this, "Separate Linked Groups");
             separateSelectedLinkedGroups(true);

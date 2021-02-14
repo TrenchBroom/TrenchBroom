@@ -287,6 +287,54 @@ namespace TrenchBroom {
             CHECK(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
         }
 
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.selectLinkedGroups", "[GroupNodesTest]") {
+            auto* entityNode = new Model::EntityNode{};
+            auto* brushNode = createBrushNode();
+            document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
+            document->select(brushNode);
+
+            auto* groupNode = document->groupSelection("test");
+            REQUIRE(groupNode != nullptr);
+
+            SECTION("Cannot select linked groups if selection is empty") {
+                document->deselectAll();
+                CHECK_FALSE(document->canSelectLinkedGroups());
+            }
+
+            SECTION("Cannot select linked groups if selection contains non-groups") {
+                document->deselectAll();
+                document->select(entityNode);
+                CHECK_FALSE(document->canSelectLinkedGroups());
+                document->select(groupNode);
+                CHECK_FALSE(document->canSelectLinkedGroups());
+            }
+
+            SECTION("Cannot select linked groups if selection contains unlinked groups") {
+                document->deselectAll();
+                document->select(entityNode);
+
+                auto* unlinkedGroupNode = document->groupSelection("other");
+                REQUIRE(unlinkedGroupNode != nullptr);
+
+                CHECK_FALSE(document->canSelectLinkedGroups());
+
+                document->select(groupNode);
+                CHECK_FALSE(document->canSelectLinkedGroups());
+            }
+
+            SECTION("Select linked groups") {
+                auto* linkedGroupNode = document->createLinkedDuplicate();
+                REQUIRE(linkedGroupNode != nullptr);
+
+                document->deselectAll();
+                document->select(groupNode);
+                
+                REQUIRE(document->canSelectLinkedGroups());
+                document->selectLinkedGroups();
+                CHECK_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedGroupNode}));
+            }
+        }
+
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodestTest.separateGroups", "[GroupNodesTest]") {
             auto* brushNode = createBrushNode();
             document->addNodes({{document->parentForNodes(), {brushNode}}});

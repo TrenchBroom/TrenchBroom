@@ -369,7 +369,15 @@ namespace TrenchBroom {
             bool canCreateLinkedDuplicate() const;
 
             /**
-             * Separates the selected linked groups.
+             * Selects all groups linked to the currently selected groups.
+             *
+             * Nothing happens if the current selection does not consist of only groups.
+             */
+            void selectLinkedGroups();
+            bool canSelectLinkedGroups() const;
+
+            /**
+             * Unlinks the selected linked groups.
              *
              * For every set of selected linked groups that belong to the same link set, the selected groups will be added to a new
              * link set with the effect that these groups will still be linked to each other, but they will no longer be linked
