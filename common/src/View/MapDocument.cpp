@@ -2300,6 +2300,48 @@ namespace TrenchBroom {
             return swapNodeContents("Set Protected Property", nodesToUpdate, {});
         }
 
+        bool MapDocument::clearProtectedProperties() {
+            const auto entityNodes = allSelectedEntityNodes();
+
+            auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+            for (auto* entityNode : entityNodes) {
+                if (entityNode->entity().protectedProperties().empty()) {
+                    continue;
+                }
+
+                const auto* containingLinkedGroup = Model::findContainingLinkedGroup(*entityNode);
+                if (containingLinkedGroup == nullptr) {
+                    continue;
+                }
+
+                const auto& linkedGroupId = containingLinkedGroup->group().linkedGroupId();
+                if (!linkedGroupId.has_value()) {
+                    continue;
+                }
+
+                const auto linkedGroups = Model::findLinkedGroups(*m_world.get(), *linkedGroupId);
+                const auto pathFromContainingLinkedGroup = entityNode->pathFrom(*containingLinkedGroup);
+
+                auto entity = entityNode->entity();
+                for (const auto& key : entity.protectedProperties()) {
+                    if (const auto newValue = findUnprotectedPropertyValue(key, pathFromContainingLinkedGroup, linkedGroups)) {
+                        entity.addOrUpdateProperty(key, *newValue);
+                    }
+                }
+
+                entity.setProtectedProperties({});
+                nodesToUpdate.emplace_back(entityNode, std::move(entity));
+            }
+
+            // The linked groups are not affected!
+            return swapNodeContents("Clear Protected Properties", nodesToUpdate, {});
+        }
+
+        bool MapDocument::canClearProtectedProperties() const {
+            const auto entityNodes = allSelectedEntityNodes();
+            return !entityNodes.empty() && (entityNodes.size() > 1u || entityNodes.front() != m_world.get());
+        }
+
         bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
             const auto nodes = m_selectedNodes.nodes();
             return applyAndSwap(*this, "Resize Brushes", nodes, findContainingLinkedGroupsToUpdate(*m_world, nodes), kdl::overload(
