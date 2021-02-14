@@ -1036,6 +1036,7 @@ namespace TrenchBroom {
             // Linked group operations
 
             addMainMenuAction(IO::Path("Menu/Edit/Create Linked Duplicate"));
+            addMainMenuAction(IO::Path("Menu/Edit/Select Linked Groups"));
             addMainMenuAction(IO::Path("Menu/Edit/Unlink Groups"));
             menu.addSeparator();
 

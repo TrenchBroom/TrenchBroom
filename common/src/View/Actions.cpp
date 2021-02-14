@@ -1013,6 +1013,14 @@ namespace TrenchBroom {
                         return context.hasDocument() && context.document()->canCreateLinkedDuplicate();
                     }));
             editMenu.addItem(
+                createAction(IO::Path("Menu/Edit/Select Linked Groups"), QObject::tr("Select Linked Groups"), ActionContext::Any, 0,
+                    [](ActionExecutionContext& context) {
+                        context.document()->selectLinkedGroups();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.document()->canSelectLinkedGroups();
+                    }));
+            editMenu.addItem(
                 createAction(IO::Path("Menu/Edit/Separate Linked Groups"), QObject::tr("Separate Selected Groups"), ActionContext::Any, 0,
                     [](ActionExecutionContext& context) {
                         context.document()->separateLinkedGroups();
