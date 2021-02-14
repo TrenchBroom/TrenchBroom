@@ -118,6 +118,7 @@ namespace TrenchBroom {
             std::shared_ptr<MapDocument> document() const;
         public: // getters and such
             Logger& logger() const;
+            QAction* findAction(const IO::Path& path);
         private: // title bar contents
             void updateTitle();
         private: // menu bar
