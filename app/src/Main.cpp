@@ -49,6 +49,10 @@ int main(int argc, char *argv[])
     // Set up Hi DPI scaling
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    // Enables non-integer scaling (e.g. 150% scaling on Windows)
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+#endif
 
     // Workaround bug in Qt's Ctrl+Click = RMB emulation (a macOS feature.)
     // In Qt 5.13.0 / macOS 10.14.6, Ctrl+trackpad click+Drag produces no mouse events at all, but
