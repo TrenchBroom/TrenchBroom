@@ -210,6 +210,18 @@ namespace TrenchBroom {
             return *m_console;
         }
 
+        QAction* MapFrame::findAction(const IO::Path& path) {
+            const auto& actionManager = ActionManager::instance();
+            auto& actionsMap = actionManager.actionsMap();
+            if (const auto iAction = actionsMap.find(path); iAction != std::end(actionsMap)) {
+                const auto& action = iAction->second;
+                if (const auto iQAction = m_actionMap.find(action.get()); iQAction != std::end(m_actionMap)) {
+                    return iQAction->second;
+                }
+            }
+            return nullptr;
+        }
+
         void MapFrame::updateTitle() {
             setWindowModified(m_document->modified());
             setWindowTitle(QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
