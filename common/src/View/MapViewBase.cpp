@@ -1000,11 +1000,16 @@ namespace TrenchBroom {
             auto* mapFrame = findMapFrame(this);
 
             QMenu menu;
-            QAction* groupAction = menu.addAction(tr("Group"), mapFrame, &MapFrame::groupSelectedObjects);
-            groupAction->setEnabled(mapFrame->canGroupSelectedObjects());
+            const auto addMainMenuAction = [&](const auto& path) -> QAction* {
+                if (auto* groupAction = mapFrame->findAction(path)) {
+                    menu.addAction(groupAction);
+                    return groupAction;
+                }
+                return nullptr;
+            };
 
-            QAction* ungroupAction = menu.addAction(tr("Ungroup"), mapFrame, &MapFrame::ungroupSelectedObjects);
-            ungroupAction->setEnabled(mapFrame->canUngroupSelectedObjects());
+            addMainMenuAction(IO::Path("Menu/Edit/Group"));
+            addMainMenuAction(IO::Path("Menu/Edit/Ungroup"));
 
             QAction* mergeGroupAction = nullptr;
             if (mergeGroup != nullptr) {
