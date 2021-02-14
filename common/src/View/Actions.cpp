@@ -1028,6 +1028,14 @@ namespace TrenchBroom {
                     [](ActionExecutionContext& context) {
                         return context.hasDocument() && context.document()->canSeparateLinkedGroups();
                     }));
+            editMenu.addItem(
+                createAction(IO::Path("Menu/Edit/Clear Protected Properties"), QObject::tr("Clear Protected Properties"), ActionContext::Any, 0,
+                    [](ActionExecutionContext& context) {
+                        context.document()->clearProtectedProperties();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.document()->canClearProtectedProperties();
+                    }));
             editMenu.addSeparator();
 
             editMenu.addItem(

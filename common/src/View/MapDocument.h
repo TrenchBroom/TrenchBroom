@@ -447,6 +447,8 @@ namespace TrenchBroom {
             bool updateSpawnflag(const std::string& key, const size_t flagIndex, const bool setFlag) override;
 
             bool setProtectedProperty(const std::string& key, bool value);
+            bool clearProtectedProperties();
+            bool canClearProtectedProperties() const;
         public: // brush resizing, declared in MapFacade interface
             bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
         public:
