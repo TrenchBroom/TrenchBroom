@@ -1033,6 +1033,12 @@ namespace TrenchBroom {
             }
             menu.addSeparator();
 
+            // Linked group operations
+
+            addMainMenuAction(IO::Path("Menu/Edit/Create Linked Duplicate"));
+            addMainMenuAction(IO::Path("Menu/Edit/Unlink Groups"));
+            menu.addSeparator();
+
             // Layer operations
 
             const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findContainingLayersUserSorted(nodes);
