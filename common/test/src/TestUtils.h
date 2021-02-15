@@ -72,6 +72,7 @@ namespace TrenchBroom {
         
         void addNode(MapDocument& document, Model::Node* parent, Model::Node* node);
         void removeNode(MapDocument& document, Model::Node* node);
+        bool reparentNodes(MapDocument& document, Model::Node* newParent, std::vector<Model::Node*> nodes);
     }
 
     enum class Component {

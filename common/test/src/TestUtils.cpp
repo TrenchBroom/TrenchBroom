@@ -196,6 +196,10 @@ namespace TrenchBroom {
         void removeNode(MapDocument& document, Model::Node* node) {
             document.removeNodes({node});
         }
+
+        bool reparentNodes(MapDocument& document, Model::Node* newParent, std::vector<Model::Node*> nodes) {
+            return document.reparentNodes({{newParent, std::move(nodes)}});
+        }
     }
 
     int getComponentOfPixel(const Assets::Texture& texture, const std::size_t x, const std::size_t y, const Component component) {

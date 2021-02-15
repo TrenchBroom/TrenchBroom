@@ -508,7 +508,7 @@ namespace TrenchBroom {
             const auto& tag = document->smartTag("entity");
             CHECK_FALSE(brushNode->hasTag(tag));
 
-            document->reparentNodes(entityNode, { brushNode });
+            reparentNodes(*document, entityNode, { brushNode });
             CHECK(brushNode->hasTag(tag));
         }
 
@@ -529,7 +529,7 @@ namespace TrenchBroom {
             const auto& tag = document->smartTag("entity");
             CHECK_FALSE(brushNode->hasTag(tag));
 
-            document->reparentNodes(lightEntityNode, { brushNode });
+            reparentNodes(*document, lightEntityNode, { brushNode });
             CHECK(brushNode->hasTag(tag));
         }
 
