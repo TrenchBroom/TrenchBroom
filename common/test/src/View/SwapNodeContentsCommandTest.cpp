@@ -44,6 +44,8 @@
 
 #include <memory>
 
+#include "TestUtils.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom {
@@ -52,7 +54,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(SwapNodeContentsCommandTest, "SwapNodeContentsCommandTest.swapBrushes") {
             auto* brushNode = createBrushNode();
-            document->addNode(brushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode);
             
             const auto originalBrush = brushNode->brush();
             auto modifiedBrush = originalBrush;
@@ -76,7 +78,7 @@ namespace TrenchBroom {
             REQUIRE(texture != nullptr);
 
             auto* brushNode = createBrushNode(TextureName);
-            document->addNode(brushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode);
             
             const auto& originalBrush = brushNode->brush();
             auto modifiedBrush = originalBrush;
@@ -101,7 +103,7 @@ namespace TrenchBroom {
                 {Model::PropertyKeys::Classname, Classname}
             });
 
-            document->addNode(entityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode);
             
             const auto& originalEntity = entityNode->entity();
             auto modifiedEntity = originalEntity;

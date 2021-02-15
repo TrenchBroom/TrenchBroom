@@ -33,6 +33,8 @@
 
 #include <cassert>
 
+#include "TestUtils.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom {
@@ -43,7 +45,7 @@ namespace TrenchBroom {
             document->setEnabledTextureCollections(std::vector<IO::Path>{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
             Model::BrushNode* brushNode = createBrushNode("coffin1");
-            document->addNode(brushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode);
 
             const Assets::Texture* texture = document->textureManager().texture("coffin1");
             CHECK(texture != nullptr);
@@ -91,7 +93,7 @@ namespace TrenchBroom {
                 {Model::PropertyKeys::Classname, "test"}
             });
 
-            document->addNode(entityNode, document->parentForNodes());            
+            addNode(*document, document->parentForNodes(), entityNode);            
             CHECK(!entityNode->entity().hasProperty("angle"));
 
             document->select(entityNode);

@@ -24,6 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/ParaxialTexCoordSystem.h"
+#include "View/MapDocument.h"
 
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
@@ -184,6 +185,16 @@ namespace TrenchBroom {
 
             const BrushFace& face = brush.face(*faceIndex);
             CHECK(face.attributes().textureName() == expected);
+        }
+    }
+
+    namespace View {
+        void addNode(MapDocument& document, Model::Node* parent, Model::Node* node) {
+            document.addNodes({{parent, {node}}});
+        }
+
+        void removeNode(MapDocument& document, Model::Node* node) {
+            document.removeNodes({node});
         }
     }
 

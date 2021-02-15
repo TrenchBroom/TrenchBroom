@@ -26,6 +26,8 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
 
+#include "TestUtils.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom {
@@ -36,7 +38,7 @@ namespace TrenchBroom {
             Model::BrushNode* brushNode = createBrushNode();
             CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
 
-            document->addNode(brushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode);
 
             const auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
             REQUIRE(topFaceIndex);

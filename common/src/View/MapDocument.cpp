@@ -972,21 +972,6 @@ namespace TrenchBroom {
             m_selectedBrushFaces.clear();
         }
 
-        void MapDocument::addNode(Model::Node* node, Model::Node* parent) {
-            ensure(node != nullptr, "node is null");
-            assert(node->parent() == nullptr);
-            ensure(parent != nullptr, "parent is null");
-            assert(parent != node);
-
-            std::map<Model::Node*, std::vector<Model::Node*>> map;
-            map[parent].push_back(node);
-            addNodes(map);
-        }
-
-        void MapDocument::removeNode(Model::Node* node) {
-            removeNodes(std::vector<Model::Node*>{node});
-        }
-
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
             Transaction transaction(this, "Add Objects");
             const auto result = executeAndStore(AddRemoveNodesCommand::add(nodes));
@@ -998,16 +983,6 @@ namespace TrenchBroom {
             ensureVisible(addedNodes);
             ensureUnlocked(addedNodes);
             return addedNodes;
-        }
-
-        std::vector<Model::Node*> MapDocument::addNodes(const std::vector<Model::Node*>& nodes, Model::Node* parent) {
-            const auto result = executeAndStore(AddRemoveNodesCommand::add(parent, nodes));
-            if (!result->success()) {
-                return {};
-            }
-
-            ensureVisible(nodes);
-            return nodes;
         }
 
         void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes) {
@@ -1161,7 +1136,7 @@ namespace TrenchBroom {
 
             const Transaction transaction(this, name.str());
             deselectAll();
-            addNode(entityNode, parentForNodes());
+            addNodes({{parentForNodes(), {entityNode}}});
             select(entityNode);
             translateObjects(delta);
 
@@ -1201,7 +1176,7 @@ namespace TrenchBroom {
 
             const Transaction transaction(this, name.str());
             deselectAll();
-            addNode(entityNode, parentForNodes(nodes));
+            addNodes({{parentForNodes(), {entityNode}}});
             reparentNodes(entityNode, nodes);
             select(nodes);
 
@@ -1220,7 +1195,7 @@ namespace TrenchBroom {
 
             const Transaction transaction(this, "Group Selected Objects");
             deselectAll();
-            addNode(group, parentForNodes(nodes));
+            addNodes({{parentForNodes(nodes), {group}}});
             reparentNodes(group, nodes);
             select(group);
 
@@ -1718,7 +1693,7 @@ namespace TrenchBroom {
                     
                     Transaction transaction(this, "Create Brush");
                     deselectAll();
-                    addNode(brushNode, parentForNodes());
+                    addNodes({{parentForNodes(), {brushNode}}});
                     select(brushNode);
                 }).handle_errors([&](const Model::BrushError e) {
                     error() << "Could not create brush: " << e;
@@ -1776,7 +1751,7 @@ namespace TrenchBroom {
                     
                     const Transaction transaction(this, "CSG Convex Merge");
                     deselectAll();
-                    addNode(brushNode, parentNode);
+                    addNodes({{parentNode, {brushNode}}});
                     removeNodes(toRemove);
                     select(brushNode);
                 }).handle_errors([&](const Model::BrushError e) {
@@ -1851,7 +1826,7 @@ namespace TrenchBroom {
 
             if (valid) {
                 Model::BrushNode* intersectionNode = new Model::BrushNode(std::move(intersection));
-                addNode(intersectionNode, parentForNodes(toRemove));
+                addNodes({{parentForNodes(toRemove), {intersectionNode}}});
                 removeNodes(toRemove);
                 select(intersectionNode);
             } else {

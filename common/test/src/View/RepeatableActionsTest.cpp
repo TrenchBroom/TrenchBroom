@@ -34,6 +34,8 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include "TestUtils.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom {
@@ -44,7 +46,7 @@ namespace TrenchBroom {
             CHECK_FALSE(document->canRepeatCommands());
 
             auto* entityNode = new Model::EntityNode();
-            document->addNode(entityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode);
             CHECK_FALSE(document->canRepeatCommands());
 
             document->select(entityNode);
@@ -59,7 +61,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.repeatTranslate") {
             auto* entityNode = new Model::EntityNode();
-            document->addNode(entityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode);
             document->select(entityNode);
 
             REQUIRE_FALSE(document->canRepeatCommands());
@@ -77,7 +79,7 @@ namespace TrenchBroom {
 
             auto* entityNode = new Model::EntityNode(std::move(entity));
 
-            document->addNode(entityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode);
             document->select(entityNode);
 
             REQUIRE_FALSE(document->canRepeatCommands());
@@ -92,7 +94,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.repeatScaleWithBBox") {
             auto* brushNode1 = createBrushNode();
 
-            document->addNode(brushNode1, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode1);
             document->select(brushNode1);
 
             REQUIRE_FALSE(document->canRepeatCommands());
@@ -102,7 +104,7 @@ namespace TrenchBroom {
             CHECK(document->canRepeatCommands());
 
             auto* brushNode2 = createBrushNode();
-            document->addNode(brushNode2, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode2);
             document->select(brushNode2);
 
             document->repeatCommands();
@@ -112,7 +114,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.repeatScaleWithFactors") {
             auto* brushNode1 = createBrushNode();
 
-            document->addNode(brushNode1, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode1);
             document->select(brushNode1);
 
             REQUIRE_FALSE(document->canRepeatCommands());
@@ -120,7 +122,7 @@ namespace TrenchBroom {
             CHECK(document->canRepeatCommands());
 
             auto* brushNode2 = createBrushNode();
-            document->addNode(brushNode2, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode2);
             document->deselectAll();
             document->select(brushNode2);
 
@@ -132,7 +134,7 @@ namespace TrenchBroom {
             auto* brushNode1 = createBrushNode();
             const auto originalBounds = brushNode1->logicalBounds();
 
-            document->addNode(brushNode1, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode1);
             document->select(brushNode1);
 
             REQUIRE_FALSE(document->canRepeatCommands());
@@ -141,7 +143,7 @@ namespace TrenchBroom {
             CHECK(document->canRepeatCommands());
 
             auto* brushNode2 = createBrushNode();
-            document->addNode(brushNode2, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode2);
             document->deselectAll();
             document->select(brushNode2);
 
@@ -153,7 +155,7 @@ namespace TrenchBroom {
             auto* brushNode1 = createBrushNode();
             const auto originalBounds = brushNode1->logicalBounds();
 
-            document->addNode(brushNode1, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode1);
             document->select(brushNode1);
 
             REQUIRE_FALSE(document->canRepeatCommands());
@@ -162,7 +164,7 @@ namespace TrenchBroom {
             CHECK(document->canRepeatCommands());
 
             auto* brushNode2 = createBrushNode();
-            document->addNode(brushNode2, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode2);
             document->deselectAll();
             document->select(brushNode2);
 
@@ -172,10 +174,10 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.selectionClears") {
             auto* entityNode1 = new Model::EntityNode();
-            document->addNode(entityNode1, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode1);
 
             auto* entityNode2 = new Model::EntityNode();
-            document->addNode(entityNode2, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode2);
 
             document->select(entityNode1);
 

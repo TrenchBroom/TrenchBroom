@@ -35,6 +35,8 @@
 
 #include <vector>
 
+#include "TestUtils.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom {
@@ -171,7 +173,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableTextureNameTag") {
             auto* nonMatchingBrushNode = createBrushNode("asdf");
-            document->addNode(nonMatchingBrushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), nonMatchingBrushNode);
 
             const auto& tag = document->smartTag("texture");
             CHECK(tag.canEnable());
@@ -226,7 +228,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceParmTag") {
             auto* nonMatchingBrushNode = createBrushNode("asdf");
-            document->addNode(nonMatchingBrushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), nonMatchingBrushNode);
 
             const auto& tag = document->smartTag("surfaceparm_single");
             CHECK(tag.canEnable());
@@ -274,7 +276,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableContentFlagsTag") {
             auto* nonMatchingBrushNode = createBrushNode("asdf");
-            document->addNode(nonMatchingBrushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), nonMatchingBrushNode);
 
             const auto& tag = document->smartTag("contentflags");
             CHECK(tag.canEnable());
@@ -299,7 +301,7 @@ namespace TrenchBroom {
                 }
             });
 
-            document->addNode(matchingBrushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), matchingBrushNode);
 
             const auto& tag = document->smartTag("contentflags");
             CHECK(tag.canDisable());
@@ -342,7 +344,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceFlagsTag") {
             auto* nonMatchingBrushNode = createBrushNode("asdf");
-            document->addNode(nonMatchingBrushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), nonMatchingBrushNode);
 
             const auto& tag = document->smartTag("surfaceflags");
             CHECK(tag.canEnable());
@@ -367,7 +369,7 @@ namespace TrenchBroom {
                 }
             });
 
-            document->addNode(matchingBrushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), matchingBrushNode);
 
             const auto& tag = document->smartTag("surfaceflags");
             CHECK(tag.canDisable());
@@ -404,7 +406,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTag") {
             auto* brushNode = createBrushNode("asdf");
-            document->addNode(brushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode);
 
             const auto& tag = document->smartTag("entity");
             CHECK_FALSE(tag.matches(*brushNode));
@@ -426,8 +428,8 @@ namespace TrenchBroom {
                 {"some_attr", "some_value"}
             });
 
-            document->addNode(oldEntity, document->parentForNodes());
-            document->addNode(brushNode, oldEntity);
+            addNode(*document, document->parentForNodes(), oldEntity);
+            addNode(*document, oldEntity, brushNode);
 
             const auto& tag = document->smartTag("entity");
             document->select(brushNode);
@@ -451,8 +453,8 @@ namespace TrenchBroom {
                 {"classname", "brush_entity"}
             });
 
-            document->addNode(oldEntity, document->parentForNodes());
-            document->addNode(brushNode, oldEntity);
+            addNode(*document, document->parentForNodes(), oldEntity);
+            addNode(*document, oldEntity, brushNode);
 
             const auto& tag = document->smartTag("entity");
             CHECK(tag.matches(*brushNode));
@@ -470,10 +472,10 @@ namespace TrenchBroom {
             auto* entityNode = new Model::EntityNode({
                 {"classname", "brush_entity"}
             });
-            document->addNode(entityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode);
 
             auto* brush = createBrushNode("some_texture");
-            document->addNode(brush, entityNode);
+            addNode(*document, entityNode, brush);
 
             const auto& tag = document->smartTag("entity");
             CHECK(brush->hasTag(tag));
@@ -483,12 +485,12 @@ namespace TrenchBroom {
             auto* entityNode = new Model::EntityNode({
                 {"classname", "brush_entity"}
             });
-            document->addNode(entityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode);
 
             auto* brush = createBrushNode("some_texture");
-            document->addNode(brush, entityNode);
+            addNode(*document, entityNode, brush);
 
-            document->removeNode(brush);
+            removeNode(*document, brush);
 
             const auto& tag = document->smartTag("entity");
             CHECK_FALSE(brush->hasTag(tag));
@@ -496,12 +498,12 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTags") {
             auto* brushNode = createBrushNode("some_texture");
-            document->addNode(brushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode);
 
             auto* entityNode = new Model::EntityNode({
                 {"classname", "brush_entity"}
             });
-            document->addNode(entityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode);
 
             const auto& tag = document->smartTag("entity");
             CHECK_FALSE(brushNode->hasTag(tag));
@@ -514,15 +516,15 @@ namespace TrenchBroom {
             auto* lightEntityNode = new Model::EntityNode({
                 {"classname", "brush_entity"}
             });
-            document->addNode(lightEntityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), lightEntityNode);
 
             auto* otherEntityNode = new Model::EntityNode({
                 {"classname", "other"}
             });
-            document->addNode(otherEntityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), otherEntityNode);
 
             auto* brushNode = createBrushNode("some_texture");
-            document->addNode(brushNode, otherEntityNode);
+            addNode(*document, otherEntityNode, brushNode);
 
             const auto& tag = document->smartTag("entity");
             CHECK_FALSE(brushNode->hasTag(tag));
@@ -535,10 +537,10 @@ namespace TrenchBroom {
             auto* lightEntityNode = new Model::EntityNode({
                 {"classname", "asdf"}
             });
-            document->addNode(lightEntityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), lightEntityNode);
 
             auto* brushNode = createBrushNode("some_texture");
-            document->addNode(brushNode, lightEntityNode);
+            addNode(*document, lightEntityNode, brushNode);
 
             const auto& tag = document->smartTag("entity");
             CHECK_FALSE(brushNode->hasTag(tag));
@@ -552,7 +554,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushFaceTags", "[TagManagementTest]") {
             auto* brushNodeWithTags = createBrushNode("some_texture");
-            document->addNode(brushNodeWithTags, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNodeWithTags);
             document->select(brushNodeWithTags);
 
             SECTION("No modification to brush") {
@@ -569,7 +571,7 @@ namespace TrenchBroom {
             }
 
             auto* brushNodeWithoutTags = createBrushNode("asdf");
-            document->addNode(brushNodeWithoutTags, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNodeWithoutTags);
 
             for (const auto& face : brushNodeWithoutTags->brush().faces()) {
                 CHECK(!face.hasTag(tag));
@@ -578,8 +580,8 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushFaceTags") {
             auto* brushNodeWithTags = createBrushNode("some_texture");
-            document->addNode(brushNodeWithTags, document->parentForNodes());
-            document->removeNode(brushNodeWithTags);
+            addNode(*document, document->parentForNodes(), brushNodeWithTags);
+            removeNode(*document, brushNodeWithTags);
 
             const auto& tag = document->smartTag("texture");
             for (const auto& face : brushNodeWithTags->brush().faces()) {
@@ -589,7 +591,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushFaceTags") {
             auto* brushNode = createBrushNode("asdf");
-            document->addNode(brushNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), brushNode);
 
             const auto& tag = document->smartTag("contentflags");
 

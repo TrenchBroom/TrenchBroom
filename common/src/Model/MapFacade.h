@@ -104,11 +104,7 @@ namespace TrenchBroom {
             virtual void deselect(const std::vector<Node*>& nodes) = 0;
             virtual void deselect(const BrushFaceHandle& handle) = 0;
         public: // adding, removing, reparenting, and duplicating nodes
-            virtual void addNode(Node* node, Node* parent) = 0;
-            virtual void removeNode(Node* node) = 0;
-
             virtual std::vector<Node*> addNodes(const std::map<Node*, std::vector<Node*>>& nodes) = 0;
-            virtual std::vector<Node*> addNodes(const std::vector<Node*>& nodes, Node* parent) = 0;
             virtual void removeNodes(const std::vector<Node*>& nodes) = 0;
 
             virtual bool reparentNodes(Node* newParent, const std::vector<Node*>& children) = 0;
