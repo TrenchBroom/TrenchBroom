@@ -3305,6 +3305,7 @@ PDA's contain vidoes, audio, e-mail, and security clearances.
 @PointClass color(0 255 0) size(-8 -8 -8, 8 8 8) = light : "Light source.  If health is set, light becomes breakable and turns off when shot.
 "
 [
+	light(integer) : "light radius" : 300
 	spawnclass(string) : "" : "idLight"
 	health(string) : "amount of damage to recieve before becoming broken.  0 is nonbreakable." : "0"
 	levels(string) : "the number of times a light must be triggered until it turns off.  Each time it's triggered, it's dimmed to a lower level." : "1"
