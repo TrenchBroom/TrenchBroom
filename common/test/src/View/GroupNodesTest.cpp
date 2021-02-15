@@ -235,5 +235,28 @@ namespace TrenchBroom {
             Model::BrushNode* brushCopy = document->selectedNodes().brushes().at(0u);
             CHECK(brushCopy->parent() == group);
         }
+
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createLinkedDuplicate", "[GroupNodesTest]") {
+            auto* brushNode = createBrushNode();
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
+            document->select(brushNode);
+
+            auto* groupNode = document->groupSelection("test");
+            REQUIRE(groupNode != nullptr);
+
+            document->deselectAll();
+
+            CHECK_FALSE(document->canCreateLinkedDuplicate());
+            CHECK(document->createLinkedDuplicate() == nullptr);
+
+            document->select(groupNode);
+            CHECK(document->canCreateLinkedDuplicate());
+
+            auto* linkedGroupNode = document->createLinkedDuplicate();
+            CHECK(linkedGroupNode != nullptr);
+
+            CHECK(groupNode->group().linkedGroupId() != std::nullopt);
+            CHECK(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
+        }
     }
 }
