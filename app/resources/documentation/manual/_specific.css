@@ -3,6 +3,7 @@
 /* Code */
 
 pre {
+    max-width: max-content;
     padding: var(--spacing-x10000);
     margin-left: var(--spacing-x10000);
     margin-right: var(--spacing-x10000);

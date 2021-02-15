@@ -51,4 +51,9 @@
     --spacing-x10000: 16px;
     --spacing-x15000: calc(var(--spacing-x10000) * 1.5);
     --spacing-x20000: calc(var(--spacing-x10000) * 2);
+
+    /* Custom sizes */
+
+    --toc-width: 340px;
+    --content-max-width: 1024px;
 }
