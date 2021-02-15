@@ -20,6 +20,7 @@
 #include "View/MapDocument.h"
 
 #include "Exceptions.h"
+#include "Uuid.h"
 #include "Model/EntityProperties.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -1387,6 +1388,34 @@ namespace TrenchBroom {
             } else {
                 unlock(std::vector<Model::Node*>{m_world.get()});
             }
+        }
+
+        Model::GroupNode* MapDocument::createLinkedDuplicate() {
+            if (!canCreateLinkedDuplicate()) {
+                return nullptr;
+            }
+
+            Transaction transaction(this, "Create Linked Duplicate");
+
+            auto* groupNode = m_selectedNodes.groups().front();
+            if (!groupNode->group().linkedGroupId()) {
+                applyAndSwap(*this, "Set Linked Group ID", m_selectedNodes.groups(), kdl::overload(
+                    [] (Model::Layer&)       { return true; },
+                    [&](Model::Group& group) { group.setLinkedGroupId(generateUuid()); return true; },
+                    [] (Model::Entity&)      { return true; },
+                    [] (Model::Brush&)       { return true; }
+                ));
+            }
+
+            auto* groupNodeClone = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(m_worldBounds));
+            auto* suggestedParent = parentForNodes(std::vector<Model::Node*>{groupNode});
+            addNodes({{suggestedParent, {groupNodeClone}}});
+
+            return groupNodeClone;
+        }
+
+        bool MapDocument::canCreateLinkedDuplicate() const {
+            return m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groupCount() == 1u;
         }
 
         void MapDocument::renameLayer(Model::LayerNode* layerNode, const std::string& name) {
