@@ -281,7 +281,7 @@ namespace TrenchBroom {
                         Model::Node* newParent = document->parentForNodes(document->selectedNodes().nodes());
                         const Transaction transaction(document, "CSG Convex Merge");
                         deselectAll();
-                        document->addNode(new Model::BrushNode(std::move(b)), newParent);
+                        document->addNodes({{newParent, {new Model::BrushNode(std::move(b))}}});
                     }).handle_errors([&](const Model::BrushError e) {
                         document->error() << "Could not create brush: " << e;
                     });

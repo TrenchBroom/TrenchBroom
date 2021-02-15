@@ -25,6 +25,8 @@
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
 
+#include "TestUtils.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom {
@@ -33,23 +35,23 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentLayerToLayer") {
             Model::LayerNode* layer1 = new Model::LayerNode(Model::Layer("Layer 1"));
-            document->addNode(layer1, document->world());
+            addNode(*document, document->world(), layer1);
 
             Model::LayerNode* layer2 = new Model::LayerNode(Model::Layer("Layer 2"));
-            document->addNode(layer2, document->world());
+            addNode(*document, document->world(), layer2);
 
             CHECK_FALSE(document->reparentNodes(layer2, { layer1 }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentBetweenLayers") {
             Model::LayerNode* oldParent = new Model::LayerNode(Model::Layer("Layer 1"));
-            document->addNode(oldParent, document->world());
+            addNode(*document, document->world(), oldParent);
 
             Model::LayerNode* newParent = new Model::LayerNode(Model::Layer("Layer 2"));
-            document->addNode(newParent, document->world());
+            addNode(*document, document->world(), newParent);
 
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, oldParent);
+            addNode(*document, oldParent, entity);
 
             assert(entity->parent() == oldParent);
             CHECK(document->reparentNodes(newParent, { entity }));
@@ -61,27 +63,27 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToItself") {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
-            document->addNode(group, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), group);
 
             CHECK_FALSE(document->reparentNodes(group, { group }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToChild") {
             Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
-            document->addNode(outer, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), outer);
 
             Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
-            document->addNode(inner, outer);
+            addNode(*document, outer, inner);
 
             CHECK_FALSE(document->reparentNodes(inner, { outer }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroup") {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
-            document->addNode(group, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), group);
 
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, group);
+            addNode(*document, group, entity);
 
             CHECK(document->reparentNodes(document->parentForNodes(), { entity }));
             CHECK(entity->parent() == document->parentForNodes());
@@ -94,13 +96,13 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.recursivelyRemoveEmptyGroups") {
             Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
-            document->addNode(outer, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), outer);
 
             Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
-            document->addNode(inner, outer);
+            addNode(*document, outer, inner);
 
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, inner);
+            addNode(*document, inner, entity);
 
             CHECK(document->reparentNodes(document->parentForNodes(), { entity }));
             CHECK(entity->parent() == document->parentForNodes());
@@ -115,10 +117,10 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyEntity") {
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entity);
 
             Model::BrushNode* brush = createBrushNode();
-            document->addNode(brush, entity);
+            addNode(*document, entity, brush);
 
             CHECK(document->reparentNodes(document->parentForNodes(), { brush }));
             CHECK(brush->parent() == document->parentForNodes());
@@ -131,13 +133,13 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroupAndEntity") {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
-            document->addNode(group, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), group);
 
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, group);
+            addNode(*document, group, entity);
 
             Model::BrushNode* brush = createBrushNode();
-            document->addNode(brush, entity);
+            addNode(*document, entity, brush);
 
             CHECK(document->reparentNodes(document->parentForNodes(), { brush }));
             CHECK(brush->parent() == document->parentForNodes());

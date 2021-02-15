@@ -329,12 +329,7 @@ namespace TrenchBroom {
             void validateSelectionBounds() const;
             void clearSelection();
         public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade interface
-            void addNode(Model::Node* node, Model::Node* parent) override;
-            void removeNode(Model::Node* node) override;
-
             std::vector<Model::Node*> addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) override;
-            std::vector<Model::Node*> addNodes(const std::vector<Model::Node*>& nodes, Model::Node* parent) override;
-
             void removeNodes(const std::vector<Model::Node*>& nodes) override;
         private:
             std::map<Model::Node*, std::vector<Model::Node*>> collectRemovableParents(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) const;

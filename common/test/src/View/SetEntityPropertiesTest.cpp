@@ -29,6 +29,8 @@
 
 #include <vector>
 
+#include "TestUtils.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom {
@@ -50,7 +52,7 @@ namespace TrenchBroom {
                 {"classname", "large_entity"}
             });
             
-            document->addNode(entityNode, document->parentForNodes());
+            addNode(*document, document->parentForNodes(), entityNode);
             REQUIRE(entityNode->entity().definition() == largeEntityDef);
             
             document->deselectAll();            
