@@ -107,7 +107,6 @@ namespace TrenchBroom {
             virtual std::vector<Node*> addNodes(const std::map<Node*, std::vector<Node*>>& nodes) = 0;
             virtual void removeNodes(const std::vector<Node*>& nodes) = 0;
 
-            virtual bool reparentNodes(Node* newParent, const std::vector<Node*>& children) = 0;
             virtual bool reparentNodes(const std::map<Node*, std::vector<Node*>>& nodes) = 0;
             virtual bool deleteObjects() = 0;
             virtual bool duplicateObjects() = 0;

@@ -339,7 +339,6 @@ namespace TrenchBroom {
 
             void closeRemovedGroups(const std::map<Model::Node*, std::vector<Model::Node*>>& toRemove);
         public:
-            bool reparentNodes(Model::Node* newParent, const std::vector<Model::Node*>& children) override;
             bool reparentNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) override;
         private:
             bool checkReparenting(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const;
