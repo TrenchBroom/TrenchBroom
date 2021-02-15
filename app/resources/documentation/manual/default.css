@@ -11,6 +11,10 @@ body {
     color: var(--color-gray-20);
 }
 
+body.toc_toggled {
+    overflow: hidden;
+}
+
 /* Table of Contents and Content */
 
 body #toc_toggler, body #toc, body #content {
@@ -21,15 +25,6 @@ body #toc_toggler, body #toc, body #content {
 
 body #toc_toggler, body #toc {
     background-color: var(--color-gray-97);
-}
-
-body #toc {
-    min-width: var(--toc-width);
-    max-width: var(--toc-width);
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    overflow-y: auto;
 }
 
 body #toc_toggler {
@@ -48,37 +43,34 @@ body #toc_toggler img {
     height: var(--sizing-x12500);
 }
 
-body #toc_toggler a[href="#"] {
+body #toc_toggler > a[href="#"] {
     margin-top: auto;
 }
 
-body #toc_inner > ul {
+body #toc {
+    display: none;
+    min-width: var(--toc-width);
+    max-width: var(--toc-width);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+}
+
+body.toc_toggled #toc {
+    display: block;
+}
+
+body #toc #toc_inner > ul {
     margin-top: var(--spacing-x05000);
     margin-bottom: 0;
     margin-left: 0;
     list-style-type: none;
 }
 
-body #toc_inner > ul > li > a {
+body #toc #toc_inner > ul > li > a {
     font-weight: var(--typography-font-weight-bold);
-}
-
-/* Content */
-
-body #content {
-    max-width: var(--content-max-width);
-    margin: 0 auto;
-    padding-left: calc(var(--toc-width) + var(--sizing-x20000));
-}
-
-body #content > :last-child {
-    margin-bottom: 0;
-}
-
-body #content h1, body #content h2, body #content h3, body #content h4 {
-    display: inline-block;
-    width: 100%;
-    margin-top: var(--spacing-x05000);
 }
 
 /* Content Version */
@@ -98,7 +90,7 @@ body #content_version #content_version_details {
     align-items: center;
 }
 
-body #content_version #content_version_details img{
+body #content_version #content_version_details img {
     max-width: var(--sizing-x30000);
     margin: 0;
     margin-right: var(--spacing-x05000);
@@ -120,6 +112,24 @@ body #content_version #content_version_links {
     flex-direction: column;
     align-items: flex-end;
     margin-left: auto;
+}
+
+/* Content */
+
+body #content {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding-left: calc(var(--toc-width) + var(--sizing-x20000));
+}
+
+body #content > :last-child {
+    margin-bottom: 0;
+}
+
+body #content h1, body #content h2, body #content h3, body #content h4 {
+    display: inline-block;
+    width: 100%;
+    margin-top: var(--spacing-x05000);
 }
 
 /* Back to Top */

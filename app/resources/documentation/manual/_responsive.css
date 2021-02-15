@@ -46,17 +46,8 @@
     }
 
     body #toc {
-        display: none;
         min-width: calc(100vw - 50px);
         max-width: calc(100vw - 50px);
-    }
-
-    body #toc:target {
-        display: block;
-    }
-
-    body #toc:target ~ #content {
-        display: none;
     }
 
     /* Content Version */

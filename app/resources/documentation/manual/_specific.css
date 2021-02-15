@@ -1,5 +1,11 @@
 /* ##### Specific ########## */
 
+/* All */
+
+* {
+    outline: none;
+}
+
 /* Code */
 
 pre {
@@ -190,7 +196,12 @@ h1, h2, h3, h4, img, ul, ol, dl, p, pre, table, figure {
 
 /* Back to Top & Table of Contents anchors */
 
-a[href="#"], a[href="#toc"] {
+.toc_toggler_button {
+    cursor: pointer;
+    border: none;
+}
+
+a[href="#"], .toc_toggler_button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -203,10 +214,10 @@ a[href="#"], a[href="#toc"] {
     color: var(--color-gray-20);
 }
 
-a[href="#"]:hover, a[href="#"]:focus, a[href="#toc"]:hover, a[href="#toc"]:focus {
+a[href="#"]:hover, a[href="#"]:focus, .toc_toggler_button:hover, .toc_toggler_button:focus {
     background-color: var(--color-gray-97);
 }
 
-a[href="#"] span, a[href="#toc"] span {
+a[href="#"] span, .toc_toggler_button span {
     line-height: var(--typography-line-height-reset);
 }
