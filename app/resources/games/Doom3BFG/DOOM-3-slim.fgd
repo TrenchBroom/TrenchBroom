@@ -2817,7 +2817,7 @@ Trigger it to turn it on and off
 	spawnclass(string) : "" : "idSpring"
 ]
 
-@PointClass color(0 127 204) = func_static : "A brush model that just sits there, doing nothing.  Can be used for conditional walls and models.
+@PointClass color(0 127 204) model({ "path" : model }) = func_static : "A brush model that just sits there, doing nothing.  Can be used for conditional walls and models.
 When triggered, toggles between visible and hidden (see hide).  Entity is non-solid when hidden.
 "
 [
@@ -2829,6 +2829,7 @@ When triggered, toggles between visible and hidden (see hide).  Entity is non-so
 	inline(boolean) : "If true, turn the model into map geometry at dmap time"
 	gui(string) : "gui attached to this static, gui2 and gui3 also work"
 	gui_demonic(string) : "demonic gui attached to this statit, gui_demonic2 and gui_demonic3 also work"
+	model(string) : "Model Selection (ex mapobjects/model.obj)"
 ]
 
 @PointClass color(255 127 76) size(-16 -16 -16, 16 16 16) = func_teleporter : "Teleports player or enties to location and angle.
