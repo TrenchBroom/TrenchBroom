@@ -367,6 +367,8 @@ namespace TrenchBroom {
              */
             Model::GroupNode* createLinkedDuplicate();
             bool canCreateLinkedDuplicate() const;
+        private:
+            void separateSelectedLinkedGroups(bool relinkGroups);
         public: // layer management
             void renameLayer(Model::LayerNode* layer, const std::string& name);
         private:

@@ -236,6 +236,34 @@ namespace TrenchBroom {
             CHECK(brushCopy->parent() == group);
         }
 
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupNodesTest]") {
+            auto* brushNode = createBrushNode();
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
+
+            document->select(brushNode);
+
+            auto* groupNode = document->groupSelection("test");
+            REQUIRE(groupNode != nullptr);
+
+            document->deselectAll();
+            document->select(groupNode);
+
+            auto* linkedGroupNode = document->createLinkedDuplicate();
+
+            REQUIRE_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedGroupNode}));
+
+            document->deselectAll();
+            document->select(groupNode);
+
+            document->ungroupSelection();
+            CHECK_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{linkedGroupNode, brushNode}));
+            CHECK_FALSE(linkedGroupNode->group().linkedGroupId().has_value());
+
+            document->undoCommand();
+            CHECK_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedGroupNode}));
+            CHECK(linkedGroupNode->group().linkedGroupId().has_value());
+        }
+
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createLinkedDuplicate", "[GroupNodesTest]") {
             auto* brushNode = createBrushNode();
             document->addNodes({{document->parentForNodes(), {brushNode}}});
