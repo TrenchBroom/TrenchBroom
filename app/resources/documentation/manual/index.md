@@ -13,6 +13,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 	- High performance renderer with support for huge maps
 	- Unlimited Undo and Redo
 	- Macro-like command repetition
+    - Linked groups
 	- Issue browser with automatic quick fixes
 	- Run external compilers and launch game engines
 	- Point file support
@@ -1115,6 +1116,224 @@ Groups allow you to treat several objects as one and to give them a name. A grou
 To create a group, make sure that no tool is currently active and select some objects and choose #menu(Menu/Edit/Group). The editor will ask you for a name. Group names need not be unique, so you can have several groups with the same name. To select a group, you can click on any of the objects contained in it. This will not select the individual object, but the entire group, which is why you can only edit all objects within a group as one. If you want to edit individual objects in a group, you have to open the group by double clicking on it with the left mouse button. This will lock every other object in the map (locked objects are not editable and rendered in blue). Once the group is opened, you can edit the individual objects in it, or you can create new objects within the group in the usual ways. Once you are done editing the group, you can close it again by left double clicking anywhere outside of the group. Finally, you can remove a group by selecting it and choosing #menu(Menu/Edit/Ungroup). Note that removing a group does not remove the objects in the group from the map, the objects are merely ungrouped.
 
 To add objects to an existing group, select the objects you wish to add to the group, then right click on an object already existing to that group and select "Add Objects to GROUPNAME", where GROUPNAME is the name of the group. Likewise, you can remove objects from a group by opening that group, selecting the objects you wish to remove from the group, and selecting "Remove Objects from GROUPNAME" from the [map view context menu](#map_view_context_menu). The removed objects are added to the current layer. If you remove all objects from a group, the group is deleted automatically.
+
+## Linked Groups {#linked_groups}
+
+Groups can also be linked together to allow a form of instancing. Linked groups contain the same objects, but can be transformed into different positions and shapes as a whole. Changing one of the linked groups will update all the other linked groups. Linked groups are useful to build reusable structures such as doorways that you want to keep in sync. The workflow for linked groups is always the same:
+
+- Create some objects that form a reusable structure, e.g. a doorway.
+- Group the objects.
+- Select the group and create a linked duplicate via the context menu or by choosing #menu(Menu/Edit/Create Linked Duplicate) from the menu.
+- Move the duplicate to its intended position and apply further transformations to it (e.g. rotation).
+- Create more linked duplicates by duplicating a linked group in the usual way.
+- At any time, open any of the linked groups and change its contents. These changes will then be replicated into the other linked groups.
+
+You can apply various transformations to linked groups such as translation, rotation, scaling, or flipping. Groups and linked groups can be nested arbitrarily, so a linked group can contain a group, or a group can contain a linked group, and linked groups can even contain linked groups.
+
+It is important not to think of linked groups as instancing. In TrenchBroom, there is no fixed "primary" version of the linked group that you create instances of. Indeed, linked groups are much simpler under the hood: When you change a linked group, that group will temporarily become the "primary" version and all of its contents are copied into all of its linked siblings, independent of whether or not the contained objects were changed. With this in mind, you may think of TrenchBroom performing a manual updating process automatically for you.
+
+You can add objects to linked groups or remove objects from linked groups in the usual way, and the change is reflected in the linked groups immediately. To edit an object in a linked group, open the group as usual and perform your changes. Again, the changes are reflected in the linked groups immediately.
+
+Consider the following example where you have two linked groups, each containing a brush and an entity.
+
+```
+Group A
+- Brush A
+- Entity A
+  - "classname" "monster_army"
+  - "angle" "90"
+  - "origin" "0 0 0"
+
+Group B (translated by 128 0 0)
+- Brush B
+- Entity B
+  - "classname" "monster_army"
+  - "angle" "90"
+  - "origin" "128 0 0"
+```
+
+`Group B` is structurally identical to `Group A`, but it's translated by 128 units on the X axis. Suppose you change `Brush A` by moving one of its vertices. Then all contents of `Group A` are copied, translated by 128 on the X axis, and added to `Group B`, replacing its existing content. Or let's say you set `Entity B`'s spawnflags to `1`, then the same process happens, but this time `Group B`s content is copied, translated by -128 on the X axis, and finally `Group A`'s contents are replaced by the copies. The result would look as follows:
+
+```
+Group A
+- Brush A
+- Entity A
+  - "classname" "monster_army"
+  - "angle" "90"
+  - "origin" "0 0 0"
+  - "spawnflags" "1"
+
+Group B (translated by 128 0 0)
+- Brush B
+- Entity B
+  - "classname" "monster_army"
+  - "angle" "90"
+  - "origin" "128 0 0"
+  - "spawnflags" "1"
+```
+
+There are some situations in which you might not want all of your changes to be reflected in all linked groups. For example, when building a door, you will usually hook the door brushes to a trigger brush using `target` and `targetname` properties. But of course, you want to use different names for different doors so that all doors don't open at once when one of them opens in the game. To allow these properties to have different values in different linked groups, you can protect entity properties against changes from their counterparts in a linked group.
+
+### Protected Entity Properties {#protected_entity_properties}
+
+Marking an entity property as protected blocks any changes to this property from the corresponding entity in a linked group. Furthermore, any changes to a protected entity property are not reflected in the corresponding entities in linked groups. Let's consider an example again.
+
+```
+Group A
+- Entity A
+  - "classname" "monster_army"
+  - "angle" "90"
+  - "origin" "0 0 0"
+  - "spawnflags" "1"
+
+Group B (translated by 128 0 0)
+- Entity B
+  - "classname" "monster_army"
+  - "angle" "90"
+  - "origin" "128 0 0"
+  - "spawnflags" "1"
+```
+
+Let's assume you want to change `Entity B`'s angle, but you don't want this change to affect `Entity A`. In this case, you can set the `angle` property of `Entity B` to protected before changing its value to `180`. The result will look as follows.
+
+```
+Group A
+- Entity A
+  - "classname" "monster_army"
+  - "angle" "90"
+  - "origin" "0 0 0"
+  - "spawnflags" "1"
+
+Group B (translated by 128 0 0)
+- Entity B
+  - "classname" "monster_army"
+  - "angle" "180" (protected)
+  - "origin" "128 0 0"
+  - "spawnflags" "1"
+```
+
+Note that `Entity A`'s `angle` property still has a value of 90. If you now change `Entity A`'s `angle` property, this change will not be reflected in `Entity B` either.
+
+You can use the entity property editor in the entity inspector to protect entity properties. When editing an entity inside of a linked group, a new column with checkboxes appears like in the following screenshot.
+
+![Protected Entity Properties (macOS)](images/ProtectedProperties.png)
+
+To set a property to protected, click on its checkbox. To remove the protection, click on the checkbox again. When you set a property to unprotected, its value will be reset to the value of the corresponding unprotected properties in the other entities. In our example from above, Setting `Entity B`'s `angle` property to unprotected will reset its value to `90`, which is the value from `Entity A`'s unprotected `angle` property.
+
+To set all properties of one or multiple entities to unprotected, select the entities (or their containing groups) and choose #menu(Menu/Edit/Clear Protected Properties).
+
+Since all changes you make to a linked group are immediately replicated into the other linked groups, newly added properties show up in the linked groups right away. If you want to add a property without replicating it, you can add it as protected by clicking on the shielded `+` icon in the toolbar below the entity property editor (see previous screenshot). Conversely, if you want to suppress a property in a linked group, that is, you don't want it to be created when adding it to another linked group, you can add it as a protected property and immediately delete it again. It will still be shown in the property editor until you remove its protected checkmark, but the name will be in italics, so it will look like a default property.
+
+To illustrate the value of these deleted protected properties, consider the following example.
+
+```
+Group A
+- Entity A
+  - "classname" "monster_army"
+  - "origin" "0 0 0"
+
+Group B (translated by 128 0 0)
+- Entity B
+  - "classname" "monster_army"
+  - "origin" "128 0 0"
+
+Group C (translated by 0 64 0)
+- Entity C
+  - "classname" "monster_army"
+  - "origin" "0 64 0"
+```
+
+Suppose you want to set an angle for all of the `monster_army` entities except for `Entity A`. In this case, you would first add the `angle` property to `Entity A` as a protected property, and then delete it again from `Entity A`. Then you would add the `angle` property to `Entity B` and give it a value. This property would be replicated into `Entity C`, but not `Entity A` because there it is protected, even though the property isn't even present. In the following screenshot, the `angle` property has been set to protected and was then subsequently deleted. If you click its checkbox to remove the protection, the property will no longer show up in the entity property editor.
+
+![Protected Deleted Entity Properties (macOS)](images/ProtectedProperties.png)
+
+### Unlinking and Separating Linked Groups {#separating_linked_groups}
+
+To unlink a linked group, select the group and choose #menu(Menu/Edit/Separate Linked Groups). This will turn the linked group into a regular group again. If you select multiple linked groups from a set of mutually linked groups, the selected groups will not be turned into regular groups, but rather they will become a separate set of linked groups. This separate set of linked groups is still mutually linked to each other, but they are no longer linked to the other, unselected members of the set.
+
+Note that if you remove all members of a set of linked groups, either by separation or by deleting them, the single remaining member of the set will become a regular group.
+
+### Visualization {#linked_group_visualization}
+
+![Linked Groups in 3D view (macOS)](images/LinkedGroups.png)
+
+Linked groups are rendered with a different color than regular linked groups. If you select a linked group, the editor will render arrows eminating from the selected group and ending in the other linked groups to indicate which groups will be updated when the selected group changes. These arrows are still shown if you open a linked group.
+
+### Linked Groups in the Map File {#linked_groups_map_file}
+
+Like regular groups, linked groups are stored in the map file using `func_group` entities with additional, TrenchBroom specific properties. If you edit a map file with linked groups in another editor than TrenchBroom and you change objects belonging to a linked group, then that linked group is out of sync with its linked counterparts. TrenchBroom will load such groups without issue and you can keep editing them as usual. However, if you change one of the linked groups, then this group will overwrite the contents of all other linked groups, so afterwards they will be in sync again. So if you purposefully changed one of the linked groups in an external editor, and want to replicate these changes into the linked groups, just open this specific group in the editor, make change to it, and close the group again. This will update all of the linked groups and they will be in sync again.
+
+Consider the following linked groups:
+
+```
+Group A
+- Brush A
+- Entity A
+  - "classname" "monster_army"
+  - "origin" "0 0 0"
+
+Group B (translated by 128 0 0)
+- Brush B
+- Entity B
+  - "classname" "monster_army"
+  - "origin" "128 0 0"
+```
+
+In the map file, these groups would be stored as follows. Refer to the comments for information about the TrenchBroom specific properties for linked groups.
+
+```
+// entity 0
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "group"
+"_tb_id" "1"
+
+// The following property is the ID of a set of linked groups.
+// All groups with this linked group ID will be mutually linked.
+"_tb_linked_group_id" "{38b3b39d-a165-4999-985d-d40563ce51c1}"
+
+// The transformation that has been applied to the group as a whole. 
+// This will get updated when you transform a group by moving, rotating or scaling it.
+"_tb_transformation" "1 0 0 128 0 1 0 0 0 0 1 0 0 0 0 1"
+
+// brush 0
+{
+// faces omitted
+}
+}
+// entity 1
+{
+"classname" "monster_army"
+"origin" "128 0 0"
+"_tb_group" "1"
+}
+// entity 2
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "group"
+"_tb_id" "2"
+
+// This group entity has the same linked group ID as the previous one, 
+// so they will be linked.
+"_tb_linked_group_id" "{38b3b39d-a165-4999-985d-d40563ce51c1}"
+
+"_tb_transformation" "1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1"
+// brush 0
+{
+// faces omitted
+}
+}
+// entity 3
+{
+"classname" "monster_army"
+"origin" "0 0 0"
+"angle" "90"
+"_tb_group" "2"
+"_tb_protected_properties" "angle"
+}
+```
 
 ## Layers {#layers}
 
