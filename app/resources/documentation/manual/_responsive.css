@@ -46,8 +46,14 @@
     }
 
     body #toc {
+        display: none;
         min-width: calc(100vw - 50px);
         max-width: calc(100vw - 50px);
+        right: 0;
+    }
+
+    body.toc_toggled #toc {
+        display: block;
     }
 
     /* Content Version */
