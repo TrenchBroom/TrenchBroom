@@ -20,8 +20,9 @@
 #include "View/Actions.h"
 
 #include "KeyStrings.h"
-#include "IO/Path.h"
+#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "IO/Path.h"
 
 #include <QApplication>
 #include <QFileInfo>
@@ -200,6 +201,8 @@ int main(int argc, char *argv[]) {
 
     QTextStream out(&file);
     out.setCodec("UTF-8");
+
+    TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();
 
     // QKeySequence requires that an application instance is created!
     QApplication app(argc, argv);
