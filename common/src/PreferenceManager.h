@@ -90,43 +90,21 @@ namespace TrenchBroom {
     class PreferenceManager : public QObject {
         Q_OBJECT
     private:
-        using UnsavedPreferences = kdl::vector_set<PreferenceBase*>;
-        using DynamicPreferences = std::map<IO::Path, std::unique_ptr<PreferenceBase>>;
-
-        QString m_preferencesFilePath;
-        bool m_saveInstantly;
-        UnsavedPreferences m_unsavedPreferences;
-        DynamicPreferences m_dynamicPreferences;
-        /**
-         * This should always be in sync with what is on disk.
-         * Preference objects may have different values if there are unsaved changes.
-         * There may also be values in here we don't know how to deserialize; we write them back to disk.
-         */
-        std::map<IO::Path, QJsonValue> m_cache;
-        QFileSystemWatcher* m_fileSystemWatcher;
-        /**
-         * If true, don't try to read/write preferences anymore.
-         * This gets set to true if there is a JSON parse error, so
-         * we don't clobber the file if the user makes a mistake while editing it by hand.
-         */
-        bool m_fileReadWriteDisabled;
-
-        void markAsUnsaved(PreferenceBase* preference);
+        static std::unique_ptr<PreferenceManager> m_instance;
+        static bool m_initialized;
+    protected:
+        std::map<IO::Path, std::unique_ptr<PreferenceBase>> m_dynamicPreferences;
+    public:
+        Notifier<const IO::Path&> preferenceDidChangeNotifier;
     public:
         static PreferenceManager& instance();
+        
+        template <typename T>
+        static void createInstance() {
+            m_instance = std::make_unique<T>();
+            m_initialized = false;
+        }
 
-        Notifier<const IO::Path&> preferenceDidChangeNotifier;
-
-        bool saveInstantly() const;
-        void saveChanges();
-        void discardChanges();
-    private:
-        void showErrorAndDisableFileReadWrite(const QString& reason, const QString& suggestion);
-        void loadCacheFromDisk();
-        void invalidatePreferences();
-        void loadPreferenceFromCache(PreferenceBase* pref);
-        void savePreferenceToCache(PreferenceBase* pref);
-    public:
         template <typename T>
         Preference<T>& dynamicPreference(const IO::Path& path, T&& defaultValue) {
             auto it = m_dynamicPreferences.find(path);
@@ -148,13 +126,7 @@ namespace TrenchBroom {
          */
         template <typename T>
         const T& get(Preference<T>& preference) {
-            ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
-
-            // Only load from disk the first time it's accessed
-            if (!preference.valid()) {
-                loadPreferenceFromCache(&preference);
-            }
-
+            validatePreference(preference);
             return preference.value();
         }
 
@@ -163,8 +135,6 @@ namespace TrenchBroom {
          */
         template <typename T>
         bool set(Preference<T>& preference, const T& value) {
-            ensure(qApp->thread() == QThread::currentThread(), "PreferenceManager can only be used on the main thread");
-
             const T previousValue = get(preference);
             if (previousValue == value) {
                 return false;
@@ -172,10 +142,9 @@ namespace TrenchBroom {
 
             preference.setValue(value);
             preference.setValid(true);
-            markAsUnsaved(&preference);
 
+            savePreference(preference);
             if (saveInstantly()) {
-                saveChanges();
                 preferenceDidChangeNotifier(preference.path());
             }
 
@@ -186,9 +155,59 @@ namespace TrenchBroom {
         void resetToDefault(Preference<T>& preference) {
             set(preference, preference.defaultValue());
         }
+
+        virtual void initialize() = 0;
+
+        virtual bool saveInstantly() const = 0;
+        virtual void saveChanges() = 0;
+        virtual void discardChanges() = 0;
     private:
-        PreferenceManager();
-        deleteCopyAndMove(PreferenceManager)
+        virtual void validatePreference(PreferenceBase&) = 0;
+        virtual void savePreference(PreferenceBase&) = 0;
+    };
+
+    class AppPreferenceManager : public PreferenceManager {
+        Q_OBJECT
+    private:
+        using UnsavedPreferences = kdl::vector_set<PreferenceBase*>;
+        using DynamicPreferences = std::map<IO::Path, std::unique_ptr<PreferenceBase>>;
+
+        QString m_preferencesFilePath;
+        bool m_saveInstantly;
+        UnsavedPreferences m_unsavedPreferences;
+        /**
+         * This should always be in sync with what is on disk.
+         * Preference objects may have different values if there are unsaved changes.
+         * There may also be values in here we don't know how to deserialize; we write them back to disk.
+         */
+        std::map<IO::Path, QJsonValue> m_cache;
+        QFileSystemWatcher* m_fileSystemWatcher;
+        /**
+         * If true, don't try to read/write preferences anymore.
+         * This gets set to true if there is a JSON parse error, so
+         * we don't clobber the file if the user makes a mistake while editing it by hand.
+         */
+        bool m_fileReadWriteDisabled;
+
+    public:
+        AppPreferenceManager();
+        void initialize() override;
+
+        bool saveInstantly() const override;
+        void saveChanges() override;
+        void discardChanges() override;
+    private:
+        void markAsUnsaved(PreferenceBase& preference);
+        void showErrorAndDisableFileReadWrite(const QString& reason, const QString& suggestion);
+        void loadCacheFromDisk();
+        void invalidatePreferences();
+        void loadPreferenceFromCache(PreferenceBase& pref);
+        void savePreferenceToCache(PreferenceBase& pref);
+    private:
+        void validatePreference(PreferenceBase&) override;
+        void savePreference(PreferenceBase&) override;
+
+        deleteCopyAndMove(AppPreferenceManager)
     };
 
     template <typename T>

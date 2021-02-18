@@ -17,11 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "PreferenceManager.h"
+#include "TrenchBroomApp.h"
 #include "Model/GameFactory.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"
-#include "TrenchBroomApp.h"
 
 #include <QApplication>
 #include <QSurfaceFormat>
@@ -65,7 +66,9 @@ int main(int argc, char *argv[])
     // actually work with TB.)
     qputenv("QT_OPENGL_BUGLIST", ":/opengl_buglist.json");
 
+    TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();
     TrenchBroom::View::TrenchBroomApp app(argc, argv);
+
     app.parseCommandLineAndShowFrame();
     return app.exec();
 }

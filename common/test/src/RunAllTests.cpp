@@ -19,14 +19,16 @@
 
 #define CATCH_CONFIG_RUNNER
 
-#include "TrenchBroomApp.h"
 #include "Ensure.h"
+#include "PreferenceManager.h"
+#include "TrenchBroomApp.h"
 
 #include <clocale>
 
 #include "Catch2.h"
 
 int main(int argc, char **argv) {
+    TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();
     TrenchBroom::View::TrenchBroomApp app(argc, argv);
 
 /*
