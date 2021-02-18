@@ -106,6 +106,8 @@ namespace TrenchBroom {
                     return { MapFormat::Quake3, MapFormat::Quake3_Valve, MapFormat::Quake3_Legacy };
                 case MapFormat::Doom3:
                     return { MapFormat::Doom3, MapFormat::Doom3_Valve };
+                case MapFormat::Doom3_Valve:
+                    return { MapFormat::Doom3_Valve, MapFormat::Doom3 };
                 case MapFormat::Unknown:
                     return { MapFormat::Unknown };
                 switchDefault()
