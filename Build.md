@@ -89,6 +89,7 @@ TrenchBroom depends on:
 - FreeImage: libfreeimage-dev
 - OpenGL and GLU development headers (Mesa OpenGL development packages) freeglut3, freeglut3-dev, mesa-common-dev
 - X11 video mode extension library: libxxf86vm-dev
+- X11 Virtual framebuffer X server: xvfb
 
 If you have a debian-based distribution, open a command prompt and execute this command to install required dependencies:
 
