@@ -126,10 +126,10 @@ namespace TrenchBroom {
         }
 
         vm::vec2f ParallelTexCoordSystem::doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const {
-#if 0
+#if 1
             if(attribs.hasBrushPrimitMode()) {
 
-#if 1
+#if 0
                 // evaluate texcoords exactly like in Doom 3
                 vm::vec3 texX, texY;
                 computeInitialAxesBP(-getZAxis(), texX, texY);
