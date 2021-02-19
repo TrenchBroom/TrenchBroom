@@ -227,6 +227,55 @@ namespace TrenchBroom {
             }
         }
 
+        static const BrushFace* findBestMatchingFace(const BrushFace& face, const std::vector<const BrushFace*>& candidates) {
+            if (candidates.empty()) {
+                return nullptr;
+            }
+
+            // First, look for coplanar candidates
+            const auto coplanarCandidates = kdl::vec_filter(candidates, [&](const BrushFace* candidate) {
+                return candidate->coplanarWith(face.boundary());
+            });;
+
+            if (!coplanarCandidates.empty()) {
+                // Return the largest coplanar face
+                return *std::max_element(std::begin(coplanarCandidates), std::end(coplanarCandidates),
+                    [](const BrushFace* lhs, const BrushFace* rhs){
+                        return lhs->area() < rhs->area();
+                    });
+            }
+
+            // No coplanar faces. Return the one with the smallest "face center off reference plane" distance.
+            const auto faceCenterOffPlaneDist = [&](const BrushFace* candidate) -> FloatType {
+                return vm::abs(face.boundary().point_distance(candidate->center()));
+            };
+
+            return *std::min_element(std::begin(candidates), std::end(candidates),
+                [&](const BrushFace* lhs, const BrushFace* rhs){
+                    return faceCenterOffPlaneDist(lhs) < faceCenterOffPlaneDist(rhs);
+                });
+        }
+
+        void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes) {
+            auto candidates = std::vector<const BrushFace*>{};
+            for (const auto* candidateBrush : brushes) {
+                for (const auto& candidateFace : candidateBrush->faces()) {
+                    candidates.push_back(&candidateFace);
+                }
+            }
+
+            for (auto& face : m_faces) {
+                if (const auto* bestMatch = findBestMatchingFace(face, candidates)) {
+                    face.setAttributes(bestMatch->attributes());
+
+                    auto snapshot = bestMatch->takeTexCoordSystemSnapshot();
+                    if (snapshot != nullptr) {
+                        face.copyTexCoordSystemFromFace(*snapshot, bestMatch->attributes(), face.boundary(), WrapStyle::Projection);
+                    }
+                }
+            }
+        }
+
         void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush) {
             for (auto& destination : m_faces) {
                 if (const auto sourceIndex = brush.findFace(destination.boundary().flip())) {
