@@ -103,6 +103,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/RunAllTests.cpp"
         "${COMMON_TEST_SOURCE_DIR}/StackWalkerTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestLogger.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/TestPreferenceManager.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.h"
 )
