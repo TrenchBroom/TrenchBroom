@@ -35,7 +35,8 @@
 namespace TrenchBroom {
     namespace IO {
         TestEnvironment::TestEnvironment(const std::string& dir) :
-            m_dir(pathFromQString(QDir::current().path()) + Path(generateUuid()) + Path(dir)) {
+            m_sandboxPath(pathFromQString(QDir::current().path()) + Path(generateUuid())),
+            m_dir(m_sandboxPath + Path(dir)) {
             createTestEnvironment();
         }
 
@@ -78,7 +79,7 @@ namespace TrenchBroom {
         }
 
         bool TestEnvironment::deleteTestEnvironment() {
-            return deleteDirectoryAbsolute(m_dir);
+            return deleteDirectoryAbsolute(m_sandboxPath);
         }
 
         bool TestEnvironment::directoryExists(const Path& path) const {
