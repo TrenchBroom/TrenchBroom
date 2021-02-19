@@ -49,27 +49,20 @@
         display: none;
         min-width: calc(100vw - 50px);
         max-width: calc(100vw - 50px);
+        right: 0;
     }
 
-    body #toc_inner #toc_inner_header {
-        text-align: left;
-    }
-
-    body #toc_inner #toc_inner_header img {
-        display: none;
-    }
-
-    body #toc:target {
+    body.toc_toggled #toc {
         display: block;
-    }
-
-    body #toc:target ~ #content {
-        display: none;
     }
 
     /* Content Version */
 
-    body #content_version, body #content_version #content_version_details, body #content_version #content_version_links {
+    body #content_version #content_version_details img {
+        display: none;
+    }
+
+    body #content_version #content_version_details div, body #content_version #content_version_links {
         align-items: center;
     }
 

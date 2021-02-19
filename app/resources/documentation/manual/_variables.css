@@ -23,7 +23,7 @@
     --color-gray-40: hsl(0, 0%, 40%);
     --color-gray-60: hsl(0, 0%, 60%);
     --color-gray-80: hsl(0, 0%, 80%);
-    --color-gray-93: hsl(0, 0%, 93%);
+    --color-gray-97: hsl(0, 0%, 97%);
     --color-gray-100: hsl(0, 0%, 100%);
     --color-azureradiance: hsl(210, 100%, 50%);
 
@@ -41,6 +41,7 @@
     --sizing-x12500: calc(var(--sizing-x10000) * 1.25);
     --sizing-x15000: calc(var(--sizing-x10000) * 1.5);
     --sizing-x20000: calc(var(--sizing-x10000) * 2);
+    --sizing-x30000: calc(var(--sizing-x10000) * 3);
 
     /* Spacing */
 
@@ -50,4 +51,9 @@
     --spacing-x10000: 16px;
     --spacing-x15000: calc(var(--spacing-x10000) * 1.5);
     --spacing-x20000: calc(var(--spacing-x10000) * 2);
+
+    /* Custom sizes */
+
+    --toc-width: 340px;
+    --content-max-width: 1024px;
 }

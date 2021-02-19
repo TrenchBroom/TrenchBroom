@@ -1,8 +1,15 @@
 /* ##### Specific ########## */
 
+/* All */
+
+* {
+    outline: none;
+}
+
 /* Code */
 
 pre {
+    max-width: max-content;
     padding: var(--spacing-x10000);
     margin-left: var(--spacing-x10000);
     margin-right: var(--spacing-x10000);
@@ -11,7 +18,7 @@ pre {
     overflow-y: hidden;
     border: var(--border);
     border-radius: var(--border-radius-25);
-    background-color: var(--color-gray-93);
+    background-color: var(--color-gray-97);
 }
 
 code {
@@ -72,16 +79,17 @@ ul {
     list-style-type: disc;
 }
 
-ul li ul li {
+ul > li > ul:not(:first-child) {
+    margin-top: var(--spacing-x05000);
+    margin-bottom: var(--spacing-x05000);
+}
+
+ul > li > ul > li {
     list-style-type: circle;
 }
 
-ul li ul li ul li {
+ul > li > ul > li > ul > li {
     list-style-type: square;
-}
-
-ul li ul {
-    margin-bottom: 0;
 }
 
 /* Link */
@@ -102,7 +110,7 @@ figure {
     margin-left: var(--spacing-x10000);
     margin-right: var(--spacing-x10000);
     border-radius: var(--border-radius-25);
-    background-color: var(--color-gray-93);
+    background-color: var(--color-gray-97);
 }
 
 figure figcaption {
@@ -120,7 +128,7 @@ figure img {
     max-width: 100%;
     margin: 0;
     border-radius: var(--border-radius-25);
-    background-color: var(--color-gray-93);
+    background-color: var(--color-gray-97);
 }
 
 p img {
@@ -155,7 +163,7 @@ table thead tr th {
 }
 
 table tbody tr.odd {
-    background-color: var(--color-gray-93);
+    background-color: var(--color-gray-97);
 }
 
 /* Shortcut */
@@ -171,7 +179,7 @@ table tbody tr.odd {
     text-align: center;
     border: var(--border);
     border-radius: var(--border-radius-25);
-    background-color: var(--color-gray-93);
+    background-color: var(--color-gray-97);
 }
 
 /* Line break */
@@ -188,7 +196,12 @@ h1, h2, h3, h4, img, ul, ol, dl, p, pre, table, figure {
 
 /* Back to Top & Table of Contents anchors */
 
-a[href="#"], a[href="#toc"] {
+.toc_toggler_button {
+    cursor: pointer;
+    border: none;
+}
+
+a[href="#"], .toc_toggler_button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -197,14 +210,14 @@ a[href="#"], a[href="#toc"] {
     font-size: var(--typography-font-size-x12500);
     text-decoration: none;
     border-radius: 50%;
-    background-color: var(--color-gray-93);
+    background-color: var(--color-gray-100);
     color: var(--color-gray-20);
 }
 
-a[href="#"]:hover, a[href="#"]:focus, a[href="#toc"]:hover, a[href="#toc"]:focus {
-    background-color: var(--color-gray-80);
+a[href="#"]:hover, a[href="#"]:focus, .toc_toggler_button:hover, .toc_toggler_button:focus {
+    background-color: var(--color-gray-97);
 }
 
-a[href="#"] span, a[href="#toc"] span {
+a[href="#"] span, .toc_toggler_button span {
     line-height: var(--typography-line-height-reset);
 }

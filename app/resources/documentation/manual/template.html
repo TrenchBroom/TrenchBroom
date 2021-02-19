@@ -15,27 +15,42 @@ $for(author-meta)$
 <link rel="stylesheet" href="_responsive.css">
 <script src="shortcuts.js"></script>
 <script src="shortcuts_helper.js"></script>
+<script>(() => {
+  window.addEventListener('DOMContentLoaded', () => {
+    const tocToggledClass = 'toc_toggled';
+
+    document.body.querySelector('div#toc_toggler .toc_toggler_button').addEventListener('click', (event) => {
+      event.preventDefault();
+      document.body.classList.toggle(tocToggledClass);
+    });
+
+    document.body.querySelectorAll('a').forEach((element) => {
+      element.addEventListener('click', (event) => {
+        document.body.classList.remove(tocToggledClass);
+      });
+    });
+  });
+})()</script>
 </head>
 <body>
 $if(toc)$<div id="toc_toggler">
 <img src="images/icon.png" alt="TrenchBroom Icon">
-<a href="#toc" title="Open Table of Contents"><span>&#9776;</span></a>
+<button class="toc_toggler_button" title="Open Table of Contents"><span>&#9776;</span></button>
 <a href="#" title="Back to top"><span>&#8657;</span></a>
 </div>
 <nav id="toc">
 <div id="toc_inner">
-<header id="toc_inner_header">
-<img src="images/icon.png" alt="TrenchBroom Icon">
-<h2>Table of Contents</h2>
-</header>
 $toc$
 </div>
 </nav>$endif$
 <main id="content">
 <aside id="content_version">
 <div id="content_version_details">
+<img src="images/icon.png" alt="TrenchBroom Icon">
+<div>
 <span id="content_version_heading">$pagetitle$</span>
 <span><strong>Build:</strong> __TB_BUILD_ID__</span>
+</div>
 </div>
 <div id="content_version_links">
 <span><a href="https://trenchbroom.github.io/" target="_blank" rel="noopener noreferrer">Official website</a> - <a href="https://discord.com/invite/XaAuJVz" target="_blank" rel="noopener noreferrer">Keep in touch on Discord</a></span>
