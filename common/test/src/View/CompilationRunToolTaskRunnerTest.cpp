@@ -17,20 +17,22 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "MapDocumentTest.h"
 #include "EL/VariableStore.h"
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationRunner.h"
 #include "View/TextOutputAdapter.h"
 
-#include <QEventLoop>
 #include <QObject>
 #include <QTextEdit>
-#include <QTimer>
+
+#include <condition_variable>
+#include <chrono>
+#include <mutex>
+#include <thread>
 
 #include "Catch2.h"
-
-#include "MapDocumentTest.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -39,6 +41,8 @@ namespace TrenchBroom {
         class ExecuteTask {
         private:
             CompilationTaskRunner& m_runner;
+            std::mutex m_mutex;
+            std::condition_variable m_condition;
         public:
             bool started = false;
             bool errored = false;
@@ -46,23 +50,16 @@ namespace TrenchBroom {
             
             ExecuteTask(CompilationTaskRunner& runner)
             : m_runner(runner) {
-                QObject::connect(&m_runner, &CompilationTaskRunner::start, [&]() { started = true; });
-                QObject::connect(&m_runner, &CompilationTaskRunner::error, [&]() { errored = true; });
-                QObject::connect(&m_runner, &CompilationTaskRunner::end, [&]()   { ended = true; });
+                QObject::connect(&m_runner, &CompilationTaskRunner::start, [&]() { started = true; std::unique_lock<std::mutex> lock(m_mutex); m_condition.notify_all(); });
+                QObject::connect(&m_runner, &CompilationTaskRunner::error, [&]() { errored = true; std::unique_lock<std::mutex> lock(m_mutex); m_condition.notify_all(); });
+                QObject::connect(&m_runner, &CompilationTaskRunner::end, [&]()   { ended = true;   std::unique_lock<std::mutex> lock(m_mutex); m_condition.notify_all(); });
             }
             
             void executeAndWait(const int timeout) {
-                QTimer timer;
-                timer.setSingleShot(true);
-                
-                QEventLoop loop;
-                QObject::connect(&m_runner, &CompilationTaskRunner::end, &loop, &QEventLoop::quit);
-                QObject::connect(&m_runner, &CompilationTaskRunner::error, &loop, &QEventLoop::quit);
-                QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-                
                 m_runner.execute();
-                timer.start(timeout);
-                loop.exec();
+                
+                std::unique_lock<std::mutex> lock(m_mutex);
+                m_condition.wait_for(lock, std::chrono::milliseconds{timeout}, [&]() { return errored || ended; });
             }
         };
         
