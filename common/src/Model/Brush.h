@@ -88,6 +88,7 @@ namespace TrenchBroom {
             bool fullySpecified() const;
         public: // clone face attributes from matching faces of other brushes
             void cloneFaceAttributesFrom(const Brush& brush);
+            void cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes);
             void cloneInvertedFaceAttributesFrom(const Brush& brush);
         public: // clipping
             kdl::result<void, BrushError> clip(const vm::bbox3& worldBounds, BrushFace face);

@@ -227,6 +227,75 @@ namespace TrenchBroom {
             }
         }
 
+        static size_t computeVertexScore(const std::vector<vm::vec3>& vertexPositions, const std::vector<vm::vec3>& candidatePositions) {
+            auto it1 = std::begin(vertexPositions);
+            auto end1 = std::end(vertexPositions);
+            auto it2 = std::begin(candidatePositions);
+            auto end2 = std::end(candidatePositions);
+
+            size_t score = 0u;
+            while (it1 != end1 && it2 != end2) {
+                if (*it1 == *it2) {
+                    ++score;
+                    ++it1;
+                    ++it2;
+                } else if (*it1 < *it2) {
+                    ++it1;
+                } else if (*it1 > *it2) {
+                    ++it2;
+                }
+            }
+            return score;
+        }
+
+        static FloatType computeNormalScore(const BrushFace& face, const BrushFace& candidate) {
+            return vm::dot(candidate.boundary().normal, face.boundary().normal);
+        }
+
+        static const BrushFace* findBestMatchingFace(const BrushFace& face, const std::vector<std::pair<const BrushFace*, std::vector<vm::vec3>>>& candidates) {
+            const auto faceVertexPositions = kdl::vec_sort(face.vertexPositions());
+
+            const BrushFace* bestMatch = nullptr;
+            size_t bestVertexScore = 0u;
+
+            for (const auto& [candidateFace, candidateVertexPositions] : candidates) {
+                const auto vertexScore = computeVertexScore(faceVertexPositions, candidateVertexPositions);
+                if (vertexScore == faceVertexPositions.size()) {
+                    return candidateFace;
+                } else if (vertexScore > bestVertexScore) {
+                    bestMatch = candidateFace;
+                    bestVertexScore = vertexScore;
+                } else if (bestMatch != nullptr && vertexScore == bestVertexScore) {
+                    if (computeNormalScore(face, *bestMatch) < computeNormalScore(face, *candidateFace)) {
+                        bestMatch = candidateFace;
+                        bestVertexScore = vertexScore;
+                    }
+                }
+            }
+
+            return bestMatch;
+        }
+
+        void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes) {
+            auto candidates = std::vector<std::pair<const BrushFace*, std::vector<vm::vec3>>>{};
+            for (const auto* candidateBrush : brushes) {
+                for (const auto& candidateFace : candidateBrush->faces()) {
+                    candidates.emplace_back(&candidateFace, kdl::vec_sort(candidateFace.vertexPositions()));
+                }
+            }
+
+            for (auto& face : m_faces) {
+                if (const auto* bestMatch = findBestMatchingFace(face, candidates)) {
+                    face.setAttributes(bestMatch->attributes());
+
+                    auto snapshot = bestMatch->takeTexCoordSystemSnapshot();
+                    if (snapshot != nullptr) {
+                        face.copyTexCoordSystemFromFace(*snapshot, bestMatch->attributes(), bestMatch->boundary(), WrapStyle::Projection);
+                    }
+                }
+            }
+        }
+
         void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush) {
             for (auto& destination : m_faces) {
                 if (const auto sourceIndex = brush.findFace(destination.boundary().flip())) {

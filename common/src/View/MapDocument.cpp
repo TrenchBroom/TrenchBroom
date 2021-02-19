@@ -2003,9 +2003,7 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs());
             return builder.createBrush(polyhedron, currentTextureName())
                 .and_then([&](Model::Brush&& b) {
-                    for (const Model::BrushNode* selectedBrushNode : selectedNodes().brushes()) {
-                        b.cloneFaceAttributesFrom(selectedBrushNode->brush());
-                    }
+                    b.cloneFaceAttributesFrom(kdl::vec_transform(selectedNodes().brushes(), [](const auto* brushNode) { return &brushNode->brush(); }));
 
                     // The nodelist is either empty or contains only brushes.
                     const auto toRemove = selectedNodes().nodes();
