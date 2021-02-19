@@ -27,6 +27,7 @@ namespace TrenchBroom {
     namespace IO {
         class TestEnvironment {
         private:
+            Path m_sandboxPath;
             Path m_dir;
         public:
             explicit TestEnvironment(const std::string& dir);
