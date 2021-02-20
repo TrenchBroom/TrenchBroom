@@ -412,8 +412,8 @@ namespace TrenchBroom {
             return node->accept(kdl::overload(
                 [] (const WorldNode*)         { return false; },
                 [] (const LayerNode*)         { return false; },
-                [&](const GroupNode* group)   { return bounds.contains(group->logicalBounds()); },
-                [&](const EntityNode* entity) { return bounds.contains(entity->logicalBounds()); },
+                [&](const GroupNode* group)   { return bounds.intersects(group->logicalBounds()); },
+                [&](const EntityNode* entity) { return bounds.intersects(entity->logicalBounds()); },
                 [&](const BrushNode* brush)   { 
                     for (const auto* vertex : brush->brush().vertices()) {
                         if (bounds.contains(vertex->position())) {
