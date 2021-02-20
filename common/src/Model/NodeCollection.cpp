@@ -108,7 +108,7 @@ namespace TrenchBroom {
                     [&](auto&& thisLambda, const LayerNode* layer)   -> bool { return visitChildrenAndExitEarly(thisLambda, layer); },
                     [&](auto&& thisLambda, const GroupNode* group)   -> bool { return visitChildrenAndExitEarly(thisLambda, group); },
                     [&](auto&& thisLambda, const EntityNode* entity) -> bool { return visitChildrenAndExitEarly(thisLambda, entity); },
-                    [](auto&&, const BrushNode*)                     -> bool { return true; }
+                    [] (const BrushNode*)                            -> bool { return true; }
                 ));
                 if (hasBrush) {
                     return true;
