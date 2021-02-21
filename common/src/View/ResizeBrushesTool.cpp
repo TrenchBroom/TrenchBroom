@@ -239,8 +239,8 @@ namespace TrenchBroom {
                                 continue;
                             }
 
-                            // Test if the face's center lies on the reference plane within an epsilon.
-                            if (!vm::is_zero(referenceFace.boundary().point_distance(face.center()), vm::constants<FloatType>::almost_zero() * 10.0)) {
+                            // Test if the boundary planes have the same distance
+                            if (!vm::is_equal(face.boundary().distance, referenceFace.boundary().distance, vm::constants<FloatType>::almost_zero() * 10.0)) {
                                 continue;
                             }
                             
