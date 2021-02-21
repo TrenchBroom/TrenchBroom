@@ -125,6 +125,7 @@ namespace TrenchBroom {
             ResizeBrushesTool tool(document);
 
             Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
+            document->pick(pickRay, pickResult); // populate pickResult
             const Model::Hit hit = tool.pick3D(pickRay, pickResult);
 
             CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
