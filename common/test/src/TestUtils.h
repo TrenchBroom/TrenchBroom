@@ -21,6 +21,8 @@
 
 #include "FloatType.h"
 
+#include "Model/MapFormat.h"
+
 #include <kdl/vector_set.h>
 
 #include <vecmath/forward.h>
@@ -29,6 +31,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h> // enable Catch2 to print vm::vec on test failures
 
+#include <memory>
 #include <string>
 
 #include "Catch2.h"
@@ -43,10 +46,15 @@ namespace TrenchBroom {
     bool UVListsEqual(const std::vector<vm::vec2f>& uvs,
                       const std::vector<vm::vec2f>& transformedVertUVs);
 
+    namespace IO {
+        class Path;
+    }
+
     namespace Model {
         class Brush;
         class BrushFace;
         class BrushNode;
+        class Game;
         class Node;
 
         BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
@@ -67,6 +75,8 @@ namespace TrenchBroom {
         void assertTexture(const std::string& expected, const Brush& brush, const vm::polygon3d& vertices);
 
         void transformNode(Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds);
+
+        std::shared_ptr<Model::Game> loadGame(const std::string& gameName);
     }
 
     namespace View {
@@ -75,6 +85,9 @@ namespace TrenchBroom {
         void addNode(MapDocument& document, Model::Node* parent, Model::Node* node);
         void removeNode(MapDocument& document, Model::Node* node);
         bool reparentNodes(MapDocument& document, Model::Node* newParent, std::vector<Model::Node*> nodes);
+
+        std::shared_ptr<MapDocument> loadMapDocument(const IO::Path& mapPath, const std::string& gameName, Model::MapFormat mapFormat);
+        std::shared_ptr<MapDocument> newMapDocument(const std::string& gameName, Model::MapFormat mapFormat);
     }
 
     enum class Component {

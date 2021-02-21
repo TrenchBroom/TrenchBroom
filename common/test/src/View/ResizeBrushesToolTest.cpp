@@ -85,26 +85,12 @@ namespace TrenchBroom {
         }
 
         /**
-         * Test for 
+         * Test for https://github.com/TrenchBroom/TrenchBroom/issues/3726
          * Issue where two planes with almost identical distance, but different normals.
          */
         TEST_CASE("ResizeBrushesToolTest.findCoplanarFacesTest", "[ResizeBrushesToolTest]") {
-            // FIXME: deduplicate with EntityModelTest
-            TestLogger logger;
-            const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games/Quake/GameConfig.cfg");
-            const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/Quake");
-            const auto configStr = IO::Disk::readTextFile(configPath);
-            auto configParser = IO::GameConfigParser(configStr, configPath);
-            Model::GameConfig config = configParser.parse();
-
-            auto game = std::make_shared<Model::GameImpl>(config, gamePath, logger);
-
-            // create document
-            auto document = MapDocumentCommandFacade::newMapDocument();
-            document->newDocument(Model::MapFormat::Valve, vm::bbox3(8192.0), game);
-
             const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/View/ResizeBrushesToolTest/findCoplanarFacesTest.map");
-            document->loadDocument(document->world()->mapFormat(), document->worldBounds(), game, mapPath);
+            auto document = View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
 
             document->selectAllNodes();
 

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestUtils.h"
 #include "TestLogger.h"
 
 #include "Exceptions.h"
@@ -41,20 +42,13 @@
 namespace TrenchBroom {
     namespace IO {
         TEST_CASE("BSP model intersection test", "[EntityModelTest]") {
-            TestLogger logger;
-
-            const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games/Quake/GameConfig.cfg");
-            const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/Quake");
-            const auto configStr = IO::Disk::readTextFile(configPath);
-            auto configParser = IO::GameConfigParser(configStr, configPath);
-            Model::GameConfig config = configParser.parse();
-
-            auto game = Model::GameImpl(config, gamePath, logger);
+            auto logger = TestLogger();
+            auto game = Model::loadGame("Quake");
 
             const auto path = IO::Path("cube.bsp");
 
-            std::unique_ptr<Assets::EntityModel> model = game.initializeModel(path, logger);
-            game.loadFrame(path, 0, *model, logger);
+            std::unique_ptr<Assets::EntityModel> model = game->initializeModel(path, logger);
+            game->loadFrame(path, 0, *model, logger);
 
             Assets::EntityModelFrame* frame = model->frames().at(0);
 

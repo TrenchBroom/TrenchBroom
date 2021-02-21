@@ -18,15 +18,20 @@
  */
 
 #include "TestUtils.h"
+#include "TestLogger.h"
 
 #include "Assets/Texture.h"
 #include "Ensure.h"
+#include "IO/DiskIO.h"
+#include "IO/GameConfigParser.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
+#include "Model/GameImpl.h"
 #include "Model/GroupNode.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "View/MapDocument.h"
+#include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
@@ -214,6 +219,17 @@ namespace TrenchBroom {
                 }
             ));
         }
+
+        std::shared_ptr<Model::Game> loadGame(const std::string& gameName) {
+            TestLogger logger;
+            const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games") + IO::Path(gameName) + IO::Path("GameConfig.cfg");
+            const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game") + IO::Path(gameName);
+            const auto configStr = IO::Disk::readTextFile(configPath);
+            auto configParser = IO::GameConfigParser(configStr, configPath);
+            Model::GameConfig config = configParser.parse();
+
+            return std::make_shared<Model::GameImpl>(config, gamePath, logger);
+        }
     }
 
     namespace View {
@@ -227,6 +243,21 @@ namespace TrenchBroom {
 
         bool reparentNodes(MapDocument& document, Model::Node* newParent, std::vector<Model::Node*> nodes) {
             return document.reparentNodes({{newParent, std::move(nodes)}});
+        }
+
+        std::shared_ptr<MapDocument> loadMapDocument(const IO::Path& mapPath, const std::string& gameName, Model::MapFormat mapFormat) {
+            auto document = newMapDocument(gameName, mapFormat);
+            document->loadDocument(mapFormat, document->worldBounds(), document->game(), mapPath);
+            return document;
+        }
+
+        std::shared_ptr<MapDocument> newMapDocument(const std::string& gameName, Model::MapFormat mapFormat) {
+            std::shared_ptr<Model::Game> game = Model::loadGame(gameName);
+
+            auto document = MapDocumentCommandFacade::newMapDocument();
+            document->newDocument(mapFormat, vm::bbox3(8192.0), game);
+
+            return document;
         }
     }
 
