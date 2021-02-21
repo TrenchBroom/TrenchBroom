@@ -929,9 +929,9 @@ namespace kdl {
      * @return a set adapter using the given collection as its underlying collection
      */
     template <typename C, typename Compare = std::less<typename C::value_type>>
-    set_adapter<C&, Compare> create_set(C& data, const Compare& cmp = Compare()) {
+    set_adapter<C, Compare> create_set(C data, const Compare& cmp = Compare()) {
         detail::sort_unique(data, cmp);
-        return set_adapter<C&, Compare>(data, cmp);
+        return set_adapter<C, Compare>(std::move(data), cmp);
     }
 }
 
