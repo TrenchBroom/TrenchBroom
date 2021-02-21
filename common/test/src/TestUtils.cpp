@@ -245,13 +245,13 @@ namespace TrenchBroom {
             return document.reparentNodes({{newParent, std::move(nodes)}});
         }
 
-        std::shared_ptr<MapDocument> loadMapDocument(const IO::Path& mapPath, const std::string& gameName, Model::MapFormat mapFormat) {
+        std::shared_ptr<MapDocument> loadMapDocument(const IO::Path& mapPath, const std::string& gameName, const Model::MapFormat mapFormat) {
             auto document = newMapDocument(gameName, mapFormat);
             document->loadDocument(mapFormat, document->worldBounds(), document->game(), mapPath);
             return document;
         }
 
-        std::shared_ptr<MapDocument> newMapDocument(const std::string& gameName, Model::MapFormat mapFormat) {
+        std::shared_ptr<MapDocument> newMapDocument(const std::string& gameName, const Model::MapFormat mapFormat) {
             std::shared_ptr<Model::Game> game = Model::loadGame(gameName);
 
             auto document = MapDocumentCommandFacade::newMapDocument();
