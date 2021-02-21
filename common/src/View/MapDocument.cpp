@@ -105,6 +105,7 @@
 #include <kdl/string_format.h>
 #include <kdl/result.h>
 #include <kdl/result_for_each.h>
+#include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/polygon.h>
@@ -576,6 +577,27 @@ namespace TrenchBroom {
             return PasteType::Failed;
         }
 
+        std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root) {
+            auto result = std::vector<Model::IdType>{};
+            root.accept(kdl::overload(
+                [] (auto&& thisLambda, const Model::WorldNode* worldNode) {
+                    worldNode->visitChildren(thisLambda);
+                },
+                [] (auto&& thisLambda, const Model::LayerNode* layerNode) {
+                    layerNode->visitChildren(thisLambda);
+                },
+                [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
+                    if (const auto persistentId = groupNode->persistentId()) {
+                        result.push_back(*persistentId);
+                    }
+                    groupNode->visitChildren(thisLambda);
+                },
+                [] (const Model::EntityNode*) {},
+                [] (const Model::BrushNode*) {}
+            ));
+            return result;
+        }
+
         bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
             auto nodesToDetach = std::vector<Model::Node*>{};
             auto nodesToDelete = std::vector<Model::Node*>{};
@@ -621,6 +643,32 @@ namespace TrenchBroom {
                 }
             }
             kdl::vec_clear_and_delete(nodesToDelete);
+
+            // Clean up persistent IDs of any groups being pasted
+            auto persistentGroupIds = kdl::vector_set(allPersistentGroupIds(*m_world.get()));
+            for (auto& [newParent, nodesToAddToParent] : nodesToAdd) {
+                for (auto* node : nodesToAddToParent) {
+                    node->accept(kdl::overload(
+                        [&](auto&& thisLambda, Model::WorldNode* worldNode) {
+                            worldNode->visitChildren(thisLambda);
+                        },
+                        [&](auto&& thisLambda, Model::LayerNode* layerNode) {
+                            layerNode->visitChildren(thisLambda);
+                        },
+                        [&](auto&& thisLambda, Model::GroupNode* groupNode) {
+                            if (const auto persistentGroupId = groupNode->persistentId()) {
+                                if (!persistentGroupIds.insert(*persistentGroupId).second) {
+                                    // a group with this ID is already in the map or being pasted, so reset the ID
+                                    groupNode->resetPersistentId();
+                                }
+                            }
+                            groupNode->visitChildren(thisLambda);
+                        },
+                        [] (Model::EntityNode*) {},
+                        [] (Model::BrushNode*) {}
+                    ));
+                }
+            }
 
             const std::vector<Model::Node*> addedNodes = addNodes(nodesToAdd);
             if (addedNodes.empty())

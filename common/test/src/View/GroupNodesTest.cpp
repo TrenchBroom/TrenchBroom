@@ -154,6 +154,45 @@ namespace TrenchBroom {
             return false;
         }
 
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.copyPasteGroupResetsDuplicateGroupId", "[GroupNodesTest]") {
+            auto* entityNode = new Model::EntityNode{};
+            document->addNodes({{document->parentForNodes(), {entityNode}}});
+
+            document->select(entityNode);
+            auto* groupNode = document->groupSelection("test");
+
+            const auto persistentGroupId = groupNode->persistentId();
+            REQUIRE(persistentGroupId.has_value());
+
+            document->deselectAll();
+            document->select(groupNode);
+
+            const auto str = document->serializeSelectedNodes();
+
+            SECTION("Copy and paste resets persistent group ID") {
+                document->deselectAll();
+                REQUIRE(document->paste(str) == PasteType::Node);
+
+                auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children().back());
+                REQUIRE(pastedGroupNode != nullptr);
+                REQUIRE(pastedGroupNode != groupNode);
+
+                CHECK(pastedGroupNode->persistentId() != persistentGroupId);
+            }
+
+            SECTION("Cut and paste retains persistent group ID") {
+                document->deleteObjects();
+                document->deselectAll();
+                REQUIRE(document->paste(str) == PasteType::Node);
+
+                auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children().back());
+                REQUIRE(pastedGroupNode != nullptr);
+                REQUIRE(pastedGroupNode != groupNode);
+
+                CHECK(pastedGroupNode->persistentId() == persistentGroupId);
+            }
+        }
+
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.undoMoveGroupContainingBrushEntity", "[GroupNodesTest]") {
             // Test for issue #1715
 
