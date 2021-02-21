@@ -237,6 +237,9 @@ namespace TrenchBroom {
             m_persistentId = persistentId;
         }
 
+        void GroupNode::resetPersistentId() {
+            m_persistentId = std::nullopt;
+        }
 
         void GroupNode::setEditState(const EditState editState) {
             m_editState = editState;

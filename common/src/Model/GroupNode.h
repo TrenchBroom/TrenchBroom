@@ -107,6 +107,7 @@ namespace TrenchBroom {
 
             const std::optional<IdType>& persistentId() const;
             void setPersistentId(IdType persistentId);
+            void resetPersistentId();
         private:
             void setEditState(EditState editState);
             void setAncestorEditState(EditState editState);
