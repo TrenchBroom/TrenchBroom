@@ -55,6 +55,7 @@ namespace TrenchBroom {
         class BrushFace;
         class BrushNode;
         class Game;
+        class GameConfig;
         class Node;
 
         BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
@@ -76,7 +77,11 @@ namespace TrenchBroom {
 
         void transformNode(Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds);
 
-        std::shared_ptr<Model::Game> loadGame(const std::string& gameName);
+        struct GameAndConfig {
+            std::shared_ptr<Model::Game> game;
+            std::unique_ptr<Model::GameConfig> gameConfig;
+        };
+        GameAndConfig loadGame(const std::string& gameName);
     }
 
     namespace View {
@@ -86,8 +91,13 @@ namespace TrenchBroom {
         void removeNode(MapDocument& document, Model::Node* node);
         bool reparentNodes(MapDocument& document, Model::Node* newParent, std::vector<Model::Node*> nodes);
 
-        std::shared_ptr<MapDocument> loadMapDocument(const IO::Path& mapPath, const std::string& gameName, Model::MapFormat mapFormat);
-        std::shared_ptr<MapDocument> newMapDocument(const std::string& gameName, Model::MapFormat mapFormat);
+        struct DocumentGameConfig {
+            std::shared_ptr<MapDocument> document;
+            std::shared_ptr<Model::Game> game;
+            std::unique_ptr<Model::GameConfig> gameConfig;
+        };
+        DocumentGameConfig loadMapDocument(const IO::Path& mapPath, const std::string& gameName, Model::MapFormat mapFormat);
+        DocumentGameConfig newMapDocument(const std::string& gameName, Model::MapFormat mapFormat);
     }
 
     enum class Component {

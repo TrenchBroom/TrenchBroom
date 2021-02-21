@@ -220,15 +220,18 @@ namespace TrenchBroom {
             ));
         }
 
-        std::shared_ptr<Model::Game> loadGame(const std::string& gameName) {
+        GameAndConfig loadGame(const std::string& gameName) {
             TestLogger logger;
             const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games") + IO::Path(gameName) + IO::Path("GameConfig.cfg");
             const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game") + IO::Path(gameName);
             const auto configStr = IO::Disk::readTextFile(configPath);
             auto configParser = IO::GameConfigParser(configStr, configPath);
-            Model::GameConfig config = configParser.parse();
+            auto config = std::make_unique<Model::GameConfig>(configParser.parse());
+            auto game = std::make_shared<Model::GameImpl>(*config, gamePath, logger);
 
-            return std::make_shared<Model::GameImpl>(config, gamePath, logger);
+            // We would ideally just return game, but GameImpl captures a raw reference
+            // to the GameConfig.
+            return { std::move(game), std::move(config) };
         }
     }
 
@@ -245,19 +248,21 @@ namespace TrenchBroom {
             return document.reparentNodes({{newParent, std::move(nodes)}});
         }
 
-        std::shared_ptr<MapDocument> loadMapDocument(const IO::Path& mapPath, const std::string& gameName, const Model::MapFormat mapFormat) {
-            auto document = newMapDocument(gameName, mapFormat);
+        DocumentGameConfig loadMapDocument(const IO::Path& mapPath, const std::string& gameName, const Model::MapFormat mapFormat) {
+            auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
+
             document->loadDocument(mapFormat, document->worldBounds(), document->game(), mapPath);
-            return document;
+
+            return {std::move(document), std::move(game), std::move(gameConfig)};
         }
 
-        std::shared_ptr<MapDocument> newMapDocument(const std::string& gameName, const Model::MapFormat mapFormat) {
-            std::shared_ptr<Model::Game> game = Model::loadGame(gameName);
+        DocumentGameConfig newMapDocument(const std::string& gameName, const Model::MapFormat mapFormat) {
+            auto [game, gameConfig] = Model::loadGame(gameName);
 
             auto document = MapDocumentCommandFacade::newMapDocument();
             document->newDocument(mapFormat, vm::bbox3(8192.0), game);
 
-            return document;
+            return {std::move(document), std::move(game), std::move(gameConfig)};
         }
     }
 

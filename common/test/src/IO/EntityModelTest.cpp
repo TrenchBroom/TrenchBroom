@@ -43,7 +43,7 @@ namespace TrenchBroom {
     namespace IO {
         TEST_CASE("BSP model intersection test", "[EntityModelTest]") {
             auto logger = TestLogger();
-            auto game = Model::loadGame("Quake");
+            auto [game, gameConfig] = Model::loadGame("Quake");
 
             const auto path = IO::Path("cube.bsp");
 

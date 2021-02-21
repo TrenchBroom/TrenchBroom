@@ -90,7 +90,7 @@ namespace TrenchBroom {
          */
         TEST_CASE("ResizeBrushesToolTest.findCoplanarFacesTest", "[ResizeBrushesToolTest]") {
             const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/View/ResizeBrushesToolTest/findCoplanarFacesTest.map");
-            auto document = View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
+            auto [document, game, gameConfig] = View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
 
             document->selectAllNodes();
 
