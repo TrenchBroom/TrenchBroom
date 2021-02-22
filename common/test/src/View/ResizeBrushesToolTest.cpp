@@ -19,7 +19,6 @@
  */
 
 #include "IO/DiskIO.h"
-#include "IO/GameConfigParser.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -27,27 +26,26 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
+#include "Model/Game.h"
 #include "Model/LayerNode.h"
-#include "Model/GameImpl.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
 #include "View/ResizeBrushesTool.h"
-#include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/result.h>
 #include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/ray.h>
 #include <vecmath/scalar.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
-#include "TestLogger.h"
-#include "MapDocumentTest.h"
-#include "Model/TestGame.h"
-
 #include <memory>
 
+#include "MapDocumentTest.h"
+#include "Model/TestGame.h"
+#include "TestLogger.h"
 #include "TestUtils.h"
 
 #include "Catch2.h"
@@ -102,19 +100,19 @@ namespace TrenchBroom {
             auto brushes = document->selectedNodes().brushes();
             REQUIRE(brushes.size() == 2);
 
-            // The two faces of interest.
+            // The two faces of interest
             const Model::BrushFace& largerTopFace = brushes.at(0)->brush().face(brushes.at(0)->brush().findFace("larger_top_face").value());
             const Model::BrushFace& smallerTopFace = brushes.at(1)->brush().face(brushes.at(1)->brush().findFace("smaller_top_face").value());
 
-            // Find the entities defining the camera position and look at point for our test
+            // Find the entity defining the camera position for our test
             Model::EntityNode* cameraEntity = kdl::vec_filter(document->selectedNodes().entities(),
                                                              [](const Model::EntityNode* node){ return node->entity().classname() == "trigger_relay"; }).at(0);
 
-            // Fire a pick ray at "larger_top_face"
+            // Fire a pick ray at largerTopFace
             const auto pickRay = vm::ray3(cameraEntity->entity().origin(),
                                           vm::normalize(largerTopFace.center() - cameraEntity->entity().origin()));
 
-            ResizeBrushesTool tool(document);
+            auto tool = ResizeBrushesTool(document);
 
             Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
             document->pick(pickRay, pickResult); // populate pickResult
@@ -128,7 +126,7 @@ namespace TrenchBroom {
             REQUIRE(hit.isMatch());
             pickResult.addHit(hit);
 
-            // this will find the faces that we're going to drag
+            // Find the faces that we would drag when pressing Shift
             REQUIRE(!tool.hasDragFaces());
             tool.updateDragFaces(pickResult);
             REQUIRE(tool.hasDragFaces());
