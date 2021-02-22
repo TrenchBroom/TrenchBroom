@@ -86,10 +86,15 @@ namespace TrenchBroom {
 
         /**
          * Test for https://github.com/TrenchBroom/TrenchBroom/issues/3726
-         * Issue where two planes with almost identical distance, but different normals.
          */
-        TEST_CASE("ResizeBrushesToolTest.findCoplanarFacesTest", "[ResizeBrushesToolTest]") {
-            const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/View/ResizeBrushesToolTest/findCoplanarFacesTest.map");
+        TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
+            const auto mapName_noCoplanarFaces = IO::Path("findDragFaces_noCoplanarFaces.map");
+            const auto mapName_twoCoplanarFaces = IO::Path("findDragFaces_twoCoplanarFaces.map");
+
+            auto mapName = GENERATE_COPY(mapName_noCoplanarFaces,
+                                         mapName_twoCoplanarFaces);
+
+            const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/View/ResizeBrushesToolTest") + mapName;
             auto [document, game, gameConfig] = View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
 
             document->selectAllNodes();
@@ -97,7 +102,7 @@ namespace TrenchBroom {
             auto brushes = document->selectedNodes().brushes();
             REQUIRE(brushes.size() == 2);
 
-            // The two faces of interest
+            // The two faces of interest.
             const Model::BrushFace& largerTopFace = brushes.at(0)->brush().face(brushes.at(0)->brush().findFace("larger_top_face").value());
             const Model::BrushFace& smallerTopFace = brushes.at(1)->brush().face(brushes.at(1)->brush().findFace("smaller_top_face").value());
 
@@ -105,6 +110,7 @@ namespace TrenchBroom {
             Model::EntityNode* cameraEntity = kdl::vec_filter(document->selectedNodes().entities(),
                                                              [](const Model::EntityNode* node){ return node->entity().classname() == "trigger_relay"; }).at(0);
 
+            // Fire a pick ray at "larger_top_face"
             const auto pickRay = vm::ray3(cameraEntity->entity().origin(),
                                           vm::normalize(largerTopFace.center() - cameraEntity->entity().origin()));
 
@@ -112,29 +118,31 @@ namespace TrenchBroom {
 
             Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
             document->pick(pickRay, pickResult); // populate pickResult
-            const Model::Hit hit = tool.pick3D(pickRay, pickResult);
 
+            const Model::Hit hit = tool.pick3D(pickRay, pickResult);
             CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
             CHECK(!vm::is_nan(hit.hitPoint()));
 
-            std::cout << pickRay.get_origin() << "\n";
-            std::cout << hit.hitPoint() << "\n";
             const Model::BrushFaceHandle hitTarget = hit.target<Model::BrushFaceHandle>();
-            std::cout << hitTarget.face().boundary().normal << "\n";
-
+            REQUIRE(hitTarget.face() == largerTopFace);
             REQUIRE(hit.isMatch());
             pickResult.addHit(hit);
 
             // this will find the faces that we're going to drag
             REQUIRE(!tool.hasDragFaces());
             tool.updateDragFaces(pickResult);
-
             REQUIRE(tool.hasDragFaces());
-            CHECK(tool.dragFaces().size() == 1);
 
-            std::cout << "drag face normals\n";
-            for (auto& dragFaceHandle : tool.dragFaces()) {
-                std::cout << dragFaceHandle.face().boundary().normal << "\n";
+            const std::vector<const Model::BrushFace*> dragFaces =
+                kdl::vec_transform(tool.dragFaces(),
+                                   [](const Model::BrushFaceHandle& handle) { return &handle.face(); });
+            
+            if (mapName == mapName_noCoplanarFaces) {
+                CHECK_THAT(dragFaces,
+                           Catch::Matchers::UnorderedEquals(std::vector<const Model::BrushFace*>{ &largerTopFace }));
+            } else {
+                CHECK_THAT(dragFaces,
+                           Catch::Matchers::UnorderedEquals(std::vector<const Model::BrushFace*>{ &largerTopFace, &smallerTopFace }));
             }
         }
     }
