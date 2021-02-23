@@ -401,10 +401,7 @@ namespace TrenchBroom {
          * Resolves cases when a child is parsed before its parent; called after the whole map is parsed.
          */
         void MapReader::resolveNodes(ParserStatus& status) {
-            for (const auto& entry : m_unresolvedNodes) {
-                Model::Node* node = entry.first;
-                const ParentInfo& info = entry.second;
-
+            for (const auto& [node, info] : m_unresolvedNodes) {
                 Model::Node* parent = resolveParent(info);
                 if (parent == nullptr)
                     onUnresolvedNode(info, node, status);

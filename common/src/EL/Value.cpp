@@ -640,9 +640,9 @@ namespace TrenchBroom {
                         }
 
                         size_t i = 0;
-                        for (const auto& entry : m) {
-                            str << childIndent << "\"" << entry.first << "\"" << ": ";
-                            entry.second.appendToStream(str, multiline, childIndent);
+                        for (const auto& [key, value] : m) {
+                            str << childIndent << "\"" << key << "\"" << ": ";
+                            value.appendToStream(str, multiline, childIndent);
                             if (i++ < m.size() - 1) {
                                 str << ",";
                                 if (!multiline) {

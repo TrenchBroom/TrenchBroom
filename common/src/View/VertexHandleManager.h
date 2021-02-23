@@ -247,9 +247,7 @@ namespace TrenchBroom {
         private:
             template <typename T, typename O>
             void collectHandles(const T& test, O out) const {
-                for (const HandleEntry& entry : m_handles) {
-                    const Handle& handle = entry.first;
-                    const HandleInfo& info = entry.second;
+                for (const auto& [handle, info] : m_handles) {
                     if (test(info)) {
                         out++ = handle;
                     }
@@ -389,8 +387,8 @@ namespace TrenchBroom {
              * Deselects all currently selected handles
              */
             void deselectAll() {
-                for (auto& entry : m_handles) {
-                    deselect(entry.second);
+                for (auto& [handle, info] : m_handles) {
+                    deselect(info);
                 }
             }
 
@@ -420,11 +418,11 @@ namespace TrenchBroom {
             }
         private:
             template <typename F>
-            void forEachCloseHandle(const H& handle, F fun) {
+            void forEachCloseHandle(const H& otherHandle, F fun) {
                 static const auto epsilon = 0.001 * 0.001;
-                for (auto& entry : m_handles) {
-                    if (compare(handle, entry.first, epsilon) == 0) {
-                        fun(entry.second);
+                for (auto& [handle, info] : m_handles) {
+                    if (compare(otherHandle, handle, epsilon) == 0) {
+                        fun(info);
                     }
                 }
             }
@@ -463,8 +461,8 @@ namespace TrenchBroom {
              */
             template <typename P>
             void pick(const P& test, Model::PickResult& pickResult) const {
-                for (const auto& entry : m_handles) {
-                    const auto hit = test(entry.first);
+                for (const auto& [handle, info] : m_handles) {
+                    const auto hit = test(handle);
                     if (hit.isMatch()) {
                         pickResult.addHit(hit);
                     }

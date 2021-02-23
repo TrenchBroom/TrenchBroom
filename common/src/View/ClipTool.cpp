@@ -827,8 +827,7 @@ namespace TrenchBroom {
         void ClipTool::addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer& renderer) {
             std::vector<Model::BrushNode*> brushes;
 
-            for (const auto& entry : map) {
-                const auto& nodes = entry.second;
+            for (const auto& [parent, nodes] : map) {
                 for (auto* node : nodes) {
                     node->accept(kdl::overload(
                         [] (const Model::WorldNode*)  {},

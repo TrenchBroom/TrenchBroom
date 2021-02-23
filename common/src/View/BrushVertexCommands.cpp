@@ -39,8 +39,8 @@ namespace TrenchBroom {
 
         static auto collectBrushNodes(const std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes) {
             auto result = std::vector<Model::BrushNode*>{};
-            for (const auto& pair : nodes) {
-                if (auto* brushNode = dynamic_cast<Model::BrushNode*>(pair.first)) {
+            for (const auto& [node, contents] : nodes) {
+                if (auto* brushNode = dynamic_cast<Model::BrushNode*>(node)) {
                     result.push_back(brushNode);
                 }
             }

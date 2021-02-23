@@ -1895,13 +1895,13 @@ namespace TrenchBroom {
             };
 
             QStringList verticalHeaderLabels;
-            for (const auto& role : roles) {
-                verticalHeaderLabels.append(role.second);
+            for (const auto& [role, roleLabel] : roles) {
+                verticalHeaderLabels.append(roleLabel);
             }
 
             QStringList horizontalHeaderLabels;
-            for (const auto& group : groups) {
-                horizontalHeaderLabels.append(group.second);
+            for (const auto& [group, groupLabel] : groups) {
+                horizontalHeaderLabels.append(groupLabel);
             }
 
             auto* table = new QTableWidget(static_cast<int>(roles.size()),

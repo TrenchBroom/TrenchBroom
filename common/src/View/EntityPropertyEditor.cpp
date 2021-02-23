@@ -146,8 +146,8 @@ namespace TrenchBroom {
                     // Concatenate the flag descriptions and return.
                     QString result;
                     QTextStream stream(&result);
-                    for (const auto& flagDescriptor : flagDescriptors) {
-                        stream << flagDescriptor.second << "\n";
+                    for (const auto& [value, description] : flagDescriptors) {
+                        stream << description << "\n";
                     }
                     return result;
                 }

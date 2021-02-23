@@ -110,10 +110,9 @@ namespace TrenchBroom {
         }
 
         SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::selectEditor(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
-            for (const auto& entry : m_editors) {
-                const MatcherPtr matcher = entry.first;
+            for (const auto& [matcher, editor] : m_editors) {
                 if (matcher->matches(propertyKey, nodes))
-                    return entry.second;
+                    return editor;
             }
 
             // should never happen

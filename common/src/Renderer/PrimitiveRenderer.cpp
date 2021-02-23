@@ -246,18 +246,14 @@ namespace TrenchBroom {
         }
 
         void PrimitiveRenderer::prepareLines(VboManager& vboManager) {
-            for (auto& entry : m_lineMeshes) {
-                const LineRenderAttributes& attributes = entry.first;
-                IndexRangeMapBuilder<Vertex::Type>& mesh = entry.second;
+            for (auto& [attributes, mesh] : m_lineMeshes) {
                 IndexRangeRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
                 renderer.prepare(vboManager);
             }
         }
 
         void PrimitiveRenderer::prepareTriangles(VboManager& vboManager) {
-            for (auto& entry : m_triangleMeshes) {
-                const TriangleRenderAttributes& attributes = entry.first;
-                IndexRangeMapBuilder<Vertex::Type>& mesh = entry.second;
+            for (auto& [attributes, mesh] : m_triangleMeshes) {
                 IndexRangeRenderer& renderer = m_triangleMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
                 renderer.prepare(vboManager);
             }
@@ -271,9 +267,7 @@ namespace TrenchBroom {
         void PrimitiveRenderer::renderLines(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
 
-            for (auto& entry : m_lineMeshRenderers) {
-                const LineRenderAttributes& attributes = entry.first;
-                IndexRangeRenderer& renderer = entry.second;
+            for (auto& [attributes, renderer] : m_lineMeshRenderers) {
                 attributes.render(renderer, shader);
             }
             glAssert(glLineWidth(1.0f))
@@ -282,9 +276,7 @@ namespace TrenchBroom {
         void PrimitiveRenderer::renderTriangles(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
 
-            for (auto& entry : m_triangleMeshRenderers) {
-                const TriangleRenderAttributes& attributes = entry.first;
-                IndexRangeRenderer& renderer = entry.second;
+            for (auto& [attributes, renderer] : m_triangleMeshRenderers) {
                 attributes.render(renderer, shader);
             }
         }

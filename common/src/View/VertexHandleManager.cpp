@@ -38,8 +38,7 @@ namespace TrenchBroom {
         const Model::HitType::Type VertexHandleManager::HandleHitType = Model::HitType::freeType();
 
         void VertexHandleManager::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            for (const auto& entry : m_handles) {
-                const auto& position = entry.first;
+            for (const auto& [position, info] : m_handles) {
                 const auto distance = camera.pickPointHandle(pickRay, position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                 if (!vm::is_nan(distance)) {
                     const auto hitPoint = vm::point_at_distance(pickRay, distance);
@@ -75,8 +74,7 @@ namespace TrenchBroom {
         const Model::HitType::Type EdgeHandleManager::HandleHitType = Model::HitType::freeType();
 
         void EdgeHandleManager::pickGridHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
-            for (const HandleEntry& entry : m_handles) {
-                const vm::segment3& position = entry.first;
+            for (const auto& [position, info] : m_handles) {
                 const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                 if (!vm::is_nan(edgeDist)) {
                     const vm::vec3 pointHandle = grid.snap(vm::point_at_distance(pickRay, edgeDist), position);
@@ -90,8 +88,7 @@ namespace TrenchBroom {
         }
 
         void EdgeHandleManager::pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            for (const HandleEntry& entry : m_handles) {
-                const vm::segment3& position = entry.first;
+            for (const auto& [position, info] : m_handles) {
                 const vm::vec3 pointHandle = position.center();
 
                 const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
@@ -128,9 +125,7 @@ namespace TrenchBroom {
         const Model::HitType::Type FaceHandleManager::HandleHitType = Model::HitType::freeType();
 
         void FaceHandleManager::pickGridHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
-            for (const auto& entry : m_handles) {
-                const auto& position = entry.first;
-
+            for (const auto& [position, info] : m_handles) {
                 const auto [valid, plane] = vm::from_points(std::begin(position), std::end(position));
                 if (!valid) {
                     continue;
@@ -150,8 +145,7 @@ namespace TrenchBroom {
         }
 
         void FaceHandleManager::pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            for (const HandleEntry& entry : m_handles) {
-                const auto& position = entry.first;
+            for (const auto& [position, info] : m_handles) {
                 const auto pointHandle = position.center();
 
                 const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));

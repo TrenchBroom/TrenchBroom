@@ -280,8 +280,7 @@ namespace TrenchBroom {
         std::optional<LiteralExpression> MapExpression::optimize() {
             bool allOptimized = true;
             
-            for (auto& entry : m_elements) {
-                auto& expression = entry.second;
+            for (auto& [key, expression] : m_elements) {
                 allOptimized &= expression.optimize();
             }
             
