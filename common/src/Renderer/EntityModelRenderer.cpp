@@ -143,13 +143,10 @@ namespace TrenchBroom {
             glAssert(glEnable(GL_TEXTURE_2D));
             glAssert(glActiveTexture(GL_TEXTURE0));
 
-            for (const auto& entry : m_entities) {
-                auto* entityNode = entry.first;
+            for (const auto& [entityNode, renderer] : m_entities) {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entityNode)) {
                     continue;
                 }
-
-                auto* renderer = entry.second;
 
                 const auto transformation = entityNode->entity().modelTransformation();
                 MultiplyModelMatrix multMatrix(renderContext.transformation(), vm::mat4x4f(transformation));

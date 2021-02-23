@@ -1039,8 +1039,8 @@ namespace TrenchBroom {
 
         std::vector<std::string> getLinkedGroupIdsRecursively(const std::map<Model::Node*, std::vector<Model::Node*>>& parentChildrenMap) {
             std::vector<std::string> linkedGroupIds;
-            for (const auto& pair : parentChildrenMap) {
-                Model::Node::visitAll(pair.second, kdl::overload(
+            for (const auto& [parent, children] : parentChildrenMap) {
+                Model::Node::visitAll(children, kdl::overload(
                     [] (auto&& thisLambda, const Model::WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, const Model::LayerNode* layerNode) { layerNode->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, const Model::GroupNode* groupNode) { 
@@ -1089,8 +1089,7 @@ namespace TrenchBroom {
 
         std::map<Model::Node*, std::vector<Model::Node*>> MapDocument::collectRemovableParents(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) const {
             std::map<Model::Node*, std::vector<Model::Node*>> result;
-            for (const auto& entry : nodes) {
-                Model::Node* node = entry.first;
+            for (const auto& [node, children] : nodes) {
                 if (node->removeIfEmpty() && !node->hasChildren()) {
                     Model::Node* parent = node->parent();
                     ensure(parent != nullptr, "parent is null");
@@ -1126,8 +1125,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::closeRemovedGroups(const std::map<Model::Node*, std::vector<Model::Node*>>& toRemove) {
-            for (const auto& entry : toRemove) {
-                const std::vector<Model::Node*>& nodes = entry.second;
+            for (const auto& [parent, nodes] : toRemove) {
                 for (const Model::Node* node : nodes) {
                     if (node == currentGroup()) {
                         closeGroup();
@@ -1143,8 +1141,7 @@ namespace TrenchBroom {
                 return false;
 
             std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove;
-            for (const auto& entry : nodesToAdd) {
-                const std::vector<Model::Node*>& children = entry.second;
+            for (const auto& [newParent, children] : nodesToAdd) {
                 nodesToRemove = kdl::map_merge(nodesToRemove, Model::parentChildrenMap(children));
             }
 
@@ -1181,9 +1178,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::checkReparenting(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const {
-            for (const auto& entry : nodesToAdd) {
-                const Model::Node* newParent = entry.first;
-                const std::vector<Model::Node*>& children = entry.second;
+            for (const auto& [newParent, children] : nodesToAdd) {
                 if (!newParent->canAddChildren(std::begin(children), std::end(children)))
                     return false;
             }

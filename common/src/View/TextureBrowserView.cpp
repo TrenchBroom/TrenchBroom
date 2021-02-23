@@ -428,9 +428,7 @@ namespace TrenchBroom {
             using StringRendererMap = std::map<Renderer::FontDescriptor, Renderer::VertexArray>;
             StringRendererMap stringRenderers;
 
-            for (const auto& entry : collectStringVertices(layout, y, height)) {
-                const auto& descriptor = entry.first;
-                const auto& vertices = entry.second;
+            for (const auto& [descriptor, vertices] : collectStringVertices(layout, y, height)) {
                 stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
                 stringRenderers[descriptor].prepare(vboManager());
             }
@@ -438,10 +436,7 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
             shader.set("Texture", 0);
 
-            for (auto& entry : stringRenderers) {
-                const auto& descriptor = entry.first;
-                auto& vertexArray = entry.second;
-
+            for (auto& [descriptor, vertexArray] : stringRenderers) {
                 auto& font = fontManager().font(descriptor);
                 font.activate();
                 vertexArray.render(Renderer::PrimType::Quads);

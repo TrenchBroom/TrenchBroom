@@ -89,9 +89,7 @@ namespace TrenchBroom {
                     m_tokenNames = tokenNames();
 
                 std::vector<std::string> names;
-                for (const auto& entry : m_tokenNames) {
-                    const TokenType type = entry.first;
-                    const std::string& name = entry.second;
+                for (const auto& [type, name] : m_tokenNames) {
                     if ((typeMask & type) != 0)
                         names.push_back(name);
                 }

@@ -132,12 +132,12 @@ namespace TrenchBroom {
         std::vector<Path> ImageFileSystemBase::Directory::contents() const {
             std::vector<Path> contents;
 
-            for (const auto& entry : m_directories) {
-                contents.push_back(Path(entry.first));
+            for (const auto& [path, directory] : m_directories) {
+                contents.push_back(Path(path));
             }
 
-            for (const auto& entry : m_files) {
-                contents.push_back(Path(entry.first));
+            for (const auto& [path, file] : m_files) {
+                contents.push_back(Path(path));
             }
 
             return contents;

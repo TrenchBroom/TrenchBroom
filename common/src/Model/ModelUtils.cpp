@@ -148,8 +148,7 @@ namespace TrenchBroom {
         template <typename T>
         static std::vector<Node*> doCollectParents(const T& nodes) {
             std::vector<Node*> result;
-            for (const auto& entry : nodes) {
-                Node* parent = entry.first;
+            for (const auto& [parent, children] : nodes) {
                 collectWithParents(parent, result);
             }
             return kdl::vec_sort_and_remove_duplicates(std::move(result));
@@ -165,16 +164,16 @@ namespace TrenchBroom {
 
         std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes) {
             std::vector<Node*> result;
-            for (const auto& entry : nodes) {
-                result = kdl::vec_concat(std::move(result), entry.second);
+            for (const auto& [parent, children] : nodes) {
+                result = kdl::vec_concat(std::move(result), children);
             }
             return result;
         }
 
         std::vector<Node*> collectChildren(const std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>& nodes) {
             std::vector<Node*> result;
-            for (const auto& entry : nodes) {
-                result = kdl::vec_concat(std::move(result), kdl::vec_transform(entry.second, [](auto& child) { return child.get(); }));
+            for (const auto& [parent, children] : nodes) {
+                result = kdl::vec_concat(std::move(result), kdl::vec_transform(children, [](auto& child) { return child.get(); }));
             }
             return result;
         }

@@ -34,9 +34,7 @@ namespace TrenchBroom {
         }
 
         void TexturedIndexRangeMap::Size::inc(const TexturedIndexRangeMap::Size& other) {
-            for (const auto& entry : other.m_sizes) {
-                auto* texture = entry.first;
-                const auto& indexRange = entry.second;
+            for (const auto& [texture, indexRange] : other.m_sizes) {
                 auto& sizeForKey = findCurrent(texture);
                 sizeForKey.inc(indexRange);
             }
@@ -61,9 +59,7 @@ namespace TrenchBroom {
         }
 
         void TexturedIndexRangeMap::Size::initialize(TextureToIndexRangeMap& data) const {
-            for (const auto& entry : m_sizes) {
-                const auto* texture = entry.first;
-                const auto& size = entry.second;
+            for (const auto& [texture, size] : m_sizes) {
                 data.insert(std::make_pair(texture, IndexRangeMap(size)));
             }
         }
@@ -100,9 +96,7 @@ namespace TrenchBroom {
         }
 
         void TexturedIndexRangeMap::add(const TexturedIndexRangeMap& other) {
-            for (const auto& entry : *other.m_data) {
-                auto* texture = entry.first;
-                const auto& indexRangeMap = entry.second;
+            for (const auto& [texture, indexRangeMap] : *other.m_data) {
                 auto& current = findCurrent(texture);
                 current.add(indexRangeMap);
             }
@@ -114,10 +108,7 @@ namespace TrenchBroom {
         }
 
         void TexturedIndexRangeMap::render(VertexArray& vertexArray, TextureRenderFunc& func) {
-            for (const auto& entry : *m_data) {
-                const auto* texture = entry.first;
-                const auto& indexArray = entry.second;
-
+            for (const auto& [texture, indexArray] : *m_data) {
                 func.before(texture);
                 indexArray.render(vertexArray);
                 func.after(texture);

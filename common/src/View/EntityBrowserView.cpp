@@ -368,9 +368,7 @@ namespace TrenchBroom {
 
             { // create and upload all vertex arrays
                 const auto stringVertices = collectStringVertices(layout, y, height);
-                for (const auto& entry : stringVertices) {
-                    const auto& fontDescriptor = entry.first;
-                    const auto& vertices = entry.second;
+                for (const auto& [fontDescriptor, vertices] : stringVertices) {
                     stringRenderers[fontDescriptor] = Renderer::VertexArray::ref(vertices);
                     stringRenderers[fontDescriptor].prepare(vboManager());
                 }

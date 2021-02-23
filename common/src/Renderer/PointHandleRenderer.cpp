@@ -88,11 +88,10 @@ namespace TrenchBroom {
             const Camera& camera = renderContext.camera();
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
 
-            for (const auto& entry : map) {
-                const Color color = mixAlpha(entry.first, opacity);
-                shader.set("Color", color);
+            for (const auto& [color, positions] : map) {
+                shader.set("Color", mixAlpha(color, opacity));
 
-                for (const vm::vec3f& position : entry.second) {
+                for (const vm::vec3f& position : positions) {
                     vm::vec3f nudgeTowardsCamera;
 
                     // In 3D view, nudge towards camera by the handle radius, to prevent lines (brush edges, etc.) from clipping into the handle

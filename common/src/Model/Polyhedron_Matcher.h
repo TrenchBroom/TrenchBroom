@@ -303,10 +303,7 @@ namespace TrenchBroom {
             static VertexRelation buildVertexRelation(const P& left, const P& right, const VMap& vertexMap) {
                 VertexRelation result;
 
-                for (const auto& entry : vertexMap) {
-                    const auto& leftPosition = entry.first;
-                    const auto& rightPosition = entry.second;
-
+                for (const auto& [leftPosition, rightPosition] : vertexMap) {
                     auto* leftVertex = left.findVertexByPosition(leftPosition);
                     auto* rightVertex = right.findVertexByPosition(rightPosition);
 

@@ -172,8 +172,7 @@ namespace TrenchBroom {
 
         void EntityModelManager::resetTextureMode() {
             if (m_resetTextureMode) {
-                for (const auto& entry : m_models) {
-                    auto& model = entry.second;
+                for (const auto& [path, model] : m_models) {
                     model->setTextureMode(m_minFilter, m_magFilter);
                 }
                 m_resetTextureMode = false;
