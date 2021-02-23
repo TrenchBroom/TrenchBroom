@@ -63,7 +63,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
     # gcc <= 7 warns about unused structured bindings, see https://github.com/TrenchBroom/TrenchBroom/issues/3751
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
-        target_compile_options(${TARGET} PRIVATE -Wno-unused-variable)
+        target_compile_options(kdl INTERFACE -Wno-unused-variable)
     endif()
 elseif(MSVC EQUAL 1)
     target_compile_options(kdl INTERFACE /W4 /EHsc /MP)
