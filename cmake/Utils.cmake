@@ -113,6 +113,11 @@ macro(set_compiler_config TARGET)
 
         # FIXME: enable -Wcpp once we found a workaround for glew / QOpenGLWindow problem, see RenderView.h
         target_compile_options(${TARGET} PRIVATE -Wno-cpp)
+
+        # gcc <= 7 warns about unused structured bindings, see https://github.com/TrenchBroom/TrenchBroom/issues/3751
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
+            target_compile_options(${TARGET} PRIVATE -Wno-unused-variable)
+        endif()
     elseif(COMPILER_IS_MSVC)
         target_compile_definitions(${TARGET} PRIVATE _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE)
         target_compile_options(${TARGET} PRIVATE /W4 /EHsc /MP)
