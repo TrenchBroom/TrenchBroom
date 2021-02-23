@@ -60,6 +60,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
     target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-exit-time-destructors)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow=local -pedantic)
+
+    # gcc <= 7 warns about unused structured bindings, see https://github.com/TrenchBroom/TrenchBroom/issues/3751
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
+        target_compile_options(${TARGET} PRIVATE -Wno-unused-variable)
+    endif()
 elseif(MSVC EQUAL 1)
     target_compile_options(kdl INTERFACE /W4 /EHsc /MP)
 
