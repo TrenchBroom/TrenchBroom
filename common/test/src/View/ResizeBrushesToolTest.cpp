@@ -44,7 +44,6 @@
 #include <memory>
 
 #include "MapDocumentTest.h"
-#include "Model/TestGame.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 
@@ -86,11 +85,15 @@ namespace TrenchBroom {
          * Test for https://github.com/TrenchBroom/TrenchBroom/issues/3726
          */
         TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
-            const auto mapName_noCoplanarFaces = IO::Path("findDragFaces_noCoplanarFaces.map");
-            const auto mapName_twoCoplanarFaces = IO::Path("findDragFaces_twoCoplanarFaces.map");
+            struct TestCase {
+                IO::Path mapName;
+                std::vector<std::string> expectedDragFaceTextureNames;
+            };
 
-            auto mapName = GENERATE_COPY(mapName_noCoplanarFaces,
-                                         mapName_twoCoplanarFaces);
+            auto [mapName, expectedDragFaceTextureNames] = GENERATE(values<TestCase>({
+                {IO::Path("findDragFaces_noCoplanarFaces.map"), {"larger_top_face"}},
+                {IO::Path("findDragFaces_twoCoplanarFaces.map"), {"larger_top_face", "smaller_top_face"}}
+            }));
 
             const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/View/ResizeBrushesToolTest") + mapName;
             auto [document, game, gameConfig] = View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
@@ -100,9 +103,7 @@ namespace TrenchBroom {
             auto brushes = document->selectedNodes().brushes();
             REQUIRE(brushes.size() == 2);
 
-            // The two faces of interest
             const Model::BrushFace& largerTopFace = brushes.at(0)->brush().face(brushes.at(0)->brush().findFace("larger_top_face").value());
-            const Model::BrushFace& smallerTopFace = brushes.at(1)->brush().face(brushes.at(1)->brush().findFace("smaller_top_face").value());
 
             // Find the entity defining the camera position for our test
             Model::EntityNode* cameraEntity = kdl::vec_filter(document->selectedNodes().entities(),
@@ -131,17 +132,10 @@ namespace TrenchBroom {
             tool.updateDragFaces(pickResult);
             REQUIRE(tool.hasDragFaces());
 
-            const std::vector<const Model::BrushFace*> dragFaces =
+            const std::vector<std::string> dragFaces =
                 kdl::vec_transform(tool.dragFaces(),
-                                   [](const Model::BrushFaceHandle& handle) { return &handle.face(); });
-            
-            if (mapName == mapName_noCoplanarFaces) {
-                CHECK_THAT(dragFaces,
-                           Catch::Matchers::UnorderedEquals(std::vector<const Model::BrushFace*>{ &largerTopFace }));
-            } else {
-                CHECK_THAT(dragFaces,
-                           Catch::Matchers::UnorderedEquals(std::vector<const Model::BrushFace*>{ &largerTopFace, &smallerTopFace }));
-            }
+                                   [](const Model::BrushFaceHandle& handle) { return handle.face().attributes().textureName(); });
+            CHECK_THAT(dragFaces, Catch::UnorderedEquals(expectedDragFaceTextureNames));
         }
     }
 }
