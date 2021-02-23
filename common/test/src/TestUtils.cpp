@@ -18,15 +18,20 @@
  */
 
 #include "TestUtils.h"
+#include "TestLogger.h"
 
 #include "Assets/Texture.h"
 #include "Ensure.h"
+#include "IO/DiskIO.h"
+#include "IO/GameConfigParser.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
+#include "Model/GameImpl.h"
 #include "Model/GroupNode.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "View/MapDocument.h"
+#include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
@@ -214,6 +219,20 @@ namespace TrenchBroom {
                 }
             ));
         }
+
+        GameAndConfig loadGame(const std::string& gameName) {
+            TestLogger logger;
+            const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games") + IO::Path(gameName) + IO::Path("GameConfig.cfg");
+            const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game") + IO::Path(gameName);
+            const auto configStr = IO::Disk::readTextFile(configPath);
+            auto configParser = IO::GameConfigParser(configStr, configPath);
+            auto config = std::make_unique<Model::GameConfig>(configParser.parse());
+            auto game = std::make_shared<Model::GameImpl>(*config, gamePath, logger);
+
+            // We would ideally just return game, but GameImpl captures a raw reference
+            // to the GameConfig.
+            return { std::move(game), std::move(config) };
+        }
     }
 
     namespace View {
@@ -227,6 +246,23 @@ namespace TrenchBroom {
 
         bool reparentNodes(MapDocument& document, Model::Node* newParent, std::vector<Model::Node*> nodes) {
             return document.reparentNodes({{newParent, std::move(nodes)}});
+        }
+
+        DocumentGameConfig loadMapDocument(const IO::Path& mapPath, const std::string& gameName, const Model::MapFormat mapFormat) {
+            auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
+
+            document->loadDocument(mapFormat, document->worldBounds(), document->game(), mapPath);
+
+            return {std::move(document), std::move(game), std::move(gameConfig)};
+        }
+
+        DocumentGameConfig newMapDocument(const std::string& gameName, const Model::MapFormat mapFormat) {
+            auto [game, gameConfig] = Model::loadGame(gameName);
+
+            auto document = MapDocumentCommandFacade::newMapDocument();
+            document->newDocument(mapFormat, vm::bbox3(8192.0), game);
+
+            return {std::move(document), std::move(game), std::move(gameConfig)};
         }
     }
 
