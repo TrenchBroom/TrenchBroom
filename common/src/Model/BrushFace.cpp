@@ -322,6 +322,19 @@ namespace TrenchBroom {
             return sum / 2.0;
         }
 
+        bool BrushFace::coplanarWith(const vm::plane3d& plane) const {
+            // Test if the face's center lies on the reference plane within an epsilon.
+            if (!vm::is_zero(plane.point_distance(center()), vm::constants<FloatType>::almost_zero() * 10.0)) {
+                return false;
+            }
+
+            // Test if the normals are colinear by checking their enclosed angle.
+            if (1.0 - vm::dot(boundary().normal, plane.normal) >= vm::constants<FloatType>::colinear_epsilon()) {
+                return false;
+            }
+            return true;
+        }
+
         const BrushFaceAttributes& BrushFace::attributes() const {
             return m_attributes;
         }
