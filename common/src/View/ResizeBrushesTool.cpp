@@ -239,13 +239,7 @@ namespace TrenchBroom {
                                 continue;
                             }
 
-                            // Test if the face's center lies on the reference plane within an epsilon.
-                            if (!vm::is_zero(referenceFace.boundary().point_distance(face.center()), vm::constants<FloatType>::almost_zero() * 10.0)) {
-                                continue;
-                            }
-                            
-                            // Test if the normals are colinear by checking their enclosed angle.
-                            if (1.0 - vm::dot(face.boundary().normal, referenceFace.boundary().normal) >= vm::constants<FloatType>::colinear_epsilon()) {
+                            if (!face.coplanarWith(referenceFace.boundary())) {
                                 continue;
                             }
 
