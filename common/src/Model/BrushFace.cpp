@@ -307,6 +307,21 @@ namespace TrenchBroom {
             return vm::abs((c1 - c2) / 2.0);
         }
 
+        FloatType BrushFace::area() const {
+            FloatType sum = 0.0;
+            const std::vector<vm::vec3> v = vertexPositions();
+            for (size_t i = 2; i < v.size(); ++i) {
+                const vm::vec3& a = v[0];
+                const vm::vec3& b = v[i - 1];
+                const vm::vec3& c = v[i];
+
+                const FloatType doubleTriangleArea = vm::length(vm::cross(b - a, c - a));
+
+                sum += doubleTriangleArea;
+            }
+            return sum / 2.0;
+        }
+
         const BrushFaceAttributes& BrushFace::attributes() const {
             return m_attributes;
         }
