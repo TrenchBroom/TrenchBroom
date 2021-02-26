@@ -43,6 +43,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/WalTextureReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/WorldReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/ZipFileSystemTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/BezierPatchTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushBuilderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushFaceTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushNodeTest.cpp"
