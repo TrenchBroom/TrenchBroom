@@ -933,7 +933,8 @@ namespace TrenchBroom {
             messageBox.setInformativeText(tr("This will discard all unsaved changes and reload the document from disk."));
 
             auto* revertButton = messageBox.addButton(tr("Revert"), QMessageBox::DestructiveRole);
-            messageBox.addButton(QMessageBox::Cancel);
+            auto* cancelButton = messageBox.addButton(QMessageBox::Cancel);
+            messageBox.setDefaultButton(cancelButton);
 
             messageBox.exec();
 
