@@ -47,7 +47,7 @@ if(APPLE)
         set(GAME_FILE "${APP_RESOURCE_DIR}/games/${GAME_FILE}")
 
         set(APP_SOURCE ${APP_SOURCE} ${GAME_FILE})
-        set_source_files_properties(${GAME_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR})
+        set_source_files_properties(${GAME_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR} HEADER_FILE_ONLY ON)
     endforeach()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -60,7 +60,7 @@ if(APPLE)
             set(GAME_FILE "${APP_RESOURCE_DIR}/games-testing/${GAME_FILE}")
 
             set(APP_SOURCE ${APP_SOURCE} ${GAME_FILE})
-            set_source_files_properties(${GAME_FILE} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR})
+            set_source_files_properties(${GAME_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/games/${GAME_FILE_DIR} HEADER_FILE_ONLY ON)
         endforeach()
     endif()
 
