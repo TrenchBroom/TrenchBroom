@@ -767,12 +767,6 @@ namespace TrenchBroom {
                     context.frame()->saveDocumentAs();
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
-            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Revert"), QObject::tr("Revert"), 0,
-                [](ActionExecutionContext& context) {
-                    context.frame()->revertDocument();
-                },
-                [](ActionExecutionContext& context) { return context.hasDocument(); },
-                IO::Path(), QObject::tr("Discards any unsaved changes and reloads the map file.")));
 
             auto& exportMenu = fileMenu.addMenu("Export");
             exportMenu.addItem(createMenuAction(IO::Path("Menu/File/Export/Wavefront OBJ..."), QObject::tr("Wavefront OBJ..."), 0,
@@ -840,6 +834,12 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
             fileMenu.addSeparator();
+            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Revert"), QObject::tr("Revert"), 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->revertDocument();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); },
+                IO::Path(), QObject::tr("Discards any unsaved changes and reloads the map file.")));
             fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Close"), QObject::tr("Close Document"), QKeySequence::Close,
                 [](ActionExecutionContext& context) {
                     context.frame()->closeDocument();
