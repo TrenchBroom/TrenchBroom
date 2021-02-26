@@ -834,7 +834,7 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
             fileMenu.addSeparator();
-            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Revert"), QObject::tr("Revert"), 0,
+            fileMenu.addItem(createMenuAction(IO::Path("Menu/File/Revert"), QObject::tr("Revert Document"), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->revertDocument();
                 },
