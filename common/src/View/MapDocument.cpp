@@ -1546,6 +1546,25 @@ namespace TrenchBroom {
             return true;
         }
 
+        void MapDocument::linkGroups(const std::vector<Model::GroupNode*>& groupNodes) {
+            const auto newLinkedGroupId = generateUuid();
+            applyAndSwap(*this, "Set Linked Group ID", groupNodes, findContainingLinkedGroupsToUpdate(*m_world, groupNodes), kdl::overload(
+                [] (Model::Layer&)       { return true; },
+                [&](Model::Group& group) { group.setLinkedGroupId(newLinkedGroupId); return true; },
+                [] (Model::Entity&)      { return true; },
+                [] (Model::Brush&)       { return true; }
+            ));
+        }
+
+        void MapDocument::unlinkGroups(const std::vector<Model::GroupNode*>& groupNodes) {
+            applyAndSwap(*this, "Reset Linked Group ID", groupNodes, findContainingLinkedGroupsToUpdate(*m_world, groupNodes), kdl::overload(
+                [] (Model::Layer&)       { return true; },
+                [&](Model::Group& group) { group.resetLinkedGroupId(); return true; },
+                [] (Model::Entity&)      { return true; },
+                [] (Model::Brush&)       { return true; }
+            ));
+        }
+
         void MapDocument::separateLinkedGroups() {
             Transaction transaction(this, "Separate Linked Groups");
             separateSelectedLinkedGroups(true);
@@ -1569,7 +1588,9 @@ namespace TrenchBroom {
             auto selectedLinkedGroupIds = kdl::vec_transform(selectedGroupsWithLinkGroupIds, [](const auto& g) { return *g->group().linkedGroupId(); });
                  selectedLinkedGroupIds = kdl::vec_sort_and_remove_duplicates(std::move(selectedLinkedGroupIds));
 
-            auto singletonLinkSetsAfterUngrouping = std::vector<Model::GroupNode*>{};
+            auto groupsToUnlink = std::vector<Model::GroupNode*>{};
+            auto groupsToRelink = std::vector<std::vector<Model::GroupNode*>>{};
+
             for (const auto& linkedGroupId : selectedLinkedGroupIds) {
                 auto linkedGroups = Model::findLinkedGroups(*m_world, linkedGroupId); 
 
@@ -1583,32 +1604,27 @@ namespace TrenchBroom {
                 if (!unselectedLinkedGroups.empty()) {
                     if (selectedLinkedGroups.size() == 1u) {
                         // unset the linked group ID later
-                        singletonLinkSetsAfterUngrouping.push_back(selectedLinkedGroups.front());
+                        groupsToUnlink.push_back(selectedLinkedGroups.front());
                     } else if (relinkGroups) {
-                        // set a new linked group ID to the selected linked groups
-                        const auto newLinkedGroupId = generateUuid();
-                        applyAndSwap(*this, "Set Linked Group ID", selectedLinkedGroups, findContainingLinkedGroupsToUpdate(*m_world, selectedLinkedGroups), kdl::overload(
-                            [] (Model::Layer&)       { return true; },
-                            [&](Model::Group& group) { group.setLinkedGroupId(newLinkedGroupId); return true; },
-                            [] (Model::Entity&)      { return true; },
-                            [] (Model::Brush&)       { return true; }
-                        ));
+                        groupsToRelink.push_back(std::move(selectedLinkedGroups));
+                    } else {
+                        groupsToUnlink = kdl::vec_concat(std::move(groupsToUnlink), std::move(selectedLinkedGroups));
                     }
 
                     if (unselectedLinkedGroups.size() == 1u) {
                         // unset the linked group ID later
-                        singletonLinkSetsAfterUngrouping.push_back(unselectedLinkedGroups.front());
+                        groupsToUnlink.push_back(unselectedLinkedGroups.front());
                     }
+                } else if (!relinkGroups) {
+                    // all members of a link group are being separated, and we don't want to relink them, so we need to reset their linked group IDs
+                    groupsToUnlink = kdl::vec_concat(std::move(groupsToUnlink), std::move(selectedLinkedGroups));
                 }
             }
 
-            // unset the linked group IDs of all linked groups which are no longer linked to anything
-            applyAndSwap(*this, "Reset Linked Group ID", singletonLinkSetsAfterUngrouping, findContainingLinkedGroupsToUpdate(*m_world, singletonLinkSetsAfterUngrouping), kdl::overload(
-                [] (Model::Layer&)       { return true; },
-                [&](Model::Group& group) { group.resetLinkedGroupId(); return true; },
-                [] (Model::Entity&)      { return true; },
-                [] (Model::Brush&)       { return true; }
-            ));
+            unlinkGroups(groupsToUnlink);
+            for (const auto& groupNodes : groupsToRelink) {
+                linkGroups(groupNodes);
+            }
         }
 
         void MapDocument::renameLayer(Model::LayerNode* layerNode, const std::string& name) {

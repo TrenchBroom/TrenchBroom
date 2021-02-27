@@ -289,18 +289,57 @@ namespace TrenchBroom {
 
             auto* linkedGroupNode = document->createLinkedDuplicate();
 
-            REQUIRE_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedGroupNode}));
+            document->deselectAll();
+            document->select(linkedGroupNode);
+
+            auto* linkedGroupNode2 = document->createLinkedDuplicate();
 
             document->deselectAll();
-            document->select(groupNode);
+            REQUIRE_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
 
-            document->ungroupSelection();
-            CHECK_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{linkedGroupNode, brushNode}));
-            CHECK_FALSE(linkedGroupNode->group().linkedGroupId().has_value());
+            SECTION("Given three linked groups, we ungroup one of them, the other two remain linked") {
+                document->select(linkedGroupNode2);
+
+                auto* linkedBrushNode2 = linkedGroupNode2->children().front();
+
+                document->ungroupSelection();
+                CHECK_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedBrushNode2}));
+                CHECK(groupNode->group().linkedGroupId().has_value());
+                CHECK(linkedGroupNode->group().linkedGroupId().has_value());
+                CHECK(groupNode->group().linkedGroupId() == linkedGroupNode->group().linkedGroupId());
+            }
+
+            SECTION("Given three linked groups, we ungroup two of them, and the remaining one becomes a regular group") {
+                document->select(linkedGroupNode);
+                document->select(linkedGroupNode2);
+
+                auto* linkedBrushNode = linkedGroupNode->children().front();
+                auto* linkedBrushNode2 = linkedGroupNode2->children().front();
+
+                document->ungroupSelection();
+                CHECK_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedBrushNode, linkedBrushNode2}));
+                CHECK_FALSE(groupNode->group().linkedGroupId().has_value());
+            }
+
+            SECTION("Given three linked groups, we ungroup all of them") {
+                document->select(groupNode);
+                document->select(linkedGroupNode);
+                document->select(linkedGroupNode2);
+
+                auto* linkedBrushNode = linkedGroupNode->children().front();
+                auto* linkedBrushNode2 = linkedGroupNode2->children().front();
+
+                document->ungroupSelection();
+                CHECK_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode, linkedBrushNode, linkedBrushNode2}));
+            }
 
             document->undoCommand();
-            CHECK_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedGroupNode}));
+            CHECK_THAT(document->world()->defaultLayer()->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
+            CHECK(groupNode->group().linkedGroupId().has_value());
             CHECK(linkedGroupNode->group().linkedGroupId().has_value());
+            CHECK(linkedGroupNode2->group().linkedGroupId().has_value());
+            CHECK(groupNode->group().linkedGroupId() == linkedGroupNode->group().linkedGroupId());
+            CHECK(groupNode->group().linkedGroupId() == linkedGroupNode2->group().linkedGroupId());
         }
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createLinkedDuplicate", "[GroupNodesTest]") {
