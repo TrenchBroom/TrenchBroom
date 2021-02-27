@@ -116,8 +116,7 @@ set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
 # Find Qt and OpenGL
 find_package(OpenGL REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Svg REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Svg REQUIRED)
 # Qt will warn about API's that were deprecated after 5.9.5.
 # Since we're not raising our minimum Qt version, and can't use the replacement
 # API's, disable these warnings.
