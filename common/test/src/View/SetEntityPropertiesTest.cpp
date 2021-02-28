@@ -203,6 +203,32 @@ namespace TrenchBroom {
                     }));
                 }
             }
+
+            SECTION("When setting a property to unprotected that only exists in one entity") {
+                document->setProtectedProperty("yet_another_key", true);
+                document->setProperty("yet_another_key", "yet_another_value");
+
+                entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+                REQUIRE_THAT(entityNode->entity().properties(), Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+                    {"some_key", "some_value"}
+                }));
+                REQUIRE_THAT(linkedEntityNode->entity().properties(), Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+                    {"some_key", "another_value"},
+                    {"yet_another_key", "yet_another_value"},
+                }));
+
+                document->setProtectedProperty("yet_another_key", false);
+
+                entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+                CHECK_THAT(entityNode->entity().properties(), Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+                    {"some_key", "some_value"},
+                    {"yet_another_key", "yet_another_value"},
+                }));
+                CHECK_THAT(linkedEntityNode->entity().properties(), Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+                    {"some_key", "another_value"},
+                    {"yet_another_key", "yet_another_value"},
+                }));
+            }
         }
 
         TEST_CASE_METHOD(SetEntityPropertiesTest, "SetEntityPropertiesTest.clearProtectedProperties") {
@@ -247,6 +273,10 @@ namespace TrenchBroom {
             document->setProtectedProperty("another_key", true);
             document->setProperty("another_key", "yet_another_value");
 
+            // add another initially protected property "yet_another_key" to the linked entity
+            document->setProtectedProperty("yet_another_key", true);
+            document->setProperty("yet_another_key", "and_yet_another_value");
+
             entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
             REQUIRE(entityNode);
 
@@ -256,32 +286,45 @@ namespace TrenchBroom {
                 {"another_key", "another_value"}
             }));
 
-            REQUIRE_THAT(linkedEntityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"another_key"}));
+            REQUIRE_THAT(linkedEntityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"another_key", "yet_another_key"}));
             REQUIRE_THAT(linkedEntityNode->entity().properties(), Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
                 {"some_key", "some_value"},
-                {"another_key", "yet_another_value"}
+                {"another_key", "yet_another_value"},
+                {"yet_another_key", "and_yet_another_value"}
             }));
 
             document->deselectAll();
             document->select(groupNode);
             document->select(linkedGroupNode);
 
+            CHECK_FALSE(document->canClearProtectedProperties());
+
+            document->deselect(groupNode);
+
             CHECK(document->canClearProtectedProperties());
             document->clearProtectedProperties();
 
-            CHECK_THAT(entityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{}));
+            entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+            REQUIRE(entityNode != nullptr);
+
+            CHECK_THAT(entityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
             CHECK_THAT(entityNode->entity().properties(), Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
-                {"some_key", "some_value"},
+                {"some_key", "some_other_value"},
                 {"another_key", "another_value"},
+                {"yet_another_key", "and_yet_another_value"}
             }));
 
             CHECK_THAT(linkedEntityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{}));
             CHECK_THAT(linkedEntityNode->entity().properties(), Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
                 {"some_key", "some_value"},
                 {"another_key", "another_value"},
+                {"yet_another_key", "and_yet_another_value"}
             }));
 
             document->undoCommand();
+
+            entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+            REQUIRE(entityNode != nullptr);
 
             CHECK_THAT(entityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
             CHECK_THAT(entityNode->entity().properties(), Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
@@ -289,10 +332,11 @@ namespace TrenchBroom {
                 {"another_key", "another_value"}
             }));
 
-            CHECK_THAT(linkedEntityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"another_key"}));
+            CHECK_THAT(linkedEntityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"another_key", "yet_another_key"}));
             CHECK_THAT(linkedEntityNode->entity().properties(), Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
                 {"some_key", "some_value"},
-                {"another_key", "yet_another_value"}
+                {"another_key", "yet_another_value"},
+                {"yet_another_key", "and_yet_another_value"}
             }));
         }
     }
