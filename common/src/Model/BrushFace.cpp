@@ -281,7 +281,7 @@ namespace TrenchBroom {
             return fromPlane * bounds.center();
         }
 
-        FloatType BrushFace::area(const vm::axis::type axis) const {
+        FloatType BrushFace::projectedArea(const vm::axis::type axis) const {
             FloatType c1 = 0.0;
             FloatType c2 = 0.0;
             switch (axis) {

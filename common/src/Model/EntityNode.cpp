@@ -60,7 +60,7 @@ namespace TrenchBroom {
         EntityNode::EntityNode(std::initializer_list<EntityProperty> properties) :
         EntityNode(Entity(std::move(properties))) {}
 
-        FloatType EntityNode::area(vm::axis::type axis) const {
+        FloatType EntityNode::projectedArea(vm::axis::type axis) const {
             const vm::vec3 size = physicalBounds().size();
             switch (axis) {
                 case vm::axis::x:

@@ -81,9 +81,9 @@ namespace TrenchBroom {
 
         FloatType CompareHitsBySize::getSize(const Hit& hit) const {
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                return faceHandle->face().area(m_axis);
+                return faceHandle->face().projectedArea(m_axis);
             } else if (const EntityNode* entity = hitToEntity(hit)) {
-                return entity->area(m_axis);
+                return entity->projectedArea(m_axis);
             } else {
                 return 0.0;
             }
