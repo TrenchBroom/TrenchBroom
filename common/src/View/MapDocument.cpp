@@ -96,6 +96,7 @@
 #include "View/SetCurrentLayerCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/SwapNodeContentsCommand.h"
+#include "View/UpdateLinkedGroupsHelper.h"
 #include "View/ViewEffectsService.h"
 
 #include <kdl/collection_utils.h>
@@ -2337,8 +2338,7 @@ namespace TrenchBroom {
                 nodesToUpdate.emplace_back(entityNode, std::move(entity));
             }
 
-            // The linked groups are not affected!
-            return swapNodeContents("Set Protected Property", nodesToUpdate, {});
+            return swapNodeContents("Set Protected Property", nodesToUpdate, findContainingLinkedGroupsToUpdate(*m_world, entityNodes));
         }
 
         bool MapDocument::clearProtectedProperties() {
@@ -2374,13 +2374,17 @@ namespace TrenchBroom {
                 nodesToUpdate.emplace_back(entityNode, std::move(entity));
             }
 
-            // The linked groups are not affected!
-            return swapNodeContents("Clear Protected Properties", nodesToUpdate, {});
+            return swapNodeContents("Clear Protected Properties", nodesToUpdate, findContainingLinkedGroupsToUpdate(*m_world, entityNodes));
         }
 
         bool MapDocument::canClearProtectedProperties() const {
             const auto entityNodes = allSelectedEntityNodes();
-            return !entityNodes.empty() && (entityNodes.size() > 1u || entityNodes.front() != m_world.get());
+            if (entityNodes.empty() || (entityNodes.size() == 1u && entityNodes.front() == m_world.get())) {
+                return false;
+            }
+
+            const auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(*m_world, entityNodes);
+            return checkLinkedGroupsToUpdate(kdl::vec_transform(linkedGroupsToUpdate, [](const auto& p) { return p.first; }));
         }
 
         bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
