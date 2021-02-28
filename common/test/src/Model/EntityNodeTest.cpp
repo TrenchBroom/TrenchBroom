@@ -47,9 +47,9 @@ namespace TrenchBroom {
             auto entityNode = EntityNode{};
             entityNode.setDefinition(&definition);
 
-            CHECK(entityNode.area(vm::axis::x) == 6.0);
-            CHECK(entityNode.area(vm::axis::y) == 3.0);
-            CHECK(entityNode.area(vm::axis::z) == 2.0);
+            CHECK(entityNode.projectedArea(vm::axis::x) == 6.0);
+            CHECK(entityNode.projectedArea(vm::axis::y) == 3.0);
+            CHECK(entityNode.projectedArea(vm::axis::z) == 2.0);
         }
 
         static const std::string TestClassname = "something";
