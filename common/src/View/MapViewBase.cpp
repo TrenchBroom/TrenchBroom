@@ -1001,11 +1001,10 @@ namespace TrenchBroom {
 
             QMenu menu;
             const auto addMainMenuAction = [&](const auto& path) -> QAction* {
-                if (auto* groupAction = mapFrame->findAction(path)) {
-                    menu.addAction(groupAction);
-                    return groupAction;
-                }
-                return nullptr;
+                auto* groupAction = mapFrame->findAction(path);
+                assert(groupAction != nullptr);
+                menu.addAction(groupAction);
+                return groupAction;
             };
 
             addMainMenuAction(IO::Path("Menu/Edit/Group"));
@@ -1037,7 +1036,7 @@ namespace TrenchBroom {
 
             addMainMenuAction(IO::Path("Menu/Edit/Create Linked Duplicate"));
             addMainMenuAction(IO::Path("Menu/Edit/Select Linked Groups"));
-            addMainMenuAction(IO::Path("Menu/Edit/Unlink Groups"));
+            addMainMenuAction(IO::Path("Menu/Edit/Separate Linked Groups"));
             menu.addSeparator();
 
             // Layer operations
