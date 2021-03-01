@@ -281,8 +281,8 @@ namespace TrenchBroom {
             // Shortcuts
 
             auto* toolBar = createMiniToolBarLayout(
-                m_addProtectedPropertyButton,
                 m_addPropertyButton,
+                m_addProtectedPropertyButton,
                 m_removePropertiesButton,
                 LayoutConstants::WideHMargin,
                 m_showDefaultPropertiesCheckBox);
