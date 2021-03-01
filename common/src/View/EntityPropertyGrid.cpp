@@ -222,11 +222,6 @@ namespace TrenchBroom {
                 addProperty(false);
             });
 
-            m_addPropertyButton = createBitmapButton("Add.svg", tr("Add a new property (%1)").arg(EntityPropertyTable::insertRowShortcutString()), this);
-            connect(m_addPropertyButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
-                addProperty(false);
-            });
-
             m_addProtectedPropertyButton = createBitmapButton("AddProtected.svg", tr("Add a new protected property"), this);
             connect(m_addProtectedPropertyButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
                 addProperty(true);
