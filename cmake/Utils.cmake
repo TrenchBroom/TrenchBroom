@@ -178,7 +178,6 @@ macro(GET_GIT_DESCRIBE GIT SOURCE_DIR GIT_DESCRIBE)
     if(${GIT_DESCRIBE})
         message(STATUS "Using version description \"${${GIT_DESCRIBE}}\" from git describe")
     endif()
-    set(${GIT_DESCRIBE} "")
 
     if(NOT ${GIT_DESCRIBE})
         # On GitHub Actions, "git describe" will fail due to it being a shallow clone (for PR and branch builds).
