@@ -96,29 +96,39 @@ namespace TrenchBroom {
         }
 
         Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityProperty>& properties, ParserStatus& /* status */) {
-            m_world->setEntity(Model::Entity(properties));
+            auto entity = Model::Entity{properties};
 
             // handle default layer attributes, which are stored in worldspawn
             auto* defaultLayerNode = m_world->defaultLayer();
-            for (const Model::EntityProperty& property : properties) {
-                if (property.key() == Model::PropertyKeys::LayerColor) {
-                    if (const auto color = Color::parse(property.value())) {
-                        auto defaultLayer = defaultLayerNode->layer();
-                        defaultLayer.setColor(*color);
-                        defaultLayerNode->setLayer(std::move(defaultLayer));
-                    }
-                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue)) {
-                    auto defaultLayer = defaultLayerNode->layer();
+            auto defaultLayer = defaultLayerNode->layer();
+            if (const auto* colorStr = entity.property(Model::PropertyKeys::LayerColor)) {
+                if (const auto color = Color::parse(*colorStr)) {
+                    defaultLayer.setColor(*color);
+                }
+                entity.removeProperty(Model::PropertyKeys::LayerColor);
+            }
+            if (const auto* omitFromExportStr = entity.property(Model::PropertyKeys::LayerOmitFromExport)) {
+                if (*omitFromExportStr == Model::PropertyValues::LayerOmitFromExportValue) {
                     defaultLayer.setOmitFromExport(true);
-                    defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerLocked,
-                    Model::PropertyValues::LayerLockedValue)) {
+                }
+                entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
+            }
+            defaultLayerNode->setLayer(std::move(defaultLayer));
+
+            if (const auto* lockedStr = entity.property(Model::PropertyKeys::LayerLocked)) {
+                if (*lockedStr == Model::PropertyValues::LayerLockedValue) {
                     defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
-                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerHidden,
-                    Model::PropertyValues::LayerHiddenValue)) {
+                }
+                entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
+            }
+            if (const auto* hiddenStr = entity.property(Model::PropertyKeys::LayerHidden)) {
+                if (*hiddenStr == Model::PropertyValues::LayerHiddenValue) {
                     defaultLayerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
                 }
+                entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
             }
+
+            m_world->setEntity(std::move(entity));
             return m_world->defaultLayer();
         }
 
