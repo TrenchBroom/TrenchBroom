@@ -39,18 +39,15 @@ jobs:
             tb-arch: x64
           - os: windows-2019
             tb-arch: Win32
-
+    env:
+      # Record pull request head commit SHA
+      TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       # See: https://github.com/actions/checkout
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           submodules: 'recursive'
-
-      - name: Record pull request head commit SHA
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          echo "TB_PULL_REQUEST_HEAD_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
 
       - name: Test pull request head commit SHA
         run: |
