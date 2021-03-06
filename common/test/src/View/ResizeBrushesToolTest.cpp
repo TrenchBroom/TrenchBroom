@@ -18,7 +18,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -95,7 +94,7 @@ namespace TrenchBroom {
                 {IO::Path("findDragFaces_twoCoplanarFaces.map"), {"larger_top_face", "smaller_top_face"}}
             }));
 
-            const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/View/ResizeBrushesToolTest") + mapName;
+            const auto mapPath = IO::Path("fixture/test/View/ResizeBrushesToolTest") + mapName;
             auto [document, game, gameConfig] = View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
 
             document->selectAllNodes();
