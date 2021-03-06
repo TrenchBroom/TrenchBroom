@@ -111,13 +111,13 @@ namespace TrenchBroom {
         }
 
         void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
-            if (parentInfo.layer()) {
+            if (parentInfo.type == ParentType::Layer) {
                 std::stringstream msg;
-                msg << "Could not resolve parent layer '" << parentInfo.id() << "', adding to default layer";
+                msg << "Could not resolve parent layer '" << parentInfo.id << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             } else {
                 std::stringstream msg;
-                msg << "Could not resolve parent group '" << parentInfo.id() << "', adding to default layer";
+                msg << "Could not resolve parent group '" << parentInfo.id << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             }
             m_nodes.push_back(node);

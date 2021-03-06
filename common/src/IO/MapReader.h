@@ -30,13 +30,13 @@
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 
-#include <optional>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class EntityNode;
         class EntityNodeBase;
         class BrushNode;
         class EntityProperty;
@@ -60,46 +60,11 @@ namespace TrenchBroom {
          *
          * 1. MapParser callbacks get called with the raw data, which we just store
          *    (m_entityInfos, m_brushInfos)
-         * 2. convert the raw data to nodes (for brushes this happens in parallel)
+         * 2. convert the raw data to nodes (for brushes this happens in parallel) (createNodes)
          * 3. post process the nodes to resolve layers, etc.
          */
         class MapReader : public StandardMapParser {
-        protected:
-            class ParentInfo {
-            public:
-                typedef enum {
-                    Type_Layer,
-                    Type_Group,
-                    Type_None
-                } Type;
-
-                Type m_type;
-                Model::IdType m_id;
-            public:
-                static ParentInfo layer(Model::IdType layerId);
-                static ParentInfo group(Model::IdType groupId);
-            private:
-                ParentInfo(Type type, Model::IdType id);
-            public:
-                bool layer() const;
-                bool group() const;
-                Model::IdType id() const;
-            };
         private:
-            typedef enum {
-                EntityType_Layer,
-                EntityType_Group,
-                EntityType_Worldspawn,
-                EntityType_Default
-            } EntityType;
-
-            vm::bbox3 m_worldBounds;
-        private: // data populated in response to MapParser callbacks
-            struct BrushInfo {
-                std::vector<Model::BrushFace> faces;
-                size_t startLine;
-                size_t lineCount;
-            };
             struct EntityInfo {
                 size_t startLine;
                 size_t lineCount;
@@ -107,18 +72,29 @@ namespace TrenchBroom {
                 size_t brushesBegin;
                 size_t brushesEnd;
             };
-            std::vector<EntityInfo> m_entityInfos;
-            std::vector<BrushInfo> m_brushInfos;
-        private: // data populated by loadBrushes
-            struct LoadedBrush {
-                // optional wrapper is just to let this struct be default-constructible
-                std::optional<kdl::result<Model::Brush, Model::BrushError>> brush;
+
+            struct BrushInfo {
+                std::vector<Model::BrushFace> faces;
                 size_t startLine;
                 size_t lineCount;
             };
+        protected:
+            enum class ParentType {
+                Layer,
+                Group,
+                None
+            };
+
+            struct ParentInfo {
+                ParentType type;
+                Model::IdType id;
+            };
         private:
-            Model::Node* m_brushParent;
-            Model::Node* m_currentNode;
+            vm::bbox3 m_worldBounds;
+        private: // data populated in response to MapParser callbacks
+            std::vector<EntityInfo> m_entityInfos;
+            std::vector<BrushInfo> m_brushInfos;
+        private: // layer / group lookup and management
             std::unordered_map<Model::IdType, Model::LayerNode*> m_layers;
             std::unordered_map<Model::IdType, Model::GroupNode*> m_groups;
             std::unordered_map<std::string, Model::GroupNode*> m_linkedGroups;
@@ -160,23 +136,13 @@ namespace TrenchBroom {
             void onStandardBrushFace(size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) override;
             void onValveBrushFace(size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) override;
         private: // helper methods
+            friend std::vector<std::unique_ptr<Model::BrushNode>> createBrushes(const vm::bbox3& worldBounds, std::vector<BrushInfo> brushInfos, ParserStatus& status);
             void createNodes(ParserStatus& status);
-            void createNode(EntityInfo& info, std::vector<LoadedBrush>& brushes, ParserStatus& status);
-            void createLayer(size_t line, const std::vector<Model::EntityProperty>& propeties, ParserStatus& status);
-            void createGroup(size_t line, const std::vector<Model::EntityProperty>& properties, ParserStatus& status);
-            void createEntity(size_t line, const std::vector<Model::EntityProperty>& properties, ParserStatus& status);
-            void createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, size_t startLine, size_t lineCount, ParserStatus& status);
+            void createLayerGroupOrEntity(Model::Node*& currentParent, EntityInfo& info, std::vector<std::unique_ptr<Model::BrushNode>>& loadedBrushes, ParserStatus& status);
 
-            ParentInfo::Type storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& properties, ParserStatus& status);
-            void stripParentProperties(Model::EntityNodeBase* node, ParentInfo::Type parentType);
-
+            void storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& properties, ParserStatus& status);
             void resolveNodes(ParserStatus& status);
-            std::vector<LoadedBrush> loadBrushes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
-
-            EntityType entityType(const std::vector<Model::EntityProperty>& properties) const;
-
-            void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);
         private: // subclassing interface - these will be called in the order that nodes should be inserted
             virtual Model::Node* onWorldspawn(const std::vector<Model::EntityProperty>& properties, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;

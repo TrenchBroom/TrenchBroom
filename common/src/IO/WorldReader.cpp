@@ -139,10 +139,10 @@ namespace TrenchBroom {
         }
 
         void WorldReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
-            if (parentInfo.layer()) {
-                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing layer '", parentInfo.id(), "', adding to default layer"));
+            if (parentInfo.type == ParentType::Layer) {
+                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing layer '", parentInfo.id, "', adding to default layer"));
             } else {
-                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing group '", parentInfo.id(), "', adding to default layer"));
+                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing group '", parentInfo.id, "', adding to default layer"));
             }
             m_world->defaultLayer()->addChild(node);
         }

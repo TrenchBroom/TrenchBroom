@@ -35,7 +35,6 @@
 #include <vecmath/mat.h>
 #include <vecmath/mat_io.h>
 
-#include <kdl/map_utils.h>
 #include <kdl/parallel.h>
 #include <kdl/result.h>
 #include <kdl/string_format.h>
@@ -43,41 +42,14 @@
 #include <kdl/vector_utils.h>
 
 #include <cassert>
-#include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        MapReader::ParentInfo MapReader::ParentInfo::layer(const Model::IdType layerId) {
-            return ParentInfo(Type_Layer, layerId);
-        }
-
-        MapReader::ParentInfo MapReader::ParentInfo::group(const Model::IdType groupId) {
-            return ParentInfo(Type_Group, groupId);
-        }
-
-        MapReader::ParentInfo::ParentInfo(const Type type, const Model::IdType id) :
-        m_type(type),
-        m_id(id) {}
-
-        bool MapReader::ParentInfo::layer() const {
-            return m_type == Type_Layer;
-        }
-
-        bool MapReader::ParentInfo::group() const {
-            return m_type == Type_Group;
-        }
-
-        Model::IdType MapReader::ParentInfo::id() const {
-            return m_id;
-        }
-
         MapReader::MapReader(std::string_view str, const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat) :
-        StandardMapParser(std::move(str), sourceMapFormat, targetMapFormat),
-        m_brushParent(nullptr),
-        m_currentNode(nullptr) {}
-
+        StandardMapParser(std::move(str), sourceMapFormat, targetMapFormat) {}
 
         void MapReader::readEntities(const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
@@ -150,81 +122,105 @@ namespace TrenchBroom {
 
         // helper methods
 
+        /**
+        * Transforms brush infos into a vector of brush nodes. The resulting vector can contain null if a brush
+        * cannot be created! For such brush infos, this function logs an error using the given parser status.
+        */
+        std::vector<std::unique_ptr<Model::BrushNode>> createBrushes(const vm::bbox3& worldBounds, std::vector<MapReader::BrushInfo> brushInfos, ParserStatus& status) {
+            struct LoadedBrush {
+                // optional wrapper is just to let this struct be default-constructible
+                std::optional<kdl::result<Model::Brush, Model::BrushError>> brush;
+                size_t startLine;
+                size_t lineCount;
+            };
+
+            // In parallel, create Brush objects (moving faces out of m_brushInfos)
+            auto loadedBrushes = kdl::vec_parallel_transform(std::move(brushInfos), [&](auto&& brushInfo) {
+                return LoadedBrush{
+                    std::make_optional(Model::Brush::create(worldBounds, std::move(brushInfo.faces))),
+                    brushInfo.startLine,
+                    brushInfo.lineCount
+                };
+            });
+
+            return kdl::vec_transform(std::move(loadedBrushes), [&](auto&& loadedBrush) -> std::unique_ptr<Model::BrushNode> {
+                return std::move(*loadedBrush.brush)
+                    .visit(kdl::overload(
+                        [&](Model::Brush&& b) -> std::unique_ptr<Model::BrushNode> {
+                            auto brushNode = std::make_unique<Model::BrushNode>(std::move(b));
+                            brushNode->setFilePosition(loadedBrush.startLine, loadedBrush.lineCount);
+                            return brushNode;
+                        },
+                        [&](const Model::BrushError e) -> std::unique_ptr<Model::BrushNode> {
+                            status.error(loadedBrush.startLine, kdl::str_to_string("Skipping brush: ", e));
+                            return {};
+                        }
+                    ));
+            });
+        }
+
         void MapReader::createNodes(ParserStatus& status) {
-            auto loadedBrushes = loadBrushes(status);
+            auto brushNodes = createBrushes(m_worldBounds, std::move(m_brushInfos), status);
 
-            for (EntityInfo& info : m_entityInfos) {
-                createNode(info, loadedBrushes, status);
-            }
-
-            // handle the case of parsing no entities, but a list of brushes (NodeReader)
-            if (m_entityInfos.empty()) {
-                for (LoadedBrush& loadedBrush : loadedBrushes) {
-                    createBrush(std::move(*loadedBrush.brush), nullptr, loadedBrush.startLine, loadedBrush.lineCount, status);
+            if (!m_entityInfos.empty()) {
+                Model::Node* currentParent = nullptr;
+                for (EntityInfo& info : m_entityInfos) {
+                    createLayerGroupOrEntity(currentParent, info, brushNodes, status);
+                }
+            } else {
+                // handle the case of parsing no entities, but a list of brushes (NodeReader)
+                for (auto& brushNode : brushNodes) {
+                    if (brushNode) {
+                        onBrush(nullptr, brushNode.release(), status);
+                    }
                 }
             }
         }
 
-        void MapReader::createNode(EntityInfo& info, std::vector<LoadedBrush>& loadedBrushes, ParserStatus& status) {
-            const auto& properties = info.properties;
-            const size_t line = info.startLine;
-            const size_t startLine = info.startLine;
-            const size_t lineCount = info.lineCount;
+        enum class EntityType {
+            Layer,
+            Group,
+            Worldspawn,
+            Default
+        };
 
-            const EntityType type = entityType(properties);
-            switch (type) {
-                case EntityType_Layer:
-                    createLayer(line, properties, status);
-                    break;
-                case EntityType_Group:
-                    createGroup(line, properties, status);
-                    break;
-                case EntityType_Worldspawn:
-                    m_brushParent = onWorldspawn(properties, status);
-                    break;
-                case EntityType_Default:
-                    createEntity(line, properties, status);
-                    break;
+        static EntityType entityType(const std::vector<Model::EntityProperty>& properties) {
+            const std::string& classname = findProperty(properties, Model::PropertyKeys::Classname);
+            if (isLayer(classname, properties)) {
+                return EntityType::Layer;
+            } else if (isGroup(classname, properties)) {
+                return EntityType::Group;
+            } else if (isWorldspawn(classname, properties)) {
+                return EntityType::Worldspawn;
+            } else {
+                return EntityType::Default;
             }
-
-            // add brushes
-            for (size_t i = info.brushesBegin; i < info.brushesEnd; ++i) {
-                LoadedBrush& loadedBrush = loadedBrushes.at(i);
-                createBrush(std::move(*loadedBrush.brush), m_brushParent, loadedBrush.startLine, loadedBrush.lineCount, status);
-            }
-
-            // cleanup
-            if (m_currentNode != nullptr)
-                setFilePosition(m_currentNode, startLine, lineCount);
-            else
-                onWorldspawnFilePosition(startLine, lineCount, status);
-            m_currentNode = nullptr;
-            m_brushParent = nullptr;
         }
 
-        void MapReader::createLayer(const size_t line, const std::vector<Model::EntityProperty>& propeties, ParserStatus& status) {
+        static void stripParentProperties(Model::EntityNodeBase* node) {
+            auto entity = node->entity();
+            entity.removeProperty(Model::PropertyKeys::Layer);
+            entity.removeProperty(Model::PropertyKeys::Group);
+            node->setEntity(std::move(entity));
+        }
+
+        static std::unique_ptr<Model::LayerNode> createLayer(const size_t line, const std::vector<Model::EntityProperty>& propeties, ParserStatus& status) {
             const std::string& name = findProperty(propeties, Model::PropertyKeys::LayerName);
             if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping layer entity: missing name");
-                return;
+                return {};
             }
 
             const std::string& idStr = findProperty(propeties, Model::PropertyKeys::LayerId);
             if (kdl::str_is_blank(idStr)) {
                 status.error(line, "Skipping layer entity: missing id");
-                return;
+                return {};
             }
 
             const auto rawId = kdl::str_to_size(idStr);
             if (!rawId || *rawId <= 0u) {
                 status.error(line, kdl::str_to_string("Skipping layer entity: '", idStr, "' is not a valid id"));
-                return;
-            }
-
-            const Model::IdType layerId = static_cast<Model::IdType>(*rawId);
-            if (m_layers.count(layerId) > 0) {
-                status.error(line, kdl::str_to_string("Skipping layer entity: layer with id '", idStr, "' already exists"));
-                return;
+                return {};
             }
 
             Model::Layer layer = Model::Layer(name);
@@ -237,7 +233,9 @@ namespace TrenchBroom {
                 layer.setOmitFromExport(true);
             }
 
-            Model::LayerNode* layerNode = new Model::LayerNode(std::move(layer));
+            auto layerNode = std::make_unique<Model::LayerNode>(std::move(layer));
+
+            const Model::IdType layerId = static_cast<Model::IdType>(*rawId);
             layerNode->setPersistentId(layerId);
 
             if (findProperty(propeties, Model::PropertyKeys::LayerLocked) == Model::PropertyValues::LayerLockedValue) {
@@ -247,44 +245,32 @@ namespace TrenchBroom {
                 layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             }
 
-            m_layers.insert(std::make_pair(layerId, layerNode));
-
-            onLayer(layerNode, status);
-
-            m_currentNode = layerNode;
-            m_brushParent = layerNode;
+            return layerNode;
         }
 
-        void MapReader::createGroup(const size_t line, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) {
+        static std::unique_ptr<Model::GroupNode> createGroup(const size_t line, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) {
             const std::string& name = findProperty(properties, Model::PropertyKeys::GroupName);
             if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping group entity: missing name");
-                return;
+                return {};
             }
 
             const std::string& idStr = findProperty(properties, Model::PropertyKeys::GroupId);
             if (kdl::str_is_blank(idStr)) {
                 status.error(line, "Skipping group entity: missing id");
-                return;
+                return {};
             }
 
             const auto rawId = kdl::str_to_size(idStr);
             if (!rawId || *rawId <= 0) {
                 status.error(line, kdl::str_to_string("Skipping group entity: '", idStr, "' is not a valid id"));
-                return;
+                return {};
             }
+
+            auto groupNode = std::make_unique<Model::GroupNode>(Model::Group(name));
 
             const Model::IdType groupId = static_cast<Model::IdType>(*rawId);
-            if (m_groups.count(groupId) > 0) {
-                status.error(line, kdl::str_to_string("Skipping group entity: group with id '", idStr, "' already exists"));
-                return;
-            }
-
-            Model::GroupNode* groupNode = new Model::GroupNode(Model::Group(name));
             groupNode->setPersistentId(groupId);
-
-            storeNode(groupNode, properties, status);
-            m_groups.insert(std::make_pair(groupId, groupNode));
 
             const std::string& linkedGroupId = findProperty(properties, Model::PropertyKeys::LinkedGroupId);
             if (!linkedGroupId.empty()) {
@@ -301,44 +287,80 @@ namespace TrenchBroom {
                 }
             }
 
-            m_currentNode = groupNode;
-            m_brushParent = groupNode;
+            return groupNode;
         }
 
-        void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) {
-            auto entity = Model::Entity{properties};
+        static std::unique_ptr<Model::EntityNode> createEntity(std::vector<Model::EntityProperty> properties) {
+            auto entity = Model::Entity{std::move(properties)};
             if (const auto* protectedPropertiesStr = entity.property(Model::PropertyKeys::ProtectedEntityProperties)) {
                 auto protectedProperties = kdl::str_split(*protectedPropertiesStr, ";");
                 entity.setProtectedProperties(std::move(protectedProperties));
                 entity.removeProperty(Model::PropertyKeys::ProtectedEntityProperties);
             }
 
-            Model::EntityNode* entityNode = new Model::EntityNode{std::move(entity)};
-
-            const ParentInfo::Type parentType = storeNode(entityNode, properties, status);
-            stripParentProperties(entityNode, parentType);
-
-            m_currentNode = entityNode;
-            m_brushParent = entityNode;
+            return std::make_unique<Model::EntityNode>(std::move(entity));
         }
 
-        void MapReader::createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, const size_t startLine, const size_t lineCount, ParserStatus& status) {
-            std::move(brush)
-                .and_then(
-                    [&](Model::Brush&& b) {
-                        Model::BrushNode* brushNode = new Model::BrushNode(std::move(b));
-                        setFilePosition(brushNode, startLine, lineCount);
+        void MapReader::createLayerGroupOrEntity(Model::Node*& currentParent, EntityInfo& info, std::vector<std::unique_ptr<Model::BrushNode>>& brushNodes, ParserStatus& status) {
+            const auto& properties = info.properties;
+            const size_t startLine = info.startLine;
+            const size_t lineCount = info.lineCount;
 
-                        onBrush(parent, brushNode, status);
+            const EntityType type = entityType(properties);
+            switch (type) {
+                case EntityType::Layer:
+                    if (auto layerNode = createLayer(startLine, properties, status)) {
+                        const auto layerId = *layerNode->persistentId();
+                        if (!m_layers.insert(std::make_pair(layerId, layerNode.get())).second) {
+                            status.error(startLine, kdl::str_to_string("Skipping layer entity: layer with id '", layerId, "' already exists"));
+                        } else {
+                            layerNode->setFilePosition(startLine, lineCount);
+                            onLayer(layerNode.get(), status);
+                            currentParent = layerNode.release();
+                        }
                     }
-                ).handle_errors(
-                    [&](const Model::BrushError e) {
-                        status.error(startLine, kdl::str_to_string("Skipping brush: ", e));
+                    break;
+                case EntityType::Group: {
+                    if (auto groupNode = createGroup(startLine, properties, status)) {
+                        const auto groupId = *groupNode->persistentId();
+                        if (!m_groups.insert(std::make_pair(*groupNode->persistentId(), groupNode.get())).second) {
+                            status.error(startLine, kdl::str_to_string("Skipping group entity: group with id '", groupId, "' already exists"));
+                        } else {
+                            groupNode->setFilePosition(startLine, lineCount);
+                            storeNode(groupNode.get(), properties, status);
+                            currentParent = groupNode.release();
+                        }
                     }
-                );
+                    break;
+                }
+                case EntityType::Worldspawn: {
+                    if (auto* worldNode = onWorldspawn(properties, status)) {
+                        onWorldspawnFilePosition(startLine, lineCount, status);
+                        currentParent = worldNode;
+                    }
+                    break;
+                }
+                case EntityType::Default: {
+                    if (auto entityNode = createEntity(properties)) {
+                        entityNode->setFilePosition(startLine, lineCount);
+                        
+                        storeNode(entityNode.get(), properties, status);
+                        stripParentProperties(entityNode.get());
+                        currentParent = entityNode.release();
+                    }
+                    break;
+                }
+            }
+
+            // add brushes
+            for (size_t i = info.brushesBegin; i < info.brushesEnd; ++i) {
+                if (auto& brushNode = brushNodes.at(i)) {
+                    onBrush(currentParent, brushNode.release(), status);
+                }
+            }
         }
 
-        MapReader::ParentInfo::Type MapReader::storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) {
+        void MapReader::storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) {
             const std::string& layerIdStr = findProperty(properties, Model::PropertyKeys::Layer);
             if (!kdl::str_is_blank(layerIdStr)) {
                 if (const auto rawId = kdl::str_to_size(layerIdStr)) {
@@ -347,12 +369,11 @@ namespace TrenchBroom {
                     if (it != std::end(m_layers)) {
                         onNode(it->second, node, status);
                     } else {
-                        m_unresolvedNodes.emplace_back(node, ParentInfo::layer(layerId));
+                        m_unresolvedNodes.emplace_back(node, ParentInfo{ParentType::Layer, layerId});
                     }
-                    return ParentInfo::Type_Layer;
+                } else {
+                    status.warn(node->lineNumber(), kdl::str_to_string("Entity has invalid parent id '", layerIdStr, "'"));
                 }
-
-                status.warn(node->lineNumber(), kdl::str_to_string("Entity has invalid parent id '", layerIdStr, "'"));
             } else {
                 const std::string& groupIdStr = findProperty(properties, Model::PropertyKeys::Group);
                 if (!kdl::str_is_blank(groupIdStr)) {
@@ -362,33 +383,15 @@ namespace TrenchBroom {
                         if (it != std::end(m_groups)) {
                             onNode(it->second, node, status);
                         } else {
-                            m_unresolvedNodes.emplace_back(node, ParentInfo::group(groupId));
+                            m_unresolvedNodes.emplace_back(node, ParentInfo{ParentType::Group, groupId});
                         }
-                        return ParentInfo::Type_Group;
+                    } else {
+                        status.warn(node->lineNumber(), kdl::str_to_string("Entity has invalid parent id '", groupIdStr, "'"));
                     }
-
-                    status.warn(node->lineNumber(), kdl::str_to_string("Entity has invalid parent id '", groupIdStr, "'"));
+                } else {
+                    onNode(nullptr, node, status);
                 }
             }
-
-            onNode(nullptr, node, status);
-            return ParentInfo::Type_None;
-        }
-
-        void MapReader::stripParentProperties(Model::EntityNodeBase* node, ParentInfo::Type parentType) {
-            auto entity = node->entity();
-            switch (parentType) {
-                case ParentInfo::Type_Layer:
-                    entity.removeProperty(Model::PropertyKeys::Layer);
-                    break;
-                case ParentInfo::Type_Group:
-                    entity.removeProperty(Model::PropertyKeys::Group);
-                    break;
-                case ParentInfo::Type_None:
-                    break;
-                switchDefault();
-            }
-            node->setEntity(std::move(entity));
         }
 
         /**
@@ -404,48 +407,16 @@ namespace TrenchBroom {
             }
         }
 
-        /**
-         * Transforms m_brushInfos into a vector of LoadedBrush (leaving m_brushInfos empty).
-         */
-        std::vector<MapReader::LoadedBrush> MapReader::loadBrushes(ParserStatus& /* status */) {
-            // In parallel, create Brush objects (moving faces out of m_brushInfos)
-            auto loadedBrushes = kdl::vec_parallel_transform(std::move(m_brushInfos), [&](BrushInfo&& brushInfo) {
-                LoadedBrush result;
-                result.brush = std::make_optional(Model::Brush::create(m_worldBounds, std::move(brushInfo.faces)));
-                result.startLine = brushInfo.startLine;
-                result.lineCount = brushInfo.lineCount;
-                return result;
-            });
-
-            assert(m_brushInfos.empty());
-
-            return loadedBrushes;
-        }
-
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
-            if (parentInfo.layer()) {
-                const Model::IdType layerId = parentInfo.id();
+            if (parentInfo.type == ParentType::Layer) {
+                const Model::IdType layerId = parentInfo.id;
                 const auto it = m_layers.find(layerId);
                 return it != std::end(m_layers) ? it->second : nullptr;
+            } else {
+                const Model::IdType groupId = parentInfo.id;
+                const auto it = m_groups.find(groupId);
+                return it != std::end(m_groups) ? it->second : nullptr;
             }
-            const Model::IdType groupId = parentInfo.id();
-            const auto it = m_groups.find(groupId);
-            return it != std::end(m_groups) ? it->second : nullptr;
-        }
-
-        MapReader::EntityType MapReader::entityType(const std::vector<Model::EntityProperty>& properties) const {
-            const std::string& classname = findProperty(properties, Model::PropertyKeys::Classname);
-            if (isLayer(classname, properties))
-                return EntityType_Layer;
-            if (isGroup(classname, properties))
-                return EntityType_Group;
-            if (isWorldspawn(classname, properties))
-                return EntityType_Worldspawn;
-            return EntityType_Default;
-        }
-
-        void MapReader::setFilePosition(Model::Node* node, const size_t startLine, const size_t lineCount) {
-            node->setFilePosition(startLine, lineCount);
         }
 
         /**
