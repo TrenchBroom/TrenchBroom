@@ -251,7 +251,7 @@ namespace TrenchBroom {
         DocumentGameConfig loadMapDocument(const IO::Path& mapPath, const std::string& gameName, const Model::MapFormat mapFormat) {
             auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
 
-            document->loadDocument(mapFormat, document->worldBounds(), document->game(), mapPath);
+            document->loadDocument(mapFormat, document->worldBounds(), document->game(), IO::Disk::getCurrentWorkingDir() + mapPath);
 
             return {std::move(document), std::move(game), std::move(gameConfig)};
         }
