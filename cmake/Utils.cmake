@@ -179,13 +179,25 @@ macro(GET_GIT_DESCRIBE GIT SOURCE_DIR GIT_DESCRIBE)
         message(STATUS "Using version description \"${${GIT_DESCRIBE}}\" from git describe")
     endif()
 
+    # On GitHub Actions, "git describe" will fail due to it being a shallow clone (for PR and branch builds),
+    # and it is also useful to record in the version description whether it's a branch or PR build.
+    # In this case, use:
+    #  - TB_PULL_REQUEST_HEAD_SHA (ci.yml sets to the last commit on the PR branch before the merge commit)
+    #  - or GITHUB_SHA (set by GitHub Actions)
+    # and GITHUB_REF to construct a descriptive version string.
+    # See: https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
     if(NOT ${GIT_DESCRIBE})
-        # On GitHub Actions, "git describe" will fail due to it being a shallow clone (for PR and branch builds).
-        # In this case, use GITHUB_SHA and GITHUB_REF to construct a descriptive version string.
-        # See: https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
+        if((DEFINED ENV{GITHUB_SHA}) AND (DEFINED ENV{TB_PULL_REQUEST_HEAD_SHA}))
+            set(${GIT_DESCRIBE} "unstable-$ENV{GITHUB_REF}-$ENV{TB_PULL_REQUEST_HEAD_SHA}")
+            # Replace / with _ because we need GIT_DESCRIBE to be valid to put in a filename for the final package
+            string(REPLACE "/" "_" ${GIT_DESCRIBE} ${${GIT_DESCRIBE}})
+            message(STATUS "Using version description \"${${GIT_DESCRIBE}}\" from environment variables TB_PULL_REQUEST_HEAD_SHA and GITHUB_REF")
+        endif()
+    endif()
+
+    if(NOT ${GIT_DESCRIBE})
         if((DEFINED ENV{GITHUB_SHA}) AND (DEFINED ENV{GITHUB_REF}))
             set(${GIT_DESCRIBE} "unstable-$ENV{GITHUB_REF}-$ENV{GITHUB_SHA}")
-            # Replace / with _ because we need GIT_DESCRIBE to be valid to put in a filename for the final package
             string(REPLACE "/" "_" ${GIT_DESCRIBE} ${${GIT_DESCRIBE}})
             message(STATUS "Using version description \"${${GIT_DESCRIBE}}\" from environment variables GITHUB_SHA and GITHUB_REF")
         endif()
