@@ -71,10 +71,10 @@ namespace TrenchBroom {
 
         // implement MapParser interface
 
-        void MapReader::onBeginEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, ParserStatus& /* status */) {
+        void MapReader::onBeginEntity(const size_t /* line */, std::vector<Model::EntityProperty> properties, ParserStatus& /* status */) {
             const size_t brushesBegin = m_brushInfos.size();
 
-            m_entityInfos.push_back(EntityInfo{ 0, 0, properties, brushesBegin, brushesBegin});
+            m_entityInfos.push_back(EntityInfo{ 0, 0, std::move(properties), brushesBegin, brushesBegin});
         }
 
         void MapReader::onEndEntity(const size_t startLine, const size_t lineCount, ParserStatus& /* status */) {
@@ -302,7 +302,7 @@ namespace TrenchBroom {
         }
 
         void MapReader::createLayerGroupOrEntity(Model::Node*& currentParent, EntityInfo& info, std::vector<std::unique_ptr<Model::BrushNode>>& brushNodes, ParserStatus& status) {
-            const auto& properties = info.properties;
+            auto& properties = info.properties;
             const size_t startLine = info.startLine;
             const size_t lineCount = info.lineCount;
 
@@ -334,17 +334,17 @@ namespace TrenchBroom {
                     break;
                 }
                 case EntityType::Worldspawn: {
-                    if (auto* worldNode = onWorldspawn(properties, status)) {
+                    if (auto* worldNode = onWorldspawn(std::move(properties), status)) {
                         onWorldspawnFilePosition(startLine, lineCount, status);
                         currentParent = worldNode;
                     }
                     break;
                 }
                 case EntityType::Default: {
-                    if (auto entityNode = createEntity(properties)) {
+                    if (auto entityNode = createEntity(std::move(properties))) {
                         entityNode->setFilePosition(startLine, lineCount);
                         
-                        storeNode(entityNode.get(), properties, status);
+                        storeNode(entityNode.get(), entityNode->entity().properties(), status);
                         stripParentProperties(entityNode.get());
                         currentParent = entityNode.release();
                     }

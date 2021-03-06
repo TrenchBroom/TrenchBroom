@@ -43,7 +43,7 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Node* BrushFaceReader::onWorldspawn(const std::vector<Model::EntityProperty>& /* attributes */, ParserStatus& /* status */) { return nullptr; }
+        Model::Node* BrushFaceReader::onWorldspawn(std::vector<Model::EntityProperty> /* properties */, ParserStatus& /* status */) { return nullptr; }
         void BrushFaceReader::onWorldspawnFilePosition(const size_t /* lineNumber */, const size_t /* lineCount */, ParserStatus& /* status */) {}
         void BrushFaceReader::onLayer(Model::LayerNode* /* layer */, ParserStatus& /* status */) {}
         void BrushFaceReader::onNode(Model::Node* /* parent */, Model::Node* /* node */, ParserStatus& /* status */) {}

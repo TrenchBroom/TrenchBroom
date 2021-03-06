@@ -95,8 +95,8 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityProperty>& properties, ParserStatus& /* status */) {
-            auto entity = Model::Entity{properties};
+        Model::Node* WorldReader::onWorldspawn(std::vector<Model::EntityProperty> properties, ParserStatus& /* status */) {
+            auto entity = Model::Entity{std::move(properties)};
 
             // handle default layer attributes, which are stored in worldspawn
             auto* defaultLayerNode = m_world->defaultLayer();

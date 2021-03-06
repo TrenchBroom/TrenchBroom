@@ -85,10 +85,8 @@ namespace TrenchBroom {
             return {};
         }
 
-        Model::Node* NodeReader::onWorldspawn(const std::vector<Model::EntityProperty>& properties, ParserStatus& /* status */) {
-            Model::EntityNode* worldspawn = new Model::EntityNode(Model::Entity());
-            worldspawn->setEntity(Model::Entity(properties));
-
+        Model::Node* NodeReader::onWorldspawn(std::vector<Model::EntityProperty> properties, ParserStatus& /* status */) {
+            Model::EntityNode* worldspawn = new Model::EntityNode{Model::Entity{std::move(properties)}};
             m_nodes.insert(std::begin(m_nodes), worldspawn);
             return worldspawn;
         }

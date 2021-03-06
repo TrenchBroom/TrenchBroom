@@ -129,7 +129,7 @@ namespace TrenchBroom {
              */
             void readBrushFaces(const vm::bbox3& worldBounds, ParserStatus& status);
         protected: // implement MapParser interface
-            void onBeginEntity(size_t line, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) override;
+            void onBeginEntity(size_t line, std::vector<Model::EntityProperty> properties, ParserStatus& status) override;
             void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
             void onBeginBrush(size_t line, ParserStatus& status) override;
             void onEndBrush(size_t startLine, size_t lineCount, ParserStatus& status) override;
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             void resolveNodes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
         private: // subclassing interface - these will be called in the order that nodes should be inserted
-            virtual Model::Node* onWorldspawn(const std::vector<Model::EntityProperty>& properties, ParserStatus& status) = 0;
+            virtual Model::Node* onWorldspawn(std::vector<Model::EntityProperty> properties, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onLayer(Model::LayerNode* layer, ParserStatus& status) = 0;
             virtual void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) = 0;

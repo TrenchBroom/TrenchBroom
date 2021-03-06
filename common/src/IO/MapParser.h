@@ -42,7 +42,7 @@ namespace TrenchBroom {
         public:
             virtual ~MapParser();
         protected: // subclassing interface for users of the parser
-            virtual void onBeginEntity(size_t line, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) = 0;
+            virtual void onBeginEntity(size_t line, std::vector<Model::EntityProperty> properties, ParserStatus& status) = 0;
             virtual void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onBeginBrush(size_t line, ParserStatus& status) = 0;
             virtual void onEndBrush(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
