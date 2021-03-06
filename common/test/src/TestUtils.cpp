@@ -336,4 +336,13 @@ namespace TrenchBroom {
     GlobMatcher MatchesGlob(const std::string& glob) {
         return GlobMatcher(glob);
     }
+
+    TEST_CASE("TestUtilsTest.testUnorderedApproxVecMatcher", "[TestUtilsTest]") {
+        using V = std::vector<vm::vec3>;
+        CHECK_THAT((V{{1, 1, 1}}), UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}}, 0.02));
+        CHECK_THAT((V{{0, 0, 0}, {1, 1, 1}}), UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}, {-0.01, -0.01, -0.01}}, 0.02));
+
+        CHECK_THAT((V{{1, 1, 1}}), !UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}, {1, 1, 1}}, 0.02)); // different number of elements
+        CHECK_THAT((V{{1, 1, 1}}), !UnorderedApproxVecMatches(V{{1.05, 1.01, 1.01}}, 0.02)); // too far
+    }
 }
