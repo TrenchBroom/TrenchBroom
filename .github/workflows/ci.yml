@@ -41,7 +41,7 @@ jobs:
             tb-arch: Win32
     env:
       # Record pull request head commit SHA
-      TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pulll_request.head.sha }}
     steps:
       # See: https://github.com/actions/checkout
       - name: Checkout code
