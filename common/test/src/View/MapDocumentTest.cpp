@@ -576,6 +576,28 @@ namespace TrenchBroom {
             CHECK_THAT(document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode*>{ subtrahend1 }));
         }
 
+        // Test for https://github.com/TrenchBroom/TrenchBroom/issues/3755
+        TEST_CASE("MapDocumentTest.csgSubtractFailure", "[MapDocumentTest]") {
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/csgSubtractFailure.map"),
+                                                                      "Quake", Model::MapFormat::Valve);
+
+            REQUIRE(document->currentLayer()->childCount() == 2);
+            auto* subtrahend = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(1));
+            REQUIRE(subtrahend);
+            REQUIRE(subtrahend->brush().findFace("clip").has_value());
+
+            // select the second object in the default layer (a clip brush) and subtract
+            document->select(subtrahend);
+            CHECK(document->csgSubtract());
+
+            REQUIRE(document->currentLayer()->childCount() == 1);
+            auto* result = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(0));
+
+            CHECK_THAT(result->brush().vertexPositions(), UnorderedApproxVecMatches(std::vector<vm::vec3>{
+                {-2852, 372, 248}, {-2854, 372, 256}, {-2854, 364, 256}, {-2852, 364, 248},
+                {-2840, 372, 248}, {-2843.2, 372, 256}, {-2843.2, 364, 256}, {-2840, 364, 248}}, 0.001));
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newWithGroupOpen") {
             Model::EntityNode* entity = new Model::EntityNode();
             addNode(*document, document->parentForNodes(), entity);
