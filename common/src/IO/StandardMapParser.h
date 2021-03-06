@@ -132,8 +132,6 @@ namespace TrenchBroom {
 
             float parseFloat();
             int parseInteger();
-
-            void parseExtraAttributes(ExtraAttributes& extraAttributes, ParserStatus& status);
         private: // implement Parser interface
             TokenNameMap tokenNames() const override;
         };

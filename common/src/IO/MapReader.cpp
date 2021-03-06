@@ -99,10 +99,10 @@ namespace TrenchBroom {
 
         // implement MapParser interface
 
-        void MapReader::onBeginEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+        void MapReader::onBeginEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, ParserStatus& /* status */) {
             const size_t brushesBegin = m_brushInfos.size();
 
-            m_entityInfos.push_back(EntityInfo{ 0, 0, properties, extraAttributes, brushesBegin, brushesBegin});
+            m_entityInfos.push_back(EntityInfo{ 0, 0, properties, brushesBegin, brushesBegin});
         }
 
         void MapReader::onEndEntity(const size_t startLine, const size_t lineCount, ParserStatus& /* status */) {
@@ -112,14 +112,13 @@ namespace TrenchBroom {
         }
 
         void MapReader::onBeginBrush(const size_t /* line */, ParserStatus& /* status */) {
-            m_brushInfos.push_back(BrushInfo{{}, 0, 0, {}});
+            m_brushInfos.push_back(BrushInfo{{}, 0, 0});
         }
 
-        void MapReader::onEndBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+        void MapReader::onEndBrush(const size_t startLine, const size_t lineCount, ParserStatus& /* status */) {
             BrushInfo& brush = m_brushInfos.back();
             brush.startLine = startLine;
             brush.lineCount = lineCount;
-            brush.extraAttributes = extraAttributes;
 
             // if there is an open entity, extend its brushes end
             if (!m_entityInfos.empty()) {
@@ -161,14 +160,13 @@ namespace TrenchBroom {
             // handle the case of parsing no entities, but a list of brushes (NodeReader)
             if (m_entityInfos.empty()) {
                 for (LoadedBrush& loadedBrush : loadedBrushes) {
-                    createBrush(std::move(*loadedBrush.brush), nullptr, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
+                    createBrush(std::move(*loadedBrush.brush), nullptr, loadedBrush.startLine, loadedBrush.lineCount, status);
                 }
             }
         }
 
         void MapReader::createNode(EntityInfo& info, std::vector<LoadedBrush>& loadedBrushes, ParserStatus& status) {
             const auto& properties = info.properties;
-            const auto& extraAttributes = info.extraAttributes;
             const size_t line = info.startLine;
             const size_t startLine = info.startLine;
             const size_t lineCount = info.lineCount;
@@ -176,23 +174,23 @@ namespace TrenchBroom {
             const EntityType type = entityType(properties);
             switch (type) {
                 case EntityType_Layer:
-                    createLayer(line, properties, extraAttributes, status);
+                    createLayer(line, properties, status);
                     break;
                 case EntityType_Group:
-                    createGroup(line, properties, extraAttributes, status);
+                    createGroup(line, properties, status);
                     break;
                 case EntityType_Worldspawn:
-                    m_brushParent = onWorldspawn(properties, extraAttributes, status);
+                    m_brushParent = onWorldspawn(properties, status);
                     break;
                 case EntityType_Default:
-                    createEntity(line, properties, extraAttributes, status);
+                    createEntity(line, properties, status);
                     break;
             }
 
             // add brushes
             for (size_t i = info.brushesBegin; i < info.brushesEnd; ++i) {
                 LoadedBrush& loadedBrush = loadedBrushes.at(i);
-                createBrush(std::move(*loadedBrush.brush), m_brushParent, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
+                createBrush(std::move(*loadedBrush.brush), m_brushParent, loadedBrush.startLine, loadedBrush.lineCount, status);
             }
 
             // cleanup
@@ -204,7 +202,7 @@ namespace TrenchBroom {
             m_brushParent = nullptr;
         }
 
-        void MapReader::createLayer(const size_t line, const std::vector<Model::EntityProperty>& propeties, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::createLayer(const size_t line, const std::vector<Model::EntityProperty>& propeties, ParserStatus& status) {
             const std::string& name = findProperty(propeties, Model::PropertyKeys::LayerName);
             if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping layer entity: missing name");
@@ -249,7 +247,6 @@ namespace TrenchBroom {
                 layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             }
 
-            setExtraAttributes(layerNode, extraAttributes);
             m_layers.insert(std::make_pair(layerId, layerNode));
 
             onLayer(layerNode, status);
@@ -258,7 +255,7 @@ namespace TrenchBroom {
             m_brushParent = layerNode;
         }
 
-        void MapReader::createGroup(const size_t line, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::createGroup(const size_t line, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) {
             const std::string& name = findProperty(properties, Model::PropertyKeys::GroupName);
             if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping group entity: missing name");
@@ -285,7 +282,6 @@ namespace TrenchBroom {
 
             Model::GroupNode* groupNode = new Model::GroupNode(Model::Group(name));
             groupNode->setPersistentId(groupId);
-            setExtraAttributes(groupNode, extraAttributes);
 
             storeNode(groupNode, properties, status);
             m_groups.insert(std::make_pair(groupId, groupNode));
@@ -309,7 +305,7 @@ namespace TrenchBroom {
             m_brushParent = groupNode;
         }
 
-        void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) {
             auto entity = Model::Entity{properties};
             if (const auto* protectedPropertiesStr = entity.property(Model::PropertyKeys::ProtectedEntityProperties)) {
                 auto protectedProperties = kdl::str_split(*protectedPropertiesStr, ";");
@@ -318,7 +314,6 @@ namespace TrenchBroom {
             }
 
             Model::EntityNode* entityNode = new Model::EntityNode{std::move(entity)};
-            setExtraAttributes(entityNode, extraAttributes);
 
             const ParentInfo::Type parentType = storeNode(entityNode, properties, status);
             stripParentProperties(entityNode, parentType);
@@ -327,13 +322,12 @@ namespace TrenchBroom {
             m_brushParent = entityNode;
         }
 
-        void MapReader::createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, const size_t startLine, const size_t lineCount, ParserStatus& status) {
             std::move(brush)
                 .and_then(
                     [&](Model::Brush&& b) {
                         Model::BrushNode* brushNode = new Model::BrushNode(std::move(b));
                         setFilePosition(brushNode, startLine, lineCount);
-                        setExtraAttributes(brushNode, extraAttributes);
 
                         onBrush(parent, brushNode, status);
                     }
@@ -418,7 +412,6 @@ namespace TrenchBroom {
             auto loadedBrushes = kdl::vec_parallel_transform(std::move(m_brushInfos), [&](BrushInfo&& brushInfo) {
                 LoadedBrush result;
                 result.brush = std::make_optional(Model::Brush::create(m_worldBounds, std::move(brushInfo.faces)));
-                result.extraAttributes = std::move(brushInfo.extraAttributes);
                 result.startLine = brushInfo.startLine;
                 result.lineCount = brushInfo.lineCount;
                 return result;
@@ -453,17 +446,6 @@ namespace TrenchBroom {
 
         void MapReader::setFilePosition(Model::Node* node, const size_t startLine, const size_t lineCount) {
             node->setFilePosition(startLine, lineCount);
-        }
-
-        void MapReader::setExtraAttributes(Model::Node* /* node */, const ExtraAttributes& extraAttributes) {
-            ExtraAttributes::const_iterator it;
-            it = extraAttributes.find("hideIssues");
-            if (it != std::end(extraAttributes)) {
-                const ExtraAttribute& attribute = it->second;
-                attribute.assertType(ExtraAttribute::Type_Integer);
-                // const Model::IssueType mask = attribute.intValue<Model::IssueType>();
-                // object->setHiddenIssues(mask);
-            }
         }
 
         /**

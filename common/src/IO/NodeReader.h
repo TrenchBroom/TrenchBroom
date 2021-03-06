@@ -50,7 +50,7 @@ namespace TrenchBroom {
         private:
             static std::vector<Model::Node*> readAsFormat(Model::MapFormat sourceMapFormat, Model::MapFormat targetMapFormat, const std::string& str, const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
-            Model::Node* onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
+            Model::Node* onWorldspawn(const std::vector<Model::EntityProperty>& properties, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::LayerNode* layer, ParserStatus& status) override;
             void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) override;
