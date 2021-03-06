@@ -49,11 +49,6 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Test pull request head commit SHA
-        run: |
-          echo "TB_PULL_REQUEST_HEAD_SHA=${TB_PULL_REQUEST_HEAD_SHA}"
-          echo "GITHUB_SHA=${GITHUB_SHA}"
-
       # Dependencies
 
       - name: Install Linux dependencies
