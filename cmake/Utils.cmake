@@ -187,7 +187,7 @@ macro(GET_GIT_DESCRIBE GIT SOURCE_DIR GIT_DESCRIBE)
     # and GITHUB_REF to construct a descriptive version string.
     # See: https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
     if(NOT ${GIT_DESCRIBE})
-        if((DEFINED ENV{GITHUB_SHA}) AND (DEFINED ENV{TB_PULL_REQUEST_HEAD_SHA}))
+        if((NOT ("$ENV{GITHUB_SHA}" STREQUAL "")) AND (NOT ("$ENV{TB_PULL_REQUEST_HEAD_SHA}" STREQUAL "")))
             set(${GIT_DESCRIBE} "unstable-$ENV{GITHUB_REF}-$ENV{TB_PULL_REQUEST_HEAD_SHA}")
             # Replace / with _ because we need GIT_DESCRIBE to be valid to put in a filename for the final package
             string(REPLACE "/" "_" ${GIT_DESCRIBE} ${${GIT_DESCRIBE}})
@@ -196,7 +196,7 @@ macro(GET_GIT_DESCRIBE GIT SOURCE_DIR GIT_DESCRIBE)
     endif()
 
     if(NOT ${GIT_DESCRIBE})
-        if((DEFINED ENV{GITHUB_SHA}) AND (DEFINED ENV{GITHUB_REF}))
+        if((NOT ("$ENV{GITHUB_SHA}" STREQUAL "")) AND (NOT ("$ENV{GITHUB_REF}" STREQUAL "")))
             set(${GIT_DESCRIBE} "unstable-$ENV{GITHUB_REF}-$ENV{GITHUB_SHA}")
             string(REPLACE "/" "_" ${GIT_DESCRIBE} ${${GIT_DESCRIBE}})
             message(STATUS "Using version description \"${${GIT_DESCRIBE}}\" from environment variables GITHUB_SHA and GITHUB_REF")
