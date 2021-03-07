@@ -85,47 +85,22 @@ namespace TrenchBroom {
             return {};
         }
 
-        Model::Node* NodeReader::onWorldspawn(std::vector<Model::EntityProperty> properties, ParserStatus& /* status */) {
-            Model::EntityNode* worldspawn = new Model::EntityNode{Model::Entity{std::move(properties)}};
-            m_nodes.insert(std::begin(m_nodes), worldspawn);
-            return worldspawn;
+        Model::Node* NodeReader::onWorldNode(std::unique_ptr<Model::WorldNode> worldNode, ParserStatus&) {
+            // we create a fake entity node instead of using a proper world node
+            auto* entityNode = new Model::EntityNode{worldNode->entity()};
+            m_nodes.insert(std::begin(m_nodes), entityNode);
+            return entityNode;
         }
 
-        void NodeReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& /* status */) {
-            assert(!m_nodes.empty());
-            m_nodes.front()->setFilePosition(lineNumber, lineCount);
+        void NodeReader::onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus&) {
+            m_nodes.push_back(layerNode.release());
         }
 
-        void NodeReader::onLayer(Model::LayerNode* layer, ParserStatus& /* status */) {
-            m_nodes.push_back(layer);
-        }
-
-        void NodeReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& /* status */) {
-            if (parent != nullptr) {
-                parent->addChild(node);
+        void NodeReader::onNode(Model::Node* parentNode, std::unique_ptr<Model::Node> node, ParserStatus&) {
+            if (parentNode != nullptr) {
+                parentNode->addChild(node.release());
             } else {
-                m_nodes.push_back(node);
-            }
-        }
-
-        void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
-            if (parentInfo.type == ParentType::Layer) {
-                std::stringstream msg;
-                msg << "Could not resolve parent layer '" << parentInfo.id << "', adding to default layer";
-                status.warn(node->lineNumber(), msg.str());
-            } else {
-                std::stringstream msg;
-                msg << "Could not resolve parent group '" << parentInfo.id << "', adding to default layer";
-                status.warn(node->lineNumber(), msg.str());
-            }
-            m_nodes.push_back(node);
-        }
-
-        void NodeReader::onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& /* status */) {
-            if (parent != nullptr) {
-                parent->addChild(brush);
-            } else {
-                m_nodes.push_back(brush);
+                m_nodes.push_back(node.release());
             }
         }
     }

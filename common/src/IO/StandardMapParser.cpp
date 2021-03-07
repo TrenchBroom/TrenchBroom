@@ -206,7 +206,7 @@ namespace TrenchBroom {
                         break;
                     case QuakeMapToken::OBrace:
                         if (!beginEntityCalled) {
-                            onBeginEntity(startLine, properties, status);
+                            onBeginEntity(startLine, std::move(properties), status);
                             beginEntityCalled = true;
                         }
                         parseBrushOrBrushPrimitiveOrPatch(status);

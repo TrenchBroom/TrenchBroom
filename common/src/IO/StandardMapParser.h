@@ -75,6 +75,7 @@ namespace TrenchBroom {
             static const std::string PatchId;
 
             QuakeMapTokenizer m_tokenizer;
+        protected:
             Model::MapFormat m_sourceMapFormat;
             Model::MapFormat m_targetMapFormat;
         public:

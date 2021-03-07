@@ -43,12 +43,9 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Node* BrushFaceReader::onWorldspawn(std::vector<Model::EntityProperty> /* properties */, ParserStatus& /* status */) { return nullptr; }
-        void BrushFaceReader::onWorldspawnFilePosition(const size_t /* lineNumber */, const size_t /* lineCount */, ParserStatus& /* status */) {}
-        void BrushFaceReader::onLayer(Model::LayerNode* /* layer */, ParserStatus& /* status */) {}
-        void BrushFaceReader::onNode(Model::Node* /* parent */, Model::Node* /* node */, ParserStatus& /* status */) {}
-        void BrushFaceReader::onUnresolvedNode(const ParentInfo& /* parentInfo */, Model::Node* /* node */, ParserStatus& /* status */) {}
-        void BrushFaceReader::onBrush(Model::Node* /* parent */, Model::BrushNode* /* brush */, ParserStatus& /* status */) {}
+            Model::Node* BrushFaceReader::onWorldNode(std::unique_ptr<Model::WorldNode>, ParserStatus&) { return nullptr; }
+            void BrushFaceReader::onLayerNode(std::unique_ptr<Model::Node>, ParserStatus&) {}
+            void BrushFaceReader::onNode(Model::Node*, std::unique_ptr<Model::Node>, ParserStatus&) {}
 
         void BrushFaceReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */) {
             m_brushFaces.push_back(std::move(face));
