@@ -598,6 +598,31 @@ namespace TrenchBroom {
                 {-2840, 372, 248}, {-2843.2, 372, 256}, {-2843.2, 364, 256}, {-2840, 364, 248}}, 0.001));
         }
 
+        TEST_CASE("MapDocumentTest.csgHollow", "[MapDocumentTest]") {
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/csgHollow.map"), "Quake", Model::MapFormat::Valve);
+
+            REQUIRE(document->currentLayer()->childCount() == 2);
+            REQUIRE(!document->modified());
+
+            SECTION("A brush too small to be hollowed doesn't block the command") {
+                document->selectAllNodes();
+                CHECK(document->csgHollow());
+
+                // One cube is too small to hollow, so it's left untouched.
+                // The other is hollowed into 6 brushes.
+                CHECK(document->currentLayer()->childCount() == 7);
+                CHECK(document->modified());
+            }
+            SECTION("If no brushes are hollowed, the transaction isn't committed") {
+                auto* smallBrushNode = document->currentLayer()->children().at(0);
+                document->select(smallBrushNode);
+
+                CHECK(!document->csgHollow());
+                CHECK(document->currentLayer()->childCount() == 2);
+                CHECK(!document->modified());
+            }
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newWithGroupOpen") {
             Model::EntityNode* entity = new Model::EntityNode();
             addNode(*document, document->parentForNodes(), entity);
