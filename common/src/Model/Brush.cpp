@@ -880,7 +880,7 @@ namespace TrenchBroom {
             return updateGeometryFromFaces(worldBounds);
         }
 
-        kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
+        std::vector<kdl::result<Brush, BrushError>> Brush::subtract(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
             auto result = std::vector<BrushGeometry>{*m_geometry};
 
             for (const auto* subtrahend : subtrahends) {
@@ -894,12 +894,12 @@ namespace TrenchBroom {
                 result = std::move(nextResults);
             }
 
-            return kdl::for_each_result(result, [&](const auto& geometry) {
+            return kdl::vec_transform(result, [&](const auto& geometry) {
                 return createBrush(mapFormat, worldBounds, defaultTextureName, geometry, subtrahends);
             });
         }
 
-        kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const {
+        std::vector<kdl::result<Brush, BrushError>> Brush::subtract(const MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const {
             return subtract(mapFormat, worldBounds, defaultTextureName, std::vector<const Brush*>{&subtrahend});
         }
 

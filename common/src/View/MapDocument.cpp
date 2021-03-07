@@ -2102,33 +2102,30 @@ namespace TrenchBroom {
 
             const auto minuendNodes = std::vector<Model::BrushNode*>{selectedNodes().brushes()};
             const auto subtrahends = kdl::vec_transform(subtrahendNodes, [](const auto* subtrahendNode) { return &subtrahendNode->brush(); });
-            
-            return kdl::for_each_result(minuendNodes, [&](Model::BrushNode* minuendNode) {
-                const Model::Brush& minuend = minuendNode->brush();
-                return minuend.subtract(m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends)
-                    .and_then([&](std::vector<Model::Brush>&& brushes) -> kdl::result<std::pair<Model::BrushNode*, std::vector<Model::Brush>>> {
-                        return std::make_pair(minuendNode, std::move(brushes));
-                    });
-            }).and_then([&](std::vector<std::pair<Model::BrushNode*, std::vector<Model::Brush>>>&& subtractionResults) {
-                auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-                auto toRemove = std::vector<Model::Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
 
-                for (auto& [minuendNode, resultBrushes] : subtractionResults) {
-                    if (!resultBrushes.empty()) {
-                        auto resultNodes = kdl::vec_transform(std::move(resultBrushes), [&](auto b) { return new Model::BrushNode(std::move(b)); });
-                        auto& toAddForParent = toAdd[minuendNode->parent()];
-                        toAddForParent = kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
-                    }
-                    toRemove.push_back(minuendNode);
+            auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+            auto toRemove = std::vector<Model::Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
+
+            for (auto* minuendNode : minuendNodes) {
+                const Model::Brush& minuend = minuendNode->brush();
+                auto currentSubtractionResults = minuend.subtract(m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
+                auto currentBrushes = kdl::collect_values(std::move(currentSubtractionResults), [&](const Model::BrushError& e) { 
+                    error() << "Could not create brush: " << e;
+                });
+
+                if (!currentBrushes.empty()) {
+                    auto resultNodes = kdl::vec_transform(std::move(currentBrushes), [&](auto b) { return new Model::BrushNode(std::move(b)); });
+                    auto& toAddForParent = toAdd[minuendNode->parent()];
+                    toAddForParent = kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
                 }
 
-                deselectAll();
-                const auto added = addNodes(toAdd);
-                removeNodes(toRemove);
-                select(added);
-            }).handle_errors([&](const Model::BrushError& e) {
-                error() << "Could not create brush: " << e;
-            });
+                toRemove.push_back(minuendNode);
+            }
+
+            deselectAll();
+            const auto added = addNodes(toAdd);
+            removeNodes(toRemove);
+            select(added);
             return true;
         }
 
@@ -2173,38 +2170,53 @@ namespace TrenchBroom {
                 return false;
             }
 
-            return kdl::for_each_result(brushNodes, [&](Model::BrushNode* brushNode) {
-                const auto& originalBrush = brushNode->brush();
-                
-                auto shrunkenBrush = originalBrush;
-                return shrunkenBrush.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
-                    .and_then([&]() {
-                        return originalBrush.subtract(m_world->mapFormat(), m_worldBounds, currentTextureName(), shrunkenBrush);
-                    }).and_then([&](auto&& fragments) -> kdl::result<std::pair<Model::BrushNode*, std::vector<Model::Brush>>> {
-                        return std::make_pair(brushNode, std::move(fragments));
-                    });
-            }).and_then([&](std::vector<std::pair<Model::BrushNode*, std::vector<Model::Brush>>>&& fragmentsAndSourceNodes) {
-                auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-                auto toRemove = std::vector<Model::Node*>{};
+            bool didHollowAnything = false;
+            std::vector<std::pair<Model::BrushNode*, std::vector<Model::Brush>>> fragmentsAndSourceNodes =
+                kdl::vec_transform(brushNodes, [&](Model::BrushNode* brushNode) {
+                    const auto& originalBrush = brushNode->brush();
 
-                for (auto& [sourceNode, fragments] : fragmentsAndSourceNodes) {
-                    auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
-                        return new Model::BrushNode(std::move(b));
-                    });
+                    auto shrunkenBrush = originalBrush;
+                    std::vector<Model::Brush> fragments;
+                    shrunkenBrush.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
+                        .and_then([&]() {
+                            didHollowAnything = true;
 
-                    auto& toAddForParent = toAdd[sourceNode->parent()];
-                    toAddForParent = kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
-                    toRemove.push_back(sourceNode);
-                }
+                            auto subtractionResults = originalBrush.subtract(m_world->mapFormat(), m_worldBounds, currentTextureName(), shrunkenBrush);
+                            fragments = kdl::collect_values(std::move(subtractionResults), [&](const Model::BrushError& e) { 
+                                error() << "Could not create brush: " << e;
+                            });
+                        }).handle_errors([&](const Model::BrushError& e) {
+                            error() << "Could not hollow brush: " << e;
+                            fragments = { originalBrush };
+                        });
 
-                Transaction transaction(this, "CSG Hollow");
-                deselectAll();
-                const auto added = addNodes(toAdd);
-                removeNodes(toRemove);
-                select(added);
-            }).handle_errors([&](const Model::BrushError& e) {
-                error() << "Could not hollow brush: " << e;
-            });
+                    return std::make_pair(brushNode, std::move(fragments));
+                });
+
+            if (!didHollowAnything) {
+                return false;
+            }
+
+            auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+            auto toRemove = std::vector<Model::Node*>{};
+
+            for (auto& [sourceNode, fragments] : fragmentsAndSourceNodes) {
+                auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
+                    return new Model::BrushNode(std::move(b));
+                });
+
+                auto& toAddForParent = toAdd[sourceNode->parent()];
+                toAddForParent = kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
+                toRemove.push_back(sourceNode);
+            }
+
+            Transaction transaction(this, "CSG Hollow");
+            deselectAll();
+            const auto added = addNodes(toAdd);
+            removeNodes(toRemove);
+            select(added);
+
+            return true;
         }
 
         bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3) {
