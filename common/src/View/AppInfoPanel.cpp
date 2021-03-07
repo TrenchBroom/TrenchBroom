@@ -57,6 +57,8 @@ namespace TrenchBroom {
             makeInfo(version);
             makeInfo(build);
             makeInfo(qtVersion);
+            build->setWordWrap(true);
+            build->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
             const auto tooltip = tr("Click to copy to clipboard");
             version->setToolTip(tooltip);
