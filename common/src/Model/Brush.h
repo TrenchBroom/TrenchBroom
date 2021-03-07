@@ -210,10 +210,12 @@ namespace TrenchBroom {
              * Subtracts the given subtrahends from `this`, returning the result but without modifying `this`.
              *
              * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
-             * @return the subtraction result
+             * @return the subtraction result framents as Brushes, or BrushErrors for any fragments which were invalid.
+             *         Note, the subtraction result should still be usable even if some BrushErrors are returned.
+             *         It's a hint to the user to double check the result, and potentially report a bug.
              */
-            kdl::result<std::vector<Brush>, BrushError> subtract(MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const;
-            kdl::result<std::vector<Brush>, BrushError> subtract(MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const;
+            std::vector<kdl::result<Brush, BrushError>> subtract(MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const;
+            std::vector<kdl::result<Brush, BrushError>> subtract(MapFormat mapFormat, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const;
 
             /**
              * Intersects this brush with the given brush.
