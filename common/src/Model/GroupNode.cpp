@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "FloatType.h"
 #include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
@@ -64,6 +65,12 @@ namespace TrenchBroom {
                     },
                     [&](const BrushNode* brushNode) -> VisitResult {
                         auto brush = brushNode->brush();
+                        // clear selection on clone
+                        for (auto& face : brush.faces()) {
+                            if (face.selected()) {
+                                face.deselect();
+                            }
+                        }
                         return brush.transform(worldBounds, transformation, true)
                             .and_then([&]() -> kdl::result<std::unique_ptr<Node>, BrushError> {
                                 return std::make_unique<BrushNode>(std::move(brush));
