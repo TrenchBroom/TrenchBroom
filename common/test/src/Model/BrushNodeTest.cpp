@@ -274,7 +274,7 @@ namespace TrenchBroom {
                 CHECK(!brush.hasSelectedFaces());
             }
             
-            SECTION("Passing a brush with selected faces to constructor correctly updates the node's face selection count") {
+            SECTION("Passing a brush with selected faces to constructor clears the brushes face selection") {
                 REQUIRE(!brush.hasSelectedFaces());
                 
                 Brush copy = brush.brush();
@@ -282,12 +282,6 @@ namespace TrenchBroom {
                 copy.face(1u).select();
                 
                 BrushNode another(std::move(copy));
-                CHECK(another.hasSelectedFaces());
-
-                another.deselectFace(0u);
-                CHECK(another.hasSelectedFaces());
-                
-                another.deselectFace(1u);
                 CHECK(!another.hasSelectedFaces());
             }
 
@@ -308,7 +302,7 @@ namespace TrenchBroom {
                 CHECK(!brush.hasSelectedFaces());
             }
             
-            SECTION("Cloning a brush node returns a clone with correct face selection count") {
+            SECTION("Cloning a brush node with selected faces returns a clone with no selected faces") {
                 REQUIRE(!brush.hasSelectedFaces());
                 
                 brush.selectFace(0u);
@@ -316,10 +310,6 @@ namespace TrenchBroom {
                 REQUIRE(brush.hasSelectedFaces());
 
                 auto clone = std::unique_ptr<BrushNode>(brush.clone(worldBounds));
-                CHECK(clone->hasSelectedFaces());
-                
-                clone->deselectFace(0u);
-                clone->deselectFace(1u);
                 CHECK(!clone->hasSelectedFaces());
             }
         }
