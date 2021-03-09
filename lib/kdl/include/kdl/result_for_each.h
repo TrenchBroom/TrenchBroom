@@ -25,6 +25,40 @@
 #include <vector>
 
 namespace kdl {
+    /**
+     * Collects the success values in the given range and returns them in a vector.
+     *
+     * The range must contain non-void results. For each successful result, its value is 
+     * moved into the result vector. For error results, the given errorHandle is called.
+     */
+    template <typename I, typename E>
+    auto collect_values(I cur, I end, E errorHandler) {
+        using result_value = typename std::iterator_traits<I>::value_type;
+        using result_value_type = typename result_value::value_type;
+        static_assert(!std::is_same_v<result_value_type, void>, "range must not contain void results");
+
+        using vector_type = std::vector<result_value_type>;
+        using i_category = typename std::iterator_traits<I>::iterator_category;
+
+        auto result_vector = vector_type{};
+        if constexpr(std::is_same_v<i_category, std::random_access_iterator_tag>) {
+            result_vector.reserve(static_cast<std::size_t>(end - cur));
+        }
+
+        while (cur != end) {
+            std::move(*cur).and_then([&](auto&& value) {
+                result_vector.push_back(std::move(value));
+            }).handle_errors(errorHandler);
+            ++cur;
+        }
+
+        return result_vector;
+    }
+
+    template <typename C, typename E>
+    auto collect_values(C&& c, E errorHandler) {
+        return collect_values(std::begin(c), std::end(c), std::move(errorHandler));
+    }
 
     /**
      * Applies the given lambda to each element in the given range and returns the result.
