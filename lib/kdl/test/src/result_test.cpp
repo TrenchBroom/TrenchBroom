@@ -647,4 +647,28 @@ namespace kdl {
             CHECK(std::visit([](const auto& e) { return e; }, r.error()) == "error");
         }
     }
+
+    TEST_CASE("result.collect_values", "result_test") {
+        auto errors = std::vector<std::string>{};
+        const auto errorHandler = [&](std::string&& error) { errors.push_back(std::move(error)); };
+
+        SECTION("with empty range") {
+            const auto vec = std::vector<kdl::result<int, std::string>>{};
+            auto r = collect_values(std::begin(vec), std::end(vec), errorHandler);
+            CHECK_THAT(r, Catch::Equals(std::vector<int>{}));
+            CHECK_THAT(errors, Catch::Equals(std::vector<std::string>{}));
+        }
+
+        SECTION("nonempty range") {
+            const auto vec = std::vector<kdl::result<int, std::string>>{
+                kdl::result<int, std::string>{1},
+                kdl::result<int, std::string>{"error 1"},
+                kdl::result<int, std::string>{2},
+                kdl::result<int, std::string>{"error 2"},
+            };
+            auto r = collect_values(std::begin(vec), std::end(vec), errorHandler);
+            CHECK_THAT(r, Catch::Equals(std::vector<int>{1, 2}));
+            CHECK_THAT(errors, Catch::Equals(std::vector<std::string>{"error 1", "error 2"}));
+        }
+    }
 }
