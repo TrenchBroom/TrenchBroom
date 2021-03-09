@@ -66,7 +66,7 @@ namespace TrenchBroom {
         BrushNode::BrushNode(Brush brush) :
         m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()),
         m_brush(std::move(brush)) {
-            updateSelectedFaceCount();
+            clearSelectedFaces();
         }
 
         BrushNode::~BrushNode() = default;
@@ -130,6 +130,15 @@ namespace TrenchBroom {
             
             invalidateIssues();
             invalidateVertexCache();
+        }
+
+        void BrushNode::clearSelectedFaces() {
+            for (BrushFace& face : m_brush.faces()) {
+                if (face.selected()) {
+                    face.deselect();
+                }
+            }
+            m_selectedFaceCount = 0u;
         }
 
         void BrushNode::updateSelectedFaceCount() {

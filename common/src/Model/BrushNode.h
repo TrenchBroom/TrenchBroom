@@ -83,6 +83,7 @@ namespace TrenchBroom {
             
             void setFaceTexture(size_t faceIndex, Assets::Texture* texture);
         private:
+            void clearSelectedFaces();
             void updateSelectedFaceCount();
         private: // implement Node interface
             const std::string& doGetName() const override;
