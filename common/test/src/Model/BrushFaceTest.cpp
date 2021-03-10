@@ -537,7 +537,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
             std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
-            BrushNode* pyramidLight = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
+            BrushNode* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
             REQUIRE(pyramidLight != nullptr);
             
             Brush brush = pyramidLight->brush();
@@ -593,7 +593,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
-            BrushNode* pyramidLight = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
+            BrushNode* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
             REQUIRE(pyramidLight != nullptr);
             
             Brush brush = pyramidLight->brush();
@@ -653,7 +653,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
 
             std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
-            BrushNode* brushNode = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
+            BrushNode* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
             CHECK(brushNode != nullptr);
             
             Brush brush = brushNode->brush();

@@ -26,30 +26,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        MapParser::ExtraAttribute::ExtraAttribute(const Type type, const std::string& name, const std::string& value, const size_t line, const size_t column) :
-        m_type(type),
-        m_name(name),
-        m_value(value),
-        m_line(line),
-        m_column(column) {}
-
-        MapParser::ExtraAttribute::Type MapParser::ExtraAttribute::type() const {
-            return m_type;
-        }
-
-        const std::string& MapParser::ExtraAttribute::name() const {
-            return m_name;
-        }
-
-        const std::string& MapParser::ExtraAttribute::strValue() const {
-            return m_value;
-        }
-
-        void MapParser::ExtraAttribute::assertType(const Type expected) const {
-            if (expected != m_type)
-                throw ParserException(m_line, m_column, "Invalid extra property type");
-        }
-
         MapParser::~MapParser() = default;
     }
 }

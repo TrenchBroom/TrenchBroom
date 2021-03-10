@@ -193,7 +193,6 @@ namespace TrenchBroom {
             auto properties = std::vector<Model::EntityProperty>();
             auto propertyKeys = PropertyKeys();
 
-            auto extraAttributes = ExtraAttributes();
             const auto startLine = token.line();
 
             token = m_tokenizer.peekToken();
@@ -201,14 +200,13 @@ namespace TrenchBroom {
                 switch (token.type()) {
                     case QuakeMapToken::Comment:
                         m_tokenizer.nextToken();
-                        parseExtraAttributes(extraAttributes, status);
                         break;
                     case QuakeMapToken::String:
                         parseEntityProperty(properties, propertyKeys, status);
                         break;
                     case QuakeMapToken::OBrace:
                         if (!beginEntityCalled) {
-                            onBeginEntity(startLine, properties, extraAttributes, status);
+                            onBeginEntity(startLine, std::move(properties), status);
                             beginEntityCalled = true;
                         }
                         parseBrushOrBrushPrimitiveOrPatch(status);
@@ -216,7 +214,7 @@ namespace TrenchBroom {
                     case QuakeMapToken::CBrace:
                         m_tokenizer.nextToken();
                         if (!beginEntityCalled) {
-                            onBeginEntity(startLine, properties, extraAttributes, status);
+                            onBeginEntity(startLine, properties, status);
                         }
                         onEndEntity(startLine, token.line() - startLine, status);
                         return;
@@ -300,14 +298,12 @@ namespace TrenchBroom {
 
         void StandardMapParser::parseBrush(ParserStatus& status, const size_t startLine, const bool primitive) {
             auto beginBrushCalled = false;
-            auto extraAttributes = ExtraAttributes();
 
             auto token = m_tokenizer.peekToken();
             while (!token.hasType(QuakeMapToken::Eof)) {
                 switch (token.type()) {
                     case QuakeMapToken::Comment:
                         m_tokenizer.nextToken();
-                        parseExtraAttributes(extraAttributes, status);
                         break;
                     case QuakeMapToken::OParenthesis:
                         // TODO 2427: handle brush primitives
@@ -323,7 +319,7 @@ namespace TrenchBroom {
                             if (!beginBrushCalled) {
                                 onBeginBrush(startLine, status);
                             }
-                            onEndBrush(startLine, token.line() - startLine, extraAttributes, status);
+                            onEndBrush(startLine, token.line() - startLine, status);
                         } else {
                             status.warn(startLine, "Skipping brush primitive: currently not supported");
                         }
@@ -612,23 +608,6 @@ namespace TrenchBroom {
 
         int StandardMapParser::parseInteger() {
             return expect(QuakeMapToken::Integer, m_tokenizer.nextToken()).toInteger<int>();
-        }
-
-        void StandardMapParser::parseExtraAttributes(ExtraAttributes& attributes, ParserStatus& /* status */) {
-            // do not skip EOLs for the duration of this function call
-            m_tokenizer.setSkipEol(false);
-            const kdl::invoke_later parseEof([this]() { m_tokenizer.setSkipEol(true); });
-
-            auto token = m_tokenizer.nextToken();
-            expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token);
-            while (token.type() != QuakeMapToken::Eol && token.type() != QuakeMapToken::Eof) {
-                const auto name = token.data();
-                expect(QuakeMapToken::String | QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                const auto value = token.data();
-                const auto type = token.type() == QuakeMapToken::String ? ExtraAttribute::Type_String : ExtraAttribute::Type_Integer;
-                attributes.insert(std::make_pair(name, ExtraAttribute(type, name, value, token.line(), token.column())));
-                expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token = m_tokenizer.nextToken());
-            }
         }
 
         StandardMapParser::TokenNameMap StandardMapParser::tokenNames() const {

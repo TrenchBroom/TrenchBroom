@@ -95,64 +95,28 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
-            m_world->setEntity(Model::Entity(properties));
-            setExtraAttributes(m_world.get(), extraAttributes);
+        Model::Node* WorldReader::onWorldNode(std::unique_ptr<Model::WorldNode> worldNode, ParserStatus&) {
+            // we transfer the properties and the configuration of the default layer, but don't use the given node
+            m_world->setEntity(worldNode->entity());
 
-            // handle default layer attributes, which are stored in worldspawn
-            auto* defaultLayerNode = m_world->defaultLayer();
-            for (const Model::EntityProperty& property : properties) {
-                if (property.key() == Model::PropertyKeys::LayerColor) {
-                    if (const auto color = Color::parse(property.value())) {
-                        auto defaultLayer = defaultLayerNode->layer();
-                        defaultLayer.setColor(*color);
-                        defaultLayerNode->setLayer(std::move(defaultLayer));
-                    }
-                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue)) {
-                    auto defaultLayer = defaultLayerNode->layer();
-                    defaultLayer.setOmitFromExport(true);
-                    defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerLocked,
-                    Model::PropertyValues::LayerLockedValue)) {
-                    defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
-                } else if (property.hasKeyAndValue(Model::PropertyKeys::LayerHidden,
-                    Model::PropertyValues::LayerHiddenValue)) {
-                    defaultLayerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
-                }
-            }
-            return m_world->defaultLayer();
+            auto* myDefaultLayerNode = m_world->defaultLayer();
+            const auto* theirDefaultLayerNode = worldNode->defaultLayer();
+            myDefaultLayerNode->setLayer(theirDefaultLayerNode->layer());
+            myDefaultLayerNode->setLockState(theirDefaultLayerNode->lockState());
+            myDefaultLayerNode->setVisibilityState(theirDefaultLayerNode->visibilityState());
+
+            return myDefaultLayerNode;
         }
 
-        void WorldReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& /* status */) {
-            m_world->setFilePosition(lineNumber, lineCount);
+        void WorldReader::onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus&) {
+            m_world->addChild(layerNode.release());
         }
 
-        void WorldReader::onLayer(Model::LayerNode* layer, ParserStatus& /* status */) {
-            m_world->addChild(layer);
-        }
-
-        void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& /* status */) {
-            if (parent != nullptr) {
-                parent->addChild(node);
+        void WorldReader::onNode(Model::Node* parentNode, std::unique_ptr<Model::Node> node, ParserStatus&) {
+            if (parentNode != nullptr) {
+                parentNode->addChild(node.release());
             } else {
-                m_world->defaultLayer()->addChild(node);
-            }
-        }
-
-        void WorldReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
-            if (parentInfo.layer()) {
-                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing layer '", parentInfo.id(), "', adding to default layer"));
-            } else {
-                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing group '", parentInfo.id(), "', adding to default layer"));
-            }
-            m_world->defaultLayer()->addChild(node);
-        }
-
-        void WorldReader::onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& /* status */) {
-            if (parent != nullptr) {
-                parent->addChild(brush);
-            } else {
-                m_world->defaultLayer()->addChild(brush);
+                m_world->defaultLayer()->addChild(node.release());
             }
         }
     }
