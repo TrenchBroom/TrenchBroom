@@ -1681,5 +1681,20 @@ common/caulk
                 CHECK_THAT(entityNode->entity().protectedProperties(), Catch::UnorderedEquals(std::vector<std::string>{"with;semicolon"}));
             }
         }
+
+        TEST_CASE("WorldReaderTest.parseUnknownFormatEmptyMap", "[WorldReaderTest]") {
+            const auto data = R"(
+{
+"classname" "worldspawn"
+}
+            )";
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            auto world = WorldReader::tryRead(data, { Model::MapFormat::Standard, Model::MapFormat::Valve }, worldBounds, status);
+            REQUIRE(world != nullptr);
+            CHECK(world->mapFormat() == Model::MapFormat::Standard);
+        }
     }
 }

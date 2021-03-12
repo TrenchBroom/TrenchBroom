@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
+#include "IO/WorldReader.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -1711,6 +1712,34 @@ namespace TrenchBroom {
             CHECK(document->currentLayer() == layerNode1);
             document->redoCommand();
             CHECK(document->currentLayer() == layerNode2);
+        }
+
+        TEST_CASE("MapDocumentTest.detectValveFormatMap", "[MapDocumentTest]") {
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"),
+                                                                      "Quake", Model::MapFormat::Unknown);
+            CHECK(document->world()->mapFormat() == Model::MapFormat::Valve);
+            CHECK(document->world()->defaultLayer()->childCount() == 1);
+        }
+
+        TEST_CASE("MapDocumentTest.detectStandardFormatMap", "[MapDocumentTest]") {
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/standardFormatMapWithoutFormatTag.map"),
+                                                                      "Quake", Model::MapFormat::Unknown);
+            CHECK(document->world()->mapFormat() == Model::MapFormat::Standard);
+            CHECK(document->world()->defaultLayer()->childCount() == 1);
+        }
+
+        TEST_CASE("MapDocumentTest.detectEmptyMap", "[MapDocumentTest]") {
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/emptyMapWithoutFormatTag.map"),
+                                                                      "Quake", Model::MapFormat::Unknown);
+            // an empty map detects as Valve because Valve is listed first in the Quake game config
+            CHECK(document->world()->mapFormat() == Model::MapFormat::Valve);
+            CHECK(document->world()->defaultLayer()->childCount() == 0);
+        }
+
+        TEST_CASE("MapDocumentTest.mixedFormats", "[MapDocumentTest]") {
+            // map has both Standard and Valve brushes
+            CHECK_THROWS_AS(View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/mixedFormats.map"),
+                                                  "Quake", Model::MapFormat::Unknown), IO::WorldReaderException);
         }
     }
 }
