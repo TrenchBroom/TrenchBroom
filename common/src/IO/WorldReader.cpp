@@ -33,6 +33,7 @@
 #include <kdl/string_utils.h>
 
 #include <cassert>
+#include <optional>
 #include <string>
 
 namespace TrenchBroom {
@@ -41,6 +42,31 @@ namespace TrenchBroom {
         MapReader(std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat),
         m_world(std::make_unique<Model::WorldNode>(Model::Entity(), sourceAndTargetMapFormat)) {
             m_world->disableNodeTreeUpdates();
+        }
+
+        std::unique_ptr<Model::WorldNode> WorldReader::read(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status) {
+            std::optional<ParserException> lastException;
+
+            for (const auto mapFormat : mapFormatsToTry) {
+                if (mapFormat == Model::MapFormat::Unknown) {
+                    continue;
+                }
+
+                try {
+                    WorldReader reader(str, mapFormat);
+                    return reader.read(worldBounds, status);
+                } catch (const ParserException& e) {
+                    lastException = e;
+                }
+            }
+
+            if (lastException) {
+                // No format parsed successfully. Just throw the parse error from the last one.
+                throw *lastException;
+            } else {
+                // mapFormatsToTry was empty or all elements were Model::MapFormat::Unknown
+                throw ParserException(0, "No valid formats to parse as");
+            }
         }
 
         std::unique_ptr<Model::WorldNode> WorldReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {

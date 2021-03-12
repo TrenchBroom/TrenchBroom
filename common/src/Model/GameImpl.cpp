@@ -179,8 +179,16 @@ namespace TrenchBroom {
             IO::SimpleParserStatus parserStatus(logger);
             auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
             auto fileReader = file->reader().buffer();
-            IO::WorldReader worldReader(fileReader.stringView(), format);
-            return worldReader.read(worldBounds, parserStatus);
+            if (format == MapFormat::Unknown) {
+                // Try all formats listed in the game config
+                const auto possibleFormats = kdl::vec_transform(m_config.fileFormats(), [](const MapFormatConfig& config) {
+                    return Model::formatFromName(config.format);
+                });
+                return IO::WorldReader::read(fileReader.stringView(), possibleFormats, worldBounds, parserStatus);
+            } else {
+                IO::WorldReader worldReader(fileReader.stringView(), format);
+                return worldReader.read(worldBounds, parserStatus);
+            }
         }
 
         void GameImpl::doWriteMap(WorldNode& world, const IO::Path& path, const bool exporting) const {
