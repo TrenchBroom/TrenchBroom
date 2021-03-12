@@ -44,7 +44,7 @@ namespace TrenchBroom {
         }
 
         bool GameDialog::showNewDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat) {
-            GameDialog dialog("Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.", parent);
+            GameDialog dialog("Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.", true, parent);
             if (dialog.exec() == QDialog::Rejected) {
                 return false;
             } else {
@@ -54,15 +54,14 @@ namespace TrenchBroom {
             }
         }
 
-        bool GameDialog::showOpenDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat) {
+        bool GameDialog::showOpenDocumentDialog(QWidget* parent, std::string& gameName) {
             GameDialog dialog("Select Game",
                 "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.",
-                parent);
+                false, parent);
             if (dialog.exec() == QDialog::Rejected) {
                 return false;
             } else {
                 gameName = dialog.currentGameName();
-                mapFormat = dialog.currentMapFormat();
                 return true;
             }
         }
@@ -91,23 +90,23 @@ namespace TrenchBroom {
             app.openPreferences();
         }
 
-        GameDialog::GameDialog(const QString& title, const QString& infoText, QWidget* parent) :
+        GameDialog::GameDialog(const QString& title, const QString& infoText, const bool formatPrompt, QWidget* parent) :
         QDialog(parent),
         m_gameListBox(nullptr),
         m_mapFormatComboBox(nullptr),
         m_openPreferencesButton(nullptr),
         m_okButton(nullptr) {
-            createGui(title, infoText);
+            createGui(title, infoText, formatPrompt);
             updateMapFormats("");
             bindObservers();
         }
 
-        void GameDialog::createGui(const QString& title, const QString& infoText) {
+        void GameDialog::createGui(const QString& title, const QString& infoText, const bool formatPrompt) {
             setWindowTitle(title);
             setWindowIconTB(this);
 
             auto* infoPanel = createInfoPanel(this, title, infoText);
-            auto* selectionPanel = createSelectionPanel(this);
+            auto* selectionPanel = createSelectionPanel(this, formatPrompt);
             selectionPanel->setMinimumWidth(300);
 
             auto* innerLayout = new QHBoxLayout();
@@ -168,7 +167,7 @@ namespace TrenchBroom {
             return infoPanel;
         }
 
-        QWidget* GameDialog::createSelectionPanel(QWidget* parent) {
+        QWidget* GameDialog::createSelectionPanel(QWidget* parent, const bool formatPrompt) {
             auto* panel = new QWidget(parent);
 
             m_gameListBox = new GameListBox();
@@ -186,13 +185,20 @@ namespace TrenchBroom {
             mapFormatLayout->addWidget(label, 0, Qt::AlignRight | Qt::AlignVCenter);
             mapFormatLayout->addWidget(m_mapFormatComboBox, 1, Qt::AlignLeft | Qt::AlignVCenter);
 
+            auto* mapFormatWidget = new QWidget();
+            mapFormatWidget->setLayout(mapFormatLayout);
+
             auto* outerSizer = new QVBoxLayout();
             outerSizer->setContentsMargins(QMargins());
             outerSizer->setSpacing(0);
             outerSizer->addWidget(m_gameListBox, 1);
             outerSizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 1);
-            outerSizer->addLayout(mapFormatLayout);
+            outerSizer->addWidget(mapFormatWidget);
             panel->setLayout(outerSizer);
+
+            if (!formatPrompt) {
+                mapFormatWidget->hide();
+            }
 
             connect(m_gameListBox, &GameListBox::currentGameChanged, this, &GameDialog::currentGameChanged);
             connect(m_gameListBox, &GameListBox::selectCurrentGame, this, &GameDialog::gameSelected);
