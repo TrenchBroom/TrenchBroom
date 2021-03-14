@@ -208,6 +208,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/GridRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/GroupLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/GroupRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/IndexArray.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMap.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMapBuilder.cpp
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMap.cpp
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/LinkRenderer.cpp
@@ -234,6 +237,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.cpp
@@ -705,6 +711,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/GridRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/GroupLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/GroupRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/IndexArray.h
+        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMap.h
+        ${COMMON_SOURCE_DIR}/Renderer/IndexArrayMapBuilder.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexedVertexList.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMap.h
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeMapBuilder.h
@@ -733,6 +742,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.h
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.h
+        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.h
+        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.h
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMapBuilder.h
         ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.h
