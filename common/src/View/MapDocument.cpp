@@ -1964,23 +1964,45 @@ namespace TrenchBroom {
                 ));
             }
 
-            const auto success = applyAndSwap(*this, commandName, nodesToTransform, findContainingLinkedGroupsToUpdate(*m_world, m_selectedNodes.nodes()), kdl::overload(
-                [] (Model::Layer&) { return true; },
-                [&](Model::Group& group) { 
-                    group.transform(transformation);
-                    return true;
-                },
-                [&](Model::Entity& entity) {
-                    entity.transform(transformation);
-                    return true;
-                },
-                [&](Model::Brush& brush)   {
-                    return brush.transform(m_worldBounds, transformation, pref(Preferences::TextureLock))
-                        .handle_errors([&](const Model::BrushError e) {
-                            error() << "Could not transform brush: " << e;
-                        });
+            auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+            nodesToUpdate.reserve(nodesToTransform.size());
+            for (auto* node : nodesToTransform) {
+                bool success = true;
+
+                node->accept(kdl::overload(
+                    [&](Model::WorldNode*) {},
+                    [&](Model::LayerNode*) {},
+                    [&](Model::GroupNode* groupNode) {
+                        auto group = groupNode->group();
+                        group.transform(transformation);
+                        nodesToUpdate.emplace_back(groupNode, group);
+                    },
+                    [&](Model::EntityNode* entityNode) {
+                        auto entity = entityNode->entity();
+                        entity.transform(transformation);
+                        nodesToUpdate.emplace_back(entityNode, entity);
+                    },
+                    [&](Model::BrushNode* brushNode) {
+                        const bool inLinkedGroup = (Model::findContainingLinkedGroup(*brushNode) != nullptr);
+                        const bool lockTextures = inLinkedGroup || pref(Preferences::TextureLock);
+
+                        auto brush = brushNode->brush();
+                        brush.transform(m_worldBounds, transformation, lockTextures)
+                            .and_then([&](){
+                                nodesToUpdate.emplace_back(brushNode, brush);
+                            }).handle_errors([&](const Model::BrushError e) {
+                                error() << "Could not transform brush: " << e;
+                                success = false;
+                            });
+                     }
+                ));
+
+                if (!success) {
+                    return false;
                 }
-            ));
+            }
+
+            const auto success = swapNodeContents(commandName, nodesToUpdate, findContainingLinkedGroupsToUpdate(*m_world, m_selectedNodes.nodes()));
 
             if (success) {
                 m_repeatStack->push([=]() { this->transformObjects(commandName, transformation); });
