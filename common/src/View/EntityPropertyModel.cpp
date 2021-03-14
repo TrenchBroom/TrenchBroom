@@ -87,7 +87,8 @@ namespace TrenchBroom {
             assert(!Model::isLayer(entity.classname(), entity.properties()));
 
             if (Model::isWorldspawn(entity.classname(), entity.properties())) {
-                return !(key == Model::PropertyKeys::Mods
+                return !(key == Model::PropertyKeys::Classname
+                    || key == Model::PropertyKeys::Mods
                     || key == Model::PropertyKeys::EntityDefinitions
                     || key == Model::PropertyKeys::Wad
                     || key == Model::PropertyKeys::Textures
