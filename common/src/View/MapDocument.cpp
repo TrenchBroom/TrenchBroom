@@ -1983,8 +1983,8 @@ namespace TrenchBroom {
                         nodesToUpdate.emplace_back(entityNode, entity);
                     },
                     [&](Model::BrushNode* brushNode) {
-                        const bool inLinkedGroup = (Model::findContainingLinkedGroup(*brushNode) != nullptr);
-                        const bool lockTextures = inLinkedGroup || pref(Preferences::TextureLock);
+                        const bool lockTextures = pref(Preferences::TextureLock)
+                            || (Model::findContainingLinkedGroup(*brushNode) != nullptr);
 
                         auto brush = brushNode->brush();
                         brush.transform(m_worldBounds, transformation, lockTextures)
