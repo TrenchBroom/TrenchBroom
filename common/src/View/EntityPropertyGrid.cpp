@@ -110,7 +110,7 @@ namespace TrenchBroom {
             ensure(row != -1, "row should have been inserted");
 
             // Select the newly inserted property key
-            const QModelIndex mi = m_proxyModel->mapFromSource(m_model->index(row, 1));
+            const QModelIndex mi = m_proxyModel->mapFromSource(m_model->index(row, EntityPropertyModel::ColumnKey));
 
             m_table->clearSelection();
             m_table->setCurrentIndex(mi);
@@ -203,7 +203,7 @@ namespace TrenchBroom {
 
             m_proxyModel = new EntitySortFilterProxyModel(this);
             m_proxyModel->setSourceModel(m_model);
-            m_proxyModel->sort(0);
+            m_proxyModel->sort(0); // NOTE: must be column 0, because EntitySortFilterProxyModel::lessThan ignores the column part of the QModelIndex
             m_table->setModel(m_proxyModel);
 
             m_table->setItemDelegate(new EntityPropertyItemDelegate(m_table, m_model, m_proxyModel, m_table));
@@ -211,9 +211,9 @@ namespace TrenchBroom {
             autoResizeRows(m_table);
 
             m_table->verticalHeader()->setVisible(false);
-            m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-            m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-            m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+            m_table->horizontalHeader()->setSectionResizeMode(EntityPropertyModel::ColumnProtected, QHeaderView::ResizeToContents);
+            m_table->horizontalHeader()->setSectionResizeMode(EntityPropertyModel::ColumnKey, QHeaderView::ResizeToContents);
+            m_table->horizontalHeader()->setSectionResizeMode(EntityPropertyModel::ColumnValue, QHeaderView::Stretch);
             m_table->horizontalHeader()->setSectionsClickable(false);
             m_table->setSelectionBehavior(QAbstractItemView::SelectItems);
 
@@ -354,7 +354,7 @@ namespace TrenchBroom {
                 ensureSelectionVisible();
 
                 const auto shouldShowProtectedProperties = m_model->shouldShowProtectedProperties();
-                m_table->setColumnHidden(0, !shouldShowProtectedProperties);
+                m_table->setColumnHidden(EntityPropertyModel::ColumnProtected, !shouldShowProtectedProperties);
                 m_addProtectedPropertyButton->setHidden(!shouldShowProtectedProperties);
             });
             updateControlsEnabled();

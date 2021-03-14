@@ -427,7 +427,7 @@ namespace TrenchBroom {
 
                 // Notify Qt
                 const QModelIndex topLeft = index(static_cast<int>(*oldIndex), 0);
-                const QModelIndex bottomRight = index(static_cast<int>(*oldIndex), 1);
+                const QModelIndex bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
                 emit dataChanged(topLeft, bottomRight);
                 return;
             }
@@ -446,7 +446,7 @@ namespace TrenchBroom {
 
                 // Notify Qt
                 const QModelIndex topLeft = index(static_cast<int>(*oldIndex), 0);
-                const QModelIndex bottomRight = index(static_cast<int>(*oldIndex), 1);
+                const QModelIndex bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
                 emit dataChanged(topLeft, bottomRight);
             }
 
@@ -504,9 +504,9 @@ namespace TrenchBroom {
             const auto key = propertyKey(index.row());
 
             std::vector<std::string> result;
-            if (index.column() == 0) {
+            if (index.column() == ColumnKey) {
                 result = getAllPropertyKeys();
-            } else if (index.column() == 1) {
+            } else if (index.column() == ColumnValue) {
                 if (key == Model::PropertyKeys::Target ||
                     key == Model::PropertyKeys::Killtarget) {
                     result = getAllValuesForPropertyKeys({ Model::PropertyKeys::Targetname });
@@ -631,7 +631,7 @@ namespace TrenchBroom {
                 return 0;
             }
 
-            return 3;
+            return NumColumns;
         }
 
         Qt::ItemFlags EntityPropertyModel::flags(const QModelIndex &index) const {
@@ -643,15 +643,15 @@ namespace TrenchBroom {
 
             Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-            if (index.column() == 0) {
+            if (index.column() == ColumnProtected) {
                 if (row.isProtected() != PropertyProtection::NotProtectable) {
                     flags |= Qt::ItemIsUserCheckable;
                 }
-            } else if (index.column() == 1) {
+            } else if (index.column() == ColumnKey) {
                 if (row.keyMutable()) {
                     flags |= Qt::ItemIsEditable;
                 }
-            } else if (index.column() == 2) {
+            } else if (index.column() == ColumnValue) {
                 if (row.valueMutable()) {
                     flags |= Qt::ItemIsEditable;
                 }
@@ -665,7 +665,7 @@ namespace TrenchBroom {
                 || index.row() < 0
                 || index.row() >= static_cast<int>(m_rows.size())
                 || index.column() < 0
-                || index.column() >= 3) {
+                || index.column() >= NumColumns) {
                 return QVariant();
             }
 
@@ -674,11 +674,11 @@ namespace TrenchBroom {
 
             if (role == Qt::DecorationRole) {
                 // lock icon
-                if (index.column() == 1) {
+                if (index.column() == ColumnKey) {
                     if (!row.keyMutable()) {
                         return QVariant(IO::loadSVGIcon(IO::Path("Locked_small.svg")));
                     }
-                } else if (index.column() == 2) {
+                } else if (index.column() == ColumnValue) {
                     if (!row.valueMutable()) {
                         return QVariant(IO::loadSVGIcon(IO::Path("Locked_small.svg")));
                     }
@@ -691,7 +691,7 @@ namespace TrenchBroom {
                 if (row.isDefault() || row.subset()) {
                     return QVariant(QBrush(Colors::disabledCellText()));
                 }
-                if (index.column() == 2) {
+                if (index.column() == ColumnValue) {
                     if (row.multi()) {
                         return QVariant(QBrush(Colors::disabledCellText()));
                     }
@@ -705,7 +705,7 @@ namespace TrenchBroom {
                     italicFont.setItalic(true);
                     return QVariant(italicFont);
                 }
-                if (index.column() == 2) {
+                if (index.column() == ColumnValue) {
                     if (row.multi()) {
                         QFont italicFont;
                         italicFont.setItalic(true);
@@ -716,15 +716,15 @@ namespace TrenchBroom {
             }
 
             if (role == Qt::DisplayRole || role == Qt::EditRole) {
-                if (index.column() == 1) {
+                if (index.column() == ColumnKey) {
                     return QVariant(mapStringToUnicode(document->encoding(), row.key()));
-                } else if (index.column() == 2) {
+                } else if (index.column() == ColumnValue) {
                     return QVariant(mapStringToUnicode(document->encoding(), row.value()));
                 }
             }
             
             if (role == Qt::CheckStateRole) {
-                if (index.column() == 0) {
+                if (index.column() == ColumnProtected) {
                     if (row.isProtected() == PropertyProtection::Protected) {
                         return QVariant(Qt::CheckState::Checked);
                     } else if (row.isProtected() == PropertyProtection::Mixed) {
@@ -736,7 +736,7 @@ namespace TrenchBroom {
             }
 
             if (role == Qt::ToolTipRole) {
-                if (index.column() == 0) {
+                if (index.column() == ColumnProtected) {
                     return QVariant("Property is protected from changes in linked groups if checked");
                 } else {
                     if (!row.tooltip().empty()) {
@@ -764,7 +764,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (index.column() == 1 && role == Qt::EditRole) {
+            if (index.column() == ColumnKey && role == Qt::EditRole) {
                 // rename key
                 MODEL_LOG(qDebug() << "tried to rename " << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to " << value.toString());
 
@@ -772,14 +772,14 @@ namespace TrenchBroom {
                 if (renameProperty(rowIndex, newName, nodes)) {
                     return true;
                 }
-            } else if (index.column() == 2 && role == Qt::EditRole) {
+            } else if (index.column() == ColumnValue && role == Qt::EditRole) {
                 MODEL_LOG(qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to "
                                    << value.toString());
 
                 if (updateProperty(rowIndex, mapStringFromUnicode(document->encoding(), value.toString()), nodes)) {
                     return true;
                 }
-            } else if (index.column() == 0 && role == Qt::CheckStateRole) {
+            } else if (index.column() == ColumnProtected && role == Qt::CheckStateRole) {
                 if (value == Qt::CheckState::Checked) {
                     MODEL_LOG(qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to protected");
                     setProtectedProperty(rowIndex, true);
@@ -795,18 +795,18 @@ namespace TrenchBroom {
         QVariant EntityPropertyModel::headerData(const int section, const Qt::Orientation orientation, const int role) const {
             if (role == Qt::DisplayRole) {
                 if (orientation == Qt::Horizontal) {
-                    if (section == 1) {
+                    if (section == ColumnKey) {
                         return QVariant(tr("Key"));
-                    } else if (section == 2) {
+                    } else if (section == ColumnValue) {
                         return QVariant(tr("Value"));
                     }
                 }
             } else if (role == Qt::DecorationRole) {
-                if (section == 0) {
+                if (section == ColumnProtected) {
                     return QVariant(IO::loadSVGIcon(IO::Path("Protected_small.svg")));
                 }
             } else if (role == Qt::ToolTipRole) {
-                if (section == 0) {
+                if (section == ColumnProtected) {
                     return QVariant(tr("Protect properties from changes in linked groups"));
                 }
             }
