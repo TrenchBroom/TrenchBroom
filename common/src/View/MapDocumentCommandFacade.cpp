@@ -262,6 +262,10 @@ namespace TrenchBroom {
         }
 
         std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>> MapDocumentCommandFacade::performReplaceChildren(std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>> nodes) {
+            if (nodes.empty()) {
+                return {};
+            }
+
             const std::vector<Model::Node*> parents = collectParents(nodes);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
