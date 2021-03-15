@@ -118,6 +118,11 @@ namespace TrenchBroom {
          */
         class EntityPropertyModel : public QAbstractTableModel {
             Q_OBJECT
+        public:
+            static const int ColumnProtected = 0;
+            static const int ColumnKey = 1;
+            static const int ColumnValue = 2;
+            static const int NumColumns = 3;
         private:
             std::vector<PropertyRow> m_rows;
             bool m_showDefaultRows;
