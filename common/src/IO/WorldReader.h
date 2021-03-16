@@ -54,7 +54,7 @@ namespace TrenchBroom {
              * @return the world node
              * @throws ParserException if `str` can't be parsed by any of the given formats
              */
-            static std::unique_ptr<Model::WorldNode> read(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status);
+            static std::unique_ptr<Model::WorldNode> tryRead(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status);
         private:            
             void sanitizeLayerSortIndicies(ParserStatus& status);            
         private: // implement MapReader interface

@@ -44,7 +44,7 @@ namespace TrenchBroom {
             m_world->disableNodeTreeUpdates();
         }
 
-        std::unique_ptr<Model::WorldNode> WorldReader::read(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::unique_ptr<Model::WorldNode> WorldReader::tryRead(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status) {
             std::optional<ParserException> lastException;
 
             for (const auto mapFormat : mapFormatsToTry) {

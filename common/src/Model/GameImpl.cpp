@@ -184,7 +184,7 @@ namespace TrenchBroom {
                 const auto possibleFormats = kdl::vec_transform(m_config.fileFormats(), [](const MapFormatConfig& config) {
                     return Model::formatFromName(config.format);
                 });
-                return IO::WorldReader::read(fileReader.stringView(), possibleFormats, worldBounds, parserStatus);
+                return IO::WorldReader::tryRead(fileReader.stringView(), possibleFormats, worldBounds, parserStatus);
             } else {
                 IO::WorldReader worldReader(fileReader.stringView(), format);
                 return worldReader.read(worldBounds, parserStatus);

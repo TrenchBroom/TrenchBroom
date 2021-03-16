@@ -1692,7 +1692,7 @@ common/caulk
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            auto world = WorldReader::read(data, { Model::MapFormat::Standard, Model::MapFormat::Valve }, worldBounds, status);
+            auto world = WorldReader::tryRead(data, { Model::MapFormat::Standard, Model::MapFormat::Valve }, worldBounds, status);
             REQUIRE(world != nullptr);
             CHECK(world->mapFormat() == Model::MapFormat::Standard);
         }
