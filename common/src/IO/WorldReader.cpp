@@ -33,11 +33,27 @@
 #include <kdl/string_utils.h>
 
 #include <cassert>
-#include <optional>
 #include <string>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace IO {
+        // WorldReaderException
+
+        WorldReaderException::WorldReaderException() : Exception() {}
+        WorldReaderException::WorldReaderException(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions) :
+        Exception(formatParserExceptions(parserExceptions)) {}
+
+        std::string WorldReaderException::formatParserExceptions(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions) {
+            std::stringstream result;
+            for (const auto& parserException : parserExceptions) {
+                result << "Error parsing as " << Model::formatName(std::get<0>(parserException)) << ": " << std::get<1>(parserException) << "\n";
+            }
+            return result.str();
+        }
+
+        // WorldReader
+
         WorldReader::WorldReader(std::string_view str, const Model::MapFormat sourceAndTargetMapFormat) :
         MapReader(std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat),
         m_world(std::make_unique<Model::WorldNode>(Model::Entity(), sourceAndTargetMapFormat)) {
@@ -45,7 +61,7 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<Model::WorldNode> WorldReader::tryRead(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status) {
-            std::optional<ParserException> lastException;
+            std::vector<std::tuple<Model::MapFormat, std::string>> parserExceptions;
 
             for (const auto mapFormat : mapFormatsToTry) {
                 if (mapFormat == Model::MapFormat::Unknown) {
@@ -56,16 +72,16 @@ namespace TrenchBroom {
                     WorldReader reader(str, mapFormat);
                     return reader.read(worldBounds, status);
                 } catch (const ParserException& e) {
-                    lastException = e;
+                    parserExceptions.emplace_back(mapFormat, std::string(e.what()));
                 }
             }
 
-            if (lastException) {
+            if (!parserExceptions.empty()) {
                 // No format parsed successfully. Just throw the parse error from the last one.
-                throw *lastException;
+                throw WorldReaderException(parserExceptions);
             } else {
                 // mapFormatsToTry was empty or all elements were Model::MapFormat::Unknown
-                throw ParserException(0, "No valid formats to parse as");
+                throw WorldReaderException({{Model::MapFormat::Unknown, "No valid formats to parse as"}});
             }
         }
 

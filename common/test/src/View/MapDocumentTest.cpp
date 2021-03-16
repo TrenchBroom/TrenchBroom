@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
+#include "IO/WorldReader.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -1695,7 +1696,7 @@ namespace TrenchBroom {
         TEST_CASE("MapDocumentTest.mixedFormats", "[MapDocumentTest]") {
             // map has both Standard and Valve brushes
             CHECK_THROWS_AS(View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/mixedFormats.map"),
-                                                  "Quake", Model::MapFormat::Unknown), ParserException);
+                                                  "Quake", Model::MapFormat::Unknown), IO::WorldReaderException);
         }
     }
 }

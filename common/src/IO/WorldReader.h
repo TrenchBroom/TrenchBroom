@@ -19,10 +19,12 @@
 
 #pragma once
 
+#include "Exceptions.h"
 #include "IO/MapReader.h"
 
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace TrenchBroom {
@@ -32,6 +34,14 @@ namespace TrenchBroom {
 
     namespace IO {
         class ParserStatus;
+
+        class WorldReaderException : public Exception {
+        public:
+            WorldReaderException();
+            WorldReaderException(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions);
+        private:
+            std::string formatParserExceptions(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions);
+        };
 
         /**
          * MapReader subclass for loading a whole .map file.
@@ -45,14 +55,14 @@ namespace TrenchBroom {
 
             /**
              * Try to parse the given string as the given map formats, in order.
-             * Returns the world if parsing is successful, otherwise throws a ParserException.
+             * Returns the world if parsing is successful, otherwise throws an exception.
              *
              * @param str the string to parse
              * @param mapFormatsToTry formats to try, in order
              * @param worldBounds world bounds
              * @param status status
              * @return the world node
-             * @throws ParserException if `str` can't be parsed by any of the given formats
+             * @throws WorldReaderException if `str` can't be parsed by any of the given formats
              */
             static std::unique_ptr<Model::WorldNode> tryRead(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status);
         private:            
