@@ -293,8 +293,8 @@ namespace TrenchBroom {
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 auto [gameName, mapFormat] = gameFactory.detectGame(path);
 
-                if (gameName.empty()) {
-                    if (!GameDialog::showOpenDocumentDialog(nullptr, gameName)) {
+                if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
+                    if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat)) {
                         return false;
                     }
                 }
