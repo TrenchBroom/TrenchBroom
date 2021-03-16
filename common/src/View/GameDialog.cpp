@@ -37,7 +37,7 @@
 #include <cassert>
 #include <string>
 
-Q_DECLARE_METATYPE(TrenchBroom::Model::MapFormat);
+Q_DECLARE_METATYPE(TrenchBroom::Model::MapFormat)
 
 namespace TrenchBroom {
     namespace View {
