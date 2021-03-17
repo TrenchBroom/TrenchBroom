@@ -52,6 +52,7 @@
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
 
+#include <iostream>
 #include <limits>
 #include <map>
 #include <vector>
@@ -165,18 +166,26 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::BrushFaceHandle> ResizeBrushesTool::dragFaces() const {
-            return kdl::vec_transform(m_dragHandles, [](const auto& dragHandle) {
+            std::vector<Model::BrushFaceHandle> result;
+            result.reserve(m_dragHandles.size());
+            for (const auto& dragHandle : m_dragHandles) {
                 auto* brushNode = std::get<0>(dragHandle);
                 const auto& normal = std::get<1>(dragHandle);
-                
+                if (brushNode->parent() == nullptr) {
+                    // don't draw faces on brushes that were collapsed and deleted
+                    continue;
+                }
                 const auto& brush = brushNode->brush();
                 const auto faceIndex = brush.findFace(normal);
-                assert(faceIndex);
-                return Model::BrushFaceHandle(brushNode, *faceIndex);
-            });
+                if (faceIndex) {
+                    result.push_back(Model::BrushFaceHandle(brushNode, *faceIndex));
+                }
+            }
+            return result;
         }
 
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
+            std::cout << "update drag faces\n";
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             auto newDragHandles = getDragHandles(hit);
             if (newDragHandles != m_dragHandles) {
@@ -301,7 +310,8 @@ namespace TrenchBroom {
             } else {
                 // This handles ordinary resizing, splitting outward, and splitting inward
                 // (in which case dragFaceDescriptors() is a list of polygons splitting the selected brushes)
-                if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
+                document->rollbackTransaction();
+                if (document->resizeBrushes(dragFaceDescriptors(), m_totalDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
                 }
