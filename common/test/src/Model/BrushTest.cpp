@@ -440,9 +440,9 @@ namespace TrenchBroom {
             const auto topFaceIndex = brush.findFace(vm::vec3::pos_z());
             REQUIRE(topFaceIndex);
 
-            CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +16.0)));
+            CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +16.0)));
             CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -16.0)));
-            CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +2.0)));
+            CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +2.0)));
             CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -6.0)));
             CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +1.0)));
             CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -5.0)));

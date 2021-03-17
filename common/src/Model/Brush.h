@@ -96,8 +96,7 @@ namespace TrenchBroom {
             /**
              * Translates a face by the given delta.
              *
-             * The face is only translated if the brush has the same number of faces as this brush. If the
-             * brush becomes invalid, an error is returned.
+             * If the brush becomes invalid, an error is returned.
              *
              * @param worldBounds the world bounds
              * @param faceIndex the index of the face to translate

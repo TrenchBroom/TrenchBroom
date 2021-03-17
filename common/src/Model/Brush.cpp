@@ -299,24 +299,9 @@ namespace TrenchBroom {
         kdl::result<void, BrushError> Brush::moveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta, const bool lockTexture) {
             assert(faceIndex < faceCount());
 
-            const auto originalFaceCount = faceCount();
             return m_faces[faceIndex].transform(vm::translation_matrix(delta), lockTexture)
                 .and_then([&]() {
                     return updateGeometryFromFaces(worldBounds);
-                }).and_then([&]() -> kdl::result<void, BrushError> {
-                    if (faceCount() == originalFaceCount) {
-// GCC 8 incorrectly complains about an unitialized variable use here
-#if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER) && __GNUC__ == 8
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-                        return kdl::void_success;
-#if defined(__GNUC__) && !defined(__clang__) && !defined(_MSC_VER) && __GNUC__ == 8
-#pragma GCC diagnostic pop
-#endif
-                    } else {
-                        return BrushError::InvalidBrush;
-                    }
                 });
         }
 
