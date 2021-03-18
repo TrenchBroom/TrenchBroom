@@ -60,8 +60,18 @@ namespace TrenchBroom {
         private:
             struct FaceHandle {
                 Model::BrushNode* node;
-                vm::vec3 faceNormal;
-                vm::polygon3 polygonAtDragStart;
+                std::unique_ptr<Model::Brush> brushAtDragStart;
+                size_t faceIndex;
+
+                explicit FaceHandle(const Model::BrushFaceHandle& handle);
+
+                //vm::vec3 faceNormal;
+                //vm::polygon3 polygonAtDragStart;
+
+                Model::BrushFace& faceAtDragStart() const;
+                vm::vec3 faceNormal() const;
+                vm::polygon3 polygonAtDragStart() const;
+
 
                 bool operator==(const FaceHandle& other) const;
                 bool operator!=(const FaceHandle& other) const;
