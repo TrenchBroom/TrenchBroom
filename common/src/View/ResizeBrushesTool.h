@@ -24,6 +24,7 @@
 #include "View/Tool.h"
 
 #include <vecmath/forward.h>
+#include <vecmath/polygon.h>
 #include <vecmath/vec.h>
 
 #include <memory>
@@ -57,10 +58,14 @@ namespace TrenchBroom {
             using Resize2DHitData = std::vector<Model::BrushFaceHandle>;
             using Resize3DHitData = Model::BrushFaceHandle;
         private:
-            /**
-             * Brush and face normal pair.
-             */
-            using FaceHandle = std::tuple<Model::BrushNode*, vm::vec3>;
+            struct FaceHandle {
+                Model::BrushNode* node;
+                vm::vec3 faceNormal;
+                vm::polygon3 polygonAtDragStart;
+
+                bool operator==(const FaceHandle& other) const;
+                bool operator!=(const FaceHandle& other) const;
+            };
 
             std::weak_ptr<MapDocument> m_document;
             std::vector<FaceHandle> m_dragHandles;
