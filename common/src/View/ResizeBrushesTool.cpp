@@ -326,7 +326,7 @@ namespace TrenchBroom {
                 // This handles ordinary resizing, splitting outward, and splitting inward
                 // (in which case dragFaceDescriptors() is a list of polygons splitting the selected brushes)
                 document->rollbackTransaction();
-                if (document->resizeBrushes(dragFaceDescriptors(), m_totalDelta)) {
+                if (document->resizeBrushes(polygonsAtDragStart(), m_totalDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
                 }
@@ -508,7 +508,7 @@ namespace TrenchBroom {
             }).and_then([&]() -> kdl::result<void, ResizeError> {
                 // Now that the newly split off brushes are ready to insert (but not selected),
                 // resize the original brushes, which are still selected at this point.
-                if (!document->resizeBrushes(dragFaceDescriptors(), delta)) {
+                if (!document->resizeBrushes(polygonsAtDragStart(), delta)) {
                     return ResizeError{"Resizing failed"};
                 }
 
@@ -525,17 +525,10 @@ namespace TrenchBroom {
             });
         }
 
-        std::vector<vm::polygon3> ResizeBrushesTool::dragFaceDescriptors() const {
-            const auto dragFaces = this->dragFaces();
-
-            std::vector<vm::polygon3> result;
-            result.reserve(dragFaces.size());
-            for (const auto& dragFaceHandle : dragFaces) {
-                const auto& dragFace = dragFaceHandle.face();
-                result.push_back(dragFace.polygon());
-            }
-
-            return result;
+        std::vector<vm::polygon3> ResizeBrushesTool::polygonsAtDragStart() const {
+            return kdl::vec_transform(m_dragHandles, [](const auto& handle) {
+                return handle.polygonAtDragStart;
+            });
         }
 
         void ResizeBrushesTool::bindObservers() {

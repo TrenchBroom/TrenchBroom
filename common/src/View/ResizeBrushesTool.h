@@ -110,7 +110,7 @@ namespace TrenchBroom {
         private:
             bool splitBrushesOutward(const vm::vec3& delta);
             bool splitBrushesInward(const vm::vec3& delta);
-            std::vector<vm::polygon3> dragFaceDescriptors() const;
+            std::vector<vm::polygon3> polygonsAtDragStart() const;
         private:
             void bindObservers();
             void unbindObservers();
