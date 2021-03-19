@@ -46,6 +46,7 @@
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
 #include <vecmath/distance.h>
@@ -325,23 +326,32 @@ namespace TrenchBroom {
             const auto unsnappedDelta = faceNormal * dragDist;
             const auto faceDelta = grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
 
-            if (vm::is_zero(faceDelta, vm::C::almost_zero())) {
+            std::cout << "face delta: " << faceDelta << "\n";
+
+            if (vm::is_equal(faceDelta, m_totalDelta, vm::C::almost_zero())) {
                 return true;
             }
 
             if (m_splitBrushes) {
+                // FIXME: update
                 if (splitBrushesOutward(faceDelta) || splitBrushesInward(faceDelta)) {
                     m_totalDelta = m_totalDelta + faceDelta;
                     m_dragOrigin = m_dragOrigin + faceDelta;
                     m_splitBrushes = false;
                 }
             } else {
+
                 // This handles ordinary resizing, splitting outward, and splitting inward
                 // (in which case dragFaceDescriptors() is a list of polygons splitting the selected brushes)
                 document->rollbackTransaction();
-                if (document->resizeBrushes(polygonsAtDragStart(), m_totalDelta)) {
-                    m_totalDelta = m_totalDelta + faceDelta;
-                    m_dragOrigin = m_dragOrigin + faceDelta;
+                if (document->resizeBrushes(polygonsAtDragStart(), faceDelta)) {
+                    m_totalDelta = faceDelta;
+                    //m_dragOrigin = m_dragOrigin + faceDelta;
+                } else {
+                    printf("went too far\n");
+
+                    // go back a step
+                    assert(document->resizeBrushes(polygonsAtDragStart(), m_totalDelta));
                 }
             }
 
