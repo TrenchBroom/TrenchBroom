@@ -335,9 +335,9 @@ namespace TrenchBroom {
             if (m_splitBrushes) {
                 // FIXME: update
                 if (splitBrushesOutward(faceDelta) || splitBrushesInward(faceDelta)) {
-                    m_totalDelta = m_totalDelta + faceDelta;
-                    m_dragOrigin = m_dragOrigin + faceDelta;
+                    m_totalDelta = faceDelta;
                     m_splitBrushes = false;
+                    return true;
                 }
             } else {
 
@@ -426,6 +426,9 @@ namespace TrenchBroom {
             m_dragging = false;
         }
 
+        /**
+         * Splits off new brush "outward" from the drag handles.
+         */
         bool ResizeBrushesTool::splitBrushesOutward(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
@@ -459,8 +462,10 @@ namespace TrenchBroom {
                     }).and_then([&]() {
                         auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                         newNodes[brushNode->parent()].push_back(newBrushNode);
-                        // FIXME:
-//                        newDragHandles.push_back(FaceHandle{newBrushNode, newDragFaceNormal, vm::polygon3()});
+
+                        // Look up the new face index of the new drag handle
+                        const size_t newDragFaceIndex = *newBrushNode->brush().findFace(newDragFaceNormal);
+                        newDragHandles.push_back(FaceHandle(Model::BrushFaceHandle(newBrushNode, newDragFaceIndex)));
                     });
             }).and_then([&]() {
                 document->deselectAll();
@@ -486,6 +491,9 @@ namespace TrenchBroom {
             }
         }
 
+        /**
+         * Splits brushes "inwards" effectively clipping the selected brushes into two halves.
+         */
         bool ResizeBrushesTool::splitBrushesInward(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
