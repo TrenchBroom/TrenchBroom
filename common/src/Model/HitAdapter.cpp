@@ -38,24 +38,6 @@ namespace TrenchBroom {
             }
         }
 
-        Object* hitToObject(const Hit& hit) {
-            if (hit.type() == EntityNode::EntityHitType) {
-                return hit.target<EntityNode*>();
-            } else if (hit.type() == BrushNode::BrushHitType) {
-                return hit.target<BrushFaceHandle>().node();
-            } else {
-                return nullptr;
-            }
-        }
-
-        EntityNode* hitToEntity(const Hit& hit) {
-            if (hit.type() == EntityNode::EntityHitType) {
-                return hit.target<EntityNode*>();
-            } else {
-                return nullptr;
-            }
-        }
-
         std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit) {
             if (hit.type() == BrushNode::BrushHitType) {
                 return hit.target<BrushFaceHandle>();

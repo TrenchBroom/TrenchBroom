@@ -30,8 +30,6 @@ namespace TrenchBroom {
         class Object;
 
         Node* hitToNode(const Hit& hit);
-        Object* hitToObject(const Hit& hit);
-        EntityNode* hitToEntity(const Hit& hit);
         std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit);
     }
 }
