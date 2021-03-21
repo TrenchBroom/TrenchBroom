@@ -217,6 +217,7 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
+            // FIXME: assert not dragging
             std::cout << "update drag faces\n";
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             auto newDragHandles = getDragHandles(hit);
