@@ -92,6 +92,10 @@ namespace TrenchBroom {
             return m_physicalBounds;
         }
 
+        FloatType LayerNode::doGetProjectedArea(const vm::axis::type) const {
+            return static_cast<FloatType>(0);
+        }
+
         Node* LayerNode::doClone(const vm::bbox3&) const {
             LayerNode* layerNode = new LayerNode(m_layer);
             cloneAttributes(layerNode);

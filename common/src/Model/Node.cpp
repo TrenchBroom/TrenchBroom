@@ -123,6 +123,10 @@ namespace TrenchBroom {
             return doGetPhysicalBounds();
         }
 
+        FloatType Node::projectedArea(const vm::axis::type axis) const {
+            return doGetProjectedArea(axis);
+        }
+
         Node* Node::clone(const vm::bbox3& worldBounds) const {
             return doClone(worldBounds);
         }

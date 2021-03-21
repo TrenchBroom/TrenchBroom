@@ -305,6 +305,21 @@ namespace TrenchBroom {
             return m_grid.bounds;
         }
 
+        FloatType PatchNode::doGetProjectedArea(const vm::axis::type axis) const {
+            // computing the projected area of a patch is expensive, so we just use the bounds
+            const vm::vec3 size = physicalBounds().size();
+            switch (axis) {
+                case vm::axis::x:
+                    return size.y() * size.z();
+                case vm::axis::y:
+                    return size.x() * size.z();
+                case vm::axis::z:
+                    return size.x() * size.y();
+                default:
+                    return 0.0;
+            }
+        }
+
         Node* PatchNode::doClone(const vm::bbox3&) const {
             return new PatchNode(m_patch);
         }

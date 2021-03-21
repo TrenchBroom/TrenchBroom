@@ -209,6 +209,10 @@ namespace TrenchBroom {
             return logicalBounds();
         }
 
+        FloatType WorldNode::doGetProjectedArea(const vm::axis::type) const {
+            return static_cast<FloatType>(0);
+        }
+
         Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const {
             WorldNode* worldNode = new WorldNode(entity(), mapFormat());
             cloneAttributes(worldNode);

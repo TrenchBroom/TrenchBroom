@@ -118,6 +118,8 @@ namespace TrenchBroom {
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
+            
+            FloatType doGetProjectedArea(vm::axis::type axis) const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
 

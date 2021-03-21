@@ -61,20 +61,6 @@ namespace TrenchBroom {
         EntityNode::EntityNode(std::initializer_list<EntityProperty> properties) :
         EntityNode(Entity(std::move(properties))) {}
 
-        FloatType EntityNode::projectedArea(vm::axis::type axis) const {
-            const vm::vec3 size = physicalBounds().size();
-            switch (axis) {
-                case vm::axis::x:
-                    return size.y() * size.z();
-                case vm::axis::y:
-                    return size.x() * size.z();
-                case vm::axis::z:
-                    return size.x() * size.y();
-                default:
-                    return 0.0;
-            }
-        }
-
         const vm::bbox3& EntityNode::modelBounds() const {
             validateBounds();
             return m_cachedBounds->modelBounds;
@@ -93,6 +79,20 @@ namespace TrenchBroom {
         const vm::bbox3& EntityNode::doGetPhysicalBounds() const {
             validateBounds();
             return m_cachedBounds->physicalBounds;
+        }
+
+        FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const {
+            const vm::vec3 size = physicalBounds().size();
+            switch (axis) {
+                case vm::axis::x:
+                    return size.y() * size.z();
+                case vm::axis::y:
+                    return size.x() * size.z();
+                case vm::axis::z:
+                    return size.x() * size.y();
+                default:
+                    return 0.0;
+            }
         }
 
         Node* EntityNode::doClone(const vm::bbox3& /* worldBounds */) const {

@@ -290,6 +290,10 @@ namespace TrenchBroom {
             return m_physicalBounds;
         }
 
+        FloatType GroupNode::doGetProjectedArea(const vm::axis::type) const {
+            return static_cast<FloatType>(0);
+        }
+
         Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const {
             GroupNode* group = new GroupNode(m_group);
             cloneAttributes(group);

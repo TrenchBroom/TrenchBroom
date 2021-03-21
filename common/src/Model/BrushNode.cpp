@@ -250,6 +250,20 @@ namespace TrenchBroom {
             return logicalBounds();
         }
 
+        FloatType BrushNode::doGetProjectedArea(const vm::axis::type axis) const {
+            const auto normal = vm::vec3::axis(axis);
+
+            auto result = static_cast<FloatType>(0);
+            for (const auto& face : m_brush.faces()) {
+                // only consider one side of the brush -- doesn't matter which one!
+                if (vm::dot(face.boundary().normal, normal) > 0.0) {
+                    result += face.projectedArea(axis);
+                }
+            }
+
+            return result;
+        }
+
         Node* BrushNode::doClone(const vm::bbox3& /* worldBounds */) const {
             auto* result = new BrushNode(m_brush);
             cloneAttributes(result);

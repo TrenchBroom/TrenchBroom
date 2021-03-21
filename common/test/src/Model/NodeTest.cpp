@@ -114,6 +114,10 @@ namespace TrenchBroom {
                 return bounds;
             }
 
+            FloatType doGetProjectedArea(const vm::axis::type) const override {
+                return static_cast<FloatType>(0);
+            }
+
             bool doCanAddChild(const Node* child) const override {
                 auto call = popCall<DoCanAddChild>();
                 CHECK(child == call.expectedChild);
@@ -191,6 +195,10 @@ namespace TrenchBroom {
             const vm::bbox3& doGetPhysicalBounds() const override {
                 static const vm::bbox3 bounds;
                 return bounds;
+            }
+
+            FloatType doGetProjectedArea(const vm::axis::type) const override {
+                return static_cast<FloatType>(0);
             }
 
             bool doCanAddChild(const Node* /* child */) const override {
