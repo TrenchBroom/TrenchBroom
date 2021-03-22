@@ -50,6 +50,25 @@ namespace TrenchBroom {
         class MapDocument;
         class Selection;
 
+        struct FaceHandle {
+            Model::BrushNode* node;
+            std::unique_ptr<Model::Brush> brushAtDragStart;
+            size_t faceIndex;
+
+            explicit FaceHandle(const Model::BrushFaceHandle& handle);
+
+            //vm::vec3 faceNormal;
+            //vm::polygon3 polygonAtDragStart;
+
+            Model::BrushFace& faceAtDragStart() const;
+            vm::vec3 faceNormal() const;
+            vm::polygon3 polygonAtDragStart() const;
+
+
+            bool operator==(const FaceHandle& other) const;
+            bool operator!=(const FaceHandle& other) const;
+        };
+
         class ResizeBrushesTool : public Tool {
         public:
             static const Model::HitType::Type Resize3DHitType;
@@ -58,25 +77,6 @@ namespace TrenchBroom {
             using Resize2DHitData = std::vector<Model::BrushFaceHandle>;
             using Resize3DHitData = Model::BrushFaceHandle;
         private:
-            struct FaceHandle {
-                Model::BrushNode* node;
-                std::unique_ptr<Model::Brush> brushAtDragStart;
-                size_t faceIndex;
-
-                explicit FaceHandle(const Model::BrushFaceHandle& handle);
-
-                //vm::vec3 faceNormal;
-                //vm::polygon3 polygonAtDragStart;
-
-                Model::BrushFace& faceAtDragStart() const;
-                vm::vec3 faceNormal() const;
-                vm::polygon3 polygonAtDragStart() const;
-
-
-                bool operator==(const FaceHandle& other) const;
-                bool operator!=(const FaceHandle& other) const;
-            };
-
             std::weak_ptr<MapDocument> m_document;
             std::vector<FaceHandle> m_dragHandles;
             vm::vec3 m_dragOrigin;
@@ -107,7 +107,6 @@ namespace TrenchBroom {
             std::vector<FaceHandle> getDragHandles(const Model::Hit& hit) const;
             std::vector<FaceHandle> collectDragHandles(const Model::Hit& hit) const;
             std::vector<Model::BrushFaceHandle> collectDragFaces(const Model::BrushFaceHandle& faceHandle) const;
-            void determineMaxDrag() const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);

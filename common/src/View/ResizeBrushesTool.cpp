@@ -64,31 +64,31 @@ namespace TrenchBroom {
         const Model::HitType::Type ResizeBrushesTool::Resize2DHitType = Model::HitType::freeType();
         const Model::HitType::Type ResizeBrushesTool::Resize3DHitType = Model::HitType::freeType();
 
-        ResizeBrushesTool::FaceHandle::FaceHandle(const Model::BrushFaceHandle& handle) :
+        FaceHandle::FaceHandle(const Model::BrushFaceHandle& handle) :
         node(handle.node()),
         brushAtDragStart(std::make_unique<Model::Brush>(handle.node()->brush())),
         faceIndex(handle.faceIndex()) {}
 
-        Model::BrushFace& ResizeBrushesTool::FaceHandle::faceAtDragStart() const {
+        Model::BrushFace& FaceHandle::faceAtDragStart() const {
             return brushAtDragStart->face(faceIndex);
         }
 
-        vm::vec3 ResizeBrushesTool::FaceHandle::faceNormal() const {
+        vm::vec3 FaceHandle::faceNormal() const {
             return faceAtDragStart().normal();
         }
 
-        vm::polygon3 ResizeBrushesTool::FaceHandle::polygonAtDragStart() const {
+        vm::polygon3 FaceHandle::polygonAtDragStart() const {
             return faceAtDragStart().polygon();
         }
 
-        bool ResizeBrushesTool::FaceHandle::operator==(const FaceHandle& other) const {
+        bool FaceHandle::operator==(const FaceHandle& other) const {
             return node == other.node
                 && *brushAtDragStart == *other.brushAtDragStart
                 && faceIndex == other.faceIndex;
             //&& polygonAtDragStart == other.polygonAtDragStart;
         }
 
-        bool ResizeBrushesTool::FaceHandle::operator!=(const FaceHandle& other) const {
+        bool FaceHandle::operator!=(const FaceHandle& other) const {
             return !(*this == other);
         }
 
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             swap(m_dragHandles, newDragHandles);
         }
 
-        std::vector<ResizeBrushesTool::FaceHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
+        std::vector<FaceHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
             if (hit.isMatch()) {
                 return collectDragHandles(hit);
             } else {
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<ResizeBrushesTool::FaceHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& hit) const {
+        std::vector<FaceHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.type() == Resize2DHitType || hit.type() == Resize3DHitType);
 
@@ -313,21 +313,21 @@ namespace TrenchBroom {
             return *std::min_element(std::begin(vertexDistsAbovePlane), std::end(vertexDistsAbovePlane));
         }
 
-        void ResizeBrushesTool::determineMaxDrag() const {
-            assert(m_dragging);
-
-            const std::vector<FloatType> maxDrags = kdl::vec_transform(m_dragHandles, [&](const FaceHandle& handle) {
+        static FloatType determineMaxDrag(const std::vector<FaceHandle>& dragHandles) {
+            const std::vector<FloatType> maxDrags = kdl::vec_transform(dragHandles, [&](const FaceHandle& handle) {
                 return maxDragForFace(*handle.brushAtDragStart, handle.faceIndex);
             });
 
             if (maxDrags.empty()) {
-                return;
+                return 0;
             }
 
             // max_element because we are dragging all brushes simultaneously, and want
             // to stop as soon as any of them is collapsed to zero.
-            FloatType maxDrag = *std::max_element(std::begin(maxDrags), std::end(maxDrags));
+            const FloatType maxDrag = *std::max_element(std::begin(maxDrags), std::end(maxDrags));
             qDebug() << "max drag" << maxDrag;
+
+            return maxDrag;
         }
 
         bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {
@@ -365,7 +365,7 @@ namespace TrenchBroom {
 
             std::cout << "face delta: " << faceDelta << "\n";
 
-            determineMaxDrag();
+            determineMaxDrag(m_dragHandles);
 
             if (vm::is_equal(faceDelta, m_totalDelta, vm::C::almost_zero())) {
                 return true;
