@@ -87,6 +87,9 @@ namespace TrenchBroom {
              * created, it's set back to false, in `resize()`.
              */
             bool m_splitBrushes;
+            /**
+             * How much drag is currently applied to the document.
+             */
             vm::vec3 m_totalDelta;
             bool m_dragging;
             FloatType m_maxDrag;

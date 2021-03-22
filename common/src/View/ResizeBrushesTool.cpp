@@ -358,18 +358,56 @@ namespace TrenchBroom {
                 return true;
             }
 
-            const auto dragDist = dist.position2;
-
             auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
-            const auto unsnappedDelta = faceNormal * dragDist;
-            const auto faceDelta = grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
+
+            auto dragDistToSnappedDelta = [&](const FloatType dist) {
+                const auto unsnappedDelta = faceNormal * dist;
+                return grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
+            };
+            auto deltaToDist = [&](const vm::vec3& delta) {
+                return vm::dot(delta, faceNormal);
+            };
+
+            FloatType dragDist = dist.position2;
+
+            if (dragDist < (m_maxDrag + vm::C::almost_zero())) {
+                qDebug() << " -> too far" << dragDist << "max is" << m_maxDrag;
+
+                // First, try using m_maxDrag and then performing the grid snapping
+                const FloatType actualDragDistUsingMaxDrag = deltaToDist(dragDistToSnappedDelta(m_maxDrag));
+                const FloatType actualDragDistUsingMaxDragSnappedUp = deltaToDist(dragDistToSnappedDelta(grid.snapUp(m_maxDrag, true)));
+
+                qDebug() << "actualDragDistUsingMaxDrag" << actualDragDistUsingMaxDrag
+                         << "actualDragDistUsingMaxDragSnappedUp" << actualDragDistUsingMaxDragSnappedUp;
+
+                if (actualDragDistUsingMaxDrag >= (m_maxDrag + vm::C::almost_zero())
+                    && actualDragDistUsingMaxDrag < actualDragDistUsingMaxDragSnappedUp) {
+                    qDebug() << "using actualDragDistUsingMaxDrag";
+
+                    dragDist = m_maxDrag;
+                }
+                else {
+                    qDebug() << "using actualDragDistUsingMaxDragSnappedUp";
+                    dragDist = grid.snapUp(m_maxDrag, true);
+                }
+            }
+
+            const vm::vec3 faceDelta = dragDistToSnappedDelta(dragDist);
 
             qDebug() << "face delta: " << faceDelta.x() << faceDelta.y() << faceDelta.z() << "dot product:" << vm::dot(faceNormal, faceDelta) << "max drag:" << m_maxDrag;
             if (vm::dot(faceNormal, faceDelta) < (m_maxDrag + vm::C::almost_zero())) {
-                qDebug() << " -> too far";
-                return true;
+                // FIXME: this is failing sometimes, move above
+                qDebug() << " error";
+                assert(0);
             }
+            //    // correct the desired delta
+            //    
+            //    const FloatType correction = grid.snapUp(m_maxDrag - vm::dot(faceNormal, faceDelta), true);
+            //    faceDelta = faceDelta + (faceNormal * correction);
+
+            //    qDebug() << "after correction: " << faceDelta.x() << faceDelta.y() << faceDelta.z() << "dot product:" << vm::dot(faceNormal, faceDelta) << "max drag:" << m_maxDrag;
+            //}
 
             if (vm::is_equal(faceDelta, m_totalDelta, vm::C::almost_zero())) {
                 return true;
