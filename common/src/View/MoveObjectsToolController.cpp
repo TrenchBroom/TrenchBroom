@@ -19,9 +19,8 @@
 
 #include "MoveObjectsToolController.h"
 
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
 #include "Model/HitQuery.h"
+#include "Model/ModelUtils.h"
 #include "Renderer/RenderContext.h"
 #include "View/MoveObjectsTool.h"
 #include "View/SelectionTool.h"
@@ -57,7 +56,7 @@ namespace TrenchBroom {
             // selected group, even though the entities/brushes aren't selected themselves.
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::EntityNode::EntityHitType | Model::BrushNode::BrushHitType).transitivelySelected().occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::nodeHitType()).transitivelySelected().occluded().first();
 
             if (!hit.isMatch())
                 return MoveInfo();

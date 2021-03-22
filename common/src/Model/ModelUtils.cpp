@@ -39,6 +39,10 @@
 
 namespace TrenchBroom {
     namespace Model {
+        HitType::Type nodeHitType() {
+            return Model::EntityNode::EntityHitType | Model::BrushNode::BrushHitType | Model::PatchNode::PatchHitType;
+        }
+
         LayerNode* findContainingLayer(Node* node) {
             return node->accept(kdl::overload(
                 [](WorldNode*)                            -> LayerNode* { return nullptr; },

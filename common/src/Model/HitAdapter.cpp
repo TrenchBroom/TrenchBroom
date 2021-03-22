@@ -20,17 +20,18 @@
 #include "HitAdapter.h"
 
 #include "Hit.h"
-#include "Model/Brush.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
+#include "Model/PatchNode.h"
 
 namespace TrenchBroom {
     namespace Model {
         Node* hitToNode(const Hit& hit) {
             if (hit.type() == EntityNode::EntityHitType) {
                 return hit.target<EntityNode*>();
+            } else if (hit.type() == PatchNode::PatchHitType) {
+                return hit.target<PatchNode*>();
             } else if (hit.type() == BrushNode::BrushHitType) {
                 return hit.target<BrushFaceHandle>().node();
             } else {

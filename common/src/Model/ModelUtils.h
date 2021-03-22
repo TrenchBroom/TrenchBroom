@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Model/HitType.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>
@@ -34,6 +35,8 @@ namespace TrenchBroom {
         class EditorContext;
         class LayerNode;
         class Node;
+
+        HitType::Type nodeHitType();
 
         LayerNode* findContainingLayer(Node* node);
 
