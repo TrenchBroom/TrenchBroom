@@ -53,6 +53,7 @@
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
 
+#include <algorithm>
 #include <iostream>
 #include <limits>
 #include <map>
@@ -294,6 +295,41 @@ namespace TrenchBroom {
             return result;            
         }
 
+        /**
+         * Returns the maximum drag for the given face, as a distance along the face normal.
+         *
+         * The return value is expected to always be negative since in a convex brush, it should be possible to
+         * move any face "back" slightly along its normal.
+         */
+        static FloatType maxDragForFace(const Model::Brush& brush, const size_t faceIndex) {
+            if (brush.vertexCount() == 0) {
+                return 0.0;
+            }
+            const Model::BrushFace& face = brush.face(faceIndex);
+
+            const std::vector<FloatType> vertexDistsAbovePlane = kdl::vec_transform(brush.vertexPositions(), [&](const vm::vec3& vertex) {
+                return face.boundary().point_distance(vertex);
+            });
+            return *std::min_element(std::begin(vertexDistsAbovePlane), std::end(vertexDistsAbovePlane));
+        }
+
+        void ResizeBrushesTool::determineMaxDrag() const {
+            assert(m_dragging);
+
+            const std::vector<FloatType> maxDrags = kdl::vec_transform(m_dragHandles, [&](const FaceHandle& handle) {
+                return maxDragForFace(*handle.brushAtDragStart, handle.faceIndex);
+            });
+
+            if (maxDrags.empty()) {
+                return;
+            }
+
+            // max_element because we are dragging all brushes simultaneously, and want
+            // to stop as soon as any of them is collapsed to zero.
+            FloatType maxDrag = *std::max_element(std::begin(maxDrags), std::end(maxDrags));
+            qDebug() << "max drag" << maxDrag;
+        }
+
         bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             if (!hit.isMatch()) {
@@ -328,6 +364,8 @@ namespace TrenchBroom {
             const auto faceDelta = grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
 
             std::cout << "face delta: " << faceDelta << "\n";
+
+            determineMaxDrag();
 
             if (vm::is_equal(faceDelta, m_totalDelta, vm::C::almost_zero())) {
                 return true;

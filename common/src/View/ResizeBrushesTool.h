@@ -107,6 +107,7 @@ namespace TrenchBroom {
             std::vector<FaceHandle> getDragHandles(const Model::Hit& hit) const;
             std::vector<FaceHandle> collectDragHandles(const Model::Hit& hit) const;
             std::vector<Model::BrushFaceHandle> collectDragFaces(const Model::BrushFaceHandle& faceHandle) const;
+            void determineMaxDrag() const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
