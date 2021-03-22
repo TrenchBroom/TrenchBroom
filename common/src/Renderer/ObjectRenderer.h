@@ -22,6 +22,7 @@
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/GroupRenderer.h"
+#include "Renderer/PatchRenderer.h"
 
 #include <vector>
 
@@ -38,6 +39,7 @@ namespace TrenchBroom {
         class EditorContext;
         class EntityNode;
         class GroupNode;
+        class PatchNode;
     }
 
     namespace Renderer {
@@ -49,14 +51,16 @@ namespace TrenchBroom {
             GroupRenderer m_groupRenderer;
             EntityRenderer m_entityRenderer;
             BrushRenderer m_brushRenderer;
+            PatchRenderer m_patchRenderer;
         public:
             template <typename BrushFilterT>
             ObjectRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext, const BrushFilterT& brushFilter) :
             m_groupRenderer(editorContext),
             m_entityRenderer(logger, entityModelManager, editorContext),
-            m_brushRenderer(brushFilter) {}
+            m_brushRenderer(brushFilter),
+            m_patchRenderer{} {}
         public: // object management
-            void setObjects(const std::vector<Model::GroupNode*>& groups, const std::vector<Model::EntityNode*>& entities, const std::vector<Model::BrushNode*>& brushes);
+            void setObjects(const std::vector<Model::GroupNode*>& groups, const std::vector<Model::EntityNode*>& entities, const std::vector<Model::BrushNode*>& brushes, const std::vector<Model::PatchNode*>& patches);
             void invalidate();
             void invalidateBrushes(const std::vector<Model::BrushNode*>& brushes);
             void clear();

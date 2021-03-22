@@ -30,6 +30,7 @@ namespace TrenchBroom {
             extern const ShaderConfig MiniMapEdgeShader;
             extern const ShaderConfig EntityModelShader;
             extern const ShaderConfig FaceShader;
+            extern const ShaderConfig PatchShader;
             extern const ShaderConfig EdgeShader;
             extern const ShaderConfig ColoredTextShader;
             extern const ShaderConfig TextBackgroundShader;
