@@ -96,7 +96,8 @@ namespace TrenchBroom {
         Tool(true),
         m_document(std::move(document)),
         m_splitBrushes(false),
-        m_dragging(false) {
+        m_dragging(false),
+        m_maxDrag(0.0) {
             bindObservers();
         }
 
@@ -339,6 +340,7 @@ namespace TrenchBroom {
             m_dragOrigin = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
+            m_maxDrag = determineMaxDrag(m_dragHandles);
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Resize Brushes");
@@ -363,9 +365,11 @@ namespace TrenchBroom {
             const auto unsnappedDelta = faceNormal * dragDist;
             const auto faceDelta = grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
 
-            std::cout << "face delta: " << faceDelta << "\n";
-
-            determineMaxDrag(m_dragHandles);
+            qDebug() << "face delta: " << faceDelta.x() << faceDelta.y() << faceDelta.z() << "dot product:" << vm::dot(faceNormal, faceDelta) << "max drag:" << m_maxDrag;
+            if (vm::dot(faceNormal, faceDelta) < (m_maxDrag + vm::C::almost_zero())) {
+                qDebug() << " -> too far";
+                return true;
+            }
 
             if (vm::is_equal(faceDelta, m_totalDelta, vm::C::almost_zero())) {
                 return true;
@@ -388,9 +392,7 @@ namespace TrenchBroom {
                     //m_dragOrigin = m_dragOrigin + faceDelta;
                 } else {
                     printf("went too far\n");
-
-                    // go back a step
-                    assert(document->resizeBrushes(polygonsAtDragStart(), m_totalDelta));
+                    assert(0);
                 }
             }
 
