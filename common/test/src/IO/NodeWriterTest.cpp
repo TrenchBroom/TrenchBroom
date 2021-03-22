@@ -19,6 +19,7 @@
 
 #include "Exceptions.h"
 #include "IO/NodeWriter.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -29,6 +30,7 @@
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
 #include "Model/MapFormat.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "Model/VisibilityState.h"
 
@@ -1138,5 +1140,47 @@ R"(// entity 0
 )", expectedName);
             CHECK(actual == expected);
         }
+
+        TEST_CASE("NodeWriterTest.writePatch", "[NodeWriterTest]") {
+            auto patch = Model::BezierPatch{5, 3, {
+                {-64, -64, 4, 0,   0}, {-64, 0, 4, 0,   -0.25}, {-64, 64, 4, 0,   -0.5},
+                {  0, -64, 4, 0.2, 0}, {  0, 0, 4, 0.2, -0.25}, {  0, 64, 4, 0.2, -0.5},
+                { 64, -64, 4, 0.4, 0}, { 64, 0, 4, 0.4, -0.25}, { 64, 64, 4, 0.4, -0.5},
+                {128, -64, 4, 0.6, 0}, {128, 0, 4, 0.6, -0.25}, {128, 64, 4, 0.6, -0.5},
+                {192, -64, 4, 0.8, 0}, {192, 0, 4, 0.8, -0.25}, {192, 64, 4, 0.8, -0.5} }, "common/caulk"};
+            
+            auto map = Model::WorldNode{Model::Entity{}, Model::MapFormat::Standard};
+            map.defaultLayer()->addChild(new Model::PatchNode{std::move(patch)});
+
+            auto str = std::stringstream{};
+            auto writer = NodeWriter{map, str};
+            writer.writeMap();
+
+            const auto actual = str.str();
+            const auto expected = 
+R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+patchDef2
+{
+common/caulk
+( 5 3 0 0 0 )
+(
+( ( -64 -64 4 0 0 ) ( -64 0 4 0 -0.25 ) ( -64 64 4 0 -0.5 ) )
+( ( 0 -64 4 0.2 0 ) ( 0 0 4 0.2 -0.25 ) ( 0 64 4 0.2 -0.5 ) )
+( ( 64 -64 4 0.4 0 ) ( 64 0 4 0.4 -0.25 ) ( 64 64 4 0.4 -0.5 ) )
+( ( 128 -64 4 0.6 0 ) ( 128 0 4 0.6 -0.25 ) ( 128 64 4 0.6 -0.5 ) )
+( ( 192 -64 4 0.8 0 ) ( 192 0 4 0.8 -0.25 ) ( 192 64 4 0.8 -0.5 ) )
+)
+}
+}
+}
+)";
+            CHECK(actual == expected);
+        }
+
+
     }
 }

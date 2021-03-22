@@ -24,6 +24,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/PatchNode.h"
 #include "Model/Polyhedron.h"
 
 #include <kdl/overload.h>
@@ -197,6 +198,39 @@ namespace TrenchBroom {
             }
 
             m_currentBrush->faces.push_back(BrushFace{std::move(indexedVertices), face.attributes().textureName(), face.texture()});
+        }
+
+        void ObjSerializer::doPatch(const Model::PatchNode* patchNode) {
+            const auto& patch = patchNode->patch();
+            auto patchObject = PatchObject{entityNo(), brushNo(), {}, patch.textureName(), patch.texture()};
+
+            const auto& patchGrid = patchNode->grid();
+            patchObject.quads.reserve(patchGrid.quadRowCount() * patchGrid.quadColumnCount());
+
+            // Vertex positions inserted from now on should get new indices
+            m_vertices.clearIndices();
+
+            const auto makeIndexedVertex = [&](const auto& p) {
+                const size_t positionIndex = m_vertices.index(p.position);
+                const size_t texCoordsIndex = m_texCoords.index(vm::vec2f{p.texCoords});
+                const size_t normalIndex = m_normals.index(p.normal);
+
+                return IndexedVertex{positionIndex, texCoordsIndex, normalIndex};
+            };
+
+            for (size_t row = 0u; row < patchGrid.pointRowCount - 1u; ++row) {
+                for (size_t col = 0u; col < patchGrid.pointColumnCount - 1u; ++col) {
+                        // counter clockwise order
+                        patchObject.quads.push_back(PatchQuad{{
+                            makeIndexedVertex(patchGrid.point(row, col)),
+                            makeIndexedVertex(patchGrid.point(row + 1u, col)),
+                            makeIndexedVertex(patchGrid.point(row + 1u, col + 1u)),
+                            makeIndexedVertex(patchGrid.point(row, col + 1u)),
+                        }});
+                }
+            }
+
+            m_objects.push_back(std::move(patchObject));
         }
     }
 }
