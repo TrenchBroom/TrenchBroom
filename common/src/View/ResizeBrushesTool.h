@@ -92,7 +92,6 @@ namespace TrenchBroom {
              */
             vm::vec3 m_totalDelta;
             bool m_dragging;
-            FloatType m_maxDrag;
         public:
             explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
             ~ResizeBrushesTool() override;

@@ -96,8 +96,7 @@ namespace TrenchBroom {
         Tool(true),
         m_document(std::move(document)),
         m_splitBrushes(false),
-        m_dragging(false),
-        m_maxDrag(0.0) {
+        m_dragging(false) {
             bindObservers();
         }
 
@@ -340,7 +339,6 @@ namespace TrenchBroom {
             m_dragOrigin = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
-            m_maxDrag = determineMaxDrag(m_dragHandles);
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Resize Brushes");
@@ -349,11 +347,11 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& /* camera */) {
-            const auto& dragFaceHandle = m_dragHandles.at(0);
-            const auto& dragFace = dragFaceHandle.faceAtDragStart();
-            const auto& faceNormal = dragFace.boundary().normal;
+            const FaceHandle& dragFaceHandle = m_dragHandles.at(0);
+            const Model::BrushFace& dragFace = dragFaceHandle.faceAtDragStart();
+            const vm::vec3& faceNormal = dragFace.boundary().normal;
 
-            const auto dist = vm::distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
+            const vm::line_distance<FloatType> dist = vm::distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
             if (dist.parallel) {
                 return true;
             }
@@ -361,53 +359,16 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
 
-            auto dragDistToSnappedDelta = [&](const FloatType dist) {
+            auto dragDistToSnappedDelta = [&](const FloatType dist) -> vm::vec3 {
                 const auto unsnappedDelta = faceNormal * dist;
                 return grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
             };
-            auto deltaToDist = [&](const vm::vec3& delta) {
+            auto deltaToDist = [&](const vm::vec3& delta) -> FloatType {
                 return vm::dot(delta, faceNormal);
             };
 
-            FloatType dragDist = dist.position2;
-
-            if (dragDist < (m_maxDrag + vm::C::almost_zero())) {
-                qDebug() << " -> too far" << dragDist << "max is" << m_maxDrag;
-
-                // First, try using m_maxDrag and then performing the grid snapping
-                const FloatType actualDragDistUsingMaxDrag = deltaToDist(dragDistToSnappedDelta(m_maxDrag));
-                const FloatType actualDragDistUsingMaxDragSnappedUp = deltaToDist(dragDistToSnappedDelta(grid.snapUp(m_maxDrag, true)));
-
-                qDebug() << "actualDragDistUsingMaxDrag" << actualDragDistUsingMaxDrag
-                         << "actualDragDistUsingMaxDragSnappedUp" << actualDragDistUsingMaxDragSnappedUp;
-
-                if (actualDragDistUsingMaxDrag >= (m_maxDrag + vm::C::almost_zero())
-                    && actualDragDistUsingMaxDrag < actualDragDistUsingMaxDragSnappedUp) {
-                    qDebug() << "using actualDragDistUsingMaxDrag";
-
-                    dragDist = m_maxDrag;
-                }
-                else {
-                    qDebug() << "using actualDragDistUsingMaxDragSnappedUp";
-                    dragDist = grid.snapUp(m_maxDrag, true);
-                }
-            }
-
+            const FloatType dragDist = dist.position2;
             const vm::vec3 faceDelta = dragDistToSnappedDelta(dragDist);
-
-            qDebug() << "face delta: " << faceDelta.x() << faceDelta.y() << faceDelta.z() << "dot product:" << vm::dot(faceNormal, faceDelta) << "max drag:" << m_maxDrag;
-            if (vm::dot(faceNormal, faceDelta) < (m_maxDrag + vm::C::almost_zero())) {
-                // FIXME: this is failing sometimes, move above
-                qDebug() << " error";
-                assert(0);
-            }
-            //    // correct the desired delta
-            //    
-            //    const FloatType correction = grid.snapUp(m_maxDrag - vm::dot(faceNormal, faceDelta), true);
-            //    faceDelta = faceDelta + (faceNormal * correction);
-
-            //    qDebug() << "after correction: " << faceDelta.x() << faceDelta.y() << faceDelta.z() << "dot product:" << vm::dot(faceNormal, faceDelta) << "max drag:" << m_maxDrag;
-            //}
 
             if (vm::is_equal(faceDelta, m_totalDelta, vm::C::almost_zero())) {
                 return true;
@@ -421,16 +382,14 @@ namespace TrenchBroom {
                     return true;
                 }
             } else {
-
                 // This handles ordinary resizing, splitting outward, and splitting inward
                 // (in which case dragFaceDescriptors() is a list of polygons splitting the selected brushes)
                 document->rollbackTransaction();
                 if (document->resizeBrushes(polygonsAtDragStart(), faceDelta)) {
                     m_totalDelta = faceDelta;
-                    //m_dragOrigin = m_dragOrigin + faceDelta;
                 } else {
-                    printf("went too far\n");
-                    assert(0);
+                    qDebug() << "went too far";
+                    document->resizeBrushes(polygonsAtDragStart(), m_totalDelta);
                 }
             }
 
