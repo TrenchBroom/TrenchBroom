@@ -375,7 +375,7 @@ namespace TrenchBroom {
             }
 
             if (m_splitBrushes) {
-                if (splitBrushesOutward(faceDelta)) { // FIXME: || splitBrushesInward(faceDelta)) {
+                if (splitBrushesOutward(faceDelta) || splitBrushesInward(faceDelta)) {
                     m_totalDelta = faceDelta;
                     return true;
                 }
@@ -468,8 +468,6 @@ namespace TrenchBroom {
         bool ResizeBrushesTool::splitBrushesOutward(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
 
-            document->rollbackTransaction();
-
             const vm::bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
 
@@ -481,6 +479,8 @@ namespace TrenchBroom {
                     return false;
                 }
             }
+
+            document->rollbackTransaction();
 
             std::vector<FaceHandle> newDragHandles;
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
@@ -547,6 +547,8 @@ namespace TrenchBroom {
                 }
             }
 
+            document->rollbackTransaction();
+
             std::vector<FaceHandle> newDragHandles;
             // This map is to handle the case when the brushes being
             // extruded have different parents (e.g. different brush entities),
@@ -586,7 +588,7 @@ namespace TrenchBroom {
                 const auto addedNodes = document->addNodes(newNodes);
                 document->select(addedNodes);
 
-                m_dragHandles = kdl::vec_concat(std::move(m_dragHandles), std::move(newDragHandles));
+                //m_dragHandles = kdl::vec_concat(std::move(m_dragHandles), std::move(newDragHandles));
                 
                 return kdl::void_success;
             }).handle_errors([&](const auto& e) {
