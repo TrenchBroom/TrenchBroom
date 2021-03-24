@@ -79,6 +79,7 @@ namespace TrenchBroom {
         private:
             std::weak_ptr<MapDocument> m_document;
             std::vector<FaceHandle> m_dragHandles;
+            std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
             vm::vec3 m_dragOrigin;
             vm::vec3 m_lastPoint;
             /**
