@@ -375,10 +375,8 @@ namespace TrenchBroom {
             }
 
             if (m_splitBrushes) {
-                // FIXME: update
-                if (splitBrushesOutward(faceDelta) || splitBrushesInward(faceDelta)) {
+                if (splitBrushesOutward(faceDelta)) { // FIXME: || splitBrushesInward(faceDelta)) {
                     m_totalDelta = faceDelta;
-                    m_splitBrushes = false;
                     return true;
                 }
             } else {
@@ -469,6 +467,9 @@ namespace TrenchBroom {
          */
         bool ResizeBrushesTool::splitBrushesOutward(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
+
+            document->rollbackTransaction();
+
             const vm::bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
 
@@ -509,7 +510,7 @@ namespace TrenchBroom {
                 document->deselectAll();
                 const auto addedNodes = document->addNodes(newNodes);
                 document->select(addedNodes);
-                m_dragHandles = std::move(newDragHandles);
+                //m_dragHandles = std::move(newDragHandles);
             }).handle_errors(
                 [&](const Model::BrushError e) {
                     document->error() << "Could not extrude brush: " << e;
