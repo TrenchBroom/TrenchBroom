@@ -508,8 +508,9 @@ namespace TrenchBroom {
                         newNodes[brushNode->parent()].push_back(newBrushNode);
 
                         // Look up the new face index of the new drag handle
-                        const size_t newDragFaceIndex = *newBrushNode->brush().findFace(newDragFaceNormal);
-                        newDragHandles.push_back(Model::BrushFaceHandle(newBrushNode, newDragFaceIndex));
+                        if (const auto newDragFaceIndex = newBrushNode->brush().findFace(newDragFaceNormal)) {
+                            newDragHandles.push_back(Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
+                        }
                     });
             }).and_then([&]() {
                 document->deselectAll();
@@ -582,8 +583,9 @@ namespace TrenchBroom {
                         newNodes[brushNode->parent()].push_back(newBrushNode);
 
                         // Look up the new face index of the new drag handle
-                        const size_t newDragFaceIndex = *newBrushNode->brush().findFace(clipFace.normal());
-                        newDragHandles.push_back(Model::BrushFaceHandle(newBrushNode, newDragFaceIndex));
+                        if (const auto newDragFaceIndex = newBrushNode->brush().findFace(clipFace.normal())) {
+                            newDragHandles.push_back(Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
+                        }
                     });
             }).and_then([&]() -> kdl::result<void, ResizeError> {
                 // Now that the newly split off brushes are ready to insert (but not selected),
