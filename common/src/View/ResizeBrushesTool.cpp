@@ -350,6 +350,16 @@ namespace TrenchBroom {
                     qDebug() << "went too far";
                     document->resizeBrushes(polygonsAtDragStart(), m_totalDelta);
                 }
+
+                // Update m_currentDragVisualHandles
+                m_currentDragVisualHandles.clear();
+                for (const auto& dragHandle : m_dragHandlesAtDragStart) {
+                    // We assume that the node pointer at the start of the drag is still valid
+                    const Model::Brush& brush = dragHandle.node->brush();
+                    if (const std::optional<size_t> faceIndex = brush.findFace(dragHandle.faceNormal())) {
+                        m_currentDragVisualHandles.push_back(Model::BrushFaceHandle(dragHandle.node, *faceIndex));
+                    }
+                }
             }
 
             return true;
