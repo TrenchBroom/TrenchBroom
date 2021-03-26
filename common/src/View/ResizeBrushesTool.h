@@ -70,6 +70,13 @@ namespace TrenchBroom {
             bool operator!=(const FaceHandle& other) const;
         };
 
+        /**
+         * TODO:
+         * - fix move
+         * - allow extrude inward on multiple brushes to fully "pass by" the smaller of the brushes
+         * - fix highlight during resize
+         *      
+         */
         class ResizeBrushesTool : public Tool {
         public:
             static const Model::HitType::Type Resize3DHitType;
