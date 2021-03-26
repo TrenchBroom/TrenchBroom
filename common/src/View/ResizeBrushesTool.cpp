@@ -66,11 +66,11 @@ namespace TrenchBroom {
 
         FaceHandle::FaceHandle(const Model::BrushFaceHandle& handle) :
         node(handle.node()),
-        brushAtDragStart(std::make_unique<Model::Brush>(handle.node()->brush())),
+        brushAtDragStart(handle.node()->brush()),
         faceIndex(handle.faceIndex()) {}
 
-        Model::BrushFace& FaceHandle::faceAtDragStart() const {
-            return brushAtDragStart->face(faceIndex);
+        const Model::BrushFace& FaceHandle::faceAtDragStart() const {
+            return brushAtDragStart.face(faceIndex);
         }
 
         vm::vec3 FaceHandle::faceNormal() const {
@@ -83,7 +83,7 @@ namespace TrenchBroom {
 
         bool FaceHandle::operator==(const FaceHandle& other) const {
             return node == other.node
-                && *brushAtDragStart == *other.brushAtDragStart
+                && brushAtDragStart == other.brushAtDragStart
                 && faceIndex == other.faceIndex;
             //&& polygonAtDragStart == other.polygonAtDragStart;
         }
@@ -192,36 +192,24 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::hasDragFaces() const {
-            return !m_currentDragVisualHandles.empty();
+            return !dragFaces().empty();
         }
 
         /**
          * Used for rendering -> returns the "current" handles (may be none if all brushes are deleted)
          */
         std::vector<Model::BrushFaceHandle> ResizeBrushesTool::dragFaces() const {
-            return m_currentDragVisualHandles;
+            if (m_dragging) {
+                return m_currentDragVisualHandles;
+            }
 
-            //std::vector<Model::BrushFaceHandle> result;
-            //result.reserve(m_dragHandles.size());
-            //for (const auto& dragHandle : m_dragHandles) {
-            //    auto* brushNode = dragHandle.node;
-            //    const auto& normal = dragHandle.faceNormal();
-            //    if (brushNode->parent() == nullptr) {
-            //        // don't draw faces on brushes that were collapsed and deleted
-            //        continue;
-            //    }
-            //    const auto& brush = brushNode->brush();
-            //    const auto faceIndex = brush.findFace(normal);
-            //    if (faceIndex) {
-            //        result.push_back(Model::BrushFaceHandle(brushNode, *faceIndex));
-            //    }
-            //}
-            //return result;
+            return kdl::vec_transform(m_dragHandles, [](const FaceHandle& handle) {
+                    return Model::BrushFaceHandle(handle.node, handle.faceIndex);
+                });
         }
 
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
-            // FIXME: assert not dragging
-            std::cout << "update drag faces\n";
+            // FIXME: assert not dragging            
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             auto newDragHandles = getDragHandles(hit);
             if (newDragHandles != m_dragHandles) {
@@ -230,6 +218,8 @@ namespace TrenchBroom {
 
             using std::swap;
             swap(m_dragHandles, newDragHandles);
+
+            qDebug() << "update drag faces" << m_dragHandles.size();
         }
 
         std::vector<FaceHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
@@ -309,6 +299,7 @@ namespace TrenchBroom {
             m_dragOrigin = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
+            m_dragHandlesAtDragStart = m_dragHandles;
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Resize Brushes");
@@ -317,7 +308,7 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& /* camera */) {
-            const FaceHandle& dragFaceHandle = m_dragHandles.at(0);
+            const FaceHandle& dragFaceHandle = m_dragHandlesAtDragStart.at(0);
             const Model::BrushFace& dragFace = dragFaceHandle.faceAtDragStart();
             const vm::vec3& faceNormal = dragFace.boundary().normal;
 
@@ -413,6 +404,7 @@ namespace TrenchBroom {
                 document->commitTransaction();
             }
             m_dragHandles.clear();
+            m_dragHandlesAtDragStart.clear();
             m_currentDragVisualHandles.clear();
             m_dragging = false;
         }
@@ -421,6 +413,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
             m_dragHandles.clear();
+            m_dragHandlesAtDragStart.clear();
             m_currentDragVisualHandles.clear();
             m_dragging = false;
         }
@@ -436,7 +429,7 @@ namespace TrenchBroom {
 
             // First ensure that the drag can be applied at all. For this, check whether each drag handle is moved
             // "up" along its normal.
-            for (const auto& handle : m_dragHandles) {
+            for (const auto& handle : m_dragHandlesAtDragStart) {
                 const auto& normal = handle.faceNormal();
                 if (vm::dot(normal, delta) <= FloatType(0)) {
                     return false;
@@ -449,7 +442,7 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceHandle> newDragHandles;
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
-            return kdl::for_each_result(m_dragHandles, [&](const auto& dragFaceHandle) {
+            return kdl::for_each_result(m_dragHandlesAtDragStart, [&](const auto& dragFaceHandle) {
                 auto* brushNode = dragFaceHandle.node;
 
                 const auto& oldBrush = brushNode->brush();
@@ -505,7 +498,7 @@ namespace TrenchBroom {
 
             // First ensure that the drag can be applied at all. For this, check whether each drag handle is moved
             // "down" along its normal.
-            for (const auto& handle : m_dragHandles) {
+            for (const auto& handle : m_dragHandlesAtDragStart) {
                 const auto& normal = handle.faceNormal();
                 if (vm::dot(normal, delta) > 0.0) {
                     return false;
@@ -521,7 +514,7 @@ namespace TrenchBroom {
             // so each newly created brush should be made a sibling of the brush it was cloned from.
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
-            return kdl::for_each_result(m_dragHandles, [&](const auto& dragFaceHandle) -> kdl::result<void, ResizeError, Model::BrushError> {
+            return kdl::for_each_result(m_dragHandlesAtDragStart, [&](const auto& dragFaceHandle) -> kdl::result<void, ResizeError, Model::BrushError> {
                 const auto& dragFace = dragFaceHandle.faceAtDragStart();
                 auto* brushNode = dragFaceHandle.node;
 
@@ -567,8 +560,8 @@ namespace TrenchBroom {
         }
 
         std::vector<vm::polygon3> ResizeBrushesTool::polygonsAtDragStart() const {
-            return kdl::vec_transform(m_dragHandles, [](const auto& handle) {
-                return handle.brushAtDragStart->face(handle.faceIndex).polygon();
+            return kdl::vec_transform(m_dragHandlesAtDragStart, [](const auto& handle) {
+                return handle.brushAtDragStart.face(handle.faceIndex).polygon();
             });
         }
 

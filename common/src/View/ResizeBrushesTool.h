@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Model/Brush.h"
 #include "Model/HitType.h"
 #include "View/Tool.h"
 
@@ -52,7 +53,7 @@ namespace TrenchBroom {
 
         struct FaceHandle {
             Model::BrushNode* node;
-            std::unique_ptr<Model::Brush> brushAtDragStart;
+            Model::Brush brushAtDragStart;
             size_t faceIndex;
 
             explicit FaceHandle(const Model::BrushFaceHandle& handle);
@@ -60,7 +61,7 @@ namespace TrenchBroom {
             //vm::vec3 faceNormal;
             //vm::polygon3 polygonAtDragStart;
 
-            Model::BrushFace& faceAtDragStart() const;
+            const Model::BrushFace& faceAtDragStart() const;
             vm::vec3 faceNormal() const;
             vm::polygon3 polygonAtDragStart() const;
 
@@ -79,7 +80,9 @@ namespace TrenchBroom {
         private:
             std::weak_ptr<MapDocument> m_document;
             std::vector<FaceHandle> m_dragHandles;
+        private: // drag state
             std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
+            std::vector<FaceHandle> m_dragHandlesAtDragStart;
             vm::vec3 m_dragOrigin;
             vm::vec3 m_lastPoint;
             /**
