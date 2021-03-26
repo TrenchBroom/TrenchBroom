@@ -99,8 +99,13 @@ namespace TrenchBroom {
                 vm::vec3f lastPoint = points.back();
 
                 if (!stream.eof()) {
-                    std::getline(stream, line);
-                    vm::vec3f curPoint = vm::parse<float, 3>(line).value_or(vm::vec3f::zero());
+                    vm::vec3f curPoint;
+                    bool secondPointExists = false;
+                    while (!stream.eof() && !secondPointExists){
+                        std::getline(stream, line);
+                        curPoint = vm::parse<float, 3>(line).value_or(vm::vec3f::zero());
+                        secondPointExists = curPoint != lastPoint;
+                    }
                     vm::vec3f refDir = normalize(curPoint - lastPoint);
 
                     while (!stream.eof()) {
@@ -114,8 +119,8 @@ namespace TrenchBroom {
                             refDir = dir;
                         }
                     }
-
-                    points.push_back(curPoint);
+                    if (secondPointExists)
+                        points.push_back(curPoint);
                 }
             }
 
