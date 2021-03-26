@@ -114,7 +114,6 @@ namespace TrenchBroom {
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
-            vm::vec3 selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, FloatType mouseDistance) const;
 
             bool beginMove(const Model::PickResult& pickResult);
             bool move(const vm::ray3& pickRay, const Renderer::Camera& camera);

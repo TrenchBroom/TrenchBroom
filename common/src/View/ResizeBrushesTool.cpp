@@ -298,40 +298,8 @@ namespace TrenchBroom {
         }
 
         /**
-         * Returns the maximum drag for the given face, as a distance along the face normal.
-         *
-         * The return value is expected to always be negative since in a convex brush, it should be possible to
-         * move any face "back" slightly along its normal.
+         * Starts resizing the faces determined by the previous call to updateDragFaces
          */
-        static FloatType maxDragForFace(const Model::Brush& brush, const size_t faceIndex) {
-            if (brush.vertexCount() == 0) {
-                return 0.0;
-            }
-            const Model::BrushFace& face = brush.face(faceIndex);
-
-            const std::vector<FloatType> vertexDistsAbovePlane = kdl::vec_transform(brush.vertexPositions(), [&](const vm::vec3& vertex) {
-                return face.boundary().point_distance(vertex);
-            });
-            return *std::min_element(std::begin(vertexDistsAbovePlane), std::end(vertexDistsAbovePlane));
-        }
-
-        static FloatType determineMaxDrag(const std::vector<FaceHandle>& dragHandles) {
-            const std::vector<FloatType> maxDrags = kdl::vec_transform(dragHandles, [&](const FaceHandle& handle) {
-                return maxDragForFace(*handle.brushAtDragStart, handle.faceIndex);
-            });
-
-            if (maxDrags.empty()) {
-                return 0;
-            }
-
-            // max_element because we are dragging all brushes simultaneously, and want
-            // to stop as soon as any of them is collapsed to zero.
-            const FloatType maxDrag = *std::max_element(std::begin(maxDrags), std::end(maxDrags));
-            qDebug() << "max drag" << maxDrag;
-
-            return maxDrag;
-        }
-
         bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             if (!hit.isMatch()) {
@@ -394,15 +362,6 @@ namespace TrenchBroom {
             }
 
             return true;
-        }
-
-        vm::vec3 ResizeBrushesTool::selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, const FloatType mouseDistance) const {
-            // select the delta that is closest to the actual delta indicated by the mouse cursor
-            const auto mouseDistance2 = mouseDistance * mouseDistance;
-            return (vm::abs(vm::squared_length(relativeDelta) - mouseDistance2) <
-                    vm::abs(vm::squared_length(absoluteDelta) - mouseDistance2) ?
-                    relativeDelta :
-                    absoluteDelta);
         }
 
         bool ResizeBrushesTool::beginMove(const Model::PickResult& pickResult) {
