@@ -39,8 +39,6 @@ namespace TrenchBroom {
         public:
             WorldReaderException();
             WorldReaderException(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions);
-        private:
-            std::string formatParserExceptions(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions);
         };
 
         /**

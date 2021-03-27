@@ -40,17 +40,17 @@ namespace TrenchBroom {
     namespace IO {
         // WorldReaderException
 
-        WorldReaderException::WorldReaderException() : Exception() {}
-        WorldReaderException::WorldReaderException(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions) :
-        Exception(formatParserExceptions(parserExceptions)) {}
-
-        std::string WorldReaderException::formatParserExceptions(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions) {
+        static std::string formatParserExceptions(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions) {
             std::stringstream result;
-            for (const auto& parserException : parserExceptions) {
-                result << "Error parsing as " << Model::formatName(std::get<0>(parserException)) << ": " << std::get<1>(parserException) << "\n";
+            for (const auto& [mapFormat, message] : parserExceptions) {
+                result << "Error parsing as " << Model::formatName(mapFormat) << ": " << message << "\n";
             }
             return result.str();
         }
+
+        WorldReaderException::WorldReaderException() : Exception() {}
+        WorldReaderException::WorldReaderException(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions) :
+        Exception{formatParserExceptions(parserExceptions)} {}
 
         // WorldReader
 
@@ -69,10 +69,10 @@ namespace TrenchBroom {
                 }
 
                 try {
-                    WorldReader reader(str, mapFormat);
+                    WorldReader reader{str, mapFormat};
                     return reader.read(worldBounds, status);
                 } catch (const ParserException& e) {
-                    parserExceptions.emplace_back(mapFormat, std::string(e.what()));
+                    parserExceptions.emplace_back(mapFormat, std::string{e.what()});
                 }
             }
 
