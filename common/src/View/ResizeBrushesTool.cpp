@@ -371,9 +371,10 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_dragOrigin = m_lastPoint = hit.hitPoint();
+            m_dragOrigin = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = false;
+            m_dragHandlesAtDragStart = m_dragHandles;
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Move Faces");
@@ -388,19 +389,31 @@ namespace TrenchBroom {
                 return true;
             }
 
-            const auto hitPoint = vm::point_at_distance(pickRay, hitDist);
+            const vm::vec3 hitPoint = vm::point_at_distance(pickRay, hitDist);
 
             auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
-            const auto delta = grid.snap(hitPoint - m_lastPoint);
+            const vm::vec3 delta = grid.snap(hitPoint - m_dragOrigin);
             if (vm::is_zero(delta, vm::C::almost_zero())) {
                 return true;
             }
 
-            auto facesToMove = kdl::vec_transform(dragFaces(), [](const auto& handle) { return handle.face().polygon(); });
-            if (document->moveFaces(std::move(facesToMove), delta)) {
-                m_lastPoint = m_lastPoint + delta;
-                m_totalDelta = m_totalDelta + delta;
+            document->rollbackTransaction();
+            if (document->moveFaces(polygonsAtDragStart(), delta)) {
+                m_totalDelta = delta;
+
+                // Update m_currentDragVisualHandles
+                m_currentDragVisualHandles.clear();
+                for (const auto& dragHandle : m_dragHandlesAtDragStart) {
+                    // We assume that the node pointer at the start of the drag is still valid
+                    const Model::Brush& brush = dragHandle.node->brush();
+                    if (const std::optional<size_t> faceIndex = brush.findFace(dragHandle.faceNormal())) {
+                        m_currentDragVisualHandles.push_back(Model::BrushFaceHandle(dragHandle.node, *faceIndex));
+                    }
+                }
+            } else {
+                // restore the last successful position
+                document->moveFaces(polygonsAtDragStart(), m_totalDelta);
             }
 
             return true;

@@ -70,10 +70,6 @@ namespace TrenchBroom {
             bool operator!=(const FaceHandle& other) const;
         };
 
-        /**
-         * TODO:
-         * - fix move
-         */
         class ResizeBrushesTool : public Tool {
         public:
             static const Model::HitType::Type Resize3DHitType;
@@ -88,7 +84,6 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
             std::vector<FaceHandle> m_dragHandlesAtDragStart;
             vm::vec3 m_dragOrigin;
-            vm::vec3 m_lastPoint;
             /**
              * This is temporarily set to true when a drag is started with Ctrl,
              * to signal that new brushes need to be split off. After the split brushes have been
