@@ -73,7 +73,6 @@ namespace TrenchBroom {
         /**
          * TODO:
          * - fix move
-         * - allow extrude inward on multiple brushes to fully "pass by" the smaller of the brushes
          */
         class ResizeBrushesTool : public Tool {
         public:
