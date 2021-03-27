@@ -566,7 +566,7 @@ namespace TrenchBroom {
             }).and_then([&]() -> kdl::result<void, ResizeError> {
                 // Now that the newly split off brushes are ready to insert (but not selected),
                 // resize the original brushes, which are still selected at this point.
-                if (!document->resizeBrushesAndAllowDeletion(polygonsAtDragStart(), delta)) {
+                if (!document->resizeBrushes(polygonsAtDragStart(), delta, MapDocument::BrushDeletion::Allow)) {
                     return ResizeError{"Resizing failed"};
                 }
 

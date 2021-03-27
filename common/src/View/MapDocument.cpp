@@ -2453,34 +2453,7 @@ namespace TrenchBroom {
             return checkLinkedGroupsToUpdate(kdl::vec_transform(linkedGroupsToUpdate, [](const auto& p) { return p.first; }));
         }
 
-        bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
-            const auto nodes = m_selectedNodes.nodes();
-            return applyAndSwap(*this, "Resize Brushes", nodes, findContainingLinkedGroupsToUpdate(*m_world, nodes), kdl::overload(
-                [] (Model::Layer&)       { return true; },
-                [] (Model::Group&)       { return true; },
-                [] (Model::Entity&)      { return true; },
-                [&](Model::Brush& brush) {
-                    const auto faceIndex = brush.findFace(faces);
-                    if (!faceIndex) {
-                        // we allow resizing only some of the brushes
-                        return true;
-                    }
-
-                    return brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
-                        .visit(kdl::overload(
-                            [&]() {
-                                return m_worldBounds.contains(brush.bounds());
-                            },
-                            [&](const Model::BrushError e) {
-                                error() << "Could not resize brush: " << e;
-                                return false;
-                            }
-                        ));
-                }
-            ));
-        }
-
-        bool MapDocument::resizeBrushesAndAllowDeletion(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
+        bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta, const BrushDeletion deletionMode) {
             auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
             nodesToUpdate.reserve(m_selectedNodes.brushCount());
 
@@ -2497,22 +2470,28 @@ namespace TrenchBroom {
                     continue;
                 }
 
-                brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
-                    .and_then([&](){
-                        nodesToUpdate.emplace_back(brushNode, brush);
-                    }).handle_errors([&](const Model::BrushError) {
-                        // FIXME: distinguish collapsing to 0 from exceeding bounds
+                const kdl::result<void, Model::BrushError> moveResult = brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock));
+                if (moveResult.is_success()) {
+                    if (!m_worldBounds.contains(brush.bounds())) {
+                        return false;
+                    }
+                    nodesToUpdate.emplace_back(brushNode, brush);
+                } else {
+                    const Model::BrushError e = std::get<Model::BrushError>(moveResult.error());
 
-                        // allow brushes to be collapsed to nothing
-                        toRemove.push_back(brushNode);
-                        toSelect = kdl::vec_erase(std::move(toSelect), brushNode);
-                    });
+                    if (deletionMode == BrushDeletion::Deny) {
+                        error() << "Could not resize brush: " << e;
+                        return false;
+                    }
+
+                    // Allow brushes to be collapsed to nothing
+                    toRemove.push_back(brushNode);
+                    toSelect = kdl::vec_erase(std::move(toSelect), brushNode);
+                }
             }
 
             const bool success = swapNodeContents("Resize Brushes", nodesToUpdate, findContainingLinkedGroupsToUpdate(*m_world, m_selectedNodes.nodes()));
-
             if (success) {
-                std::cout << "removing " << toRemove.size() << " brushes";
                 deselectAll();
                 removeNodes(toRemove);
                 select(toSelect);
