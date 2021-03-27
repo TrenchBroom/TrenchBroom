@@ -455,6 +455,7 @@ namespace TrenchBroom {
             bool canClearProtectedProperties() const;
         public: // brush resizing, declared in MapFacade interface
             bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
+            bool resizeBrushesAndAllowDeletion(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
         public:
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
             bool setFaceAttributesExceptContentFlags(const Model::BrushFaceAttributes& attributes) override;

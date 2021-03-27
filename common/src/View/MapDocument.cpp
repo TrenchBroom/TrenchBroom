@@ -2480,6 +2480,47 @@ namespace TrenchBroom {
             ));
         }
 
+        bool MapDocument::resizeBrushesAndAllowDeletion(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
+            auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+            nodesToUpdate.reserve(m_selectedNodes.brushCount());
+
+            auto toRemove = std::vector<Model::Node*>{};
+            toRemove.reserve(m_selectedNodes.brushCount());
+
+            std::vector<Model::Node*> toSelect = m_selectedNodes.nodes();
+
+            for (auto* brushNode : m_selectedNodes.brushes()) {
+                Model::Brush brush = brushNode->brush();
+                const auto faceIndex = brush.findFace(faces);
+                if (!faceIndex) {
+                    // we allow resizing only some of the brushes
+                    continue;
+                }
+
+                brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
+                    .and_then([&](){
+                        nodesToUpdate.emplace_back(brushNode, brush);
+                    }).handle_errors([&](const Model::BrushError) {
+                        // FIXME: distinguish collapsing to 0 from exceeding bounds
+
+                        // allow brushes to be collapsed to nothing
+                        toRemove.push_back(brushNode);
+                        toSelect = kdl::vec_erase(std::move(toSelect), brushNode);
+                    });
+            }
+
+            const bool success = swapNodeContents("Resize Brushes", nodesToUpdate, findContainingLinkedGroupsToUpdate(*m_world, m_selectedNodes.nodes()));
+
+            if (success) {
+                std::cout << "removing " << toRemove.size() << " brushes";
+                deselectAll();
+                removeNodes(toRemove);
+                select(toSelect);
+            }
+
+            return true;
+        }
+
         bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setAll(attributes);
