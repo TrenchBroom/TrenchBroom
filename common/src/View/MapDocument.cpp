@@ -1074,6 +1074,10 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
+            for (const auto& [parent, children] : nodes) {
+                assert(parent->isDescendantOf(m_world.get()));
+            }
+
             Transaction transaction(this, "Add Objects");
             const auto result = executeAndStore(AddRemoveNodesCommand::add(nodes, findAllLinkedGroupsToUpdate(*m_world, kdl::map_keys(nodes))));
             if (!result->success()) {
