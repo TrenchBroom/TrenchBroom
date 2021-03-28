@@ -39,7 +39,10 @@ namespace TrenchBroom {
 
         class GameDialog : public QDialog {
             Q_OBJECT
+        private:
+            enum class DialogType { Open, New };
         protected:
+            DialogType m_dialogType;
             GameListBox* m_gameListBox;
             QComboBox* m_mapFormatComboBox;
             QPushButton* m_openPreferencesButton;
@@ -58,7 +61,7 @@ namespace TrenchBroom {
             void gameSelected(const QString& gameName);
             void openPreferencesClicked();
         protected:
-            GameDialog(const QString& title, const QString& infoText, QWidget* parent = nullptr);
+            GameDialog(const QString& title, const QString& infoText, DialogType type, QWidget* parent = nullptr);
 
             void createGui(const QString& title, const QString& infoText);
             QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);

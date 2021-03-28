@@ -34,13 +34,55 @@
 
 #include <cassert>
 #include <string>
+#include <sstream>
 
 namespace TrenchBroom {
     namespace IO {
+        // WorldReaderException
+
+        static std::string formatParserExceptions(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions) {
+            std::stringstream result;
+            for (const auto& [mapFormat, message] : parserExceptions) {
+                result << "Error parsing as " << Model::formatName(mapFormat) << ": " << message << "\n";
+            }
+            return result.str();
+        }
+
+        WorldReaderException::WorldReaderException() : Exception() {}
+        WorldReaderException::WorldReaderException(const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions) :
+        Exception{formatParserExceptions(parserExceptions)} {}
+
+        // WorldReader
+
         WorldReader::WorldReader(std::string_view str, const Model::MapFormat sourceAndTargetMapFormat) :
         MapReader(std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat),
         m_world(std::make_unique<Model::WorldNode>(Model::Entity(), sourceAndTargetMapFormat)) {
             m_world->disableNodeTreeUpdates();
+        }
+
+        std::unique_ptr<Model::WorldNode> WorldReader::tryRead(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status) {
+            std::vector<std::tuple<Model::MapFormat, std::string>> parserExceptions;
+
+            for (const auto mapFormat : mapFormatsToTry) {
+                if (mapFormat == Model::MapFormat::Unknown) {
+                    continue;
+                }
+
+                try {
+                    WorldReader reader{str, mapFormat};
+                    return reader.read(worldBounds, status);
+                } catch (const ParserException& e) {
+                    parserExceptions.emplace_back(mapFormat, std::string{e.what()});
+                }
+            }
+
+            if (!parserExceptions.empty()) {
+                // No format parsed successfully. Just throw the parse error from the last one.
+                throw WorldReaderException(parserExceptions);
+            } else {
+                // mapFormatsToTry was empty or all elements were Model::MapFormat::Unknown
+                throw WorldReaderException({{Model::MapFormat::Unknown, "No valid formats to parse as"}});
+            }
         }
 
         std::unique_ptr<Model::WorldNode> WorldReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {

@@ -37,6 +37,8 @@
 #include <cassert>
 #include <string>
 
+Q_DECLARE_METATYPE(TrenchBroom::Model::MapFormat)
+
 namespace TrenchBroom {
     namespace View {
         GameDialog::~GameDialog() {
@@ -44,7 +46,7 @@ namespace TrenchBroom {
         }
 
         bool GameDialog::showNewDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat) {
-            GameDialog dialog("Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.", parent);
+            GameDialog dialog("Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.", GameDialog::DialogType::New, parent);
             if (dialog.exec() == QDialog::Rejected) {
                 return false;
             } else {
@@ -57,7 +59,7 @@ namespace TrenchBroom {
         bool GameDialog::showOpenDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat) {
             GameDialog dialog("Select Game",
                 "TrenchBroom was unable to detect the game for the map document. Please choose a game in the game list and click OK.",
-                parent);
+                GameDialog::DialogType::Open, parent);
             if (dialog.exec() == QDialog::Rejected) {
                 return false;
             } else {
@@ -71,10 +73,22 @@ namespace TrenchBroom {
             return m_gameListBox->selectedGameName();
         }
 
+        static Model::MapFormat formatFromUserData(const QVariant& variant) {
+            if (variant.canConvert<Model::MapFormat>()) {
+                return variant.value<Model::MapFormat>();
+            } else {
+                return Model::MapFormat::Unknown;
+            }
+        }
+
+        static QVariant formatToUserData(const Model::MapFormat format) {
+            return QVariant::fromValue(format);
+        }
+
         Model::MapFormat GameDialog::currentMapFormat() const {
-            const auto formatName = m_mapFormatComboBox->currentText();
-            assert(!formatName.isEmpty());
-            return Model::formatFromName(formatName.toStdString());
+            const QVariant userData = m_mapFormatComboBox->currentData();
+            assert(userData.isValid());
+            return formatFromUserData(userData);
         }
 
         void GameDialog::currentGameChanged(const QString& gameName) {
@@ -91,8 +105,9 @@ namespace TrenchBroom {
             app.openPreferences();
         }
 
-        GameDialog::GameDialog(const QString& title, const QString& infoText, QWidget* parent) :
+        GameDialog::GameDialog(const QString& title, const QString& infoText, const DialogType type, QWidget* parent) :
         QDialog(parent),
+        m_dialogType(type),
         m_gameListBox(nullptr),
         m_mapFormatComboBox(nullptr),
         m_openPreferencesButton(nullptr),
@@ -205,8 +220,12 @@ namespace TrenchBroom {
             const auto fileFormats = gameName.empty() ? std::vector<std::string>({}) : gameFactory.fileFormats(gameName);
 
             m_mapFormatComboBox->clear();
+            if (m_dialogType == DialogType::Open) {
+                m_mapFormatComboBox->addItem(tr("Autodetect"), formatToUserData(Model::MapFormat::Unknown));
+            }
             for (const auto& fileFormat : fileFormats) {
-                m_mapFormatComboBox->addItem(QString::fromStdString(fileFormat));
+                const Model::MapFormat mapFormat = Model::formatFromName(fileFormat);
+                m_mapFormatComboBox->addItem(QString::fromStdString(fileFormat), formatToUserData(mapFormat));
             }
 
             m_mapFormatComboBox->setEnabled(m_mapFormatComboBox->count() > 1);
