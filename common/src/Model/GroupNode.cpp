@@ -373,14 +373,6 @@ namespace TrenchBroom {
             return findContainingGroup(this);
         }
 
-        bool GroupNode::doContains(const Node* node) const {
-            return boundsContainNode(logicalBounds(), node);
-        }
-
-        bool GroupNode::doIntersects(const Node* node) const {
-            return boundsIntersectNode(logicalBounds(), node);
-        }
-
         void GroupNode::invalidateBounds() {
             m_boundsValid = false;
         }

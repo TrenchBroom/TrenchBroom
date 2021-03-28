@@ -132,6 +132,26 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
+        bool BrushNode::contains(const Node* node) const {
+            return node->accept(kdl::overload(
+                [](const WorldNode*)          { return false; },
+                [](const LayerNode*)          { return false; },
+                [&](const GroupNode* group)   { return m_brush.contains(group->logicalBounds()); },
+                [&](const EntityNode* entity) { return m_brush.contains(entity->logicalBounds()); },
+                [&](const BrushNode* brush)   { return m_brush.contains(brush->brush()); }
+            ));
+        }
+
+        bool BrushNode::intersects(const Node* node) const {
+            return node->accept(kdl::overload(
+                [](const WorldNode*)          { return false; },
+                [](const LayerNode*)          { return false; },
+                [&](const GroupNode* group)   { return m_brush.intersects(group->logicalBounds()); },
+                [&](const EntityNode* entity) { return m_brush.intersects(entity->logicalBounds()); },
+                [&](const BrushNode* brush)   { return m_brush.intersects(brush->brush()); }
+            ));
+        }
+
         void BrushNode::clearSelectedFaces() {
             for (BrushFace& face : m_brush.faces()) {
                 if (face.selected()) {
@@ -239,26 +259,6 @@ namespace TrenchBroom {
 
         GroupNode* BrushNode::doGetContainingGroup() {
             return findContainingGroup(this);
-        }
-
-        bool BrushNode::doContains(const Node* node) const {
-            return node->accept(kdl::overload(
-                [](const WorldNode*)          { return false; },
-                [](const LayerNode*)          { return false; },
-                [&](const GroupNode* group)   { return m_brush.contains(group->logicalBounds()); },
-                [&](const EntityNode* entity) { return m_brush.contains(entity->logicalBounds()); },
-                [&](const BrushNode* brush)   { return m_brush.contains(brush->brush()); }
-            ));
-        }
-
-        bool BrushNode::doIntersects(const Node* node) const {
-            return node->accept(kdl::overload(
-                [](const WorldNode*)          { return false; },
-                [](const LayerNode*)          { return false; },
-                [&](const GroupNode* group)   { return m_brush.intersects(group->logicalBounds()); },
-                [&](const EntityNode* entity) { return m_brush.intersects(entity->logicalBounds()); },
-                [&](const BrushNode* brush)   { return m_brush.intersects(brush->brush()); }
-            ));
         }
 
         void BrushNode::invalidateVertexCache() {

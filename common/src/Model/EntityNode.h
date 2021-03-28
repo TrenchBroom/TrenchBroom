@@ -99,9 +99,6 @@ namespace TrenchBroom {
             Node* doGetContainer() override;
             LayerNode* doGetContainingLayer() override;
             GroupNode* doGetContainingGroup() override;
-
-            bool doContains(const Node* node) const override;
-            bool doIntersects(const Node* node) const override;
         private:
             void invalidateBounds();
             void validateBounds() const;

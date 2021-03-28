@@ -232,14 +232,6 @@ namespace TrenchBroom {
             return findContainingGroup(this);
         }
 
-        bool EntityNode::doContains(const Node* node) const {
-            return boundsContainNode(logicalBounds(), node);
-        }
-
-        bool EntityNode::doIntersects(const Node* node) const {
-            return boundsIntersectNode(logicalBounds(), node);
-        }
-
         void EntityNode::invalidateBounds() {
             m_cachedBounds = std::nullopt;
         }
