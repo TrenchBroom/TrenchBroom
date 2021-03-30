@@ -67,20 +67,6 @@ namespace TrenchBroom {
 #endif
         }
 
-        OpenFile::OpenFile(const Path& path, const bool write) :
-        file(nullptr) {
-            file = openPathAsFILE(path, write ? "w" : "r");
-            if (file == nullptr) {
-                throw FileSystemException("Cannot open file: " + path.asString());
-            }
-        }
-
-        OpenFile::~OpenFile() {
-            if (file != nullptr) {
-                fclose(file);
-            }
-        }
-
         size_t fileSize(std::FILE* file) {
             ensure(file != nullptr, "file is null");
             const auto pos = std::ftell(file);

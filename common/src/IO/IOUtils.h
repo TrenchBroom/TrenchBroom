@@ -34,16 +34,6 @@ namespace TrenchBroom {
         std::ofstream openPathAsOutputStream(const IO::Path& path, std::ios::openmode mode = std::ios::out);
         std::ifstream openPathAsInputStream(const IO::Path& path, std::ios::openmode mode = std::ios::in);
 
-        class OpenFile {
-        public:
-            FILE* file;
-        public:
-            OpenFile(const Path& path, bool write);
-            ~OpenFile();
-
-            deleteCopyAndMove(OpenFile)
-        };
-
         size_t fileSize(std::FILE* file);
 
         std::string readGameComment(std::istream& stream);
