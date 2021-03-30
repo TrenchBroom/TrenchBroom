@@ -212,7 +212,18 @@ namespace TrenchBroom {
         void GameImpl::doExportMap(WorldNode& world, const Model::ExportFormat format, const IO::Path& path) const {
             switch (format) {
                 case Model::ExportFormat::WavefrontObj: {
-                    IO::NodeWriter writer(world, std::make_unique<IO::ObjFileSerializer>(path));
+                    std::ofstream objFile = openPathAsOutputStream(path);
+                    if (!objFile) {
+                        throw FileSystemException("Cannot open file: " + path.asString());
+                    }
+
+                    const auto mtlPath = path.replaceExtension("mtl");
+                    std::ofstream mtlFile = openPathAsOutputStream(path);
+                    if (!mtlFile) {
+                        throw FileSystemException("Cannot open file: " + mtlPath.asString());
+                    }
+
+                    IO::NodeWriter writer(world, std::make_unique<IO::ObjSerializer>(objFile, mtlFile, mtlPath.filename()));
                     writer.setExporting(true);
                     writer.writeMap();
                     break;

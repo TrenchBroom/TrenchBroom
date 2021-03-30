@@ -21,14 +21,15 @@
 
 #include "FloatType.h"
 #include "IO/NodeSerializer.h"
-#include "IO/IOUtils.h"
-#include "IO/Path.h"
 
 #include <vecmath/forward.h>
 
-#include <cstdio>
+#include <array>
+#include <iosfwd>
 #include <map>
+#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -44,23 +45,20 @@ namespace TrenchBroom {
     }
 
     namespace IO {
-        class ObjFileSerializer : public NodeSerializer {
-        private:
+        class ObjSerializer : public NodeSerializer {
+        public:
             template <typename V>
             class IndexMap {
-            public:
-                using List = std::vector<V>;
             private:
-                using Map = std::map<V, size_t>;
-                Map m_map;
-                List m_list;
+                std::map<V, size_t> m_map;
+                std::vector<V> m_list;
             public:
-                const List& list() const {
+                const std::vector<V>& list() const {
                     return m_list;
                 }
 
                 size_t index(const V& v) {
-                    const auto it = m_map.insert({ v, m_list.size() }).first;
+                    const auto it = m_map.emplace(v, m_list.size()).first;
                     const size_t index = it->second;
                     if (index == m_list.size()) {
                         m_list.push_back(v);
@@ -81,58 +79,56 @@ namespace TrenchBroom {
                 size_t vertex;
                 size_t texCoords;
                 size_t normal;
-
-                IndexedVertex(size_t i_vertex, size_t i_texCoords, size_t i_normal);
             };
 
-            using IndexedVertexList = std::vector<IndexedVertex>;
-
-            struct Face {
-                IndexedVertexList verts;
+            struct BrushFace {
+                std::vector<IndexedVertex> verts;
                 std::string textureName;
                 const Assets::Texture* texture;
-
-                Face(IndexedVertexList i_verts, std::string i_textureName, const Assets::Texture* i_texture);
             };
 
-            using FaceList = std::vector<Face>;
-
-            struct Object {
+            struct BrushObject {
                 size_t entityNo;
                 size_t brushNo;
-                FaceList faces;
+                std::vector<BrushFace> faces;
             };
 
-            using ObjectList = std::vector<Object>;
+            struct PatchQuad {
+                std::array<IndexedVertex, 4u> verts;
+            };
 
-            Path m_objPath;
-            Path m_mtlPath;
+            struct PatchObject {
+                size_t entityNo;
+                size_t patchNo;
+                std::vector<PatchQuad> quads;
+                std::string textureName;
+                const Assets::Texture* texture;
+            };
 
-            IO::OpenFile m_objFile;
-            IO::OpenFile m_mtlFile;
+            using Object = std::variant<BrushObject, PatchObject>;
 
-            FILE* m_stream;
-            FILE* m_mtlStream;
+            friend std::ostream& operator<<(std::ostream& str, const IndexedVertex& vertex);
+            friend std::ostream& operator<<(std::ostream& str, const BrushFace& face);
+            friend std::ostream& operator<<(std::ostream& str, const BrushObject& object);
+            friend std::ostream& operator<<(std::ostream& str, const PatchQuad& quad);
+            friend std::ostream& operator<<(std::ostream& str, const PatchObject& object);
+            friend std::ostream& operator<<(std::ostream& str, const Object& object);
+        private:
+            std::ostream& m_objStream;
+            std::ostream& m_mtlStream;
+            std::string m_mtlFilename;
 
             IndexMap<vm::vec3> m_vertices;
             IndexMap<vm::vec2f> m_texCoords;
             IndexMap<vm::vec3> m_normals;
 
-            Object m_currentObject;
-            ObjectList m_objects;
+            std::optional<BrushObject> m_currentBrush;
+            std::vector<Object> m_objects;
         public:
-            explicit ObjFileSerializer(const Path& path);
+            explicit ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, std::string mtlFilename);
         private:
             void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
             void doEndFile() override;
-
-            void writeMtlFile();
-
-            void writeVertices();
-            void writeTexCoords();
-            void writeNormals();
-            void writeObjects();
-            void writeFaces(const FaceList& faces);
 
             void doBeginEntity(const Model::Node* node) override;
             void doEndEntity(const Model::Node* node) override;
