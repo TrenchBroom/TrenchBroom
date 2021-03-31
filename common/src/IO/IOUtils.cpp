@@ -128,7 +128,11 @@ namespace TrenchBroom {
             if (line.substr(0, expectedHeader.size()) != expectedHeader)
                 return "";
 
-            return line.substr(expectedHeader.size());
+            auto result = line.substr(expectedHeader.size());
+            if (result.size() > 0u && result.back() == '\r') {
+                result = result.substr(0u, result.size() - 1u);
+            }
+            return result;
         }
 
         void writeGameComment(std::ostream& stream, const std::string& gameName, const std::string& mapFormat) {
