@@ -28,6 +28,7 @@
 #include "Model/IssueGenerator.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
+#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 #include "Model/UpdateLinkedGroupsError.h"
@@ -70,6 +71,11 @@ namespace TrenchBroom {
                             }).map_errors([](const BrushError&) -> VisitResult { 
                                 return UpdateLinkedGroupsError::TransformFailed;
                             });
+                    },
+                    [&](const PatchNode* patchNode) -> VisitResult {
+                        auto patch = patchNode->patch();
+                        patch.transform(transformation);
+                        return std::make_unique<PatchNode>(std::move(patch));
                     }
                 )).and_then([&](std::unique_ptr<Node>&& newChildNode) -> VisitResult {
                     if (!worldBounds.contains(newChildNode->logicalBounds())) {
@@ -105,7 +111,8 @@ namespace TrenchBroom {
                         }
                     },
                     [] (EntityNode*) {},
-                    [] (BrushNode*) {}
+                    [] (BrushNode*) {},
+                    [] (PatchNode*) {}
                 ));
 
                 ++clIt;
@@ -161,7 +168,8 @@ namespace TrenchBroom {
                             preserveEntityProperties(*clonedEntityNode, *correspondingEntityNode);
                         }
                     },
-                    [] (BrushNode*) {}
+                    [] (BrushNode*) {},
+                    [] (PatchNode*) {}
                 ));
 
                 ++clIt;
@@ -251,7 +259,8 @@ namespace TrenchBroom {
                 [=](auto&& thisLambda, LayerNode* layer)   -> void { layer->visitParent(thisLambda); },
                 [=](auto&& thisLambda, GroupNode* group)   -> void { group->setEditState(editState); group->visitParent(thisLambda); },
                 [=](auto&& thisLambda, EntityNode* entity) -> void { entity->visitParent(thisLambda); },
-                [=](auto&& thisLambda, BrushNode* brush)   -> void { brush->visitParent(thisLambda); }
+                [=](auto&& thisLambda, BrushNode* brush)   -> void { brush->visitParent(thisLambda); },
+                [=](auto&& thisLambda, PatchNode* patch)   -> void { patch->visitParent(thisLambda); }
             ));
         }
 
@@ -293,7 +302,8 @@ namespace TrenchBroom {
                 [](const LayerNode*)  { return false; },
                 [](const GroupNode*)  { return true;  },
                 [](const EntityNode*) { return true;  },
-                [](const BrushNode*)  { return true;  }
+                [](const BrushNode*)  { return true;  },
+                [](const PatchNode*)  { return true;  }
             ));
         }
 

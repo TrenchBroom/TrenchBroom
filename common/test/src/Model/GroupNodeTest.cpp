@@ -19,6 +19,7 @@
 
 #include "TestUtils.h"
 
+#include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
@@ -28,6 +29,7 @@
 #include "Model/GroupNode.h"
 #include "Model/Layer.h"
 #include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
 #include "Model/UpdateLinkedGroupsError.h"
 #include "Model/WorldNode.h"
 
@@ -110,12 +112,17 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             CHECK_FALSE(groupNode.canAddChild(&worldNode));
             CHECK_FALSE(groupNode.canAddChild(&layerNode));
             CHECK_FALSE(groupNode.canAddChild(&groupNode));
             CHECK(groupNode.canAddChild(&entityNode));
             CHECK(groupNode.canAddChild(&brushNode));
+            CHECK(groupNode.canAddChild(&patchNode));
         }
 
         TEST_CASE("GroupNodeTest.canRemoveChild") {
@@ -127,12 +134,17 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             CHECK(groupNode.canRemoveChild(&worldNode));
             CHECK(groupNode.canRemoveChild(&layerNode));
             CHECK(groupNode.canRemoveChild(&groupNode));
             CHECK(groupNode.canRemoveChild(&entityNode));
             CHECK(groupNode.canRemoveChild(&brushNode));
+            CHECK(groupNode.canRemoveChild(&patchNode));
         }
 
         TEST_CASE("GroupNodeTest.updateLinkedGroups", "[GroupNodeTest]") {
