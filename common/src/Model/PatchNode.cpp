@@ -357,12 +357,12 @@ namespace TrenchBroom {
 
         void PatchNode::doGenerateIssues(const IssueGenerator*, std::vector<Issue*>&) {}
 
-        void PatchNode::doAccept(NodeVisitor&) {
-            // todo: implement
+        void PatchNode::doAccept(NodeVisitor& visitor) {
+            visitor.visit(this);
         }
 
-        void PatchNode::doAccept(ConstNodeVisitor&) const {
-            // todo: implement
+        void PatchNode::doAccept(ConstNodeVisitor& visitor) const {
+            visitor.visit(this);
         }
 
         Node* PatchNode::doGetContainer() {

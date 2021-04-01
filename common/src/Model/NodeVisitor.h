@@ -28,6 +28,7 @@ namespace TrenchBroom {
         class GroupNode;
         class LayerNode;
         class Node;
+        class PatchNode;
         class WorldNode;
 
         class NodeVisitor {
@@ -41,6 +42,7 @@ namespace TrenchBroom {
             virtual void visit(GroupNode* group)   = 0;
             virtual void visit(EntityNode* entity) = 0;
             virtual void visit(BrushNode* brush)   = 0;
+            virtual void visit(PatchNode* patch)   = 0;
         };
 
         class ConstNodeVisitor {
@@ -54,6 +56,7 @@ namespace TrenchBroom {
             virtual void visit(const GroupNode* group)   = 0;
             virtual void visit(const EntityNode* entity) = 0;
             virtual void visit(const BrushNode* brush)   = 0;
+            virtual void visit(const PatchNode* patch)   = 0;
         };
 
         template <typename L, typename N, typename Enable = void>
@@ -110,6 +113,12 @@ namespace TrenchBroom {
             void visit(GroupNode* group) override   { doVisit(group);  }
             void visit(EntityNode* entity) override { doVisit(entity); }
             void visit(BrushNode* brush) override   { doVisit(brush);  }
+            void visit([[maybe_unused]] PatchNode* patch) override   {
+                // Todo 2429: Remove this check
+                if constexpr (std::is_invocable_v<L, PatchNode*> || std::is_invocable_v<L, const L&, PatchNode*>) {
+                    doVisit(patch);
+                }
+            }
 
             template <typename N>
             void doVisit(N* node) {
@@ -150,6 +159,12 @@ namespace TrenchBroom {
             void visit(const GroupNode* group) override   { doVisit(group);  }
             void visit(const EntityNode* entity) override { doVisit(entity); }
             void visit(const BrushNode* brush) override   { doVisit(brush);  }
+            void visit([[maybe_unused]] const PatchNode* patch) override   { 
+                // Todo 2429: Remove this check
+                if constexpr (std::is_invocable_v<L, const PatchNode*> || std::is_invocable_v<L, const L&, const PatchNode*>) {
+                    doVisit(patch);
+                }
+            }
 
             template <typename N>
             void doVisit(const N* node) {
