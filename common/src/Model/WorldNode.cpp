@@ -29,6 +29,7 @@
 #include "Model/IssueGenerator.h"
 #include "Model/IssueGeneratorRegistry.h"
 #include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
 #include "Model/TagVisitor.h"
 
 #include <kdl/overload.h>
@@ -83,7 +84,8 @@ namespace TrenchBroom {
                 [&](LayerNode* layer) { layers.push_back(layer); },
                 [ ](GroupNode*) {},
                 [ ](EntityNode*) {},
-                [ ](BrushNode*) {}
+                [ ](BrushNode*) {},
+                [ ](PatchNode*) {}
             ));
             return layers;
         }
@@ -102,7 +104,8 @@ namespace TrenchBroom {
                     [&](LayerNode* layer) { layers.push_back(layer); },
                     [] (GroupNode*)       {},
                     [] (EntityNode*)      {},
-                    [] (BrushNode*)       {}
+                    [] (BrushNode*)       {},
+                    [] (PatchNode*)       {}
                 ));
             }
 
@@ -182,7 +185,8 @@ namespace TrenchBroom {
                 [&](auto&& thisLambda, LayerNode* layer)   { addNode(layer); layer->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, GroupNode* group)   { addNode(group); group->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, EntityNode* entity) { addNode(entity); entity->visitChildren(thisLambda); },
-                [&](BrushNode* brush)                      { addNode(brush); }
+                [&](BrushNode* brush)                      { addNode(brush); },
+                [&](PatchNode* patch)                      { addNode(patch); }
             ));
 
             m_nodeTree->clearAndBuild(nodes, [](const auto* node){ return node->physicalBounds(); });
@@ -234,7 +238,8 @@ namespace TrenchBroom {
                 [](const LayerNode*)  { return true;  },
                 [](const GroupNode*)  { return false; },
                 [](const EntityNode*) { return false; },
-                [](const BrushNode*)  { return false; }
+                [](const BrushNode*)  { return false; },
+                [](const PatchNode*)  { return false; }
             ));
         }
 
@@ -244,7 +249,8 @@ namespace TrenchBroom {
                 [&](const LayerNode* layer)  { return (layer != defaultLayer()); },
                 [] (const GroupNode*)        { return false; },
                 [] (const EntityNode*)       { return false; },
-                [] (const BrushNode*)        { return false; }
+                [] (const BrushNode*)        { return false; },
+                [] (const PatchNode*)        { return false; }
             ));
         }
 
@@ -266,7 +272,8 @@ namespace TrenchBroom {
                     [&](auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, EntityNode* entity) { m_nodeTree->insert(entity->physicalBounds(), entity); entity->visitChildren(thisLambda); },
-                    [&](BrushNode* brush)                      { m_nodeTree->insert(brush->physicalBounds(), brush); }
+                    [&](BrushNode* brush)                      { m_nodeTree->insert(brush->physicalBounds(), brush); },
+                    [&](PatchNode* patch)                      { m_nodeTree->insert(patch->physicalBounds(), patch); }
                 ));
             }
 
@@ -284,7 +291,8 @@ namespace TrenchBroom {
                 [&](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); if (layer != defaultLayer()) { updatePersistentId(layer); } },
                 [&](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); updatePersistentId(group); },
                 [&](EntityNode*)                         {},
-                [&](BrushNode*)                          {}
+                [&](BrushNode*)                          {},
+                [&](PatchNode*)                          {}
                 ));
         }
 
@@ -303,7 +311,8 @@ namespace TrenchBroom {
                     [&](auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, EntityNode* entity) { doRemove(entity); entity->visitChildren(thisLambda); },
-                    [&](BrushNode* brush)                      { doRemove(brush); }
+                    [&](BrushNode* brush)                      { doRemove(brush); },
+                    [&](PatchNode* patch)                      { doRemove(patch); }
                 ));
             }
         }
@@ -315,7 +324,8 @@ namespace TrenchBroom {
                     [] (LayerNode*) {},
                     [] (GroupNode*) {},
                     [&](EntityNode* entity) { m_nodeTree->update(entity->physicalBounds(), entity); },
-                    [&](BrushNode* brush)   { m_nodeTree->update(brush->physicalBounds(), brush); }
+                    [&](BrushNode* brush)   { m_nodeTree->update(brush->physicalBounds(), brush); },
+                    [&](PatchNode* patch)   { m_nodeTree->update(patch->physicalBounds(), patch); }
                 ));
             }
         }

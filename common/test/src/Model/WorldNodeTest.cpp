@@ -18,6 +18,7 @@
  */
 
 #include "AABBTree.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Entity.h"
@@ -27,6 +28,7 @@
 #include "Model/Layer.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/result.h>
@@ -51,12 +53,17 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             CHECK_FALSE(worldNode.canAddChild(&worldNode));
             CHECK(worldNode.canAddChild(&layerNode));
             CHECK_FALSE(worldNode.canAddChild(&groupNode));
             CHECK_FALSE(worldNode.canAddChild(&entityNode));
             CHECK_FALSE(worldNode.canAddChild(&brushNode));
+            CHECK_FALSE(worldNode.canAddChild(&patchNode));
         }
 
         TEST_CASE("WorldNodeTest.canRemoveChild") {
@@ -68,6 +75,10 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             CHECK_FALSE(worldNode.canRemoveChild(&worldNode));
             CHECK(worldNode.canRemoveChild(&layerNode));
@@ -75,6 +86,7 @@ namespace TrenchBroom {
             CHECK_FALSE(worldNode.canRemoveChild(&groupNode));
             CHECK_FALSE(worldNode.canRemoveChild(&entityNode));
             CHECK_FALSE(worldNode.canRemoveChild(&brushNode));
+            CHECK_FALSE(worldNode.canRemoveChild(&patchNode));
         }
 
         TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
@@ -86,11 +98,15 @@ namespace TrenchBroom {
             auto* groupNode = new GroupNode{Group{"group"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             const auto& nodeTree = worldNode.nodeTree();
 
             SECTION("Adding a single node inserts into node tree") {
-                auto* node = GENERATE_COPY(entityNode, brushNode);
+                auto* node = GENERATE_COPY(entityNode, brushNode, patchNode);
 
                 REQUIRE_FALSE(nodeTree.contains(node));
                 worldNode.defaultLayer()->addChild(node);
@@ -100,7 +116,7 @@ namespace TrenchBroom {
             SECTION("Adding a nested node inserts into node tree") {
                 worldNode.defaultLayer()->addChild(groupNode);
 
-                auto* node = GENERATE_COPY(entityNode, brushNode);
+                auto* node = GENERATE_COPY(entityNode, brushNode, patchNode);
 
                 REQUIRE_FALSE(nodeTree.contains(node));
                 groupNode->addChild(node);
@@ -122,19 +138,21 @@ namespace TrenchBroom {
             }
 
             SECTION("Adding a subtree inserts all children into node tree") {
-                groupNode->addChildren({entityNode, brushNode});
+                groupNode->addChildren({entityNode, brushNode, patchNode});
 
                 REQUIRE_FALSE(nodeTree.contains(groupNode));
                 REQUIRE_FALSE(nodeTree.contains(entityNode));
                 REQUIRE_FALSE(nodeTree.contains(brushNode));
+                REQUIRE_FALSE(nodeTree.contains(patchNode));
                 worldNode.defaultLayer()->addChild(groupNode);
                 CHECK_FALSE(nodeTree.contains(groupNode));
                 CHECK(nodeTree.contains(entityNode));
                 CHECK(nodeTree.contains(brushNode));
+                CHECK(nodeTree.contains(patchNode));
             }
 
             SECTION("Removing a single node removes from node tree") {
-                auto* node = GENERATE_COPY(entityNode, brushNode);
+                auto* node = GENERATE_COPY(entityNode, brushNode, patchNode);
 
                 worldNode.defaultLayer()->addChild(node);
                 REQUIRE(nodeTree.contains(node));
@@ -144,10 +162,10 @@ namespace TrenchBroom {
             }
 
             SECTION("Removing a nested node removes from node tree") {
-                groupNode->addChildren({entityNode, brushNode});
+                groupNode->addChildren({entityNode, brushNode, patchNode});
                 worldNode.defaultLayer()->addChild(groupNode);
 
-                auto* node = GENERATE_COPY(entityNode, brushNode);
+                auto* node = GENERATE_COPY(entityNode, brushNode, patchNode);
                 REQUIRE(nodeTree.contains(node));
 
                 groupNode->removeChild(node);
@@ -155,36 +173,41 @@ namespace TrenchBroom {
             }
 
             SECTION("Removing a subtree removes all children from node tree") {
-                groupNode->addChildren({entityNode, brushNode});
+                groupNode->addChildren({entityNode, brushNode, patchNode});
                 
                 worldNode.defaultLayer()->addChild(groupNode);
                 REQUIRE(nodeTree.contains(entityNode));
                 REQUIRE(nodeTree.contains(brushNode));
+                REQUIRE(nodeTree.contains(patchNode));
 
                 worldNode.defaultLayer()->removeChild(groupNode);
                 CHECK_FALSE(nodeTree.contains(entityNode));
                 CHECK_FALSE(nodeTree.contains(brushNode));
+                CHECK_FALSE(nodeTree.contains(patchNode));
             }
 
             SECTION("Updating a descendant updates it in node tree") {
-                groupNode->addChildren({entityNode, brushNode});
+                groupNode->addChildren({entityNode, brushNode, patchNode});
                 worldNode.defaultLayer()->addChild(groupNode);
                 
                 REQUIRE(nodeTree.contains(entityNode));
                 REQUIRE(nodeTree.contains(brushNode));
+                REQUIRE(nodeTree.contains(patchNode));
                 REQUIRE_THAT(nodeTree.findContainers(vm::vec3d::zero()), Catch::UnorderedEquals(std::vector<Node*>{
-                    entityNode, brushNode
+                    entityNode, brushNode, patchNode
                 }));
                 REQUIRE_THAT(nodeTree.findContainers(vm::vec3d{64, 0, 0}), Catch::UnorderedEquals(std::vector<Node*>{}));
 
                 transformNode(*entityNode, vm::translation_matrix(vm::vec3d(64, 0, 0)), worldBounds);
                 transformNode(*brushNode, vm::translation_matrix(vm::vec3d(64, 0, 0)), worldBounds);
+                transformNode(*patchNode, vm::translation_matrix(vm::vec3d(64, 0, 0)), worldBounds);
 
                 CHECK(nodeTree.contains(entityNode));
                 CHECK(nodeTree.contains(brushNode));
+                CHECK(nodeTree.contains(patchNode));
                 CHECK_THAT(nodeTree.findContainers(vm::vec3d::zero()), Catch::UnorderedEquals(std::vector<Node*>{}));
                 CHECK_THAT(nodeTree.findContainers(vm::vec3d{64, 0, 0}), Catch::UnorderedEquals(std::vector<Node*>{
-                    entityNode, brushNode
+                    entityNode, brushNode, patchNode
                 }));
             }
         }
@@ -198,11 +221,16 @@ namespace TrenchBroom {
             auto* groupNode = new GroupNode{Group{"group"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             worldNode.addChild(layerNode);
             worldNode.defaultLayer()->addChild(entityNode);
             worldNode.defaultLayer()->addChild(groupNode);
             groupNode->addChild(brushNode);
+            groupNode->addChild(patchNode);
 
             const auto& nodeTree = worldNode.nodeTree();
             
@@ -210,12 +238,14 @@ namespace TrenchBroom {
             REQUIRE_FALSE(nodeTree.contains(groupNode));
             REQUIRE(nodeTree.contains(entityNode));
             REQUIRE(nodeTree.contains(brushNode));
+            REQUIRE(nodeTree.contains(patchNode));
 
             worldNode.rebuildNodeTree();
             CHECK_FALSE(nodeTree.contains(layerNode));
             CHECK_FALSE(nodeTree.contains(groupNode));
             CHECK(nodeTree.contains(entityNode));
             CHECK(nodeTree.contains(brushNode));
+            CHECK(nodeTree.contains(patchNode));
         }
 
         TEST_CASE("WorldNodeTest.disableNodeTreeUpdates") {
@@ -227,7 +257,10 @@ namespace TrenchBroom {
             auto* groupNode = new GroupNode{Group{"group"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
-            auto* otherEntityNode = new EntityNode{Entity{}};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             worldNode.disableNodeTreeUpdates();
             worldNode.addChild(layerNode);
@@ -240,11 +273,11 @@ namespace TrenchBroom {
             CHECK_FALSE(nodeTree.contains(entityNode));
             CHECK_FALSE(nodeTree.contains(brushNode));
             
-            REQUIRE_FALSE(nodeTree.contains(otherEntityNode));
+            REQUIRE_FALSE(nodeTree.contains(patchNode));
 
             worldNode.enableNodeTreeUpdates();
-            groupNode->addChild(otherEntityNode);
-            CHECK(nodeTree.contains(otherEntityNode));
+            groupNode->addChild(patchNode);
+            CHECK(nodeTree.contains(patchNode));
         }
 
         TEST_CASE("WorldNodeTest.persistentIdOfDefaultLayer", "[WorldNodeTest]") {
