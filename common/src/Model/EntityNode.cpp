@@ -25,6 +25,7 @@
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
+#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 
@@ -106,7 +107,8 @@ namespace TrenchBroom {
                 [](const LayerNode*)  { return false; },
                 [](const GroupNode*)  { return false; },
                 [](const EntityNode*) { return false; },
-                [](const BrushNode*)  { return true;  }
+                [](const BrushNode*)  { return true;  },
+                [](const PatchNode*)  { return true;  }
             ));
         }
 
