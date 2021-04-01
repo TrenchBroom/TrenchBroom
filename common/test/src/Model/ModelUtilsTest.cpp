@@ -19,6 +19,7 @@
 
 #include "Model/ModelUtils.h"
 
+#include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -30,6 +31,7 @@
 #include "Model/Layer.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/result.h>
@@ -58,9 +60,13 @@ namespace TrenchBroom {
             auto* groupNode = new GroupNode{Group{"group"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             groupNode->addChildren({entityNode, brushNode});
-            layerNode->addChild(groupNode);
+            layerNode->addChildren({groupNode, patchNode});
             worldNode.addChild(layerNode);
 
             CHECK(findContainingLayer(&worldNode) == nullptr);
@@ -68,6 +74,7 @@ namespace TrenchBroom {
             CHECK(findContainingLayer(groupNode) == layerNode);
             CHECK(findContainingLayer(entityNode) == layerNode);
             CHECK(findContainingLayer(brushNode) == layerNode);
+            CHECK(findContainingLayer(patchNode) == layerNode);
         }
 
         TEST_CASE("ModelUtils.findContainingGroup") {
@@ -81,9 +88,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             innerGroupNode->addChildren({entityNode, brushNode});
-            outerGroupNode->addChild(innerGroupNode);
+            outerGroupNode->addChildren({innerGroupNode, patchNode});
             worldNode.defaultLayer()->addChild(outerGroupNode);
 
             CHECK(findContainingGroup(&worldNode) == nullptr);
@@ -92,6 +103,7 @@ namespace TrenchBroom {
             CHECK(findContainingGroup(innerGroupNode) == outerGroupNode);
             CHECK(findContainingGroup(entityNode) == innerGroupNode);
             CHECK(findContainingGroup(brushNode) == innerGroupNode);
+            CHECK(findContainingGroup(patchNode) == outerGroupNode);
         }
 
         TEST_CASE("ModelUtils.findOutermostClosedGroup") {
@@ -105,9 +117,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             innerGroupNode->addChildren({entityNode, brushNode});
-            outerGroupNode->addChild(innerGroupNode);
+            outerGroupNode->addChildren({innerGroupNode, patchNode});
             worldNode.defaultLayer()->addChild(outerGroupNode);
 
             SECTION("All groups closed") {
@@ -117,6 +133,7 @@ namespace TrenchBroom {
                 CHECK(findOutermostClosedGroup(innerGroupNode) == outerGroupNode);
                 CHECK(findOutermostClosedGroup(entityNode) == outerGroupNode);
                 CHECK(findOutermostClosedGroup(brushNode) == outerGroupNode);
+                CHECK(findOutermostClosedGroup(patchNode) == outerGroupNode);
             }
 
             SECTION("Outer group open") {
@@ -128,6 +145,7 @@ namespace TrenchBroom {
                 CHECK(findOutermostClosedGroup(innerGroupNode) == nullptr);
                 CHECK(findOutermostClosedGroup(entityNode) == innerGroupNode);
                 CHECK(findOutermostClosedGroup(brushNode) == innerGroupNode);
+                CHECK(findOutermostClosedGroup(patchNode) == nullptr);
             }
 
             SECTION("Both groups open") {
@@ -140,6 +158,7 @@ namespace TrenchBroom {
                 CHECK(findOutermostClosedGroup(innerGroupNode) == nullptr);
                 CHECK(findOutermostClosedGroup(entityNode) == nullptr);
                 CHECK(findOutermostClosedGroup(brushNode) == nullptr);
+                CHECK(findOutermostClosedGroup(patchNode) == nullptr);
             }
         }
 
@@ -154,9 +173,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             innerGroupNode->addChildren({entityNode, brushNode});
-            outerGroupNode->addChild(innerGroupNode);
+            outerGroupNode->addChildren({innerGroupNode, patchNode});
             layerNode->addChild(outerGroupNode);
             worldNode.addChild(layerNode);
 
@@ -166,6 +189,8 @@ namespace TrenchBroom {
             CHECK_THAT(collectParents({innerGroupNode}),  Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
             CHECK_THAT(collectParents({entityNode}),  Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
             CHECK_THAT(collectParents({brushNode}),  Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
+            CHECK_THAT(collectParents({patchNode}),  Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
+            CHECK_THAT(collectParents({brushNode, patchNode}),  Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
         }
 
         TEST_CASE("ModelUtils.collectNodes") {
@@ -179,9 +204,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             innerGroupNode->addChildren({entityNode, brushNode});
-            outerGroupNode->addChild(innerGroupNode);
+            outerGroupNode->addChildren({innerGroupNode, patchNode});
             layerNode->addChild(outerGroupNode);
             worldNode.addChild(layerNode);
 
@@ -193,15 +222,17 @@ namespace TrenchBroom {
                 + innerGroupNode
                   + entityNode
                   + brushNode
+                + patchNode
             */
 
-            CHECK_THAT(collectNodes({&worldNode}),  Catch::Equals(std::vector<Node*>{&worldNode, worldNode.defaultLayer(), layerNode, outerGroupNode, innerGroupNode, entityNode, brushNode}));
-            CHECK_THAT(collectNodes({layerNode}),  Catch::Equals(std::vector<Node*>{layerNode, outerGroupNode, innerGroupNode, entityNode, brushNode}));
-            CHECK_THAT(collectNodes({outerGroupNode}),  Catch::Equals(std::vector<Node*>{outerGroupNode, innerGroupNode, entityNode, brushNode}));
+            CHECK_THAT(collectNodes({&worldNode}),  Catch::Equals(std::vector<Node*>{&worldNode, worldNode.defaultLayer(), layerNode, outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
+            CHECK_THAT(collectNodes({layerNode}),  Catch::Equals(std::vector<Node*>{layerNode, outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
+            CHECK_THAT(collectNodes({outerGroupNode}),  Catch::Equals(std::vector<Node*>{outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
             CHECK_THAT(collectNodes({innerGroupNode}),  Catch::Equals(std::vector<Node*>{innerGroupNode, entityNode, brushNode}));
             CHECK_THAT(collectNodes({entityNode}),  Catch::Equals(std::vector<Node*>{entityNode}));
             CHECK_THAT(collectNodes({brushNode}),  Catch::Equals(std::vector<Node*>{brushNode}));
-            CHECK_THAT(collectNodes({innerGroupNode, outerGroupNode}),  Catch::Equals(std::vector<Node*>{innerGroupNode, entityNode, brushNode, outerGroupNode, innerGroupNode, entityNode, brushNode}));
+            CHECK_THAT(collectNodes({patchNode}),  Catch::Equals(std::vector<Node*>{patchNode}));
+            CHECK_THAT(collectNodes({innerGroupNode, outerGroupNode}),  Catch::Equals(std::vector<Node*>{innerGroupNode, entityNode, brushNode, outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
         }
 
         TEST_CASE("ModelUtils.collectTouchingNodes") {
@@ -214,6 +245,10 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"outer"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             groupNode.addChild(new EntityNode{Entity{}});
 
@@ -223,6 +258,7 @@ namespace TrenchBroom {
             REQUIRE(touchesAll.intersects(&groupNode));
             REQUIRE(touchesAll.intersects(&entityNode));
             REQUIRE(touchesAll.intersects(&brushNode));
+            REQUIRE(touchesAll.intersects(&patchNode));
             
             auto touchesNothing = BrushNode{touchesAll.brush()};
             transformNode(touchesNothing, vm::translation_matrix(vm::vec3d{128, 0, 0}), worldBounds);
@@ -231,6 +267,7 @@ namespace TrenchBroom {
             REQUIRE_FALSE(touchesNothing.intersects(&groupNode));
             REQUIRE_FALSE(touchesNothing.intersects(&entityNode));
             REQUIRE_FALSE(touchesNothing.intersects(&brushNode));
+            REQUIRE_FALSE(touchesNothing.intersects(&patchNode));
             
             auto touchesBrush = BrushNode{touchesAll.brush()};
             transformNode(touchesBrush, vm::translation_matrix(vm::vec3d{24, 0, 0}), worldBounds);
@@ -239,19 +276,22 @@ namespace TrenchBroom {
             REQUIRE_FALSE(touchesBrush.intersects(&groupNode));
             REQUIRE_FALSE(touchesBrush.intersects(&entityNode));
             REQUIRE(touchesBrush.intersects(&brushNode));
+            REQUIRE_FALSE(touchesBrush.intersects(&patchNode));
 
             const auto allNodes = std::vector<Node*>{
                 &worldNode,
                 &layerNode,
                 &groupNode,
                 &entityNode,
-                &brushNode
+                &brushNode,
+                &patchNode
             };
 
             CHECK_THAT(collectTouchingNodes(allNodes, {&touchesAll}), Catch::Matchers::Equals(std::vector<Node*>{
                 &groupNode,
                 &entityNode,
-                &brushNode
+                &brushNode,
+                &patchNode
             }));
 
             CHECK_THAT(collectTouchingNodes(allNodes, {&touchesNothing}), Catch::Matchers::Equals(std::vector<Node*>{}));
@@ -263,7 +303,8 @@ namespace TrenchBroom {
             CHECK_THAT(collectTouchingNodes(allNodes, {&touchesBrush, &touchesAll}), Catch::Matchers::Equals(std::vector<Node*>{
                 &groupNode,
                 &entityNode,
-                &brushNode
+                &brushNode,
+                &patchNode
             }));
         }
 
@@ -277,6 +318,10 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"outer"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             groupNode.addChild(new EntityNode{Entity{}});
 
@@ -286,6 +331,7 @@ namespace TrenchBroom {
             REQUIRE(containsAll.contains(&groupNode));
             REQUIRE(containsAll.contains(&entityNode));
             REQUIRE(containsAll.contains(&brushNode));
+            REQUIRE(containsAll.contains(&patchNode));
             
             auto containsNothing = BrushNode{containsAll.brush()};
             transformNode(containsNothing, vm::translation_matrix(vm::vec3d{-64, 0, 0}), worldBounds);
@@ -294,6 +340,7 @@ namespace TrenchBroom {
             REQUIRE_FALSE(containsNothing.contains(&groupNode));
             REQUIRE_FALSE(containsNothing.contains(&entityNode));
             REQUIRE_FALSE(containsNothing.contains(&brushNode));
+            REQUIRE_FALSE(containsNothing.contains(&patchNode));
             
             auto containsPatch = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(8.0, "texture").value()};
             REQUIRE_FALSE(containsPatch.contains(&worldNode));
@@ -301,27 +348,35 @@ namespace TrenchBroom {
             REQUIRE_FALSE(containsPatch.contains(&groupNode));
             REQUIRE_FALSE(containsPatch.contains(&entityNode));
             REQUIRE_FALSE(containsPatch.contains(&brushNode));
+            REQUIRE(containsPatch.contains(&patchNode));
 
             const auto allNodes = std::vector<Node*>{
                 &worldNode,
                 &layerNode,
                 &groupNode,
                 &entityNode,
-                &brushNode
+                &brushNode,
+                &patchNode
             };
 
             CHECK_THAT(collectContainedNodes(allNodes, {&containsAll}), Catch::Matchers::Equals(std::vector<Node*>{
                 &groupNode,
                 &entityNode,
-                &brushNode
+                &brushNode,
+                &patchNode
             }));
 
             CHECK_THAT(collectContainedNodes(allNodes, {&containsNothing}), Catch::Matchers::Equals(std::vector<Node*>{}));
 
+            CHECK_THAT(collectContainedNodes(allNodes, {&containsPatch}), Catch::Matchers::Equals(std::vector<Node*>{
+                &patchNode
+            }));
+
             CHECK_THAT(collectContainedNodes(allNodes, {&containsPatch, &containsAll}), Catch::Matchers::Equals(std::vector<Node*>{
                 &groupNode,
                 &entityNode,
-                &brushNode
+                &brushNode,
+                &patchNode
             }));
         }
 
@@ -336,9 +391,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             innerGroupNode->addChildren({entityNode, brushNode});
-            outerGroupNode->addChild(innerGroupNode);
+            outerGroupNode->addChildren({innerGroupNode, patchNode});
             worldNode.defaultLayer()->addChild(outerGroupNode);
             worldNode.addChild(layerNode);
 
@@ -349,35 +408,37 @@ namespace TrenchBroom {
                 + innerGroupNode
                   + entityNode
                   + brushNode
+                + patchNode
             + layerNode
             */
             CHECK_THAT(collectSelectedNodes({&worldNode}), Catch::Matchers::Equals(std::vector<Node*>{}));
 
             brushNode->select();
+            patchNode->select();
 
             CHECK_THAT(collectSelectedNodes({&worldNode}), Catch::Matchers::Equals(std::vector<Node*>{
-                brushNode
+                brushNode, patchNode
             }));
 
             CHECK_THAT(collectSelectedNodes({outerGroupNode}), Catch::Matchers::Equals(std::vector<Node*>{
-                brushNode
+                brushNode, patchNode
             }));
 
             CHECK_THAT(collectSelectedNodes({innerGroupNode}), Catch::Matchers::Equals(std::vector<Node*>{
                 brushNode
             }));
 
-            CHECK_THAT(collectSelectedNodes({innerGroupNode}), Catch::Matchers::Equals(std::vector<Node*>{
-                brushNode
+            CHECK_THAT(collectSelectedNodes({innerGroupNode, patchNode}), Catch::Matchers::Equals(std::vector<Node*>{
+                brushNode, patchNode
             }));
 
             CHECK_THAT(collectSelectedNodes({outerGroupNode, innerGroupNode}), Catch::Matchers::Equals(std::vector<Node*>{
-                brushNode, brushNode
+                brushNode, patchNode, brushNode
             }));
 
             innerGroupNode->select();
             CHECK_THAT(collectSelectedNodes({outerGroupNode, innerGroupNode}), Catch::Matchers::Equals(std::vector<Node*>{
-                innerGroupNode, brushNode, innerGroupNode, brushNode
+                innerGroupNode, brushNode, patchNode, innerGroupNode, brushNode
             }));
         }
 
@@ -392,9 +453,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             innerGroupNode->addChildren({entityNode, brushNode});
-            outerGroupNode->addChildren({innerGroupNode});
+            outerGroupNode->addChildren({innerGroupNode, patchNode});
             worldNode.defaultLayer()->addChild(outerGroupNode);
             worldNode.addChild(layerNode);
 
@@ -408,7 +473,7 @@ namespace TrenchBroom {
 
             editorContext.pushGroup(outerGroupNode);
             CHECK_THAT(collectSelectableNodes({&worldNode}, editorContext), Catch::Matchers::Equals(std::vector<Node*>{
-                innerGroupNode
+                innerGroupNode, patchNode
             }));
 
             editorContext.pushGroup(innerGroupNode);
@@ -432,9 +497,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             innerGroupNode->addChildren({entityNode, brushNode});
-            outerGroupNode->addChild(innerGroupNode);
+            outerGroupNode->addChildren({innerGroupNode, patchNode});
             worldNode.defaultLayer()->addChild(outerGroupNode);
             worldNode.addChild(layerNode);
 
@@ -444,6 +513,7 @@ namespace TrenchBroom {
             CHECK(computeLogicalBounds({layerNode}) == vm::bbox3d{});
             CHECK(computeLogicalBounds({entityNode}) == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
             CHECK(computeLogicalBounds({brushNode}) == vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
+            CHECK(computeLogicalBounds({patchNode}) == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 2}});
             CHECK(computeLogicalBounds({entityNode, brushNode}) == vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
         }
 
@@ -458,9 +528,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
             
             innerGroupNode->addChildren({entityNode, brushNode});
-            outerGroupNode->addChild(innerGroupNode);
+            outerGroupNode->addChildren({innerGroupNode, patchNode});
             worldNode.defaultLayer()->addChild(outerGroupNode);
             worldNode.addChild(layerNode);
 
@@ -470,6 +544,7 @@ namespace TrenchBroom {
             CHECK(computePhysicalBounds({layerNode}) == vm::bbox3d{});
             CHECK(computePhysicalBounds({entityNode}) == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
             CHECK(computePhysicalBounds({brushNode}) == vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
+            CHECK(computePhysicalBounds({patchNode}) == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 1}});
             CHECK(computePhysicalBounds({entityNode, brushNode}) == vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
         }
 
@@ -483,13 +558,17 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"outer"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             SECTION("Filter brush nodes") {
-                CHECK(filterBrushNodes({&worldNode, &layerNode, &groupNode, &entityNode, &brushNode}) == std::vector<Model::BrushNode*>{&brushNode});
+                CHECK(filterBrushNodes({&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode}) == std::vector<Model::BrushNode*>{&brushNode});
             }
 
             SECTION("Filter entity nodes") {
-                CHECK(filterEntityNodes({&worldNode, &layerNode, &groupNode, &entityNode, &brushNode}) == std::vector<Model::EntityNode*>{&entityNode});
+                CHECK(filterEntityNodes({&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode}) == std::vector<Model::EntityNode*>{&entityNode});
             }
         }
     }
