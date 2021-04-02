@@ -18,6 +18,7 @@
  */
 
 #include "AABBTree.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Entity.h"
@@ -27,6 +28,7 @@
 #include "Model/Layer.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/result.h>
@@ -45,12 +47,17 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             CHECK_FALSE(layerNode.canAddChild(&worldNode));
             CHECK_FALSE(layerNode.canAddChild(&layerNode));
             CHECK(layerNode.canAddChild(&groupNode));
             CHECK(layerNode.canAddChild(&entityNode));
             CHECK(layerNode.canAddChild(&brushNode));
+            CHECK(layerNode.canAddChild(&patchNode));
         }
 
         TEST_CASE("LayerNodeTest.canRemoveChild") {
@@ -62,12 +69,17 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             CHECK(layerNode.canRemoveChild(&worldNode));
             CHECK(layerNode.canRemoveChild(&layerNode));
             CHECK(layerNode.canRemoveChild(&groupNode));
             CHECK(layerNode.canRemoveChild(&entityNode));
             CHECK(layerNode.canRemoveChild(&brushNode));
+            CHECK(layerNode.canRemoveChild(&patchNode));
         }
     }
 }
