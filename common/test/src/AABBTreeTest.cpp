@@ -528,4 +528,26 @@ L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
 
         assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::pos_x()), { 2u });
     }
+
+    TEST_CASE("AABBTreeTest.clear", "[AABBTreeTest]") {
+        const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
+        const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
+
+        AABB tree;
+        tree.insert(bounds1, 1u);
+        tree.insert(bounds2, 2u);
+
+        REQUIRE(tree.contains(1u));
+        REQUIRE(tree.contains(2u));
+        REQUIRE_THAT(tree.findContainers(vm::vec3d{0.5, 0.5, 0.5}), Catch::UnorderedEquals(std::vector<size_t>{
+            1u, 2u
+        }));
+
+        tree.clear();
+
+        CHECK(tree.empty());
+        CHECK_FALSE(tree.contains(1u));
+        CHECK_FALSE(tree.contains(2u));
+        REQUIRE_THAT(tree.findContainers(vm::vec3d{0.5, 0.5, 0.5}), Catch::UnorderedEquals(std::vector<size_t>{}));
+    }
 }

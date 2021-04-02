@@ -574,6 +574,7 @@ namespace TrenchBroom {
          */
         void clear() {
             if (!empty()) {
+                m_leafForData.clear();
                 delete m_root;
                 m_root = nullptr;
             }
