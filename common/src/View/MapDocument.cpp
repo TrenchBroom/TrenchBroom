@@ -1073,6 +1073,13 @@ namespace TrenchBroom {
             m_selectedBrushFaces.clear();
         }
 
+        /**
+         * Takes a { parent, children } map and adds the children to the given parents.
+         * The world node tree takes ownership of the children, unless the transaction fails.
+         * 
+         * @param nodes the nodes to add and the parents to add them to
+         * @return the added nodes
+         */
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
             for (const auto& [parent, children] : nodes) {
                 assert(parent->isDescendantOf(m_world.get()));
