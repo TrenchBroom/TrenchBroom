@@ -1097,22 +1097,6 @@ namespace TrenchBroom {
             return addedNodes;
         }
 
-        std::vector<Model::Node*> MapDocument::addNodes(std::map<Model::Node*, std::vector<std::unique_ptr<Model::Node>>> nodes) {
-            std::map<Model::Node*, std::vector<Model::Node*>> releasedNodes;
-            for (auto&& [parent, children] : nodes) {
-                releasedNodes[parent] = kdl::vec_transform(std::move(children), [](std::unique_ptr<Model::Node>&& node) -> Model::Node* {
-                    return node.release();
-                });
-            }
-
-            auto addedNodes = addNodes(releasedNodes);
-            if (addedNodes.empty()) {
-                // If the add failed, ownership was not transferred to the world node, so we need to delete these to avoid a leak
-                kdl::map_clear_and_delete(releasedNodes);
-            }
-            return addedNodes;
-        }
-
         std::vector<std::string> getLinkedGroupIdsRecursively(const std::map<Model::Node*, std::vector<Model::Node*>>& parentChildrenMap) {
             std::vector<std::string> linkedGroupIds;
             for (const auto& [parent, children] : parentChildrenMap) {
