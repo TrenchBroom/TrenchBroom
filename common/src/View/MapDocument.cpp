@@ -1117,6 +1117,11 @@ namespace TrenchBroom {
             return kdl::vec_sort_and_remove_duplicates(std::move(linkedGroupIds));
         }
 
+        /**
+         * Removes the given nodes. If this causes any groups/entities to become empty, removes them as well.
+         * 
+         * Ownership of the removed nodes is transferred to the undo system.
+         */
         void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes) {
             std::map<Model::Node*, std::vector<Model::Node*>> removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
             auto linkedGroupIdsOfRemovedGroups = std::vector<std::string>{};
