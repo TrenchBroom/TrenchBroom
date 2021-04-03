@@ -72,7 +72,6 @@ namespace TrenchBroom {
 
         /**
          * TODO: 
-         * - crash when resizing inwards on brushes inside a brush entity + not
          * - highlight disappears on first few px of resize drag
          */
         class ResizeBrushesTool : public Tool {
