@@ -27,8 +27,10 @@
 #include "Model/EntityNode.h"
 #include "Model/Game.h"
 #include "Model/LayerNode.h"
+#include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
+#include "Renderer/PerspectiveCamera.h"
 #include "View/ResizeBrushesTool.h"
 
 #include <kdl/result.h>
@@ -135,6 +137,75 @@ namespace TrenchBroom {
                 kdl::vec_transform(tool.dragFaces(),
                                    [](const Model::BrushFaceHandle& handle) { return handle.face().attributes().textureName(); });
             CHECK_THAT(dragFaces, Catch::UnorderedEquals(expectedDragFaceTextureNames));
+        }
+
+        TEST_CASE("ResizeBrushesToolTest.splitBrushesInward", "[ResizeBrushesToolTest]") {
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/ResizeBrushesToolTest/splitBrushesInward.map"), 
+                                                                      "Quake", Model::MapFormat::Valve);
+
+            document->selectAllNodes();
+
+            auto brushes = document->selectedNodes().brushes();
+            REQUIRE(brushes.size() == 2);
+
+            // Find the entity defining the camera position for our test
+            Model::EntityNode* cameraEntity = kdl::vec_filter(document->selectedNodes().entities(),
+                                                              [](const Model::EntityNode* node){ return node->entity().classname() == "trigger_relay"; }).at(0);
+
+            Model::EntityNode* cameraTarget = kdl::vec_filter(document->selectedNodes().entities(),
+                                                              [](const Model::EntityNode* node){ return node->entity().classname() == "info_null"; }).at(0);
+
+            Model::EntityNode* funcDetailNode = kdl::vec_filter(Model::filterEntityNodes(Model::collectDescendants({document->world()})),
+                                                                [](const Model::EntityNode* node){ return node->entity().classname() == "func_detail"; }).at(0);
+
+            // Fire a pick ray at cameraTarget
+            const auto pickRay = vm::ray3(cameraEntity->entity().origin(),
+                                          vm::normalize(cameraTarget->entity().origin() - cameraEntity->entity().origin()));
+
+            // Boilerplate to perform picking
+            auto tool = ResizeBrushesTool(document);
+
+            Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
+            document->pick(pickRay, pickResult); // populate pickResult
+
+            const Model::Hit hit = tool.pick3D(pickRay, pickResult);
+            CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
+            CHECK(!vm::is_nan(hit.hitPoint()));
+
+            const Model::BrushFaceHandle hitTarget = hit.target<Model::BrushFaceHandle>();
+            REQUIRE(hit.isMatch());
+            pickResult.addHit(hit);
+
+            // Find the faces that we would drag when pressing Shift
+            REQUIRE(!tool.hasDragFaces());
+            tool.updateDragFaces(pickResult);
+            REQUIRE(tool.hasDragFaces());
+
+            // We are going to drag the 2 faces with +Y normals
+            REQUIRE(tool.dragFaces().size() == 2);
+            CHECK(tool.dragFaces().at(0).face().normal() == vm::vec3::pos_y());
+            CHECK(tool.dragFaces().at(1).face().normal() == vm::vec3::pos_y());
+
+            SECTION("extrude inwards 32 units towards -Y") {
+                const auto delta = vm::vec3(0, -32, 0);
+                REQUIRE(tool.beginResize(pickResult, true));
+                auto r = vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction};
+                REQUIRE(tool.resize(r, Renderer::PerspectiveCamera()));
+                tool.commit();
+
+                // Expected:
+                // - 4 selected brushes: 2 worldspawn, 2 func_detail
+                
+                CHECK(document->selectedNodes().brushes().size() == 4);
+
+                auto worldspawnBrushes = Model::filterBrushNodes(document->currentLayer()->children());
+                CHECK(worldspawnBrushes.size() == 2);
+
+                auto detailBrushes = Model::filterBrushNodes(funcDetailNode->children());
+                CHECK(detailBrushes.size() == 2);
+            }
+
+            // document->saveDocumentTo(IO::Path("test.map"));
         }
     }
 }
