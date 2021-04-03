@@ -35,10 +35,10 @@ namespace TrenchBroom {
                 }
             }
             
-            AssetReference(const AssetReference& other) :
+            AssetReference(const AssetReference& other) noexcept :
             AssetReference(other.m_asset) {}
 
-            AssetReference(AssetReference&& other) :
+            AssetReference(AssetReference&& other) noexcept :
             m_asset(std::exchange(other.m_asset, nullptr)) {}
             
             ~AssetReference() {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 }
             }
             
-            AssetReference& operator=(AssetReference other) {
+            AssetReference& operator=(AssetReference other) noexcept {
                 using std::swap;
                 swap(*this, other);
                 return *this;
