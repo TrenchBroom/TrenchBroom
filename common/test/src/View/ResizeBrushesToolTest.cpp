@@ -188,24 +188,62 @@ namespace TrenchBroom {
 
             SECTION("extrude inwards 32 units towards -Y") {
                 const auto delta = vm::vec3(0, -32, 0);
+
                 REQUIRE(tool.beginResize(pickResult, true));
-                auto r = vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction};
-                REQUIRE(tool.resize(r, Renderer::PerspectiveCamera()));
+                REQUIRE(tool.resize(vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction}, Renderer::PerspectiveCamera()));
                 tool.commit();
 
-                // Expected:
-                // - 4 selected brushes: 2 worldspawn, 2 func_detail
-                
                 CHECK(document->selectedNodes().brushes().size() == 4);
 
-                auto worldspawnBrushes = Model::filterBrushNodes(document->currentLayer()->children());
-                CHECK(worldspawnBrushes.size() == 2);
-
-                auto detailBrushes = Model::filterBrushNodes(funcDetailNode->children());
-                CHECK(detailBrushes.size() == 2);
+                SECTION("check two resulting worldspawn brushes") {
+                    const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-32, 144, 16}, {-16, 192, 32}},
+                        {{-32, 192, 16}, {-16, 224, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+                
+                SECTION("check two resulting func_detail brushes") {
+                    const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-16, 176, 16}, {16, 192, 32}},
+                        {{-16, 192, 16}, {16, 224, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
             }
 
-            // document->saveDocumentTo(IO::Path("test.map"));
+            SECTION("extrude inwards 48 units towards -Y") {
+                const auto delta = vm::vec3(0, -48, 0);
+
+                REQUIRE(tool.beginResize(pickResult, true));
+                REQUIRE(tool.resize(vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction}, Renderer::PerspectiveCamera()));
+                tool.commit();
+
+                CHECK(document->selectedNodes().brushes().size() == 3);
+
+                SECTION("check two resulting worldspawn brushes") {
+                    const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-32, 144, 16}, {-16, 176, 32}},
+                        {{-32, 176, 16}, {-16, 224, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+                
+                SECTION("check one resulting func_detail brush") {
+                    const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-16, 176, 16}, {16, 224, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+            }
         }
     }
 }
