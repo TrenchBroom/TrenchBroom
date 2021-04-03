@@ -33,6 +33,7 @@
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
+#include "Model/WorldNode.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -530,6 +531,10 @@ namespace TrenchBroom {
 
             m_currentDragVisualHandles.clear();
             document->rollbackTransaction();
+
+            for (const auto& handle : m_dragHandlesAtDragStart) {
+                assert(handle.node->isDescendantOf(document->world()));
+            }
 
             std::vector<Model::BrushFaceHandle> newDragHandles;
             // This map is to handle the case when the brushes being
