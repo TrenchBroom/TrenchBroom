@@ -83,6 +83,28 @@ namespace TrenchBroom {
         }
 
         /**
+         * Boilerplate to perform picking
+         */
+        static Model::PickResult performPick(std::shared_ptr<View::MapDocument> document, ResizeBrushesTool& tool, const vm::ray3& pickRay) {
+            Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
+            document->pick(pickRay, pickResult); // populate pickResult
+
+            const Model::Hit hit = tool.pick3D(pickRay, pickResult);
+            CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
+            CHECK(!vm::is_nan(hit.hitPoint()));
+
+            const Model::BrushFaceHandle hitTarget = hit.target<Model::BrushFaceHandle>();
+            REQUIRE(hit.isMatch());
+            pickResult.addHit(hit);
+
+            REQUIRE(!tool.hasDragFaces());
+            tool.updateDragFaces(pickResult);
+            REQUIRE(tool.hasDragFaces());
+
+            return pickResult;
+        }
+
+        /**
          * Test for https://github.com/TrenchBroom/TrenchBroom/issues/3726
          */
         TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
@@ -116,22 +138,8 @@ namespace TrenchBroom {
 
             auto tool = ResizeBrushesTool(document);
 
-            Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
-            document->pick(pickRay, pickResult); // populate pickResult
-
-            const Model::Hit hit = tool.pick3D(pickRay, pickResult);
-            CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
-            CHECK(!vm::is_nan(hit.hitPoint()));
-
-            const Model::BrushFaceHandle hitTarget = hit.target<Model::BrushFaceHandle>();
-            REQUIRE(hitTarget.face() == largerTopFace);
-            REQUIRE(hit.isMatch());
-            pickResult.addHit(hit);
-
-            // Find the faces that we would drag when pressing Shift
-            REQUIRE(!tool.hasDragFaces());
-            tool.updateDragFaces(pickResult);
-            REQUIRE(tool.hasDragFaces());
+            Model::PickResult pickResult = performPick(document, tool, pickRay);
+            REQUIRE(pickResult.all().front().target<Model::BrushFaceHandle>().face() == largerTopFace);
 
             const std::vector<std::string> dragFaces =
                 kdl::vec_transform(tool.dragFaces(),
@@ -162,24 +170,9 @@ namespace TrenchBroom {
             const auto pickRay = vm::ray3(cameraEntity->entity().origin(),
                                           vm::normalize(cameraTarget->entity().origin() - cameraEntity->entity().origin()));
 
-            // Boilerplate to perform picking
             auto tool = ResizeBrushesTool(document);
 
-            Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
-            document->pick(pickRay, pickResult); // populate pickResult
-
-            const Model::Hit hit = tool.pick3D(pickRay, pickResult);
-            CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
-            CHECK(!vm::is_nan(hit.hitPoint()));
-
-            const Model::BrushFaceHandle hitTarget = hit.target<Model::BrushFaceHandle>();
-            REQUIRE(hit.isMatch());
-            pickResult.addHit(hit);
-
-            // Find the faces that we would drag when pressing Shift
-            REQUIRE(!tool.hasDragFaces());
-            tool.updateDragFaces(pickResult);
-            REQUIRE(tool.hasDragFaces());
+            const Model::PickResult pickResult = performPick(document, tool, pickRay);
 
             // We are going to drag the 2 faces with +Y normals
             REQUIRE(tool.dragFaces().size() == 2);
