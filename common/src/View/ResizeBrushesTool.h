@@ -69,10 +69,6 @@ namespace TrenchBroom {
             bool operator!=(const ResizeBrushHandle& other) const;
         };
 
-        /**
-         * TODO: 
-         * - splitBrushesInward doesn't update linked groups
-         */
         class ResizeBrushesTool : public Tool {
         public:
             static const Model::HitType::Type Resize3DHitType;

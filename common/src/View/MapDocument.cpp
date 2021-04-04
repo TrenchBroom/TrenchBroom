@@ -1958,6 +1958,13 @@ namespace TrenchBroom {
             return executeAndStore(std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap), std::move(linkedGroupsToUpdate)))->success();
         }
 
+        bool MapDocument::swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap) {
+            auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(*m_world, 
+                                                                           kdl::vec_transform(nodesToSwap, [](const auto& p) { return p.first; }));
+
+            return swapNodeContents(commandName, std::move(nodesToSwap), std::move(linkedGroupsToUpdate));
+        }
+
         bool MapDocument::transformObjects(const std::string& commandName, const vm::mat4x4& transformation) {
             auto nodesToTransform = std::vector<Model::Node*>{};
             for (auto* node : m_selectedNodes) {

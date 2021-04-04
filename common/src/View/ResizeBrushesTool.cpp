@@ -577,8 +577,8 @@ namespace TrenchBroom {
                 }
             }
             
-            // FIXME: which linked groups need updating?
-            const bool success = document->swapNodeContents("Resize Brushes", nodesToUpdate, {});
+            // FIXME: deal with linked group update failure
+            const bool success = document->swapNodeContents("Resize Brushes", nodesToUpdate);
             unused(success);
 
             // Add the newly split off brushes and select them (keeping the original brushes selected).
