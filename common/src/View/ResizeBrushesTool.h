@@ -58,13 +58,8 @@ namespace TrenchBroom {
 
             explicit FaceHandle(const Model::BrushFaceHandle& handle);
 
-            //vm::vec3 faceNormal;
-            //vm::polygon3 polygonAtDragStart;
-
             const Model::BrushFace& faceAtDragStart() const;
             vm::vec3 faceNormal() const;
-            vm::polygon3 polygonAtDragStart() const;
-
 
             bool operator==(const FaceHandle& other) const;
             bool operator!=(const FaceHandle& other) const;

@@ -78,15 +78,9 @@ namespace TrenchBroom {
             return faceAtDragStart().normal();
         }
 
-        vm::polygon3 FaceHandle::polygonAtDragStart() const {
-            return faceAtDragStart().polygon();
-        }
-
         bool FaceHandle::operator==(const FaceHandle& other) const {
             return node == other.node
-                && brushAtDragStart == other.brushAtDragStart
                 && faceIndex == other.faceIndex;
-            //&& polygonAtDragStart == other.polygonAtDragStart;
         }
 
         bool FaceHandle::operator!=(const FaceHandle& other) const {
