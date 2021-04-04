@@ -298,6 +298,9 @@ namespace TrenchBroom {
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
             m_dragHandlesAtDragStart = m_proposedDragHandles;
+            m_currentDragVisualHandles = kdl::vec_transform(m_proposedDragHandles, [](const ResizeBrushHandle& handle) {
+                return Model::BrushFaceHandle(handle.node, handle.faceIndex);
+            });
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Resize Brushes");
@@ -373,6 +376,9 @@ namespace TrenchBroom {
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = false;
             m_dragHandlesAtDragStart = m_proposedDragHandles;
+            m_currentDragVisualHandles = kdl::vec_transform(m_proposedDragHandles, [](const ResizeBrushHandle& handle) {
+                return Model::BrushFaceHandle(handle.node, handle.faceIndex);
+            });
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Move Faces");
