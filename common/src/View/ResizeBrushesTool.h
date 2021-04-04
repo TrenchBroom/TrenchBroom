@@ -51,6 +51,10 @@ namespace TrenchBroom {
         class MapDocument;
         class Selection;
 
+        /**
+         * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the drag.
+         * We need this to be able to make decisions about the drag before reverting the transaction.
+         */
         struct ResizeBrushHandle {
             Model::BrushNode* node;
             Model::Brush brushAtDragStart;
