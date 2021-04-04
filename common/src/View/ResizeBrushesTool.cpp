@@ -65,6 +65,8 @@ namespace TrenchBroom {
         const Model::HitType::Type ResizeBrushesTool::Resize2DHitType = Model::HitType::freeType();
         const Model::HitType::Type ResizeBrushesTool::Resize3DHitType = Model::HitType::freeType();
 
+        // ResizeBrushHandle
+
         ResizeBrushHandle::ResizeBrushHandle(const Model::BrushFaceHandle& handle) :
         node(handle.node()),
         brushAtDragStart(handle.node()->brush()),
@@ -86,6 +88,8 @@ namespace TrenchBroom {
         bool ResizeBrushHandle::operator!=(const ResizeBrushHandle& other) const {
             return !(*this == other);
         }
+
+        // ResizeBrushesTool
 
         ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
