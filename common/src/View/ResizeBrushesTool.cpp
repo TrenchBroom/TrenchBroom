@@ -215,8 +215,7 @@ namespace TrenchBroom {
                 refreshViews();
             }
 
-            using std::swap;
-            swap(m_proposedDragHandles, newDragHandles);
+            m_proposedDragHandles = newDragHandles;
 
             qDebug() << "update drag faces" << m_proposedDragHandles.size();
         }
