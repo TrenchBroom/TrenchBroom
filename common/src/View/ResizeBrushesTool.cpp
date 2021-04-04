@@ -202,7 +202,7 @@ namespace TrenchBroom {
                 return m_currentDragVisualHandles;
             }
 
-            return kdl::vec_transform(m_dragHandles, [](const ResizeBrushHandle& handle) {
+            return kdl::vec_transform(m_proposedDragHandles, [](const ResizeBrushHandle& handle) {
                     return Model::BrushFaceHandle(handle.node, handle.faceIndex);
                 });
         }
@@ -211,14 +211,14 @@ namespace TrenchBroom {
             // FIXME: assert not dragging            
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             auto newDragHandles = getDragHandles(hit);
-            if (newDragHandles != m_dragHandles) {
+            if (newDragHandles != m_proposedDragHandles) {
                 refreshViews();
             }
 
             using std::swap;
-            swap(m_dragHandles, newDragHandles);
+            swap(m_proposedDragHandles, newDragHandles);
 
-            qDebug() << "update drag faces" << m_dragHandles.size();
+            qDebug() << "update drag faces" << m_proposedDragHandles.size();
         }
 
         std::vector<ResizeBrushHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
@@ -298,7 +298,7 @@ namespace TrenchBroom {
             m_dragOrigin = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
-            m_dragHandlesAtDragStart = m_dragHandles;
+            m_dragHandlesAtDragStart = m_proposedDragHandles;
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Resize Brushes");
@@ -373,7 +373,7 @@ namespace TrenchBroom {
             m_dragOrigin = hit.hitPoint();
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = false;
-            m_dragHandlesAtDragStart = m_dragHandles;
+            m_dragHandlesAtDragStart = m_proposedDragHandles;
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Move Faces");
@@ -425,7 +425,7 @@ namespace TrenchBroom {
             } else {
                 document->commitTransaction();
             }
-            m_dragHandles.clear();
+            m_proposedDragHandles.clear();
             m_dragHandlesAtDragStart.clear();
             m_currentDragVisualHandles.clear();
             m_dragging = false;
@@ -434,7 +434,7 @@ namespace TrenchBroom {
         void ResizeBrushesTool::cancel() {
             auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
-            m_dragHandles.clear();
+            m_proposedDragHandles.clear();
             m_dragHandlesAtDragStart.clear();
             m_currentDragVisualHandles.clear();
             m_dragging = false;
@@ -619,13 +619,13 @@ namespace TrenchBroom {
 
         void ResizeBrushesTool::nodesDidChange(const std::vector<Model::Node*>&) {
             if (!m_dragging) {
-                m_dragHandles.clear();
+                m_proposedDragHandles.clear();
             }
         }
 
         void ResizeBrushesTool::selectionDidChange(const Selection&) {
             if (!m_dragging) {
-                m_dragHandles.clear();
+                m_proposedDragHandles.clear();
             }
         }
     }

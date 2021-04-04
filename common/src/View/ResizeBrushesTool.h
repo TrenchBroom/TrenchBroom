@@ -83,7 +83,7 @@ namespace TrenchBroom {
             using Resize3DHitData = Model::BrushFaceHandle;
         private:
             std::weak_ptr<MapDocument> m_document;
-            std::vector<ResizeBrushHandle> m_dragHandles;
+            std::vector<ResizeBrushHandle> m_proposedDragHandles;
         private: // drag state
             std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
             std::vector<ResizeBrushHandle> m_dragHandlesAtDragStart;
