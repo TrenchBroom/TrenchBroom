@@ -203,8 +203,8 @@ namespace TrenchBroom {
             }
 
             return kdl::vec_transform(m_proposedDragHandles, [](const ResizeBrushHandle& handle) {
-                    return Model::BrushFaceHandle(handle.node, handle.faceIndex);
-                });
+                return Model::BrushFaceHandle(handle.node, handle.faceIndex);
+            });
         }
 
         void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickResult) {
