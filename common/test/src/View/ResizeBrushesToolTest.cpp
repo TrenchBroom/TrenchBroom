@@ -93,7 +93,6 @@ namespace TrenchBroom {
             CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
             CHECK(!vm::is_nan(hit.hitPoint()));
 
-            const Model::BrushFaceHandle hitTarget = hit.target<Model::BrushFaceHandle>();
             REQUIRE(hit.isMatch());
             pickResult.addHit(hit);
 
@@ -188,7 +187,7 @@ namespace TrenchBroom {
 
                 CHECK(document->selectedNodes().brushes().size() == 4);
 
-                SECTION("check two resulting worldspawn brushes") {
+                SECTION("check 2 resulting worldspawn brushes") {
                     const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
                     const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
                     const auto expectedBounds = std::vector<vm::bbox3>{
@@ -198,7 +197,7 @@ namespace TrenchBroom {
                     CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
                 }
                 
-                SECTION("check two resulting func_detail brushes") {
+                SECTION("check 2 resulting func_detail brushes") {
                     const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
                     const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
                     const auto expectedBounds = std::vector<vm::bbox3>{
@@ -218,7 +217,7 @@ namespace TrenchBroom {
 
                 CHECK(document->selectedNodes().brushes().size() == 3);
 
-                SECTION("check two resulting worldspawn brushes") {
+                SECTION("check 2 resulting worldspawn brushes") {
                     const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
                     const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
                     const auto expectedBounds = std::vector<vm::bbox3>{
@@ -228,11 +227,43 @@ namespace TrenchBroom {
                     CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
                 }
                 
-                SECTION("check one resulting func_detail brush") {
+                SECTION("check 1 resulting func_detail brush") {
                     const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
                     const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
                     const auto expectedBounds = std::vector<vm::bbox3>{
                         {{-16, 176, 16}, {16, 224, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+            }
+
+            SECTION("extrude outwards 16 units towards +Y") {
+                const auto delta = vm::vec3(0, 16, 0);
+
+                REQUIRE(tool.beginResize(pickResult, true));
+                REQUIRE(tool.resize(vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction}, Renderer::PerspectiveCamera()));
+                tool.commit();
+
+                CHECK(document->selectedNodes().brushes().size() == 2);
+
+                SECTION("check 1 resulting worldspawn brush") {
+                    auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+                    nodes = kdl::vec_filter(std::move(nodes), [](auto* node) { return node->selected(); });
+
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-32, 224, 16}, {-16, 240, 32}},
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+                
+                SECTION("check 1 resulting func_detail brush") {
+                    auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+                    nodes = kdl::vec_filter(std::move(nodes), [](auto* node) { return node->selected(); });
+
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-16, 224, 16}, {16, 240, 32}}
                     };
                     CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
                 }
