@@ -590,6 +590,9 @@ namespace TrenchBroom {
             document->select(addedNodes);
 
             m_currentDragVisualHandles = std::move(newDragHandles);
+
+            // FIXME: if linked groups update fails?
+            return true;
         }
 
         std::vector<vm::polygon3> ResizeBrushesTool::polygonsAtDragStart() const {
