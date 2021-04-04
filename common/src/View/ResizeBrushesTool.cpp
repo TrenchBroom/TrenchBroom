@@ -53,6 +53,8 @@
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
 
+#include <QDebug>
+
 #include <algorithm>
 #include <iostream>
 #include <limits>
