@@ -147,8 +147,8 @@ namespace TrenchBroom {
             CHECK_THAT(dragFaces, Catch::UnorderedEquals(expectedDragFaceTextureNames));
         }
 
-        TEST_CASE("ResizeBrushesToolTest.splitBrushesInward", "[ResizeBrushesToolTest]") {
-            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/ResizeBrushesToolTest/splitBrushesInward.map"), 
+        TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/ResizeBrushesToolTest/splitBrushes.map"), 
                                                                       "Quake", Model::MapFormat::Valve);
 
             document->selectAllNodes();
