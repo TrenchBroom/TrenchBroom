@@ -65,25 +65,25 @@ namespace TrenchBroom {
         const Model::HitType::Type ResizeBrushesTool::Resize2DHitType = Model::HitType::freeType();
         const Model::HitType::Type ResizeBrushesTool::Resize3DHitType = Model::HitType::freeType();
 
-        FaceHandle::FaceHandle(const Model::BrushFaceHandle& handle) :
+        ResizeBrushHandle::ResizeBrushHandle(const Model::BrushFaceHandle& handle) :
         node(handle.node()),
         brushAtDragStart(handle.node()->brush()),
         faceIndex(handle.faceIndex()) {}
 
-        const Model::BrushFace& FaceHandle::faceAtDragStart() const {
+        const Model::BrushFace& ResizeBrushHandle::faceAtDragStart() const {
             return brushAtDragStart.face(faceIndex);
         }
 
-        vm::vec3 FaceHandle::faceNormal() const {
+        vm::vec3 ResizeBrushHandle::faceNormal() const {
             return faceAtDragStart().normal();
         }
 
-        bool FaceHandle::operator==(const FaceHandle& other) const {
+        bool ResizeBrushHandle::operator==(const ResizeBrushHandle& other) const {
             return node == other.node
                 && faceIndex == other.faceIndex;
         }
 
-        bool FaceHandle::operator!=(const FaceHandle& other) const {
+        bool ResizeBrushHandle::operator!=(const ResizeBrushHandle& other) const {
             return !(*this == other);
         }
 
@@ -198,7 +198,7 @@ namespace TrenchBroom {
                 return m_currentDragVisualHandles;
             }
 
-            return kdl::vec_transform(m_dragHandles, [](const FaceHandle& handle) {
+            return kdl::vec_transform(m_dragHandles, [](const ResizeBrushHandle& handle) {
                     return Model::BrushFaceHandle(handle.node, handle.faceIndex);
                 });
         }
@@ -217,15 +217,15 @@ namespace TrenchBroom {
             qDebug() << "update drag faces" << m_dragHandles.size();
         }
 
-        std::vector<FaceHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
+        std::vector<ResizeBrushHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
             if (hit.isMatch()) {
                 return collectDragHandles(hit);
             } else {
-                return std::vector<FaceHandle>{};
+                return std::vector<ResizeBrushHandle>{};
             }
         }
 
-        std::vector<FaceHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& hit) const {
+        std::vector<ResizeBrushHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.type() == Resize2DHitType || hit.type() == Resize3DHitType);
 
@@ -244,7 +244,7 @@ namespace TrenchBroom {
             }
 
             return kdl::vec_transform(result, [](const auto& handle) {
-                return FaceHandle(handle);
+                return ResizeBrushHandle(handle);
             });
         }
 
@@ -303,7 +303,7 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& /* camera */) {
-            const FaceHandle& dragFaceHandle = m_dragHandlesAtDragStart.at(0);
+            const ResizeBrushHandle& dragFaceHandle = m_dragHandlesAtDragStart.at(0);
             const Model::BrushFace& dragFace = dragFaceHandle.faceAtDragStart();
             const vm::vec3& faceNormal = dragFace.boundary().normal;
 
