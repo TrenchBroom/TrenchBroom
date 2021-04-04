@@ -1083,6 +1083,7 @@ namespace TrenchBroom {
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
             for (const auto& [parent, children] : nodes) {
                 assert(parent->isDescendantOf(m_world.get()));
+                unused(parent);
             }
 
             Transaction transaction(this, "Add Objects");
