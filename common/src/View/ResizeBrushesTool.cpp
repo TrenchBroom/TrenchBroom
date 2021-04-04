@@ -33,7 +33,6 @@
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
-#include "Model/WorldNode.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -313,11 +312,6 @@ namespace TrenchBroom {
             const Model::BrushFace& dragFace = dragFaceHandle.faceAtDragStart();
             const vm::vec3& faceNormal = dragFace.boundary().normal;
 
-            const vm::line_distance<FloatType> dist = vm::distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
-            if (dist.parallel) {
-                return true;
-            }
-
             auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
 
@@ -325,9 +319,11 @@ namespace TrenchBroom {
                 const auto unsnappedDelta = faceNormal * dist;
                 return grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
             };
-            auto deltaToDist = [&](const vm::vec3& delta) -> FloatType {
-                return vm::dot(delta, faceNormal);
-            };
+
+            const vm::line_distance<FloatType> dist = vm::distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
+            if (dist.parallel) {
+                return true;
+            }
 
             const FloatType dragDist = dist.position2;
             const vm::vec3 faceDelta = dragDistToSnappedDelta(dragDist);
@@ -535,10 +531,6 @@ namespace TrenchBroom {
             m_currentDragVisualHandles.clear();
             document->rollbackTransaction();
 
-            for (const auto& handle : m_dragHandlesAtDragStart) {
-                assert(handle.node->isDescendantOf(document->world()));
-            }
-
             std::vector<Model::BrushFaceHandle> newDragHandles;
             // This map is to handle the case when the brushes being
             // extruded have different parents (e.g. different brush entities),
@@ -587,6 +579,7 @@ namespace TrenchBroom {
             
             // FIXME: which linked groups need updating?
             const bool success = document->swapNodeContents("Resize Brushes", nodesToUpdate, {});
+            unused(success);
 
             // Add the newly split off brushes and select them (keeping the original brushes selected).
             const auto addedNodes = document->addNodes(std::move(newNodes));
