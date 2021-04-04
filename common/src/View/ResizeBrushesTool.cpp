@@ -207,7 +207,8 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickResult) {
-            // FIXME: assert not dragging            
+            ensure(!m_dragging, "shouldn't update proposed drag handles during a drag");
+
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             auto newDragHandles = getDragHandles(hit);
             if (newDragHandles != m_proposedDragHandles) {

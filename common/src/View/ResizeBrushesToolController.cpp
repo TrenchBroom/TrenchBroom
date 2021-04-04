@@ -87,14 +87,10 @@ namespace TrenchBroom {
             if (m_mode == Mode::Resize) {
                 const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
                 if (m_tool->beginResize(inputState.pickResult(), split)) {
-                    // FIXME: don't call this during a drag
-                    m_tool->updateProposedDragHandles(inputState.pickResult());
                     return true;
                 }
             } else {
                 if (m_tool->beginMove(inputState.pickResult())) {
-                    // FIXME: don't call this during a drag
-                    m_tool->updateProposedDragHandles(inputState.pickResult());
                     return true;
                 }
             }
