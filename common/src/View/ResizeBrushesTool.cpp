@@ -500,17 +500,6 @@ namespace TrenchBroom {
             );
         }
 
-        namespace {
-            struct ResizeError {
-                std::string msg;
-            };
-
-            std::ostream& operator<<(std::ostream& str, const ResizeError& e) {
-                str << e.msg;
-                return str;
-            }
-        }
-
         /**
          * Splits brushes "inwards" effectively clipping the selected brushes into two halves.
          */
