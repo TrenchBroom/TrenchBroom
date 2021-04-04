@@ -62,13 +62,13 @@ namespace TrenchBroom {
 
         void ResizeBrushesToolController::doModifierKeyChange(const InputState& inputState) {
             if (!anyToolDragging(inputState)) {
-                m_tool->updateDragFaces(inputState.pickResult());
+                m_tool->updateProposedDragHandles(inputState.pickResult());
             }
         }
 
         void ResizeBrushesToolController::doMouseMove(const InputState& inputState) {
             if (handleInput(inputState) && !anyToolDragging(inputState)) {
-                m_tool->updateDragFaces(inputState.pickResult());
+                m_tool->updateProposedDragHandles(inputState.pickResult());
             }
         }
 
@@ -82,19 +82,19 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_tool->updateDragFaces(inputState.pickResult());
+            m_tool->updateProposedDragHandles(inputState.pickResult());
             m_mode = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? Mode::MoveFace : Mode::Resize;
             if (m_mode == Mode::Resize) {
                 const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
                 if (m_tool->beginResize(inputState.pickResult(), split)) {
                     // FIXME: don't call this during a drag
-                    m_tool->updateDragFaces(inputState.pickResult());
+                    m_tool->updateProposedDragHandles(inputState.pickResult());
                     return true;
                 }
             } else {
                 if (m_tool->beginMove(inputState.pickResult())) {
                     // FIXME: don't call this during a drag
-                    m_tool->updateDragFaces(inputState.pickResult());
+                    m_tool->updateProposedDragHandles(inputState.pickResult());
                     return true;
                 }
             }
@@ -111,7 +111,7 @@ namespace TrenchBroom {
 
         void ResizeBrushesToolController::doEndMouseDrag(const InputState& inputState) {
             m_tool->commit();
-            m_tool->updateDragFaces(inputState.pickResult());
+            m_tool->updateProposedDragHandles(inputState.pickResult());
         }
 
         void ResizeBrushesToolController::doCancelMouseDrag() {

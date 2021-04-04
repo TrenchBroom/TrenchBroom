@@ -112,7 +112,7 @@ namespace TrenchBroom {
         public:
             bool hasDragFaces() const;
             std::vector<Model::BrushFaceHandle> dragFaces() const;
-            void updateDragFaces(const Model::PickResult& pickResult);
+            void updateProposedDragHandles(const Model::PickResult& pickResult);
         private:
             std::vector<ResizeBrushHandle> getDragHandles(const Model::Hit& hit) const;
             std::vector<ResizeBrushHandle> collectDragHandles(const Model::Hit& hit) const;

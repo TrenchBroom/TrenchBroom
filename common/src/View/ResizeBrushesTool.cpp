@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 });
         }
 
-        void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
+        void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickResult) {
             // FIXME: assert not dragging            
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             auto newDragHandles = getDragHandles(hit);
@@ -286,7 +286,7 @@ namespace TrenchBroom {
         }
 
         /**
-         * Starts resizing the faces determined by the previous call to updateDragFaces
+         * Starts resizing the faces determined by the previous call to updateProposedDragHandles
          */
         bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
