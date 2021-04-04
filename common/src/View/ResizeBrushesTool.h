@@ -73,6 +73,7 @@ namespace TrenchBroom {
         /**
          * TODO: 
          * - highlight disappears on first few px of resize drag
+         * - splitBrushesInward doesn't update linked groups
          */
         class ResizeBrushesTool : public Tool {
         public:
