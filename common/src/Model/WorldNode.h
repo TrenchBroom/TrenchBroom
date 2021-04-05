@@ -61,6 +61,8 @@ namespace TrenchBroom {
             ~WorldNode() override;
 
             MapFormat mapFormat() const;
+
+            const NodeTree& nodeTree() const;
         public: // layer management
             LayerNode* defaultLayer();
 

@@ -62,6 +62,10 @@ namespace TrenchBroom {
             return m_mapFormat;
         }
 
+        const WorldNode::NodeTree& WorldNode::nodeTree() const {
+            return *m_nodeTree;
+        }
+
         LayerNode* WorldNode::defaultLayer() {
             ensure(m_defaultLayer != nullptr, "defaultLayer is null");
             return m_defaultLayer;
