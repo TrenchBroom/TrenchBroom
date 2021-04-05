@@ -117,6 +117,7 @@ set_property(SOURCE "${COMMON_TEST_SOURCE_DIR}/RunAllTests.cpp" PROPERTY SKIP_UN
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test PRIVATE common Catch2::Catch2)
+set_target_properties(common-test PROPERTIES AUTOMOC TRUE)
 
 set_compiler_config(common-test)
 
