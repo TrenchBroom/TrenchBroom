@@ -18,6 +18,8 @@
  */
 
 #include "Model/Issue.h"
+
+#include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -26,6 +28,7 @@
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/MapFormat.h"
+#include "Model/PatchNode.h"
 
 #include <kdl/result.h>
 #include <kdl/result_io.h>
@@ -59,7 +62,13 @@ namespace TrenchBroom {
             auto* brushEntityNode = new EntityNode{Entity{}};
             auto* entityBrushNode = new BrushNode{BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "texture").value()};
             brushEntityNode->addChild(entityBrushNode);
-            outerGroupNode.addChildren({innerGroupNode, pointEntityNode, brushNode, brushEntityNode});
+
+            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            
+            outerGroupNode.addChildren({innerGroupNode, pointEntityNode, brushNode, brushEntityNode, patchNode});
 
             const auto getSelectableNodes = [](const auto& issue) {
                 auto nodes = std::vector<Node*>{};
@@ -98,6 +107,11 @@ namespace TrenchBroom {
             CHECK(hasSelectableNodes(TestIssue{entityBrushNode}));
             CHECK_THAT(getSelectableNodes(TestIssue{entityBrushNode}), Catch::Matchers::UnorderedEquals(std::vector<Node*>{
                 entityBrushNode
+            }));
+
+            CHECK(hasSelectableNodes(TestIssue{patchNode}));
+            CHECK_THAT(getSelectableNodes(TestIssue{patchNode}), Catch::Matchers::UnorderedEquals(std::vector<Node*>{
+                patchNode
             }));
         }
     }
