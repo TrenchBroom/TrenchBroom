@@ -13,6 +13,7 @@ set_property(SOURCE "${COMMON_BENCHMARK_SOURCE_DIR}/Main.cpp" PROPERTY SKIP_UNIT
 add_executable(common-benchmark ${COMMON_BENCHMARK_SOURCE})
 target_include_directories(common-benchmark PRIVATE ${COMMON_BENCHMARK_SOURCE_DIR})
 target_link_libraries(common-benchmark PRIVATE common Catch2::Catch2)
+set_target_properties(common-benchmark PROPERTIES AUTOMOC TRUE)
 
 set_compiler_config(common-benchmark)
 
