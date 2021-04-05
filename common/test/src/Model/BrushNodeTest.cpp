@@ -221,7 +221,7 @@ namespace TrenchBroom {
             CHECK(nodes.empty());
         }
 
-        TEST_CASE("BrushTest.hasSelectedFaces", "[BrushNodeTest]") {
+        TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
             
             // build a cube with length 16 at the origin
