@@ -26,6 +26,7 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
@@ -219,6 +220,18 @@ namespace TrenchBroom {
 
             const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
             CHECK(nodes.empty());
+        }
+
+        TEST_CASE("BrushNodeTest.entity", "[BrushNodeTest]") {
+            const auto worldBounds = vm::bbox3{4096.0};
+
+            auto* brushNode = new BrushNode{BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure").value()};
+            auto entityNode = EntityNode{Entity{}};
+
+            CHECK(brushNode->entity() == nullptr);
+            
+            entityNode.addChild(brushNode);
+            CHECK(brushNode->entity() == &entityNode);
         }
 
         TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
