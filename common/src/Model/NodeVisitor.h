@@ -113,12 +113,7 @@ namespace TrenchBroom {
             void visit(GroupNode* group) override   { doVisit(group);  }
             void visit(EntityNode* entity) override { doVisit(entity); }
             void visit(BrushNode* brush) override   { doVisit(brush);  }
-            void visit([[maybe_unused]] PatchNode* patch) override   {
-                // Todo 2429: Remove this check
-                if constexpr (std::is_invocable_v<L, PatchNode*> || std::is_invocable_v<L, const L&, PatchNode*>) {
-                    doVisit(patch);
-                }
-            }
+            void visit(PatchNode* patch) override   { doVisit(patch);  }
 
             template <typename N>
             void doVisit(N* node) {
@@ -159,12 +154,7 @@ namespace TrenchBroom {
             void visit(const GroupNode* group) override   { doVisit(group);  }
             void visit(const EntityNode* entity) override { doVisit(entity); }
             void visit(const BrushNode* brush) override   { doVisit(brush);  }
-            void visit([[maybe_unused]] const PatchNode* patch) override   { 
-                // Todo 2429: Remove this check
-                if constexpr (std::is_invocable_v<L, const PatchNode*> || std::is_invocable_v<L, const L&, const PatchNode*>) {
-                    doVisit(patch);
-                }
-            }
+            void visit(const PatchNode* patch) override   { doVisit(patch);  }
 
             template <typename N>
             void doVisit(const N* node) {
