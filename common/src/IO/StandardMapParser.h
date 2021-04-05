@@ -92,7 +92,7 @@ namespace TrenchBroom {
             ~StandardMapParser() override;
         protected:
             void parseEntities(ParserStatus& status);
-            void parseBrushes(ParserStatus& status);
+            void parseBrushesOrPatches(ParserStatus& status);
             void parseBrushFaces(ParserStatus& status);
 
             void reset();

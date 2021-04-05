@@ -21,6 +21,7 @@
 
 #include "FloatType.h"
 #include "IO/StandardMapParser.h"
+#include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/IdType.h"
@@ -82,7 +83,17 @@ namespace TrenchBroom {
                 std::optional<size_t> parentIndex;
             };
 
-            using ObjectInfo = std::variant<EntityInfo, BrushInfo>;
+            struct PatchInfo {
+                size_t rowCount;
+                size_t columnCount;
+                std::vector<Model::BezierPatch::Point> controlPoints;
+                std::string textureName;
+                size_t startLine;
+                size_t lineCount;
+                std::optional<size_t> parentIndex;
+            };
+
+            using ObjectInfo = std::variant<EntityInfo, BrushInfo, PatchInfo>;
         private:
             vm::bbox3 m_worldBounds;
         private: // data populated in response to MapParser callbacks
@@ -124,6 +135,7 @@ namespace TrenchBroom {
             void onEndBrush(size_t startLine, size_t lineCount, ParserStatus& status) override;
             void onStandardBrushFace(size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) override;
             void onValveBrushFace(size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) override;
+            void onPatch(size_t startLine, size_t lineCount, Model::MapFormat targetMapFormat, size_t rowCount, size_t columnCount, std::vector<vm::vec<FloatType, 5>> controlPoints, std::string textureName, ParserStatus& status) override;
         private: // helper methods
             void createNodes(ParserStatus& status);
         private: // subclassing interface - these will be called in the order that nodes should be inserted

@@ -21,6 +21,7 @@
 #include "IO/File.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
@@ -29,6 +30,7 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <vecmath/mat.h>
@@ -1206,11 +1208,13 @@ brushDef
 patchDef2
 {
 common/caulk
-( 3 3 0 0 0 )
+( 5 3 0 0 0 )
 (
-( ( -64 -64 4 0 0 ) ( -64 0 4 0 -0.25 ) ( -64 64 4 0 -0.5 ) )
-( ( 0 -64 4 0.25 0 ) ( 0 0 4 0.25 -0.25 ) ( 0 64 4 0.25 -0.5 ) )
-( ( 64 -64 4 0.5 0 ) ( 64 0 4 0.5 -0.25 ) ( 64 64 4 0.5 -0.5 ) )
+( (-64 -64 4 0   0 ) (-64 0 4 0   -0.25 ) (-64 64 4 0   -0.5 ) )
+( (  0 -64 4 0.2 0 ) (  0 0 4 0.2 -0.25 ) (  0 64 4 0.2 -0.5 ) )
+( ( 64 -64 4 0.4 0 ) ( 64 0 4 0.4 -0.25 ) ( 64 64 4 0.4 -0.5 ) )
+( (128 -64 4 0.6 0 ) (128 0 4 0.6 -0.25 ) (128 64 4 0.6 -0.5 ) )
+( (192 -64 4 0.8 0 ) (192 0 4 0.8 -0.25 ) (192 64 4 0.8 -0.5 ) )
 )
 }
 }
@@ -1222,8 +1226,23 @@ common/caulk
 
             auto world = reader.read(worldBounds, status);
 
-            // TODO 2428: Assert one patch!
-            CHECK(world->defaultLayer()->childCount() == 0u);
+            CHECK(world->defaultLayer()->childCount() == 1u);
+            
+            const auto* patchNode = dynamic_cast<Model::PatchNode*>(world->defaultLayer()->children().front());
+            CHECK(patchNode != nullptr);
+
+            const auto& patch = patchNode->patch();
+            CHECK(patch.textureName() == "common/caulk");
+            CHECK(patch.pointRowCount() == 5);
+            CHECK(patch.pointColumnCount() == 3);
+
+            CHECK_THAT(patch.controlPoints(), Catch::Equals(std::vector<Model::BezierPatch::Point>{
+                {-64, -64, 4, 0,   0}, {-64, 0, 4, 0,   -0.25}, {-64, 64, 4, 0,   -0.5},
+                {  0, -64, 4, 0.2, 0}, {  0, 0, 4, 0.2, -0.25}, {  0, 64, 4, 0.2, -0.5},
+                { 64, -64, 4, 0.4, 0}, { 64, 0, 4, 0.4, -0.25}, { 64, 64, 4, 0.4, -0.5},
+                {128, -64, 4, 0.6, 0}, {128, 0, 4, 0.6, -0.25}, {128, 64, 4, 0.6, -0.5},
+                {192, -64, 4, 0.8, 0}, {192, 0, 4, 0.8, -0.25}, {192, 64, 4, 0.8, -0.5}, 
+            }));
         }
 
         TEST_CASE("WorldReaderTest.parseMultipleClassnames", "[WorldReaderTest]") {
