@@ -78,6 +78,9 @@ namespace TrenchBroom {
             using Resize3DHitData = Model::BrushFaceHandle;
         private:
             std::weak_ptr<MapDocument> m_document;
+            /**
+             * Propsed handles for the next drag. Should only be accessed when m_dragging is false.
+             */
             std::vector<ResizeBrushHandle> m_proposedDragHandles;
         private: // drag state
             std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
