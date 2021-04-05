@@ -178,7 +178,7 @@ namespace TrenchBroom {
             CHECK(tool.dragFaces().at(0).face().normal() == vm::vec3::pos_y());
             CHECK(tool.dragFaces().at(1).face().normal() == vm::vec3::pos_y());
 
-            SECTION("extrude inwards 32 units towards -Y") {
+            SECTION("split brushes inwards 32 units towards -Y") {
                 const auto delta = vm::vec3(0, -32, 0);
 
                 REQUIRE(tool.beginResize(pickResult, true));
@@ -208,7 +208,7 @@ namespace TrenchBroom {
                 }
             }
 
-            SECTION("extrude inwards 48 units towards -Y") {
+            SECTION("split brushes inwards 48 units towards -Y") {
                 const auto delta = vm::vec3(0, -48, 0);
 
                 REQUIRE(tool.beginResize(pickResult, true));
@@ -237,7 +237,35 @@ namespace TrenchBroom {
                 }
             }
 
-            SECTION("extrude outwards 16 units towards +Y") {
+            SECTION("resize inwards 32 units towards -Y") {
+                const auto delta = vm::vec3(0, -32, 0);
+
+                REQUIRE(tool.beginResize(pickResult, false));
+                REQUIRE(tool.resize(vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction}, Renderer::PerspectiveCamera()));
+                tool.commit();
+
+                CHECK(document->selectedNodes().brushes().size() == 2);
+
+                SECTION("check 1 resulting worldspawn brushes") {
+                    const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-32, 144, 16}, {-16, 192, 32}},
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+
+                SECTION("check 1 resulting func_detail brush") {
+                    const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-16, 176, 16}, {16, 192, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+            }
+
+            SECTION("split brushes outwards 16 units towards +Y") {
                 const auto delta = vm::vec3(0, 16, 0);
 
                 REQUIRE(tool.beginResize(pickResult, true));
