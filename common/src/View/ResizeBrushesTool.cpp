@@ -209,7 +209,12 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickResult) {
-            ensure(!m_dragging, "shouldn't update proposed drag handles during a drag");
+            if (m_dragging) {
+                // FIXME: this should be turned into an ensure failure, but ResizeBrushesToolController
+                // thinks we are not dragging when we actually still are.
+                kdl::mem_lock(m_document)->error() << "updateProposedDragHandles called during a drag";
+                return;
+            }
 
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             auto newDragHandles = getDragHandles(hit);
