@@ -43,9 +43,9 @@ namespace TrenchBroom {
             }
         }
 
-            Model::Node* BrushFaceReader::onWorldNode(std::unique_ptr<Model::WorldNode>, ParserStatus&) { return nullptr; }
-            void BrushFaceReader::onLayerNode(std::unique_ptr<Model::Node>, ParserStatus&) {}
-            void BrushFaceReader::onNode(Model::Node*, std::unique_ptr<Model::Node>, ParserStatus&) {}
+        Model::Node* BrushFaceReader::onWorldNode(std::unique_ptr<Model::WorldNode>, ParserStatus&) { return nullptr; }
+        void BrushFaceReader::onLayerNode(std::unique_ptr<Model::Node>, ParserStatus&) {}
+        void BrushFaceReader::onNode(Model::Node*, std::unique_ptr<Model::Node>, ParserStatus&) {}
 
         void BrushFaceReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */) {
             m_brushFaces.push_back(std::move(face));
