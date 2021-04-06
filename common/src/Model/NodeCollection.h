@@ -28,6 +28,7 @@ namespace TrenchBroom {
         class GroupNode;
         class LayerNode;
         class Node;
+        class PatchNode;
 
         class NodeCollection {
         private:
@@ -36,6 +37,7 @@ namespace TrenchBroom {
             std::vector<GroupNode*> m_groups;
             std::vector<EntityNode*> m_entities;
             std::vector<BrushNode*> m_brushes;
+            std::vector<PatchNode*> m_patches;
         public:
             bool empty() const;
             size_t nodeCount() const;
@@ -43,6 +45,7 @@ namespace TrenchBroom {
             size_t groupCount() const;
             size_t entityCount() const;
             size_t brushCount() const;
+            size_t patchCount() const;
 
             bool hasLayers() const;
             bool hasOnlyLayers() const;
@@ -53,6 +56,8 @@ namespace TrenchBroom {
             bool hasBrushes() const;
             bool hasOnlyBrushes() const;
             bool hasBrushesRecursively() const;
+            bool hasPatches() const;
+            bool hasOnlyPatches() const;
 
             std::vector<Node*>::iterator begin();
             std::vector<Node*>::iterator end();
@@ -65,6 +70,7 @@ namespace TrenchBroom {
             const std::vector<EntityNode*>& entities() const;
             const std::vector<BrushNode*>& brushes() const;
             std::vector<BrushNode*> brushesRecursively() const;
+            const std::vector<PatchNode*>& patches() const;
 
             void addNodes(const std::vector<Node*>& nodes);
             void addNode(Node* node);

@@ -19,6 +19,7 @@
 
 #include "Model/NodeCollection.h"
 
+#include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -29,6 +30,7 @@
 #include "Model/Layer.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
+#include "Model/PatchNode.h"
 
 #include <kdl/result.h>
 #include <kdl/result_io.h>
@@ -63,18 +65,24 @@ namespace TrenchBroom {
             REQUIRE(nodeCollection.groupCount() == 0u);
             REQUIRE(nodeCollection.entityCount() == 0u);
             REQUIRE(nodeCollection.brushCount() == 0u);
+            REQUIRE(nodeCollection.patchCount() == 0u);
 
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
-            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode});
-            CHECK(nodeCollection.nodeCount() == 4u);
+            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+            CHECK(nodeCollection.nodeCount() == 5u);
             CHECK(nodeCollection.layerCount() == 1u);
             CHECK(nodeCollection.groupCount() == 1u);
             CHECK(nodeCollection.entityCount() == 1u);
             CHECK(nodeCollection.brushCount() == 1u);
+            CHECK(nodeCollection.patchCount() == 1u);
         }
 
         TEST_CASE("NodeCollection.has") {
@@ -85,6 +93,10 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             auto nodeCollection = NodeCollection{};
 
@@ -97,6 +109,8 @@ namespace TrenchBroom {
             REQUIRE_FALSE(nodeCollection.hasBrushes());
             REQUIRE_FALSE(nodeCollection.hasOnlyBrushes());
             REQUIRE_FALSE(nodeCollection.hasBrushesRecursively());
+            REQUIRE_FALSE(nodeCollection.hasPatches());
+            REQUIRE_FALSE(nodeCollection.hasOnlyPatches());
 
             SECTION("layer") {
                 nodeCollection.addNode(&layerNode);
@@ -168,6 +182,16 @@ namespace TrenchBroom {
                     }
                 }
             }
+
+            SECTION("patches") {
+                nodeCollection.addNode(&patchNode);
+                CHECK(nodeCollection.hasPatches());
+                CHECK(nodeCollection.hasOnlyPatches());
+
+                nodeCollection.addNode(&brushNode);
+                CHECK(nodeCollection.hasPatches());
+                CHECK_FALSE(nodeCollection.hasOnlyPatches());
+            }
         }
 
         TEST_CASE("NodeCollection.iterators") {
@@ -178,16 +202,20 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             auto nodeCollection = NodeCollection{};
 
             REQUIRE_THAT(std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()), 
                 Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
-            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode});
+            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
             CHECK_THAT(std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()), 
-                Catch::Matchers::UnorderedEquals(std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode}));
+                Catch::Matchers::UnorderedEquals(std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode}));
         }
 
         TEST_CASE("NodeCollection.collections") {
@@ -198,16 +226,20 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             auto nodeCollection = NodeCollection{};
 
             REQUIRE_THAT(std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()), 
                 Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
-            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode});
+            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
             CHECK_THAT(nodeCollection.nodes(), 
-                Catch::Matchers::UnorderedEquals(std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode}));
+                Catch::Matchers::UnorderedEquals(std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode}));
 
             CHECK_THAT(nodeCollection.layers(), 
                 Catch::Matchers::UnorderedEquals(std::vector<LayerNode*>{&layerNode}));
@@ -220,6 +252,9 @@ namespace TrenchBroom {
 
             CHECK_THAT(nodeCollection.brushes(), 
                 Catch::Matchers::UnorderedEquals(std::vector<BrushNode*>{&brushNode}));
+
+            CHECK_THAT(nodeCollection.patches(), 
+                Catch::Matchers::UnorderedEquals(std::vector<PatchNode*>{&patchNode}));
 
             SECTION("nested brushes") {
                 auto* brushInLayer = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
@@ -243,6 +278,10 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             auto nodeCollection = NodeCollection{};
 
@@ -272,6 +311,12 @@ namespace TrenchBroom {
                 CHECK(nodeCollection.nodes() == std::vector<Node*>{&brushNode});
                 CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{&brushNode});
             }
+
+            SECTION("patch") {
+                nodeCollection.addNode(&patchNode);
+                CHECK(nodeCollection.nodes() == std::vector<Node*>{&patchNode});
+                CHECK(nodeCollection.patches() == std::vector<PatchNode*>{&patchNode});
+            }
         }
 
         TEST_CASE("NodeCollection.addNodes") {
@@ -282,19 +327,24 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             auto nodeCollection = NodeCollection{};
 
             REQUIRE_THAT(std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()), 
                 Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
-            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode});
+            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
-            CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode});
+            CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
             CHECK(nodeCollection.layers() == std::vector<LayerNode*>{&layerNode});
             CHECK(nodeCollection.groups() == std::vector<GroupNode*>{&groupNode});
             CHECK(nodeCollection.entities() == std::vector<EntityNode*>{&entityNode});
             CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{&brushNode});
+            CHECK(nodeCollection.patches() == std::vector<PatchNode*>{&patchNode});
         }
 
         TEST_CASE("NodeCollection.removeNode") {
@@ -305,33 +355,43 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             auto nodeCollection = NodeCollection{};
-            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode});
-            REQUIRE(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode});
+            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+            REQUIRE(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
             SECTION("layer") {
                 nodeCollection.removeNode(&layerNode);
-                CHECK(nodeCollection.nodes() == std::vector<Node*>{&groupNode, &entityNode, &brushNode});
+                CHECK(nodeCollection.nodes() == std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode});
                 CHECK(nodeCollection.layers() == std::vector<LayerNode*>{});
             }
 
             SECTION("group") {
                 nodeCollection.removeNode(&groupNode);
-                CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &entityNode, &brushNode});
+                CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &entityNode, &brushNode, &patchNode});
                 CHECK(nodeCollection.groups() == std::vector<GroupNode*>{});
             }
 
             SECTION("entity") {
                 nodeCollection.removeNode(&entityNode);
-                CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &brushNode});
+                CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &brushNode, &patchNode});
                 CHECK(nodeCollection.entities() == std::vector<EntityNode*>{});
             }
 
             SECTION("brush") {
                 nodeCollection.removeNode(&brushNode);
-                CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &entityNode});
+                CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &patchNode});
                 CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{});
+            }
+
+            SECTION("patch") {
+                nodeCollection.removeNode(&patchNode);
+                CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode});
+                CHECK(nodeCollection.patches() == std::vector<PatchNode*>{});
             }
         }
 
@@ -343,10 +403,14 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
 
             auto nodeCollection = NodeCollection{};
-            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode});
-            REQUIRE(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode});
+            nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+            REQUIRE(nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
             nodeCollection.clear();
         
@@ -355,6 +419,7 @@ namespace TrenchBroom {
             CHECK(nodeCollection.groups() == std::vector<GroupNode*>{});
             CHECK(nodeCollection.entities() == std::vector<EntityNode*>{});
             CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{});
+            CHECK(nodeCollection.patches() == std::vector<PatchNode*>{});
         }
     }
 }
