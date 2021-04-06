@@ -168,120 +168,120 @@ namespace TrenchBroom {
         /************* World Tests *************/
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testWorldVisible") {
-            assertVisible(true, world, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, world, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, world, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, world, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, world, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, world, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, world, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, world, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testWorldEditable") {
-            assertEditable(true, world, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, world, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, world, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, world, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, world, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, world, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, world, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, world, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testWorldPickable") {
-            assertPickable(false, world, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(false, world, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, world, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, world, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(false, world, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(false, world, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, world, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, world, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testWorldSelectable") {
-            assertSelectable(false, world, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, world, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, world, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, world, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, world, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, world, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, world, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, world, VisibilityState::Hidden, LockState::Locked);
         }
 
         /************* Default Layer Tests *************/
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testDefaultLayerVisible") {
             auto* layer = world->defaultLayer();
-            assertVisible(true, layer, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, layer, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, layer, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, layer, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, layer, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, layer, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, layer, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, layer, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testDefaultLayerEditable") {
             auto* layer = world->defaultLayer();
-            assertEditable(true, layer, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, layer, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, layer, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, layer, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, layer, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, layer, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, layer, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, layer, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testDefaultLayerPickable") {
             auto* layer = world->defaultLayer();
-            assertPickable(false, layer, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(false, layer, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, layer, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, layer, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(false, layer, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(false, layer, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, layer, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, layer, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testDefaultLayerSelectable") {
             auto* layer = world->defaultLayer();
-            assertSelectable(false, layer, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, layer, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, layer, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, layer, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, layer, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, layer, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, layer, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, layer, VisibilityState::Hidden, LockState::Locked);
         }
 
         /************* Top Level Group Tests *************/
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelGroupVisible") {
             auto* group = createTopLevelGroup();
-            assertVisible(true, group, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, group, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, group, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, group, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, group, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, group, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, group, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, group, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertVisible(true, group, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
+            assertVisible(true, group, VisibilityState::Shown, LockState::Unlocked);
             context.popGroup();
 
             group->select();
-            assertVisible(true, group, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
+            assertVisible(true, group, VisibilityState::Hidden, LockState::Unlocked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelGroupEditable") {
             auto* group = createTopLevelGroup();
-            assertEditable(true, group, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, group, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, group, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, group, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, group, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, group, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, group, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, group, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertEditable(true, group, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, group, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertEditable(true, group, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, group, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelGroupPickable") {
             auto* group = createTopLevelGroup();
-            assertPickable(true, group, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, group, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, group, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, group, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, group, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, group, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, group, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, group, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertPickable(false, group, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(false, group, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertPickable(false, group, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(false, group, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelGroupSelectable") {
             auto* group = createTopLevelGroup();
-            assertSelectable(true, group, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, group, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, group, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, group, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(true, group, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, group, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, group, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, group, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertSelectable(false, group, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, group, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertSelectable(false, group, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, group, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -289,44 +289,44 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelPointEntityVisible") {
             auto* entity = createTopLevelPointEntity();
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, entity, VisibilityState::Hidden, LockState::Locked);
 
             entity->select();
-            assertVisible(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
+            assertVisible(true, entity, VisibilityState::Hidden, LockState::Unlocked);
             entity->deselect();
 
             setPref(Preferences::ShowPointEntities, false);
-            assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertVisible(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(false, entity, VisibilityState::Shown, LockState::Locked);
 
             resetPref(Preferences::ShowPointEntities);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelPointEntityEditable") {
             auto* entity = createTopLevelPointEntity();
-            assertEditable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelPointEntityPickable") {
             auto* entity = createTopLevelPointEntity();
-            assertPickable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, entity, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, entity, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelPointEntitySelectable") {
             auto* entity = createTopLevelPointEntity();
-            assertSelectable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Hidden, LockState::Locked);
         }
 
         /************* Top Level Brush Entity Tests *************/
@@ -336,20 +336,20 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(entity, brush) = createTopLevelBrushEntity();
 
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, entity, VisibilityState::Hidden, LockState::Locked);
 
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Locked);
 
-            brush->setVisibilityState(VisibilityState::Visibility_Hidden);
-            brush->setLockState(LockState::Lock_Unlocked);
-            assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            brush->setVisibilityState(VisibilityState::Hidden);
+            brush->setLockState(LockState::Unlocked);
+            assertVisible(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(false, entity, VisibilityState::Shown, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushEntityEditable") {
@@ -357,15 +357,15 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(entity, brush) = createTopLevelBrushEntity();
 
-            assertEditable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Hidden, LockState::Locked);
 
-            assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushEntityPickable") {
@@ -373,15 +373,15 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(entity, brush) = createTopLevelBrushEntity();
 
-            assertPickable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, entity, VisibilityState::Hidden, LockState::Locked);
 
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushEntitySelectable") {
@@ -389,52 +389,52 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(entity, brush) = createTopLevelBrushEntity();
 
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Hidden, LockState::Locked);
 
-            assertSelectable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Locked);
         }
 
         /************* Top Level Brush Tests *************/
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushVisible") {
             auto* brush = createTopLevelBrush();
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             brush->select();
-            assertVisible(true, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
+            assertVisible(true, brush, VisibilityState::Hidden, LockState::Unlocked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushEditable") {
             auto* brush = createTopLevelBrush();
-            assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushPickable") {
             auto* brush = createTopLevelBrush();
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Locked);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushSelectable") {
             auto* brush = createTopLevelBrush();
-            assertSelectable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Locked);
         }
 
         /************* Nested Group Tests *************/
@@ -443,18 +443,18 @@ namespace TrenchBroom {
             GroupNode *outer, *inner;
             std::tie(outer, inner) = createNestedGroup();
 
-            assertVisible(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, inner, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, inner, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, inner, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, inner, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, inner, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(outer);
-            assertVisible(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
+            assertVisible(true, inner, VisibilityState::Shown, LockState::Unlocked);
             context.pushGroup(inner);
-            assertVisible(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
+            assertVisible(true, inner, VisibilityState::Shown, LockState::Unlocked);
             context.popGroup();
             inner->select();
-            assertVisible(true, inner, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
+            assertVisible(true, inner, VisibilityState::Hidden, LockState::Unlocked);
             inner->deselect();
             context.popGroup();
         }
@@ -463,17 +463,17 @@ namespace TrenchBroom {
             GroupNode *outer, *inner;
             std::tie(outer, inner) = createNestedGroup();
 
-            assertEditable(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, inner, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, inner, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, inner, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, inner, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, inner, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(outer);
-            assertEditable(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertEditable(true, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, inner, VisibilityState::Shown, LockState::Locked);
             context.pushGroup(inner);
-            assertEditable(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertEditable(true, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, inner, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
             context.popGroup();
         }
@@ -482,17 +482,17 @@ namespace TrenchBroom {
             GroupNode *outer, *inner;
             std::tie(outer, inner) = createNestedGroup();
 
-            assertPickable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, inner, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, inner, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(false, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(false, inner, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, inner, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, inner, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(outer);
-            assertPickable(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertPickable(true, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, inner, VisibilityState::Shown, LockState::Locked);
             context.pushGroup(inner);
-            assertPickable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertPickable(false, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(false, inner, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
             context.popGroup();
         }
@@ -501,17 +501,17 @@ namespace TrenchBroom {
             GroupNode *outer, *inner;
             std::tie(outer, inner) = createNestedGroup();
 
-            assertSelectable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, inner, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, inner, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, inner, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, inner, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, inner, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(outer);
-            assertSelectable(true, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertSelectable(true, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, inner, VisibilityState::Shown, LockState::Locked);
             context.pushGroup(inner);
-            assertSelectable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, inner, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertSelectable(false, inner, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, inner, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
             context.popGroup();
         }
@@ -523,15 +523,15 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(group, brush) = createGroupedBrush();
 
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Unlocked);
             brush->select();
-            assertVisible(true, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
+            assertVisible(true, brush, VisibilityState::Hidden, LockState::Unlocked);
             brush->deselect();
             context.popGroup();
         }
@@ -541,14 +541,14 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(group, brush) = createGroupedBrush();
 
-            assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertEditable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -557,14 +557,14 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(group, brush) = createGroupedBrush();
 
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -573,14 +573,14 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(group, brush) = createGroupedBrush();
 
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertSelectable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertSelectable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -591,25 +591,25 @@ namespace TrenchBroom {
             EntityNode* entity;
             std::tie(group, entity) = createGroupedPointEntity();
 
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, entity, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Unlocked);
             entity->select();
-            assertVisible(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
+            assertVisible(true, entity, VisibilityState::Hidden, LockState::Unlocked);
             entity->deselect();
 
             setPref(Preferences::ShowPointEntities, false);
-            assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertVisible(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(false, entity, VisibilityState::Shown, LockState::Locked);
 
             context.popGroup();
 
-            assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertVisible(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(false, entity, VisibilityState::Shown, LockState::Locked);
 
             resetPref(Preferences::ShowPointEntities);
         }
@@ -619,14 +619,14 @@ namespace TrenchBroom {
             EntityNode* entity;
             std::tie(group, entity) = createGroupedPointEntity();
 
-            assertEditable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertEditable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertEditable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -635,14 +635,14 @@ namespace TrenchBroom {
             EntityNode* entity;
             std::tie(group, entity) = createGroupedPointEntity();
 
-            assertPickable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, entity, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, entity, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertPickable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertPickable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, entity, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -651,14 +651,14 @@ namespace TrenchBroom {
             EntityNode* entity;
             std::tie(group, entity) = createGroupedPointEntity();
 
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertSelectable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertSelectable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -670,20 +670,20 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(group, entity, brush) = createGroupedBrushEntity();
 
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, entity, VisibilityState::Hidden, LockState::Locked);
 
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
             // test brush first to leave it visible, which influences the entity's visibility
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, entity, VisibilityState::Shown, LockState::Unlocked);
             context.popGroup();
         }
 
@@ -693,21 +693,21 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(group, entity, brush) = createGroupedBrushEntity();
 
-            assertEditable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Hidden, LockState::Locked);
 
-            assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertEditable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertEditable(true, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -717,21 +717,21 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(group, entity, brush) = createGroupedBrushEntity();
 
-            assertPickable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, entity, VisibilityState::Hidden, LockState::Locked);
 
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertPickable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertPickable(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -741,21 +741,21 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(group, entity, brush) = createGroupedBrushEntity();
 
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, entity, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Hidden, LockState::Locked);
 
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(group);
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, entity, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Locked);
             context.popGroup();
         }
 
@@ -767,57 +767,57 @@ namespace TrenchBroom {
             BrushNode* brush;
             std::tie(outerGroup, innerGroup, brush) = createdNestedGroupedBrush();
 
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertVisible(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertVisible(false, brush, VisibilityState::Hidden, LockState::Locked);
 
-            assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertEditable(true, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertEditable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertEditable(true, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(outerGroup);
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Unlocked);
 
-            assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertEditable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Shown, LockState::Locked);
 
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.pushGroup(innerGroup);
-            assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
+            assertVisible(true, brush, VisibilityState::Shown, LockState::Unlocked);
 
-            assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertEditable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+            assertEditable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertEditable(false, brush, VisibilityState::Shown, LockState::Locked);
 
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertPickable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertPickable(true, brush, VisibilityState::Shown, LockState::Locked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertPickable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
-            assertSelectable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            assertSelectable(false, brush, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertSelectable(true, brush, VisibilityState::Shown, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Shown, LockState::Locked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Unlocked);
+            assertSelectable(false, brush, VisibilityState::Hidden, LockState::Locked);
 
             context.popGroup();
             context.popGroup();

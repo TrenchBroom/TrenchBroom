@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 worldEntity.removeProperty(Model::PropertyKeys::LayerColor);
             }
 
-            if (defaultLayerNode->lockState() == Model::LockState::Lock_Locked) {
+            if (defaultLayerNode->lockState() == Model::LockState::Locked) {
                 worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerLocked,
                     Model::PropertyValues::LayerLockedValue);
             } else {
@@ -225,7 +225,7 @@ namespace TrenchBroom {
             if (layer.hasSortIndex()) {
                 result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
             }
-            if (layerNode->lockState() == Model::LockState::Lock_Locked) {
+            if (layerNode->lockState() == Model::LockState::Locked) {
                 result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue));
             }
             if (layerNode->hidden()) {

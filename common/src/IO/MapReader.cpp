@@ -238,13 +238,13 @@ namespace TrenchBroom {
 
             if (const auto* lockedStr = entity.property(Model::PropertyKeys::LayerLocked)) {
                 if (*lockedStr == Model::PropertyValues::LayerLockedValue) {
-                    defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
+                    defaultLayerNode->setLockState(Model::LockState::Locked);
                 }
                 entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
             }
             if (const auto* hiddenStr = entity.property(Model::PropertyKeys::LayerHidden)) {
                 if (*hiddenStr == Model::PropertyValues::LayerHiddenValue) {
-                    defaultLayerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+                    defaultLayerNode->setVisibilityState(Model::VisibilityState::Hidden);
                 }
                 entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
             }
@@ -297,10 +297,10 @@ namespace TrenchBroom {
             layerNode->setPersistentId(layerId);
 
             if (findProperty(properties, Model::PropertyKeys::LayerLocked) == Model::PropertyValues::LayerLockedValue) {
-                layerNode->setLockState(Model::LockState::Lock_Locked);
+                layerNode->setLockState(Model::LockState::Locked);
             }
             if (findProperty(properties, Model::PropertyKeys::LayerHidden) == Model::PropertyValues::LayerHiddenValue) {
-                layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+                layerNode->setVisibilityState(Model::VisibilityState::Hidden);
             }
 
             return NodeInfo{

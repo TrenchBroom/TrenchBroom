@@ -91,8 +91,8 @@ R"(// entity 0
 
         TEST_CASE("NodeWriterTest.writeDefaultLayerProperties", "[NodeWriterTest]") {
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
-            map.defaultLayer()->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
-            map.defaultLayer()->setLockState(Model::LockState::Lock_Locked);
+            map.defaultLayer()->setVisibilityState(Model::VisibilityState::Hidden);
+            map.defaultLayer()->setLockState(Model::LockState::Locked);
 
             auto layer = map.defaultLayer()->layer();
             layer.setColor(Color(0.25f, 0.75f, 1.0f));
@@ -327,8 +327,8 @@ R"(// entity 0
             layer.setOmitFromExport(true);
 
             Model::LayerNode* layerNode = new Model::LayerNode(std::move(layer));
-            layerNode->setLockState(Model::LockState::Lock_Locked);
-            layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+            layerNode->setLockState(Model::LockState::Locked);
+            layerNode->setVisibilityState(Model::VisibilityState::Hidden);
 
             map.addChild(layerNode);
 
@@ -689,9 +689,9 @@ R"(// entity 0
             // TB uses it e.g. for locking everything when opening a group.
             // So this should result in both the default layer and custom layer being written unlocked.
 
-            map.setLockState(Model::LockState::Lock_Locked);
-            map.defaultLayer()->setLockState(Model::LockState::Lock_Inherited);
-            layerNode->setLockState(Model::LockState::Lock_Inherited);
+            map.setLockState(Model::LockState::Locked);
+            map.defaultLayer()->setLockState(Model::LockState::Inherited);
+            layerNode->setLockState(Model::LockState::Inherited);
 
             std::stringstream str;
             NodeWriter writer(map, str);

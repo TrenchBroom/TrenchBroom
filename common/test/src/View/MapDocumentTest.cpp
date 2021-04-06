@@ -1465,13 +1465,13 @@ namespace TrenchBroom {
             CHECK(entity1->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 1u);
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(entity1->visible());
 
             // Hide layer1. If any nodes in the layer were Visibility_Shown they would be reset to Visibility_Inherited
             document->hideLayers({ layerNode1});
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
 
             // Create another entity in layer1. It will be visible, while entity1 will still be hidden.
@@ -1479,40 +1479,40 @@ namespace TrenchBroom {
             CHECK(entity2->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 2u);
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
-            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Shown);
             CHECK(entity2->visible());
 
             // Change to layer2. This hides all objects in layer1
             document->setCurrentLayer(layerNode2);
 
             CHECK(document->currentLayer() == layerNode2);
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
-            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity2->visible());
 
             // Undo (Switch current layer back to layer1)
             document->undoCommand();
 
             CHECK(document->currentLayer() == layerNode1);
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
-            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Shown);
             CHECK(entity2->visible());
 
             // Undo (entity2 creation)
             document->undoCommand();
 
             CHECK(layerNode1->childCount() == 1u);
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
 
             // Undo (hiding layer1)
             document->undoCommand();
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(entity1->visible());
         }
 
@@ -1536,8 +1536,8 @@ namespace TrenchBroom {
             CHECK(brush1->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 2u);
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Shown);
-            CHECK(brush1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Shown);
+            CHECK(brush1->visibilityState() == Model::VisibilityState::Shown);
             CHECK(entity1->visible());
             CHECK(brush1->visible());
 
@@ -1553,10 +1553,10 @@ namespace TrenchBroom {
             CHECK(entity2 != entity1);
             CHECK(brush2 != brush1);
 
-            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Shown);
             CHECK(entity2->visible());
 
-            CHECK(brush2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(brush2->visibilityState() == Model::VisibilityState::Shown);
             CHECK(brush2->visible());
         }
 
@@ -1577,13 +1577,13 @@ namespace TrenchBroom {
             CHECK(entity1->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 1u);
 
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(!entity1->locked());
 
             // Lock layer1
             document->lock({ layerNode1});
 
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
 
             // Create another entity in layer1. It will be unlocked, while entity1 will still be locked (inherited).
@@ -1591,9 +1591,9 @@ namespace TrenchBroom {
             CHECK(entity2->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 2u);
 
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
-            CHECK(entity2->lockState() == Model::LockState::Lock_Unlocked);
+            CHECK(entity2->lockState() == Model::LockState::Unlocked);
             CHECK(!entity2->locked());
 
             // Change to layer2. This causes the Lock_Unlocked objects in layer1 to be degraded to Lock_Inherited
@@ -1601,31 +1601,31 @@ namespace TrenchBroom {
             document->setCurrentLayer(layerNode2);
 
             CHECK(document->currentLayer() == layerNode2);
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
-            CHECK(entity2->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity2->lockState() == Model::LockState::Inherited);
             CHECK(entity2->locked());
 
             // Undo (Switch current layer back to layer1)
             document->undoCommand();
 
             CHECK(document->currentLayer() == layerNode1);
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
-            CHECK(entity2->lockState() == Model::LockState::Lock_Unlocked);
+            CHECK(entity2->lockState() == Model::LockState::Unlocked);
             CHECK(!entity2->locked());
 
             // Undo entity2 creation
             document->undoCommand();
 
             CHECK(layerNode1->childCount() == 1u);
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
 
             // Undo locking layer1
             document->undoCommand();
 
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(!entity1->locked());
         }
 

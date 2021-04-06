@@ -1945,7 +1945,7 @@ namespace TrenchBroom {
         void MapDocument::downgradeShownToInherit(const std::vector<Model::Node*>& nodes) {
             std::vector<Model::Node*> nodesToReset;
             for (auto* node : nodes) {
-                if (node->visibilityState() == Model::VisibilityState::Visibility_Shown) {
+                if (node->visibilityState() == Model::VisibilityState::Shown) {
                     nodesToReset.push_back(node);
                 }
             }
@@ -1958,7 +1958,7 @@ namespace TrenchBroom {
         void MapDocument::downgradeUnlockedToInherit(const std::vector<Model::Node*>& nodes) {
             std::vector<Model::Node*> nodesToReset;
             for (auto* node : nodes) {
-                if (node->lockState() == Model::LockState::Lock_Unlocked) {
+                if (node->lockState() == Model::LockState::Unlocked) {
                     nodesToReset.push_back(node);
                 }
             }

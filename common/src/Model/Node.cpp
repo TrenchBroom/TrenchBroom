@@ -64,8 +64,8 @@ namespace TrenchBroom {
         m_selected(false),
         m_childSelectionCount(0),
         m_descendantSelectionCount(0),
-        m_visibilityState(VisibilityState::Visibility_Inherited),
-        m_lockState(LockState::Lock_Inherited),
+        m_visibilityState(VisibilityState::Inherited),
+        m_lockState(LockState::Inherited),
         m_lineNumber(0),
         m_lineCount(0),
         m_issuesValid(false),
@@ -584,22 +584,22 @@ namespace TrenchBroom {
 
         bool Node::visible() const {
             switch (m_visibilityState) {
-                case VisibilityState::Visibility_Inherited:
+                case VisibilityState::Inherited:
                     return m_parent == nullptr || m_parent->visible();
-                case VisibilityState::Visibility_Hidden:
+                case VisibilityState::Hidden:
                     return false;
-                case VisibilityState::Visibility_Shown:
+                case VisibilityState::Shown:
                     return true;
                 switchDefault()
             }
         }
 
         bool Node::shown() const {
-            return m_visibilityState == VisibilityState::Visibility_Shown;
+            return m_visibilityState == VisibilityState::Shown;
         }
 
         bool Node::hidden() const {
-            return m_visibilityState == VisibilityState::Visibility_Hidden;
+            return m_visibilityState == VisibilityState::Hidden;
         }
 
         VisibilityState Node::visibilityState() const {
@@ -616,17 +616,17 @@ namespace TrenchBroom {
 
         bool Node::ensureVisible() {
             if (!visible())
-                return setVisibilityState(VisibilityState::Visibility_Shown);
+                return setVisibilityState(VisibilityState::Shown);
             return false;
         }
 
         bool Node::editable() const {
             switch (m_lockState) {
-                case LockState::Lock_Inherited:
+                case LockState::Inherited:
                     return m_parent == nullptr || m_parent->editable();
-                case LockState::Lock_Locked:
+                case LockState::Locked:
                     return false;
-                case LockState::Lock_Unlocked:
+                case LockState::Unlocked:
                     return true;
                 switchDefault()
             }

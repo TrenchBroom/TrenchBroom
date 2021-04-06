@@ -22,9 +22,9 @@
 namespace TrenchBroom {
     namespace Model {
         enum class LockState {
-            Lock_Inherited = 1,
-            Lock_Locked    = 2,
-            Lock_Unlocked  = 4
+            Inherited = 1,
+            Locked    = 2,
+            Unlocked  = 4
         };
     }
 }
