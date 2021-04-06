@@ -614,6 +614,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/LayerNode.h
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/LockState.cpp
         ${COMMON_SOURCE_DIR}/Model/LockState.h
         ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LongPropertyValueIssueGenerator.h
@@ -669,6 +670,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/TransformEntityPropertiesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/UpdateLinkedGroupsError.h
+        ${COMMON_SOURCE_DIR}/Model/VisibilityState.cpp
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.h
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/WorldNode.h

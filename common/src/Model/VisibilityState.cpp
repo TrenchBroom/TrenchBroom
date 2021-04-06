@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,19 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "VisibilityState.h"
 
-#include <iosfwd>
+#include "Macros.h"
+
+#include <iostream>
 
 namespace TrenchBroom {
     namespace Model {
-        enum class VisibilityState {
-            Inherited = 1,
-            Hidden    = 2,
-            Shown     = 4
-        };
-
-        std::ostream& operator<<(std::ostream& str, VisibilityState state);
+        std::ostream& operator<<(std::ostream& str, const VisibilityState state) {
+            switch (state) {
+                case VisibilityState::Inherited:
+                    str << "Inherited";
+                    break;
+                case VisibilityState::Hidden:
+                    str << "Hidden";
+                    break;
+                case VisibilityState::Shown:
+                    str << "Shown";
+                    break;
+                switchDefault()
+            }
+            return str;
+        }
     }
 }
 
