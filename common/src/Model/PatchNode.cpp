@@ -377,12 +377,12 @@ namespace TrenchBroom {
             return findContainingGroup(this);
         }
 
-        void PatchNode::doAcceptTagVisitor(TagVisitor&) {
-            // todo: implement
+        void PatchNode::doAcceptTagVisitor(TagVisitor& visitor) {
+            visitor.visit(*this);
         }
 
-        void PatchNode::doAcceptTagVisitor(ConstTagVisitor&) const {
-            // todo: implement
+        void PatchNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
+            visitor.visit(*this);
         }
     }
 }
