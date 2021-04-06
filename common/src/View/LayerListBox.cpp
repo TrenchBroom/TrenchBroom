@@ -209,14 +209,14 @@ namespace TrenchBroom {
         }
 
         void LayerListBox::nodesDidChange(const std::vector<Model::Node*>& nodes) {
-            for (const auto* node : nodes) {
-                if (dynamic_cast<const Model::LayerNode*>(node) != nullptr) {
-                    // A layer was added or removed or modified, so we need to clear and repopulate the list
-                    auto* previouslySelectedLayer = selectedLayer();
-                    reload();
-                    setSelectedLayer(previouslySelectedLayer);
-                    return;
-                }
+            const auto documentLayers = kdl::mem_lock(m_document)->world()->allLayersUserSorted();
+
+            if (layers() != documentLayers) {
+                // A layer was added or removed or modified, so we need to clear and repopulate the list
+                auto* previouslySelectedLayer = selectedLayer();
+                reload();
+                setSelectedLayer(previouslySelectedLayer);
+                return;
             }
             updateItems();
         }
@@ -274,6 +274,17 @@ namespace TrenchBroom {
             } else {
                 return widget->layer();
             }
+        }
+
+        std::vector<Model::LayerNode*> LayerListBox::layers() const {
+            const int rowCount = count();
+
+            std::vector<Model::LayerNode*> result;
+            result.reserve(static_cast<size_t>(rowCount));
+            for (int i = 0; i < rowCount; ++i) {
+                result.push_back(layerForRow(i));
+            }
+            return result;
         }
     }
 }
