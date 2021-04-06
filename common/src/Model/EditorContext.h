@@ -38,6 +38,7 @@ namespace TrenchBroom {
         class LayerNode;
         class Node;
         class Object;
+        class PatchNode;
         class WorldNode;
 
         class EditorContext {
@@ -76,6 +77,7 @@ namespace TrenchBroom {
             bool visible(const Model::EntityNode* entityNode) const;
             bool visible(const Model::BrushNode* brushNode) const;
             bool visible(const Model::BrushNode* brushNode, const Model::BrushFace& face) const;
+            bool visible(const Model::PatchNode* patchNode) const;
         private:
             bool anyChildVisible(const Model::Node* node) const;
 
@@ -93,6 +95,7 @@ namespace TrenchBroom {
             bool pickable(const Model::EntityNode* entityNode) const;
             bool pickable(const Model::BrushNode* brushNode) const;
             bool pickable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const;
+            bool pickable(const Model::PatchNode* patchNode) const;
 
             bool selectable(const Model::Node* node) const;
             bool selectable(const Model::WorldNode* worldNode) const;
@@ -101,6 +104,7 @@ namespace TrenchBroom {
             bool selectable(const Model::EntityNode* entityNode) const;
             bool selectable(const Model::BrushNode* brushNode) const;
             bool selectable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const;
+            bool selectable(const Model::PatchNode* patchNode) const;
 
             bool canChangeSelection() const;
             bool inOpenGroup(const Model::Object* object) const;

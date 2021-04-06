@@ -20,6 +20,7 @@
 #include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
@@ -29,6 +30,7 @@
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
 #include "Model/MapFormat.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "Model/VisibilityState.h"
 
@@ -76,11 +78,31 @@ namespace TrenchBroom {
                 return std::make_tuple(entityNode, brushNode);
             }
 
+            std::tuple<EntityNode*, PatchNode*> createTopLevelPatchEntity() {
+                auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+                auto* entityNode = new EntityNode{Entity{}};
+                entityNode->addChild(patchNode);
+                worldNode.defaultLayer()->addChild(entityNode);
+                return std::make_tuple(entityNode, patchNode);
+            }
+
             BrushNode* createTopLevelBrush() {
                 BrushBuilder builder(worldNode.mapFormat(), worldBounds);
                 auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
                 worldNode.defaultLayer()->addChild(brushNode);
                 return brushNode;
+            }
+
+            PatchNode* createTopLevelPatch() {
+                auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+                worldNode.defaultLayer()->addChild(patchNode);
+                return patchNode;
             }
 
             std::tuple<GroupNode*, GroupNode*> createNestedGroup() {
@@ -112,6 +134,19 @@ namespace TrenchBroom {
                 return std::make_tuple(groupNode, entityNode);
             }
 
+            std::tuple<GroupNode*, PatchNode*> createGroupedPatch() {
+                auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+                auto* groupNode = new GroupNode{Group{"somegroup"}};
+
+                groupNode->addChild(patchNode);
+                worldNode.defaultLayer()->addChild(groupNode);
+
+                return std::make_tuple(groupNode, patchNode);
+            }
+
             std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
                 BrushBuilder builder(worldNode.mapFormat(), worldBounds);
                 auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
@@ -123,6 +158,21 @@ namespace TrenchBroom {
                 worldNode.defaultLayer()->addChild(groupNode);
 
                 return std::make_tuple(groupNode, entityNode, brushNode);
+            }
+
+            std::tuple<GroupNode*, EntityNode*, PatchNode*> createGroupedPatchEntity() {
+                auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+                    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+                auto* entityNode = new EntityNode{Entity{}};
+                auto* groupNode = new GroupNode{Group{"somegroup"}};
+
+                entityNode->addChild(patchNode);
+                groupNode->addChild(entityNode);
+                worldNode.defaultLayer()->addChild(groupNode);
+
+                return std::make_tuple(groupNode, entityNode, patchNode);
             }
 
             std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush() {
@@ -391,7 +441,7 @@ namespace TrenchBroom {
                 CHECK(context.selectable(groupNode) == selectable);
             }
 
-            SECTION("Top Level Brush Entity") {
+            SECTION("Top Level Brush Entity, Patch Entity") {
                 using T = std::tuple<VisibilityState, LockState, VisibilityState, LockState, VisibilityState, bool, bool, bool, bool>;
                 const auto
                     [wrldVisState, wrldLckState, entVisState, entLockState, childVisState, visible, editable, pickable, selectable] = GENERATE(values<T>({
@@ -480,9 +530,16 @@ namespace TrenchBroom {
                     {V_Hidden,     L_Unlocked,   V_Shown,     L_Unlocked,   V_Shown,       true,    true,     false,    false     },
                 }));
 
-                auto [entityNode, brushNode] = createTopLevelBrushEntity();
 
-                CAPTURE(wrldVisState, wrldLckState, entVisState, entLockState, childVisState);
+                using GetNodes = std::function<std::tuple<EntityNode*, Node*>(EditorContextTest&)>;
+                const GetNodes getNodes = GENERATE_COPY(
+                    GetNodes{[](auto& test){ return test.createTopLevelBrushEntity(); }},
+                    GetNodes{[](auto& test){ return test.createTopLevelPatchEntity(); }}
+                );
+
+                auto [entityNode, childNode] = getNodes(*this);
+
+                CAPTURE(childNode->name(), wrldVisState, wrldLckState, entVisState, entLockState, childVisState);
 
                 worldNode.setVisibilityState(wrldVisState);
                 worldNode.setLockState(wrldLckState);
@@ -490,7 +547,7 @@ namespace TrenchBroom {
                 entityNode->setVisibilityState(entVisState);
                 entityNode->setLockState(entLockState);
 
-                brushNode->setVisibilityState(childVisState);
+                childNode->setVisibilityState(childVisState);
 
                 CHECK(context.visible(entityNode) == visible);
                 CHECK(context.editable(entityNode) == editable);
@@ -578,10 +635,10 @@ namespace TrenchBroom {
                 CHECK(context.selectable(entityNode) == selectable);
             }
 
-            SECTION("Top Level Brush") {
+            SECTION("Top Level Brush, Patch") {
                 using T = std::tuple<VisibilityState, LockState, VisibilityState, LockState, bool, bool, bool, bool>;
                 const auto
-                    [wrldVisState, wrldLckState, brshVisState, brshLckState, visible, editable, pickable, selectable] = GENERATE(values<T>({
+                    [wrldVisState, wrldLckState, nodeVisState, nodeLckState, visible, editable, pickable, selectable] = GENERATE(values<T>({
                     {V_Shown,      L_Unlocked,   V_Inherited,  L_Inherited,  true,    true,     true,     true      },
                     {V_Shown,      L_Unlocked,   V_Inherited,  L_Locked,     true,    false,    true,     false     },
                     {V_Shown,      L_Unlocked,   V_Inherited,  L_Unlocked,   true,    true,     true,     true      },
@@ -613,20 +670,26 @@ namespace TrenchBroom {
                     {V_Hidden,     L_Unlocked,   V_Hidden,     L_Unlocked,   false,   true,     false,    false     },
                 }));
 
-                auto* brushNode = createTopLevelBrush();
+                using GetNode = std::function<Node*(EditorContextTest&)>;
+                const GetNode getNode = GENERATE_COPY(
+                    GetNode{[](auto& test){ return test.createTopLevelBrush(); }},
+                    GetNode{[](auto& test){ return test.createTopLevelPatch(); }}
+                );
 
-                CAPTURE(wrldVisState, wrldLckState, brshVisState, brshLckState);
+                auto* node = getNode(*this);
+
+                CAPTURE(node->name(), wrldVisState, wrldLckState, nodeVisState, nodeLckState);
 
                 worldNode.setVisibilityState(wrldVisState);
                 worldNode.setLockState(wrldLckState);
 
-                brushNode->setVisibilityState(brshVisState);
-                brushNode->setLockState(brshLckState);
+                node->setVisibilityState(nodeVisState);
+                node->setLockState(nodeLckState);
 
-                CHECK(context.visible(brushNode) == visible);
-                CHECK(context.editable(brushNode) == editable);
-                CHECK(context.pickable(brushNode) == pickable);
-                CHECK(context.selectable(brushNode) == selectable);
+                CHECK(context.visible(node) == visible);
+                CHECK(context.editable(node) == editable);
+                CHECK(context.pickable(node) == pickable);
+                CHECK(context.selectable(node) == selectable);
             }
         }
 
@@ -780,7 +843,7 @@ namespace TrenchBroom {
                 CHECK(context.selectable(innerGroupNode) == selectable);
             }
 
-            SECTION("Grouped Point Entity, Grouped Brush") {
+            SECTION("Grouped Point Entity, Grouped Brush, Grouped Patch") {
                 using T = std::tuple<bool, VisibilityState, LockState, VisibilityState, LockState, bool, bool, bool, bool>;
                 const auto
                     [grpOpen, grpVisState, grpLckState, entVisState, entLckState, visible, editable, pickable, selectable] = GENERATE(values<T>({
@@ -828,7 +891,8 @@ namespace TrenchBroom {
                 using GetNodes = std::function<std::tuple<GroupNode*, Node*>(EditorContextTest&)>;
                 const GetNodes getNodes = GENERATE_COPY(
                     GetNodes{[](auto& test){ return test.createGroupedPointEntity(); }},
-                    GetNodes{[](auto& test){ return test.createGroupedBrush(); }}
+                    GetNodes{[](auto& test){ return test.createGroupedBrush(); }},
+                    GetNodes{[](auto& test){ return test.createGroupedPatch(); }}
                 );
 
                 auto [groupNode, childNode] = getNodes(*this);
@@ -850,7 +914,7 @@ namespace TrenchBroom {
                 CHECK(context.selectable(childNode) == selectable);
             }
 
-            SECTION("Grouped Brush Entity") {
+            SECTION("Grouped Brush Entity, Patch Entity") {
                 using T = std::tuple<bool, VisibilityState, LockState, VisibilityState, LockState, VisibilityState, bool, bool, bool, bool>;
                 const auto
                     [grpOpen, grpVisState, grpLckState, entVisState, entLockState, childVisState, visible, editable, pickable, selectable] = GENERATE(values<T>({
@@ -967,9 +1031,15 @@ namespace TrenchBroom {
                     {true,    V_Shown,     L_Unlocked,  V_Shown,     L_Unlocked,   V_Shown,       true,    true,     false,    false     },
                 }));
 
-                auto [groupNode, entityNode, brushNode] = createGroupedBrushEntity();
+                using GetNodes = std::function<std::tuple<GroupNode*, EntityNode*, Node*>(EditorContextTest&)>;
+                const GetNodes getNodes = GENERATE_COPY(
+                    GetNodes{[](auto& test){ return test.createGroupedBrushEntity(); }},
+                    GetNodes{[](auto& test){ return test.createGroupedPatchEntity(); }}
+                );
 
-                CAPTURE(grpVisState, grpLckState, entVisState, entLockState, childVisState);
+                auto [groupNode, entityNode, childNode] = getNodes(*this);
+
+                CAPTURE(childNode->name(), grpVisState, grpLckState, entVisState, entLockState, childVisState);
 
                 if (grpOpen) {
                     context.pushGroup(groupNode);
@@ -981,7 +1051,7 @@ namespace TrenchBroom {
                 entityNode->setVisibilityState(entVisState);
                 entityNode->setLockState(entLockState);
 
-                brushNode->setVisibilityState(childVisState);
+                childNode->setVisibilityState(childVisState);
 
                 CHECK(context.visible(entityNode) == visible);
                 CHECK(context.editable(entityNode) == editable);
