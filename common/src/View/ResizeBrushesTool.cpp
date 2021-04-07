@@ -53,8 +53,6 @@
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
 
-#include <QDebug>
-
 #include <algorithm>
 #include <iostream>
 #include <limits>
@@ -223,8 +221,6 @@ namespace TrenchBroom {
             }
 
             m_proposedDragHandles = newDragHandles;
-
-            qDebug() << "update drag faces" << m_proposedDragHandles.size();
         }
 
         std::vector<ResizeBrushHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
@@ -346,13 +342,12 @@ namespace TrenchBroom {
                     return true;
                 }
             } else {
-                // This handles ordinary resizing, splitting outward, and splitting inward
-                // (in which case dragFaceDescriptors() is a list of polygons splitting the selected brushes)
                 document->rollbackTransaction();
                 if (document->resizeBrushes(polygonsAtDragStart(), faceDelta)) {
                     m_totalDelta = faceDelta;
                 } else {
-                    qDebug() << "went too far";
+                    // resizeBrushes() fails if some brushes were completely clipped away.
+                    // In that case, restore the last m_totalDelta to be successfully applied.
                     document->resizeBrushes(polygonsAtDragStart(), m_totalDelta);
                 }
 
