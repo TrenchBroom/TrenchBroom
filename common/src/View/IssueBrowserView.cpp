@@ -103,7 +103,7 @@ namespace TrenchBroom {
 
             std::vector<Model::Node*> nodes;
             for (Model::Issue* issue : collectIssues(getSelection())) {
-                if (!issue->addSelectableNodes(document->editorContext(), nodes)) {
+                if (!issue->addSelectableNodes(nodes)) {
                     nodes.clear();
                     break;
                 }

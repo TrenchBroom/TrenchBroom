@@ -23,7 +23,6 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -58,7 +57,7 @@ namespace TrenchBroom {
             return m_node;
         }
 
-        bool Issue::addSelectableNodes(const EditorContext& /* editorContext */, std::vector<Model::Node*>& nodes) const {
+        bool Issue::addSelectableNodes(std::vector<Model::Node*>& nodes) const {
             if (m_node->parent() == nullptr) {
                 return false;
             }
