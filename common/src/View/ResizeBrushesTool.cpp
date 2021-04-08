@@ -46,15 +46,12 @@
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
 
-#include <algorithm>
-#include <iostream>
 #include <limits>
 #include <map>
 #include <vector>
