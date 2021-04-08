@@ -574,12 +574,12 @@ namespace TrenchBroom {
             unused(success);
 
             // Add the newly split off brushes and select them (keeping the original brushes selected).
+            // FIXME: deal with linked group update failure
             const auto addedNodes = document->addNodes(std::move(newNodes));
             document->select(addedNodes);
 
             m_currentDragVisualHandles = std::move(newDragHandles);
 
-            // FIXME: if linked groups update fails?
             return true;
         }
 
