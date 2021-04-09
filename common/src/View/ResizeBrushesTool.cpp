@@ -471,18 +471,15 @@ namespace TrenchBroom {
                 }
             }
 
-            m_currentDragVisualHandles.clear();
-            document->rollbackTransaction();
-
             std::vector<Model::BrushFaceHandle> newDragHandles;
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
             return kdl::for_each_result(m_dragHandlesAtDragStart, [&](const auto& dragFaceHandle) {
                 auto* brushNode = dragFaceHandle.node;
 
-                const auto& oldBrush = brushNode->brush();
+                const auto& oldBrush = dragFaceHandle.brushAtDragStart;
                 const auto dragFaceIndex = dragFaceHandle.faceIndex;
-                const auto newDragFaceNormal = oldBrush.face(dragFaceIndex).boundary().normal;
+                const auto newDragFaceNormal = dragFaceHandle.faceNormal();
 
                 auto newBrush = oldBrush;
                 return newBrush.moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
@@ -500,6 +497,9 @@ namespace TrenchBroom {
                         }
                     });
             }).and_then([&]() {
+                // Apply the changes calculated above
+                document->rollbackTransaction();
+
                 document->deselectAll();
                 const auto addedNodes = document->addNodes(newNodes);
                 document->select(addedNodes);
@@ -539,9 +539,6 @@ namespace TrenchBroom {
                 }
             }
 
-            m_currentDragVisualHandles.clear();
-            document->rollbackTransaction();
-
             std::vector<Model::BrushFaceHandle> newDragHandles;
             // This map is to handle the case when the brushes being
             // extruded have different parents (e.g. different brush entities),
@@ -553,8 +550,8 @@ namespace TrenchBroom {
                 auto* brushNode = dragFaceHandle.node;
 
                 // "Front" means the part closer to the drag handles at the drag start
-                auto frontBrush = brushNode->brush();
-                auto backBrush = brushNode->brush();
+                auto frontBrush = dragFaceHandle.brushAtDragStart;
+                auto backBrush = dragFaceHandle.brushAtDragStart;
 
                 auto clipFace = frontBrush.face(dragFaceHandle.faceIndex);
                                 
@@ -588,6 +585,11 @@ namespace TrenchBroom {
                 }
             }
             
+            // Apply changes calculated above
+
+            m_currentDragVisualHandles.clear();
+            document->rollbackTransaction();
+
             // FIXME: deal with linked group update failure
             const bool success = document->swapNodeContents("Resize Brushes", nodesToUpdate);
             unused(success);
