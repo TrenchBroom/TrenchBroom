@@ -141,7 +141,7 @@ namespace TrenchBroom {
             REQUIRE(pickResult.all().front().target<Model::BrushFaceHandle>().face() == largerTopFace);
 
             const std::vector<std::string> dragFaces =
-                kdl::vec_transform(tool.dragFaces(),
+                kdl::vec_transform(tool.visualHandles(),
                                    [](const Model::BrushFaceHandle& handle) { return handle.face().attributes().textureName(); });
             CHECK_THAT(dragFaces, Catch::UnorderedEquals(expectedDragFaceTextureNames));
         }
@@ -174,9 +174,9 @@ namespace TrenchBroom {
             const Model::PickResult pickResult = performPick(document, tool, pickRay);
 
             // We are going to drag the 2 faces with +Y normals
-            REQUIRE(tool.dragFaces().size() == 2);
-            CHECK(tool.dragFaces().at(0).face().normal() == vm::vec3::pos_y());
-            CHECK(tool.dragFaces().at(1).face().normal() == vm::vec3::pos_y());
+            REQUIRE(tool.visualHandles().size() == 2);
+            CHECK(tool.visualHandles().at(0).face().normal() == vm::vec3::pos_y());
+            CHECK(tool.visualHandles().at(1).face().normal() == vm::vec3::pos_y());
 
             SECTION("split brushes inwards 32 units towards -Y") {
                 const auto delta = vm::vec3(0, -32, 0);

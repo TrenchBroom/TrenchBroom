@@ -132,7 +132,7 @@ namespace TrenchBroom {
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
             std::vector<Vertex> vertices;
 
-            for (const auto& dragFaceHandle : m_tool->dragFaces()) {
+            for (const auto& dragFaceHandle : m_tool->visualHandles()) {
                 const auto& dragFace = dragFaceHandle.face();
                 for (const auto* edge : dragFace.edges()) {
                     vertices.emplace_back(vm::vec3f(edge->firstVertex()->position()));

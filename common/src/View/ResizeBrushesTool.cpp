@@ -187,13 +187,17 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::hasDragFaces() const {
-            return !dragFaces().empty();
+            return !visualHandles().empty();
         }
 
         /**
-         * Used for rendering -> returns the "current" handles (may be none if all brushes are deleted)
+         * Returns the current handles to render. 
+         * 
+         * - If not currently dragging, returns the proposed handles that would be resized if a drag started
+         * - Called "visual" because these can be clipped away, e.g. when raising the top of a trapezoid 
+         *   until it turns into a traingle, while the drag state is stored elsewhere.
          */
-        std::vector<Model::BrushFaceHandle> ResizeBrushesTool::dragFaces() const {
+        std::vector<Model::BrushFaceHandle> ResizeBrushesTool::visualHandles() const {
             if (m_dragging) {
                 return m_currentDragVisualHandles;
             }
