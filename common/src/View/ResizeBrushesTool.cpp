@@ -339,7 +339,6 @@ namespace TrenchBroom {
 
             if (m_splitBrushes) {
                 if (splitBrushesOutward(faceDelta) || splitBrushesInward(faceDelta)) {
-                    m_totalDelta = faceDelta;
                     return true;
                 }
             } else {
@@ -447,8 +446,17 @@ namespace TrenchBroom {
 
         /**
          * Splits off new brush "outward" from the drag handles.
+         * 
+         * Returns false if the given delta isn't suitable for splitting "outward".
+         * 
+         * Otherwise:
+         * - rolls back the transaction
+         * - applies a split outward with the given delta
+         * - sets m_totalDelta to the given delta
+         * - returns true
          */
         bool ResizeBrushesTool::splitBrushesOutward(const vm::vec3& delta) {
+            ensure(m_dragging, "may only be called during a drag");
             auto document = kdl::mem_lock(m_document);
 
             const vm::bbox3& worldBounds = document->worldBounds();
@@ -496,6 +504,7 @@ namespace TrenchBroom {
                 const auto addedNodes = document->addNodes(newNodes);
                 document->select(addedNodes);
                 m_currentDragVisualHandles = std::move(newDragHandles);
+                m_totalDelta = delta;
             }).handle_errors(
                 [&](const Model::BrushError e) {
                     document->error() << "Could not extrude brush: " << e;
@@ -506,8 +515,17 @@ namespace TrenchBroom {
 
         /**
          * Splits brushes "inwards" effectively clipping the selected brushes into two halves.
+         * 
+         * Returns false if the given delta isn't suitable for splitting inward.
+         * 
+         * Otherwise:
+         * - rolls back the transaction
+         * - applies a split inward with the given delta
+         * - sets m_totalDelta to the given delta
+         * - returns true
          */
         bool ResizeBrushesTool::splitBrushesInward(const vm::vec3& delta) {
+            ensure(m_dragging, "may only be called during a drag");
             auto document = kdl::mem_lock(m_document);
             const vm::bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
@@ -580,6 +598,7 @@ namespace TrenchBroom {
             document->select(addedNodes);
 
             m_currentDragVisualHandles = std::move(newDragHandles);
+            m_totalDelta = delta;
 
             return true;
         }
