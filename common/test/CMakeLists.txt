@@ -60,6 +60,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/IssueTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/LayerNodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/ModelUtilsTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/NodeCollectionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/NodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/PatchNodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/PolyhedronTest.cpp"
