@@ -82,7 +82,8 @@ namespace TrenchBroom {
              * Propsed handles for the next drag. Should only be accessed when m_dragging is false.
              */
             std::vector<ResizeBrushesHandle> m_proposedDragHandles;
-        private: // drag state
+            bool m_dragging;
+        private: // drag state - should only be accessed when m_dragging is true
             std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
             std::vector<ResizeBrushesHandle> m_dragHandlesAtDragStart;
             vm::vec3 m_dragOrigin;
@@ -96,7 +97,6 @@ namespace TrenchBroom {
              * How much drag is currently applied to the document.
              */
             vm::vec3 m_totalDelta;
-            bool m_dragging;
         public:
             explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
             ~ResizeBrushesTool() override;

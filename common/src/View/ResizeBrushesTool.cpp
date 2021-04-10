@@ -90,8 +90,8 @@ namespace TrenchBroom {
         ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
         m_document(std::move(document)),
-        m_splitBrushes(false),
-        m_dragging(false) {
+        m_dragging(false),
+        m_splitBrushes(false) {
             bindObservers();
         }
 
