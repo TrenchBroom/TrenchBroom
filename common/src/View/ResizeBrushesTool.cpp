@@ -293,6 +293,8 @@ namespace TrenchBroom {
          * Starts resizing the faces determined by the previous call to updateProposedDragHandles
          */
         bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {
+            ensure(!m_dragging, "may not be called during a drag");
+
             const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             if (!hit.isMatch()) {
                 return false;
@@ -313,6 +315,8 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& /* camera */) {
+            ensure(m_dragging, "may only be called during a drag");
+
             const ResizeBrushesHandle& dragFaceHandle = m_dragHandlesAtDragStart.at(0);
             const Model::BrushFace& dragFace = dragFaceHandle.faceAtDragStart();
             const vm::vec3& faceNormal = dragFace.boundary().normal;
@@ -366,6 +370,8 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::beginMove(const Model::PickResult& pickResult) {
+            ensure(!m_dragging, "may not be called during a drag");
+
             const auto& hit = pickResult.query().type(Resize2DHitType).occluded().first();
             if (!hit.isMatch()) {
                 return false;
@@ -386,6 +392,8 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::move(const vm::ray3& pickRay, const Renderer::Camera& camera) {
+            ensure(m_dragging, "may only be called during a drag");
+
             const auto dragPlane = vm::plane3(m_dragOrigin, vm::vec3(camera.direction()));
             const auto hitDist = vm::intersect_ray_plane(pickRay, dragPlane);
             if (vm::is_nan(hitDist)) {
@@ -423,6 +431,8 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::commit() {
+            ensure(m_dragging, "may only be called during a drag");
+
             auto document = kdl::mem_lock(m_document);
             if (vm::is_zero(m_totalDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
@@ -436,6 +446,8 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::cancel() {
+            ensure(m_dragging, "may only be called during a drag");
+
             auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
             m_proposedDragHandles.clear();
