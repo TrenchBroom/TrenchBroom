@@ -55,18 +55,18 @@ namespace TrenchBroom {
          * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the drag.
          * We need this to be able to make decisions about the drag before reverting the transaction.
          */
-        struct ResizeBrushHandle {
+        struct ResizeBrushesHandle {
             Model::BrushNode* node;
             Model::Brush brushAtDragStart;
             size_t faceIndex;
 
-            explicit ResizeBrushHandle(const Model::BrushFaceHandle& handle);
+            explicit ResizeBrushesHandle(const Model::BrushFaceHandle& handle);
 
             const Model::BrushFace& faceAtDragStart() const;
             vm::vec3 faceNormal() const;
 
-            bool operator==(const ResizeBrushHandle& other) const;
-            bool operator!=(const ResizeBrushHandle& other) const;
+            bool operator==(const ResizeBrushesHandle& other) const;
+            bool operator!=(const ResizeBrushesHandle& other) const;
         };
 
         class ResizeBrushesTool : public Tool {
@@ -81,10 +81,10 @@ namespace TrenchBroom {
             /**
              * Propsed handles for the next drag. Should only be accessed when m_dragging is false.
              */
-            std::vector<ResizeBrushHandle> m_proposedDragHandles;
+            std::vector<ResizeBrushesHandle> m_proposedDragHandles;
         private: // drag state
             std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
-            std::vector<ResizeBrushHandle> m_dragHandlesAtDragStart;
+            std::vector<ResizeBrushesHandle> m_dragHandlesAtDragStart;
             vm::vec3 m_dragOrigin;
             /**
              * This is temporarily set to true when a drag is started with Ctrl,
@@ -112,8 +112,8 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceHandle> visualHandles() const;
             void updateProposedDragHandles(const Model::PickResult& pickResult);
         private:
-            std::vector<ResizeBrushHandle> getDragHandles(const Model::Hit& hit) const;
-            std::vector<ResizeBrushHandle> collectDragHandles(const Model::Hit& hit) const;
+            std::vector<ResizeBrushesHandle> getDragHandles(const Model::Hit& hit) const;
+            std::vector<ResizeBrushesHandle> collectDragHandles(const Model::Hit& hit) const;
             std::vector<Model::BrushFaceHandle> collectDragFaces(const Model::BrushFaceHandle& faceHandle) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
