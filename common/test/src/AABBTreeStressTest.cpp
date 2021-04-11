@@ -28,6 +28,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -81,6 +82,9 @@ namespace TrenchBroom {
                 },
                 [=](BrushNode* brush) {
                     insert(brush);
+                },
+                [=](PatchNode* patch) {
+                    insert(patch);
                 }
             );
         }
