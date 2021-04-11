@@ -305,9 +305,7 @@ namespace TrenchBroom {
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = split;
             m_dragHandlesAtDragStart = m_proposedDragHandles;
-            m_currentDragVisualHandles = kdl::vec_transform(m_proposedDragHandles, [](const DragHandle& handle) {
-                return Model::BrushFaceHandle(handle.node, handle.faceIndex);
-            });
+            updateCurrentDragVisualHandles();
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Resize Brushes");
@@ -356,15 +354,7 @@ namespace TrenchBroom {
                     document->resizeBrushes(polygonsAtDragStart(), m_totalDelta);
                 }
 
-                // Update m_currentDragVisualHandles
-                m_currentDragVisualHandles.clear();
-                for (const auto& dragHandle : m_dragHandlesAtDragStart) {
-                    // We assume that the node pointer at the start of the drag is still valid
-                    const Model::Brush& brush = dragHandle.node->brush();
-                    if (const std::optional<size_t> faceIndex = brush.findFace(dragHandle.faceNormal())) {
-                        m_currentDragVisualHandles.push_back(Model::BrushFaceHandle(dragHandle.node, *faceIndex));
-                    }
-                }
+                updateCurrentDragVisualHandles();
             }
 
             return true;
@@ -382,9 +372,7 @@ namespace TrenchBroom {
             m_totalDelta = vm::vec3::zero();
             m_splitBrushes = false;
             m_dragHandlesAtDragStart = m_proposedDragHandles;
-            m_currentDragVisualHandles = kdl::vec_transform(m_proposedDragHandles, [](const DragHandle& handle) {
-                return Model::BrushFaceHandle(handle.node, handle.faceIndex);
-            });
+            updateCurrentDragVisualHandles();
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Move Faces");
@@ -412,21 +400,13 @@ namespace TrenchBroom {
 
             document->rollbackTransaction();
             if (document->moveFaces(polygonsAtDragStart(), delta)) {
-                m_totalDelta = delta;
-
-                // Update m_currentDragVisualHandles
-                m_currentDragVisualHandles.clear();
-                for (const auto& dragHandle : m_dragHandlesAtDragStart) {
-                    // We assume that the node pointer at the start of the drag is still valid
-                    const Model::Brush& brush = dragHandle.node->brush();
-                    if (const std::optional<size_t> faceIndex = brush.findFace(dragHandle.faceNormal())) {
-                        m_currentDragVisualHandles.push_back(Model::BrushFaceHandle(dragHandle.node, *faceIndex));
-                    }
-                }
+                m_totalDelta = delta;                
             } else {
                 // restore the last successful position
                 document->moveFaces(polygonsAtDragStart(), m_totalDelta);
             }
+
+            updateCurrentDragVisualHandles();
 
             return true;
         }
@@ -622,6 +602,30 @@ namespace TrenchBroom {
             return kdl::vec_transform(m_dragHandlesAtDragStart, [](const auto& handle) {
                 return handle.brushAtDragStart.face(handle.faceIndex).polygon();
             });
+        }
+
+        /**
+         * Refreshes m_currentDragVisualHandles based on the node pointers in m_dragHandlesAtDragStart
+         * and the current brush states.
+         * 
+         * Generally this should be called after every change to the document during a drag;
+         * however the more advanced operations splitBrushesOutward()/splitBrushesInward()
+         * implement their own updates to m_currentDragVisualHandles.
+         */
+        void ResizeBrushesTool::updateCurrentDragVisualHandles() {
+            ensure(m_dragging, "may only be called during a drag");
+
+            m_currentDragVisualHandles.clear();
+
+            for (const auto& dragHandle : m_dragHandlesAtDragStart) {
+                // We assume that the node pointer at the start of the drag is still valid.
+                // Look up the indicated face on the node's current brush state (not the
+                // state at the beginning of the drag).
+                const Model::Brush& brush = dragHandle.node->brush();
+                if (const std::optional<size_t> faceIndex = brush.findFace(dragHandle.faceNormal())) {
+                    m_currentDragVisualHandles.push_back(Model::BrushFaceHandle(dragHandle.node, *faceIndex));
+                }
+            }
         }
 
         void ResizeBrushesTool::bindObservers() {
