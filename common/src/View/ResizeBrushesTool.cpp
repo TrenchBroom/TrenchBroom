@@ -179,7 +179,8 @@ namespace TrenchBroom {
                                 }
                             }
                         }
-                    }
+                    },
+                    [] (Model::PatchNode*) {}
                 ));
             }
 
@@ -283,7 +284,8 @@ namespace TrenchBroom {
 
                             result.emplace_back(brushNode, i);
                         }
-                    }
+                    },
+                    [] (Model::PatchNode*) {}
                 ));
             }
 
