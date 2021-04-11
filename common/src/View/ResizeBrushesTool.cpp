@@ -209,8 +209,9 @@ namespace TrenchBroom {
 
         void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickResult) {
             if (m_dragging) {
-                // FIXME: this should be turned into an ensure failure, but ResizeBrushesToolController
-                // thinks we are not dragging when we actually still are.
+                // FIXME: this should be turned into an ensure failure, but it's easy to make it fail
+                // currently by spamming drags/modifiers.
+                // Indicates a bug in ResizeBrushesToolController thinking we are not dragging when we actually still are.
                 kdl::mem_lock(m_document)->error() << "updateProposedDragHandles called during a drag";
                 return;
             }
@@ -602,12 +603,12 @@ namespace TrenchBroom {
             m_currentDragVisualHandles.clear();
             document->rollbackTransaction();
 
-            // FIXME: deal with linked group update failure
+            // FIXME: deal with linked group update failure (needed for #3647)
             const bool success = document->swapNodeContents("Resize Brushes", nodesToUpdate);
             unused(success);
 
             // Add the newly split off brushes and select them (keeping the original brushes selected).
-            // FIXME: deal with linked group update failure
+            // FIXME: deal with linked group update failure (needed for #3647)
             const auto addedNodes = document->addNodes(std::move(newNodes));
             document->select(addedNodes);
 
