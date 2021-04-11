@@ -55,7 +55,8 @@ namespace TrenchBroom {
                     [](const Model::LayerNode*)  { return true; },
                     [](const Model::GroupNode*)  { return false; },
                     [](const Model::EntityNode*) { return false; },
-                    [](const Model::BrushNode*)  { return false; }
+                    [](const Model::BrushNode*)  { return false; },
+                    [](const Model::PatchNode*)  { return false; }
                 ));
                 if (modifiesLayer) {
                     return true;
