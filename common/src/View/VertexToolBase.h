@@ -508,7 +508,8 @@ namespace TrenchBroom {
                         [] (const Model::EntityNode*) {},
                         [&](const Model::BrushNode* brush) {
                             handleManager.addHandles(brush);
-                        }
+                        },
+                        [] (const Model::PatchNode*) {}
                     ));
                 }
             }
@@ -523,7 +524,8 @@ namespace TrenchBroom {
                         [] (const Model::EntityNode*) {},
                         [&](const Model::BrushNode* brush) {
                             handleManager.removeHandles(brush);
-                        }
+                        },
+                        [] (const Model::PatchNode*) {}
                     ));
                 }
             }
