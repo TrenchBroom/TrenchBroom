@@ -167,7 +167,8 @@ namespace TrenchBroom {
                     [] (auto&& thisLambda, const Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, const Model::GroupNode* group)   { group->visitChildren(thisLambda); },
                     [&](const Model::EntityNode* entity)                    { visitEntityNode(entity); },
-                    [] (const Model::BrushNode*)                            {}
+                    [] (const Model::BrushNode*)                            {},
+                    [] (const Model::PatchNode*)                            {}
                 ));
             }
 
