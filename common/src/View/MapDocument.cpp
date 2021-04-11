@@ -803,17 +803,19 @@ namespace TrenchBroom {
             }
 
             std::vector<Model::EntityNodeBase*> nodes;
+            const auto addEntity = [&](auto* entity) {
+                ensure(entity != nullptr, "entity is null");
+                nodes.push_back(entity);
+            };
+
             for (auto* node : m_selectedNodes) {
                 node->accept(kdl::overload(
                     [&](auto&& thisLambda, Model::WorldNode* world) { nodes.push_back(world); world->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
-                    [&](Model::EntityNode* entity)                  { nodes.push_back(entity); },
-                    [&](Model::BrushNode* brush) {
-                        auto* entity = brush->entity();
-                        ensure(entity != nullptr, "entity is null");
-                        nodes.push_back(entity);
-                    }
+                    [&](Model::EntityNode* entity)                  { addEntity(entity); },
+                    [&](Model::BrushNode* brush)                    { addEntity(brush->entity()); },
+                    [&](Model::PatchNode* patch)                    { addEntity(patch->entity()); }
                 ));
             }
 

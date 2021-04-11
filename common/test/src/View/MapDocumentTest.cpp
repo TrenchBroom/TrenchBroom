@@ -159,16 +159,18 @@ namespace TrenchBroom {
                 groupNodeWithEntity->addChild(groupedEntityNode);
 
                 auto* topLevelBrushNode = createBrushNode();
+                auto* topLevelPatchNode = createPatchNode();
 
                 auto* topLevelBrushEntityNode = new Model::EntityNode{Model::Entity{}};
-                auto* brushEntityBrushNode1 = createBrushNode();
-                auto* brushEntityBrushNode2 = createBrushNode();
-                topLevelBrushEntityNode->addChildren({brushEntityBrushNode1, brushEntityBrushNode2});
+                auto* brushEntityBrushNode = createBrushNode();
+                auto* brushEntityPatchNode = createPatchNode();
+                topLevelBrushEntityNode->addChildren({brushEntityBrushNode, brushEntityPatchNode});
 
                 document->addNodes({{document->parentForNodes(), {
                     topLevelEntityNode, 
                     topLevelBrushEntityNode, 
-                    topLevelBrushNode, 
+                    topLevelBrushNode,
+                    topLevelPatchNode,
                     emptyGroupNode,
                     groupNodeWithEntity}}});
 
@@ -184,6 +186,16 @@ namespace TrenchBroom {
 
                 WHEN("A top level brush node is selected") {
                     document->select(topLevelBrushNode);
+
+                    THEN("The world node is returned") {
+                        CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                            document->world()
+                        }));
+                    }
+                }
+
+                WHEN("A top level patch node is selected") {
+                    document->select(topLevelPatchNode);
 
                     THEN("The world node is returned") {
                         CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
@@ -232,8 +244,16 @@ namespace TrenchBroom {
                     }
                 }
 
-                WHEN("A brush node in a brush entity node is selected") {
-                    document->select(brushEntityBrushNode1);
+                WHEN("A node in a brush entity node is selected") {
+                    const auto selectBrushNode = [](auto* brushNode, auto* patchNode) -> std::tuple<Model::Node*, Model::Node*> { return {brushNode, patchNode}; };
+                    const auto selectPatchNode = [](auto* brushNode, auto* patchNode) -> std::tuple<Model::Node*, Model::Node*> { return {patchNode, brushNode}; };
+                    const auto selectNodes = GENERATE_COPY(selectBrushNode, selectPatchNode);
+                    
+                    const auto [nodeToSelect, otherNode] = selectNodes(brushEntityBrushNode, brushEntityPatchNode);
+
+                    CAPTURE(nodeToSelect->name(), otherNode->name());
+
+                    document->select(nodeToSelect);
 
                     THEN("The containing entity node is returned") {
                         CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
@@ -241,8 +261,8 @@ namespace TrenchBroom {
                         }));
                     }
 
-                    AND_WHEN("Another brush node in the same entity node is selected") {
-                        document->select(brushEntityBrushNode2);
+                    AND_WHEN("Another node in the same entity node is selected") {
+                        document->select(otherNode);
 
                         THEN("The containing entity node is returned only once") {
                             CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
