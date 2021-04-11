@@ -22,6 +22,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "IO/Path.h"
+#include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
@@ -29,6 +30,7 @@
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/NodeContents.h"
+#include "Model/PatchNode.h"
 #include "View/MapDocument.h"
 #include "View/SwapNodeContentsCommand.h"
 #include "View/MapDocumentTest.h"
@@ -70,6 +72,24 @@ namespace TrenchBroom {
             
             document->undoCommand();
             CHECK(brushNode->brush() == originalBrush);
+        }
+
+        TEST_CASE_METHOD(SwapNodeContentsCommandTest, "SwapNodeContentsCommandTest.swapPatches") {
+            auto* patchNode = createPatchNode();
+            addNode(*document, document->parentForNodes(), patchNode);
+            
+            const auto originalPatch = patchNode->patch();
+            auto modifiedPatch = originalPatch;
+            modifiedPatch.transform(vm::translation_matrix(vm::vec3{16, 0, 0}));
+
+            auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+            nodesToSwap.emplace_back(patchNode, modifiedPatch);
+            
+            document->swapNodeContents("Swap Nodes", std::move(nodesToSwap), {});
+            CHECK(patchNode->patch() == modifiedPatch);
+            
+            document->undoCommand();
+            CHECK(patchNode->patch() == originalPatch);
         }
 
         TEST_CASE_METHOD(SwapNodeContentsCommandTest, "SwapNodeContentsCommandTest.textureUsageCount") {
