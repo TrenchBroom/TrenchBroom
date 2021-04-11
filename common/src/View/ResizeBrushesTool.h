@@ -81,7 +81,7 @@ namespace TrenchBroom {
          *    Instance of DragHandle. Always based on the brush
          *    state at the start of the drag.
          * 
-         *  - "Visual handle": for rendering the face highlight.
+         *  - "Visual handle": specifies which faces to render highlighted.
          *    Based on the current document state, so needs to be updated
          *    after each modification or roll back. May be fewer than the number
          *    of Drag handles if faces are clipped away by the drag.
