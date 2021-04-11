@@ -26,6 +26,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -38,6 +39,7 @@
 #include "Model/HitQuery.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
+#include "Model/PatchNode.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
 #include "Model/WorldNode.h"
@@ -1097,7 +1099,8 @@ namespace TrenchBroom {
                     [](const Model::LayerNode*)  { return false; },
                     [](const Model::GroupNode*)  { return false; },
                     [](const Model::EntityNode*) { return true; },
-                    [](const Model::BrushNode*)  { return false; }
+                    [](const Model::BrushNode*)  { return false; },
+                    [](const Model::PatchNode*)  { return false; }
                 ));
 
                 if (isEntity) {
@@ -1353,19 +1356,25 @@ namespace TrenchBroom {
         /**
          * Return the given nodes, but replace all entity brushes with the parent entity (with duplicates removed).
          */
-        static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::WorldNode* world) {
+        static std::vector<Model::Node*> collectEntitiesForNodes(const std::vector<Model::Node*>& selectedNodes, const Model::WorldNode* world) {
             std::vector<Model::Node*> result;
+            const auto addNode = [&](auto&& thisLambda, auto* node) {
+                if (node->entity() == world) {
+                    result.push_back(node);
+                } else {
+                    node->visitParent(thisLambda);
+                }
+            };
             Model::Node::visitAll(selectedNodes, kdl::overload(
                 [] (Model::WorldNode*)         {},
                 [] (Model::LayerNode*)         {},
                 [&](Model::GroupNode* group)   { result.push_back(group); },
                 [&](Model::EntityNode* entity) { result.push_back(entity); },
                 [&](auto&& thisLambda, Model::BrushNode* brush) {
-                    if (brush->entity() == world) {
-                        result.push_back(brush);
-                    } else {
-                        brush->visitParent(thisLambda);
-                    }
+                    addNode(thisLambda, brush);
+                },
+                [&](auto&& thisLambda, Model::PatchNode* patch) {
+                    addNode(thisLambda, patch);
                 }
             ));
             return kdl::vec_sort_and_remove_duplicates(std::move(result));
@@ -1377,7 +1386,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             std::vector<Model::Node*> inputNodes;
             if (preserveEntities) {
-                inputNodes = collectEntitiesForBrushes(nodes, document->world());
+                inputNodes = collectEntitiesForNodes(nodes, document->world());
             } else {
                 inputNodes = nodes;
             }
