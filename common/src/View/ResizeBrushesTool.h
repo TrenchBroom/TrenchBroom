@@ -55,20 +55,37 @@ namespace TrenchBroom {
          * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the drag.
          * We need this to be able to make decisions about the drag before reverting the transaction.
          */
-        struct ResizeBrushesHandle {
+        struct DragHandle {
             Model::BrushNode* node;
             Model::Brush brushAtDragStart;
             size_t faceIndex;
 
-            explicit ResizeBrushesHandle(const Model::BrushFaceHandle& handle);
+            explicit DragHandle(const Model::BrushFaceHandle& handle);
 
             const Model::BrushFace& faceAtDragStart() const;
             vm::vec3 faceNormal() const;
 
-            bool operator==(const ResizeBrushesHandle& other) const;
-            bool operator!=(const ResizeBrushesHandle& other) const;
+            bool operator==(const DragHandle& other) const;
+            bool operator!=(const DragHandle& other) const;
         };
 
+        /**
+         * Tool for extruding faces along their normals (Shift+LMB Drag).
+         * 
+         * Also:
+         *  - split brushes outward/inward (Ctrl+Shift+LMB Drag)
+         *  - move faces (Alt+Shift+LMB Drag, 2D views only)
+         * 
+         * Terminology:
+         *  - "Drag handle": for calculating the brush modifications.
+         *    Instance of DragHandle. Always based on the brush
+         *    state at the start of the drag.
+         * 
+         *  - "Visual handle": for rendering the face highlight.
+         *    Based on the current document state, so needs to be updated
+         *    after each modification or roll back. May be fewer than the number
+         *    of Drag handles if faces are clipped away by the drag.
+         */
         class ResizeBrushesTool : public Tool {
         public:
             static const Model::HitType::Type Resize3DHitType;
@@ -79,13 +96,13 @@ namespace TrenchBroom {
         private:
             std::weak_ptr<MapDocument> m_document;
             /**
-             * Propsed handles for the next drag. Should only be accessed when m_dragging is false.
+             * Propsed drag handles for the next drag. Should only be accessed when m_dragging is false.
              */
-            std::vector<ResizeBrushesHandle> m_proposedDragHandles;
+            std::vector<DragHandle> m_proposedDragHandles;
             bool m_dragging;
         private: // drag state - should only be accessed when m_dragging is true
             std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
-            std::vector<ResizeBrushesHandle> m_dragHandlesAtDragStart;
+            std::vector<DragHandle> m_dragHandlesAtDragStart;
             vm::vec3 m_dragOrigin;
             /**
              * This is temporarily set to true when a drag is started with Ctrl,
@@ -112,8 +129,8 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceHandle> visualHandles() const;
             void updateProposedDragHandles(const Model::PickResult& pickResult);
         private:
-            std::vector<ResizeBrushesHandle> getDragHandles(const Model::Hit& hit) const;
-            std::vector<ResizeBrushesHandle> collectDragHandles(const Model::Hit& hit) const;
+            std::vector<DragHandle> getDragHandles(const Model::Hit& hit) const;
+            std::vector<DragHandle> collectDragHandles(const Model::Hit& hit) const;
             std::vector<Model::BrushFaceHandle> collectDragFaces(const Model::BrushFaceHandle& faceHandle) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
