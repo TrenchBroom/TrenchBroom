@@ -108,7 +108,7 @@ namespace TrenchBroom {
         private:
             Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
         public:
-            bool hasDragFaces() const;
+            bool hasVisualHandles() const;
             std::vector<Model::BrushFaceHandle> visualHandles() const;
             void updateProposedDragHandles(const Model::PickResult& pickResult);
         private:

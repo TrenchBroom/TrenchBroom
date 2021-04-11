@@ -186,7 +186,7 @@ namespace TrenchBroom {
             return hit;
         }
 
-        bool ResizeBrushesTool::hasDragFaces() const {
+        bool ResizeBrushesTool::hasVisualHandles() const {
             return !visualHandles().empty();
         }
 

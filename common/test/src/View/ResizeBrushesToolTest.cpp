@@ -96,9 +96,9 @@ namespace TrenchBroom {
             REQUIRE(hit.isMatch());
             pickResult.addHit(hit);
 
-            REQUIRE(!tool.hasDragFaces());
+            REQUIRE(!tool.hasVisualHandles());
             tool.updateProposedDragHandles(pickResult);
-            REQUIRE(tool.hasDragFaces());
+            REQUIRE(tool.hasVisualHandles());
 
             return pickResult;
         }

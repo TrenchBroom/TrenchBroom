@@ -122,7 +122,7 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesToolController::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-            if (m_tool->hasDragFaces()) {
+            if (m_tool->hasVisualHandles()) {
                 Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer();
                 edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
             }
