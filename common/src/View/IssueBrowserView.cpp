@@ -26,6 +26,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 
@@ -132,7 +133,8 @@ namespace TrenchBroom {
                     [&](auto&& thisLambda, Model::LayerNode* layer)   { collectIssues(layer); layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::GroupNode* group)   { collectIssues(group); group->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::EntityNode* entity) { collectIssues(entity); entity->visitChildren(thisLambda); },
-                    [&](Model::BrushNode* brush)                      { collectIssues(brush); }
+                    [&](Model::BrushNode* brush)                      { collectIssues(brush); },
+                    [&](Model::PatchNode* patch)                      { collectIssues(patch); }
                 ));
 
                 issues = kdl::vec_sort(std::move(issues), [](const auto* lhs, const auto* rhs) { return lhs->seqId() > rhs->seqId(); });
