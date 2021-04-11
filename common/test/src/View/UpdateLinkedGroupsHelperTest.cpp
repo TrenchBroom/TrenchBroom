@@ -218,7 +218,8 @@ namespace TrenchBroom {
                     return visitChildren(thisLambda, groupNode);
                 },
                 [](Model::EntityNode*) -> Model::GroupNode* { return nullptr; },
-                [](Model::BrushNode*) -> Model::GroupNode* { return nullptr; }
+                [](Model::BrushNode*) -> Model::GroupNode* { return nullptr; },
+                [](Model::PatchNode*) -> Model::GroupNode* { return nullptr; }
             ));
         }
 
