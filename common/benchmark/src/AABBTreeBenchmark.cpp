@@ -29,6 +29,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -61,7 +62,8 @@ namespace TrenchBroom {
                     [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, Model::GroupNode* group)   { group->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::EntityNode* entity) { entity->visitChildren(thisLambda); tree.insert(entity->physicalBounds(), entity); },
-                    [&](Model::BrushNode* brush)                      { tree.insert(brush->physicalBounds(), brush); }
+                    [&](Model::BrushNode* brush)                      { tree.insert(brush->physicalBounds(), brush); },
+                    [&](Model::PatchNode* patch)                      { tree.insert(patch->physicalBounds(), patch); }
                 ));
             }
         }, "Add objects to AABB tree");
