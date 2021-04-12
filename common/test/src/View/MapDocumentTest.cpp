@@ -117,6 +117,12 @@ namespace TrenchBroom {
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, textureName}};
         }
 
+        class Quake3MapDocumentTest : public MapDocumentTest {
+        public:
+            Quake3MapDocumentTest() :
+            MapDocumentTest{Model::MapFormat::Quake3} {}
+        };
+
         static void checkPlanePointsIntegral(const Model::BrushNode* brushNode) {
             for (const Model::BrushFace& face : brushNode->brush().faces()) {
                 for (size_t i=0; i<3; i++) {
@@ -305,6 +311,35 @@ namespace TrenchBroom {
                 CHECK(document->paste(data) == PasteType::Node);
                 CHECK(defaultLayer.childCount() == 1u);
                 CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
+            }
+        }
+
+        TEST_CASE_METHOD(Quake3MapDocumentTest, "MapDocument.pastePatch") {
+            SECTION("Paste single patch") {
+                const auto data = R"(
+{
+patchDef2
+{
+common/caulk
+( 5 3 0 0 0 )
+(
+( (-64 -64 4 0   0 ) (-64 0 4 0   -0.25 ) (-64 64 4 0   -0.5 ) )
+( (  0 -64 4 0.2 0 ) (  0 0 4 0.2 -0.25 ) (  0 64 4 0.2 -0.5 ) )
+( ( 64 -64 4 0.4 0 ) ( 64 0 4 0.4 -0.25 ) ( 64 64 4 0.4 -0.5 ) )
+( (128 -64 4 0.6 0 ) (128 0 4 0.6 -0.25 ) (128 64 4 0.6 -0.5 ) )
+( (192 -64 4 0.8 0 ) (192 0 4 0.8 -0.25 ) (192 64 4 0.8 -0.5 ) )
+)
+}
+})";
+
+                const auto& world = *document->world();
+
+                const auto& defaultLayer = *world.defaultLayer();
+                REQUIRE(defaultLayer.childCount() == 0u);
+
+                CHECK(document->paste(data) == PasteType::Node);
+                CHECK(defaultLayer.childCount() == 1u);
+                CHECK(dynamic_cast<Model::PatchNode*>(defaultLayer.children().front()) != nullptr);
             }
         }
 

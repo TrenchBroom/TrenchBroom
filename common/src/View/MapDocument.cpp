@@ -642,6 +642,10 @@ namespace TrenchBroom {
                     [&](Model::BrushNode* brush) {
                         nodesToDetach.push_back(brush);
                         nodesToAdd[parent].push_back(brush);
+                    },
+                    [&](Model::PatchNode* patch) {
+                        nodesToDetach.push_back(patch);
+                        nodesToAdd[parent].push_back(patch);
                     }
                 ));
             }
