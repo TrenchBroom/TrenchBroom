@@ -55,8 +55,8 @@ namespace TrenchBroom {
             void SetUp();
         protected:
             virtual ~MapDocumentTest();
-
-            Model::BrushNode* createBrushNode(const std::string& textureName = "texture", const std::function<void(Model::Brush&)>& brushFunc = [](Model::Brush&) {});
+        public:
+            Model::BrushNode* createBrushNode(const std::string& textureName = "texture", const std::function<void(Model::Brush&)>& brushFunc = [](Model::Brush&) {}) const;
             Model::PatchNode* createPatchNode(const std::string& textureName = "texture") const;
         };
 

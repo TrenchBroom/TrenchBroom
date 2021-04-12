@@ -101,7 +101,7 @@ namespace TrenchBroom {
             m_brushEntityDef = nullptr;
         }
 
-        Model::BrushNode* MapDocumentTest::createBrushNode(const std::string& textureName, const std::function<void(Model::Brush&)>& brushFunc) {
+        Model::BrushNode* MapDocumentTest::createBrushNode(const std::string& textureName, const std::function<void(Model::Brush&)>& brushFunc) const {
             const Model::WorldNode* world = document->world();
             Model::BrushBuilder builder(world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs());
             Model::Brush brush = builder.createCube(32.0, textureName).value();
@@ -296,14 +296,39 @@ namespace TrenchBroom {
                 auto* linkedGroupNode = document->createLinkedDuplicate();
                 document->deselectAll();
 
-                auto* entityNode = new Model::EntityNode{Model::Entity{}};
-                document->addNodes({{groupNode, {entityNode}}});
+                using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+                CreateNode createNode = GENERATE_COPY(
+                    CreateNode{[](const auto&) -> Model::Node* { return new Model::EntityNode{Model::Entity{}}; }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createPatchNode(); }}
+                );
+
+                auto* nodeToAdd = createNode(*this);
+                document->addNodes({{groupNode, {nodeToAdd}}});
 
                 CHECK(linkedGroupNode->childCount() == 2u);
                 
-                auto* linkedEntityNode = dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().back());
-                CHECK(linkedEntityNode != nullptr);
-                CHECK(linkedEntityNode->entity() == entityNode->entity());
+                auto* linkedNode = linkedGroupNode->children().back();
+                linkedNode->accept(kdl::overload(
+                    [] (const Model::WorldNode*) {},
+                    [] (const Model::LayerNode*) {},
+                    [] (const Model::GroupNode*) {},
+                    [&](const Model::EntityNode* linkedEntityNode) {
+                        const auto* originalEntityNode = dynamic_cast<Model::EntityNode*>(nodeToAdd);
+                        REQUIRE(originalEntityNode);
+                        CHECK(originalEntityNode->entity() == linkedEntityNode->entity());
+                    },
+                    [&](const Model::BrushNode* linkedBrushNode) {
+                        const auto* originalBrushNode = dynamic_cast<Model::BrushNode*>(nodeToAdd);
+                        REQUIRE(originalBrushNode);
+                        CHECK(originalBrushNode->brush() == linkedBrushNode->brush());
+                    },
+                    [&](const Model::PatchNode* linkedPatchNode) {
+                        const auto* originalPatchNode = dynamic_cast<Model::PatchNode*>(nodeToAdd);
+                        REQUIRE(originalPatchNode);
+                        CHECK(originalPatchNode->patch() == linkedPatchNode->patch());
+                    }
+                ));
 
                 document->undoCommand();
 
@@ -316,15 +341,23 @@ namespace TrenchBroom {
             SECTION("Update linked groups") {
                 auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
                 auto* brushNode = createBrushNode();
-                auto* entityNode = new Model::EntityNode{Model::Entity{}};
-                groupNode->addChildren({brushNode, entityNode});
+
+                using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+                CreateNode createNode = GENERATE_COPY(
+                    CreateNode{[](const auto&) -> Model::Node* { return new Model::EntityNode{Model::Entity{}}; }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createPatchNode(); }}
+                );
+
+                auto* nodeToRemove = createNode(*this);
+                groupNode->addChildren({brushNode, nodeToRemove});
                 document->addNodes({{document->parentForNodes(), {groupNode}}});
 
                 document->select(groupNode);
                 auto* linkedGroupNode = document->createLinkedDuplicate();
                 document->deselectAll();
 
-                document->removeNodes({entityNode});
+                document->removeNodes({nodeToRemove});
 
                 CHECK(linkedGroupNode->childCount() == 1u);
 

@@ -160,6 +160,9 @@ namespace TrenchBroom {
                 },
                 [&](Model::BrushNode* brushNode) {
                     addGroupNode(brushNode->containingGroup());
+                },
+                [&](Model::PatchNode* patchNode) {
+                    addGroupNode(patchNode->containingGroup());
                 }
             ));
 
