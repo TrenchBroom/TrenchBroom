@@ -1762,6 +1762,7 @@ namespace TrenchBroom {
                     },
                     [&](Model::EntityNode* entity) {
                         assert(entity->selected());
+
                         if (!entity->containedInGroup()) {
                             nodesToMove.push_back(entity);
                             nodesToSelect.push_back(entity);
