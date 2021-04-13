@@ -1390,11 +1390,29 @@ namespace TrenchBroom {
             return entityNode;
         }
 
+        static std::vector<Model::Node*> collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes, const Model::EntityNodeBase* world) {
+            std::vector<Model::Node*> result;
+            Model::Node::visitAll(selectedNodes, kdl::overload(
+                [] (Model::WorldNode*)         {},
+                [] (Model::LayerNode*)         {},
+                [&](Model::GroupNode* group)   { result.push_back(group); },
+                [&](Model::EntityNode* entity) { result.push_back(entity); },
+                [&](auto&& thisLambda, Model::BrushNode* brush) {
+                    if (brush->entity() == world) {
+                        result.push_back(brush);
+                    } else {
+                        brush->visitParent(thisLambda);
+                    }
+                }
+            ));
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
+        }
+
         Model::GroupNode* MapDocument::groupSelection(const std::string& name) {
             if (!hasSelectedNodes())
                 return nullptr;
 
-            const std::vector<Model::Node*> nodes = collectGroupableNodes(selectedNodes().nodes());
+            const std::vector<Model::Node*> nodes = collectGroupableNodes(selectedNodes().nodes(), world());
             if (nodes.empty())
                 return nullptr;
 
@@ -1425,24 +1443,6 @@ namespace TrenchBroom {
                 reparentNodes({{group, children}});
             }
             select(group);
-        }
-
-        std::vector<Model::Node*> MapDocument::collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes) const {
-            std::vector<Model::Node*> result;
-            Model::Node::visitAll(selectedNodes, kdl::overload(
-                [] (Model::WorldNode*)         {},
-                [] (Model::LayerNode*)         {},
-                [&](Model::GroupNode* group)   { result.push_back(group); },
-                [&](Model::EntityNode* entity) { result.push_back(entity); },
-                [&](auto&& thisLambda, Model::BrushNode* brush) {
-                    if (brush->entity() == world()) {
-                        result.push_back(brush);
-                    } else {
-                        brush->visitParent(thisLambda);
-                    }
-                }
-            ));
-            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         void MapDocument::ungroupSelection() {
