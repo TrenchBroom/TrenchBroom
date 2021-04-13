@@ -1457,18 +1457,18 @@ namespace TrenchBroom {
             REQUIRE_THAT(document->currentLayer()->children(), Catch::Matchers::Equals(std::vector<Model::Node*>{brushEntity}));
             REQUIRE_THAT(brushEntity->children(), Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode1, brushNode2}));
 
-            CHECK(!brushEntity->selected());
-            CHECK(!brushNode1->selected());
-            CHECK(!brushNode2->selected());
-            CHECK(!brushEntity->hidden());
-            CHECK(!brushNode1->hidden());
-            CHECK(!brushNode2->hidden());
+            REQUIRE(!brushEntity->selected());
+            REQUIRE(!brushNode1->selected());
+            REQUIRE(!brushNode2->selected());
+            REQUIRE(!brushEntity->hidden());
+            REQUIRE(!brushNode1->hidden());
+            REQUIRE(!brushNode2->hidden());
 
             // Select just brush1
             document->select(brushNode1);
-            CHECK(!brushEntity->selected());
-            CHECK(brushNode1->selected());
-            CHECK(!brushNode2->selected());
+            REQUIRE(!brushEntity->selected());
+            REQUIRE(brushNode1->selected());
+            REQUIRE(!brushNode2->selected());
 
             // Isolate brush1
             document->isolate();
