@@ -1860,6 +1860,113 @@ namespace TrenchBroom {
             }
         }
 
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.moveSelectionToLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            auto* customLayer = new Model::LayerNode(Model::Layer("layer"));
+            addNode(*document, document->world(), customLayer);
+
+            auto* defaultLayer = document->world()->defaultLayer();
+
+            GIVEN("A top level node") {
+                using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
+                const auto createNode = GENERATE_COPY(
+                    CreateNode{[](const auto& test) {
+                        auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+                        groupNode->addChild(test.createBrushNode());
+                        return groupNode;
+                    }},
+                    CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
+                    CreateNode{[](const auto& test) { return test.createBrushNode(); }}
+                );
+
+                auto* node = createNode(*this);
+                document->addNodes({{document->parentForNodes(), {node}}});
+                
+                REQUIRE(Model::findContainingLayer(node) == defaultLayer);
+                
+                WHEN("The node is moved to another layer") {
+                    document->select(node);
+                    document->moveSelectionToLayer(customLayer);
+
+                    THEN("The group node is in the target layer") {
+                        CHECK(Model::findContainingLayer(node) == customLayer);
+                        
+                        AND_THEN("The node is selected") {
+                            CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{node});
+                        }
+                    }
+
+                    AND_WHEN("The operation is undone") {
+                        document->undoCommand();
+
+                        THEN("The node is back in the original layer") {
+                            CHECK(Model::findContainingLayer(node) == defaultLayer);
+
+                            AND_THEN("The node is selected") {
+                                CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{node});
+                            }
+                        }
+                    }
+                }
+            }
+
+            GIVEN("A brush entity node") {
+                auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                auto* childNode1 = createBrushNode();
+                auto* childNode2 = createBrushNode();
+
+                entityNode->addChildren({childNode1, childNode2});
+                document->addNodes({{document->parentForNodes(), {entityNode}}});
+
+                REQUIRE(Model::findContainingLayer(entityNode) == defaultLayer);
+
+                WHEN("Any child node is selected and moved to another layer") {
+                    const auto [selectChild1, selectChild2] = GENERATE(
+                        std::make_tuple(true, true),
+                        std::make_tuple(true, false),
+                        std::make_tuple(false, true)
+                    );
+
+                    if (selectChild1) {
+                        document->select(childNode1);
+                    }
+                    if (selectChild2) {
+                        document->select(childNode2);
+                    }
+
+                    const auto selectedNodes = document->selectedNodes().nodes();
+                    document->moveSelectionToLayer(customLayer);
+
+                    THEN("The brush entity node is moved to the target layer") {
+                        CHECK(Model::findContainingLayer(entityNode) == customLayer);
+                        CHECK(childNode1->parent() == entityNode);
+                        CHECK(childNode2->parent() == entityNode);
+                        
+                        AND_THEN("The child nodes are selected") {
+                            CHECK(document->selectedNodes().nodes() == entityNode->children());
+                        }
+                    }
+
+                    AND_WHEN("The operation is undone") {
+                        document->undoCommand();
+
+                        THEN("The brush entity node is back in the original layer") {
+                            CHECK(Model::findContainingLayer(entityNode) == defaultLayer);
+                            CHECK(childNode1->parent() == entityNode);
+                            CHECK(childNode2->parent() == entityNode);
+
+                            AND_THEN("The originally selected nodes are selected") {
+                                CHECK_THAT(document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.setCurrentLayerCollation", "[LayerTest]") {
             // delete default brush
             document->selectAllNodes();
