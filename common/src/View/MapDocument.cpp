@@ -1392,17 +1392,24 @@ namespace TrenchBroom {
 
         static std::vector<Model::Node*> collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes, const Model::EntityNodeBase* world) {
             std::vector<Model::Node*> result;
+            const auto addNode = [&](auto&& thisLambda, auto* node) {
+                if (node->entity() == world) {
+                    result.push_back(node);
+                } else {
+                    node->visitParent(thisLambda);
+                }
+            };
+
             Model::Node::visitAll(selectedNodes, kdl::overload(
                 [] (Model::WorldNode*)         {},
                 [] (Model::LayerNode*)         {},
                 [&](Model::GroupNode* group)   { result.push_back(group); },
                 [&](Model::EntityNode* entity) { result.push_back(entity); },
                 [&](auto&& thisLambda, Model::BrushNode* brush) {
-                    if (brush->entity() == world) {
-                        result.push_back(brush);
-                    } else {
-                        brush->visitParent(thisLambda);
-                    }
+                    addNode(thisLambda, brush);
+                },
+                [&](auto&& thisLambda, Model::PatchNode* patch) {
+                    addNode(thisLambda, patch);
                 }
             ));
             return kdl::vec_sort_and_remove_duplicates(std::move(result));
