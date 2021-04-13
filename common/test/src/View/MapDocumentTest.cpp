@@ -1432,48 +1432,124 @@ namespace TrenchBroom {
             PreferenceManager::instance().resetToDefault(Preferences::TextureLock);
         }
 
-        // https://github.com/TrenchBroom/TrenchBroom/issues/3117
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.isolate") {
             // delete default brush
             document->selectAllNodes();
             document->deleteObjects();
 
-            auto* brushNode1 = createBrushNode();
-            addNode(*document, document->parentForNodes(), brushNode1);
+            GIVEN("An unrelated top level node") {
+                auto* nodeToHide = new Model::EntityNode{Model::Entity{}};
+                document->addNodes({{document->parentForNodes(), {nodeToHide}}});
 
-            auto* brushNode2 = createBrushNode();
-            Model::transformNode(*brushNode2, vm::translation_matrix(vm::vec3d{1, 1, 1}), document->worldBounds());
-            addNode(*document, document->parentForNodes(), brushNode2);
+                REQUIRE(!nodeToHide->hidden());
 
-            document->selectAllNodes();
+                AND_GIVEN("Another top level node that should be isolated") {
+                    using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
+                    const auto createNode = GENERATE_COPY(
+                        CreateNode{[](const auto& test) {
+                            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+                            groupNode->addChild(test.createBrushNode());
+                            return groupNode;
+                        }},
+                        CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
+                        CreateNode{[](const auto& test) { return test.createBrushNode(); }}
+                    );
 
-            Model::EntityNode* brushEntity = document->createBrushEntity(m_brushEntityDef);
+                    auto* nodeToIsolate = createNode(*this);
+                    document->addNodes({{document->parentForNodes(), {nodeToIsolate}}});
 
-            document->deselectAll();
+                    REQUIRE(!nodeToIsolate->hidden());
 
-            // Check initial state
-            REQUIRE_THAT(document->currentLayer()->children(), Catch::Matchers::Equals(std::vector<Model::Node*>{brushEntity}));
-            REQUIRE_THAT(brushEntity->children(), Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode1, brushNode2}));
+                    WHEN("The node is isolated") {
+                        document->select(nodeToIsolate);
 
-            REQUIRE(!brushEntity->selected());
-            REQUIRE(!brushNode1->selected());
-            REQUIRE(!brushNode2->selected());
-            REQUIRE(!brushEntity->hidden());
-            REQUIRE(!brushNode1->hidden());
-            REQUIRE(!brushNode2->hidden());
+                        const auto selectedNodes = document->selectedNodes().nodes();
+                        document->isolate();
 
-            // Select just brush1
-            document->select(brushNode1);
-            REQUIRE(!brushEntity->selected());
-            REQUIRE(brushNode1->selected());
-            REQUIRE(!brushNode2->selected());
+                        THEN("The node is isolated and selected") {
+                            CHECK_FALSE(nodeToIsolate->hidden());
+                            CHECK(nodeToHide->hidden());
+                            CHECK(nodeToIsolate->selected());
+                        }
 
-            // Isolate brush1
-            document->isolate();
+                        AND_WHEN("The operation is undone") {
+                            document->undoCommand();
 
-            CHECK(!brushEntity->hidden());
-            CHECK(!brushNode1->hidden());
-            CHECK(brushNode2->hidden());
+                            THEN("All nodes are visible again and selection is restored") {
+                                CHECK_FALSE(nodeToIsolate->hidden());
+                                CHECK_FALSE(nodeToHide->hidden());
+
+                                CHECK_THAT(document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
+                            }
+                        }
+                    }
+                }
+
+                AND_GIVEN("A top level brush entity") {
+                    auto* brushNode1 = createBrushNode();
+                    auto* brushNode2 = createBrushNode();
+                    Model::transformNode(*brushNode2, vm::translation_matrix(vm::vec3d{1, 1, 1}), document->worldBounds());
+
+                    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                    entityNode->addChildren({brushNode1, brushNode2});
+
+                    document->addNodes({{document->parentForNodes(), {entityNode}}});
+
+                    // Check initial state
+                    REQUIRE_FALSE(nodeToHide->hidden());
+                    REQUIRE_FALSE(entityNode->hidden());
+                    REQUIRE_FALSE(brushNode1->hidden());
+                    REQUIRE_FALSE(brushNode2->hidden());
+
+                    WHEN("Any child node is isolated") {
+                        const auto [selectChild1, selectChild2] = GENERATE(
+                            std::make_tuple(true, true),
+                            std::make_tuple(true, false),
+                            std::make_tuple(false, true)
+                        );
+
+                        if (selectChild1) {
+                            document->select(brushNode1);
+                        }
+                        if (selectChild2) {
+                            document->select(brushNode2);
+                        }
+                        REQUIRE_FALSE(entityNode->selected());
+
+                        const auto selectedNodes = document->selectedNodes().nodes();
+                        document->isolate();
+
+                        // https://github.com/TrenchBroom/TrenchBroom/issues/3117
+                        THEN("The containining entity node is visible") {
+                            CHECK(!entityNode->hidden());
+
+                            AND_THEN("The top level node is hidden") {
+                                CHECK(nodeToHide->hidden());
+                            }
+
+                            AND_THEN("Any selected child node is visible and selected") {
+                                CHECK(brushNode1->hidden() != selectChild1);
+                                CHECK(brushNode2->hidden() != selectChild2);
+                                CHECK(brushNode1->selected() == selectChild1);
+                                CHECK(brushNode2->selected() == selectChild2);
+                            }
+                        }
+
+                        AND_WHEN("The operation is undone") {
+                            document->undoCommand();
+
+                            THEN("All nodes are visible and selection is restored") {
+                                CHECK_FALSE(nodeToHide->hidden());
+                                CHECK_FALSE(entityNode->hidden());
+                                CHECK_FALSE(brushNode1->hidden());
+                                CHECK_FALSE(brushNode2->hidden());
+
+                                CHECK_THAT(document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "IssueGenerator.emptyProperty") {
