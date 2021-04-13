@@ -1342,10 +1342,10 @@ namespace TrenchBroom {
             // }
 
             document->select(brushNode1);
-            CHECK( brushNode1->selected());
-            CHECK(!brushNode2->selected());
-            CHECK(!brushNode3->selected());
-            CHECK(!brushEnt->selected());
+            REQUIRE( brushNode1->selected());
+            REQUIRE(!brushNode2->selected());
+            REQUIRE(!brushNode3->selected());
+            REQUIRE(!brushEnt->selected());
 
             document->selectInverse();
 
