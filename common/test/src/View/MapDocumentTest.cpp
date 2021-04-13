@@ -24,6 +24,7 @@
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
 #include "IO/WorldReader.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -42,6 +43,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelUtils.h"
 #include "Model/ParallelTexCoordSystem.h"
+#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Model/TestGame.h"
@@ -104,6 +106,13 @@ namespace TrenchBroom {
             Model::Brush brush = builder.createCube(32.0, textureName).value();
             brushFunc(brush);
             return new Model::BrushNode(std::move(brush));
+        }
+
+        Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureName) const {
+            return new Model::PatchNode{Model::BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, textureName}};
         }
 
         static void checkPlanePointsIntegral(const Model::BrushNode* brushNode) {
