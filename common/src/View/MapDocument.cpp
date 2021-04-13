@@ -1867,7 +1867,8 @@ namespace TrenchBroom {
                 [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::GroupNode* group)   { collectNode(group); group->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::EntityNode* entity) { collectNode(entity); entity->visitChildren(thisLambda); },
-                [&](Model::BrushNode* brush) { collectNode(brush); }
+                [&](Model::BrushNode* brush) { collectNode(brush); },
+                [&](Model::PatchNode* patch) { collectNode(patch); }
             ));
 
             Transaction transaction(this, "Isolate Objects");

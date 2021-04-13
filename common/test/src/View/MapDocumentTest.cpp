@@ -1452,7 +1452,8 @@ namespace TrenchBroom {
                             return groupNode;
                         }},
                         CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
-                        CreateNode{[](const auto& test) { return test.createBrushNode(); }}
+                        CreateNode{[](const auto& test) { return test.createBrushNode(); }},
+                        CreateNode{[](const auto& test) { return test.createPatchNode(); }}
                     );
 
                     auto* nodeToIsolate = createNode(*this);
@@ -1486,20 +1487,19 @@ namespace TrenchBroom {
                 }
 
                 AND_GIVEN("A top level brush entity") {
-                    auto* brushNode1 = createBrushNode();
-                    auto* brushNode2 = createBrushNode();
-                    Model::transformNode(*brushNode2, vm::translation_matrix(vm::vec3d{1, 1, 1}), document->worldBounds());
+                    auto* childNode1 = createBrushNode();
+                    auto* childNode2 = createPatchNode();
 
                     auto* entityNode = new Model::EntityNode{Model::Entity{}};
-                    entityNode->addChildren({brushNode1, brushNode2});
+                    entityNode->addChildren({childNode1, childNode2});
 
                     document->addNodes({{document->parentForNodes(), {entityNode}}});
 
                     // Check initial state
                     REQUIRE_FALSE(nodeToHide->hidden());
                     REQUIRE_FALSE(entityNode->hidden());
-                    REQUIRE_FALSE(brushNode1->hidden());
-                    REQUIRE_FALSE(brushNode2->hidden());
+                    REQUIRE_FALSE(childNode1->hidden());
+                    REQUIRE_FALSE(childNode2->hidden());
 
                     WHEN("Any child node is isolated") {
                         const auto [selectChild1, selectChild2] = GENERATE(
@@ -1509,10 +1509,10 @@ namespace TrenchBroom {
                         );
 
                         if (selectChild1) {
-                            document->select(brushNode1);
+                            document->select(childNode1);
                         }
                         if (selectChild2) {
-                            document->select(brushNode2);
+                            document->select(childNode2);
                         }
                         REQUIRE_FALSE(entityNode->selected());
 
@@ -1528,10 +1528,10 @@ namespace TrenchBroom {
                             }
 
                             AND_THEN("Any selected child node is visible and selected") {
-                                CHECK(brushNode1->hidden() != selectChild1);
-                                CHECK(brushNode2->hidden() != selectChild2);
-                                CHECK(brushNode1->selected() == selectChild1);
-                                CHECK(brushNode2->selected() == selectChild2);
+                                CHECK(childNode1->hidden() != selectChild1);
+                                CHECK(childNode2->hidden() != selectChild2);
+                                CHECK(childNode1->selected() == selectChild1);
+                                CHECK(childNode2->selected() == selectChild2);
                             }
                         }
 
@@ -1541,8 +1541,8 @@ namespace TrenchBroom {
                             THEN("All nodes are visible and selection is restored") {
                                 CHECK_FALSE(nodeToHide->hidden());
                                 CHECK_FALSE(entityNode->hidden());
-                                CHECK_FALSE(brushNode1->hidden());
-                                CHECK_FALSE(brushNode2->hidden());
+                                CHECK_FALSE(childNode1->hidden());
+                                CHECK_FALSE(childNode2->hidden());
 
                                 CHECK_THAT(document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
                             }
