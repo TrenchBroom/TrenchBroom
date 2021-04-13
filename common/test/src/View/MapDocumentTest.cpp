@@ -1438,13 +1438,11 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
-
-            auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+            auto* brushNode1 = createBrushNode();
             addNode(*document, document->parentForNodes(), brushNode1);
 
-            auto* brushNode2 = new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
+            auto* brushNode2 = createBrushNode();
+            Model::transformNode(*brushNode2, vm::translation_matrix(vm::vec3d{1, 1, 1}), document->worldBounds());
             addNode(*document, document->parentForNodes(), brushNode2);
 
             document->selectAllNodes();
