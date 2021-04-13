@@ -1331,6 +1331,9 @@ namespace TrenchBroom {
             auto* brushNode3 = new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture").value());
             addNode(*document, document->parentForNodes(), brushNode3);
 
+            auto* patchNode = createPatchNode();
+            addNode(*document, document->parentForNodes(), patchNode);
+
             document->select(std::vector<Model::Node *>{ brushNode1, brushNode2});
             Model::EntityNode* brushEnt = document->createBrushEntity(m_brushEntityDef);
 
@@ -1339,6 +1342,7 @@ namespace TrenchBroom {
             // worldspawn {
             //   brushEnt { brush1, brush2 },
             //   brush3
+            //   patch
             // }
 
             document->select(brushNode1);
@@ -1346,14 +1350,16 @@ namespace TrenchBroom {
             REQUIRE(!brushNode2->selected());
             REQUIRE(!brushNode3->selected());
             REQUIRE(!brushEnt->selected());
+            REQUIRE(!patchNode->selected());
 
             document->selectInverse();
 
-            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::BrushNode *>{ brushNode2, brushNode3}));
+            CHECK_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{ brushNode2, brushNode3, patchNode}));
             CHECK(!brushNode1->selected());
             CHECK( brushNode2->selected());
             CHECK( brushNode3->selected());
             CHECK(!brushEnt->selected());
+            CHECK( patchNode->selected());
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/2776
