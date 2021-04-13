@@ -602,7 +602,8 @@ namespace TrenchBroom {
                     groupNode->visitChildren(thisLambda);
                 },
                 [] (const Model::EntityNode*) {},
-                [] (const Model::BrushNode*) {}
+                [] (const Model::BrushNode*) {},
+                [] (const Model::PatchNode*) {}
             ));
             return result;
         }
@@ -674,7 +675,8 @@ namespace TrenchBroom {
                             groupNode->visitChildren(thisLambda);
                         },
                         [] (Model::EntityNode*) {},
-                        [] (Model::BrushNode*) {}
+                        [] (Model::BrushNode*) {},
+                        [] (Model::PatchNode*) {}
                     ));
                 }
             }
@@ -1122,7 +1124,8 @@ namespace TrenchBroom {
                         groupNode->visitChildren(thisLambda);
                     },
                     [] (const Model::EntityNode*) {},
-                    [] (const Model::BrushNode*)  {}
+                    [] (const Model::BrushNode*)  {},
+                    [] (const Model::PatchNode*)  {}
                 ));
             }
 
@@ -1282,7 +1285,8 @@ namespace TrenchBroom {
                 [] (const Model::LayerNode*)  { return false; },
                 [] (const Model::GroupNode*)  { return false; },
                 [&](const Model::EntityNode*) { return true; },
-                [] (const Model::BrushNode*)  { return false; }
+                [] (const Model::BrushNode*)  { return false; },
+                [] (const Model::PatchNode*)  { return false; }
             ));
         }
 
@@ -3172,7 +3176,8 @@ namespace TrenchBroom {
                 [] (auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                 [] (auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
                 [=](Model::EntityNode* entity)                  { setEntityDefinition(entity); },
-                [] (Model::BrushNode*) {}
+                [] (Model::BrushNode*) {},
+                [] (Model::PatchNode*) {}
             );
         }
 
@@ -3182,7 +3187,8 @@ namespace TrenchBroom {
                 [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                 [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
                 [](Model::EntityNode* entity)                  { entity->setDefinition(nullptr); },
-                [](Model::BrushNode*) {}
+                [](Model::BrushNode*) {},
+                [](Model::PatchNode*) {}
             );
         }
 
@@ -3227,7 +3233,8 @@ namespace TrenchBroom {
                     const auto* frame = manager.frame(modelSpec);
                     entityNode->setModelFrame(frame);
                 },
-                [] (Model::BrushNode*) {}
+                [] (Model::BrushNode*) {},
+                [] (Model::PatchNode*) {}
             );
         }
 
@@ -3237,7 +3244,8 @@ namespace TrenchBroom {
                 [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                 [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
                 [](Model::EntityNode* entity)                  { entity->setModelFrame(nullptr); },
-                [](Model::BrushNode*) {}
+                [](Model::BrushNode*) {},
+                [](Model::PatchNode*) {}
             );
         }
 
@@ -3438,7 +3446,8 @@ namespace TrenchBroom {
                 [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                 [] (auto&& thisLambda, Model::GroupNode* group)   { group->visitChildren(thisLambda); },
                 [] (auto&& thisLambda, Model::EntityNode* entity) { entity->visitChildren(thisLambda); },
-                [&](Model::BrushNode* brush)                      { brush->initializeTags(*m_tagManager); }
+                [&](Model::BrushNode* brush)                      { brush->initializeTags(*m_tagManager); },
+                [] (Model::PatchNode*)                            {}
             ));
         }
 
