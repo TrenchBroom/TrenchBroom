@@ -1748,6 +1748,23 @@ namespace TrenchBroom {
             auto nodesToMove = std::vector<Model::Node*>{};
             auto nodesToSelect = std::vector<Model::Node*>{};
 
+            const auto addBrushOrPatchNode = [&](auto* node) {
+                assert(node->selected());
+
+                if (!node->containedInGroup()) {
+                    auto* entity = node->entity();
+                    if (entity == m_world.get()) {
+                        nodesToMove.push_back(node);
+                        nodesToSelect.push_back(node);
+                    } else {
+                        if (!kdl::vec_contains(nodesToMove, entity)) {
+                            nodesToMove.push_back(entity);
+                            nodesToSelect = kdl::vec_concat(std::move(nodesToSelect), entity->children());
+                        }
+                    }
+                }
+            };
+
             for (auto* node : selectedNodes) {
                 node->accept(kdl::overload(
                     [] (Model::WorldNode*) {},
@@ -1769,20 +1786,10 @@ namespace TrenchBroom {
                         }
                     },
                     [&](Model::BrushNode* brush) {
-                        assert(brush->selected());
-
-                        if (!brush->containedInGroup()) {
-                            auto* entity = brush->entity();
-                            if (entity == m_world.get()) {
-                                nodesToMove.push_back(brush);
-                                nodesToSelect.push_back(brush);
-                            } else {
-                                if (!kdl::vec_contains(nodesToMove, entity)) {
-                                    nodesToMove.push_back(entity);
-                                    nodesToSelect = kdl::vec_concat(std::move(nodesToSelect), entity->children());
-                                }
-                            }
-                        }
+                        addBrushOrPatchNode(brush);
+                    },
+                    [&](Model::PatchNode* patch) {
+                        addBrushOrPatchNode(patch);
                     }
                 ));
             }

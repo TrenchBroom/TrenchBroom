@@ -1879,7 +1879,8 @@ namespace TrenchBroom {
                         return groupNode;
                     }},
                     CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
-                    CreateNode{[](const auto& test) { return test.createBrushNode(); }}
+                    CreateNode{[](const auto& test) { return test.createBrushNode(); }},
+                    CreateNode{[](const auto& test) { return test.createPatchNode(); }}
                 );
 
                 auto* node = createNode(*this);
@@ -1916,7 +1917,7 @@ namespace TrenchBroom {
             GIVEN("A brush entity node") {
                 auto* entityNode = new Model::EntityNode{Model::Entity{}};
                 auto* childNode1 = createBrushNode();
-                auto* childNode2 = createBrushNode();
+                auto* childNode2 = createPatchNode();
 
                 entityNode->addChildren({childNode1, childNode2});
                 document->addNodes({{document->parentForNodes(), {entityNode}}});
