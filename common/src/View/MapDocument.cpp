@@ -3389,7 +3389,8 @@ namespace TrenchBroom {
                 [&](auto&& thisLambda, Model::LayerNode* layer) { layer->initializeTags(tagManager); layer->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::GroupNode* group) { group->initializeTags(tagManager); group->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::EntityNode* entity) { entity->initializeTags(tagManager); entity->visitChildren(thisLambda); },
-                [&](Model::BrushNode* brush) { brush->initializeTags(tagManager); }
+                [&](Model::BrushNode* brush) { brush->initializeTags(tagManager); },
+                [&](Model::PatchNode* patch) { patch->initializeTags(tagManager); }
             );
         }
 
@@ -3399,7 +3400,8 @@ namespace TrenchBroom {
                 [](auto&& thisLambda, Model::LayerNode* layer) { layer->clearTags(); layer->visitChildren(thisLambda); },
                 [](auto&& thisLambda, Model::GroupNode* group) { group->clearTags(); group->visitChildren(thisLambda); },
                 [](auto&& thisLambda, Model::EntityNode* entity) { entity->clearTags(); entity->visitChildren(thisLambda); },
-                [](Model::BrushNode* brush) { brush->clearTags(); }
+                [](Model::BrushNode* brush) { brush->clearTags(); },
+                [](Model::PatchNode* patch) { patch->clearTags(); }
             );
         }
 
