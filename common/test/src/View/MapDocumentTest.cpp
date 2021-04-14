@@ -2114,8 +2114,9 @@ namespace TrenchBroom {
                 CreateNode{[](const auto& test) -> Model::Node* {
                     auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
                     auto* brushNode = test.createBrushNode();
+                    auto* patchNode = test.createPatchNode();
                     auto* entityNode = new Model::EntityNode{Model::Entity{}};
-                    groupNode->addChildren({brushNode, entityNode});
+                    groupNode->addChildren({brushNode, patchNode, entityNode});
                     return groupNode;
                 }},
                 CreateNode{[](const auto&) -> Model::Node* {
@@ -2124,11 +2125,15 @@ namespace TrenchBroom {
                 CreateNode{[](const auto& test) -> Model::Node* {
                     auto* entityNode = new Model::EntityNode{Model::Entity{}};
                     auto* brushNode = test.createBrushNode();
-                    entityNode->addChildren({brushNode});
+                    auto* patchNode = test.createPatchNode();
+                    entityNode->addChildren({brushNode, patchNode});
                     return entityNode;
                 }},
                 CreateNode{[](const auto& test) -> Model::Node* {
                     return test.createBrushNode();
+                }},
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    return test.createPatchNode();
                 }}
             );
 

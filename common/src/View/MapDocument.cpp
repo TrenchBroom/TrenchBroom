@@ -2017,7 +2017,10 @@ namespace TrenchBroom {
                     },
                     [&](Model::BrushNode* brush) { 
                         nodesToTransform.push_back(brush);
-                     }
+                    },
+                    [&](Model::PatchNode* patch) { 
+                        nodesToTransform.push_back(patch);
+                    }
                 ));
             }
 
@@ -2051,7 +2054,12 @@ namespace TrenchBroom {
                                 error() << "Could not transform brush: " << e;
                                 success = false;
                             });
-                     }
+                    },
+                    [&](Model::PatchNode* patchNode) {
+                        auto patch = patchNode->patch();
+                        patch.transform(transformation);
+                        nodesToUpdate.emplace_back(patchNode, std::move(patch));
+                    }
                 ));
 
                 if (!success) {
