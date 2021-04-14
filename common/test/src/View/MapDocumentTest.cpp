@@ -1055,20 +1055,14 @@ namespace TrenchBroom {
             CHECK_THROWS_AS(document->throwExceptionDuringCommand(), CommandProcessorException);
         }
 
-        static void transform(Model::BrushNode* brushNode, const vm::bbox3& worldBounds, const vm::mat4x4& transform) {
-            auto brush = brushNode->brush();
-            REQUIRE(brush.transform(worldBounds, transform, false).is_success());
-            brushNode->setBrush(std::move(brush));
-        }
-
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectTouching") {
             Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode3 = new Model::BrushNode(builder.createCube(64.0, "none").value());
 
-            transform(brushNode2, document->worldBounds(), vm::translation_matrix(vm::vec3(10.0, 0.0, 0.0)));
-            transform(brushNode3, document->worldBounds(), vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)));
+            transformNode(*brushNode2, vm::translation_matrix(vm::vec3{10.0, 0.0, 0.0}), document->worldBounds());
+            transformNode(*brushNode3, vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}), document->worldBounds());
 
             addNode(*document, document->parentForNodes(), brushNode1);
             addNode(*document, document->parentForNodes(), brushNode2);
@@ -1126,8 +1120,8 @@ namespace TrenchBroom {
             Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode3 = new Model::BrushNode(builder.createCube(64.0, "none").value());
 
-            transform(brushNode2, document->worldBounds(), vm::translation_matrix(vm::vec3(0.0, 0.0, -500.0)));
-            transform(brushNode3, document->worldBounds(), vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)));
+            transformNode(*brushNode2, vm::translation_matrix(vm::vec3{0.0, 0.0, -500.0}), document->worldBounds());
+            transformNode(*brushNode3, vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}), document->worldBounds());
 
             addNode(*document, document->parentForNodes(), brushNode1);
             addNode(*document, document->parentForNodes(), brushNode2);
