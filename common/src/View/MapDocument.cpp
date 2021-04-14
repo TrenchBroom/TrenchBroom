@@ -3104,6 +3104,10 @@ namespace TrenchBroom {
                         Assets::Texture* texture = manager.texture(face.attributes().textureName());
                         brushNode->setFaceTexture(i, texture);
                     }
+                },
+                [&](Model::PatchNode* patchNode) { 
+                    auto* texture = manager.texture(patchNode->patch().textureName());
+                    patchNode->setTexture(texture);
                 }
             );
         }
@@ -3119,6 +3123,9 @@ namespace TrenchBroom {
                     for (size_t i = 0u; i < brush.faceCount(); ++i) {
                         brushNode->setFaceTexture(i, nullptr);
                     }
+                },
+                [] (Model::PatchNode* patchNode) { 
+                    patchNode->setTexture(nullptr);
                 }
             );
         }
