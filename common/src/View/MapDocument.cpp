@@ -2032,12 +2032,12 @@ namespace TrenchBroom {
                     [&](Model::GroupNode* groupNode) {
                         auto group = groupNode->group();
                         group.transform(transformation);
-                        nodesToUpdate.emplace_back(groupNode, group);
+                        nodesToUpdate.emplace_back(groupNode, std::move(group));
                     },
                     [&](Model::EntityNode* entityNode) {
                         auto entity = entityNode->entity();
                         entity.transform(transformation);
-                        nodesToUpdate.emplace_back(entityNode, entity);
+                        nodesToUpdate.emplace_back(entityNode, std::move(entity));
                     },
                     [&](Model::BrushNode* brushNode) {
                         const bool lockTextures = pref(Preferences::TextureLock)
@@ -2046,7 +2046,7 @@ namespace TrenchBroom {
                         auto brush = brushNode->brush();
                         brush.transform(m_worldBounds, transformation, lockTextures)
                             .and_then([&](){
-                                nodesToUpdate.emplace_back(brushNode, brush);
+                                nodesToUpdate.emplace_back(brushNode, std::move(brush));
                             }).handle_errors([&](const Model::BrushError e) {
                                 error() << "Could not transform brush: " << e;
                                 success = false;
