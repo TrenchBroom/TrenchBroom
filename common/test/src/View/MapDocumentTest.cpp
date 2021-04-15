@@ -58,6 +58,7 @@
 #include <kdl/result.h>
 #include <kdl/overload.h>
 #include <kdl/vector_utils.h>
+#include <kdl/zip_iterator.h>
 
 #include <vecmath/approx.h>
 #include <vecmath/bbox.h>
@@ -2096,6 +2097,67 @@ namespace TrenchBroom {
             // map has both Standard and Valve brushes
             CHECK_THROWS_AS(View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/mixedFormats.map"),
                                                   "Quake", Model::MapFormat::Unknown), IO::WorldReaderException);
+        }
+
+        void checkTransformation(const Model::Node& node, const Model::Node& original, const vm::mat4x4d& transformation) {
+            CHECK(node.physicalBounds() == original.physicalBounds().transform(transformation));
+
+            REQUIRE(node.childCount() == original.childCount());
+            for (const auto [nodeChild, originalChild] : kdl::make_zip_range(node.children(), original.children())) {
+                checkTransformation(*nodeChild, *originalChild, transformation);
+            }
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.transformObjects") {
+            using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+            const auto createNode = GENERATE_COPY(
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+                    auto* brushNode = test.createBrushNode();
+                    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                    groupNode->addChildren({brushNode, entityNode});
+                    return groupNode;
+                }},
+                CreateNode{[](const auto&) -> Model::Node* {
+                    return new Model::EntityNode{Model::Entity{}};
+                }},
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                    auto* brushNode = test.createBrushNode();
+                    entityNode->addChildren({brushNode});
+                    return entityNode;
+                }},
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    return test.createBrushNode();
+                }}
+            );
+
+            GIVEN("A node to transform") {
+                auto* node = createNode(*this);
+                CAPTURE(node->name());
+
+                document->addNodes({{document->parentForNodes(), {node}}});
+                
+                const auto originalNode = std::unique_ptr<Model::Node>{node->cloneRecursively(document->worldBounds())};
+                const auto transformation = vm::translation_matrix(vm::vec3d{1, 2, 3});
+
+                WHEN("The node is transformed") {
+                    document->select(node);
+                    document->transformObjects("Transform Nodes", transformation);
+
+                    THEN("The transformation was applied to the node and its children") {
+                        checkTransformation(*node, *originalNode.get(), transformation);
+                    }
+
+                    AND_WHEN("The transformation is undone") {
+                        document->undoCommand();
+
+                        THEN("The node is back in its original state") {
+                            checkTransformation(*node, *originalNode.get(), vm::mat4x4d::identity());
+                        }
+                    }
+                }
+            }
         }
     }
 }
