@@ -182,8 +182,6 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::reload() {
-            DisableWindowUpdates disableUpdates(this);
-
             // WARNING: At this point, the ControlListBoxItemRenderer's might
             // contain dangling pointers to model objects (if
             // MapDocument::clearWorld world is called, e.g. when opening a new map).
@@ -211,7 +209,6 @@ namespace TrenchBroom {
         }
 
         void ControlListBox::updateItems() {
-            DisableWindowUpdates disableUpdates(this);
             for (int i = 0; i < m_listWidget->count(); ++i) {
                 auto* renderer = this->renderer(i);
                 renderer->updateItem();
