@@ -208,7 +208,7 @@ namespace TrenchBroom {
             reload();
         }
 
-        void LayerListBox::nodesDidChange(const std::vector<Model::Node*>& nodes) {
+        void LayerListBox::nodesDidChange(const std::vector<Model::Node*>&) {
             const auto documentLayers = kdl::mem_lock(m_document)->world()->allLayersUserSorted();
 
             if (layers() != documentLayers) {
