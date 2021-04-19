@@ -93,6 +93,8 @@ namespace TrenchBroom {
 
             const LayerListBoxWidget* widgetAtRow(int row) const;
             Model::LayerNode* layerForRow(int row) const;
+
+            std::vector<Model::LayerNode*> layers() const;
         signals:
             void layerSelected(Model::LayerNode* layer);
             void layerSetCurrent(Model::LayerNode* layer);
