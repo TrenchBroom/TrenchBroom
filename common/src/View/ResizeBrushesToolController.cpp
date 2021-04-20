@@ -62,13 +62,13 @@ namespace TrenchBroom {
 
         void ResizeBrushesToolController::doModifierKeyChange(const InputState& inputState) {
             if (!anyToolDragging(inputState)) {
-                m_tool->updateDragFaces(inputState.pickResult());
+                m_tool->updateProposedDragHandles(inputState.pickResult());
             }
         }
 
         void ResizeBrushesToolController::doMouseMove(const InputState& inputState) {
             if (handleInput(inputState) && !anyToolDragging(inputState)) {
-                m_tool->updateDragFaces(inputState.pickResult());
+                m_tool->updateProposedDragHandles(inputState.pickResult());
             }
         }
 
@@ -82,17 +82,15 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_tool->updateDragFaces(inputState.pickResult());
+            m_tool->updateProposedDragHandles(inputState.pickResult());
             m_mode = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? Mode::MoveFace : Mode::Resize;
             if (m_mode == Mode::Resize) {
                 const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
                 if (m_tool->beginResize(inputState.pickResult(), split)) {
-                    m_tool->updateDragFaces(inputState.pickResult());
                     return true;
                 }
             } else {
                 if (m_tool->beginMove(inputState.pickResult())) {
-                    m_tool->updateDragFaces(inputState.pickResult());
                     return true;
                 }
             }
@@ -109,7 +107,7 @@ namespace TrenchBroom {
 
         void ResizeBrushesToolController::doEndMouseDrag(const InputState& inputState) {
             m_tool->commit();
-            m_tool->updateDragFaces(inputState.pickResult());
+            m_tool->updateProposedDragHandles(inputState.pickResult());
         }
 
         void ResizeBrushesToolController::doCancelMouseDrag() {
@@ -124,7 +122,7 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesToolController::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-            if (m_tool->hasDragFaces()) {
+            if (m_tool->hasVisualHandles()) {
                 Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer();
                 edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
             }
@@ -134,7 +132,7 @@ namespace TrenchBroom {
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
             std::vector<Vertex> vertices;
 
-            for (const auto& dragFaceHandle : m_tool->dragFaces()) {
+            for (const auto& dragFaceHandle : m_tool->visualHandles()) {
                 const auto& dragFace = dragFaceHandle.face();
                 for (const auto* edge : dragFace.edges()) {
                     vertices.emplace_back(vm::vec3f(edge->firstVertex()->position()));

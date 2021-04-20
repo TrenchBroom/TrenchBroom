@@ -20,10 +20,12 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Model/Brush.h"
 #include "Model/HitType.h"
 #include "View/Tool.h"
 
 #include <vecmath/forward.h>
+#include <vecmath/polygon.h>
 #include <vecmath/vec.h>
 
 #include <memory>
@@ -49,6 +51,41 @@ namespace TrenchBroom {
         class MapDocument;
         class Selection;
 
+        /**
+         * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the drag.
+         * We need this to be able to make decisions about the drag before reverting the transaction.
+         */
+        struct DragHandle {
+            Model::BrushNode* node;
+            Model::Brush brushAtDragStart;
+            size_t faceIndex;
+
+            explicit DragHandle(const Model::BrushFaceHandle& handle);
+
+            const Model::BrushFace& faceAtDragStart() const;
+            vm::vec3 faceNormal() const;
+
+            bool operator==(const DragHandle& other) const;
+            bool operator!=(const DragHandle& other) const;
+        };
+
+        /**
+         * Tool for extruding faces along their normals (Shift+LMB Drag).
+         * 
+         * Also:
+         *  - split brushes outward/inward (Ctrl+Shift+LMB Drag)
+         *  - move faces (Alt+Shift+LMB Drag, 2D views only)
+         * 
+         * Terminology:
+         *  - "Drag handle": for calculating the brush modifications.
+         *    Instance of DragHandle. Always based on the brush
+         *    state at the start of the drag.
+         * 
+         *  - "Visual handle": specifies which faces to render highlighted.
+         *    Based on the current document state, so needs to be updated
+         *    after each modification or roll back. May be fewer than the number
+         *    of Drag handles if faces are clipped away by the drag.
+         */
         class ResizeBrushesTool : public Tool {
         public:
             static const Model::HitType::Type Resize3DHitType;
@@ -57,23 +94,26 @@ namespace TrenchBroom {
             using Resize2DHitData = std::vector<Model::BrushFaceHandle>;
             using Resize3DHitData = Model::BrushFaceHandle;
         private:
-            /**
-             * Brush and face normal pair.
-             */
-            using FaceHandle = std::tuple<Model::BrushNode*, vm::vec3>;
-
             std::weak_ptr<MapDocument> m_document;
-            std::vector<FaceHandle> m_dragHandles;
+            /**
+             * Propsed drag handles for the next drag. Should only be accessed when m_dragging is false.
+             */
+            std::vector<DragHandle> m_proposedDragHandles;
+            bool m_dragging;
+        private: // drag state - should only be accessed when m_dragging is true
+            std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
+            std::vector<DragHandle> m_dragHandlesAtDragStart;
             vm::vec3 m_dragOrigin;
-            vm::vec3 m_lastPoint;
             /**
              * This is temporarily set to true when a drag is started with Ctrl,
              * to signal that new brushes need to be split off. After the split brushes have been
              * created, it's set back to false, in `resize()`.
              */
             bool m_splitBrushes;
+            /**
+             * How much drag is currently applied to the document.
+             */
             vm::vec3 m_totalDelta;
-            bool m_dragging;
         public:
             explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
             ~ResizeBrushesTool() override;
@@ -85,17 +125,16 @@ namespace TrenchBroom {
         private:
             Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
         public:
-            bool hasDragFaces() const;
-            std::vector<Model::BrushFaceHandle> dragFaces() const;
-            void updateDragFaces(const Model::PickResult& pickResult);
+            bool hasVisualHandles() const;
+            std::vector<Model::BrushFaceHandle> visualHandles() const;
+            void updateProposedDragHandles(const Model::PickResult& pickResult);
         private:
-            std::vector<FaceHandle> getDragHandles(const Model::Hit& hit) const;
-            std::vector<FaceHandle> collectDragHandles(const Model::Hit& hit) const;
+            std::vector<DragHandle> getDragHandles(const Model::Hit& hit) const;
+            std::vector<DragHandle> collectDragHandles(const Model::Hit& hit) const;
             std::vector<Model::BrushFaceHandle> collectDragFaces(const Model::BrushFaceHandle& faceHandle) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
-            vm::vec3 selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, FloatType mouseDistance) const;
 
             bool beginMove(const Model::PickResult& pickResult);
             bool move(const vm::ray3& pickRay, const Renderer::Camera& camera);
@@ -105,7 +144,8 @@ namespace TrenchBroom {
         private:
             bool splitBrushesOutward(const vm::vec3& delta);
             bool splitBrushesInward(const vm::vec3& delta);
-            std::vector<vm::polygon3> dragFaceDescriptors() const;
+            std::vector<vm::polygon3> polygonsAtDragStart() const;
+            void updateCurrentDragVisualHandles();
         private:
             void bindObservers();
             void unbindObservers();

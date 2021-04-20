@@ -1073,7 +1073,19 @@ namespace TrenchBroom {
             m_selectedBrushFaces.clear();
         }
 
+        /**
+         * Takes a { parent, children } map and adds the children to the given parents.
+         * The world node tree takes ownership of the children, unless the transaction fails.
+         *
+         * @param nodes the nodes to add and the parents to add them to
+         * @return the added nodes
+         */
         std::vector<Model::Node*> MapDocument::addNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
+            for (const auto& [parent, children] : nodes) {
+                assert(parent == m_world.get() || parent->isDescendantOf(m_world.get()));
+                unused(parent);
+            }
+
             Transaction transaction(this, "Add Objects");
             const auto result = executeAndStore(AddRemoveNodesCommand::add(nodes, findAllLinkedGroupsToUpdate(*m_world, kdl::map_keys(nodes))));
             if (!result->success()) {
@@ -1106,6 +1118,11 @@ namespace TrenchBroom {
             return kdl::vec_sort_and_remove_duplicates(std::move(linkedGroupIds));
         }
 
+        /**
+         * Removes the given nodes. If this causes any groups/entities to become empty, removes them as well.
+         * 
+         * Ownership of the removed nodes is transferred to the undo system.
+         */
         void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes) {
             std::map<Model::Node*, std::vector<Model::Node*>> removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
             auto linkedGroupIdsOfRemovedGroups = std::vector<std::string>{};
@@ -1939,6 +1956,13 @@ namespace TrenchBroom {
 
         bool MapDocument::swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate) {
             return executeAndStore(std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap), std::move(linkedGroupsToUpdate)))->success();
+        }
+
+        bool MapDocument::swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap) {
+            auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(*m_world, 
+                                                                           kdl::vec_transform(nodesToSwap, [](const auto& p) { return p.first; }));
+
+            return swapNodeContents(commandName, std::move(nodesToSwap), std::move(linkedGroupsToUpdate));
         }
 
         bool MapDocument::transformObjects(const std::string& commandName, const vm::mat4x4& transformation) {

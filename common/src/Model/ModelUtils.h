@@ -80,6 +80,8 @@ namespace TrenchBroom {
         bool boundsContainNode(const vm::bbox3& bounds, const Node* node);
         bool boundsIntersectNode(const vm::bbox3& bounds, const Node* node);
 
+        std::vector<BrushNode*> filterBrushNodes(const std::vector<Node*>& nodes);
+        std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes);
     }
 }
 

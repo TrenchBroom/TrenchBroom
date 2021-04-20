@@ -424,5 +424,39 @@ namespace TrenchBroom {
                  }
             ));
         }
+
+        std::vector<BrushNode*> filterBrushNodes(const std::vector<Node*>& nodes) {
+            auto result = std::vector<BrushNode*>{};
+            result.reserve(nodes.size());
+            for (Node* node : nodes) {
+                node->accept(kdl::overload(
+                    [] (WorldNode*)           {},
+                    [] (LayerNode*)           {},
+                    [] (GroupNode*)           {},
+                    [] (EntityNode*)          {},
+                    [&](BrushNode* brushNode) { 
+                        result.push_back(brushNode);
+                    }
+                ));
+            }
+            return result;
+        }
+
+        std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes) {
+            auto result = std::vector<EntityNode*>{};
+            result.reserve(nodes.size());
+            for (Node* node : nodes) {
+                node->accept(kdl::overload(
+                    [] (WorldNode*)           {},
+                    [] (LayerNode*)           {},
+                    [] (GroupNode*)           {},
+                    [&] (EntityNode* entityNode) {
+                        result.push_back(entityNode);
+                    },
+                    [](BrushNode*) {}
+                ));
+            }
+            return result;
+        }
     }
 }

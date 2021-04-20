@@ -27,8 +27,10 @@
 #include "Model/EntityNode.h"
 #include "Model/Game.h"
 #include "Model/LayerNode.h"
+#include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
+#include "Renderer/PerspectiveCamera.h"
 #include "View/ResizeBrushesTool.h"
 
 #include <kdl/result.h>
@@ -81,6 +83,27 @@ namespace TrenchBroom {
         }
 
         /**
+         * Boilerplate to perform picking
+         */
+        static Model::PickResult performPick(std::shared_ptr<View::MapDocument> document, ResizeBrushesTool& tool, const vm::ray3& pickRay) {
+            Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
+            document->pick(pickRay, pickResult); // populate pickResult
+
+            const Model::Hit hit = tool.pick3D(pickRay, pickResult);
+            CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
+            CHECK(!vm::is_nan(hit.hitPoint()));
+
+            REQUIRE(hit.isMatch());
+            pickResult.addHit(hit);
+
+            REQUIRE(!tool.hasVisualHandles());
+            tool.updateProposedDragHandles(pickResult);
+            REQUIRE(tool.hasVisualHandles());
+
+            return pickResult;
+        }
+
+        /**
          * Test for https://github.com/TrenchBroom/TrenchBroom/issues/3726
          */
         TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
@@ -114,27 +137,165 @@ namespace TrenchBroom {
 
             auto tool = ResizeBrushesTool(document);
 
-            Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
-            document->pick(pickRay, pickResult); // populate pickResult
-
-            const Model::Hit hit = tool.pick3D(pickRay, pickResult);
-            CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
-            CHECK(!vm::is_nan(hit.hitPoint()));
-
-            const Model::BrushFaceHandle hitTarget = hit.target<Model::BrushFaceHandle>();
-            REQUIRE(hitTarget.face() == largerTopFace);
-            REQUIRE(hit.isMatch());
-            pickResult.addHit(hit);
-
-            // Find the faces that we would drag when pressing Shift
-            REQUIRE(!tool.hasDragFaces());
-            tool.updateDragFaces(pickResult);
-            REQUIRE(tool.hasDragFaces());
+            Model::PickResult pickResult = performPick(document, tool, pickRay);
+            REQUIRE(pickResult.all().front().target<Model::BrushFaceHandle>().face() == largerTopFace);
 
             const std::vector<std::string> dragFaces =
-                kdl::vec_transform(tool.dragFaces(),
+                kdl::vec_transform(tool.visualHandles(),
                                    [](const Model::BrushFaceHandle& handle) { return handle.face().attributes().textureName(); });
             CHECK_THAT(dragFaces, Catch::UnorderedEquals(expectedDragFaceTextureNames));
+        }
+
+        TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/ResizeBrushesToolTest/splitBrushes.map"), 
+                                                                      "Quake", Model::MapFormat::Valve);
+
+            document->selectAllNodes();
+
+            auto brushes = document->selectedNodes().brushes();
+            REQUIRE(brushes.size() == 2);
+
+            // Find the entity defining the camera position for our test
+            Model::EntityNode* cameraEntity = kdl::vec_filter(document->selectedNodes().entities(),
+                                                              [](const Model::EntityNode* node){ return node->entity().classname() == "trigger_relay"; }).at(0);
+
+            Model::EntityNode* cameraTarget = kdl::vec_filter(document->selectedNodes().entities(),
+                                                              [](const Model::EntityNode* node){ return node->entity().classname() == "info_null"; }).at(0);
+
+            Model::EntityNode* funcDetailNode = kdl::vec_filter(Model::filterEntityNodes(Model::collectDescendants({document->world()})),
+                                                                [](const Model::EntityNode* node){ return node->entity().classname() == "func_detail"; }).at(0);
+
+            // Fire a pick ray at cameraTarget
+            const auto pickRay = vm::ray3(cameraEntity->entity().origin(),
+                                          vm::normalize(cameraTarget->entity().origin() - cameraEntity->entity().origin()));
+
+            auto tool = ResizeBrushesTool(document);
+
+            const Model::PickResult pickResult = performPick(document, tool, pickRay);
+
+            // We are going to drag the 2 faces with +Y normals
+            REQUIRE(tool.visualHandles().size() == 2);
+            CHECK(tool.visualHandles().at(0).face().normal() == vm::vec3::pos_y());
+            CHECK(tool.visualHandles().at(1).face().normal() == vm::vec3::pos_y());
+
+            SECTION("split brushes inwards 32 units towards -Y") {
+                const auto delta = vm::vec3(0, -32, 0);
+
+                REQUIRE(tool.beginResize(pickResult, true));
+                REQUIRE(tool.resize(vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction}, Renderer::PerspectiveCamera()));
+                tool.commit();
+
+                CHECK(document->selectedNodes().brushes().size() == 4);
+
+                SECTION("check 2 resulting worldspawn brushes") {
+                    const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-32, 144, 16}, {-16, 192, 32}},
+                        {{-32, 192, 16}, {-16, 224, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+                
+                SECTION("check 2 resulting func_detail brushes") {
+                    const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-16, 176, 16}, {16, 192, 32}},
+                        {{-16, 192, 16}, {16, 224, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+            }
+
+            SECTION("split brushes inwards 48 units towards -Y") {
+                const auto delta = vm::vec3(0, -48, 0);
+
+                REQUIRE(tool.beginResize(pickResult, true));
+                REQUIRE(tool.resize(vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction}, Renderer::PerspectiveCamera()));
+                tool.commit();
+
+                CHECK(document->selectedNodes().brushes().size() == 3);
+
+                SECTION("check 2 resulting worldspawn brushes") {
+                    const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-32, 144, 16}, {-16, 176, 32}},
+                        {{-32, 176, 16}, {-16, 224, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+                
+                SECTION("check 1 resulting func_detail brush") {
+                    const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-16, 176, 16}, {16, 224, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+            }
+
+            SECTION("resize inwards 32 units towards -Y") {
+                const auto delta = vm::vec3(0, -32, 0);
+
+                REQUIRE(tool.beginResize(pickResult, false));
+                REQUIRE(tool.resize(vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction}, Renderer::PerspectiveCamera()));
+                tool.commit();
+
+                CHECK(document->selectedNodes().brushes().size() == 2);
+
+                SECTION("check 1 resulting worldspawn brushes") {
+                    const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-32, 144, 16}, {-16, 192, 32}},
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+
+                SECTION("check 1 resulting func_detail brush") {
+                    const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-16, 176, 16}, {16, 192, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+            }
+
+            SECTION("split brushes outwards 16 units towards +Y") {
+                const auto delta = vm::vec3(0, 16, 0);
+
+                REQUIRE(tool.beginResize(pickResult, true));
+                REQUIRE(tool.resize(vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction}, Renderer::PerspectiveCamera()));
+                tool.commit();
+
+                CHECK(document->selectedNodes().brushes().size() == 2);
+
+                SECTION("check 1 resulting worldspawn brush") {
+                    auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+                    nodes = kdl::vec_filter(std::move(nodes), [](auto* node) { return node->selected(); });
+
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-32, 224, 16}, {-16, 240, 32}},
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+                
+                SECTION("check 1 resulting func_detail brush") {
+                    auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+                    nodes = kdl::vec_filter(std::move(nodes), [](auto* node) { return node->selected(); });
+
+                    const auto bounds = kdl::vec_transform(nodes, [](auto* node){ return node->logicalBounds(); });
+                    const auto expectedBounds = std::vector<vm::bbox3>{
+                        {{-16, 224, 16}, {16, 240, 32}}
+                    };
+                    CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
+                }
+            }
         }
     }
 }
