@@ -403,10 +403,10 @@ namespace TrenchBroom {
             result.reserve(nodes.size());
             for (Node* node : nodes) {
                 node->accept(kdl::overload(
-                    [] (WorldNode*)           {},
-                    [] (LayerNode*)           {},
-                    [] (GroupNode*)           {},
-                    [] (EntityNode*)          {},
+                    [] (WorldNode*) {},
+                    [] (LayerNode*) {},
+                    [] (GroupNode*) {},
+                    [] (EntityNode*) {},
                     [&](BrushNode* brushNode) { 
                         result.push_back(brushNode);
                     }
@@ -420,9 +420,9 @@ namespace TrenchBroom {
             result.reserve(nodes.size());
             for (Node* node : nodes) {
                 node->accept(kdl::overload(
-                    [] (WorldNode*)           {},
-                    [] (LayerNode*)           {},
-                    [] (GroupNode*)           {},
+                    [] (WorldNode*) {},
+                    [] (LayerNode*) {},
+                    [] (GroupNode*) {},
                     [&] (EntityNode* entityNode) {
                         result.push_back(entityNode);
                     },
