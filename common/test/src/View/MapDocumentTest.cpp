@@ -1275,11 +1275,8 @@ namespace TrenchBroom {
             document->deselectAll();
 
             // Check initial state
-            REQUIRE(1 == document->currentLayer()->childCount());
-            REQUIRE(brushEntity == dynamic_cast<Model::EntityNode*>(document->currentLayer()->children().at(0)));
-            REQUIRE(2 == brushEntity->childCount());
-            REQUIRE(brushNode1 == dynamic_cast<Model::BrushNode*>(brushEntity->children().at(0)));
-            REQUIRE(brushNode2 == dynamic_cast<Model::BrushNode*>(brushEntity->children().at(1)));
+            REQUIRE_THAT(document->currentLayer()->children(), Catch::Matchers::Equals(std::vector<Model::Node*>{brushEntity}));
+            REQUIRE_THAT(brushEntity->children(), Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode1, brushNode2}));
 
             CHECK(!brushEntity->selected());
             CHECK(!brushNode1->selected());
