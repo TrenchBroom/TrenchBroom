@@ -125,7 +125,11 @@ namespace TrenchBroom {
             auto brushes = document->selectedNodes().brushes();
             REQUIRE(brushes.size() == 2);
 
-            const Model::BrushFace& largerTopFace = brushes.at(0)->brush().face(brushes.at(0)->brush().findFace("larger_top_face").value());
+            const auto brushIt = std::find_if(std::begin(brushes), std::end(brushes), [](const Model::BrushNode* brushNode){ return brushNode->brush().findFace("larger_top_face").has_value(); });
+            REQUIRE(brushIt != std::end(brushes));
+            
+            const auto* brushNode = *brushIt;
+            const Model::BrushFace& largerTopFace = brushNode->brush().face(brushNode->brush().findFace("larger_top_face").value());
 
             // Find the entity defining the camera position for our test
             Model::EntityNode* cameraEntity = kdl::vec_filter(document->selectedNodes().entities(),

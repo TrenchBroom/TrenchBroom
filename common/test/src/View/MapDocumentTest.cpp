@@ -1095,13 +1095,13 @@ namespace TrenchBroom {
 
             document->selectAllNodes();
 
-            CHECK_THAT(document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode* >{ brushNode1, brushNode2}));
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::BrushNode* >{ brushNode1, brushNode2}));
             CHECK_THAT(document->currentLayer()->children(), Catch::Equals(std::vector<Model::Node* >{ brushNode1, brushNode2}));
 
             document->selectTouching(true);
 
             // only this next line was failing
-            CHECK_THAT(document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode* >{}));
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::BrushNode* >{}));
             CHECK_THAT(document->currentLayer()->children(), Catch::Equals(std::vector<Model::Node* >{}));
 
             // brush1 and brush2 are deleted
