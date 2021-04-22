@@ -23,11 +23,11 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/Node.h"
+#include "Model/PatchNode.h"
 
 #include <kdl/overload.h>
 #include <kdl/vector_utils.h>
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             return m_node;
         }
 
-        bool Issue::addSelectableNodes(const EditorContext& /* editorContext */, std::vector<Model::Node*>& nodes) const {
+        bool Issue::addSelectableNodes(std::vector<Model::Node*>& nodes) const {
             if (m_node->parent() == nullptr) {
                 return false;
             }
@@ -74,7 +74,8 @@ namespace TrenchBroom {
                         entity->visitChildren(thisLambda);
                     }
                 },
-                [&](BrushNode* brush) { nodes.push_back(brush); }
+                [&](BrushNode* brush) { nodes.push_back(brush); },
+                [&](PatchNode* patch) { nodes.push_back(patch); }
             ));
 
             return true;

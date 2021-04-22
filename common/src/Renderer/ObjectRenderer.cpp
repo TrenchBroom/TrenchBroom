@@ -23,16 +23,18 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void ObjectRenderer::setObjects(const std::vector<Model::GroupNode*>& groups, const std::vector<Model::EntityNode*>& entities, const std::vector<Model::BrushNode*>& brushes) {
+        void ObjectRenderer::setObjects(const std::vector<Model::GroupNode*>& groups, const std::vector<Model::EntityNode*>& entities, const std::vector<Model::BrushNode*>& brushes, const std::vector<Model::PatchNode*>& patches) {
             m_groupRenderer.setGroups(groups);
             m_entityRenderer.setEntities(entities);
             m_brushRenderer.setBrushes(brushes);
+            m_patchRenderer.setPatches(patches);
         }
 
         void ObjectRenderer::invalidate() {
             m_groupRenderer.invalidate();
             m_entityRenderer.invalidate();
             m_brushRenderer.invalidate();
+            m_patchRenderer.invalidate();
         }
 
         void ObjectRenderer::invalidateBrushes(const std::vector<Model::BrushNode*>& brushes) {
@@ -43,6 +45,7 @@ namespace TrenchBroom {
             m_groupRenderer.clear();
             m_entityRenderer.clear();
             m_brushRenderer.clear();
+            m_patchRenderer.clear();
         }
 
         void ObjectRenderer::reloadModels() {
@@ -70,11 +73,13 @@ namespace TrenchBroom {
         void ObjectRenderer::setTint(const bool tint) {
             m_entityRenderer.setTint(tint);
             m_brushRenderer.setTint(tint);
+            m_patchRenderer.setTint(tint);
         }
 
         void ObjectRenderer::setTintColor(const Color& tintColor) {
             m_entityRenderer.setTintColor(tintColor);
             m_brushRenderer.setTintColor(tintColor);
+            m_patchRenderer.setTintColor(tintColor);
         }
 
         void ObjectRenderer::setShowOccludedObjects(const bool showOccludedObjects) {
@@ -83,16 +88,19 @@ namespace TrenchBroom {
             m_entityRenderer.setShowOccludedBounds(showOccludedObjects);
             m_entityRenderer.setShowOccludedOverlays(showOccludedObjects);
             m_brushRenderer.setShowOccludedEdges(showOccludedObjects);
+            m_patchRenderer.setShowOccludedEdges(showOccludedObjects);
         }
 
         void ObjectRenderer::setOccludedEdgeColor(const Color& occludedEdgeColor) {
             m_groupRenderer.setOccludedBoundsColor(occludedEdgeColor);
             m_entityRenderer.setOccludedBoundsColor(occludedEdgeColor);
             m_brushRenderer.setOccludedEdgeColor(occludedEdgeColor);
+            m_patchRenderer.setOccludedEdgeColor(occludedEdgeColor);
         }
 
         void ObjectRenderer::setTransparencyAlpha(const float transparencyAlpha) {
             m_brushRenderer.setTransparencyAlpha(transparencyAlpha);
+            m_patchRenderer.setTransparencyAlpha(transparencyAlpha);
         }
 
         void ObjectRenderer::setShowEntityAngles(const bool showAngles) {
@@ -121,14 +129,17 @@ namespace TrenchBroom {
 
         void ObjectRenderer::setShowBrushEdges(const bool showBrushEdges) {
             m_brushRenderer.setShowEdges(showBrushEdges);
+            m_patchRenderer.setShowEdges(showBrushEdges);
         }
 
         void ObjectRenderer::setBrushFaceColor(const Color& brushFaceColor) {
             m_brushRenderer.setFaceColor(brushFaceColor);
+            m_patchRenderer.setDefaultColor(brushFaceColor);
         }
 
         void ObjectRenderer::setBrushEdgeColor(const Color& brushEdgeColor) {
             m_brushRenderer.setEdgeColor(brushEdgeColor);
+            m_patchRenderer.setEdgeColor(brushEdgeColor);
         }
 
         void ObjectRenderer::setShowHiddenObjects(const bool showHiddenObjects) {
@@ -138,6 +149,7 @@ namespace TrenchBroom {
 
         void ObjectRenderer::renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
             m_brushRenderer.renderOpaque(renderContext, renderBatch);
+            m_patchRenderer.render(renderContext, renderBatch);
             m_entityRenderer.render(renderContext, renderBatch);
             m_groupRenderer.render(renderContext, renderBatch);
         }

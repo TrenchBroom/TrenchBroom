@@ -21,14 +21,17 @@
 #include "Assets/Texture.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
+#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 
 #include <kdl/collection_utils.h>
@@ -36,6 +39,8 @@
 #include <kdl/vector_utils.h>
 
 #include <vecmath/approx.h>
+#include <vecmath/bbox.h>
+#include <vecmath/bbox_io.h>
 #include <vecmath/vec.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
@@ -221,7 +226,19 @@ namespace TrenchBroom {
             CHECK(nodes.empty());
         }
 
-        TEST_CASE("BrushTest.selectedFaceCount", "[BrushNodeTest]") {
+        TEST_CASE("BrushNodeTest.entity", "[BrushNodeTest]") {
+            const auto worldBounds = vm::bbox3{4096.0};
+
+            auto* brushNode = new BrushNode{BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure").value()};
+            auto entityNode = EntityNode{Entity{}};
+
+            CHECK(brushNode->entity() == nullptr);
+            
+            entityNode.addChild(brushNode);
+            CHECK(brushNode->entity() == &entityNode);
+        }
+
+        TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
             
             // build a cube with length 16 at the origin
@@ -314,6 +331,74 @@ namespace TrenchBroom {
             }
         }
 
+        TEST_CASE("BrushNodeTest.containsPatchNode", "[BrushNodeTest]") {
+            const auto worldBounds = vm::bbox3d{8192.0};
+
+            auto builder = Model::BrushBuilder{MapFormat::Quake3, worldBounds};
+            auto brushNode = Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+            transformNode(brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
+
+            // a half cylinder that, at this position, just sticks out of the brush
+            auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
+                { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
+                  {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
+                  {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
+            }, "some_texture"}};
+
+            CHECK_FALSE(brushNode.contains(&patchNode));
+
+            transformNode(patchNode, vm::translation_matrix(vm::vec3{0, -8, 0}), worldBounds);
+            CHECK(brushNode.contains(&patchNode));
+
+            transformNode(patchNode, vm::translation_matrix(vm::vec3{0, 0, 32}), worldBounds);
+            CHECK_FALSE(brushNode.contains(&patchNode));
+        }
+
+        TEST_CASE("BrushNodeTest.intersectsPatchNode", "[BrushNodeTest]") {
+            const auto worldBounds = vm::bbox3d{8192.0};
+
+            auto builder = Model::BrushBuilder{MapFormat::Quake3, worldBounds};
+
+            auto brushNode = Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+            transformNode(brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
+
+            // a half cylinder that, at this position, just sticks out of the brush
+            auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
+                { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
+                  {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
+                  {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
+            }, "some_texture"}};
+
+            CHECK(brushNode.intersects(&patchNode));
+
+            SECTION("Brush contains patch") {
+                transformNode(patchNode, vm::translation_matrix(vm::vec3{0, -8, 0}), worldBounds);
+                CHECK(brushNode.intersects(&patchNode));
+            }
+
+            SECTION("Patch sticks out of top of brush") {
+                transformNode(patchNode, vm::translation_matrix(vm::vec3{0, -8, 32}), worldBounds);
+                CHECK(brushNode.intersects(&patchNode));
+            }
+
+            SECTION("Patch is above brush") {
+                transformNode(patchNode, vm::translation_matrix(vm::vec3{0, -8, 64}), worldBounds);
+                CHECK_FALSE(brushNode.intersects(&patchNode));
+            }
+
+            SECTION("Patch doesn't touch brush, but bounds intersect") {
+                transformNode(patchNode, vm::translation_matrix(vm::vec3{0, 32, 0}), worldBounds);
+                CHECK_FALSE(brushNode.intersects(&patchNode));
+            }
+
+            SECTION("Brush does not contain any grid points, but patch intersects") {
+                auto thinBrushNode = Model::BrushNode{builder.createCuboid(vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_texture").value()};
+                for (const auto& point : patchNode.grid().points) {
+                    REQUIRE_FALSE(thinBrushNode.brush().containsPoint(point.position));
+                }
+                CHECK(thinBrushNode.intersects(&patchNode));
+            }
+        }
 
         TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);

@@ -61,6 +61,8 @@ namespace TrenchBroom {
             ~WorldNode() override;
 
             MapFormat mapFormat() const;
+
+            const NodeTree& nodeTree() const;
         public: // layer management
             LayerNode* defaultLayer();
 
@@ -124,6 +126,7 @@ namespace TrenchBroom {
         private: // implement Node interface
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
+            FloatType doGetProjectedArea(vm::axis::type axis) const override;
             Node* doClone(const vm::bbox3& worldBounds) const override;
             Node* doCloneRecursively(const vm::bbox3& worldBounds) const override;
             bool doCanAddChild(const Node* child) const override;

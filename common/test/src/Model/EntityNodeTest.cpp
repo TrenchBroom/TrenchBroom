@@ -18,12 +18,21 @@
  */
 
 #include "Assets/EntityDefinition.h"
+#include "Model/BezierPatch.h"
+#include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
 #include "Model/BrushError.h"
+#include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/EntityProperties.h"
+#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/MapFormat.h"
+#include "Model/Layer.h"
 #include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/result.h>
@@ -42,6 +51,50 @@
 
 namespace TrenchBroom {
     namespace Model {
+        TEST_CASE("EntityNodeTest.canAddChild") {
+            constexpr auto worldBounds = vm::bbox3d{8192.0};
+            constexpr auto mapFormat = MapFormat::Quake3;
+
+            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto layerNode = LayerNode{Layer{"layer"}};
+            auto groupNode = GroupNode{Group{"group"}};
+            auto entityNode = EntityNode{Entity{}};
+            auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+
+            CHECK_FALSE(entityNode.canAddChild(&worldNode));
+            CHECK_FALSE(entityNode.canAddChild(&layerNode));
+            CHECK_FALSE(entityNode.canAddChild(&groupNode));
+            CHECK_FALSE(entityNode.canAddChild(&entityNode));
+            CHECK(entityNode.canAddChild(&brushNode));
+            CHECK(entityNode.canAddChild(&patchNode));
+        }
+
+        TEST_CASE("EntityNodeTest.canRemoveChild") {
+            constexpr auto worldBounds = vm::bbox3d{8192.0};
+            constexpr auto mapFormat = MapFormat::Quake3;
+
+            const auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto layerNode = LayerNode{Layer{"layer"}};
+            auto groupNode = GroupNode{Group{"group"}};
+            auto entityNode = EntityNode{Entity{}};
+            auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto patchNode = PatchNode{BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+
+            CHECK(entityNode.canRemoveChild(&worldNode));
+            CHECK(worldNode.canRemoveChild(&layerNode));
+            CHECK(entityNode.canRemoveChild(&groupNode));
+            CHECK(entityNode.canRemoveChild(&entityNode));
+            CHECK(entityNode.canRemoveChild(&brushNode));
+            CHECK(entityNode.canRemoveChild(&patchNode));
+        }
+        
         TEST_CASE("EntityNodeTest.area") {
             auto definition = Assets::PointEntityDefinition("some_name", Color(), vm::bbox3(vm::vec3::zero(), vm::vec3(1.0, 2.0, 3.0)), "", {}, {});
             auto entityNode = EntityNode{};

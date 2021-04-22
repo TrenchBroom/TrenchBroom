@@ -25,6 +25,7 @@
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
+#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 
@@ -60,20 +61,6 @@ namespace TrenchBroom {
         EntityNode::EntityNode(std::initializer_list<EntityProperty> properties) :
         EntityNode(Entity(std::move(properties))) {}
 
-        FloatType EntityNode::projectedArea(vm::axis::type axis) const {
-            const vm::vec3 size = physicalBounds().size();
-            switch (axis) {
-                case vm::axis::x:
-                    return size.y() * size.z();
-                case vm::axis::y:
-                    return size.x() * size.z();
-                case vm::axis::z:
-                    return size.x() * size.y();
-                default:
-                    return 0.0;
-            }
-        }
-
         const vm::bbox3& EntityNode::modelBounds() const {
             validateBounds();
             return m_cachedBounds->modelBounds;
@@ -94,6 +81,20 @@ namespace TrenchBroom {
             return m_cachedBounds->physicalBounds;
         }
 
+        FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const {
+            const vm::vec3 size = physicalBounds().size();
+            switch (axis) {
+                case vm::axis::x:
+                    return size.y() * size.z();
+                case vm::axis::y:
+                    return size.x() * size.z();
+                case vm::axis::z:
+                    return size.x() * size.y();
+                default:
+                    return 0.0;
+            }
+        }
+
         Node* EntityNode::doClone(const vm::bbox3& /* worldBounds */) const {
             auto* entity = new EntityNode(m_entity);
             cloneAttributes(entity);
@@ -106,7 +107,8 @@ namespace TrenchBroom {
                 [](const LayerNode*)  { return false; },
                 [](const GroupNode*)  { return false; },
                 [](const EntityNode*) { return false; },
-                [](const BrushNode*)  { return true;  }
+                [](const BrushNode*)  { return true;  },
+                [](const PatchNode*)  { return true;  }
             ));
         }
 
@@ -230,14 +232,6 @@ namespace TrenchBroom {
 
         GroupNode* EntityNode::doGetContainingGroup() {
             return findContainingGroup(this);
-        }
-
-        bool EntityNode::doContains(const Node* node) const {
-            return boundsContainNode(logicalBounds(), node);
-        }
-
-        bool EntityNode::doIntersects(const Node* node) const {
-            return boundsIntersectNode(logicalBounds(), node);
         }
 
         void EntityNode::invalidateBounds() {

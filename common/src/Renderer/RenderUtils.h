@@ -31,6 +31,8 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
+        vm::vec3f gridColorForTexture(const Assets::Texture* texture);
+
         void glSetEdgeOffset(double f);
         void glResetEdgeOffset();
 

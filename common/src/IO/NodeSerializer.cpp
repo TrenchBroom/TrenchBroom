@@ -25,6 +25,7 @@
 #include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <vecmath/vec_io.h> // for Color stream output operator
@@ -88,7 +89,7 @@ namespace TrenchBroom {
                 worldEntity.removeProperty(Model::PropertyKeys::LayerColor);
             }
 
-            if (defaultLayerNode->lockState() == Model::LockState::Lock_Locked) {
+            if (defaultLayerNode->lockState() == Model::LockState::Locked) {
                 worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerLocked,
                     Model::PropertyValues::LayerLockedValue);
             } else {
@@ -137,6 +138,9 @@ namespace TrenchBroom {
                 [] (const Model::EntityNode*)  {},
                 [&](const Model::BrushNode* b) {
                     brush(b);
+                },
+                [&](const Model::PatchNode* p)   {
+                    patch(p);
                 }
             ));
 
@@ -186,6 +190,11 @@ namespace TrenchBroom {
             ++m_brushNo;
         }
 
+        void NodeSerializer::patch(const Model::PatchNode* patchNode) {
+            doPatch(patchNode);
+            ++m_brushNo;
+        }
+
         void NodeSerializer::brushFaces(const std::vector<Model::BrushFace>& faces) {
             for (const auto& face : faces) {
                 brushFace(face);
@@ -207,7 +216,8 @@ namespace TrenchBroom {
                 [&](const Model::LayerNode* layerNode) { properties.push_back(Model::EntityProperty(Model::PropertyKeys::Layer, kdl::str_to_string(*layerNode->persistentId()))); },
                 [&](const Model::GroupNode* groupNode) { properties.push_back(Model::EntityProperty(Model::PropertyKeys::Group, kdl::str_to_string(*groupNode->persistentId()))); },
                 [](const Model::EntityNode*) {},
-                [](const Model::BrushNode*) {}
+                [](const Model::BrushNode*) {},
+                [](const Model::PatchNode*) {}
             ));
 
             return properties;
@@ -225,7 +235,7 @@ namespace TrenchBroom {
             if (layer.hasSortIndex()) {
                 result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
             }
-            if (layerNode->lockState() == Model::LockState::Lock_Locked) {
+            if (layerNode->lockState() == Model::LockState::Locked) {
                 result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue));
             }
             if (layerNode->hidden()) {

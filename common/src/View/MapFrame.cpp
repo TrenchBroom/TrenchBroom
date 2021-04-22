@@ -39,6 +39,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
@@ -429,15 +430,16 @@ namespace TrenchBroom {
             statusBar()->addWidget(m_statusBarLabel);
         }
 
-        static Model::EntityNodeBase* commonEntityForBrushList(const std::vector<Model::BrushNode*>& list) {
+        template <typename T>
+        static Model::EntityNodeBase* commonEntityForNodeList(const std::vector<T*>& list) {
             if (list.empty())
                 return nullptr;
 
             Model::EntityNodeBase* firstEntity = list.front()->entity();
             bool multipleEntities = false;
 
-            for (const Model::BrushNode* brush : list) {
-                if (brush->entity() != firstEntity) {
+            for (const T* node : list) {
+                if (node->entity() != firstEntity) {
                     multipleEntities = true;
                 }
             }
@@ -507,10 +509,24 @@ namespace TrenchBroom {
 
             // selected brushes
             if (!selectedNodes.brushes().empty()) {
-                Model::EntityNodeBase* commonEntityNode = commonEntityForBrushList(selectedNodes.brushes());
+                Model::EntityNodeBase* commonEntityNode = commonEntityForNodeList(selectedNodes.brushes());
 
                 // if all selected brushes are from the same entity, print the entity name
                 std::string token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
+                if (commonEntityNode) {
+                    token += " (" + commonEntityNode->entity().classname() + ")";
+                } else {
+                    token += " (multiple entities)";
+                }
+                tokens.push_back(token);
+            }
+
+            // selected patches
+            if (!selectedNodes.patches().empty()) {
+                Model::EntityNodeBase* commonEntityNode = commonEntityForNodeList(selectedNodes.patches());
+
+                // if all selected patches are from the same entity, print the entity name
+                std::string token = numberWithSuffix(selectedNodes.patches().size(), "patch", "patches");
                 if (commonEntityNode) {
                     token += " (" + commonEntityNode->entity().classname() + ")";
                 } else {
@@ -564,6 +580,7 @@ namespace TrenchBroom {
             size_t hiddenGroups = 0u;
             size_t hiddenEntities = 0u;
             size_t hiddenBrushes = 0u;
+            size_t hiddenPatches = 0u;
 
             const auto& editorContext = document->editorContext();
             document->world()->accept(kdl::overload(
@@ -585,7 +602,12 @@ namespace TrenchBroom {
                     if (!editorContext.visible(brush)) {
                         ++hiddenBrushes;
                     }
-                 }
+                },
+                [&](const Model::PatchNode* patch) {
+                    if (!editorContext.visible(patch)) {
+                        ++hiddenPatches;
+                    }
+                }
             ));
 
             // print hidden objects
@@ -600,6 +622,9 @@ namespace TrenchBroom {
                 }
                 if (hiddenBrushes > 0) {
                     hiddenDescriptors.push_back(numberWithSuffix(hiddenBrushes, "brush", "brushes"));
+                }
+                if (hiddenPatches > 0) {
+                    hiddenDescriptors.push_back(numberWithSuffix(hiddenPatches, "patch", "patches"));
                 }
 
                 pipeSeparatedSections << QObject::tr("%1 hidden")

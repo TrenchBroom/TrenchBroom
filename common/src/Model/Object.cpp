@@ -58,13 +58,5 @@ namespace TrenchBroom {
             const auto* group = containingGroup();
             return group == nullptr || group->opened();
         }
-
-        bool Object::contains(const Node* node) const {
-            return doContains(node);
-        }
-
-        bool Object::intersects(const Node* node) const {
-            return doIntersects(node);
-        }
     }
 }

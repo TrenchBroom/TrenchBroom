@@ -26,6 +26,7 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
+#include <vecmath/util.h>
 
 #include <iosfwd>
 #include <memory>
@@ -110,6 +111,11 @@ namespace TrenchBroom {
              * beyond the bounds specified in the .fgd.
              */
             const vm::bbox3& physicalBounds() const;
+
+            /**
+             * Returns the area of this node when projected onto a plane with the given axis.
+             */
+            FloatType projectedArea(vm::axis::type axis) const;
         public: // cloning and snapshots
             Node* clone(const vm::bbox3& worldBounds) const;
             Node* cloneRecursively(const vm::bbox3& worldBounds) const;
@@ -442,6 +448,8 @@ namespace TrenchBroom {
             virtual const std::string& doGetName() const = 0;
             virtual const vm::bbox3& doGetLogicalBounds() const = 0;
             virtual const vm::bbox3& doGetPhysicalBounds() const = 0;
+
+            virtual FloatType doGetProjectedArea(vm::axis::type axis) const = 0;
 
             virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;
             virtual Node* doCloneRecursively(const vm::bbox3& worldBounds) const;

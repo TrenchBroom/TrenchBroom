@@ -37,15 +37,15 @@ namespace TrenchBroom {
         const Command::CommandType SetLockStateCommand::Type = Command::freeType();
 
         std::unique_ptr<SetLockStateCommand> SetLockStateCommand::lock(const std::vector<Model::Node*>& nodes) {
-            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Locked);
+            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Locked);
         }
 
         std::unique_ptr<SetLockStateCommand> SetLockStateCommand::unlock(const std::vector<Model::Node*>& nodes) {
-            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Unlocked);
+            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Unlocked);
         }
 
         std::unique_ptr<SetLockStateCommand> SetLockStateCommand::reset(const std::vector<Model::Node*>& nodes) {
-            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Lock_Inherited);
+            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Inherited);
         }
 
         static bool shouldUpdateModificationCount(const std::vector<Model::Node*>& nodes) {
@@ -55,7 +55,8 @@ namespace TrenchBroom {
                     [](const Model::LayerNode*)  { return true; },
                     [](const Model::GroupNode*)  { return false; },
                     [](const Model::EntityNode*) { return false; },
-                    [](const Model::BrushNode*)  { return false; }
+                    [](const Model::BrushNode*)  { return false; },
+                    [](const Model::PatchNode*)  { return false; }
                 ));
                 if (modifiesLayer) {
                     return true;
@@ -71,11 +72,11 @@ namespace TrenchBroom {
 
         std::string SetLockStateCommand::makeName(const Model::LockState state) {
             switch (state) {
-                case Model::LockState::Lock_Inherited:
+                case Model::LockState::Inherited:
                     return "Reset Locking";
-                case Model::LockState::Lock_Locked:
+                case Model::LockState::Locked:
                     return "Lock Objects";
-                case Model::LockState::Lock_Unlocked:
+                case Model::LockState::Unlocked:
                     return "Unlock Objects";
                 switchDefault()
             }

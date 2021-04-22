@@ -22,12 +22,14 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -39,9 +41,10 @@
 
 #include <iterator> // for std::ostreambuf_iterator
 #include <memory>
-#include <utility> // for std::pair
-#include <vector>
 #include <sstream>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -238,9 +241,9 @@ namespace TrenchBroom {
         void MapFileSerializer::doBeginFile(const std::vector<const Model::Node*>& rootNodes) {
             ensure(m_nodeToPrecomputedString.empty(), "MapFileSerializer may not be reused");
 
-            // collect brushes
-            std::vector<const Model::BrushNode*> brushNodes;
-            brushNodes.reserve(rootNodes.size());
+            // collect nodes
+            std::vector<std::variant<const Model::BrushNode*, const Model::PatchNode*>> nodesToSerialize;
+            nodesToSerialize.reserve(rootNodes.size());
 
             Model::Node::visitAll(rootNodes, kdl::overload(
                 [](auto&& thisLambda, const Model::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -248,23 +251,33 @@ namespace TrenchBroom {
                 [](auto&& thisLambda, const Model::GroupNode* group) { group->visitChildren(thisLambda); },
                 [](auto&& thisLambda, const Model::EntityNode* entity) { entity->visitChildren(thisLambda); },
                 [&](const Model::BrushNode* brush) {
-                    brushNodes.push_back(brush);
+                    nodesToSerialize.push_back(brush);
+                },
+                [&](const Model::PatchNode* patchNode) {
+                    nodesToSerialize.push_back(patchNode);
                 }
             ));
 
             // serialize brushes to strings in parallel
-            using NodeString = std::pair<const Model::Node*, std::string>;
-            std::vector<NodeString> result = kdl::vec_parallel_transform(std::move(brushNodes),
-                [&](const Model::BrushNode* node) -> NodeString {
-                    std::string string = writeBrushFaces(node->brush());
-                    return NodeString(node, std::move(string));
+            using Entry = std::pair<const Model::Node*, PrecomputedString>;
+            std::vector<Entry> result = kdl::vec_parallel_transform(std::move(nodesToSerialize),
+                [&](const auto& node) {
+                    return std::visit(kdl::overload(
+                        [&](const Model::BrushNode* brushNode) {
+                            return Entry{brushNode, writeBrushFaces(brushNode->brush())};
+                        },
+                        [&](const Model::PatchNode* patchNode) {
+                            return Entry{patchNode, writePatch(patchNode->patch())};
+                        }
+                    ), node);
                 });
-
+            
             // move strings into a map
-            for (auto& [node, string]: result) {
-                m_nodeToPrecomputedString[node] = std::move(string);
+            for (auto& entry: result) {
+                m_nodeToPrecomputedString.insert(std::move(entry));
             }
         }
+
         void MapFileSerializer::doEndFile() {}
 
         void MapFileSerializer::doBeginEntity(const Model::Node* /* node */) {
@@ -298,8 +311,9 @@ namespace TrenchBroom {
             // write pre-serialized brush faces
             auto it = m_nodeToPrecomputedString.find(brush);
             ensure(it != std::end(m_nodeToPrecomputedString), "attempted to serialize a brush which was not passed to doBeginFile");
-            const std::string& precomputedString = it->second;
-            m_stream << precomputedString;
+            const PrecomputedString& precomputedString = it->second;
+            m_stream << precomputedString.string;
+            m_line += precomputedString.lineCount;
 
             fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "}}\n");
             ++m_line;
@@ -311,6 +325,21 @@ namespace TrenchBroom {
             doWriteBrushFace(m_stream, face);
             face.setFilePosition(m_line, lines);
             m_line += lines;
+        }
+
+        void MapFileSerializer::doPatch(const Model::PatchNode* patchNode) {
+            fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "// brush {}\n", brushNo());
+            ++m_line;
+            m_startLineStack.push_back(m_line);
+
+            // write pre-serialized patch
+            auto it = m_nodeToPrecomputedString.find(patchNode);
+            ensure(it != std::end(m_nodeToPrecomputedString), "attempted to serialize a patch which was not passed to doBeginFile");
+            const PrecomputedString& precomputedString = it->second;
+            m_stream << precomputedString.string;
+            m_line += precomputedString.lineCount;
+
+            setFilePosition(patchNode);
         }
 
         void MapFileSerializer::setFilePosition(const Model::Node* node) {
@@ -328,12 +357,39 @@ namespace TrenchBroom {
         /**
          * Threadsafe
          */
-        std::string MapFileSerializer::writeBrushFaces(const Model::Brush& brush) const {
+        MapFileSerializer::PrecomputedString MapFileSerializer::writeBrushFaces(const Model::Brush& brush) const {
             std::stringstream stream;
             for (const Model::BrushFace& face : brush.faces()) {
                 doWriteBrushFace(stream, face);
             }
-            return stream.str();
+            return PrecomputedString{stream.str(), brush.faces().size()};
+        }
+
+        MapFileSerializer::PrecomputedString MapFileSerializer::writePatch(const Model::BezierPatch& patch) const {
+            size_t lineCount = 0u;
+            std::stringstream stream;
+            
+            fmt::format_to(std::ostreambuf_iterator<char>(stream), "{{\n"); ++lineCount;
+            fmt::format_to(std::ostreambuf_iterator<char>(stream), "patchDef2\n"); ++lineCount;
+            fmt::format_to(std::ostreambuf_iterator<char>(stream), "{{\n"); ++lineCount;
+            fmt::format_to(std::ostreambuf_iterator<char>(stream), "{}\n", patch.textureName()); ++lineCount;
+            fmt::format_to(std::ostreambuf_iterator<char>(stream), "( {} {} 0 0 0 )\n", patch.pointRowCount(), patch.pointColumnCount()); ++lineCount;
+            fmt::format_to(std::ostreambuf_iterator<char>(stream), "(\n"); ++lineCount;
+
+            for (size_t row = 0u; row < patch.pointRowCount(); ++row) {
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), "( ");
+                for (size_t col = 0u; col < patch.pointColumnCount(); ++col) {
+                    const auto& p = patch.controlPoint(row, col);
+                    fmt::format_to(std::ostreambuf_iterator<char>(stream), "( {} {} {} {} {} ) ", p[0], p[1], p[2], p[3], p[4]);
+                }
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), ")\n"); ++lineCount;
+            }
+
+            fmt::format_to(std::ostreambuf_iterator<char>(stream), ")\n"); ++lineCount;
+            fmt::format_to(std::ostreambuf_iterator<char>(stream), "}}\n"); ++lineCount;
+            fmt::format_to(std::ostreambuf_iterator<char>(stream), "}}\n"); ++lineCount;
+
+            return PrecomputedString{stream.str(), lineCount};
         }
     }
 }

@@ -227,6 +227,33 @@ namespace TrenchBroom {
     }
 
     /**
+     * Temporarily sets a preference and resets it when destroyed.
+     * Both changes are saved immediately.
+     */
+    template <typename T>
+    class TemporarilySetPref {
+    private:
+        Preference<T>& m_preference;
+        T m_originalValue;
+    public:
+        TemporarilySetPref(Preference<T>& preference, const T& value) :
+        m_preference{preference},
+        m_originalValue{pref(m_preference)} {
+            setPref(m_preference, value);
+        }
+
+        ~TemporarilySetPref() {
+            setPref(m_preference, m_originalValue);
+        }
+    };
+
+    /**
+     * Deduction guide.
+     */
+    template <typename T>
+    TemporarilySetPref(Preference<T>& preference, const T& value) -> TemporarilySetPref<T>;
+
+    /**
      * Toggles a bool preference, and saves the change immediately.
      */
     void togglePref(Preference<bool>& preference);

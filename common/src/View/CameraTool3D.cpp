@@ -25,6 +25,8 @@
 #include "Model/EntityNode.h"
 #include "Model/Hit.h"
 #include "Model/HitQuery.h"
+#include "Model/ModelUtils.h"
+#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -120,7 +122,7 @@ namespace TrenchBroom {
 
         bool CameraTool3D::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
-                const auto& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType | Model::EntityNode::EntityHitType).occluded().minDistance(3.0).first();
+                const auto& hit = inputState.pickResult().query().pickable().type(Model::nodeHitType()).occluded().minDistance(3.0).first();
                 if (hit.isMatch()) {
                     m_orbitCenter = vm::vec3f(hit.hitPoint());
                 } else {

@@ -66,13 +66,13 @@ namespace TrenchBroom {
         std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
                 case Action::Reset:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Inherited);
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Inherited);
                     break;
                 case Action::Hide:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Hidden);
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Hidden);
                     break;
                 case Action::Show:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Shown);
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Shown);
                     break;
                 case Action::Ensure:
                     m_oldState = document->setVisibilityEnsured(m_nodes);

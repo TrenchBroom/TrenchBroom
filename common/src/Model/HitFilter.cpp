@@ -103,10 +103,10 @@ namespace TrenchBroom {
         }
 
         bool SelectionHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == EntityNode::EntityHitType) {
-                return hitToEntity(hit)->selected();
-            } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 return faceHandle->node()->selected() || faceHandle->face().selected();
+            } else if (const auto* node = hitToNode(hit)) {
+                return node->selected();
             } else {
                 return false;
             }
@@ -117,10 +117,10 @@ namespace TrenchBroom {
         }
 
         bool TransitivelySelectedHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == EntityNode::EntityHitType) {
-                return hitToEntity(hit)->transitivelySelected();
-            } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 return faceHandle->node()->transitivelySelected() || faceHandle->face().selected();
+            } else if (const auto* node = hitToNode(hit)) {
+                return node->transitivelySelected();
             } else {
                 return false;
             }
@@ -145,10 +145,10 @@ namespace TrenchBroom {
         }
 
         bool ContextHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == EntityNode::EntityHitType) {
-                return m_context.pickable(hitToEntity(hit));
-            } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 return m_context.pickable(faceHandle->node(), faceHandle->face());
+            } else if (const auto* node = hitToNode(hit)) {
+                return m_context.pickable(node);
             } else {
                 return false;
             }

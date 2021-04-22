@@ -19,6 +19,7 @@
 
 #include "Exceptions.h"
 #include "IO/NodeWriter.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -31,6 +32,7 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 #include "Model/PickResult.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -112,6 +114,10 @@ namespace TrenchBroom {
                 return bounds;
             }
 
+            FloatType doGetProjectedArea(const vm::axis::type) const override {
+                return static_cast<FloatType>(0);
+            }
+
             bool doCanAddChild(const Node* child) const override {
                 auto call = popCall<DoCanAddChild>();
                 CHECK(child == call.expectedChild);
@@ -189,6 +195,10 @@ namespace TrenchBroom {
             const vm::bbox3& doGetPhysicalBounds() const override {
                 static const vm::bbox3 bounds;
                 return bounds;
+            }
+
+            FloatType doGetProjectedArea(const vm::axis::type) const override {
+                return static_cast<FloatType>(0);
             }
 
             bool doCanAddChild(const Node* /* child */) const override {
@@ -509,10 +519,11 @@ namespace TrenchBroom {
             Layer,
             Group,
             Entity,
-            Brush
+            Brush,
+            Patch,
         };
 
-        static std::ostream& operator<<(std::ostream& str, const Visited visited) {
+        [[maybe_unused]] static std::ostream& operator<<(std::ostream& str, const Visited visited) {
             switch (visited) {
                 case Visited::World:
                     return str << "World";
@@ -524,6 +535,8 @@ namespace TrenchBroom {
                     return str << "Entity";
                 case Visited::Brush:
                     return str << "Brush";
+                case Visited::Patch:
+                    return str << "Patch";
                 switchDefault()
             }
         }
@@ -533,7 +546,8 @@ namespace TrenchBroom {
             [](LayerNode*)  { return Visited::Layer; },
             [](GroupNode*)  { return Visited::Group; },
             [](EntityNode*) { return Visited::Entity; },
-            [](BrushNode*)  { return Visited::Brush; }
+            [](BrushNode*)  { return Visited::Brush; },
+            [](PatchNode*)  { return Visited::Patch; }
         );
 
         const auto constNodeTestVisitor = kdl::overload(
@@ -541,7 +555,8 @@ namespace TrenchBroom {
             [](const LayerNode*)  { return Visited::Layer; },
             [](const GroupNode*)  { return Visited::Group; },
             [](const EntityNode*) { return Visited::Entity; },
-            [](const BrushNode*)  { return Visited::Brush; }
+            [](const BrushNode*)  { return Visited::Brush; },
+            [](const PatchNode*)  { return Visited::Patch; }
         );
 
         TEST_CASE("NodeTest.accept", "[NodeTest]") {
@@ -552,6 +567,11 @@ namespace TrenchBroom {
             GroupNode group(Group("name"));
             EntityNode entity;
             BrushNode brush(BrushBuilder(world.mapFormat(), worldBounds).createCube(32.0, "texture").value());
+            PatchNode patch(BezierPatch(3, 3, { 
+                BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
+                BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
+                BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
+            }, "texture"));
 
             SECTION("Non const nodes accept non const visitor") {
                 CHECK(world.accept(nodeTestVisitor) == Visited::World);
@@ -559,6 +579,8 @@ namespace TrenchBroom {
                 CHECK(group.accept(nodeTestVisitor) == Visited::Group);
                 CHECK(entity.accept(nodeTestVisitor) == Visited::Entity);
                 CHECK(brush.accept(nodeTestVisitor) == Visited::Brush);
+                CHECK(brush.accept(nodeTestVisitor) == Visited::Brush);
+                CHECK(patch.accept(nodeTestVisitor) == Visited::Patch);
             }
 
             SECTION("Non const nodes accept const visitor") {
@@ -567,6 +589,7 @@ namespace TrenchBroom {
                 CHECK(group.accept(constNodeTestVisitor) == Visited::Group);
                 CHECK(entity.accept(constNodeTestVisitor) == Visited::Entity);
                 CHECK(brush.accept(constNodeTestVisitor) == Visited::Brush);
+                CHECK(patch.accept(constNodeTestVisitor) == Visited::Patch);
             }
 
             SECTION("Const nodes accept const visitor") {
@@ -575,6 +598,7 @@ namespace TrenchBroom {
                 CHECK(const_cast<const GroupNode&> (group).accept(constNodeTestVisitor) == Visited::Group);
                 CHECK(const_cast<const EntityNode&>(entity).accept(constNodeTestVisitor) == Visited::Entity);
                 CHECK(const_cast<const BrushNode&> (brush).accept(constNodeTestVisitor) == Visited::Brush);
+                CHECK(const_cast<const PatchNode&> (patch).accept(constNodeTestVisitor) == Visited::Patch);
             }
         }
 
@@ -599,7 +623,8 @@ namespace TrenchBroom {
                     [&](auto&& thisLambda, LayerNode* l)  { result.push_back(l); l->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, GroupNode* g)  { result.push_back(g); g->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, EntityNode* e) { result.push_back(e); e->visitChildren(thisLambda); },
-                    [&](BrushNode* b)                     { result.push_back(b); }
+                    [&](BrushNode* b)                     { result.push_back(b); },
+                    [&](PatchNode* p)                     { result.push_back(p); }
                 ));
                 return result;
             };
@@ -629,7 +654,8 @@ namespace TrenchBroom {
                 [&](LayerNode* layer)   { visited.push_back(layer); },
                 [&](GroupNode* group)   { visited.push_back(group); },
                 [&](EntityNode* entity) { visited.push_back(entity); },
-                [&](BrushNode* brush)   { visited.push_back(brush); }
+                [&](BrushNode* brush)   { visited.push_back(brush); },
+                [&](PatchNode* patch)   { visited.push_back(patch); }
             );
         }
 

@@ -351,8 +351,6 @@ namespace TrenchBroom {
         public: // group management
             Model::GroupNode* groupSelection(const std::string& name);
             void mergeSelectedGroupsWithGroup(Model::GroupNode* group);
-        private:
-            std::vector<Model::Node*> collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes) const;
         public:
             void ungroupSelection();
             void renameGroups(const std::string& name);

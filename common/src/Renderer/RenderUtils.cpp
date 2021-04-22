@@ -33,6 +33,21 @@ namespace TrenchBroom {
     namespace Renderer {
         static const double EdgeOffset = 0.0001;
 
+        vm::vec3f gridColorForTexture(const Assets::Texture* texture) {
+            if (texture == nullptr) {
+                return vm::vec3f::fill(1.0f);
+            }
+            if ((texture->averageColor().r() +
+                 texture->averageColor().g() +
+                 texture->averageColor().b()) / 3.0f > 0.50f) {
+                // bright texture grid color
+                return vm::vec3f::fill(0.0f);
+            } else {
+                // dark texture grid color
+                return vm::vec3f::fill(1.0f);
+            }
+        }
+
         void glSetEdgeOffset(const double f) {
             glAssert(glDepthRange(0.0, 1.0 - EdgeOffset * f))
         }

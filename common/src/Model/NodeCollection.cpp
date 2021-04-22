@@ -25,6 +25,7 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -56,6 +57,10 @@ namespace TrenchBroom {
 
         size_t NodeCollection::brushCount() const {
             return m_brushes.size();
+        }
+
+        size_t NodeCollection::patchCount() const {
+            return m_patches.size();
         }
 
         bool NodeCollection::hasLayers() const {
@@ -108,7 +113,8 @@ namespace TrenchBroom {
                     [&](auto&& thisLambda, const LayerNode* layer)   -> bool { return visitChildrenAndExitEarly(thisLambda, layer); },
                     [&](auto&& thisLambda, const GroupNode* group)   -> bool { return visitChildrenAndExitEarly(thisLambda, group); },
                     [&](auto&& thisLambda, const EntityNode* entity) -> bool { return visitChildrenAndExitEarly(thisLambda, entity); },
-                    [](auto&&, const BrushNode*)                     -> bool { return true; }
+                    [] (const BrushNode*)                            -> bool { return true; },
+                    [] (const PatchNode*)                            -> bool { return false; }
                 ));
                 if (hasBrush) {
                     return true;
@@ -116,6 +122,14 @@ namespace TrenchBroom {
             }
 
             return false;
+        }
+
+        bool NodeCollection::hasPatches() const {
+            return !m_patches.empty();
+        }
+
+        bool NodeCollection::hasOnlyPatches() const {
+            return !empty() && nodeCount() == patchCount();
         }
 
         std::vector<Node*>::iterator NodeCollection::begin() {
@@ -162,10 +176,15 @@ namespace TrenchBroom {
                     [] (auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
-                    [&](BrushNode* brush)                      { brushes.push_back(brush); }
+                    [&](BrushNode* brush)                      { brushes.push_back(brush); },
+                    [&](PatchNode*)                            {}
                 ));
             }
             return brushes;
+        }
+
+        const std::vector<PatchNode*>& NodeCollection::patches() const {
+            return m_patches;
         }
 
         void NodeCollection::addNodes(const std::vector<Node*>& nodes) {
@@ -181,16 +200,18 @@ namespace TrenchBroom {
                 [&](LayerNode* layer)   { m_nodes.push_back(layer); m_layers.push_back(layer); },
                 [&](GroupNode* group)   { m_nodes.push_back(group); m_groups.push_back(group); },
                 [&](EntityNode* entity) { m_nodes.push_back(entity); m_entities.push_back(entity); },
-                [&](BrushNode* brush)   { m_nodes.push_back(brush); m_brushes.push_back(brush); }
+                [&](BrushNode* brush)   { m_nodes.push_back(brush); m_brushes.push_back(brush); },
+                [&](PatchNode* patch)   { m_nodes.push_back(patch); m_patches.push_back(patch); }
             ));
         }
 
-        static const auto doRemoveNodes = [](auto& nodes, auto& layers, auto& groups, auto& entities, auto& brushes, auto cur, auto end) {
+        static const auto doRemoveNodes = [](auto& nodes, auto& layers, auto& groups, auto& entities, auto& brushes, auto& patches, auto cur, auto end) {
             auto nodeEnd = std::end(nodes);
             auto layerEnd = std::end(layers);
             auto groupEnd = std::end(groups);
             auto entityEnd = std::end(entities);
             auto brushEnd = std::end(brushes);
+            auto patchEnd = std::end(patches);
 
             while (cur != end) {
                 (*cur)->accept(kdl::overload(
@@ -210,6 +231,10 @@ namespace TrenchBroom {
                     [&](BrushNode* brush)   {
                         nodeEnd = std::remove(std::begin(nodes), nodeEnd, brush);
                         brushEnd = std::remove(std::begin(brushes), brushEnd, brush);
+                    },
+                    [&](PatchNode* patch)   {
+                        nodeEnd = std::remove(std::begin(nodes), nodeEnd, patch);
+                        patchEnd = std::remove(std::begin(patches), patchEnd, patch);
                     }
                 ));
                 ++cur;
@@ -220,15 +245,16 @@ namespace TrenchBroom {
             groups.erase(groupEnd, std::end(groups));
             entities.erase(entityEnd, std::end(entities));
             brushes.erase(brushEnd, std::end(brushes));
+            patches.erase(patchEnd, std::end(patches));
         };
 
         void NodeCollection::removeNodes(const std::vector<Node*>& nodes) {
-            doRemoveNodes(m_nodes, m_layers, m_groups, m_entities, m_brushes, std::begin(nodes), std::end(nodes));
+            doRemoveNodes(m_nodes, m_layers, m_groups, m_entities, m_brushes, m_patches, std::begin(nodes), std::end(nodes));
         }
 
         void NodeCollection::removeNode(Node* node) {
             ensure(node != nullptr, "node is null");
-            doRemoveNodes(m_nodes, m_layers, m_groups, m_entities, m_brushes, &node, std::next(&node));
+            doRemoveNodes(m_nodes, m_layers, m_groups, m_entities, m_brushes, m_patches, &node, std::next(&node));
         }
 
         void NodeCollection::clear() {
@@ -237,6 +263,7 @@ namespace TrenchBroom {
             m_groups.clear();
             m_entities.clear();
             m_brushes.clear();
+            m_patches.clear();
         }
     }
 }

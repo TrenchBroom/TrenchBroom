@@ -24,12 +24,14 @@
 #include "Ensure.h"
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GameImpl.h"
 #include "Model/GroupNode.h"
 #include "Model/ParaxialTexCoordSystem.h"
+#include "Model/PatchNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -216,6 +218,11 @@ namespace TrenchBroom {
                     auto brush = brushNode->brush();
                     REQUIRE(brush.transform(worldBounds, transformation, false).is_success());
                     brushNode->setBrush(std::move(brush));
+                },
+                [&](PatchNode* patchNode) {
+                    auto patch = patchNode->patch();
+                    patch.transform(transformation);
+                    patchNode->setPatch(std::move(patch));
                 }
             ));
         }

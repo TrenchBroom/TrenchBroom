@@ -28,7 +28,6 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFace;
         class BrushNode;
-        class EditorContext;
         class Node;
 
         class Issue {
@@ -46,7 +45,7 @@ namespace TrenchBroom {
             IssueType type() const;
             Node* node() const;
 
-            bool addSelectableNodes(const EditorContext& editorContext, std::vector<Model::Node*>& nodes) const;
+            bool addSelectableNodes(std::vector<Model::Node*>& nodes) const;
 
             bool hidden() const;
             void setHidden(bool hidden);

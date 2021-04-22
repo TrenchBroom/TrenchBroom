@@ -85,11 +85,12 @@ namespace TrenchBroom {
             return {};
         }
 
-        Model::Node* NodeReader::onWorldNode(std::unique_ptr<Model::WorldNode> worldNode, ParserStatus&) {
-            // we create a fake entity node instead of using a proper world node
-            auto* entityNode = new Model::EntityNode{worldNode->entity()};
-            m_nodes.insert(std::begin(m_nodes), entityNode);
-            return entityNode;
+        Model::Node* NodeReader::onWorldNode(std::unique_ptr<Model::WorldNode>, ParserStatus&) {
+            // we create a fake layer node instead of using a proper world node
+            // layers can contain any node we might parse
+            auto* layerNode = new Model::LayerNode{Model::Layer{""}};
+            m_nodes.insert(std::begin(m_nodes), layerNode);
+            return layerNode;
         }
 
         void NodeReader::onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus&) {

@@ -33,6 +33,7 @@ namespace TrenchBroom {
         class GroupNode;
         class LayerNode;
         class Node;
+        class PatchNode;
         class WorldNode;
     }
 
@@ -99,6 +100,8 @@ namespace TrenchBroom {
 
             void brushes(const std::vector<Model::BrushNode*>& brushNodes);
             void brush(const Model::BrushNode* brushNode);
+            
+            void patch(const Model::PatchNode* patchNode);
         public:
             void brushFaces(const std::vector<Model::BrushFace>& faces);
         private:
@@ -120,6 +123,8 @@ namespace TrenchBroom {
 
             virtual void doBrush(const Model::BrushNode* brushNode) = 0;
             virtual void doBrushFace(const Model::BrushFace& face) = 0;
+
+            virtual void doPatch(const Model::PatchNode* patchNode) = 0;
         };
     }
 }

@@ -834,7 +834,8 @@ namespace TrenchBroom {
                         [] (const Model::LayerNode*)  {},
                         [] (const Model::GroupNode*)  {},
                         [] (const Model::EntityNode*) {},
-                        [&](Model::BrushNode* brush) { brushes.push_back(brush); }
+                        [&](Model::BrushNode* brush)  { brushes.push_back(brush); },
+                        [] (Model::PatchNode*)        {}
                     ));
                 }
             }

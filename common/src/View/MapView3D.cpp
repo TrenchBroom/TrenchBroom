@@ -24,6 +24,7 @@
 #include "Preferences.h"
 #include "FloatType.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushGeometry.h"
 #include "Model/EntityNode.h"
@@ -31,6 +32,7 @@
 #include "Model/LayerNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
+#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/PointFile.h"
 #include "Renderer/BoundsGuideRenderer.h"
@@ -274,6 +276,11 @@ namespace TrenchBroom {
                     for (const auto* vertex : brush->brush().vertices()) {
                         handlePoint(vertex->position());
                     }
+                },
+                [&](Model::PatchNode* patchNode) {
+                    for (const auto& controlPoint : patchNode->patch().controlPoints()) {
+                        handlePoint(controlPoint.xyz());
+                    }
                 }
             ));
 
@@ -311,6 +318,13 @@ namespace TrenchBroom {
                     for (const auto* vertex : brush->brush().vertices()) {
                         for (size_t i = 0u; i < 4u; ++i) {
                             handlePoint(vertex->position(), frustumPlanes[i]);
+                        }
+                    }
+                },
+                [&](Model::PatchNode* patchNode) {
+                    for (const auto& controlPoint : patchNode->patch().controlPoints()) {
+                        for (size_t i = 0u; i < 4u; ++i) {
+                            handlePoint(controlPoint.xyz(), frustumPlanes[i]);
                         }
                     }
                 }

@@ -27,6 +27,7 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -65,7 +66,8 @@ namespace TrenchBroom {
                         }
                         serializer.entity(entityNode, entityNode->entity().properties(), extraProperties, entityNode);
                     },
-                    [] (const Model::BrushNode*) {}
+                    [] (const Model::BrushNode*) {},
+                    [] (const Model::PatchNode*) {}
                 ));
             }
         }
@@ -134,7 +136,8 @@ namespace TrenchBroom {
                         } else {
                             worldBrushes.push_back(brush);
                         }
-                    }
+                    },
+                    [] (Model::PatchNode*)         {}
                 ));
             }
 

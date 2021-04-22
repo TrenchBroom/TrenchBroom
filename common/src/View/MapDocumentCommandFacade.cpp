@@ -37,6 +37,7 @@
 #include "Model/Issue.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "View/CommandProcessor.h"
 #include "View/UndoableCommand.h"
@@ -348,7 +349,8 @@ namespace TrenchBroom {
                     [&](Model::LayerNode* layerNode)   -> Model::NodeContents { return Model::NodeContents(layerNode->setLayer(std::get<Model::Layer>(std::move(contents)))); },
                     [&](Model::GroupNode* groupNode)   -> Model::NodeContents { return Model::NodeContents(groupNode->setGroup(std::get<Model::Group>(std::move(contents)))); },
                     [&](Model::EntityNode* entityNode) -> Model::NodeContents { return Model::NodeContents(entityNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
-                    [&](Model::BrushNode* brushNode)   -> Model::NodeContents { return Model::NodeContents(brushNode->setBrush(std::get<Model::Brush>(std::move(contents)))); }
+                    [&](Model::BrushNode* brushNode)   -> Model::NodeContents { return Model::NodeContents(brushNode->setBrush(std::get<Model::Brush>(std::move(contents)))); },
+                    [&](Model::PatchNode* patchNode)   -> Model::NodeContents { return Model::NodeContents(patchNode->setPatch(std::get<Model::BezierPatch>(std::move(contents)))); }
                 ));
             }
 

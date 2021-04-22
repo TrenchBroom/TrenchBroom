@@ -284,42 +284,32 @@ namespace TrenchBroom {
         FloatType BrushFace::projectedArea(const vm::axis::type axis) const {
             FloatType c1 = 0.0;
             FloatType c2 = 0.0;
-            switch (axis) {
-                case vm::axis::x:
-                    for (const BrushHalfEdge* halfEdge : m_geometry->boundary()) {
-                        c1 += halfEdge->origin()->position().y() * halfEdge->destination()->position().z();
-                        c2 += halfEdge->origin()->position().z() * halfEdge->destination()->position().y();
-                    }
-                    break;
-                case vm::axis::y:
-                    for (const BrushHalfEdge* halfEdge : m_geometry->boundary()) {
-                        c1 += halfEdge->origin()->position().z() * halfEdge->destination()->position().x();
-                        c2 += halfEdge->origin()->position().x() * halfEdge->destination()->position().z();
-                    }
-                    break;
-                case vm::axis::z:
-                    for (const BrushHalfEdge* halfEdge : m_geometry->boundary()) {
-                        c1 += halfEdge->origin()->position().x() * halfEdge->destination()->position().y();
-                        c2 += halfEdge->origin()->position().y() * halfEdge->destination()->position().x();
-                    }
-                    break;
-            };
+            for (const BrushHalfEdge* halfEdge : m_geometry->boundary()) {
+                const auto origin = vm::swizzle(halfEdge->origin()->position(), axis);
+                const auto destination = vm::swizzle(halfEdge->destination()->position(), axis);
+                c1 += origin.x() * destination.y();
+                c2 += origin.y() * destination.x();
+            }
             return vm::abs((c1 - c2) / 2.0);
         }
 
         FloatType BrushFace::area() const {
-            FloatType sum = 0.0;
-            const std::vector<vm::vec3> v = vertexPositions();
-            for (size_t i = 2; i < v.size(); ++i) {
-                const vm::vec3& a = v[0];
-                const vm::vec3& b = v[i - 1];
-                const vm::vec3& c = v[i];
+            auto result = static_cast<FloatType>(0);
 
-                const FloatType doubleTriangleArea = vm::length(vm::cross(b - a, c - a));
+            const auto* firstEdge = m_geometry->boundary().front();
+            const auto* currentEdge = firstEdge->next();
+            const auto* vertex0 = firstEdge->origin();
+            do {
+                const auto* vertex1 = currentEdge->origin();
+                const auto* vertex2 = currentEdge->destination();
+                const auto side0 = vertex1->position() - vertex0->position();
+                const auto side1 = vertex2->position() - vertex0->position();
+                result += vm::length(vm::cross(side0, side1));
 
-                sum += doubleTriangleArea;
-            }
-            return sum / 2.0;
+                currentEdge = currentEdge->next();
+            } while (currentEdge->next() != firstEdge);
+
+            return result / 2.0;
         }
 
         bool BrushFace::coplanarWith(const vm::plane3d& plane) const {

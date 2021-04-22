@@ -26,6 +26,7 @@ namespace TrenchBroom {
         class EntityNode;
         class GroupNode;
         class LayerNode;
+        class PatchNode;
         class WorldNode;
 
         class TagVisitor {
@@ -38,6 +39,7 @@ namespace TrenchBroom {
             virtual void visit(EntityNode& entity);
             virtual void visit(BrushNode& brush);
             virtual void visit(BrushFace& face);
+            virtual void visit(PatchNode& patch);
         };
 
         class ConstTagVisitor {
@@ -50,6 +52,7 @@ namespace TrenchBroom {
             virtual void visit(const EntityNode& entity);
             virtual void visit(const BrushNode& brush);
             virtual void visit(const BrushFace& face);
+            virtual void visit(const PatchNode& patch);
         };
     }
 }

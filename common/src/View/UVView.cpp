@@ -35,6 +35,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/VboManager.h"
@@ -268,7 +269,7 @@ namespace TrenchBroom {
                 shader.set("Brightness", pref(Preferences::Brightness));
                 shader.set("RenderGrid", true);
                 shader.set("GridSizes", vm::vec2f(texture->width(), texture->height()));
-                shader.set("GridColor", vm::vec4f(Renderer::FaceRenderer::gridColorForTexture(texture), 0.6f)); // TODO: make this a preference
+                shader.set("GridColor", vm::vec4f(Renderer::gridColorForTexture(texture), 0.6f)); // TODO: make this a preference
                 shader.set("GridScales", scale);
                 shader.set("GridMatrix", vm::mat4x4f(toTex));
                 shader.set("GridDivider", vm::vec2f(m_helper.subDivisions()));

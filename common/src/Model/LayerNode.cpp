@@ -26,6 +26,7 @@
 #include "Model/EntityProperties.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
+#include "Model/PatchNode.h"
 #include "Model/TagVisitor.h"
 #include "Model/WorldNode.h"
 
@@ -91,6 +92,10 @@ namespace TrenchBroom {
             return m_physicalBounds;
         }
 
+        FloatType LayerNode::doGetProjectedArea(const vm::axis::type) const {
+            return static_cast<FloatType>(0);
+        }
+
         Node* LayerNode::doClone(const vm::bbox3&) const {
             LayerNode* layerNode = new LayerNode(m_layer);
             cloneAttributes(layerNode);
@@ -103,7 +108,8 @@ namespace TrenchBroom {
                 [](const LayerNode*)  { return false; },
                 [](const GroupNode*)  { return true; },
                 [](const EntityNode*) { return true; },
-                [](const BrushNode*)  { return true; }
+                [](const BrushNode*)  { return true; },
+                [](const PatchNode*)  { return true; }
             ));
         }
 

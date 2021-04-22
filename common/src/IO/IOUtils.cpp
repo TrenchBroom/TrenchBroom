@@ -67,20 +67,6 @@ namespace TrenchBroom {
 #endif
         }
 
-        OpenFile::OpenFile(const Path& path, const bool write) :
-        file(nullptr) {
-            file = openPathAsFILE(path, write ? "w" : "r");
-            if (file == nullptr) {
-                throw FileSystemException("Cannot open file: " + path.asString());
-            }
-        }
-
-        OpenFile::~OpenFile() {
-            if (file != nullptr) {
-                fclose(file);
-            }
-        }
-
         size_t fileSize(std::FILE* file) {
             ensure(file != nullptr, "file is null");
             const auto pos = std::ftell(file);
@@ -128,7 +114,11 @@ namespace TrenchBroom {
             if (line.substr(0, expectedHeader.size()) != expectedHeader)
                 return "";
 
-            return line.substr(expectedHeader.size());
+            auto result = line.substr(expectedHeader.size());
+            if (result.size() > 0u && result.back() == '\r') {
+                result = result.substr(0u, result.size() - 1u);
+            }
+            return result;
         }
 
         void writeGameComment(std::ostream& stream, const std::string& gameName, const std::string& mapFormat) {

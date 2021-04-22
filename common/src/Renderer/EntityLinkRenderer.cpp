@@ -185,7 +185,8 @@ namespace TrenchBroom {
                     },
                     [](auto&& thisLambda, Model::BrushNode* brush) {
                         brush->parent()->accept(thisLambda);
-                    }
+                    },
+                    [](Model::PatchNode*) {}
                 ));
             }
         }
@@ -209,7 +210,8 @@ namespace TrenchBroom {
                     [&](Model::EntityNode* entity) {
                         collectLinks.visit(entity);
                     },
-                    [](Model::BrushNode*) {}
+                    [](Model::BrushNode*) {},
+                    [](Model::PatchNode*) {}
                 ));
             }
         }

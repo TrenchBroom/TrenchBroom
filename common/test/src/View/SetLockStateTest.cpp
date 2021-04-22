@@ -18,12 +18,14 @@
  */
 
 #include "Assets/EntityDefinition.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/Layer.h"
 #include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
@@ -42,13 +44,57 @@ namespace TrenchBroom {
             MapDocumentTest(Model::MapFormat::Valve) {}
         };
 
-        TEST_CASE_METHOD(SetLockStateTest, "SetLockStateTest.modificationCount") {
+        TEST_CASE_METHOD(SetLockStateTest, "SetLockStateTest.lockStateChanges") {
             auto* brushNode = createBrushNode();
             auto* entityNode = new Model::EntityNode{};
+            auto* patchNode = createPatchNode();
 
             auto* entityNodeInGroup = new Model::EntityNode{};
 
-            document->addNodes({{document->parentForNodes(), {brushNode, entityNode, entityNodeInGroup}}});
+            document->addNodes({{document->parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
+            document->deselectAll();
+            document->select(entityNodeInGroup);
+            
+            auto* groupNode = document->groupSelection("group");
+            document->deselectAll();
+
+            auto* layerNode = new Model::LayerNode{Model::Layer{"layer"}};
+            document->addNodes({{document->world(), {layerNode}}});
+
+            REQUIRE_FALSE(brushNode->locked());
+            REQUIRE_FALSE(entityNode->locked());
+            REQUIRE_FALSE(groupNode->locked());
+            REQUIRE_FALSE(patchNode->locked());
+
+            document->lock({brushNode, entityNode, groupNode, patchNode});
+            CHECK(brushNode->locked());
+            CHECK(entityNode->locked());
+            CHECK(groupNode->locked());
+            CHECK(patchNode->locked());
+
+            document->undoCommand();
+            CHECK_FALSE(brushNode->locked());
+            CHECK_FALSE(entityNode->locked());
+            CHECK_FALSE(groupNode->locked());
+            CHECK_FALSE(patchNode->locked());
+
+            REQUIRE_FALSE(layerNode->locked());
+
+            document->lock({layerNode});
+            CHECK(layerNode->locked());
+
+            document->undoCommand();
+            CHECK_FALSE(layerNode->locked());
+        }
+
+        TEST_CASE_METHOD(SetLockStateTest, "SetLockStateTest.modificationCount") {
+            auto* brushNode = createBrushNode();
+            auto* entityNode = new Model::EntityNode{};
+            auto* patchNode = createPatchNode();
+
+            auto* entityNodeInGroup = new Model::EntityNode{};
+
+            document->addNodes({{document->parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
             document->deselectAll();
             document->select(entityNodeInGroup);
             
@@ -60,7 +106,7 @@ namespace TrenchBroom {
 
             const auto originalModificationCount = document->modificationCount();
 
-            document->lock({brushNode, entityNode, groupNode});
+            document->lock({brushNode, entityNode, groupNode, patchNode});
             CHECK(document->modificationCount() == originalModificationCount);
 
             document->undoCommand();

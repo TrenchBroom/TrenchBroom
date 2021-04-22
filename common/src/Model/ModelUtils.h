@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Model/HitType.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>
@@ -34,6 +35,8 @@ namespace TrenchBroom {
         class EditorContext;
         class LayerNode;
         class Node;
+
+        HitType::Type nodeHitType();
 
         LayerNode* findContainingLayer(Node* node);
 
@@ -76,9 +79,6 @@ namespace TrenchBroom {
 
         vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
         vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
-
-        bool boundsContainNode(const vm::bbox3& bounds, const Node* node);
-        bool boundsIntersectNode(const vm::bbox3& bounds, const Node* node);
 
         std::vector<BrushNode*> filterBrushNodes(const std::vector<Node*>& nodes);
         std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes);

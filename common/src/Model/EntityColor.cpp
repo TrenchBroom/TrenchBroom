@@ -51,7 +51,8 @@ namespace TrenchBroom {
                     },
                     [](const LayerNode*) {},
                     [](const GroupNode*) {},
-                    [](const BrushNode*) {}
+                    [](const BrushNode*) {},
+                    [](const PatchNode*) {}
                 ));
             }
             return result;

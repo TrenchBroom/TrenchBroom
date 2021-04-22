@@ -31,6 +31,7 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 namespace TrenchBroom {
@@ -113,7 +114,8 @@ namespace TrenchBroom {
                 [&](const LayerNode* layer)   { return visible(layer); },
                 [&](const GroupNode* group)   { return visible(group); },
                 [&](const EntityNode* entity) { return visible(entity); },
-                [&](const BrushNode* brush)   { return visible(brush); }
+                [&](const BrushNode* brush)   { return visible(brush); },
+                [&](const PatchNode* patch)   { return visible(patch); }
             ));
         }
 
@@ -190,6 +192,18 @@ namespace TrenchBroom {
             return visible(brushNode) && !face.hasTag(m_hiddenTags);
         }
 
+        bool EditorContext::visible(const Model::PatchNode* patchNode) const {
+            if (patchNode->selected()) {
+                return true;
+            }
+
+            if (patchNode->hasTag(m_hiddenTags)) {
+                return false;
+            }
+
+            return patchNode->visible();
+        }
+
         bool EditorContext::anyChildVisible(const Model::Node* node) const {
             const auto& children = node->children();
             return std::any_of(std::begin(children), std::end(children), [this](const Node* child) { return visible(child); });
@@ -209,7 +223,8 @@ namespace TrenchBroom {
                 [&](const LayerNode* layer)   { return pickable(layer); },
                 [&](const GroupNode* group)   { return pickable(group); },
                 [&](const EntityNode* entity) { return pickable(entity); },
-                [&](const BrushNode* brush)   { return pickable(brush); }
+                [&](const BrushNode* brush)   { return pickable(brush); },
+                [&](const PatchNode* patch)   { return pickable(patch); }
             ));
         }
 
@@ -241,13 +256,18 @@ namespace TrenchBroom {
             return brushNode->selected() || visible(brushNode, face);
         }
 
+        bool EditorContext::pickable(const Model::PatchNode* patchNode) const {
+            return visible(patchNode);
+        }
+
         bool EditorContext::selectable(const Model::Node* node) const {
             return node->accept(kdl::overload(
                 [&](const WorldNode* world)   { return selectable(world); },
                 [&](const LayerNode* layer)   { return selectable(layer); },
                 [&](const GroupNode* group)   { return selectable(group); },
                 [&](const EntityNode* entity) { return selectable(entity); },
-                [&](const BrushNode* brush)   { return selectable(brush); }
+                [&](const BrushNode* brush)   { return selectable(brush); },
+                [&](const PatchNode* patch)   { return selectable(patch); }
             ));
         }
 
@@ -273,6 +293,10 @@ namespace TrenchBroom {
 
         bool EditorContext::selectable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const {
             return visible(brushNode, face) && editable(brushNode, face) && pickable(brushNode, face);
+        }
+
+        bool EditorContext::selectable(const Model::PatchNode* patchNode) const {
+            return visible(patchNode) && editable(patchNode) && pickable(patchNode) && inOpenGroup(patchNode);
         }
 
         bool EditorContext::canChangeSelection() const {

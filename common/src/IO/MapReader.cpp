@@ -30,6 +30,7 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
+#include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
 
@@ -63,7 +64,7 @@ namespace TrenchBroom {
 
         void MapReader::readBrushes(const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
-            parseBrushes(status);
+            parseBrushesOrPatches(status);
             createNodes(status);
         }
 
@@ -120,6 +121,10 @@ namespace TrenchBroom {
             }).handle_errors([&](const Model::BrushError e) {
                 status.error(line, kdl::str_to_string("Skipping face: ", e));
             });
+        }
+
+        void MapReader::onPatch(const size_t startLine, const size_t lineCount, Model::MapFormat, const size_t rowCount, const size_t columnCount, std::vector<vm::vec<FloatType, 5>> controlPoints, std::string textureName, ParserStatus&) {
+            m_objectInfos.push_back(PatchInfo{rowCount, columnCount, std::move(controlPoints), std::move(textureName), startLine, lineCount, m_currentEntityInfo});
         }
 
         // helper methods
@@ -238,13 +243,13 @@ namespace TrenchBroom {
 
             if (const auto* lockedStr = entity.property(Model::PropertyKeys::LayerLocked)) {
                 if (*lockedStr == Model::PropertyValues::LayerLockedValue) {
-                    defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
+                    defaultLayerNode->setLockState(Model::LockState::Locked);
                 }
                 entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
             }
             if (const auto* hiddenStr = entity.property(Model::PropertyKeys::LayerHidden)) {
                 if (*hiddenStr == Model::PropertyValues::LayerHiddenValue) {
-                    defaultLayerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+                    defaultLayerNode->setVisibilityState(Model::VisibilityState::Hidden);
                 }
                 entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
             }
@@ -297,10 +302,10 @@ namespace TrenchBroom {
             layerNode->setPersistentId(layerId);
 
             if (findProperty(properties, Model::PropertyKeys::LayerLocked) == Model::PropertyValues::LayerLockedValue) {
-                layerNode->setLockState(Model::LockState::Lock_Locked);
+                layerNode->setLockState(Model::LockState::Locked);
             }
             if (findProperty(properties, Model::PropertyKeys::LayerHidden) == Model::PropertyValues::LayerHiddenValue) {
-                layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+                layerNode->setVisibilityState(Model::VisibilityState::Hidden);
             }
 
             return NodeInfo{
@@ -425,6 +430,22 @@ namespace TrenchBroom {
         }
 
         /**
+         * Creates a patch node from the given patch info.
+         */
+        static CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo) {
+            auto patchNode = std::make_unique<Model::PatchNode>(Model::BezierPatch{patchInfo.rowCount, patchInfo.columnCount, std::move(patchInfo.controlPoints), std::move(patchInfo.textureName)});
+            patchNode->setFilePosition(patchInfo.startLine, patchInfo.lineCount);
+
+            auto parentInfo = patchInfo.parentIndex ? ParentInfo{*patchInfo.parentIndex} : std::optional<ParentInfo>{};
+
+            return NodeInfo{
+                std::move(patchNode),
+                std::move(parentInfo),
+                {} // issues
+            };
+        }
+
+        /**
         * Transforms the given object infos into a vector of node infos. The returned vector is sparse, that is,
         * it contains empty optionals in place of nodes that we failed to create. We need the indices to remain
         * correct because we use them to refer to parent nodes later.
@@ -439,6 +460,9 @@ namespace TrenchBroom {
                     },
                     [&](MapReader::BrushInfo&& brushInfo) {
                         return createBrushNode(std::move(brushInfo), worldBounds);
+                    },
+                    [&](MapReader::PatchInfo&& patchInfo) {
+                        return createPatchNode(std::move(patchInfo));
                     }
                 ), std::move(objectInfo));
             });
@@ -489,7 +513,8 @@ namespace TrenchBroom {
                             return false;
                         },
                         [] (Model::EntityNode*) { return false; },
-                        [] (Model::BrushNode*) { return false; }
+                        [] (Model::BrushNode*) { return false; },
+                        [] (Model::PatchNode*) { return false; }
                     ));
 
                     if (clearNode) {
@@ -539,7 +564,8 @@ namespace TrenchBroom {
                             assertResult(groupIdMap.emplace(persistentId, groupNode).second);
                         },
                         [] (Model::EntityNode*) {},
-                        [] (Model::BrushNode*) {}
+                        [] (Model::BrushNode*) {},
+                        [] (Model::PatchNode*) {}
                     ));
                 }
             }
@@ -647,6 +673,9 @@ namespace TrenchBroom {
                             onNode(parentNode, std::move(node), status);
                         },
                         [&](Model::BrushNode*) {
+                            onNode(parentNode, std::move(node), status);
+                        },
+                        [&](Model::PatchNode*) {
                             onNode(parentNode, std::move(node), status);
                         }
                     ));

@@ -24,6 +24,7 @@
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
 #include "IO/WorldReader.h"
+#include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -32,6 +33,7 @@
 #include "Model/EmptyPropertyValueIssueGenerator.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -42,6 +44,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelUtils.h"
 #include "Model/ParallelTexCoordSystem.h"
+#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Model/TestGame.h"
@@ -55,6 +58,7 @@
 #include <kdl/result.h>
 #include <kdl/overload.h>
 #include <kdl/vector_utils.h>
+#include <kdl/zip_iterator.h>
 
 #include <vecmath/approx.h>
 #include <vecmath/bbox.h>
@@ -72,9 +76,7 @@
 namespace TrenchBroom {
     namespace View {
         MapDocumentTest::MapDocumentTest() :
-        MapDocumentTest(Model::MapFormat::Standard) {
-            SetUp();
-        }
+        MapDocumentTest(Model::MapFormat::Standard) {}
 
         MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat) :
         m_mapFormat(mapFormat),
@@ -100,13 +102,26 @@ namespace TrenchBroom {
             m_brushEntityDef = nullptr;
         }
 
-        Model::BrushNode* MapDocumentTest::createBrushNode(const std::string& textureName, const std::function<void(Model::Brush&)>& brushFunc) {
+        Model::BrushNode* MapDocumentTest::createBrushNode(const std::string& textureName, const std::function<void(Model::Brush&)>& brushFunc) const {
             const Model::WorldNode* world = document->world();
             Model::BrushBuilder builder(world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs());
             Model::Brush brush = builder.createCube(32.0, textureName).value();
             brushFunc(brush);
             return new Model::BrushNode(std::move(brush));
         }
+
+        Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureName) const {
+            return new Model::PatchNode{Model::BezierPatch{3, 3, {
+                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, textureName}};
+        }
+
+        class Quake3MapDocumentTest : public MapDocumentTest {
+        public:
+            Quake3MapDocumentTest() :
+            MapDocumentTest{Model::MapFormat::Quake3} {}
+        };
 
         static void checkPlanePointsIntegral(const Model::BrushNode* brushNode) {
             for (const Model::BrushFace& face : brushNode->brush().faces()) {
@@ -141,6 +156,329 @@ namespace TrenchBroom {
             layerNode.setLayer(layer);
         }
 
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocument.paste") {
+            SECTION("Paste worldspawn with single brush in layer") {
+                const auto data = R"(
+{
+"classname" "worldspawn"
+"to_be_ignored" "somevalue"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "My Layer"
+"_tb_id" "1"
+{
+( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+}
+})";
+
+                const auto& world = *document->world();
+                REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
+
+                const auto& defaultLayer = *world.defaultLayer();
+                REQUIRE(defaultLayer.childCount() == 0u);
+                REQUIRE(world.customLayers().empty());
+
+                CHECK(document->paste(data) == PasteType::Node);
+                CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
+                CHECK(world.customLayers().empty());
+                CHECK(defaultLayer.childCount() == 1u);
+                CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
+            }
+
+            SECTION("Paste worldspawn with single brush in group") {
+                const auto data = R"(
+{
+"classname" "worldspawn"
+"to_be_ignored" "somevalue"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "My Group"
+"_tb_id" "2"
+{
+( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+}
+})";
+
+                const auto& world = *document->world();
+                REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
+
+                const auto& defaultLayer = *world.defaultLayer();
+                REQUIRE(defaultLayer.childCount() == 0u);
+
+                CHECK(document->paste(data) == PasteType::Node);
+                CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
+                CHECK(defaultLayer.childCount() == 1u);
+
+                const auto* groupNode = dynamic_cast<Model::GroupNode*>(defaultLayer.children().front());
+                CHECK(groupNode != nullptr);
+                CHECK(groupNode->group().name() == "My Group");
+                CHECK(groupNode->childCount() == 1u);
+                CHECK(dynamic_cast<Model::BrushNode*>(groupNode->children().front()) != nullptr);
+            }
+
+            SECTION("Paste worldspawn with single brush in entity") {
+                const auto data = R"(
+{
+"classname" "worldspawn"
+"to_be_ignored" "somevalue"
+}
+{
+"classname" "func_door"
+{
+( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
+}
+})";
+
+                const auto& world = *document->world();
+                REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
+
+                const auto& defaultLayer = *world.defaultLayer();
+                REQUIRE(defaultLayer.childCount() == 0u);
+
+                CHECK(document->paste(data) == PasteType::Node);
+                CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
+                CHECK(defaultLayer.childCount() == 1u);
+
+                const auto* entityNode = dynamic_cast<Model::EntityNode*>(defaultLayer.children().front());
+                CHECK(entityNode != nullptr);
+                CHECK(entityNode->entity().classname() == "func_door");
+                CHECK(entityNode->childCount() == 1u);
+                CHECK(dynamic_cast<Model::BrushNode*>(entityNode->children().front()) != nullptr);
+            }
+
+            SECTION("Paste worldspawn with single brush") {
+                const auto data = R"(
+{
+"classname" "worldspawn"
+"to_be_ignored" "somevalue"
+{
+( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) tex1 1 2 3 4 5
+( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) tex2 0 0 0 1 1
+( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) tex3 0 0 0 1 1
+( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) tex4 0 0 0 1 1
+( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) tex5 0 0 0 1 1
+( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
+}
+})";
+
+                const auto& world = *document->world();
+                REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
+
+                const auto& defaultLayer = *world.defaultLayer();
+                REQUIRE(defaultLayer.childCount() == 0u);
+
+                CHECK(document->paste(data) == PasteType::Node);
+                CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
+                CHECK(defaultLayer.childCount() == 1u);
+                CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
+            }
+
+            SECTION("Paste single brush") {
+                const auto data = R"(
+{
+( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) tex1 1 2 3 4 5
+( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) tex2 0 0 0 1 1
+( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) tex3 0 0 0 1 1
+( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) tex4 0 0 0 1 1
+( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) tex5 0 0 0 1 1
+( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
+})";
+
+                const auto& world = *document->world();
+
+                const auto& defaultLayer = *world.defaultLayer();
+                REQUIRE(defaultLayer.childCount() == 0u);
+
+                CHECK(document->paste(data) == PasteType::Node);
+                CHECK(defaultLayer.childCount() == 1u);
+                CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
+            }
+        }
+
+        TEST_CASE_METHOD(Quake3MapDocumentTest, "MapDocument.pastePatch") {
+            SECTION("Paste single patch") {
+                const auto data = R"(
+{
+patchDef2
+{
+common/caulk
+( 5 3 0 0 0 )
+(
+( (-64 -64 4 0   0 ) (-64 0 4 0   -0.25 ) (-64 64 4 0   -0.5 ) )
+( (  0 -64 4 0.2 0 ) (  0 0 4 0.2 -0.25 ) (  0 64 4 0.2 -0.5 ) )
+( ( 64 -64 4 0.4 0 ) ( 64 0 4 0.4 -0.25 ) ( 64 64 4 0.4 -0.5 ) )
+( (128 -64 4 0.6 0 ) (128 0 4 0.6 -0.25 ) (128 64 4 0.6 -0.5 ) )
+( (192 -64 4 0.8 0 ) (192 0 4 0.8 -0.25 ) (192 64 4 0.8 -0.5 ) )
+)
+}
+})";
+
+                const auto& world = *document->world();
+
+                const auto& defaultLayer = *world.defaultLayer();
+                REQUIRE(defaultLayer.childCount() == 0u);
+
+                CHECK(document->paste(data) == PasteType::Node);
+                CHECK(defaultLayer.childCount() == 1u);
+                CHECK(dynamic_cast<Model::PatchNode*>(defaultLayer.children().front()) != nullptr);
+            }
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocument.allSelectedEntityNodes") {
+            GIVEN("A document with multiple entity nodes in various configurations") {
+                auto* topLevelEntityNode = new Model::EntityNode{Model::Entity{}};
+                
+                auto* emptyGroupNode = new Model::GroupNode{Model::Group{"empty"}};
+                auto* groupNodeWithEntity = new Model::GroupNode{Model::Group{"group"}};
+                auto* groupedEntityNode = new Model::EntityNode{Model::Entity{}};
+                groupNodeWithEntity->addChild(groupedEntityNode);
+
+                auto* topLevelBrushNode = createBrushNode();
+                auto* topLevelPatchNode = createPatchNode();
+
+                auto* topLevelBrushEntityNode = new Model::EntityNode{Model::Entity{}};
+                auto* brushEntityBrushNode = createBrushNode();
+                auto* brushEntityPatchNode = createPatchNode();
+                topLevelBrushEntityNode->addChildren({brushEntityBrushNode, brushEntityPatchNode});
+
+                document->addNodes({{document->parentForNodes(), {
+                    topLevelEntityNode, 
+                    topLevelBrushEntityNode, 
+                    topLevelBrushNode,
+                    topLevelPatchNode,
+                    emptyGroupNode,
+                    groupNodeWithEntity}}});
+
+                document->deselectAll();
+
+                WHEN("Nothing is selected") {
+                    THEN("The world node is returned") {
+                        CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                            document->world()
+                        }));
+                    }
+                }
+
+                WHEN("A top level brush node is selected") {
+                    document->select(topLevelBrushNode);
+
+                    THEN("The world node is returned") {
+                        CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                            document->world()
+                        }));
+                    }
+                }
+
+                WHEN("A top level patch node is selected") {
+                    document->select(topLevelPatchNode);
+
+                    THEN("The world node is returned") {
+                        CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                            document->world()
+                        }));
+                    }
+                }
+
+                WHEN("An empty group node is selected") {
+                    document->select(emptyGroupNode);
+
+                    THEN("An empty vector is returned") {
+                        CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                        }));
+                    }
+                }
+
+                WHEN("A group node containing an entity node is selected") {
+                    document->select(groupNodeWithEntity);
+
+                    THEN("The grouped entity node is returned") {
+                        CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                            groupedEntityNode
+                        }));
+                    }
+
+                    AND_WHEN("A top level entity node is selected") {
+                        document->select(topLevelEntityNode);
+
+                        THEN("The top level entity node and the grouped entity node are returned") {
+                            CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                                groupedEntityNode,
+                                topLevelEntityNode
+                            }));
+                        }
+                    }
+                }
+
+                WHEN("An empty top level entity node is selected") {
+                    document->select(topLevelEntityNode);
+
+                    THEN("That entity node is returned") {
+                        CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                            topLevelEntityNode
+                        }));
+                    }
+                }
+
+                WHEN("A node in a brush entity node is selected") {
+                    const auto selectBrushNode = [](auto* brushNode, auto* patchNode) -> std::tuple<Model::Node*, Model::Node*> { return {brushNode, patchNode}; };
+                    const auto selectPatchNode = [](auto* brushNode, auto* patchNode) -> std::tuple<Model::Node*, Model::Node*> { return {patchNode, brushNode}; };
+                    const auto selectNodes = GENERATE_COPY(selectBrushNode, selectPatchNode);
+                    
+                    const auto [nodeToSelect, otherNode] = selectNodes(brushEntityBrushNode, brushEntityPatchNode);
+
+                    CAPTURE(nodeToSelect->name(), otherNode->name());
+
+                    document->select(nodeToSelect);
+
+                    THEN("The containing entity node is returned") {
+                        CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                            topLevelBrushEntityNode
+                        }));
+                    }
+
+                    AND_WHEN("Another node in the same entity node is selected") {
+                        document->select(otherNode);
+
+                        THEN("The containing entity node is returned only once") {
+                            CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                                topLevelBrushEntityNode
+                            }));
+                        }
+                    }
+
+                    AND_WHEN("A top level entity node is selected") {
+                        document->select(topLevelEntityNode);
+
+                        THEN("The top level entity node and the brush entity node are returned") {
+                            CHECK_THAT(document->allSelectedEntityNodes(), Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+                                topLevelBrushEntityNode,
+                                topLevelEntityNode
+                            }));
+                        }
+                    }
+                }
+            }
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.addNodes") {
             SECTION("Update linked groups") {
                 auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
@@ -152,14 +490,39 @@ namespace TrenchBroom {
                 auto* linkedGroupNode = document->createLinkedDuplicate();
                 document->deselectAll();
 
-                auto* entityNode = new Model::EntityNode{Model::Entity{}};
-                document->addNodes({{groupNode, {entityNode}}});
+                using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+                CreateNode createNode = GENERATE_COPY(
+                    CreateNode{[](const auto&) -> Model::Node* { return new Model::EntityNode{Model::Entity{}}; }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createPatchNode(); }}
+                );
+
+                auto* nodeToAdd = createNode(*this);
+                document->addNodes({{groupNode, {nodeToAdd}}});
 
                 CHECK(linkedGroupNode->childCount() == 2u);
                 
-                auto* linkedEntityNode = dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().back());
-                CHECK(linkedEntityNode != nullptr);
-                CHECK(linkedEntityNode->entity() == entityNode->entity());
+                auto* linkedNode = linkedGroupNode->children().back();
+                linkedNode->accept(kdl::overload(
+                    [] (const Model::WorldNode*) {},
+                    [] (const Model::LayerNode*) {},
+                    [] (const Model::GroupNode*) {},
+                    [&](const Model::EntityNode* linkedEntityNode) {
+                        const auto* originalEntityNode = dynamic_cast<Model::EntityNode*>(nodeToAdd);
+                        REQUIRE(originalEntityNode);
+                        CHECK(originalEntityNode->entity() == linkedEntityNode->entity());
+                    },
+                    [&](const Model::BrushNode* linkedBrushNode) {
+                        const auto* originalBrushNode = dynamic_cast<Model::BrushNode*>(nodeToAdd);
+                        REQUIRE(originalBrushNode);
+                        CHECK(originalBrushNode->brush() == linkedBrushNode->brush());
+                    },
+                    [&](const Model::PatchNode* linkedPatchNode) {
+                        const auto* originalPatchNode = dynamic_cast<Model::PatchNode*>(nodeToAdd);
+                        REQUIRE(originalPatchNode);
+                        CHECK(originalPatchNode->patch() == linkedPatchNode->patch());
+                    }
+                ));
 
                 document->undoCommand();
 
@@ -172,15 +535,23 @@ namespace TrenchBroom {
             SECTION("Update linked groups") {
                 auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
                 auto* brushNode = createBrushNode();
-                auto* entityNode = new Model::EntityNode{Model::Entity{}};
-                groupNode->addChildren({brushNode, entityNode});
+
+                using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+                CreateNode createNode = GENERATE_COPY(
+                    CreateNode{[](const auto&) -> Model::Node* { return new Model::EntityNode{Model::Entity{}}; }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createPatchNode(); }}
+                );
+
+                auto* nodeToRemove = createNode(*this);
+                groupNode->addChildren({brushNode, nodeToRemove});
                 document->addNodes({{document->parentForNodes(), {groupNode}}});
 
                 document->select(groupNode);
                 auto* linkedGroupNode = document->createLinkedDuplicate();
                 document->deselectAll();
 
-                document->removeNodes({entityNode});
+                document->removeNodes({nodeToRemove});
 
                 CHECK(linkedGroupNode->childCount() == 1u);
 
@@ -1048,20 +1419,14 @@ namespace TrenchBroom {
             CHECK_THROWS_AS(document->throwExceptionDuringCommand(), CommandProcessorException);
         }
 
-        static void transform(Model::BrushNode* brushNode, const vm::bbox3& worldBounds, const vm::mat4x4& transform) {
-            auto brush = brushNode->brush();
-            REQUIRE(brush.transform(worldBounds, transform, false).is_success());
-            brushNode->setBrush(std::move(brush));
-        }
-
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectTouching") {
             Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode3 = new Model::BrushNode(builder.createCube(64.0, "none").value());
 
-            transform(brushNode2, document->worldBounds(), vm::translation_matrix(vm::vec3(10.0, 0.0, 0.0)));
-            transform(brushNode3, document->worldBounds(), vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)));
+            transformNode(*brushNode2, vm::translation_matrix(vm::vec3{10.0, 0.0, 0.0}), document->worldBounds());
+            transformNode(*brushNode3, vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}), document->worldBounds());
 
             addNode(*document, document->parentForNodes(), brushNode1);
             addNode(*document, document->parentForNodes(), brushNode2);
@@ -1097,13 +1462,13 @@ namespace TrenchBroom {
 
             document->selectAllNodes();
 
-            CHECK_THAT(document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode* >{ brushNode1, brushNode2}));
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::BrushNode* >{ brushNode1, brushNode2}));
             CHECK_THAT(document->currentLayer()->children(), Catch::Equals(std::vector<Model::Node* >{ brushNode1, brushNode2}));
 
             document->selectTouching(true);
 
             // only this next line was failing
-            CHECK_THAT(document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode* >{}));
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::BrushNode* >{}));
             CHECK_THAT(document->currentLayer()->children(), Catch::Equals(std::vector<Model::Node* >{}));
 
             // brush1 and brush2 are deleted
@@ -1119,8 +1484,8 @@ namespace TrenchBroom {
             Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCube(64.0, "none").value());
             Model::BrushNode* brushNode3 = new Model::BrushNode(builder.createCube(64.0, "none").value());
 
-            transform(brushNode2, document->worldBounds(), vm::translation_matrix(vm::vec3(0.0, 0.0, -500.0)));
-            transform(brushNode3, document->worldBounds(), vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)));
+            transformNode(*brushNode2, vm::translation_matrix(vm::vec3{0.0, 0.0, -500.0}), document->worldBounds());
+            transformNode(*brushNode3, vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}), document->worldBounds());
 
             addNode(*document, document->parentForNodes(), brushNode1);
             addNode(*document, document->parentForNodes(), brushNode2);
@@ -1160,6 +1525,9 @@ namespace TrenchBroom {
             auto* brushNode3 = new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture").value());
             addNode(*document, document->parentForNodes(), brushNode3);
 
+            auto* patchNode = createPatchNode();
+            addNode(*document, document->parentForNodes(), patchNode);
+
             document->select(std::vector<Model::Node *>{ brushNode1, brushNode2});
             Model::EntityNode* brushEnt = document->createBrushEntity(m_brushEntityDef);
 
@@ -1168,21 +1536,24 @@ namespace TrenchBroom {
             // worldspawn {
             //   brushEnt { brush1, brush2 },
             //   brush3
+            //   patch
             // }
 
             document->select(brushNode1);
-            CHECK( brushNode1->selected());
-            CHECK(!brushNode2->selected());
-            CHECK(!brushNode3->selected());
-            CHECK(!brushEnt->selected());
+            REQUIRE( brushNode1->selected());
+            REQUIRE(!brushNode2->selected());
+            REQUIRE(!brushNode3->selected());
+            REQUIRE(!brushEnt->selected());
+            REQUIRE(!patchNode->selected());
 
             document->selectInverse();
 
-            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::BrushNode *>{ brushNode2, brushNode3}));
+            CHECK_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{ brushNode2, brushNode3, patchNode}));
             CHECK(!brushNode1->selected());
             CHECK( brushNode2->selected());
             CHECK( brushNode3->selected());
             CHECK(!brushEnt->selected());
+            CHECK( patchNode->selected());
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/2776
@@ -1255,53 +1626,124 @@ namespace TrenchBroom {
             PreferenceManager::instance().resetToDefault(Preferences::TextureLock);
         }
 
-        // https://github.com/TrenchBroom/TrenchBroom/issues/3117
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.isolate") {
             // delete default brush
             document->selectAllNodes();
             document->deleteObjects();
 
-            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+            GIVEN("An unrelated top level node") {
+                auto* nodeToHide = new Model::EntityNode{Model::Entity{}};
+                document->addNodes({{document->parentForNodes(), {nodeToHide}}});
 
-            auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
-            addNode(*document, document->parentForNodes(), brushNode1);
+                REQUIRE(!nodeToHide->hidden());
 
-            auto* brushNode2 = new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
-            addNode(*document, document->parentForNodes(), brushNode2);
+                AND_GIVEN("Another top level node that should be isolated") {
+                    using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
+                    const auto createNode = GENERATE_COPY(
+                        CreateNode{[](const auto& test) {
+                            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+                            groupNode->addChild(test.createBrushNode());
+                            return groupNode;
+                        }},
+                        CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
+                        CreateNode{[](const auto& test) { return test.createBrushNode(); }},
+                        CreateNode{[](const auto& test) { return test.createPatchNode(); }}
+                    );
 
-            document->selectAllNodes();
+                    auto* nodeToIsolate = createNode(*this);
+                    document->addNodes({{document->parentForNodes(), {nodeToIsolate}}});
 
-            Model::EntityNode* brushEntity = document->createBrushEntity(m_brushEntityDef);
+                    REQUIRE(!nodeToIsolate->hidden());
 
-            document->deselectAll();
+                    WHEN("The node is isolated") {
+                        document->select(nodeToIsolate);
 
-            // Check initial state
-            REQUIRE(1 == document->currentLayer()->childCount());
-            REQUIRE(brushEntity == dynamic_cast<Model::EntityNode*>(document->currentLayer()->children().at(0)));
-            REQUIRE(2 == brushEntity->childCount());
-            REQUIRE(brushNode1 == dynamic_cast<Model::BrushNode*>(brushEntity->children().at(0)));
-            REQUIRE(brushNode2 == dynamic_cast<Model::BrushNode*>(brushEntity->children().at(1)));
+                        const auto selectedNodes = document->selectedNodes().nodes();
+                        document->isolate();
 
-            CHECK(!brushEntity->selected());
-            CHECK(!brushNode1->selected());
-            CHECK(!brushNode2->selected());
-            CHECK(!brushEntity->hidden());
-            CHECK(!brushNode1->hidden());
-            CHECK(!brushNode2->hidden());
+                        THEN("The node is isolated and selected") {
+                            CHECK_FALSE(nodeToIsolate->hidden());
+                            CHECK(nodeToHide->hidden());
+                            CHECK(nodeToIsolate->selected());
+                        }
 
-            // Select just brush1
-            document->select(brushNode1);
-            CHECK(!brushEntity->selected());
-            CHECK(brushNode1->selected());
-            CHECK(!brushNode2->selected());
+                        AND_WHEN("The operation is undone") {
+                            document->undoCommand();
 
-            // Isolate brush1
-            document->isolate();
+                            THEN("All nodes are visible again and selection is restored") {
+                                CHECK_FALSE(nodeToIsolate->hidden());
+                                CHECK_FALSE(nodeToHide->hidden());
 
-            CHECK(!brushEntity->hidden());
-            CHECK(!brushNode1->hidden());
-            CHECK(brushNode2->hidden());
+                                CHECK_THAT(document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
+                            }
+                        }
+                    }
+                }
+
+                AND_GIVEN("A top level brush entity") {
+                    auto* childNode1 = createBrushNode();
+                    auto* childNode2 = createPatchNode();
+
+                    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                    entityNode->addChildren({childNode1, childNode2});
+
+                    document->addNodes({{document->parentForNodes(), {entityNode}}});
+
+                    // Check initial state
+                    REQUIRE_FALSE(nodeToHide->hidden());
+                    REQUIRE_FALSE(entityNode->hidden());
+                    REQUIRE_FALSE(childNode1->hidden());
+                    REQUIRE_FALSE(childNode2->hidden());
+
+                    WHEN("Any child node is isolated") {
+                        const auto [selectChild1, selectChild2] = GENERATE(
+                            std::make_tuple(true, true),
+                            std::make_tuple(true, false),
+                            std::make_tuple(false, true)
+                        );
+
+                        if (selectChild1) {
+                            document->select(childNode1);
+                        }
+                        if (selectChild2) {
+                            document->select(childNode2);
+                        }
+                        REQUIRE_FALSE(entityNode->selected());
+
+                        const auto selectedNodes = document->selectedNodes().nodes();
+                        document->isolate();
+
+                        // https://github.com/TrenchBroom/TrenchBroom/issues/3117
+                        THEN("The containining entity node is visible") {
+                            CHECK(!entityNode->hidden());
+
+                            AND_THEN("The top level node is hidden") {
+                                CHECK(nodeToHide->hidden());
+                            }
+
+                            AND_THEN("Any selected child node is visible and selected") {
+                                CHECK(childNode1->hidden() != selectChild1);
+                                CHECK(childNode2->hidden() != selectChild2);
+                                CHECK(childNode1->selected() == selectChild1);
+                                CHECK(childNode2->selected() == selectChild2);
+                            }
+                        }
+
+                        AND_WHEN("The operation is undone") {
+                            document->undoCommand();
+
+                            THEN("All nodes are visible and selection is restored") {
+                                CHECK_FALSE(nodeToHide->hidden());
+                                CHECK_FALSE(entityNode->hidden());
+                                CHECK_FALSE(childNode1->hidden());
+                                CHECK_FALSE(childNode2->hidden());
+
+                                CHECK_THAT(document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "IssueGenerator.emptyProperty") {
@@ -1330,7 +1772,8 @@ namespace TrenchBroom {
                 [&](auto&& thisLambda, Model::LayerNode* l)  { issues = kdl::vec_concat(std::move(issues), l->issues(issueGenerators)); l->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::GroupNode* g)  { issues = kdl::vec_concat(std::move(issues), g->issues(issueGenerators)); g->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::EntityNode* e) { issues = kdl::vec_concat(std::move(issues), e->issues(issueGenerators)); e->visitChildren(thisLambda); },
-                [&](Model::BrushNode* b)                     { issues = kdl::vec_concat(std::move(issues), b->issues(issueGenerators)); }
+                [&](Model::BrushNode* b)                     { issues = kdl::vec_concat(std::move(issues), b->issues(issueGenerators)); },
+                [&](Model::PatchNode* p)                     { issues = kdl::vec_concat(std::move(issues), p->issues(issueGenerators)); }
             ));
 
             REQUIRE(2 == issues.size());
@@ -1467,13 +1910,13 @@ namespace TrenchBroom {
             CHECK(entity1->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 1u);
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(entity1->visible());
 
             // Hide layer1. If any nodes in the layer were Visibility_Shown they would be reset to Visibility_Inherited
             document->hideLayers({ layerNode1});
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
 
             // Create another entity in layer1. It will be visible, while entity1 will still be hidden.
@@ -1481,40 +1924,40 @@ namespace TrenchBroom {
             CHECK(entity2->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 2u);
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
-            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Shown);
             CHECK(entity2->visible());
 
             // Change to layer2. This hides all objects in layer1
             document->setCurrentLayer(layerNode2);
 
             CHECK(document->currentLayer() == layerNode2);
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
-            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity2->visible());
 
             // Undo (Switch current layer back to layer1)
             document->undoCommand();
 
             CHECK(document->currentLayer() == layerNode1);
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
-            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Shown);
             CHECK(entity2->visible());
 
             // Undo (entity2 creation)
             document->undoCommand();
 
             CHECK(layerNode1->childCount() == 1u);
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(!entity1->visible());
 
             // Undo (hiding layer1)
             document->undoCommand();
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
             CHECK(entity1->visible());
         }
 
@@ -1538,8 +1981,8 @@ namespace TrenchBroom {
             CHECK(brush1->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 2u);
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Shown);
-            CHECK(brush1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Shown);
+            CHECK(brush1->visibilityState() == Model::VisibilityState::Shown);
             CHECK(entity1->visible());
             CHECK(brush1->visible());
 
@@ -1555,10 +1998,10 @@ namespace TrenchBroom {
             CHECK(entity2 != entity1);
             CHECK(brush2 != brush1);
 
-            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Shown);
             CHECK(entity2->visible());
 
-            CHECK(brush2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(brush2->visibilityState() == Model::VisibilityState::Shown);
             CHECK(brush2->visible());
         }
 
@@ -1579,13 +2022,13 @@ namespace TrenchBroom {
             CHECK(entity1->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 1u);
 
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(!entity1->locked());
 
             // Lock layer1
             document->lock({ layerNode1});
 
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
 
             // Create another entity in layer1. It will be unlocked, while entity1 will still be locked (inherited).
@@ -1593,9 +2036,9 @@ namespace TrenchBroom {
             CHECK(entity2->parent() == layerNode1);
             CHECK(layerNode1->childCount() == 2u);
 
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
-            CHECK(entity2->lockState() == Model::LockState::Lock_Unlocked);
+            CHECK(entity2->lockState() == Model::LockState::Unlocked);
             CHECK(!entity2->locked());
 
             // Change to layer2. This causes the Lock_Unlocked objects in layer1 to be degraded to Lock_Inherited
@@ -1603,31 +2046,31 @@ namespace TrenchBroom {
             document->setCurrentLayer(layerNode2);
 
             CHECK(document->currentLayer() == layerNode2);
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
-            CHECK(entity2->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity2->lockState() == Model::LockState::Inherited);
             CHECK(entity2->locked());
 
             // Undo (Switch current layer back to layer1)
             document->undoCommand();
 
             CHECK(document->currentLayer() == layerNode1);
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
-            CHECK(entity2->lockState() == Model::LockState::Lock_Unlocked);
+            CHECK(entity2->lockState() == Model::LockState::Unlocked);
             CHECK(!entity2->locked());
 
             // Undo entity2 creation
             document->undoCommand();
 
             CHECK(layerNode1->childCount() == 1u);
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(entity1->locked());
 
             // Undo locking layer1
             document->undoCommand();
 
-            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->lockState() == Model::LockState::Inherited);
             CHECK(!entity1->locked());
         }
 
@@ -1686,6 +2129,114 @@ namespace TrenchBroom {
             }
         }
 
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.moveSelectionToLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            auto* customLayer = new Model::LayerNode(Model::Layer("layer"));
+            addNode(*document, document->world(), customLayer);
+
+            auto* defaultLayer = document->world()->defaultLayer();
+
+            GIVEN("A top level node") {
+                using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
+                const auto createNode = GENERATE_COPY(
+                    CreateNode{[](const auto& test) {
+                        auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+                        groupNode->addChild(test.createBrushNode());
+                        return groupNode;
+                    }},
+                    CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
+                    CreateNode{[](const auto& test) { return test.createBrushNode(); }},
+                    CreateNode{[](const auto& test) { return test.createPatchNode(); }}
+                );
+
+                auto* node = createNode(*this);
+                document->addNodes({{document->parentForNodes(), {node}}});
+                
+                REQUIRE(Model::findContainingLayer(node) == defaultLayer);
+                
+                WHEN("The node is moved to another layer") {
+                    document->select(node);
+                    document->moveSelectionToLayer(customLayer);
+
+                    THEN("The group node is in the target layer") {
+                        CHECK(Model::findContainingLayer(node) == customLayer);
+                        
+                        AND_THEN("The node is selected") {
+                            CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{node});
+                        }
+                    }
+
+                    AND_WHEN("The operation is undone") {
+                        document->undoCommand();
+
+                        THEN("The node is back in the original layer") {
+                            CHECK(Model::findContainingLayer(node) == defaultLayer);
+
+                            AND_THEN("The node is selected") {
+                                CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{node});
+                            }
+                        }
+                    }
+                }
+            }
+
+            GIVEN("A brush entity node") {
+                auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                auto* childNode1 = createBrushNode();
+                auto* childNode2 = createPatchNode();
+
+                entityNode->addChildren({childNode1, childNode2});
+                document->addNodes({{document->parentForNodes(), {entityNode}}});
+
+                REQUIRE(Model::findContainingLayer(entityNode) == defaultLayer);
+
+                WHEN("Any child node is selected and moved to another layer") {
+                    const auto [selectChild1, selectChild2] = GENERATE(
+                        std::make_tuple(true, true),
+                        std::make_tuple(true, false),
+                        std::make_tuple(false, true)
+                    );
+
+                    if (selectChild1) {
+                        document->select(childNode1);
+                    }
+                    if (selectChild2) {
+                        document->select(childNode2);
+                    }
+
+                    const auto selectedNodes = document->selectedNodes().nodes();
+                    document->moveSelectionToLayer(customLayer);
+
+                    THEN("The brush entity node is moved to the target layer") {
+                        CHECK(Model::findContainingLayer(entityNode) == customLayer);
+                        CHECK(childNode1->parent() == entityNode);
+                        CHECK(childNode2->parent() == entityNode);
+                        
+                        AND_THEN("The child nodes are selected") {
+                            CHECK(document->selectedNodes().nodes() == entityNode->children());
+                        }
+                    }
+
+                    AND_WHEN("The operation is undone") {
+                        document->undoCommand();
+
+                        THEN("The brush entity node is back in the original layer") {
+                            CHECK(Model::findContainingLayer(entityNode) == defaultLayer);
+                            CHECK(childNode1->parent() == entityNode);
+                            CHECK(childNode2->parent() == entityNode);
+
+                            AND_THEN("The originally selected nodes are selected") {
+                                CHECK_THAT(document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.setCurrentLayerCollation", "[LayerTest]") {
             // delete default brush
             document->selectAllNodes();
@@ -1740,6 +2291,72 @@ namespace TrenchBroom {
             // map has both Standard and Valve brushes
             CHECK_THROWS_AS(View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/mixedFormats.map"),
                                                   "Quake", Model::MapFormat::Unknown), IO::WorldReaderException);
+        }
+
+        void checkTransformation(const Model::Node& node, const Model::Node& original, const vm::mat4x4d& transformation) {
+            CHECK(node.physicalBounds() == original.physicalBounds().transform(transformation));
+
+            REQUIRE(node.childCount() == original.childCount());
+            for (const auto [nodeChild, originalChild] : kdl::make_zip_range(node.children(), original.children())) {
+                checkTransformation(*nodeChild, *originalChild, transformation);
+            }
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.transformObjects") {
+            using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+            const auto createNode = GENERATE_COPY(
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+                    auto* brushNode = test.createBrushNode();
+                    auto* patchNode = test.createPatchNode();
+                    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                    groupNode->addChildren({brushNode, patchNode, entityNode});
+                    return groupNode;
+                }},
+                CreateNode{[](const auto&) -> Model::Node* {
+                    return new Model::EntityNode{Model::Entity{}};
+                }},
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                    auto* brushNode = test.createBrushNode();
+                    auto* patchNode = test.createPatchNode();
+                    entityNode->addChildren({brushNode, patchNode});
+                    return entityNode;
+                }},
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    return test.createBrushNode();
+                }},
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    return test.createPatchNode();
+                }}
+            );
+
+            GIVEN("A node to transform") {
+                auto* node = createNode(*this);
+                CAPTURE(node->name());
+
+                document->addNodes({{document->parentForNodes(), {node}}});
+                
+                const auto originalNode = std::unique_ptr<Model::Node>{node->cloneRecursively(document->worldBounds())};
+                const auto transformation = vm::translation_matrix(vm::vec3d{1, 2, 3});
+
+                WHEN("The node is transformed") {
+                    document->select(node);
+                    document->transformObjects("Transform Nodes", transformation);
+
+                    THEN("The transformation was applied to the node and its children") {
+                        checkTransformation(*node, *originalNode.get(), transformation);
+                    }
+
+                    AND_WHEN("The transformation is undone") {
+                        document->undoCommand();
+
+                        THEN("The node is back in its original state") {
+                            checkTransformation(*node, *originalNode.get(), vm::mat4x4d::identity());
+                        }
+                    }
+                }
+            }
         }
     }
 }

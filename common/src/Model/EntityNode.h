@@ -58,14 +58,14 @@ namespace TrenchBroom {
             EntityNode();
             explicit EntityNode(Entity entity);
             explicit EntityNode(std::initializer_list<EntityProperty> properties);
-
-            FloatType projectedArea(vm::axis::type axis) const;
         public: // entity model
             const vm::bbox3& modelBounds() const;
             void setModelFrame(const Assets::EntityModelFrame* modelFrame);
         private: // implement Node interface
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
+
+            FloatType doGetProjectedArea(vm::axis::type axis) const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
 
@@ -99,9 +99,6 @@ namespace TrenchBroom {
             Node* doGetContainer() override;
             LayerNode* doGetContainingLayer() override;
             GroupNode* doGetContainingGroup() override;
-
-            bool doContains(const Node* node) const override;
-            bool doIntersects(const Node* node) const override;
         private:
             void invalidateBounds();
             void validateBounds() const;
