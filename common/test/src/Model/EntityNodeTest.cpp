@@ -94,6 +94,26 @@ namespace TrenchBroom {
             CHECK(entityNode.canRemoveChild(&brushNode));
             CHECK(entityNode.canRemoveChild(&patchNode));
         }
+
+        TEST_CASE("EntityNodeTest.setPointEntity") {
+            constexpr auto worldBounds = vm::bbox3d{8192.0};
+            constexpr auto mapFormat = MapFormat::Quake3;
+
+            auto entityNode = EntityNode{Entity{}};
+            auto brushNode1 = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+            auto brushNode2 = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            REQUIRE(entityNode.entity().pointEntity());
+            entityNode.addChild(&brushNode1);
+            CHECK_FALSE(entityNode.entity().pointEntity());
+            entityNode.addChild(&brushNode2);
+            CHECK_FALSE(entityNode.entity().pointEntity());
+
+            entityNode.removeChild(&brushNode1);
+            CHECK_FALSE(entityNode.entity().pointEntity());
+            entityNode.removeChild(&brushNode2);
+            CHECK(entityNode.entity().pointEntity());
+        }
         
         TEST_CASE("EntityNodeTest.area") {
             auto definition = Assets::PointEntityDefinition("some_name", Color(), vm::bbox3(vm::vec3::zero(), vm::vec3(1.0, 2.0, 3.0)), "", {}, {});
