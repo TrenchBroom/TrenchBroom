@@ -130,7 +130,7 @@ namespace TrenchBroom {
         }
 
         void EntityNode::doChildWasRemoved(Node* /* node */) {
-            m_entity.setPointEntity(hasChildren());
+            m_entity.setPointEntity(!hasChildren());
             nodePhysicalBoundsDidChange();
         }
 
