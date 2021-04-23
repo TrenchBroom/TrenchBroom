@@ -769,9 +769,12 @@ namespace TrenchBroom {
             expect(PatchId2, token);
             expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
 
-            parseDoom3TextureName(status);
+            auto textureName = parseDoom3TextureName(status);
 
             expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
+
+            // Parsing a patchDef2 brush primitive can be looked up for Doom 3 in neo/idlib/MapFile.cpp
+            // idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef3, float version )
 
             token = expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
             auto w = token.toInteger<int>();
@@ -787,7 +790,7 @@ namespace TrenchBroom {
                 h = 0;
             }
 
-			// explicitSubdivisions = false
+			// TODO explicitSubdivisions = false
 
 			// contents, flags, value )
             expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
@@ -795,20 +798,24 @@ namespace TrenchBroom {
             expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
             expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
+            auto controlPoints = std::vector<vm::vec<FloatType, 5>>{};
+            controlPoints.reserve(w * h);
+
             expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
             for (size_t i = 0; i < size_t(w); ++i) {
                 expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
                 for (size_t j = 0; j < size_t(h); ++j) {
-                    parseFloatVector<5>(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis);
+                    const auto controlPoint = parseFloatVector<5>(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis);
+					controlPoints.push_back(controlPoint);
                 }
                 expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
             }
             expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
-            expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
+            token = expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
+            const size_t lineCount = token.line() - startLine;
 
-            // TODO 2428: create the actual patch
-            status.warn(startLine, "Skipping patch: currently not supported");
+            onPatch(startLine, lineCount, m_targetMapFormat, w, h, std::move(controlPoints), std::move(textureName), status);
         }
 
 		void StandardMapParser::parseDoom3Patch3(ParserStatus& status, const size_t startLine) {
@@ -816,9 +823,12 @@ namespace TrenchBroom {
             expect(PatchId3, token);
             expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
 
-            parseDoom3TextureName(status);
+            auto textureName = parseDoom3TextureName(status);
 
             expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
+
+            // Parsing a patchDef2 brush primitive can be looked up for Doom 3 in neo/idlib/MapFile.cpp
+            // idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef3, float version )
 
             token = expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
             auto w = token.toInteger<int>();
@@ -849,7 +859,7 @@ namespace TrenchBroom {
                 vertSubdivisions = 0;
             }
 
-			// explicitSubdivisions = true
+			// TODO explicitSubdivisions = true
 
 			// contents, flags, value )
             expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
@@ -857,20 +867,24 @@ namespace TrenchBroom {
             expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
             expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
+            auto controlPoints = std::vector<vm::vec<FloatType, 5>>{};
+            controlPoints.reserve(w * h);
+
             expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
             for (size_t i = 0; i < size_t(w); ++i) {
                 expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
                 for (size_t j = 0; j < size_t(h); ++j) {
-                    parseFloatVector<5>(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis);
+                    const auto controlPoint = parseFloatVector<5>(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis);
+					controlPoints.push_back(controlPoint);
                 }
                 expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
             }
             expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
-            expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
+            token = expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
+            const size_t lineCount = token.line() - startLine;
 
-            // TODO 2428: create the actual patch
-            status.warn(startLine, "Skipping patch: currently not supported");
+            onPatch(startLine, lineCount, m_targetMapFormat, w, h, std::move(controlPoints), std::move(textureName), status);
         }
 
         std::tuple<vm::vec3, vm::vec3, vm::vec3> StandardMapParser::parseFacePoints(ParserStatus& /* status */) {
