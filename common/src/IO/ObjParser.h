@@ -101,7 +101,7 @@ namespace TrenchBroom {
         };
 
         /**
-         * The specific instantiation of the ObjParser as it applies to Neverball.
+         * The specific instantiation of the ObjParser as it applies to RBDoom 3 and IcedTech.
          */
         class Doom3ObjParser : public ObjParser {
         private:

@@ -340,7 +340,7 @@ namespace TrenchBroom {
                             }
                             onEndBrush(startLine, token.line() - startLine, status);
                         } else {
-                            onEndBrush(startLine, token.line() - startLine, extraAttributes, status);
+                            onEndBrush(startLine, token.line() - startLine, status);
                         }
                         return;
                     default: {
@@ -704,7 +704,7 @@ namespace TrenchBroom {
 
         void StandardMapParser::parseQuake3Patch(ParserStatus& status, const size_t startLine) {
             auto token = expect(QuakeMapToken::String, m_tokenizer.nextToken());
-            expect(PatchId, token);
+            expect(PatchId2, token);
             expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
 
             auto textureName = parseTextureName(status);
@@ -781,6 +781,10 @@ namespace TrenchBroom {
             }
 
 			token = expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
+            auto h = token.toInteger<int>();
+            if (h < 0) {
+                status.warn(token.line(), token.column(), "Negative patch height, assuming 0");
+                h = 0;
             }
 
 			// explicitSubdivisions = false
