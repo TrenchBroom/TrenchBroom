@@ -790,7 +790,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::newDocument(std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat) {
-            if (!confirmOrDiscardChanges()) {
+            if (!confirmOrDiscardChanges() || !closeCompileDialog()) {
                 return false;
             }
             m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game);
@@ -798,7 +798,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::openDocument(std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat, const IO::Path& path) {
-            if (!confirmOrDiscardChanges()) {
+            if (!confirmOrDiscardChanges() || !closeCompileDialog()) {
                 return false;
             }
             const auto startTime = std::chrono::high_resolution_clock::now();
