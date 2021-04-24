@@ -1679,6 +1679,19 @@ namespace TrenchBroom {
             showModelessDialog(m_compilationDialog);
         }
 
+        bool MapFrame::closeCompileDialog() {
+            if (!m_compilationDialog) {
+                return true;
+            }
+
+            if (m_compilationDialog->close()) {
+                m_compilationDialog = nullptr;
+                return true;
+            }
+
+            return false;
+        }
+
         void MapFrame::showLaunchEngineDialog() {
             LaunchGameEngineDialog dialog(m_document, this);
             dialog.exec();
@@ -1833,7 +1846,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::closeEvent(QCloseEvent* event) {
-            if (m_compilationDialog != nullptr && !m_compilationDialog->close()) {
+            if (!closeCompileDialog()) {
                 event->ignore();
             } else {
                 ensure(m_frameManager != nullptr, "frameManager is null");
