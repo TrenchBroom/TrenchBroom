@@ -468,13 +468,15 @@ namespace TrenchBroom {
 
             void nodesWillChange(const std::vector<Model::Node*>& nodes) {
                 if (m_ignoreChangeNotifications == 0u) {
-                    removeHandles(nodes);
+                    const auto selectedNodes = kdl::vec_filter(nodes, [](const auto* node) { return node->selected(); });
+                    removeHandles(selectedNodes);
                 }
             }
 
             void nodesDidChange(const std::vector<Model::Node*>& nodes) {
                 if (m_ignoreChangeNotifications == 0u) {
-                    addHandles(nodes);
+                    const auto selectedNodes = kdl::vec_filter(nodes, [](const auto* node) { return node->selected(); });
+                    addHandles(selectedNodes);
                 }
             }
         protected:
