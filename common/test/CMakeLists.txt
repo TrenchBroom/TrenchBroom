@@ -126,57 +126,62 @@ set(COMMON_TEST_SOURCE
 # before the first catch.hpp inclusion.
 set_property(SOURCE "${COMMON_TEST_SOURCE_DIR}/RunAllTests.cpp" PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 
-add_executable(common-test ${COMMON_TEST_UTILS_SOURCE} ${COMMON_TEST_SOURCE})
-target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
-target_link_libraries(common-test PRIVATE common Catch2::Catch2)
-set_target_properties(common-test PROPERTIES AUTOMOC TRUE)
-
-set_compiler_config(common-test)
-
-# By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
-# but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
-set_target_properties(common-test PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:common-test>")
-
 # Organize files into IDE folders
 source_group(TREE "${COMMON_TEST_SOURCE_DIR}" FILES ${COMMON_TEST_UTILS_SOURCE})
 source_group(TREE "${COMMON_TEST_SOURCE_DIR}" FILES ${COMMON_TEST_SOURCE})
 
+# Configure test fixture directories
 set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 
-set(TEST_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:common-test>")
-set(TEST_FIXTURE_DEST_DIR "${TEST_RESOURCE_DEST_DIR}/fixture")
+macro(configure_test_target TARGET)
+    target_link_libraries(${TARGET} PRIVATE common Catch2::Catch2)
+    set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
 
-if(WIN32)
-    # Copy DLLs to app directory
-    add_custom_command(TARGET common-test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage>" "$<TARGET_FILE_DIR:common-test>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:common-test>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:common-test>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:common-test>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:common-test>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Svg>" "$<TARGET_FILE_DIR:common-test>"
-        COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:common-test>/platforms"
-        COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:common-test>/styles"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>" "$<TARGET_FILE_DIR:common-test>/platforms"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>" "$<TARGET_FILE_DIR:common-test>/styles")
-endif()
+    set_compiler_config(${TARGET})
 
-# Copy some resource files required when initializing TrenchBroomApp
-add_custom_command(TARGET common-test POST_BUILD
-COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/graphics/images" "${TEST_RESOURCE_DEST_DIR}/images")
+    # By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
+    # but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
+    set_target_properties(${TARGET} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET}>")
 
-# Clear all fixtures
-add_custom_command(TARGET common-test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "${TEST_FIXTURE_DEST_DIR}")
+    set(TEST_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:${TARGET}>")
+    set(TEST_FIXTURE_DEST_DIR "${TEST_RESOURCE_DEST_DIR}/fixture")
 
-# Copy test fixtures
-add_custom_command(TARGET common-test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${TEST_FIXTURE_SOURCE_DIR}" "${TEST_FIXTURE_DEST_DIR}/test")
+    if(WIN32)
+        # Copy DLLs to app directory
+        add_custom_command(TARGET ${TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage>" "$<TARGET_FILE_DIR:${TARGET}>"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:${TARGET}>"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:${TARGET}>"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:${TARGET}>"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:${TARGET}>"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Svg>" "$<TARGET_FILE_DIR:${TARGET}>"
+            COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:${TARGET}>/platforms"
+            COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:${TARGET}>/styles"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>" "$<TARGET_FILE_DIR:${TARGET}>/platforms"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>" "$<TARGET_FILE_DIR:${TARGET}>/styles")
+    endif()
 
-# Copy game config files
-add_custom_command(TARGET common-test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games" "${TEST_FIXTURE_DEST_DIR}/games")
+    # Copy some resource files required when initializing TrenchBroomApp
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/graphics/images" "${TEST_RESOURCE_DEST_DIR}/images")
 
-add_custom_command(TARGET common-test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games-testing" "${TEST_FIXTURE_DEST_DIR}/games")
+    # Clear all fixtures
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E remove_directory "${TEST_FIXTURE_DEST_DIR}")
+
+    # Copy test fixtures
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${TEST_FIXTURE_SOURCE_DIR}" "${TEST_FIXTURE_DEST_DIR}/test")
+
+    # Copy game config files
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games" "${TEST_FIXTURE_DEST_DIR}/games")
+
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games-testing" "${TEST_FIXTURE_DEST_DIR}/games")
+endmacro()
+
+add_executable(common-test ${COMMON_TEST_UTILS_SOURCE} ${COMMON_TEST_SOURCE})
+target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
+configure_test_target(common-test)
 
