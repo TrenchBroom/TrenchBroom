@@ -128,11 +128,6 @@ set_target_properties(common-test PROPERTIES AUTOMOC TRUE)
 
 set_compiler_config(common-test)
 
-# avoid spurious warnings when passing 0 to google test assertions
-if(COMPILER_IS_CLANG)
-    target_compile_options(common-test PRIVATE -Wno-zero-as-null-pointer-constant)
-endif()
-
 # By default VS launches with a CWD one level up from the .exe (which is in a "Debug" subdirectory)
 # but we copy resources into the .exe's directory, and the tests expect the CWD to be the .exe's directory.
 set_target_properties(common-test PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:common-test>")
