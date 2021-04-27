@@ -34,6 +34,9 @@ cd "%BUILD_DIR%"
 cd common\test\Release
 common-test.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+
+common-regression-test.exe
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
 cd common\benchmark\Release

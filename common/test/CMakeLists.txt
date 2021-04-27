@@ -121,6 +121,8 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/StackWalkerTest.cpp"
 )
 
+set(COMMON_REGRESSION_TEST_SOURCE)
+
 # Catch2 needs one source file to define a macro (in our case CATCH_CONFIG_RUNNER) before including
 # catch.hpp. This needs to be excluded from unity builds, otherwise the macro wouldn't be defined
 # before the first catch.hpp inclusion.
@@ -190,4 +192,8 @@ endmacro()
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 configure_test_target(common-test)
+
+add_executable(common-regression-test ${COMMON_REGRESSION_TEST_SOURCE})
+target_include_directories(common-regression-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
+configure_test_target(common-regression-test)
 
