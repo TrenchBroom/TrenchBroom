@@ -218,7 +218,7 @@ namespace TrenchBroom {
                     }
 
                     const auto mtlPath = path.replaceExtension("mtl");
-                    std::ofstream mtlFile = openPathAsOutputStream(path);
+                    std::ofstream mtlFile = openPathAsOutputStream(mtlPath);
                     if (!mtlFile) {
                         throw FileSystemException("Cannot open file: " + mtlPath.asString());
                     }
