@@ -24,7 +24,7 @@
 
 #include <ostream>
 
-// These are so Google Test can print Qt types
+// These are so Catch can print Qt types
 
 inline void PrintTo(const QString& string, std::ostream* ostream) {
     *ostream << qUtf8Printable(string);
