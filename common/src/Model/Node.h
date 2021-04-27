@@ -65,6 +65,7 @@ namespace TrenchBroom {
 
             VisibilityState m_visibilityState;
             LockState m_lockState;
+            bool m_lockedByOtherSelection;
 
             mutable size_t m_lineNumber;
             mutable size_t m_lineCount;
@@ -319,6 +320,8 @@ namespace TrenchBroom {
             bool locked() const;
             LockState lockState() const;
             bool setLockState(LockState lockState);
+            bool lockedByOtherSelection() const;
+            void setLockedByOtherSelection(bool lockedByOtherSelection);
         public: // picking
             void pick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& result);
             void findNodesContaining(const vm::vec3& point, std::vector<Node*>& result);
