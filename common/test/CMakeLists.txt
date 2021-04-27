@@ -121,7 +121,10 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/StackWalkerTest.cpp"
 )
 
-set(COMMON_REGRESSION_TEST_SOURCE)
+set(COMMON_REGRESSION_TEST_SOURCE
+        "${COMMON_TEST_SOURCE_DIR}/IO/WorldReaderRegressionTest.cpp"
+)
+
 
 # Catch2 needs one source file to define a macro (in our case CATCH_CONFIG_RUNNER) before including
 # catch.hpp. This needs to be excluded from unity builds, otherwise the macro wouldn't be defined
