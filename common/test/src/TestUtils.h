@@ -83,6 +83,10 @@ namespace TrenchBroom {
             std::unique_ptr<Model::GameConfig> gameConfig;
         };
         GameAndConfig loadGame(const std::string& gameName);
+
+        const Model::BrushFace* findFaceByPoints(const std::vector<Model::BrushFace>& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
+        void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel);
+        void checkBrushTexCoordSystem(const Model::BrushNode* brushNode, const bool expectParallel);
     }
 
     namespace View {

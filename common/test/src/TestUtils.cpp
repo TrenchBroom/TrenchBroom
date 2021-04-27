@@ -30,6 +30,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GameImpl.h"
 #include "Model/GroupNode.h"
+#include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/PatchNode.h"
 #include "View/MapDocument.h"
@@ -240,6 +241,35 @@ namespace TrenchBroom {
             // to the GameConfig.
             return { std::move(game), std::move(config) };
         }
+
+        const Model::BrushFace* findFaceByPoints(const std::vector<Model::BrushFace>& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
+            for (const Model::BrushFace& face : faces) {
+                if (face.points()[0] == point0 &&
+                    face.points()[1] == point1 &&
+                    face.points()[2] == point2)
+                    return &face;
+            }
+            return nullptr;
+        }
+
+        void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel) {
+            auto snapshot = face.takeTexCoordSystemSnapshot();
+            auto* check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
+            const bool isParallel = (check != nullptr);
+            CHECK(isParallel == expectParallel);
+        }
+
+        void checkBrushTexCoordSystem(const Model::BrushNode* brushNode, const bool expectParallel) {
+            const auto& faces = brushNode->brush().faces();
+            CHECK(faces.size() == 6u);
+            checkFaceTexCoordSystem(faces[0], expectParallel);
+            checkFaceTexCoordSystem(faces[1], expectParallel);
+            checkFaceTexCoordSystem(faces[2], expectParallel);
+            checkFaceTexCoordSystem(faces[3], expectParallel);
+            checkFaceTexCoordSystem(faces[4], expectParallel);
+            checkFaceTexCoordSystem(faces[5], expectParallel);
+        }
+
     }
 
     namespace View {

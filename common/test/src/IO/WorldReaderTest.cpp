@@ -41,38 +41,11 @@
 
 #include <string>
 
+#include "TestUtils.h"
 #include "Catch2.h"
 
 namespace TrenchBroom {
     namespace IO {
-        static const Model::BrushFace* findFaceByPoints(const std::vector<Model::BrushFace>& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
-            for (const Model::BrushFace& face : faces) {
-                if (face.points()[0] == point0 &&
-                    face.points()[1] == point1 &&
-                    face.points()[2] == point2)
-                    return &face;
-            }
-            return nullptr;
-        }
-
-        static void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel) {
-            auto snapshot = face.takeTexCoordSystemSnapshot();
-            auto* check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
-            const bool isParallel = (check != nullptr);
-            CHECK(isParallel == expectParallel);
-        }
-
-        static void checkBrushTexCoordSystem(const Model::BrushNode* brushNode, const bool expectParallel) {
-            const auto& faces = brushNode->brush().faces();
-            CHECK(faces.size() == 6u);
-            checkFaceTexCoordSystem(faces[0], expectParallel);
-            checkFaceTexCoordSystem(faces[1], expectParallel);
-            checkFaceTexCoordSystem(faces[2], expectParallel);
-            checkFaceTexCoordSystem(faces[3], expectParallel);
-            checkFaceTexCoordSystem(faces[4], expectParallel);
-            checkFaceTexCoordSystem(faces[5], expectParallel);
-        }
-
         TEST_CASE("WorldReaderTest.parseFailure_1424", "[WorldReaderTest]") {
             const std::string data(R"(
 {
