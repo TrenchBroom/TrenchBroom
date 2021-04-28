@@ -389,7 +389,8 @@ namespace TrenchBroom {
             profile->task(1)->accept(AssertCompilationCopyFilesVisitor(false, "the source", "the target"));
         }
 
-        TEST_CASE("CompilationConfigParserTest.parseError_1437_unescaped_backslashes", "[CompilationConfigParserTest]") {
+        TEST_CASE("CompilationConfigParserTest.parseUnescapedBackslashes", "[CompilationConfigParserTest]") {
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1437
             const std::string config("{\n"
                                 "	\"profiles\": [\n"
                                 "		{\n"
