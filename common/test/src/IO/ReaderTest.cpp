@@ -106,12 +106,12 @@ namespace TrenchBroom {
             CHECK(r.position() == 2U);
         }
 
-        TEST_CASE("BufferReaderTest.testSeekFromBegin", "[BufferReaderTest]") {
+        TEST_CASE("BufferReaderTest.seekFromBegin", "[BufferReaderTest]") {
             seekFromBegin(Reader::from(buff(), buff() + 10));
 
         }
 
-        TEST_CASE("FileReaderTest.testSeekFromBegin", "[FileReaderTest]") {
+        TEST_CASE("FileReaderTest.seekFromBegin", "[FileReaderTest]") {
             seekFromBegin(file()->reader());
         }
 
@@ -129,11 +129,11 @@ namespace TrenchBroom {
             CHECK(r.position() == 0U);
         }
 
-        TEST_CASE("BufferReaderTest.testSeekFromEnd", "[BufferReaderTest]") {
+        TEST_CASE("BufferReaderTest.seekFromEnd", "[BufferReaderTest]") {
             seekFromEnd(Reader::from(buff(), buff() + 10));
         }
 
-        TEST_CASE("FileReaderTest.testSeekFromEnd", "[FileReaderTest]") {
+        TEST_CASE("FileReaderTest.seekFromEnd", "[FileReaderTest]") {
             seekFromEnd(file()->reader());
         }
 
@@ -148,11 +148,11 @@ namespace TrenchBroom {
             CHECK(r.position() == 2U);
         }
 
-        TEST_CASE("BufferReaderTest.testSeekForward", "[BufferReaderTest]") {
+        TEST_CASE("BufferReaderTest.seekForward", "[BufferReaderTest]") {
             seekForward(Reader::from(buff(), buff() + 10));
         }
 
-        TEST_CASE("FileReaderTest.testSeekForward", "[FileReaderTest]") {
+        TEST_CASE("FileReaderTest.seekForward", "[FileReaderTest]") {
             seekForward(file()->reader());
         }
 
@@ -175,11 +175,11 @@ namespace TrenchBroom {
             CHECK(s.position() == 3U);
         }
 
-        TEST_CASE("BufferReaderTest.testSubReader", "[BufferReaderTest]") {
+        TEST_CASE("BufferReaderTest.subReader", "[BufferReaderTest]") {
             subReader(Reader::from(buff(), buff() + 10));
         }
 
-        TEST_CASE("FileReaderTest.testSubReader", "[FileReaderTest]") {
+        TEST_CASE("FileReaderTest.subReader", "[FileReaderTest]") {
             subReader(file()->reader());
         }
     }
