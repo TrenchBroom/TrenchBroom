@@ -38,46 +38,31 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST_CASE("Md3ParserTest.loadValidMd3", "[Md3ParserTest]") {
+        TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]") {
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/2659
+
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");
             const auto textureSearchPaths = std::vector<Path> { Path("models") };
-            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/bfg"));
-                                        fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/armor"));
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
-            const auto md3Path = IO::Path("models/weapons2/bfg/bfg.md3");
+            const auto md3Path = IO::Path("models/armor_red.md3");
             const auto md3File = fs->openFile(md3Path);
             REQUIRE(md3File != nullptr);
 
             auto reader = md3File->reader().buffer();
-            auto parser = Md3Parser("bfg", std::begin(reader), std::end(reader), *fs);
+            auto parser = Md3Parser("armor_red", std::begin(reader), std::end(reader), *fs);
             auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
-            parser.loadFrame(0, *model, logger);
 
             CHECK(model != nullptr);
 
-            CHECK(model->frameCount() == 1u);
+            CHECK(model->frameCount() == 30u);
             CHECK(model->surfaceCount() == 2u);
 
-            const auto* frame = model->frame("MilkShape 3D");
-            CHECK(frame != nullptr);
-            CHECK(vm::is_equal(vm::bbox3f(vm::vec3f(-10.234375, -10.765625, -9.4375), vm::vec3f(30.34375, 10.765625, 11.609375)), frame->bounds(), 0.01f));
-
-            const auto* surface1 = model->surface("x_bfg");
-            CHECK(surface1 != nullptr);
-            CHECK(surface1->frameCount() == 1u);
-            CHECK(surface1->skinCount() == 1u);
-
-            const auto* skin1 = surface1->skin("models/weapons2/bfg/LDAbfg");
-            CHECK(skin1 != nullptr);
-
-            const auto* surface2 = model->surface("x_fx");
-            CHECK(surface2 != nullptr);
-            CHECK(surface2->frameCount() == 1u);
-            CHECK(surface2->skinCount() == 1u);
-
-            const auto* skin2 = surface2->skin("models/weapons2/bfg/LDAbfg_z");
-            CHECK(skin2 != nullptr);
+            for (size_t i = 0; i < model->frameCount(); ++i) {
+                CHECK_NOTHROW(parser.loadFrame(i, *model, logger));
+            }
         }
     }
 }
