@@ -32,20 +32,68 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST_CASE("AseParserTest.loadWithoutException", "[AseParserTest]") {
+        TEST_CASE("AseParserTest.parseFailure_2657", "[AseParserTest]") {
             NullLogger logger;
-            
+
             const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
             std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(defaultAssetsPath);
             
-            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/wedge_with_shader");
+            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/steelstorm_player");
             fs = std::make_shared<DiskFileSystem>(fs, basePath);
 
             const auto shaderSearchPath = Path("scripts");
             const auto textureSearchPaths = std::vector<Path> { Path("models") };
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
-            const auto aseFile = fs->openFile(Path("models/mapobjects/wedges/wedge_45.ase"));
+            const auto aseFile = fs->openFile(Path("player.ase"));
+            auto reader = aseFile->reader().buffer();
+            AseParser parser("player", reader.stringView(), *fs);
+
+            auto model = parser.initializeModel(logger);
+            CHECK(model != nullptr);
+
+            CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
+            CHECK(model->frame(0)->loaded());
+        }
+
+        TEST_CASE("AseParserTest.parseFailure_2679", "[AseParserTest]") {
+            NullLogger logger;
+
+            const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(defaultAssetsPath);
+            
+            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/no_scene_directive");
+            fs = std::make_shared<DiskFileSystem>(fs, basePath);
+
+            const auto shaderSearchPath = Path("scripts");
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+
+            const auto aseFile = fs->openFile(Path("wedge_45.ase"));
+            auto reader = aseFile->reader().buffer();
+            AseParser parser("wedge", reader.stringView(), *fs);
+
+            auto model = parser.initializeModel(logger);
+            CHECK(model != nullptr);
+
+            CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
+            CHECK(model->frame(0)->loaded());
+        }
+    
+        TEST_CASE("AseParserTest.parseFailure_2898_vertex_index", "[AseParserTest]") {
+            NullLogger logger;
+
+            const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(defaultAssetsPath);
+            
+            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/index_out_of_bounds");
+            fs = std::make_shared<DiskFileSystem>(fs, basePath);
+
+            const auto shaderSearchPath = Path("scripts");
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+
+            const auto aseFile = fs->openFile(Path("wedge_45.ase"));
             auto reader = aseFile->reader().buffer();
             AseParser parser("wedge", reader.stringView(), *fs);
 
@@ -56,20 +104,20 @@ namespace TrenchBroom {
             CHECK(model->frame(0)->loaded());
         }
         
-        TEST_CASE("AseParserTest.fallbackToMaterialName", "[AseParserTest]") {
+        TEST_CASE("AseParserTest.parseFailure_2898_no_uv", "[AseParserTest]") {
             NullLogger logger;
 
             const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
             std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(defaultAssetsPath);
             
-            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/fallback_to_materialname");
+            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/index_out_of_bounds");
             fs = std::make_shared<DiskFileSystem>(fs, basePath);
 
             const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = std::vector<Path> { Path("textures") };
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
             fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
-            const auto aseFile = fs->openFile(Path("models/wedge_45.ase"));
+            const auto aseFile = fs->openFile(Path("wedge_45_no_uv.ase"));
             auto reader = aseFile->reader().buffer();
             AseParser parser("wedge", reader.stringView(), *fs);
 
@@ -78,43 +126,6 @@ namespace TrenchBroom {
 
             CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
             CHECK(model->frame(0)->loaded());
-            
-            // account for the default texture
-            CHECK(model->surface(0).skinCount() == 2u);
-            CHECK(model->surface(0).skin(0)->name() == "textures/bigtile");
-        }
-        
-        TEST_CASE("AseParserTest.loadDefaultMaterial", "[AseParserTest]") {
-            NullLogger logger;
-
-            const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
-            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(defaultAssetsPath);
-            
-            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/load_default_material");
-            fs = std::make_shared<DiskFileSystem>(fs, basePath);
-
-            const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = std::vector<Path> { Path("textures") };
-            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
-
-            const auto aseFile = fs->openFile(Path("models/wedge_45.ase"));
-            auto reader = aseFile->reader().buffer();
-            AseParser parser("wedge", reader.stringView(), *fs);
-
-            auto model = parser.initializeModel(logger);
-            CHECK(model != nullptr);
-
-            CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
-            CHECK(model->frame(0)->loaded());
-            
-            // account for the default texture
-            CHECK(model->surface(0).skinCount() == 2u);
-            // shader name is correct, but we loaded the default material
-            
-            const auto* texture = model->surface(0).skin(0);
-            CHECK(texture->name() == "textures/bigtile");
-            CHECK(texture->width() == 32u);
-            CHECK(texture->height() == 32u);
         }
     }
 }

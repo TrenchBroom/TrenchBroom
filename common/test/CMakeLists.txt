@@ -122,6 +122,7 @@ set(COMMON_TEST_SOURCE
 )
 
 set(COMMON_REGRESSION_TEST_SOURCE
+        "${COMMON_TEST_SOURCE_DIR}/IO/AseParserRegressionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/WorldReaderRegressionTest.cpp"
 )
 
