@@ -41,6 +41,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/M8TextureReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/Md3ParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/MdlParserTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/NodeReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/NodeWriterTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/ObjParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/ObjSerializerTest.cpp"
