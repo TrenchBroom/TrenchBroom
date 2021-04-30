@@ -127,6 +127,7 @@ set(COMMON_REGRESSION_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/WorldReaderRegressionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/Md3ParserRegressionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/Quake3ShaderParserRegressionTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/BrushNodeRegressionTest.cpp"
 )
 
 
