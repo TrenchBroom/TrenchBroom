@@ -77,7 +77,151 @@ namespace TrenchBroom {
             return !lhs.intersects(rhs) && !rhs.intersects(lhs);
         }
 
-        TEST_CASE("PolyhedronTest.initWith4Points", "[PolyhedronTest]") {
+        TEST_CASE("PolyhedronTest.constructEmpty", "[PolyhedronTest]") {
+            Polyhedron3d p;
+            CHECK(p.empty());
+        }
+
+        TEST_CASE("PolyhedronTest.constructWithOnePoint", "[PolyhedronTest]") {
+            const vm::vec3d p1( -8.0, -8.0, -8.0);
+
+            Polyhedron3d p({p1});
+
+            CHECK_FALSE(p.empty());
+            CHECK(p.point());
+            CHECK_FALSE(p.edge());
+            CHECK_FALSE(p.polygon());
+            CHECK_FALSE(p.polyhedron());
+
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+
+            CHECK(hasVertices(p, points));
+        }
+
+
+        TEST_CASE("PolyhedronTest.constructWithTwoIdenticalPoints", "[PolyhedronTest]") {
+            const vm::vec3d p1( -8.0, -8.0, -8.0);
+
+            Polyhedron3d p({p1, p1});
+
+            CHECK_FALSE(p.empty());
+            CHECK(p.point());
+            CHECK_FALSE(p.edge());
+            CHECK_FALSE(p.polygon());
+            CHECK_FALSE(p.polyhedron());
+
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+
+            CHECK(hasVertices(p, points));
+        }
+
+        TEST_CASE("PolyhedronTest.constructWithTwoPoints", "[PolyhedronTest]") {
+            const vm::vec3d p1(0.0, 0.0, 0.0);
+            const vm::vec3d p2(3.0, 0.0, 0.0);
+
+            Polyhedron3d p({p1, p2});
+
+            CHECK_FALSE(p.empty());
+            CHECK_FALSE(p.point());
+            CHECK(p.edge());
+            CHECK_FALSE(p.polygon());
+            CHECK_FALSE(p.polyhedron());
+
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+            points.push_back(p2);
+
+            CHECK(hasVertices(p, points));
+        }
+
+        TEST_CASE("PolyhedronTest.constructWithThreeColinearPoints", "[PolyhedronTest]") {
+            const vm::vec3d p1(0.0, 0.0, 0.0);
+            const vm::vec3d p2(3.0, 0.0, 0.0);
+            const vm::vec3d p3(6.0, 0.0, 0.0);
+
+            Polyhedron3d p({p1, p2, p3});
+
+            CHECK_FALSE(p.empty());
+            CHECK_FALSE(p.point());
+            CHECK(p.edge());
+            CHECK_FALSE(p.polygon());
+            CHECK_FALSE(p.polyhedron());
+
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+            points.push_back(p3);
+
+            CHECK(hasVertices(p, points));
+        }
+
+        TEST_CASE("PolyhedronTest.constructWithThreePoints", "[PolyhedronTest]") {
+            const vm::vec3d p1(0.0, 0.0, 0.0);
+            const vm::vec3d p2(3.0, 0.0, 0.0);
+            const vm::vec3d p3(6.0, 5.0, 0.0);
+
+            Polyhedron3d p({p1, p2, p3});
+
+            CHECK_FALSE(p.empty());
+            CHECK_FALSE(p.point());
+            CHECK_FALSE(p.edge());
+            CHECK(p.polygon());
+            CHECK_FALSE(p.polyhedron());
+
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+            points.push_back(p2);
+            points.push_back(p3);
+
+            CHECK(hasVertices(p, points));
+        }
+
+        TEST_CASE("PolyhedronTest.constructTriangleWithContainedPoint", "[PolyhedronTest]") {
+            const vm::vec3d p1(0.0, 0.0, 0.0);
+            const vm::vec3d p2(6.0, 0.0, 0.0);
+            const vm::vec3d p3(3.0, 6.0, 0.0);
+            const vm::vec3d p4(3.0, 3.0, 0.0);
+
+            Polyhedron3d p({p1, p2, p3, p4});
+
+            CHECK_FALSE(p.empty());
+            CHECK_FALSE(p.point());
+            CHECK_FALSE(p.edge());
+            CHECK(p.polygon());
+            CHECK_FALSE(p.polyhedron());
+
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+            points.push_back(p2);
+            points.push_back(p3);
+
+            CHECK(hasVertices(p, points));
+        }
+
+        TEST_CASE("PolyhedronTest.constructWithFourCoplanarPoints", "[PolyhedronTest]") {
+            const vm::vec3d p1(0.0, 0.0, 0.0);
+            const vm::vec3d p2(6.0, 0.0, 0.0);
+            const vm::vec3d p3(3.0, 3.0, 0.0);
+            const vm::vec3d p4(3.0, 6.0, 0.0);
+
+            Polyhedron3d p({p1, p2, p3, p4});
+
+            CHECK_FALSE(p.empty());
+            CHECK_FALSE(p.point());
+            CHECK_FALSE(p.edge());
+            CHECK(p.polygon());
+            CHECK_FALSE(p.polyhedron());
+
+            std::vector<vm::vec3d> points;
+            points.push_back(p1);
+            points.push_back(p2);
+            points.push_back(p4);
+
+            CHECK(hasVertices(p, points));
+        }
+
+        TEST_CASE("PolyhedronTest.constructWith4Points", "[PolyhedronTest]") {
             const vm::vec3d p1( 0.0, 0.0, 8.0);
             const vm::vec3d p2( 8.0, 0.0, 0.0);
             const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -109,46 +253,75 @@ namespace TrenchBroom {
             CHECK(p.hasFace({ p1, p4, p3 }));
         }
 
-        TEST_CASE("PolyhedronTest.copy", "[PolyhedronTest]") {
-            const vm::vec3d p1( 0.0, 0.0, 8.0);
-            const vm::vec3d p2( 8.0, 0.0, 0.0);
-            const vm::vec3d p3(-8.0, 0.0, 0.0);
-            const vm::vec3d p4( 0.0, 8.0, 0.0);
+        TEST_CASE("PolyhedronTest.constructRectangleWithRedundantPoint", "[PolyhedronTest]") {
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1659
+            /*
+             p4 p5 p3
+             *--+--*
+             |     |
+             |     |
+             *-----*
+             p1    p2
+             */
 
-            CHECK(Polyhedron3d()                 == (Polyhedron3d() = Polyhedron3d()));
-            CHECK(Polyhedron3d({p1})             == (Polyhedron3d() = Polyhedron3d({p1})));
-            CHECK(Polyhedron3d({p1, p2})         == (Polyhedron3d() = Polyhedron3d({p1, p2})));
-            CHECK(Polyhedron3d({p1, p2, p3})     == (Polyhedron3d() = Polyhedron3d({p1, p2, p3})));
-            CHECK(Polyhedron3d({p1, p2, p3, p4}) == (Polyhedron3d() = Polyhedron3d({p1, p2, p3, p4})));
+            const vm::vec3d p1(  0.0,   0.0, 0.0);
+            const vm::vec3d p2(+32.0,   0.0, 0.0);
+            const vm::vec3d p3(+32.0, +32.0, 0.0);
+            const vm::vec3d p4(  0.0, +32.0, 0.0);
+            const vm::vec3d p5(+16.0, +32.0, 0.0);
+
+            Polyhedron3d p({p1, p2, p3, p4, p5});
+
+            CHECK(p.hasVertex(p1));
+            CHECK(p.hasVertex(p2));
+            CHECK(p.hasVertex(p3));
+            CHECK(p.hasVertex(p4));
+            CHECK_FALSE(p.hasVertex(p5));
         }
 
-        TEST_CASE("PolyhedronTest.swap", "[PolyhedronTest]") {
-            const vm::vec3d p1( 0.0, 0.0, 8.0);
-            const vm::vec3d p2( 8.0, 0.0, 0.0);
-            const vm::vec3d p3(-8.0, 0.0, 0.0);
-            const vm::vec3d p4( 0.0, 8.0, 0.0);
+        TEST_CASE("PolyhedronTest.constructTrapezoidWithRedundantPoint", "[PolyhedronTest]") {
+            /*
+             p4    p3 p5
+             *-----*--+
+             |       /
+             |      /
+             *-----*
+             p1    p2
+             */
 
-            Polyhedron3d original({p1, p2, p3, p4});
-            Polyhedron3d other({p2, p3, p4});
+            const vm::vec3d p1(  0.0,   0.0, 0.0);
+            const vm::vec3d p2(+32.0,   0.0, 0.0);
+            const vm::vec3d p3(+32.0, +32.0, 0.0);
+            const vm::vec3d p4(  0.0, +32.0, 0.0);
+            const vm::vec3d p5(+40.0, +32.0, 0.0);
 
-            Polyhedron3d lhs = original;
-            Polyhedron3d rhs = other;
+            Polyhedron3d p({p1, p2, p3, p4, p5});
 
-            // Just to be sure...
-            assert(lhs == original);
-            assert(rhs == other);
-
-            using std::swap;
-            swap(lhs, rhs);
-
-            CHECK(lhs == other);
-            CHECK(rhs == original);
-
-            CHECK(lhs.bounds() == other.bounds());
-            CHECK(rhs.bounds() == original.bounds());
+            CHECK(p.hasVertex(p1));
+            CHECK(p.hasVertex(p2));
+            CHECK(p.hasVertex(p4));
+            CHECK(p.hasVertex(p5));
+            CHECK_FALSE(p.hasVertex(p3));
         }
 
-        TEST_CASE("PolyhedronTest.testSimpleConvexHull", "[PolyhedronTest]") {
+        TEST_CASE("PolyhedronTest.constructPolygonWithRedundantPoint", "[PolyhedronTest]") {
+            auto p = Polyhedron3d{
+                vm::vec3{-64.0, 64.0, -16.0},
+                vm::vec3{64.0, 64.0, -16.0},
+                vm::vec3{22288.0, 18208.0, 16.0},
+                vm::vec3{22288.0, 18336.0, 16.0}, // does not get added due to all incident faces being coplanar
+                vm::vec3{22416.0, 18336.0, 16.0},
+            };
+
+            CHECK(p.hasAllVertices({
+                vm::vec3{-64.0, 64.0, -16.0},
+                vm::vec3{64.0, 64.0, -16.0},
+                vm::vec3{22288.0, 18208.0, 16.0},
+                vm::vec3{22416.0, 18336.0, 16.0},
+            }, 0.0));
+        }
+
+        TEST_CASE("PolyhedronTest.constructTetrahedonWithRedundantPoint", "[PolyhedronTest]") {
             const vm::vec3d p1( 0.0, 4.0, 8.0);
             const vm::vec3d p2( 8.0, 0.0, 0.0);
             const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -181,7 +354,7 @@ namespace TrenchBroom {
             CHECK(p.hasFace({ p5, p4, p3 }));
         }
 
-        TEST_CASE("PolyhedronTest.testSimpleConvexHullWithCoplanarFaces", "[PolyhedronTest]") {
+        TEST_CASE("PolyhedronTest.constructTetrahedonWithCoplanarFaces", "[PolyhedronTest]") {
             const vm::vec3d p1( 0.0, 0.0, 8.0);
             const vm::vec3d p2( 8.0, 0.0, 0.0);
             const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -212,7 +385,7 @@ namespace TrenchBroom {
             CHECK(p.hasFace({ p5, p4, p3 }));
         }
 
-        TEST_CASE("PolyhedronTest.testSimpleConvexHullOfCube", "[PolyhedronTest]") {
+        TEST_CASE("PolyhedronTest.constructCube", "[PolyhedronTest]") {
             const vm::vec3d p1( -8.0, -8.0, -8.0);
             const vm::vec3d p2( -8.0, -8.0, +8.0);
             const vm::vec3d p3( -8.0, +8.0, -8.0);
@@ -262,239 +435,43 @@ namespace TrenchBroom {
             CHECK(p.hasFace({ p2, p6, p8, p4 }));
         }
 
-        TEST_CASE("PolyhedronTest.initEmpty", "[PolyhedronTest]") {
-            Polyhedron3d p;
-            CHECK(p.empty());
+        TEST_CASE("PolyhedronTest.copy", "[PolyhedronTest]") {
+            const vm::vec3d p1( 0.0, 0.0, 8.0);
+            const vm::vec3d p2( 8.0, 0.0, 0.0);
+            const vm::vec3d p3(-8.0, 0.0, 0.0);
+            const vm::vec3d p4( 0.0, 8.0, 0.0);
+
+            CHECK(Polyhedron3d()                 == (Polyhedron3d() = Polyhedron3d()));
+            CHECK(Polyhedron3d({p1})             == (Polyhedron3d() = Polyhedron3d({p1})));
+            CHECK(Polyhedron3d({p1, p2})         == (Polyhedron3d() = Polyhedron3d({p1, p2})));
+            CHECK(Polyhedron3d({p1, p2, p3})     == (Polyhedron3d() = Polyhedron3d({p1, p2, p3})));
+            CHECK(Polyhedron3d({p1, p2, p3, p4}) == (Polyhedron3d() = Polyhedron3d({p1, p2, p3, p4})));
         }
 
-        TEST_CASE("PolyhedronTest.initEmptyAndAddOnePoint", "[PolyhedronTest]") {
-            const vm::vec3d p1( -8.0, -8.0, -8.0);
+        TEST_CASE("PolyhedronTest.swap", "[PolyhedronTest]") {
+            const vm::vec3d p1( 0.0, 0.0, 8.0);
+            const vm::vec3d p2( 8.0, 0.0, 0.0);
+            const vm::vec3d p3(-8.0, 0.0, 0.0);
+            const vm::vec3d p4( 0.0, 8.0, 0.0);
 
-            Polyhedron3d p({p1});
+            Polyhedron3d original({p1, p2, p3, p4});
+            Polyhedron3d other({p2, p3, p4});
 
-            CHECK_FALSE(p.empty());
-            CHECK(p.point());
-            CHECK_FALSE(p.edge());
-            CHECK_FALSE(p.polygon());
-            CHECK_FALSE(p.polyhedron());
+            Polyhedron3d lhs = original;
+            Polyhedron3d rhs = other;
 
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
+            // Just to be sure...
+            assert(lhs == original);
+            assert(rhs == other);
 
-            CHECK(hasVertices(p, points));
-        }
+            using std::swap;
+            swap(lhs, rhs);
 
+            CHECK(lhs == other);
+            CHECK(rhs == original);
 
-        TEST_CASE("PolyhedronTest.initEmptyAndAddTwoIdenticalPoints", "[PolyhedronTest]") {
-            const vm::vec3d p1( -8.0, -8.0, -8.0);
-
-            Polyhedron3d p({p1, p1});
-
-            CHECK_FALSE(p.empty());
-            CHECK(p.point());
-            CHECK_FALSE(p.edge());
-            CHECK_FALSE(p.polygon());
-            CHECK_FALSE(p.polyhedron());
-
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-
-            CHECK(hasVertices(p, points));
-        }
-
-        TEST_CASE("PolyhedronTest.initEmptyAndAddTwoPoints", "[PolyhedronTest]") {
-            const vm::vec3d p1(0.0, 0.0, 0.0);
-            const vm::vec3d p2(3.0, 0.0, 0.0);
-
-            Polyhedron3d p({p1, p2});
-
-            CHECK_FALSE(p.empty());
-            CHECK_FALSE(p.point());
-            CHECK(p.edge());
-            CHECK_FALSE(p.polygon());
-            CHECK_FALSE(p.polyhedron());
-
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-            points.push_back(p2);
-
-            CHECK(hasVertices(p, points));
-        }
-
-        TEST_CASE("PolyhedronTest.initEmptyAndAddThreeColinearPoints", "[PolyhedronTest]") {
-            const vm::vec3d p1(0.0, 0.0, 0.0);
-            const vm::vec3d p2(3.0, 0.0, 0.0);
-            const vm::vec3d p3(6.0, 0.0, 0.0);
-
-            Polyhedron3d p({p1, p2, p3});
-
-            CHECK_FALSE(p.empty());
-            CHECK_FALSE(p.point());
-            CHECK(p.edge());
-            CHECK_FALSE(p.polygon());
-            CHECK_FALSE(p.polyhedron());
-
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-            points.push_back(p3);
-
-            CHECK(hasVertices(p, points));
-        }
-
-        TEST_CASE("PolyhedronTest.initEmptyAndAddThreePoints", "[PolyhedronTest]") {
-            const vm::vec3d p1(0.0, 0.0, 0.0);
-            const vm::vec3d p2(3.0, 0.0, 0.0);
-            const vm::vec3d p3(6.0, 5.0, 0.0);
-
-            Polyhedron3d p({p1, p2, p3});
-
-            CHECK_FALSE(p.empty());
-            CHECK_FALSE(p.point());
-            CHECK_FALSE(p.edge());
-            CHECK(p.polygon());
-            CHECK_FALSE(p.polyhedron());
-
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-            points.push_back(p2);
-            points.push_back(p3);
-
-            CHECK(hasVertices(p, points));
-        }
-
-        TEST_CASE("PolyhedronTest.initEmptyAndAddThreePointsAndOneInnerPoint", "[PolyhedronTest]") {
-            const vm::vec3d p1(0.0, 0.0, 0.0);
-            const vm::vec3d p2(6.0, 0.0, 0.0);
-            const vm::vec3d p3(3.0, 6.0, 0.0);
-            const vm::vec3d p4(3.0, 3.0, 0.0);
-
-            Polyhedron3d p({p1, p2, p3, p4});
-
-            CHECK_FALSE(p.empty());
-            CHECK_FALSE(p.point());
-            CHECK_FALSE(p.edge());
-            CHECK(p.polygon());
-            CHECK_FALSE(p.polyhedron());
-
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-            points.push_back(p2);
-            points.push_back(p3);
-
-            CHECK(hasVertices(p, points));
-        }
-
-        TEST_CASE("PolyhedronTest.initEmptyAndAddFourCoplanarPoints", "[PolyhedronTest]") {
-            const vm::vec3d p1(0.0, 0.0, 0.0);
-            const vm::vec3d p2(6.0, 0.0, 0.0);
-            const vm::vec3d p3(3.0, 3.0, 0.0);
-            const vm::vec3d p4(3.0, 6.0, 0.0);
-
-            Polyhedron3d p({p1, p2, p3, p4});
-
-            CHECK_FALSE(p.empty());
-            CHECK_FALSE(p.point());
-            CHECK_FALSE(p.edge());
-            CHECK(p.polygon());
-            CHECK_FALSE(p.polyhedron());
-
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-            points.push_back(p2);
-            points.push_back(p4);
-
-            CHECK(hasVertices(p, points));
-        }
-
-        TEST_CASE("PolyhedronTest.initEmptyAndAddFourPoints", "[PolyhedronTest]") {
-            const vm::vec3d p1(0.0, 0.0, 0.0);
-            const vm::vec3d p2(6.0, 0.0, 0.0);
-            const vm::vec3d p3(3.0, 6.0, 0.0);
-            const vm::vec3d p4(3.0, 3.0, 6.0);
-
-            Polyhedron3d p({p1, p2, p3, p4});
-
-            CHECK_FALSE(p.empty());
-            CHECK_FALSE(p.point());
-            CHECK_FALSE(p.edge());
-            CHECK_FALSE(p.polygon());
-            CHECK(p.polyhedron());
-
-            std::vector<vm::vec3d> points;
-            points.push_back(p1);
-            points.push_back(p2);
-            points.push_back(p3);
-            points.push_back(p4);
-
-            CHECK(hasVertices(p, points));
-        }
-
-        TEST_CASE("PolyhedronTest.testAddColinearPointToRectangleOnEdge", "[PolyhedronTest]") {
-            // https://github.com/TrenchBroom/TrenchBroom/issues/1659
-            /*
-             p4 p5 p3
-             *--+--*
-             |     |
-             |     |
-             *-----*
-             p1    p2
-             */
-
-            const vm::vec3d p1(  0.0,   0.0, 0.0);
-            const vm::vec3d p2(+32.0,   0.0, 0.0);
-            const vm::vec3d p3(+32.0, +32.0, 0.0);
-            const vm::vec3d p4(  0.0, +32.0, 0.0);
-            const vm::vec3d p5(+16.0, +32.0, 0.0);
-
-            Polyhedron3d p({p1, p2, p3, p4, p5});
-
-            CHECK(p.hasVertex(p1));
-            CHECK(p.hasVertex(p2));
-            CHECK(p.hasVertex(p3));
-            CHECK(p.hasVertex(p4));
-            CHECK_FALSE(p.hasVertex(p5));
-        }
-
-        TEST_CASE("PolyhedronTest.testAddPointToRectangleMakingOneColinear", "[PolyhedronTest]") {
-            /*
-             p4    p3  p5
-             *-----*   +
-             |     |
-             |     |
-             *-----*
-             p1    p2
-             */
-
-            const vm::vec3d p1(  0.0,   0.0, 0.0);
-            const vm::vec3d p2(+32.0,   0.0, 0.0);
-            const vm::vec3d p3(+32.0, +32.0, 0.0);
-            const vm::vec3d p4(  0.0, +32.0, 0.0);
-            const vm::vec3d p5(+40.0, +32.0, 0.0);
-
-            Polyhedron3d p({p1, p2, p3, p4, p5});
-
-            CHECK(p.hasVertex(p1));
-            CHECK(p.hasVertex(p2));
-            CHECK(p.hasVertex(p4));
-            CHECK(p.hasVertex(p5));
-            CHECK_FALSE(p.hasVertex(p3));
-        }
-
-        TEST_CASE("PolyhedronTest.addVertexToPolygonAndAllFacesCoplanar", "[PolyhedronTest]") {
-            auto p = Polyhedron3d{
-                vm::vec3{-64.0, 64.0, -16.0},
-                vm::vec3{64.0, 64.0, -16.0},
-                vm::vec3{22288.0, 18208.0, 16.0},
-                vm::vec3{22288.0, 18336.0, 16.0}, // does not get added due to all incident faces being coplanar
-                vm::vec3{22416.0, 18336.0, 16.0},
-            };
-
-            CHECK(p.hasAllVertices({
-                vm::vec3{-64.0, 64.0, -16.0},
-                vm::vec3{64.0, 64.0, -16.0},
-                vm::vec3{22288.0, 18208.0, 16.0},
-                vm::vec3{22416.0, 18336.0, 16.0},
-            }, 0.0));
+            CHECK(lhs.bounds() == other.bounds());
+            CHECK(rhs.bounds() == original.bounds());
         }
 
         TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlane", "[PolyhedronTest]") {
