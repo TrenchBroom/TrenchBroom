@@ -112,6 +112,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/SelectionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SetEntityPropertiesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SetLockStateTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/SetVisibilityStateTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SnapBrushVerticesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SwapNodeContentsTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/TagManagementTest.cpp"
