@@ -156,58 +156,6 @@ namespace TrenchBroom {
             layerNode.setLayer(layer);
         }
 
-        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.addNodes") {
-            SECTION("Update linked groups") {
-                auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
-                auto* brushNode = createBrushNode();
-                groupNode->addChild(brushNode);
-                document->addNodes({{document->parentForNodes(), {groupNode}}});
-
-                document->select(groupNode);
-                auto* linkedGroupNode = document->createLinkedDuplicate();
-                document->deselectAll();
-
-                using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
-                CreateNode createNode = GENERATE_COPY(
-                    CreateNode{[](const auto&) -> Model::Node* { return new Model::EntityNode{Model::Entity{}}; }},
-                    CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
-                    CreateNode{[](const auto& test) -> Model::Node* { return test.createPatchNode(); }}
-                );
-
-                auto* nodeToAdd = createNode(*this);
-                document->addNodes({{groupNode, {nodeToAdd}}});
-
-                CHECK(linkedGroupNode->childCount() == 2u);
-                
-                auto* linkedNode = linkedGroupNode->children().back();
-                linkedNode->accept(kdl::overload(
-                    [] (const Model::WorldNode*) {},
-                    [] (const Model::LayerNode*) {},
-                    [] (const Model::GroupNode*) {},
-                    [&](const Model::EntityNode* linkedEntityNode) {
-                        const auto* originalEntityNode = dynamic_cast<Model::EntityNode*>(nodeToAdd);
-                        REQUIRE(originalEntityNode);
-                        CHECK(originalEntityNode->entity() == linkedEntityNode->entity());
-                    },
-                    [&](const Model::BrushNode* linkedBrushNode) {
-                        const auto* originalBrushNode = dynamic_cast<Model::BrushNode*>(nodeToAdd);
-                        REQUIRE(originalBrushNode);
-                        CHECK(originalBrushNode->brush() == linkedBrushNode->brush());
-                    },
-                    [&](const Model::PatchNode* linkedPatchNode) {
-                        const auto* originalPatchNode = dynamic_cast<Model::PatchNode*>(nodeToAdd);
-                        REQUIRE(originalPatchNode);
-                        CHECK(originalPatchNode->patch() == linkedPatchNode->patch());
-                    }
-                ));
-
-                document->undoCommand();
-
-                REQUIRE(groupNode->childCount() == 1u);
-                CHECK(linkedGroupNode->childCount() == 1u);
-            }
-        }
-
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.removeNodes") {
             SECTION("Update linked groups") {
                 auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
