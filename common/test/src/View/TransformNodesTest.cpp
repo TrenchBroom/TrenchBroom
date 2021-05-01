@@ -27,16 +27,22 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
+#include "Model/PatchNode.h"
 #include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
 
 #include <vecmath/approx.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+#include <vecmath/mat_io.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
+#include <kdl/zip_iterator.h>
 
 #include <vector>
 
@@ -71,6 +77,15 @@ namespace TrenchBroom {
             checkBoundsIntegral(brush);
         }
 
+        static void checkTransformation(const Model::Node& node, const Model::Node& original, const vm::mat4x4d& transformation) {
+            CHECK(node.physicalBounds() == original.physicalBounds().transform(transformation));
+
+            REQUIRE(node.childCount() == original.childCount());
+            for (const auto [nodeChild, originalChild] : kdl::make_zip_range(node.children(), original.children())) {
+                checkTransformation(*nodeChild, *originalChild, transformation);
+            }
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip") {
             Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(30.0, 31.0, 31.0)), "texture").value());
@@ -97,6 +112,63 @@ namespace TrenchBroom {
 
             CHECK(brushNode1->logicalBounds() == vm::bbox3(vm::vec3(1.0, 0.0, 0.0), vm::vec3(31.0, 31.0, 31.0)));
             CHECK(brushNode2->logicalBounds() == vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 31.0, 31.0)));
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transformObjects") {
+            using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+            const auto createNode = GENERATE_COPY(
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+                    auto* brushNode = test.createBrushNode();
+                    auto* patchNode = test.createPatchNode();
+                    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                    groupNode->addChildren({brushNode, patchNode, entityNode});
+                    return groupNode;
+                }},
+                CreateNode{[](const auto&) -> Model::Node* {
+                    return new Model::EntityNode{Model::Entity{}};
+                }},
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                    auto* brushNode = test.createBrushNode();
+                    auto* patchNode = test.createPatchNode();
+                    entityNode->addChildren({brushNode, patchNode});
+                    return entityNode;
+                }},
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    return test.createBrushNode();
+                }},
+                CreateNode{[](const auto& test) -> Model::Node* {
+                    return test.createPatchNode();
+                }}
+            );
+
+            GIVEN("A node to transform") {
+                auto* node = createNode(*this);
+                CAPTURE(node->name());
+
+                document->addNodes({{document->parentForNodes(), {node}}});
+                
+                const auto originalNode = std::unique_ptr<Model::Node>{node->cloneRecursively(document->worldBounds())};
+                const auto transformation = vm::translation_matrix(vm::vec3d{1, 2, 3});
+
+                WHEN("The node is transformed") {
+                    document->select(node);
+                    document->transformObjects("Transform Nodes", transformation);
+
+                    THEN("The transformation was applied to the node and its children") {
+                        checkTransformation(*node, *originalNode.get(), transformation);
+                    }
+
+                    AND_WHEN("The transformation is undone") {
+                        document->undoCommand();
+
+                        THEN("The node is back in its original state") {
+                            checkTransformation(*node, *originalNode.get(), vm::mat4x4d::identity());
+                        }
+                    }
+                }
+            }
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate") {
