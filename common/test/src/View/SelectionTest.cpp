@@ -29,6 +29,12 @@
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+#include <vecmath/mat_io.h>
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
+
 #include <kdl/result.h>
 
 #include "Catch2.h"
@@ -173,6 +179,63 @@ namespace TrenchBroom {
             }
         }
 
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching") {
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+            Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCube(64.0, "none").value());
+            Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCube(64.0, "none").value());
+            Model::BrushNode* brushNode3 = new Model::BrushNode(builder.createCube(64.0, "none").value());
+
+            transformNode(*brushNode2, vm::translation_matrix(vm::vec3{10.0, 0.0, 0.0}), document->worldBounds());
+            transformNode(*brushNode3, vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}), document->worldBounds());
+
+            addNode(*document, document->parentForNodes(), brushNode1);
+            addNode(*document, document->parentForNodes(), brushNode2);
+            addNode(*document, document->parentForNodes(), brushNode3);
+
+            REQUIRE(brushNode1->intersects(brushNode2));
+            REQUIRE(brushNode2->intersects(brushNode1));
+
+            REQUIRE(!brushNode1->intersects(brushNode3));
+            REQUIRE(!brushNode3->intersects(brushNode1));
+
+            document->select(brushNode1);
+            document->selectTouching(false);
+
+            using Catch::Matchers::UnorderedEquals;
+            CHECK_THAT(document->selectedNodes().brushes(), UnorderedEquals(std::vector<Model::BrushNode*>{ brushNode2}));
+        }
+
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2476
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+            auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+            addNode(*document, document->parentForNodes(), brushNode1);
+
+            auto* brushNode2 = new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
+            addNode(*document, document->parentForNodes(), brushNode2);
+
+            document->selectAllNodes();
+
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::BrushNode* >{ brushNode1, brushNode2}));
+            CHECK_THAT(document->currentLayer()->children(), Catch::Equals(std::vector<Model::Node* >{ brushNode1, brushNode2}));
+
+            document->selectTouching(true);
+
+            // only this next line was failing
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::BrushNode* >{}));
+            CHECK_THAT(document->currentLayer()->children(), Catch::Equals(std::vector<Model::Node* >{}));
+
+            // brush1 and brush2 are deleted
+            CHECK(brushNode1->parent() == nullptr);
+            CHECK(brushNode2->parent() == nullptr);
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup") {
             document->selectAllNodes();
             document->deleteObjects();
@@ -233,6 +296,86 @@ namespace TrenchBroom {
             CHECK(document->selectedNodes().nodeCount() == 1u);
         }
         
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall") {
+            using Catch::Matchers::UnorderedEquals;
+
+            Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+            Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCube(64.0, "none").value());
+            Model::BrushNode* brushNode2 = new Model::BrushNode(builder.createCube(64.0, "none").value());
+            Model::BrushNode* brushNode3 = new Model::BrushNode(builder.createCube(64.0, "none").value());
+
+            transformNode(*brushNode2, vm::translation_matrix(vm::vec3{0.0, 0.0, -500.0}), document->worldBounds());
+            transformNode(*brushNode3, vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}), document->worldBounds());
+
+            addNode(*document, document->parentForNodes(), brushNode1);
+            addNode(*document, document->parentForNodes(), brushNode2);
+            addNode(*document, document->parentForNodes(), brushNode3);
+
+            REQUIRE(!brushNode1->intersects(brushNode2));
+            REQUIRE(!brushNode1->intersects(brushNode3));
+
+            document->select(brushNode1);
+
+            SECTION("z camera") {
+                document->selectTall(vm::axis::z);
+
+                CHECK_THAT(document->selectedNodes().brushes(), UnorderedEquals(std::vector<Model::BrushNode*>{ brushNode2}));
+            }
+            SECTION("x camera") {
+                document->selectTall(vm::axis::x);
+
+                CHECK_THAT(document->selectedNodes().brushes(), UnorderedEquals(std::vector<Model::BrushNode*>{ brushNode3}));
+            }
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+            auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+            addNode(*document, document->parentForNodes(), brushNode1);
+
+            auto* brushNode2 = new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
+            addNode(*document, document->parentForNodes(), brushNode2);
+
+            auto* brushNode3 = new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture").value());
+            addNode(*document, document->parentForNodes(), brushNode3);
+
+            auto* patchNode = createPatchNode();
+            addNode(*document, document->parentForNodes(), patchNode);
+
+            document->select(std::vector<Model::Node *>{ brushNode1, brushNode2});
+            Model::EntityNode* brushEnt = document->createBrushEntity(m_brushEntityDef);
+
+            document->deselectAll();
+
+            // worldspawn {
+            //   brushEnt { brush1, brush2 },
+            //   brush3
+            //   patch
+            // }
+
+            document->select(brushNode1);
+            REQUIRE( brushNode1->selected());
+            REQUIRE(!brushNode2->selected());
+            REQUIRE(!brushNode3->selected());
+            REQUIRE(!brushEnt->selected());
+            REQUIRE(!patchNode->selected());
+
+            document->selectInverse();
+
+            CHECK_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{ brushNode2, brushNode3, patchNode}));
+            CHECK(!brushNode1->selected());
+            CHECK( brushNode2->selected());
+            CHECK( brushNode3->selected());
+            CHECK(!brushEnt->selected());
+            CHECK( patchNode->selected());
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds") {
             auto* entityNode = new Model::EntityNode({
                 {"classname", "point_entity"}
