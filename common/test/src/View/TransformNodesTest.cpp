@@ -21,10 +21,13 @@
 #include "MapDocumentTest.h"
 #include "TestUtils.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
+#include "Model/GroupNode.h"
 #include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
 
@@ -33,6 +36,7 @@
 #include <vecmath/vec_io.h>
 
 #include <kdl/result.h>
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -264,6 +268,47 @@ namespace TrenchBroom {
             const vm::vec3 boundsCenter = initialBBox.center();
             CHECK(document->scaleObjects(boundsCenter, vm::vec3(2.0, 1.0, 1.0)));
             CHECK(brushNode->logicalBounds() == expectedBBox);
+        }
+
+        // https://github.com/TrenchBroom/TrenchBroom/issues/3784
+        TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+            auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+            addNode(*document, document->parentForNodes(), brushNode1);
+            document->select(brushNode1);
+
+            auto* group = document->groupSelection("testGroup");
+            document->select(group);
+
+            auto* linkedGroup = document->createLinkedDuplicate();
+            document->deselectAll();
+            document->select(linkedGroup);
+            REQUIRE_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{linkedGroup}));
+
+            auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroup->children().at(0));
+            REQUIRE(linkedBrushNode != nullptr);
+
+            setPref(Preferences::TextureLock, false);
+
+            const auto delta = vm::vec3(0.125, 0, 0);
+            REQUIRE(document->translateObjects(delta));
+
+            auto getTexCoords = [](Model::BrushNode* brushNode, const vm::vec3& normal) -> std::vector<vm::vec2f> {
+                const Model::BrushFace& face = brushNode->brush().face(*brushNode->brush().findFace(normal));
+                return kdl::vec_transform(face.vertexPositions(), [&](auto x) { return face.textureCoords(x); });
+            };
+
+            // Brushes in linked groups should have texture lock forced on
+            CHECK(UVListsEqual(getTexCoords(brushNode1, vm::vec3::pos_z()),
+                               getTexCoords(linkedBrushNode, vm::vec3::pos_z())));
+
+            PreferenceManager::instance().resetToDefault(Preferences::TextureLock);
         }
     }
 }
