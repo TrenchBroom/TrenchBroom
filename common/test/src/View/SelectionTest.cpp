@@ -125,5 +125,45 @@ namespace TrenchBroom {
             document->deselectAll();
             CHECK(document->lastSelectionBounds() == bounds);
         }
+
+        TEST_CASE_METHOD(SelectionTest, "SelectionCommandTest.faceSelectionUndoAfterTranslationUndo") {
+            Model::BrushNode* brushNode = createBrushNode();
+            CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
+
+            addNode(*document, document->parentForNodes(), brushNode);
+
+            const auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
+            REQUIRE(topFaceIndex);
+
+            // select the top face
+            document->select({ brushNode, *topFaceIndex });
+            CHECK_THAT(document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{{ brushNode, *topFaceIndex }}));
+
+            // deselect it
+            document->deselect({ brushNode, *topFaceIndex });
+            CHECK_THAT(document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
+
+            // select the brush
+            document->select(brushNode);
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode*>{ brushNode }));
+
+            // translate the brush
+            document->translateObjects(vm::vec3(10.0, 0.0, 0.0));
+            CHECK(brushNode->logicalBounds().center() == vm::vec3(10.0, 0.0, 0.0));
+
+            // Start undoing changes
+
+            document->undoCommand();
+            CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode*>{ brushNode }));
+            CHECK_THAT(document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
+
+            document->undoCommand();
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode*>{}));
+            CHECK_THAT(document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
+
+            document->undoCommand();
+            CHECK_THAT(document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{{ brushNode, *topFaceIndex }}));
+        }
     }
 }
