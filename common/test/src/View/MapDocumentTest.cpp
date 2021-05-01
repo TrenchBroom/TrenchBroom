@@ -18,60 +18,22 @@
  */
 
 #include "MapDocumentTest.h"
+#include "TestUtils.h"
 
 #include "Exceptions.h"
-#include "Preferences.h"
-#include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
 #include "IO/WorldReader.h"
-#include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/EmptyPropertyKeyIssueGenerator.h"
-#include "Model/EmptyPropertyValueIssueGenerator.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/Group.h"
-#include "Model/GroupNode.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitQuery.h"
-#include "Model/Issue.h"
-#include "Model/IssueQuickFix.h"
 #include "Model/LayerNode.h"
-#include "Model/LockState.h"
-#include "Model/MapFormat.h"
-#include "Model/ModelUtils.h"
-#include "Model/ParallelTexCoordSystem.h"
 #include "Model/PatchNode.h"
-#include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
 #include "Model/TestGame.h"
-#include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
-#include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/PasteType.h"
-#include "View/SelectionTool.h"
 
 #include <kdl/result.h>
-#include <kdl/overload.h>
-#include <kdl/vector_utils.h>
-#include <kdl/zip_iterator.h>
-
-#include <vecmath/approx.h>
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/ray.h>
-#include <vecmath/ray_io.h>
-#include <vecmath/scalar.h>
 
 #include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace View {
