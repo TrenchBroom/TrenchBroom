@@ -133,35 +133,6 @@ namespace TrenchBroom {
             CHECK_THROWS_AS(document->throwExceptionDuringCommand(), CommandProcessorException);
         }
 
-        // https://github.com/TrenchBroom/TrenchBroom/issues/2776
-        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.pasteAndTranslateGroup") {
-            // delete default brush
-            document->selectAllNodes();
-            document->deleteObjects();
-
-            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
-
-            auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
-            addNode(*document, document->parentForNodes(), brushNode1);
-            document->select(brushNode1);
-
-            const auto groupName = std::string("testGroup");
-
-            auto* group = document->groupSelection(groupName);
-            CHECK(group != nullptr);
-            document->select(group);
-
-            const std::string copied = document->serializeSelectedNodes();
-
-            const auto delta = vm::vec3(16, 16, 16);
-            CHECK(document->paste(copied) == PasteType::Node);
-            CHECK(document->selectedNodes().groupCount() == 1u);
-            CHECK(document->selectedNodes().groups().at(0)->name() == groupName);
-            CHECK(document->translateObjects(delta));
-            CHECK(document->selectionBounds() == box.translate(delta));
-        }
-
         // https://github.com/TrenchBroom/TrenchBroom/issues/3784
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.translateLinkedGroup") {
             // delete default brush

@@ -21,6 +21,7 @@
 #include "MapDocumentTest.h"
 #include "TestUtils.h"
 
+#include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -28,6 +29,8 @@
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "View/PasteType.h"
+
+#include <kdl/result.h>
 
 #include "Catch2.h"
 
@@ -218,6 +221,35 @@ common/caulk
                 CHECK(defaultLayer.childCount() == 1u);
                 CHECK(dynamic_cast<Model::PatchNode*>(defaultLayer.children().front()) != nullptr);
             }
+        }
+
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2776
+        TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+            auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+            addNode(*document, document->parentForNodes(), brushNode1);
+            document->select(brushNode1);
+
+            const auto groupName = std::string("testGroup");
+
+            auto* group = document->groupSelection(groupName);
+            CHECK(group != nullptr);
+            document->select(group);
+
+            const std::string copied = document->serializeSelectedNodes();
+
+            const auto delta = vm::vec3(16, 16, 16);
+            CHECK(document->paste(copied) == PasteType::Node);
+            CHECK(document->selectedNodes().groupCount() == 1u);
+            CHECK(document->selectedNodes().groups().at(0)->name() == groupName);
+            CHECK(document->translateObjects(delta));
+            CHECK(document->selectionBounds() == box.translate(delta));
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]") {
