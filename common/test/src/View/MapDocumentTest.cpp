@@ -117,11 +117,11 @@ namespace TrenchBroom {
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, textureName}};
         }
 
-        class Quake3MapDocumentTest : public MapDocumentTest {
-        public:
-            Quake3MapDocumentTest() :
-            MapDocumentTest{Model::MapFormat::Quake3} {}
-        };
+        ValveMapDocumentTest::ValveMapDocumentTest() :
+        MapDocumentTest(Model::MapFormat::Valve) {}
+
+        Quake3MapDocumentTest::Quake3MapDocumentTest() :
+        MapDocumentTest{Model::MapFormat::Quake3} {}
 
         static void checkPlanePointsIntegral(const Model::BrushNode* brushNode) {
             for (const Model::BrushFace& face : brushNode->brush().faces()) {
@@ -820,9 +820,6 @@ common/caulk
 
             CHECK(brush3->logicalBounds() == bounds);
         }
-
-        ValveMapDocumentTest::ValveMapDocumentTest() :
-        MapDocumentTest(Model::MapFormat::Valve) {}
 
         TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTexturing") {
             const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());

@@ -64,6 +64,12 @@ namespace TrenchBroom {
         protected:
             ValveMapDocumentTest();
         };
+
+        class Quake3MapDocumentTest : public MapDocumentTest {
+        public:
+            Quake3MapDocumentTest();
+        };
+
     }
 }
 
