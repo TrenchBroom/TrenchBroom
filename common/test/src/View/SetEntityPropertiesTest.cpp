@@ -19,7 +19,8 @@
 
 #include "Color.h"
 #include "Assets/EntityDefinition.h"
-#include "Model/Entity.h"
+#include "Model/BrushBuilder.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -28,6 +29,8 @@
 #include "View/MapDocument.h"
 
 #include <vecmath/bbox.h>
+
+#include <kdl/result.h>
 
 #include <vector>
 
@@ -332,6 +335,28 @@ namespace TrenchBroom {
                 {"another_key", "yet_another_value"},
                 {"yet_another_key", "and_yet_another_value"}
             }));
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+
+            auto* brushNode = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
+            addNode(*document, document->parentForNodes(), brushNode);
+
+            document->selectAllNodes();
+
+            Model::EntityNode* brushEntNode = document->createBrushEntity(m_brushEntityDef);
+            REQUIRE_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode}));
+
+            REQUIRE(!brushEntNode->entity().hasProperty("spawnflags"));
+            CHECK(document->updateSpawnflag("spawnflags", 1, true));
+
+            REQUIRE(brushEntNode->entity().hasProperty("spawnflags"));
+            CHECK(*brushEntNode->entity().property("spawnflags") == "2");
         }
     }
 }
