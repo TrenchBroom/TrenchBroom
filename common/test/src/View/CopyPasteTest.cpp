@@ -19,6 +19,7 @@
  */
 
 #include "MapDocumentTest.h"
+#include "TestUtils.h"
 
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
@@ -216,6 +217,68 @@ common/caulk
                 CHECK(document->paste(data) == PasteType::Node);
                 CHECK(defaultLayer.childCount() == 1u);
                 CHECK(dynamic_cast<Model::PatchNode*>(defaultLayer.children().front()) != nullptr);
+            }
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]") {
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1734
+
+            const std::string data("{"
+                              "\"classname\" \"light\""
+                              "\"origin\" \"0 0 0\""
+                              "}");
+
+            Model::BrushNode* brush = createBrushNode();
+            addNode(*document, document->parentForNodes(), brush);
+            document->select(brush);
+
+            Model::GroupNode* group = document->groupSelection("test");
+            document->openGroup(group);
+
+            CHECK(document->paste(data) == PasteType::Node);
+            CHECK(document->selectedNodes().hasOnlyEntities());
+            CHECK(document->selectedNodes().entityCount() == 1u);
+
+            Model::EntityNode* light = document->selectedNodes().entities().front();
+            CHECK(light->parent() == group);
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGroupId", "[CopyPasteTest]") {
+            auto* entityNode = new Model::EntityNode{};
+            document->addNodes({{document->parentForNodes(), {entityNode}}});
+
+            document->select(entityNode);
+            auto* groupNode = document->groupSelection("test");
+
+            const auto persistentGroupId = groupNode->persistentId();
+            REQUIRE(persistentGroupId.has_value());
+
+            document->deselectAll();
+            document->select(groupNode);
+
+            const auto str = document->serializeSelectedNodes();
+
+            SECTION("Copy and paste resets persistent group ID") {
+                document->deselectAll();
+                REQUIRE(document->paste(str) == PasteType::Node);
+
+                auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children().back());
+                REQUIRE(pastedGroupNode != nullptr);
+                REQUIRE(pastedGroupNode != groupNode);
+
+                CHECK(pastedGroupNode->persistentId() != persistentGroupId);
+            }
+
+            SECTION("Cut and paste retains persistent group ID") {
+                document->deleteObjects();
+                document->deselectAll();
+                REQUIRE(document->paste(str) == PasteType::Node);
+
+                auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children().back());
+                REQUIRE(pastedGroupNode != nullptr);
+                REQUIRE(pastedGroupNode != groupNode);
+
+                CHECK(pastedGroupNode->persistentId() == persistentGroupId);
             }
         }
     }
