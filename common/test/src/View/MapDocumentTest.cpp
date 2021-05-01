@@ -156,37 +156,6 @@ namespace TrenchBroom {
             layerNode.setLayer(layer);
         }
 
-        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.removeNodes") {
-            SECTION("Update linked groups") {
-                auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
-                auto* brushNode = createBrushNode();
-
-                using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
-                CreateNode createNode = GENERATE_COPY(
-                    CreateNode{[](const auto&) -> Model::Node* { return new Model::EntityNode{Model::Entity{}}; }},
-                    CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
-                    CreateNode{[](const auto& test) -> Model::Node* { return test.createPatchNode(); }}
-                );
-
-                auto* nodeToRemove = createNode(*this);
-                groupNode->addChildren({brushNode, nodeToRemove});
-                document->addNodes({{document->parentForNodes(), {groupNode}}});
-
-                document->select(groupNode);
-                auto* linkedGroupNode = document->createLinkedDuplicate();
-                document->deselectAll();
-
-                document->removeNodes({nodeToRemove});
-
-                CHECK(linkedGroupNode->childCount() == 1u);
-
-                document->undoCommand();
-
-                REQUIRE(groupNode->childCount() == 2u);
-                CHECK(linkedGroupNode->childCount() == 2u);
-            }
-        }
-
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.flip") {
             Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0.0, 0.0, 0.0), vm::vec3(30.0, 31.0, 31.0)), "texture").value());

@@ -22,6 +22,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
@@ -34,6 +35,37 @@
 
 namespace TrenchBroom {
     namespace View {
+        TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes") {
+            SECTION("Update linked groups") {
+                auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
+                auto* brushNode = createBrushNode();
+
+                using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+                CreateNode createNode = GENERATE_COPY(
+                    CreateNode{[](const auto&) -> Model::Node* { return new Model::EntityNode{Model::Entity{}}; }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
+                    CreateNode{[](const auto& test) -> Model::Node* { return test.createPatchNode(); }}
+                );
+
+                auto* nodeToRemove = createNode(*this);
+                groupNode->addChildren({brushNode, nodeToRemove});
+                document->addNodes({{document->parentForNodes(), {groupNode}}});
+
+                document->select(groupNode);
+                auto* linkedGroupNode = document->createLinkedDuplicate();
+                document->deselectAll();
+
+                document->removeNodes({nodeToRemove});
+
+                CHECK(linkedGroupNode->childCount() == 1u);
+
+                document->undoCommand();
+
+                REQUIRE(groupNode->childCount() == 2u);
+                CHECK(linkedGroupNode->childCount() == 2u);
+            }
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer") {
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             addNode(*document, document->world(), layer);
