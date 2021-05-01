@@ -36,8 +36,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace TrenchBroom {
     namespace View {
-        class CompilationTaskRunnerTest : public MapDocumentTest {};
-        
         class ExecuteTask {
         private:
             CompilationTaskRunner& m_runner;
@@ -63,7 +61,7 @@ namespace TrenchBroom {
             }
         };
         
-        TEST_CASE_METHOD(CompilationTaskRunnerTest, "CompilationTaskRunnerTest.runMissingTool") {
+        TEST_CASE_METHOD(MapDocumentTest, "CompilationTaskRunnerTest.runMissingTool") {
             EL::NullVariableStore variables;
             QTextEdit output;
             TextOutputAdapter outputAdapter(&output);

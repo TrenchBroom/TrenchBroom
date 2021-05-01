@@ -27,10 +27,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SnapBrushVerticesTest : public MapDocumentTest {};
-
         // see https://github.com/TrenchBroom/TrenchBroom/issues/2244
-        TEST_CASE_METHOD(SnapBrushVerticesTest, "SnapBrushVerticesTest.snapVerticesCrash_2244") {
+        TEST_CASE_METHOD(MapDocumentTest, "SnapBrushVerticesTest.snapVerticesCrash_2244") {
             document->selectAllNodes();
             document->deleteObjects();
 

@@ -52,14 +52,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        class ResizeBrushesToolTest : public MapDocumentTest {
-        public:
-            ResizeBrushesToolTest() : MapDocumentTest(Model::MapFormat::Valve) {}
-        };
-
         static const auto PickRay = vm::ray3(vm::vec3(0.0, -100.0, 0.0), vm::normalize(vm::vec3(-1.0, 1.0, 0)));
 
-        TEST_CASE_METHOD(ResizeBrushesToolTest, "ResizeBrushesToolTest.pickBrush") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pickBrush") {
             ResizeBrushesTool tool(document);
 
             const auto bboxMax = GENERATE(vm::vec3::fill(0.01),

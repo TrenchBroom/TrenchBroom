@@ -31,9 +31,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class ReparentNodesTest : public MapDocumentTest {};
-
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentLayerToLayer") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentLayerToLayer") {
             Model::LayerNode* layer1 = new Model::LayerNode(Model::Layer("Layer 1"));
             addNode(*document, document->world(), layer1);
 
@@ -43,7 +41,7 @@ namespace TrenchBroom {
             CHECK_FALSE(reparentNodes(*document, layer2, { layer1 }));
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentBetweenLayers") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentBetweenLayers") {
             Model::LayerNode* oldParent = new Model::LayerNode(Model::Layer("Layer 1"));
             addNode(*document, document->world(), oldParent);
 
@@ -61,14 +59,14 @@ namespace TrenchBroom {
             CHECK(entity->parent() == oldParent);
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToItself") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentGroupToItself") {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             addNode(*document, document->parentForNodes(), group);
 
             CHECK_FALSE(reparentNodes(*document, group, { group }));
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToChild") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentGroupToChild") {
             Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
             addNode(*document, document->parentForNodes(), outer);
 
@@ -78,7 +76,7 @@ namespace TrenchBroom {
             CHECK_FALSE(reparentNodes(*document, inner, { outer }));
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroup") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyGroup") {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             addNode(*document, document->parentForNodes(), group);
 
@@ -94,7 +92,7 @@ namespace TrenchBroom {
             CHECK(entity->parent() == group);
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.recursivelyRemoveEmptyGroups") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.recursivelyRemoveEmptyGroups") {
             Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
             addNode(*document, document->parentForNodes(), outer);
 
@@ -115,7 +113,7 @@ namespace TrenchBroom {
             CHECK(entity->parent() == inner);
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyEntity") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyEntity") {
             Model::EntityNode* entity = new Model::EntityNode();
             addNode(*document, document->parentForNodes(), entity);
 
@@ -131,7 +129,7 @@ namespace TrenchBroom {
             CHECK(brush->parent() == entity);
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroupAndEntity") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyGroupAndEntity") {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             addNode(*document, document->parentForNodes(), group);
 
@@ -152,7 +150,7 @@ namespace TrenchBroom {
             CHECK(brush->parent() == entity);
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.updateLinkedGroups") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroups") {
             auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
             auto* brushNode = createBrushNode();
             groupNode->addChild(brushNode);
@@ -211,7 +209,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.updateLinkedGroupsFails") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroupsFails") {
             auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
             document->addNodes({{document->parentForNodes(), {groupNode}}});
 
@@ -233,7 +231,7 @@ namespace TrenchBroom {
             CHECK(linkedGroupNode->childCount() == 0u);
         }
 
-        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.updateLinkedGroupsFailsAfterMovingNodeBetweenLinkedGroups") {
+        TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroupsFailsAfterMovingNodeBetweenLinkedGroups") {
             auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
             auto* brushNode = createBrushNode();
             groupNode->addChild(brushNode);

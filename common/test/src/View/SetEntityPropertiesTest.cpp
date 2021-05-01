@@ -37,13 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SetEntityPropertiesTest : public MapDocumentTest {
-        public:
-            SetEntityPropertiesTest() :
-            MapDocumentTest(Model::MapFormat::Valve) {}
-        };
-
-        TEST_CASE_METHOD(SetEntityPropertiesTest, "SetEntityPropertiesTest.changeClassname") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname") {
             // need to recreate these because document->setEntityDefinitions will delete the old ones
             m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {});
 
@@ -82,7 +76,7 @@ namespace TrenchBroom {
             CHECK(document->selectionBounds().size() == Model::EntityNode::DefaultBounds.size());
         }
 
-        TEST_CASE_METHOD(SetEntityPropertiesTest, "SetEntityPropertiesTest.setProtectedProperty") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProperty") {
             auto* entityNode = new Model::EntityNode{};
             document->addNodes({{document->parentForNodes(), {entityNode}}});
 
@@ -112,7 +106,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE_METHOD(SetEntityPropertiesTest, "SetEntityPropertiesTest.setProtectedPropertyRestoresValue") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedPropertyRestoresValue") {
             auto* entityNode = new Model::EntityNode{
                 {"some_key", "some_value"}
             };
@@ -231,7 +225,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE_METHOD(SetEntityPropertiesTest, "SetEntityPropertiesTest.clearProtectedProperties") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedProperties") {
             auto* entityNode = new Model::EntityNode{
                 {"some_key", "some_value"},
                 {"another_key", "another_value"}

@@ -54,9 +54,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SwapNodeContentsTest : public MapDocumentTest {};
-
-        TEST_CASE_METHOD(SwapNodeContentsTest, "SwapNodeContentsTest.swapBrushes") {
+        TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes") {
             auto* brushNode = createBrushNode();
             addNode(*document, document->parentForNodes(), brushNode);
             
@@ -74,7 +72,7 @@ namespace TrenchBroom {
             CHECK(brushNode->brush() == originalBrush);
         }
 
-        TEST_CASE_METHOD(SwapNodeContentsTest, "SwapNodeContentsTest.swapPatches") {
+        TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches") {
             auto* patchNode = createPatchNode();
             addNode(*document, document->parentForNodes(), patchNode);
             
@@ -92,7 +90,7 @@ namespace TrenchBroom {
             CHECK(patchNode->patch() == originalPatch);
         }
 
-        TEST_CASE_METHOD(SwapNodeContentsTest, "SwapNodeContentsTest.textureUsageCount") {
+        TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount") {
             document->setEnabledTextureCollections({IO::Path("fixture/test/IO/Wad/cr8_czg.wad")});
 
             constexpr auto TextureName = "bongs2";
@@ -118,7 +116,7 @@ namespace TrenchBroom {
             CHECK(texture->usageCount() == 6u);
         }    
 
-        TEST_CASE_METHOD(SwapNodeContentsTest, "SwapNodeContentsTest.entityDefinitionUsageCount") {
+        TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCount") {
             constexpr auto Classname = "point_entity";
 
             auto* entityNode = new Model::EntityNode({
@@ -143,7 +141,7 @@ namespace TrenchBroom {
             CHECK(m_pointEntityDef->usageCount() == 1u);
         }
 
-        TEST_CASE_METHOD(SwapNodeContentsTest, "SwapNodesContentCommandTest.updateLinkedGroups") {
+        TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroups") {
             auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
             auto* brushNode = createBrushNode();
             groupNode->addChild(brushNode);
@@ -178,7 +176,7 @@ namespace TrenchBroom {
             CHECK(linkedBrushNode->physicalBounds() == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
         }
 
-        TEST_CASE_METHOD(SwapNodeContentsTest, "SwapNodesContentCommandTest.updateLinkedGroupsFails") {
+        TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroupsFails") {
             auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
             auto* brushNode = createBrushNode();
             groupNode->addChild(brushNode);

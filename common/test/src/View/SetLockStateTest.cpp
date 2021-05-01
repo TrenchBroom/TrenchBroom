@@ -38,13 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SetLockStateTest : public MapDocumentTest {
-        public:
-            SetLockStateTest() :
-            MapDocumentTest(Model::MapFormat::Valve) {}
-        };
-
-        TEST_CASE_METHOD(SetLockStateTest, "SetLockStateTest.lockStateChanges") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.lockStateChanges") {
             auto* brushNode = createBrushNode();
             auto* entityNode = new Model::EntityNode{};
             auto* patchNode = createPatchNode();
@@ -87,7 +81,7 @@ namespace TrenchBroom {
             CHECK_FALSE(layerNode->locked());
         }
 
-        TEST_CASE_METHOD(SetLockStateTest, "SetLockStateTest.modificationCount") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.modificationCount") {
             auto* brushNode = createBrushNode();
             auto* entityNode = new Model::EntityNode{};
             auto* patchNode = createPatchNode();

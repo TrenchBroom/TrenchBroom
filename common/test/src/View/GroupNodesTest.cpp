@@ -36,13 +36,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        class GroupNodesTest : public MapDocumentTest {};
-
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createEmptyGroup", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createEmptyGroup", "[GroupNodesTest]") {
             CHECK(document->groupSelection("test") == nullptr);
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithOneNode", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createGroupWithOneNode", "[GroupNodesTest]") {
             using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
             CreateNode createNode = GENERATE_COPY(
                 CreateNode{[](const auto& test) { return test.createBrushNode(); }},
@@ -65,7 +63,7 @@ namespace TrenchBroom {
             CHECK(node->selected());
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithPartialBrushEntity", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createGroupWithPartialBrushEntity", "[GroupNodesTest]") {
             Model::BrushNode* child1 = createBrushNode();
             addNode(*document, document->parentForNodes(), child1);
 
@@ -96,7 +94,7 @@ namespace TrenchBroom {
             CHECK(child1->selected());
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithFullBrushEntity", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createGroupWithFullBrushEntity", "[GroupNodesTest]") {
             Model::BrushNode* child1 = createBrushNode();
             addNode(*document, document->parentForNodes(), child1);
 
@@ -129,7 +127,7 @@ namespace TrenchBroom {
             CHECK(child2->selected());
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.pasteInGroup", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.pasteInGroup", "[GroupNodesTest]") {
             // https://github.com/TrenchBroom/TrenchBroom/issues/1734
 
             const std::string data("{"
@@ -161,7 +159,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.copyPasteGroupResetsDuplicateGroupId", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.copyPasteGroupResetsDuplicateGroupId", "[GroupNodesTest]") {
             auto* entityNode = new Model::EntityNode{};
             document->addNodes({{document->parentForNodes(), {entityNode}}});
 
@@ -200,7 +198,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.undoMoveGroupContainingBrushEntity", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.undoMoveGroupContainingBrushEntity", "[GroupNodesTest]") {
             // Test for issue #1715
 
             Model::BrushNode* brush1 = createBrushNode();
@@ -224,7 +222,7 @@ namespace TrenchBroom {
             CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.rotateGroupContainingBrushEntity", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.rotateGroupContainingBrushEntity", "[GroupNodesTest]") {
             // Test for issue #1754
 
             Model::BrushNode* brush1 = createBrushNode();
@@ -248,7 +246,7 @@ namespace TrenchBroom {
             CHECK_FALSE(entityNode->entity().hasProperty("origin"));
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {
             Model::BrushNode* brush1 = createBrushNode();
             addNode(*document, document->parentForNodes(), brush1);
             document->select(brush1);
@@ -265,7 +263,7 @@ namespace TrenchBroom {
             CHECK(group->name() == "abc");
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.duplicateNodeInGroup", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateNodeInGroup", "[GroupNodesTest]") {
             Model::BrushNode* brush = createBrushNode();
             addNode(*document, document->parentForNodes(), brush);
             document->select(brush);
@@ -282,7 +280,7 @@ namespace TrenchBroom {
             CHECK(brushCopy->parent() == group);
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupNodesTest]") {
             auto* brushNode = createBrushNode();
             document->addNodes({{document->parentForNodes(), {brushNode}}});
 
@@ -349,7 +347,7 @@ namespace TrenchBroom {
             CHECK(groupNode->group().linkedGroupId() == linkedGroupNode2->group().linkedGroupId());
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createLinkedDuplicate", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createLinkedDuplicate", "[GroupNodesTest]") {
             auto* brushNode = createBrushNode();
             document->addNodes({{document->parentForNodes(), {brushNode}}});
             document->select(brushNode);
@@ -372,7 +370,7 @@ namespace TrenchBroom {
             CHECK(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.selectLinkedGroups", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNodesTest]") {
             auto* entityNode = new Model::EntityNode{};
             auto* brushNode = createBrushNode();
             document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
@@ -420,7 +418,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodestTest.separateGroups", "[GroupNodesTest]") {
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodesTest]") {
             auto* brushNode = createBrushNode();
             document->addNodes({{document->parentForNodes(), {brushNode}}});
             document->select(brushNode);
