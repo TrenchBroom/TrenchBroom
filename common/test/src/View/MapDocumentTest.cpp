@@ -298,28 +298,6 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(issueGenerators);
         }
 
-        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.updateSpawnflagOnBrushEntity") {
-            // delete default brush
-            document->selectAllNodes();
-            document->deleteObjects();
-
-            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-
-            auto* brushNode = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-            addNode(*document, document->parentForNodes(), brushNode);
-
-            document->selectAllNodes();
-
-            Model::EntityNode* brushEntNode = document->createBrushEntity(m_brushEntityDef);
-            REQUIRE_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode}));
-
-            REQUIRE(!brushEntNode->entity().hasProperty("spawnflags"));
-            CHECK(document->updateSpawnflag("spawnflags", 1, true));
-
-            REQUIRE(brushEntNode->entity().hasProperty("spawnflags"));
-            CHECK(*brushEntNode->entity().property("spawnflags") == "2");
-        }
-
         TEST_CASE("MapDocumentTest.detectValveFormatMap", "[MapDocumentTest]") {
             auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"),
                                                                       "Quake", Model::MapFormat::Unknown);
