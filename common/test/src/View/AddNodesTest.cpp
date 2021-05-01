@@ -34,9 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class AddNodesTest : public MapDocumentTest {};
-
-        TEST_CASE_METHOD(AddNodesTest, "AddNodesTest.updateLinkedGroups") {
+        TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups") {
             auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
             document->addNodes({{document->parentForNodes(), {groupNode}}});
 
@@ -68,7 +66,7 @@ namespace TrenchBroom {
             CHECK(linkedGroupNode->childCount() == 1u);
         }
 
-        TEST_CASE_METHOD(AddNodesTest, "AddNodesTest.updateLinkedGroupsFails") {
+        TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails") {
             auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
             document->addNodes({{document->parentForNodes(), {groupNode}}});
 

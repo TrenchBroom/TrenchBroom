@@ -37,9 +37,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SelectionTest : public MapDocumentTest {};
-
-        TEST_CASE_METHOD(SelectionTest, "SelectionTest.allSelectedEntityNodes") {
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
             GIVEN("A document with multiple entity nodes in various configurations") {
                 auto* topLevelEntityNode = new Model::EntityNode{Model::Entity{}};
                 
@@ -175,7 +173,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE_METHOD(SelectionTest, "SelectionTest.selectTouchingWithGroup") {
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup") {
             document->selectAllNodes();
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
@@ -205,7 +203,7 @@ namespace TrenchBroom {
             CHECK(document->selectedNodes().nodeCount() == 1u);
         }
 
-        TEST_CASE_METHOD(SelectionTest, "SelectionTest.selectInsideWithGroup") {
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup") {
             document->selectAllNodes();
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
@@ -235,7 +233,7 @@ namespace TrenchBroom {
             CHECK(document->selectedNodes().nodeCount() == 1u);
         }
         
-        TEST_CASE_METHOD(SelectionTest, "SelectionTest.updateLastSelectionBounds") {
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds") {
             auto* entityNode = new Model::EntityNode({
                 {"classname", "point_entity"}
             });
@@ -263,7 +261,7 @@ namespace TrenchBroom {
             CHECK(document->lastSelectionBounds() == bounds);
         }
 
-        TEST_CASE_METHOD(SelectionTest, "SelectionCommandTest.faceSelectionUndoAfterTranslationUndo") {
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionCommandTest.faceSelectionUndoAfterTranslationUndo") {
             Model::BrushNode* brushNode = createBrushNode();
             CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
 

@@ -33,12 +33,6 @@
 
 namespace TrenchBroom {
     namespace View {
-
-        class ClipToolControllerTest : public ValveMapDocumentTest {
-        protected:
-            ClipToolControllerTest() = default;
-        };
-
         static void updatePickState(InputState& inputState, const Renderer::Camera& camera, const MapDocument& document) {
             Model::PickResult pickResult = Model::PickResult::byDistance(document.editorContext());
             const PickRequest pickRequest(vm::ray3(camera.pickRay(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()))), camera);
@@ -50,7 +44,7 @@ namespace TrenchBroom {
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/2602
-        TEST_CASE_METHOD(ClipToolControllerTest, "ClipToolControllerTest.testTwoPointsCreateClipPlane") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolControllerTest.testTwoPointsCreateClipPlane") {
             const auto data = R"(
 // entity 0
 {

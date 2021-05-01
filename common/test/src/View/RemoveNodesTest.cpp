@@ -34,9 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class RemoveNodesTest : public MapDocumentTest {};
-
-        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeLayer") {
+        TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer") {
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             addNode(*document, document->world(), layer);
 
@@ -47,7 +45,7 @@ namespace TrenchBroom {
             CHECK(layer->parent() == document->world());
         }
 
-        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyBrushEntity") {
+        TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity") {
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             addNode(*document, document->world(), layer);
 
@@ -66,7 +64,7 @@ namespace TrenchBroom {
             CHECK(entity->parent() == layer);
         }
 
-        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyGroup") {
+        TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup") {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("group"));
             addNode(*document, document->parentForNodes(), group);
 
@@ -86,7 +84,7 @@ namespace TrenchBroom {
             CHECK(group->parent() == document->world()->defaultLayer());
         }
 
-        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups") {
+        TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups") {
             Model::GroupNode* outer = new Model::GroupNode(Model::Group("outer"));
             addNode(*document, document->parentForNodes(), outer);
 
@@ -113,7 +111,7 @@ namespace TrenchBroom {
             CHECK(outer->parent() == document->world()->defaultLayer());
         }
 
-        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.unlinkSingletonLinkedGroups") {
+        TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.unlinkSingletonLinkedGroups") {
             auto* entityNode = new Model::EntityNode{};
             document->addNodes({{document->parentForNodes(), {entityNode}}});
 

@@ -40,9 +40,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class RepeatableActionsTest : public MapDocumentTest {};
-
-        TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.canRepeat") {
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat") {
             CHECK_FALSE(document->canRepeatCommands());
 
             auto* entityNode = new Model::EntityNode();
@@ -59,7 +57,7 @@ namespace TrenchBroom {
             CHECK_FALSE(document->canRepeatCommands());
         }
 
-        TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.repeatTranslate") {
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTranslate") {
             auto* entityNode = new Model::EntityNode();
             addNode(*document, document->parentForNodes(), entityNode);
             document->select(entityNode);
@@ -73,7 +71,7 @@ namespace TrenchBroom {
             CHECK(entityNode->entity().origin() == vm::vec3(2, 4, 6));
         }
 
-        TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.repeatRotate") {
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatRotate") {
             auto entity = Model::Entity();
             entity.transform(vm::translation_matrix(vm::vec3(1, 2, 3)));
 
@@ -91,7 +89,7 @@ namespace TrenchBroom {
             CHECK(entityNode->entity().origin() == vm::approx(vm::rotation_matrix(vm::vec3::pos_z(), vm::to_radians(180.0)) * vm::vec3(1, 2, 3)));
         }
 
-        TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.repeatScaleWithBBox") {
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithBBox") {
             auto* brushNode1 = createBrushNode();
 
             addNode(*document, document->parentForNodes(), brushNode1);
@@ -111,7 +109,7 @@ namespace TrenchBroom {
             CHECK(brushNode2->logicalBounds() == newBounds);
         }
 
-        TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.repeatScaleWithFactors") {
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithFactors") {
             auto* brushNode1 = createBrushNode();
 
             addNode(*document, document->parentForNodes(), brushNode1);
@@ -130,7 +128,7 @@ namespace TrenchBroom {
             CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
         }
 
-        TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.shearObjects") {
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.shearObjects") {
             auto* brushNode1 = createBrushNode();
             const auto originalBounds = brushNode1->logicalBounds();
 
@@ -151,7 +149,7 @@ namespace TrenchBroom {
             CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
         }
 
-        TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.flipObjects") {
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.flipObjects") {
             auto* brushNode1 = createBrushNode();
             const auto originalBounds = brushNode1->logicalBounds();
 
@@ -172,7 +170,7 @@ namespace TrenchBroom {
             CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
         }
 
-        TEST_CASE_METHOD(RepeatableActionsTest, "RepeatableActionsTest.selectionClears") {
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.selectionClears") {
             auto* entityNode1 = new Model::EntityNode();
             addNode(*document, document->parentForNodes(), entityNode1);
 

@@ -36,13 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class ChangeBrushFaceAttributesTest : public MapDocumentTest {
-        public:
-            ChangeBrushFaceAttributesTest() :
-            MapDocumentTest(Model::MapFormat::Valve) {}
-        };
-
-        TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face") {
             Model::BrushNode* brushNode = createBrushNode();
             addNode(*document, document->parentForNodes(), brushNode);
 
@@ -80,7 +74,7 @@ namespace TrenchBroom {
             CHECK(brushNode->brush().face(faceIndex).textureYAxis() == initialY);
         }
         
-        TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.undoRedo") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo") {
             Model::BrushNode* brushNode = createBrushNode("original");
             addNode(*document, document->parentForNodes(), brushNode);
             
@@ -117,7 +111,7 @@ namespace TrenchBroom {
             checkTexture("texture2");
         }
 
-        TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.setAll") {
+        TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
             Model::BrushNode* brushNode = createBrushNode();
             addNode(*document, document->parentForNodes(), brushNode);
 
