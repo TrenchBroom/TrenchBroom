@@ -133,8 +133,14 @@ source_group(TREE "${COMMON_TEST_SOURCE_DIR}" FILES ${COMMON_TEST_SOURCE})
 # Configure test fixture directories
 set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 
+add_library(common-test-utils OBJECT ${COMMON_TEST_UTILS_SOURCE})
+set_compiler_config(common-test-utils)
+target_compile_features(common-test-utils PRIVATE cxx_std_17)
+target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
+target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2)
+
 macro(configure_test_target TARGET)
-    target_link_libraries(${TARGET} PRIVATE common Catch2::Catch2)
+    target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2)
     set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
 
     set_compiler_config(${TARGET})
@@ -181,7 +187,7 @@ macro(configure_test_target TARGET)
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games-testing" "${TEST_FIXTURE_DEST_DIR}/games")
 endmacro()
 
-add_executable(common-test ${COMMON_TEST_UTILS_SOURCE} ${COMMON_TEST_SOURCE})
+add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 configure_test_target(common-test)
 
