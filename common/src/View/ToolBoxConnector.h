@@ -23,6 +23,7 @@
 #include "View/InputEvent.h"
 #include "View/InputState.h"
 
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
@@ -63,7 +64,7 @@ namespace TrenchBroom {
             void updatePickResult();
         protected:
             void setToolBox(ToolBox& toolBox);
-            void addTool(ToolController* tool);
+            void addTool(std::unique_ptr<ToolController> tool);
         public: // drag and drop
             bool dragEnter(float x, float y, const std::string& text);
             bool dragMove(float x, float y, const std::string& text);

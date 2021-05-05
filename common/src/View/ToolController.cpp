@@ -479,9 +479,9 @@ namespace TrenchBroom {
 
         ToolControllerGroup::~ToolControllerGroup() = default;
 
-        void ToolControllerGroup::addController(ToolController* controller) {
+        void ToolControllerGroup::addController(std::unique_ptr<ToolController> controller) {
             ensure(controller != nullptr, "controller is null");
-            m_chain.append(controller);
+            m_chain.append(std::move(controller));
         }
 
         void ToolControllerGroup::doPick(const InputState& inputState, Model::PickResult& pickResult) {

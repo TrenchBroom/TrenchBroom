@@ -43,6 +43,8 @@
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace View {
         ClipToolController::Callback::Callback(ClipTool* tool) :
@@ -298,8 +300,8 @@ namespace TrenchBroom {
 
         ClipToolController2D::ClipToolController2D(ClipTool* tool) :
         ClipToolController(tool) {
-            addController(new AddClipPointPart(new Callback2D(tool)));
-            addController(new MoveClipPointPart(new Callback2D(tool)));
+            addController(std::make_unique<AddClipPointPart>(new Callback2D(tool)));
+            addController(std::make_unique<MoveClipPointPart>(new Callback2D(tool)));
         }
 
         std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(const Model::BrushNode* brushNode, const Model::BrushFace& face, const vm::vec3& hitPoint) {
@@ -415,8 +417,8 @@ namespace TrenchBroom {
 
         ClipToolController3D::ClipToolController3D(ClipTool* tool) :
         ClipToolController(tool) {
-            addController(new AddClipPointPart(new Callback3D(tool)));
-            addController(new MoveClipPointPart(new Callback3D(tool)));
+            addController(std::make_unique<AddClipPointPart>(new Callback3D(tool)));
+            addController(std::make_unique<MoveClipPointPart>(new Callback3D(tool)));
         }
     }
 }

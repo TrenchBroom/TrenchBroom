@@ -27,24 +27,19 @@
 
 namespace TrenchBroom {
     namespace View {
-        ToolChain::ToolChain() :
-        m_tool(nullptr),
-        m_suffix(nullptr) {}
+        ToolChain::ToolChain() = default;
 
-        ToolChain::~ToolChain() {
-            delete m_suffix;
-            delete m_tool;
-        }
-
-        void ToolChain::append(ToolController* tool) {
+        ToolChain::~ToolChain() = default;
+    
+        void ToolChain::append(std::unique_ptr<ToolController> tool) {
             assert(checkInvariant());
             if (chainEndsHere()) {
                 assert(m_suffix == nullptr);
-                m_tool = tool;
-                m_suffix = new ToolChain();
+                m_tool = std::move(tool);
+                m_suffix = std::make_unique<ToolChain>();
             } else {
                 ensure(m_suffix != nullptr, "suffix is null");
-                m_suffix->append(tool);
+                m_suffix->append(std::move(tool));
             }
             assert(checkInvariant());
         }
@@ -120,7 +115,7 @@ namespace TrenchBroom {
             if (chainEndsHere())
                 return nullptr;
             if (m_tool->startMouseDrag(inputState))
-                return m_tool;
+                return m_tool.get();
             return m_suffix->startMouseDrag(inputState);
         }
 
@@ -129,7 +124,7 @@ namespace TrenchBroom {
             if (chainEndsHere())
                 return nullptr;
             if (m_tool->dragEnter(inputState, payload))
-                return m_tool;
+                return m_tool.get();
             return m_suffix->dragEnter(inputState, payload);
         }
 

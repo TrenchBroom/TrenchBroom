@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
@@ -37,13 +38,13 @@ namespace TrenchBroom {
 
         class ToolChain {
         private:
-            ToolController* m_tool;
-            ToolChain* m_suffix;
+            std::unique_ptr<ToolController> m_tool;
+            std::unique_ptr<ToolChain> m_suffix;
         public:
             ToolChain();
             ~ToolChain();
 
-            void append(ToolController* adapter);
+            void append(std::unique_ptr<ToolController> controller);
 
             void pick(const InputState& inputState, Model::PickResult& pickResult);
 
