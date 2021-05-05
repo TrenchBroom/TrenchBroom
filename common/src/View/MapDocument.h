@@ -297,6 +297,8 @@ namespace TrenchBroom {
             bool hasAnySelectedBrushFaces() const override;
 
             std::vector<Model::EntityNodeBase*> allSelectedEntityNodes() const override;
+            std::vector<Model::BrushNode*> allSelectedBrushNodes() const;
+            bool hasAnySelectedBrushNodes() const;
             const Model::NodeCollection& selectedNodes() const override;
             std::vector<Model::BrushFaceHandle> allSelectedBrushFaces() const override;
             std::vector<Model::BrushFaceHandle> selectedBrushFaces() const override;

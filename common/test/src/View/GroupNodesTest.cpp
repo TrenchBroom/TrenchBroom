@@ -306,8 +306,8 @@ namespace TrenchBroom {
             CHECK_THAT(group->children(), Catch::Equals(std::vector<Model::Node*> {ent1}));
             CHECK_THAT(ent1->children(), Catch::Equals(std::vector<Model::Node*> { brushNode1}));
             CHECK_THAT(document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*> {group}));
-            CHECK(document->selectedNodes().brushesRecursively() == std::vector<Model::BrushNode*>{ brushNode1});
-            CHECK(document->selectedNodes().hasBrushesRecursively());
+            CHECK(document->allSelectedBrushNodes() == std::vector<Model::BrushNode*>{ brushNode1});
+            CHECK(document->hasAnySelectedBrushNodes());
             CHECK(!document->selectedNodes().hasBrushes());
 
             document->ungroupSelection();
