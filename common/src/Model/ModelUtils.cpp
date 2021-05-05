@@ -134,6 +134,26 @@ namespace TrenchBroom {
             return result;
         }
 
+        std::vector<Model::GroupNode*> findAllLinkedGroups(Model::WorldNode& worldNode) {
+            auto result = std::vector<Model::GroupNode*>{};
+
+            worldNode.accept(kdl::overload(
+                [] (auto&& thisLambda, Model::WorldNode* w) { w->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::LayerNode* l) { l->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* g) {
+                    if (g->group().linkedGroupId()) {
+                        result.push_back(g);
+                    }
+                    g->visitChildren(thisLambda);
+                },
+                [] (Model::EntityNode*) {},
+                [] (Model::BrushNode*)  {},
+                [] (Model::PatchNode*)  {}
+            ));
+
+            return result;
+        }
+
         static void collectWithParents(Node* node, std::vector<Node*>& result) {
             if (node != nullptr) {
                 node->accept(kdl::overload(

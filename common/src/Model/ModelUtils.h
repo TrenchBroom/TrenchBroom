@@ -55,6 +55,7 @@ namespace TrenchBroom {
         GroupNode* findOutermostClosedGroup(Node* node);
 
         std::vector<Model::GroupNode*> findLinkedGroups(Model::WorldNode& worldNode, const std::string& linkedGroupId);
+        std::vector<Model::GroupNode*> findAllLinkedGroups(Model::WorldNode& worldNode);
 
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
