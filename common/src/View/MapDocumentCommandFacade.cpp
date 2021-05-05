@@ -188,43 +188,14 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performDeselectAll() {
-            if (hasSelectedNodes())
-                deselectAllNodes();
-            if (hasSelectedBrushFaces())
-                deselectAllBrushFaces();
-        }
-
-        void MapDocumentCommandFacade::deselectAllNodes() {
-            selectionWillChangeNotifier();
-            updateLastSelectionBounds();
-
-            for (Model::Node* node : m_selectedNodes) {
-                node->deselect();
+            if (hasSelectedNodes()) {
+                const auto previousSelection = m_selectedNodes.nodes();
+                performDeselect(previousSelection);
             }
-
-            Selection selection;
-            selection.addDeselectedNodes(m_selectedNodes.nodes());
-
-            m_selectedNodes.clear();
-
-            selectionDidChangeNotifier(selection);
-            invalidateSelectionBounds();
-        }
-
-        void MapDocumentCommandFacade::deselectAllBrushFaces() {
-            selectionWillChangeNotifier();
-
-            for (const auto& handle : m_selectedBrushFaces) {
-                Model::BrushNode* node = handle.node();
-                node->deselectFace(handle.faceIndex());
+            if (hasSelectedBrushFaces()) {
+                const auto previousSelection = m_selectedBrushFaces;
+                performDeselect(previousSelection);
             }
-
-            Selection selection;
-            selection.addDeselectedBrushFaces(m_selectedBrushFaces);
-
-            m_selectedBrushFaces.clear();
-
-            selectionDidChangeNotifier(selection);
         }
 
         void MapDocumentCommandFacade::performAddNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
