@@ -2663,7 +2663,7 @@ namespace TrenchBroom {
             size_t failedBrushCount = 0;
 
             const auto allSelectedBrushes = allSelectedBrushNodes();
-            applyAndSwap(*this, "Snap Brush Vertices", allSelectedBrushes, findContainingLinkedGroupsToUpdate(*m_world, allSelectedBrushes), kdl::overload(
+            const bool applyAndSwapSuccess = applyAndSwap(*this, "Snap Brush Vertices", allSelectedBrushes, findContainingLinkedGroupsToUpdate(*m_world, allSelectedBrushes), kdl::overload(
                 [] (Model::Layer&)  { return true; },
                 [] (Model::Group&)  { return true; },
                 [] (Model::Entity&) { return true; },
@@ -2684,6 +2684,9 @@ namespace TrenchBroom {
                 [] (Model::BezierPatch&) { return true; }
             ));
 
+            if (!applyAndSwapSuccess) {
+                return false;
+            }
             if (succeededBrushCount > 0) {
                 info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
             }
