@@ -61,11 +61,29 @@ namespace TrenchBroom {
         Tool* ToolController::tool() { return doGetTool(); }
         const Tool* ToolController::tool() const { return doGetTool(); }
         bool ToolController::toolActive() const { return tool()->active(); }
-        void ToolController::refreshViews() { tool()->refreshViews(); }
 
-        std::unique_ptr<DragTracker> ToolController::acceptMouseDrag(const InputState&) {
-            return nullptr;
-        }
+        void ToolController::pick(const InputState&, Model::PickResult&) {}
+
+        void ToolController::modifierKeyChange(const InputState&) {}
+
+        void ToolController::mouseDown(const InputState&) {}
+        void ToolController::mouseUp(const InputState&) {}
+        bool ToolController::mouseClick(const InputState&) { return false; }
+        bool ToolController::mouseDoubleClick(const InputState&) { return false; }
+        void ToolController::mouseMove(const InputState&) {}
+        void ToolController::mouseScroll(const InputState&) {}
+
+        std::unique_ptr<DragTracker> ToolController::acceptMouseDrag(const InputState&) { return nullptr;}
+        bool ToolController::anyToolDragging(const InputState&) const {return false; }
+
+        std::unique_ptr<DropTracker> acceptDrop(const InputState&, const std::string& /* payload */) { return nullptr; }
+
+        void ToolController::setRenderOptions(const InputState&, Renderer::RenderContext&) {}
+        void ToolController::render(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) {}
+
+        bool ToolController::cancel() { return false; }
+
+        void ToolController::refreshViews() { tool()->refreshViews(); }
 
         std::unique_ptr<DropTracker> ToolController::acceptDrop(const InputState&, const std::string& /* payload */) {
             return nullptr;

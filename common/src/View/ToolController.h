@@ -112,26 +112,26 @@ namespace TrenchBroom {
             const Tool* tool() const;
             bool toolActive() const;
 
-            virtual void pick(const InputState& inputState, Model::PickResult& pickResult) = 0;
+            virtual void pick(const InputState& inputState, Model::PickResult& pickResult);
 
-            virtual void modifierKeyChange(const InputState& inputState) = 0;
+            virtual void modifierKeyChange(const InputState& inputState);
 
-            virtual void mouseDown(const InputState& inputState) = 0;
-            virtual void mouseUp(const InputState& inputState) = 0;
-            virtual bool mouseClick(const InputState& inputState) = 0;
-            virtual bool mouseDoubleClick(const InputState& inputState) = 0;
-            virtual void mouseMove(const InputState& inputState) = 0;
-            virtual void mouseScroll(const InputState& inputState) = 0;
+            virtual void mouseDown(const InputState& inputState);
+            virtual void mouseUp(const InputState& inputState);
+            virtual bool mouseClick(const InputState& inputState);
+            virtual bool mouseDoubleClick(const InputState& inputState);
+            virtual void mouseMove(const InputState& inputState);
+            virtual void mouseScroll(const InputState& inputState);
 
             virtual std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState);
-            virtual bool anyToolDragging(const InputState& inputState) const = 0;
+            virtual bool anyToolDragging(const InputState& inputState) const;
 
             virtual std::unique_ptr<DropTracker> acceptDrop(const InputState& inputState, const std::string& payload);
 
-            virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
-            virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
+            virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext);
+            virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
-            virtual bool cancel() = 0;
+            virtual bool cancel();
         protected:
             void refreshViews();
         private:
