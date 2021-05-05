@@ -125,6 +125,7 @@ namespace TrenchBroom {
 
             controller.expectCall(MockMoveToolController::DoStartMove{MockMoveToolController::MoveInfo(vm::vec3::zero())});
             controller.startMouseDrag(inputState);
+            controller.setThisToolDragging(true);
 
             inputState.mouseMove(9, 0, 9, 0);
             inputState.setPickRequest(PickRequest(vm::ray3(origin, normalize(vm::vec3(9.0, 0.0, 0.0) - origin)), camera));
@@ -136,6 +137,7 @@ namespace TrenchBroom {
             inputState.mouseUp(MouseButtons::MBLeft);
             controller.expectCall(MockMoveToolController::DoEndMove{});
             controller.endMouseDrag(inputState);
+            controller.setThisToolDragging(false);
         }
 
         TEST_CASE("MoveToolControllerTest.testMoveAfterZeroVerticalMove", "[MoveToolControllerTest]") {
@@ -155,6 +157,7 @@ namespace TrenchBroom {
 
             controller.expectCall(MockMoveToolController::DoStartMove{MockMoveToolController::MoveInfo(vm::vec3::zero())});
             controller.startMouseDrag(inputState);
+            controller.setThisToolDragging(true);
 
             // nothing will happen due to grid snapping
             // NOTE: if doMove were called it would automatically cause the test to fail
@@ -178,6 +181,7 @@ namespace TrenchBroom {
             inputState.mouseUp(MouseButtons::MBLeft);
             controller.expectCall(MockMoveToolController::DoEndMove{});
             controller.endMouseDrag(inputState);
+            controller.setThisToolDragging(false);
         }
 
 
@@ -203,6 +207,7 @@ namespace TrenchBroom {
 
             controller.expectCall(MockMoveToolController::DoStartMove{MockMoveToolController::MoveInfo(initialHitPoint)});
             controller.startMouseDrag(inputState);
+            controller.setThisToolDragging(true);
 
             // switch to vertical move mode
             inputState.setModifierKeys(ModifierKeys::MKAlt);
@@ -225,6 +230,7 @@ namespace TrenchBroom {
             inputState.mouseUp(MouseButtons::MBLeft);
             controller.expectCall(MockMoveToolController::DoEndMove{});
             controller.endMouseDrag(inputState);
+            controller.setThisToolDragging(false);
         }
     }
 }

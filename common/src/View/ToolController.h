@@ -353,12 +353,18 @@ namespace TrenchBroom {
         };
 
         class ToolController {
+        private:
+            bool m_dragging;
         public:
+            ToolController();
             virtual ~ToolController();
 
             Tool* tool();
             const Tool* tool() const;
             bool toolActive() const;
+
+            bool thisToolDragging() const;
+            void setThisToolDragging(bool dragging);
 
             virtual void pick(const InputState& inputState, Model::PickResult& pickResult) = 0;
 
@@ -375,7 +381,6 @@ namespace TrenchBroom {
             virtual bool mouseDrag(const InputState& inputState) = 0;
             virtual void endMouseDrag(const InputState& inputState) = 0;
             virtual void cancelMouseDrag() = 0;
-            virtual bool thisToolDragging() const = 0;
             virtual bool anyToolDragging(const InputState& inputState) const = 0;
 
             virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
@@ -396,12 +401,7 @@ namespace TrenchBroom {
 
         template <class PickingPolicyType, class KeyPolicyType, class MousePolicyType, class MouseDragPolicyType, class RenderPolicyType, class DropPolicyType>
         class ToolControllerBase : public ToolController, protected PickingPolicyType, protected KeyPolicyType, protected MousePolicyType, protected MouseDragPolicyType, protected RenderPolicyType, protected DropPolicyType {
-        private:
-            bool m_dragging;
         public:
-            ToolControllerBase() :
-            m_dragging(false) {}
-
             ~ToolControllerBase() override = default;
 
             void pick(const InputState& inputState, Model::PickResult& pickResult) override {
@@ -437,8 +437,7 @@ namespace TrenchBroom {
             }
 
             bool startMouseDrag(const InputState& inputState) override {
-                m_dragging = static_cast<MouseDragPolicyType*>(this)->doStartMouseDrag(inputState);
-                return m_dragging;
+                return static_cast<MouseDragPolicyType*>(this)->doStartMouseDrag(inputState);
             }
 
             bool mouseDrag(const InputState& inputState) override {
@@ -449,17 +448,11 @@ namespace TrenchBroom {
             void endMouseDrag(const InputState& inputState) override {
                 assert(thisToolDragging() && toolActive());
                 static_cast<MouseDragPolicyType*>(this)->doEndMouseDrag(inputState);
-                m_dragging = false;
             }
 
             void cancelMouseDrag() override {
                 assert(thisToolDragging() && toolActive());
                 static_cast<MouseDragPolicyType*>(this)->doCancelMouseDrag();
-                m_dragging = false;
-            }
-
-            bool thisToolDragging() const override {
-                return m_dragging;
             }
 
             bool anyToolDragging(const InputState& inputState) const override {

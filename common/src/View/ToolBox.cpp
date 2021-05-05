@@ -143,6 +143,9 @@ namespace TrenchBroom {
                 return false;
             }
             m_dragReceiver = chain->startMouseDrag(inputState);
+            if (m_dragReceiver != nullptr) {
+                m_dragReceiver->setThisToolDragging(true);
+            }
             return m_dragReceiver != nullptr;
         }
 
@@ -154,12 +157,14 @@ namespace TrenchBroom {
         void ToolBox::endMouseDrag(const InputState& inputState) {
             assert(enabled() && dragging());
             m_dragReceiver->endMouseDrag(inputState);
+            m_dragReceiver->setThisToolDragging(false);
             m_dragReceiver = nullptr;
         }
 
         void ToolBox::cancelMouseDrag() {
             assert(dragging());
             m_dragReceiver->cancelMouseDrag();
+            m_dragReceiver->setThisToolDragging(false);
             m_dragReceiver = nullptr;
         }
 
