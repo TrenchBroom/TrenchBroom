@@ -91,18 +91,16 @@ namespace TrenchBroom {
             m_tool->renderFeedback(renderContext, renderBatch, position);
         }
 
-        ClipToolController::PartBase::PartBase(PartDelegateBase* delegate) :
-        m_delegate(delegate) {
+        ClipToolController::PartBase::PartBase(std::unique_ptr<PartDelegateBase> delegate) :
+        m_delegate{std::move(delegate)} {
             ensure(m_delegate != nullptr, "delegate is null");
         }
 
-        ClipToolController::PartBase::~PartBase() {
-            delete m_delegate;
-        }
+        ClipToolController::PartBase::~PartBase() = default;
 
-        ClipToolController::AddClipPointPart::AddClipPointPart(PartDelegateBase* delegate) :
-        PartBase(delegate),
-        m_secondPointSet(false) {}
+        ClipToolController::AddClipPointPart::AddClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
+        PartBase{std::move(delegate)},
+        m_secondPointSet{false} {}
 
         Tool* ClipToolController::AddClipPointPart::doGetTool() {
             return m_delegate->tool();
@@ -179,8 +177,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        ClipToolController::MoveClipPointPart::MoveClipPointPart(PartDelegateBase* delegate) :
-        PartBase(delegate) {}
+        ClipToolController::MoveClipPointPart::MoveClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
+        PartBase{std::move(delegate)} {}
 
         Tool* ClipToolController::MoveClipPointPart::doGetTool() {
             return m_delegate->tool();
@@ -300,8 +298,8 @@ namespace TrenchBroom {
 
         ClipToolController2D::ClipToolController2D(ClipTool* tool) :
         ClipToolController(tool) {
-            addController(std::make_unique<AddClipPointPart>(new PartDelegate(tool)));
-            addController(std::make_unique<MoveClipPointPart>(new PartDelegate(tool)));
+            addController(std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate>(tool)));
+            addController(std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate>(tool)));
         }
 
         std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(const Model::BrushNode* brushNode, const Model::BrushFace& face, const vm::vec3& hitPoint) {
@@ -417,8 +415,8 @@ namespace TrenchBroom {
 
         ClipToolController3D::ClipToolController3D(ClipTool* tool) :
         ClipToolController(tool) {
-            addController(std::make_unique<AddClipPointPart>(new PartDelegate(tool)));
-            addController(std::make_unique<MoveClipPointPart>(new PartDelegate(tool)));
+            addController(std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate>(tool)));
+            addController(std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate>(tool)));
         }
     }
 }

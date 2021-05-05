@@ -24,6 +24,7 @@
 
 #include <vecmath/forward.h>
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -65,8 +66,8 @@ namespace TrenchBroom {
 
             class PartBase {
             protected:
-                PartDelegateBase* m_delegate;
-                explicit PartBase(PartDelegateBase* delegate);
+                std::unique_ptr<PartDelegateBase> m_delegate;
+                explicit PartBase(std::unique_ptr<PartDelegateBase> delegate);
             public:
                 virtual ~PartBase();
             };
@@ -75,7 +76,7 @@ namespace TrenchBroom {
             private:
                 bool m_secondPointSet;
             public:
-                explicit AddClipPointPart(PartDelegateBase* delegate);
+                explicit AddClipPointPart(std::unique_ptr<PartDelegateBase> delegate);
             private:
                 Tool* doGetTool() override;
                 const Tool* doGetTool() const override;
@@ -92,7 +93,7 @@ namespace TrenchBroom {
 
             class MoveClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy>, protected PartBase {
             public:
-                explicit MoveClipPointPart(PartDelegateBase* delegate);
+                explicit MoveClipPointPart(std::unique_ptr<PartDelegateBase> delegate);
             private:
                 Tool* doGetTool() override;
                 const Tool* doGetTool() const override;
