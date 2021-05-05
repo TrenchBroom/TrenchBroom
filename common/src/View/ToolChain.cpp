@@ -78,19 +78,23 @@ namespace TrenchBroom {
 
         bool ToolChain::mouseClick(const InputState& inputState) {
             assert(checkInvariant());
-            if (chainEndsHere())
+            if (chainEndsHere()) {
                 return false;
-            if (m_tool->mouseClick(inputState))
+            }
+            if (m_tool->mouseClick(inputState)) {
                 return true;
+            }
             return m_suffix->mouseClick(inputState);
         }
 
         bool ToolChain::mouseDoubleClick(const InputState& inputState) {
             assert(checkInvariant());
-            if (chainEndsHere())
+            if (chainEndsHere()) {
                 return false;
-            if (m_tool->mouseDoubleClick(inputState))
+            }
+            if (m_tool->mouseDoubleClick(inputState)) {
                 return true;
+            }
             return m_suffix->mouseDoubleClick(inputState);
         }
 
@@ -112,19 +116,23 @@ namespace TrenchBroom {
 
         ToolController* ToolChain::startMouseDrag(const InputState& inputState) {
             assert(checkInvariant());
-            if (chainEndsHere())
+            if (chainEndsHere()) {
                 return nullptr;
-            if (m_tool->startMouseDrag(inputState))
+            }
+            if (m_tool->startMouseDrag(inputState)) {
                 return m_tool.get();
+            }
             return m_suffix->startMouseDrag(inputState);
         }
 
         ToolController* ToolChain::dragEnter(const InputState& inputState, const std::string& payload) {
             assert(checkInvariant());
-            if (chainEndsHere())
+            if (chainEndsHere()) {
                 return nullptr;
-            if (m_tool->dragEnter(inputState, payload))
+            }
+            if (m_tool->dragEnter(inputState, payload)) {
                 return m_tool.get();
+            }
             return m_suffix->dragEnter(inputState, payload);
         }
 
@@ -146,10 +154,12 @@ namespace TrenchBroom {
 
         bool ToolChain::cancel() {
             assert(checkInvariant());
-            if (chainEndsHere())
+            if (chainEndsHere()) {
                 return false;
-            if (m_tool->cancel())
+            }
+            if (m_tool->cancel()) {
                 return true;
+            }
             return m_suffix->cancel();
         }
 
