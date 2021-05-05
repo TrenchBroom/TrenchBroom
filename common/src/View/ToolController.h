@@ -405,49 +405,39 @@ namespace TrenchBroom {
             ~ToolControllerBase() override = default;
 
             void pick(const InputState& inputState, Model::PickResult& pickResult) override {
-                if (toolActive())
-                    static_cast<PickingPolicyType*>(this)->doPick(inputState, pickResult);
+                static_cast<PickingPolicyType*>(this)->doPick(inputState, pickResult);
             }
 
             void modifierKeyChange(const InputState& inputState) override {
-                if (toolActive())
-                    static_cast<KeyPolicyType*>(this)->doModifierKeyChange(inputState);
+                static_cast<KeyPolicyType*>(this)->doModifierKeyChange(inputState);
             }
 
             void mouseDown(const InputState& inputState) override {
-                if (toolActive())
-                    static_cast<MousePolicyType*>(this)->doMouseDown(inputState);
+                static_cast<MousePolicyType*>(this)->doMouseDown(inputState);
             }
 
             void mouseUp(const InputState& inputState) override {
-                if (toolActive())
-                    static_cast<MousePolicyType*>(this)->doMouseUp(inputState);
+                static_cast<MousePolicyType*>(this)->doMouseUp(inputState);
             }
 
             bool mouseClick(const InputState& inputState) override {
-                if (toolActive())
-                    return static_cast<MousePolicyType*>(this)->doMouseClick(inputState);
-                return false;
+                return static_cast<MousePolicyType*>(this)->doMouseClick(inputState);
             }
 
             bool mouseDoubleClick(const InputState& inputState) override {
-                if (toolActive())
-                    return static_cast<MousePolicyType*>(this)->doMouseDoubleClick(inputState);
-                return false;
+                return static_cast<MousePolicyType*>(this)->doMouseDoubleClick(inputState);
             }
 
             void mouseMove(const InputState& inputState) override {
-                if (toolActive())
-                    static_cast<MousePolicyType*>(this)->doMouseMove(inputState);
+                static_cast<MousePolicyType*>(this)->doMouseMove(inputState);
             }
 
             void mouseScroll(const InputState& inputState) override {
-                if (toolActive())
-                    static_cast<MousePolicyType*>(this)->doMouseScroll(inputState);
+                static_cast<MousePolicyType*>(this)->doMouseScroll(inputState);
             }
 
             bool startMouseDrag(const InputState& inputState) override {
-                m_dragging = (toolActive() && static_cast<MouseDragPolicyType*>(this)->doStartMouseDrag(inputState));
+                m_dragging = static_cast<MouseDragPolicyType*>(this)->doStartMouseDrag(inputState);
                 return m_dragging;
             }
 
@@ -477,36 +467,27 @@ namespace TrenchBroom {
             }
 
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) override {
-                if (toolActive())
-                    static_cast<RenderPolicyType*>(this)->doSetRenderOptions(inputState, renderContext);
+                static_cast<RenderPolicyType*>(this)->doSetRenderOptions(inputState, renderContext);
             }
 
             void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
-                if (toolActive())
-                    static_cast<RenderPolicyType*>(this)->doRender(inputState, renderContext, renderBatch);
+                static_cast<RenderPolicyType*>(this)->doRender(inputState, renderContext, renderBatch);
             }
 
             bool dragEnter(const InputState& inputState, const std::string& payload) override {
-                if (toolActive())
-                    return static_cast<DropPolicyType*>(this)->doDragEnter(inputState, payload);
-                return false;
+                return static_cast<DropPolicyType*>(this)->doDragEnter(inputState, payload);
             }
 
             bool dragMove(const InputState& inputState) override {
-                if (toolActive())
-                    return static_cast<DropPolicyType*>(this)->doDragMove(inputState);
-                return false;
+                return static_cast<DropPolicyType*>(this)->doDragMove(inputState);
             }
 
             void dragLeave(const InputState& inputState) override {
-                if (toolActive())
-                    static_cast<DropPolicyType*>(this)->doDragLeave(inputState);
+                static_cast<DropPolicyType*>(this)->doDragLeave(inputState);
             }
 
             bool dragDrop(const InputState& inputState) override {
-                if (toolActive())
-                    return static_cast<DropPolicyType*>(this)->doDragDrop(inputState);
-                return false;
+                return static_cast<DropPolicyType*>(this)->doDragDrop(inputState);
             }
 
             bool cancel() override {
