@@ -78,7 +78,7 @@ namespace TrenchBroom {
 
         std::unique_ptr<DropTracker> acceptDrop(const InputState&, const std::string& /* payload */) { return nullptr; }
 
-        void ToolController::setRenderOptions(const InputState&, Renderer::RenderContext&) {}
+        void ToolController::setRenderOptions(const InputState&, Renderer::RenderContext&) const {}
         void ToolController::render(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
         bool ToolController::cancel() { return false; }

@@ -128,7 +128,7 @@ namespace TrenchBroom {
 
             virtual std::unique_ptr<DropTracker> acceptDrop(const InputState& inputState, const std::string& payload);
 
-            virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext);
+            virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             virtual bool cancel();
@@ -180,8 +180,8 @@ namespace TrenchBroom {
                 return inputState.anyToolDragging();
             }
 
-            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) override {
-                static_cast<RenderPolicyType*>(this)->doSetRenderOptions(inputState, renderContext);
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override {
+                static_cast<const RenderPolicyType*>(this)->doSetRenderOptions(inputState, renderContext);
             }
 
             void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
