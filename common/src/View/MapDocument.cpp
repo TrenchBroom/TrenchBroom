@@ -89,6 +89,7 @@
 #include "View/BrushVertexCommands.h"
 #include "View/CurrentGroupCommand.h"
 #include "View/Grid.h"
+#include "View/MapDocumentCommandFacade.h"
 #include "View/MapTextEncoding.h"
 #include "View/PasteType.h"
 #include "View/ReparentNodesCommand.h"
@@ -806,7 +807,14 @@ namespace TrenchBroom {
             return hasSelectedBrushFaces() || selectedNodes().hasBrushes();
         }
 
-        std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const {
+        /**
+         * For commands that modify entities, this returns all entities that should be acted on, based on the current selection.
+         * 
+         * - selected brushes/patches act on their parent entities
+         * - selected groups implicitly act on any contained entities
+         * - linked group constraints are applied (each link set only has one instance modified)
+         */
+        std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes(const bool includeLinkSetDuplicates) const {
             if (!hasSelection()) {
                 return m_world ? std::vector<Model::EntityNodeBase*>({ m_world.get() }) : std::vector<Model::EntityNodeBase*>{};
             }
@@ -828,9 +836,32 @@ namespace TrenchBroom {
                 ));
             }
 
-            return kdl::vec_sort_and_remove_duplicates(std::move(nodes));
+            nodes = kdl::vec_sort_and_remove_duplicates(std::move(nodes));
+
+            if (!includeLinkSetDuplicates) {
+                // upcast to Node, then downcast back to EntityNodeBase (safe because nodesWithLinkedGroupConstraintsApplied just
+                // returns a subset of the provided Nodes.)
+                nodes = kdl::vec_element_cast<Model::EntityNodeBase*>(
+                    Model::nodesWithLinkedGroupConstraintsApplied(*m_world.get(), kdl::vec_element_cast<Model::Node*>(nodes)).nodesToSelect);
+            }
+
+            return nodes;
         }
 
+        std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const {
+            return allSelectedEntityNodes(false);
+        }
+
+        std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodesIncludingLinkSetDuplicates() const {
+            return allSelectedEntityNodes(true);
+        }
+
+        /**
+         * For commands that modify brushes, this returns all brushes that should be acted on, based on the current selection.
+         * 
+         * - selected groups implicitly act on any contained brushes
+         * - linked group constraints are applied (each link set only has one instance modified)
+         */
         std::vector<Model::BrushNode*> MapDocument::allSelectedBrushNodes() const {
             auto brushes = std::vector<Model::BrushNode*>{};
             for (auto* node : m_selectedNodes.nodes()) {
@@ -843,6 +874,12 @@ namespace TrenchBroom {
                     [&](Model::PatchNode*)                            {}
                 ));
             }
+
+            // upcast to Node, then downcast back to BrushNode (safe because nodesWithLinkedGroupConstraintsApplied just
+            // returns a subset of the provided Nodes.)
+            brushes = kdl::vec_element_cast<Model::BrushNode*>(
+                Model::nodesWithLinkedGroupConstraintsApplied(*m_world.get(), kdl::vec_element_cast<Model::Node*>(brushes)).nodesToSelect);
+
             return brushes;
         }
 
@@ -879,10 +916,23 @@ namespace TrenchBroom {
             return m_selectedNodes;
         }
 
+        /**
+         * For commands that modify brush faces, this returns all that should be acted on, based on the current selection.
+         * 
+         * - if brush faces are explicitly selected (hasSelectedBrushFaces()), only those are used
+         * - selected groups implicitly act on any contained brushes
+         * - selected brushes implicitly act on their faces
+         * - linked group constraints are applied (each link set only has one instance modified)
+         */
         std::vector<Model::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const {
             if (hasSelectedBrushFaces())
                 return selectedBrushFaces();
-            return Model::collectBrushFaces(m_selectedNodes.nodes());
+
+            // only collect 1 of each link set, otherwise selecting 2 closed linked groups in a link set and applying textures
+            // fails.
+
+            const std::vector<Model::BrushFaceHandle> desiredFaces = Model::collectBrushFaces(m_selectedNodes.nodes());
+            return Model::facesWithLinkedGroupConstraintsApplied(*m_world.get(), desiredFaces).facesToSelect;
         }
 
         std::vector<Model::BrushFaceHandle> MapDocument::selectedBrushFaces() const {
@@ -2525,7 +2575,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::clearProtectedProperties() {
-            const auto entityNodes = allSelectedEntityNodes();
+            const auto entityNodes = allSelectedEntityNodesIncludingLinkSetDuplicates();
 
             auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
             for (auto* entityNode : entityNodes) {
@@ -2561,7 +2611,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::canClearProtectedProperties() const {
-            const auto entityNodes = allSelectedEntityNodes();
+            const auto entityNodes = allSelectedEntityNodesIncludingLinkSetDuplicates();
             if (entityNodes.empty() || (entityNodes.size() == 1u && entityNodes.front() == m_world.get())) {
                 return false;
             }
@@ -2657,6 +2707,7 @@ namespace TrenchBroom {
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
 
+            // FIXME: handle 2 linked groups in a link set being selected.
             const auto allSelectedBrushes = allSelectedBrushNodes();
             applyAndSwap(*this, "Snap Brush Vertices", allSelectedBrushes, findContainingLinkedGroupsToUpdate(*m_world, allSelectedBrushes), kdl::overload(
                 [] (Model::Layer&)  { return true; },

@@ -478,5 +478,90 @@ namespace TrenchBroom {
             }
             return result;
         }
+
+        SelectionWithLinkedGroupConstraintsApplied nodesWithLinkedGroupConstraintsApplied(Model::WorldNode& world, const std::vector<Model::Node*>& nodes) {
+            // we allow a selection in 1 instance of a linked group.
+            kdl::vector_set<Model::GroupNode*> linkedGroupInstancesToImplicitlyLock;
+
+            // optimization - once we implicitly lock the "other" instances of a link set, 
+            // we store the unlocked instance in here.
+            kdl::vector_set<Model::GroupNode*> linkedGroupInstancesWithOthersImplicitlyLocked;
+
+            const auto getLinkedGroupAncestorChain = [](std::vector<Model::GroupNode*>& dest, Model::Node* node) {
+                Model::GroupNode* groupNode = Model::findContainingLinkedGroup(*node);
+                while (groupNode) {
+                    dest.push_back(groupNode);
+                    groupNode = Model::findContainingLinkedGroup(*groupNode);
+                }
+            };
+
+            std::vector<Model::Node*> nodesToSelect;
+
+            std::vector<Model::GroupNode*> ancestorLinkedGroups;
+            for (Model::Node* node : nodes) {                
+                ancestorLinkedGroups.clear();
+                getLinkedGroupAncestorChain(ancestorLinkedGroups, node);
+
+                const bool isNodeInImplicitlyLockedInstance = std::any_of(
+                    std::begin(ancestorLinkedGroups), 
+                    std::end(ancestorLinkedGroups), 
+                    [&](Model::GroupNode* group) { 
+                        return linkedGroupInstancesToImplicitlyLock.count(group) == 1u;
+                    });
+
+                if (isNodeInImplicitlyLockedInstance) {
+                    // don't bother trying to select this node.
+                    continue;
+                }
+
+                // we will allow selection of `node`, but we need to implictly lock
+                // any other groups in the link sets of the groups listed in `ancestorLinkedGroups`.
+
+                // first check if we've already processed all of these
+                const bool areAncestorLinkedGroupsHandled = std::all_of(
+                    std::begin(ancestorLinkedGroups), 
+                    std::end(ancestorLinkedGroups), 
+                    [&](Model::GroupNode* group) { 
+                        return linkedGroupInstancesWithOthersImplicitlyLocked.count(group) == 1u;
+                    });
+
+                if (!areAncestorLinkedGroupsHandled) {
+                    // implicitly lock other groups in the link sets of ancestorLinkedGroups
+                    for (Model::GroupNode* group : ancestorLinkedGroups) {
+                        // find the others and add them to the lock list
+                        for (Model::GroupNode* otherGroup : Model::findLinkedGroups(world, *group->group().linkedGroupId())) {
+                            if (otherGroup == group) {
+                                continue;
+                            }
+                            linkedGroupInstancesToImplicitlyLock.insert(otherGroup);
+                        }
+                        linkedGroupInstancesWithOthersImplicitlyLocked.insert(group);
+                    }
+                }
+
+                nodesToSelect.push_back(node);
+            }
+
+            return { nodesToSelect, linkedGroupInstancesToImplicitlyLock.release_data() };
+        }
+
+        FacesWithLinkedGroupConstraintsApplied facesWithLinkedGroupConstraintsApplied(Model::WorldNode& world, const std::vector<Model::BrushFaceHandle>& faces) {
+            const std::vector<Model::Node*> nodes = kdl::vec_transform(faces, [](auto handle) -> Model::Node* { return handle.node(); });
+            const auto constrainedNodes = nodesWithLinkedGroupConstraintsApplied(world, nodes);
+
+            const auto nodesToSelect = kdl::vector_set<Model::Node*>{constrainedNodes.nodesToSelect};
+
+            std::vector<Model::BrushFaceHandle> facesToSelect;
+            for (const auto& handle : faces) {
+                if (nodesToSelect.count(handle.node()) != 0) {
+                    facesToSelect.push_back(handle);
+                }
+            }
+
+            return FacesWithLinkedGroupConstraintsApplied{
+                std::move(facesToSelect), 
+                constrainedNodes.nodesToLock
+            };
+        }
     }
 }

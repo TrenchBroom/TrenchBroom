@@ -611,7 +611,7 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
 
-            const auto entityNodes = document->allSelectedEntityNodes();
+            const auto entityNodes = document->allSelectedEntityNodesIncludingLinkSetDuplicates();
             const std::map<std::string, PropertyRow> rowsMap =
                 PropertyRow::rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
 
@@ -759,7 +759,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             const size_t rowIndex = static_cast<size_t>(index.row());
-            const std::vector<Model::EntityNodeBase*> nodes = document->allSelectedEntityNodes();
+            const std::vector<Model::EntityNodeBase*> nodes = document->allSelectedEntityNodesIncludingLinkSetDuplicates();
             if (nodes.empty()) {
                 return false;
             }
