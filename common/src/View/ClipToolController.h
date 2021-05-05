@@ -43,12 +43,12 @@ namespace TrenchBroom {
 
         class ClipToolController : public ToolControllerGroup {
         protected:
-            class Callback {
+            class PartDelegateBase {
             protected:
                 ClipTool* m_tool;
             public:
-                explicit Callback(ClipTool* tool);
-                virtual ~Callback();
+                explicit PartDelegateBase(ClipTool* tool);
+                virtual ~PartDelegateBase();
                 ClipTool* tool() const;
 
                 bool addClipPoint(const InputState& inputState, vm::vec3& position);
@@ -65,8 +65,8 @@ namespace TrenchBroom {
 
             class PartBase {
             protected:
-                Callback* m_callback;
-                explicit PartBase(Callback* callback);
+                PartDelegateBase* m_delegate;
+                explicit PartBase(PartDelegateBase* delegate);
             public:
                 virtual ~PartBase();
             };
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             private:
                 bool m_secondPointSet;
             public:
-                explicit AddClipPointPart(Callback* callback);
+                explicit AddClipPointPart(PartDelegateBase* delegate);
             private:
                 Tool* doGetTool() override;
                 const Tool* doGetTool() const override;
@@ -92,7 +92,7 @@ namespace TrenchBroom {
 
             class MoveClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy>, protected PartBase {
             public:
-                explicit MoveClipPointPart(Callback* callback);
+                explicit MoveClipPointPart(PartDelegateBase* delegate);
             private:
                 Tool* doGetTool() override;
                 const Tool* doGetTool() const override;
@@ -121,7 +121,7 @@ namespace TrenchBroom {
 
         class ClipToolController2D : public ClipToolController {
         private:
-            class Callback2D;
+            class PartDelegate;
         public:
             explicit ClipToolController2D(ClipTool* tool);
         };
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             static std::vector<vm::vec3> selectHelpVectors(const Model::BrushNode* brushNode, const Model::BrushFace& face, const vm::vec3& hitPoint);
             static std::vector<const Model::BrushFace*> selectIncidentFaces(const Model::BrushNode* brushNode, const Model::BrushFace& face, const vm::vec3& hitPoint);
         private:
-            class Callback3D;
+            class PartDelegate;
         public:
             explicit ClipToolController3D(ClipTool* tool);
         };
