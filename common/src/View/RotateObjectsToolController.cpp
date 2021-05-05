@@ -41,6 +41,7 @@
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
 
+#include <memory>
 #include <sstream>
 
 namespace TrenchBroom {
@@ -342,8 +343,8 @@ namespace TrenchBroom {
 
         RotateObjectsToolController2D::RotateObjectsToolController2D(RotateObjectsTool* tool) :
         RotateObjectsToolController(tool) {
-            addController(new MoveCenterPart(tool));
-            addController(new RotateObjectsPart(tool));
+            addController(std::make_unique<MoveCenterPart>(tool));
+            addController(std::make_unique<RotateObjectsPart>(tool));
         }
 
         Model::Hit RotateObjectsToolController2D::doPick(const InputState& inputState) {
@@ -377,8 +378,8 @@ namespace TrenchBroom {
 
         RotateObjectsToolController3D::RotateObjectsToolController3D(RotateObjectsTool* tool) :
         RotateObjectsToolController(tool) {
-            addController(new MoveCenterPart(tool));
-            addController(new RotateObjectsPart(tool));
+            addController(std::make_unique<MoveCenterPart>(tool));
+            addController(std::make_unique<RotateObjectsPart>(tool));
         }
 
         Model::Hit RotateObjectsToolController3D::doPick(const InputState& inputState) {

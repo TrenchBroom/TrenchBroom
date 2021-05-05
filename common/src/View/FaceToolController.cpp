@@ -22,6 +22,8 @@
 #include "View/FaceTool.h"
 #include "View/VertexHandleManager.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace View {
         class FaceToolController::SelectFacePart : public SelectPartBase<vm::polygon3> {
@@ -42,8 +44,8 @@ namespace TrenchBroom {
 
         FaceToolController::FaceToolController(FaceTool* tool) :
         VertexToolControllerBase(tool) {
-            addController(new MoveFacePart(tool));
-            addController(new SelectFacePart(tool));
+            addController(std::make_unique<MoveFacePart>(tool));
+            addController(std::make_unique<SelectFacePart>(tool));
         }
     }
 }

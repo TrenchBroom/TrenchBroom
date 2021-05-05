@@ -45,6 +45,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
@@ -202,8 +203,8 @@ namespace TrenchBroom {
         CreateComplexBrushToolController3D::CreateComplexBrushToolController3D(CreateComplexBrushTool* tool) :
         m_tool(tool) {
             ensure(m_tool != nullptr, "tool is null");
-            addController(new DrawFacePart(m_tool));
-            addController(new DuplicateFacePart(m_tool));
+            addController(std::make_unique<DrawFacePart>(m_tool));
+            addController(std::make_unique<DuplicateFacePart>(m_tool));
         }
 
         Tool* CreateComplexBrushToolController3D::doGetTool() {

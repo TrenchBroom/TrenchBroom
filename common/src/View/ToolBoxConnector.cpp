@@ -24,6 +24,7 @@
 #include "View/PickRequest.h"
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
+#include "View/ToolController.h"
 
 #include <string>
 
@@ -64,8 +65,8 @@ namespace TrenchBroom {
             m_toolBox = &toolBox;
         }
 
-        void ToolBoxConnector::addTool(ToolController* tool) {
-            m_toolChain->append(tool);
+        void ToolBoxConnector::addTool(std::unique_ptr<ToolController> tool) {
+            m_toolChain->append(std::move(tool));
         }
 
         bool ToolBoxConnector::dragEnter(const float x, const float y, const std::string& text) {

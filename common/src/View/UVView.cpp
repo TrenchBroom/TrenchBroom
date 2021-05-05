@@ -52,6 +52,7 @@
 #include <kdl/memory_utils.h>
 
 #include <cassert>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -78,12 +79,12 @@ namespace TrenchBroom {
         }
 
         void UVView::createTools() {
-            addTool(new UVRotateTool(m_document, m_helper));
-            addTool(new UVOriginTool(m_helper));
-            addTool(new UVScaleTool(m_document, m_helper));
-            addTool(new UVShearTool(m_document, m_helper));
-            addTool(new UVOffsetTool(m_document, m_helper));
-            addTool(new UVCameraTool(m_camera));
+            addTool(std::make_unique<UVRotateTool>(m_document, m_helper));
+            addTool(std::make_unique<UVOriginTool>(m_helper));
+            addTool(std::make_unique<UVScaleTool>(m_document, m_helper));
+            addTool(std::make_unique<UVShearTool>(m_document, m_helper));
+            addTool(std::make_unique<UVOffsetTool>(m_document, m_helper));
+            addTool(std::make_unique<UVCameraTool>(m_camera));
         }
 
         void UVView::bindObservers() {

@@ -538,7 +538,7 @@ namespace TrenchBroom {
             ToolControllerGroup();
             ~ToolControllerGroup() override;
         protected:
-            void addController(ToolController* controller);
+            void addController(std::unique_ptr<ToolController> controller);
         protected:
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 

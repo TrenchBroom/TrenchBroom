@@ -23,6 +23,8 @@
 
 #include <vecmath/polygon.h>
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace View {
         class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3> {
@@ -43,8 +45,8 @@ namespace TrenchBroom {
 
         EdgeToolController::EdgeToolController(EdgeTool* tool) :
         VertexToolControllerBase(tool) {
-            addController(new MoveEdgePart(tool));
-            addController(new SelectEdgePart(tool));
+            addController(std::make_unique<MoveEdgePart>(tool));
+            addController(std::make_unique<SelectEdgePart>(tool));
         }
     }
 }

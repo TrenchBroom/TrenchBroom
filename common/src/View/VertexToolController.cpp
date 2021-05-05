@@ -24,6 +24,8 @@
 
 #include <vecmath/polygon.h>
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace View {
         /*
@@ -194,8 +196,8 @@ namespace TrenchBroom {
 
         VertexToolController::VertexToolController(VertexTool* tool) :
         VertexToolControllerBase(tool) {
-            addController(new MoveVertexPart(tool));
-            addController(new SelectVertexPart(tool));
+            addController(std::make_unique<MoveVertexPart>(tool));
+            addController(std::make_unique<SelectVertexPart>(tool));
         }
     }
 }
