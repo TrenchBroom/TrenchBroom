@@ -108,7 +108,6 @@ namespace TrenchBroom {
             REQUIRE_FALSE(nodeCollection.hasOnlyEntities());
             REQUIRE_FALSE(nodeCollection.hasBrushes());
             REQUIRE_FALSE(nodeCollection.hasOnlyBrushes());
-            REQUIRE_FALSE(nodeCollection.hasBrushesRecursively());
             REQUIRE_FALSE(nodeCollection.hasPatches());
             REQUIRE_FALSE(nodeCollection.hasOnlyPatches());
 
@@ -147,12 +146,10 @@ namespace TrenchBroom {
                     nodeCollection.addNode(&brushNode);
                     CHECK(nodeCollection.hasBrushes());
                     CHECK(nodeCollection.hasOnlyBrushes());
-                    CHECK(nodeCollection.hasBrushesRecursively());
 
                     nodeCollection.addNode(&layerNode);
                     CHECK(nodeCollection.hasBrushes());
                     CHECK_FALSE(nodeCollection.hasOnlyBrushes());
-                    CHECK(nodeCollection.hasBrushesRecursively());
                 }
 
                 SECTION("nested brushes") {
@@ -166,19 +163,16 @@ namespace TrenchBroom {
                         nodeCollection.addNode(node);
                         CHECK_FALSE(nodeCollection.hasBrushes());
                         CHECK_FALSE(nodeCollection.hasOnlyBrushes());
-                        CHECK(nodeCollection.hasBrushesRecursively());
                     }
 
                     SECTION("adding brushes to containers") {
                         nodeCollection.addNode(node);
                         REQUIRE_FALSE(nodeCollection.hasBrushes());
                         REQUIRE_FALSE(nodeCollection.hasOnlyBrushes());
-                        REQUIRE_FALSE(nodeCollection.hasBrushesRecursively());
 
                         node->addChild(brushNode.clone(worldBounds));
                         CHECK_FALSE(nodeCollection.hasBrushes());
                         CHECK_FALSE(nodeCollection.hasOnlyBrushes());
-                        CHECK(nodeCollection.hasBrushesRecursively());
                     }
                 }
             }
@@ -264,9 +258,6 @@ namespace TrenchBroom {
                 layerNode.addChild(brushInLayer);
                 groupNode.addChild(brushInGroup);
                 entityNode.addChild(brushInEntity);
-
-            CHECK_THAT(nodeCollection.brushesRecursively(), 
-                Catch::Matchers::UnorderedEquals(std::vector<BrushNode*>{&brushNode, brushInLayer, brushInGroup, brushInEntity}));
             }
         }
 
