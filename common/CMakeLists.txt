@@ -337,6 +337,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/GetVersion.cpp
         ${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
         ${COMMON_SOURCE_DIR}/View/Grid.cpp
+        ${COMMON_SOURCE_DIR}/View/HandleDragTracker.cpp
         ${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
         ${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
         ${COMMON_SOURCE_DIR}/View/InputEvent.cpp
@@ -845,6 +846,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/GetVersion.h
         ${COMMON_SOURCE_DIR}/View/GLContextManager.h
         ${COMMON_SOURCE_DIR}/View/Grid.h
+        ${COMMON_SOURCE_DIR}/View/HandleDragTracker.h
         ${COMMON_SOURCE_DIR}/View/ImageListBox.h
         ${COMMON_SOURCE_DIR}/View/InfoPanel.h
         ${COMMON_SOURCE_DIR}/View/InputEvent.h

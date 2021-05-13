@@ -97,6 +97,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/CsgTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/GridTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/GroupNodesTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/HandleDragTrackerTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/InputEventTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/IssueGeneratorTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/LayerNodesTest.cpp"
