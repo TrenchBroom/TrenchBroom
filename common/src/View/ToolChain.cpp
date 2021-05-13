@@ -20,6 +20,7 @@
 #include "ToolChain.h"
 
 #include "Ensure.h"
+#include "View/DragTracker.h"
 #include "View/ToolController.h"
 
 #include <cassert>
@@ -126,13 +127,15 @@ namespace TrenchBroom {
             }
         }
 
-        ToolController* ToolChain::startMouseDrag(const InputState& inputState) {
+        std::unique_ptr<DragTracker> ToolChain::startMouseDrag(const InputState& inputState) {
             assert(checkInvariant());
             if (chainEndsHere()) {
                 return nullptr;
             }
-            if (m_tool->toolActive() && m_tool->startMouseDrag(inputState)) {
-                return m_tool.get();
+            if (m_tool->toolActive()) {
+                if (auto dragTracker = m_tool->acceptMouseDrag(inputState)) {
+                    return dragTracker;
+                }
             }
             return m_suffix->startMouseDrag(inputState);
         }

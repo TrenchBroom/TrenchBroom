@@ -33,6 +33,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class DragTracker;
         class InputState;
         class ToolController;
 
@@ -57,7 +58,7 @@ namespace TrenchBroom {
             void mouseScroll(const InputState& inputState);
             void mouseMove(const InputState& inputState);
 
-            ToolController* startMouseDrag(const InputState& inputState);
+            std::unique_ptr<DragTracker> startMouseDrag(const InputState& inputState);
             ToolController* dragEnter(const InputState& inputState, const std::string& payload);
 
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;

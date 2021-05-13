@@ -352,6 +352,8 @@ namespace TrenchBroom {
             bool doDragDrop(const InputState& inputState) override;
         };
 
+        class DragTracker;
+
         class ToolController {
         private:
             bool m_dragging;
@@ -377,6 +379,7 @@ namespace TrenchBroom {
             virtual void mouseMove(const InputState& inputState) = 0;
             virtual void mouseScroll(const InputState& inputState) = 0;
 
+            virtual std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState);
             virtual bool startMouseDrag(const InputState& inputState) = 0;
             virtual bool mouseDrag(const InputState& inputState) = 0;
             virtual void endMouseDrag(const InputState& inputState) = 0;
@@ -493,7 +496,7 @@ namespace TrenchBroom {
         class ToolControllerGroup : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, DropPolicy> {
         private:
             ToolChain m_chain;
-            ToolController* m_dragReceiver;
+            std::unique_ptr<DragTracker> m_dragTracker;
             ToolController* m_dropReceiver;
         public:
             ToolControllerGroup();

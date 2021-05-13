@@ -301,6 +301,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
         ${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
+        ${COMMON_SOURCE_DIR}/View/DragTracker.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
         ${COMMON_SOURCE_DIR}/View/ElidedLabel.cpp
@@ -808,6 +809,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.h
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.h
         ${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.h
+        ${COMMON_SOURCE_DIR}/View/DragTracker.h
         ${COMMON_SOURCE_DIR}/View/EdgeTool.h
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.h
         ${COMMON_SOURCE_DIR}/View/ElidedLabel.h

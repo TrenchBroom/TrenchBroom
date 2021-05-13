@@ -20,6 +20,7 @@
 #include "ToolBox.h"
 
 #include "Ensure.h"
+#include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
@@ -35,10 +36,11 @@
 namespace TrenchBroom {
     namespace View {
         ToolBox::ToolBox() :
-        m_dragReceiver(nullptr),
         m_dropReceiver(nullptr),
         m_modalTool(nullptr),
         m_enabled(true) {}
+
+        ToolBox::~ToolBox() = default;
 
         void ToolBox::addTool(Tool* tool) {
             ensure(tool != nullptr, "tool is null");
@@ -97,6 +99,9 @@ namespace TrenchBroom {
                 return;
             }
             chain->modifierKeyChange(inputState);
+            if (m_dragTracker) {
+                m_dragTracker->modifierKeyChange(inputState);
+            }
         }
 
         void ToolBox::mouseDown(ToolChain* chain, const InputState& inputState) {
@@ -135,44 +140,43 @@ namespace TrenchBroom {
         }
 
         bool ToolBox::dragging() const {
-            return m_dragReceiver != nullptr;
+            return m_dragTracker != nullptr;
         }
 
         bool ToolBox::startMouseDrag(ToolChain* chain, const InputState& inputState) {
             if (!m_enabled) {
                 return false;
             }
-            m_dragReceiver = chain->startMouseDrag(inputState);
-            if (m_dragReceiver != nullptr) {
-                m_dragReceiver->setThisToolDragging(true);
-            }
-            return m_dragReceiver != nullptr;
+            m_dragTracker = chain->startMouseDrag(inputState);
+            return m_dragTracker != nullptr;
         }
 
         bool ToolBox::mouseDrag(const InputState& inputState) {
             assert(enabled() && dragging());
-            return m_dragReceiver->mouseDrag(inputState);
+            return m_dragTracker->drag(inputState);
         }
 
         void ToolBox::endMouseDrag(const InputState& inputState) {
             assert(enabled() && dragging());
-            m_dragReceiver->endMouseDrag(inputState);
-            m_dragReceiver->setThisToolDragging(false);
-            m_dragReceiver = nullptr;
+            m_dragTracker->end(inputState);
+            m_dragTracker = nullptr;
         }
 
         void ToolBox::cancelMouseDrag() {
             assert(dragging());
-            m_dragReceiver->cancelMouseDrag();
-            m_dragReceiver->setThisToolDragging(false);
-            m_dragReceiver = nullptr;
+            m_dragTracker->cancel();
+            m_dragTracker = nullptr;
         }
 
         void ToolBox::mouseScroll(ToolChain* chain, const InputState& inputState) {
             if (!m_enabled) {
                 return;
             }
-            chain->mouseScroll(inputState);
+            if (m_dragTracker) {
+                m_dragTracker->mouseScroll(inputState);
+            } else {
+                chain->mouseScroll(inputState);
+            }
         }
 
         bool ToolBox::cancel(ToolChain* chain) {
@@ -252,6 +256,9 @@ namespace TrenchBroom {
 
         void ToolBox::setRenderOptions(ToolChain* chain, const InputState& inputState, Renderer::RenderContext& renderContext) {
             chain->setRenderOptions(inputState, renderContext);
+            if (m_dragTracker) {
+                m_dragTracker->setRenderOptions(inputState, renderContext);
+            }
         }
 
         void ToolBox::renderTools(ToolChain* chain, const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -259,6 +266,9 @@ namespace TrenchBroom {
                 m_modalTool->renderOnly(m_inputState, renderContext);
             else */
             chain->render(inputState, renderContext, renderBatch);
+            if (m_dragTracker) {
+                m_dragTracker->render(inputState, renderContext, renderBatch);
+            }
         }
 
         bool ToolBox::activateTool(Tool* tool) {
