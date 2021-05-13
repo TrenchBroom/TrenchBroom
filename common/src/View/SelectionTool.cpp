@@ -41,6 +41,32 @@
 
 namespace TrenchBroom {
     namespace View {
+        Model::Node* findOutermostClosedGroupOrNode(Model::Node* node) {
+            Model::GroupNode* group = findOutermostClosedGroup(node);
+            if (group != nullptr) {
+                return group;
+            }
+
+            return node;
+        }
+
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits) {
+            std::vector<Model::Node*> hitNodes;
+            std::unordered_set<Model::Node*> duplicateCheck;
+
+            for (const auto& hit : hits) {
+                Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
+                if (!duplicateCheck.insert(node).second) {
+                    continue;
+                }
+
+                // Note that the order of the input hits are preserved, although duplicates later in the list are dropped
+                hitNodes.push_back(node);
+            }
+
+            return hitNodes;
+        }
+
         SelectionTool::SelectionTool(std::weak_ptr<MapDocument> document) :
         ToolControllerBase(),
         Tool(true),
@@ -52,15 +78,6 @@ namespace TrenchBroom {
 
         const Tool* SelectionTool::doGetTool() const {
             return this;
-        }
-
-        Model::Node* findOutermostClosedGroupOrNode(Model::Node* node) {
-            Model::GroupNode* group = findOutermostClosedGroup(node);
-            if (group != nullptr) {
-                return group;
-            }
-
-            return node;
         }
 
         bool SelectionTool::doMouseClick(const InputState& inputState) {
@@ -283,23 +300,6 @@ namespace TrenchBroom {
             } else {
                 return std::make_pair(*first, *next);
             }
-        }
-
-        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits) {
-            std::vector<Model::Node*> hitNodes;
-            std::unordered_set<Model::Node*> duplicateCheck;
-
-            for (const auto& hit : hits) {
-                Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
-                if (!duplicateCheck.insert(node).second) {
-                    continue;
-                }
-
-                // Note that the order of the input hits are preserved, although duplicates later in the list are dropped
-                hitNodes.push_back(node);
-            }
-
-            return hitNodes;
         }
 
         void SelectionTool::drillSelection(const InputState& inputState) {
