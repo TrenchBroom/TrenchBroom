@@ -67,6 +67,22 @@ namespace TrenchBroom {
             return hitNodes;
         }
 
+        static bool isFaceClick(const InputState& inputState) {
+            return inputState.modifierKeysDown(ModifierKeys::MKShift);
+        }
+
+        static bool isMultiClick(const InputState& inputState) {
+            return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+        }
+
+        static const Model::Hit& firstHit(const InputState& inputState, const Model::HitType::Type type) {
+            return inputState.pickResult().query().pickable().type(type).occluded().first();
+        }
+
+        static std::vector<Model::Node*> collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) {
+            return Model::collectSelectableNodes(node->children(), editorContext);
+        }
+
         SelectionTool::SelectionTool(std::weak_ptr<MapDocument> document) :
         ToolControllerBase(),
         Tool(true),
@@ -223,22 +239,6 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
             return document->editorContext().canChangeSelection();
-        }
-
-        bool SelectionTool::isFaceClick(const InputState& inputState) const {
-            return inputState.modifierKeysDown(ModifierKeys::MKShift);
-        }
-
-        bool SelectionTool::isMultiClick(const InputState& inputState) const {
-            return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-        }
-
-        const Model::Hit& SelectionTool::firstHit(const InputState& inputState, const Model::HitType::Type type) const {
-            return inputState.pickResult().query().pickable().type(type).occluded().first();
-        }
-
-        std::vector<Model::Node*> SelectionTool::collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const {
-            return Model::collectSelectableNodes(node->children(), editorContext);
         }
 
         void SelectionTool::doMouseScroll(const InputState& inputState) {

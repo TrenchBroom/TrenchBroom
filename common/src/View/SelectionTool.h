@@ -66,12 +66,6 @@ namespace TrenchBroom {
             bool doMouseDoubleClick(const InputState& inputState) override;
 
             bool handleClick(const InputState& inputState) const;
-            bool isFaceClick(const InputState& inputState) const;
-            bool isMultiClick(const InputState& inputState) const;
-
-            const Model::Hit& firstHit(const InputState& inputState, Model::HitType::Type type) const;
-
-            std::vector<Model::Node*> collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
 
             void doMouseScroll(const InputState& inputState) override;
             void adjustGrid(const InputState& inputState);
