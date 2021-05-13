@@ -36,6 +36,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class DragTracker;
         class MapDocument;
 
         /**
@@ -53,7 +54,7 @@ namespace TrenchBroom {
          */
         std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits);
 
-        class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
         public:
@@ -71,10 +72,7 @@ namespace TrenchBroom {
             void adjustGrid(const InputState& inputState);
             void drillSelection(const InputState& inputState);
 
-            bool doStartMouseDrag(const InputState& inputState) override;
-            bool doMouseDrag(const InputState& inputState) override;
-            void doEndMouseDrag(const InputState& inputState) override;
-            void doCancelMouseDrag() override;
+            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
 
