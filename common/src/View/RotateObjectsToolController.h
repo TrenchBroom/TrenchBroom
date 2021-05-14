@@ -33,9 +33,6 @@ namespace TrenchBroom {
 
         class RotateObjectsToolController : public ToolControllerGroup {
         protected:
-            class MoveCenterBase;
-            class RotateObjectsBase;
-        protected:
             RotateObjectsTool* m_tool;
         protected:
             explicit RotateObjectsToolController(RotateObjectsTool* tool);
@@ -57,9 +54,6 @@ namespace TrenchBroom {
         };
 
         class RotateObjectsToolController2D : public RotateObjectsToolController {
-        private:
-            class MoveCenterPart;
-            class RotateObjectsPart;
         public:
             explicit RotateObjectsToolController2D(RotateObjectsTool* tool);
         private:
@@ -68,9 +62,6 @@ namespace TrenchBroom {
         };
 
         class RotateObjectsToolController3D : public RotateObjectsToolController {
-        private:
-            class MoveCenterPart;
-            class RotateObjectsPart;
         public:
             explicit RotateObjectsToolController3D(RotateObjectsTool* tool);
         private:
