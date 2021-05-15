@@ -34,8 +34,9 @@
 #include "Renderer/Shaders.h"
 #include "View/InputState.h"
 #include "View/HandleDragTracker.h"
-#include "View/MoveToolController.h"
+#include "View/MoveHandleDragTracker.h"
 #include "View/RotateObjectsTool.h"
+#include "View/ToolController.h"
 
 #include <vecmath/intersection.h>
 #include <vecmath/mat_ext.h>
@@ -257,12 +258,40 @@ namespace TrenchBroom {
                 virtual void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) = 0;
             };
 
-            class MoveCenterBase : public MoveToolController<NoPickingPolicy, NoMousePolicy> {
+            class MoveRotationCenterDragDelegate : public MoveHandleDragTrackerDelegate {
+            private:
+                RotateObjectsTool& m_tool;
+                RenderHighlight m_renderHighlight;
+            public:
+                MoveRotationCenterDragDelegate(RotateObjectsTool& tool, RenderHighlight renderHighlight) :
+                m_tool{tool},
+                m_renderHighlight{std::move(renderHighlight)} {}
+
+                DragStatus move(const InputState&, const DragState&, const vm::vec3& currentHandlePosition) override {
+                    m_tool.setRotationCenter(currentHandlePosition);
+                    return DragStatus::Continue;
+                }
+
+                void end(const InputState&, const DragState&) override {}
+
+                void cancel(const DragState& dragState) override {
+                    m_tool.setRotationCenter(dragState.initialHandlePosition);
+                }
+           
+                void render(const InputState& inputState, const DragState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const override {
+                    m_renderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
+                }
+
+                DragHandleSnapper makeDragHandleSnapper(const InputState&, const SnapMode snapMode) const override {
+                    return makeDragHandleSnapperFromSnapMode(m_tool.grid(), snapMode);
+                }
+            };
+
+            class MoveCenterBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy> {
             protected:
                 RotateObjectsTool* m_tool;
             protected:
                 explicit MoveCenterBase(RotateObjectsTool* tool) :
-                MoveToolController(tool->grid()),
                 m_tool(tool) {
                     ensure(m_tool != nullptr, "tool is null");
                 }
@@ -275,44 +304,37 @@ namespace TrenchBroom {
                     return m_tool;
                 }
 
-                MoveInfo doStartMove(const InputState& inputState) override {
+                std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     using namespace Model::HitFilters;
 
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                         !inputState.checkModifierKeys(ModifierKeyPressed::MK_No, ModifierKeyPressed::MK_DontCare, ModifierKeyPressed::MK_No)) {
-                        return MoveInfo();
+                        return nullptr;
                     }
 
                     const Model::Hit& hit = inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
                     if (!hit.isMatch()) {
-                        return MoveInfo();
+                        return nullptr;
                     }
 
                     if (hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea::Center) {
-                        return MoveInfo();
+                        return nullptr;
                     }
 
-                    return MoveInfo(m_tool->rotationCenter());
-                }
+                    auto renderHighlight = [this](const auto& inputState_, auto& renderContext, auto& renderBatch, const auto area_) {
+                        doRenderHighlight(inputState_, renderContext, renderBatch, area_);
+                    };
 
-                DragResult doMove(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
-                    m_tool->setRotationCenter(nextHandlePosition);
-                    return DR_Continue;
-                }
+                    const auto initialHandlePosition = m_tool->rotationCenter();
+                    const auto handleOffset = initialHandlePosition - hit.hitPoint();
 
-                void doEndMove(const InputState&) override {}
-
-                void doCancelMove() override {
-                    m_tool->setRotationCenter(initialHandlePosition());
+                    return createMoveHandleDragTracker(MoveRotationCenterDragDelegate{*m_tool, std::move(renderHighlight)}, inputState, m_tool->rotationCenter(), handleOffset);
                 }
 
                 void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     using namespace Model::HitFilters;
 
-                    MoveToolController::doRender(inputState, renderContext, renderBatch);
-                    if (thisToolDragging()) {
-                        doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
-                    } else if (!anyToolDragging(inputState)) {
+                    if (!anyToolDragging(inputState)) {
                         const Model::Hit& hit = inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
                         if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea::Center) {
                             doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
