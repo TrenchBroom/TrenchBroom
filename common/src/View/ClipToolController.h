@@ -42,12 +42,12 @@ namespace TrenchBroom {
     namespace View {
         class ClipTool;
 
-        class ClipToolController : public ToolControllerGroup {
+        class ClipToolControllerBase : public ToolControllerGroup {
         protected:
             ClipTool* m_tool;
         protected:
-            explicit ClipToolController(ClipTool* tool);
-            virtual ~ClipToolController() override;
+            explicit ClipToolControllerBase(ClipTool* tool);
+            virtual ~ClipToolControllerBase() override;
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
@@ -60,12 +60,12 @@ namespace TrenchBroom {
             bool doCancel() override;
         };
 
-        class ClipToolController2D : public ClipToolController {
+        class ClipToolController2D : public ClipToolControllerBase {
         public:
             explicit ClipToolController2D(ClipTool* tool);
         };
 
-        class ClipToolController3D : public ClipToolController {
+        class ClipToolController3D : public ClipToolControllerBase {
         public:
             explicit ClipToolController3D(ClipTool* tool);
         };
