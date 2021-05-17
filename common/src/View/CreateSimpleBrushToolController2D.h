@@ -55,7 +55,7 @@ namespace TrenchBroom {
             bool doCancel() override;
         private:
             bool updateBounds(const InputState& inputState, const vm::vec3& currentPoint);
-            void snapBounds(const InputState& inputState, vm::bbox3& bounds);
+            vm::bbox3 snapBounds(const InputState& inputState, const vm::bbox3& bounds) const;
         };
     }
 }

@@ -34,8 +34,8 @@
 namespace TrenchBroom {
     namespace View {
         CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document) :
-        m_tool(tool),
-        m_document(document) {
+        m_tool{tool},
+        m_document{document} {
             ensure(m_tool != nullptr, "tool is null");
         }
 
@@ -49,24 +49,24 @@ namespace TrenchBroom {
 
         RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController2D::doStartDrag(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                return DragInfo();
+                return DragInfo{};
             }
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone)) {
-                return DragInfo();
+                return DragInfo{};
             }
 
             auto document = kdl::mem_lock(m_document);
             if (document->hasSelection()) {
-                return DragInfo();
+                return DragInfo{};
             }
 
             const auto& bounds = document->referenceBounds();
             const auto& camera = inputState.camera();
-            const vm::plane3 plane(bounds.min, vm::vec3(vm::get_abs_max_component_axis(camera.direction())));
+            const auto plane = vm::plane3{bounds.min, vm::vec3{vm::get_abs_max_component_axis(camera.direction())}};
 
             const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane);
             if (vm::is_nan(distance)) {
-                return DragInfo();
+                return DragInfo{};
             }
 
             m_initialPoint = vm::point_at_distance(inputState.pickRay(), distance);
@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 m_tool->refreshViews();
             }
 
-            return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
+            return DragInfo{new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint};
         }
 
         RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) {
@@ -86,8 +86,9 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController2D::doEndDrag(const InputState&) {
-            if (!m_bounds.is_empty())
+            if (!m_bounds.is_empty()) {
                 m_tool->createBrush();
+            }
         }
 
         void CreateSimpleBrushToolController2D::doCancelDrag() {
@@ -105,15 +106,15 @@ namespace TrenchBroom {
         }
 
         bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const vm::vec3& currentPoint) {
-            vm::bbox3 bounds(m_initialPoint, m_initialPoint);
-            bounds = merge(bounds, currentPoint);
-            snapBounds(inputState, bounds);
+            auto bounds = vm::merge(vm::bbox3{m_initialPoint, m_initialPoint}, currentPoint);
+            bounds = snapBounds(inputState, bounds);
 
             auto document = kdl::mem_lock(m_document);
             bounds = vm::intersect(bounds, document->worldBounds());
 
-            if (bounds.is_empty() || bounds == m_bounds)
+            if (bounds.is_empty() || bounds == m_bounds) {
                 return false;
+            }
 
             using std::swap;
             swap(m_bounds, bounds);
@@ -122,7 +123,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, vm::bbox3& bounds) {
+        vm::bbox3 CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, const vm::bbox3& bounds) const {
             auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
             auto min = grid.snapDown(bounds.min);
@@ -130,11 +131,11 @@ namespace TrenchBroom {
 
             const auto& camera = inputState.camera();
             const auto& refBounds = document->referenceBounds();
-            const auto factors = vm::vec3(abs(vm::get_abs_max_component_axis(camera.direction())));
+            const auto factors = vm::vec3{vm::abs(vm::get_abs_max_component_axis(camera.direction()))};
             min = vm::mix(min, refBounds.min, factors);
             max = vm::mix(max, refBounds.max, factors);
 
-            bounds = vm::bbox3(min, max);
+            return vm::bbox3{min, max};
         }
     }
 }
