@@ -44,8 +44,8 @@
 namespace TrenchBroom {
     namespace View {
         CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document) :
-        m_tool(tool),
-        m_document(document) {
+        m_tool{tool},
+        m_document{document} {
             ensure(tool != nullptr, "tool is null");
         }
 
@@ -93,8 +93,8 @@ namespace TrenchBroom {
             refreshViews();
 
 
-            const vm::plane3 plane = vm::plane3(m_initialPoint, vm::vec3::pos_z());
-            return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
+            const vm::plane3 plane = vm::plane3{m_initialPoint, vm::vec3::pos_z()};
+            return DragInfo(new PlaneDragRestricter{plane}, new NoDragSnapper{}, m_initialPoint);
         }
 
         RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) {
@@ -122,17 +122,17 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController3D::updateBounds(const vm::vec3& point, const vm::vec3& cameraPosition) {
-            vm::bbox3 bounds;
+            auto bounds = vm::bbox3{};
 
-            bounds.min = min(m_initialPoint, point);
-            bounds.max = max(m_initialPoint, point);
+            bounds.min = vm::min(m_initialPoint, point);
+            bounds.max = vm::max(m_initialPoint, point);
 
             auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
 
             // prevent flickering due to very small rounding errors
-            bounds.min = correct(bounds.min);
-            bounds.max = correct(bounds.max);
+            bounds.min = vm::correct(bounds.min);
+            bounds.max = vm::correct(bounds.max);
 
             bounds.min = grid.snapDown(bounds.min);
             bounds.max = grid.snapUp(bounds.max);
@@ -147,7 +147,7 @@ namespace TrenchBroom {
                 }
             }
 
-            bounds = intersect(bounds, document->worldBounds());
+            bounds = vm::intersect(bounds, document->worldBounds());
             if (!bounds.is_empty()) {
                 m_tool->update(bounds);
             }
