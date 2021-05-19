@@ -33,14 +33,13 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class DragTracker;
         class MapDocument;
 
-        class CameraTool3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class CameraTool3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
             Renderer::PerspectiveCamera& m_camera;
-            bool m_orbit;
-            vm::vec3f m_orbitCenter;
         public:
             CameraTool3D(std::weak_ptr<MapDocument> document, Renderer::PerspectiveCamera& camera);
         private:
@@ -49,10 +48,8 @@ namespace TrenchBroom {
 
             void doMouseScroll(const InputState& inputState) override;
             void doMouseUp(const InputState& inputState) override;
-            bool doStartMouseDrag(const InputState& inputState) override;
-            bool doMouseDrag(const InputState& inputState) override;
-            void doEndMouseDrag(const InputState& inputState) override;
-            void doCancelMouseDrag() override;
+
+            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
             bool doCancel() override;
         };
