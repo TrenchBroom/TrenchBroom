@@ -43,7 +43,6 @@ namespace TrenchBroom {
             vm::vec3f m_orbitCenter;
         public:
             CameraTool3D(std::weak_ptr<MapDocument> document, Renderer::PerspectiveCamera& camera);
-            void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

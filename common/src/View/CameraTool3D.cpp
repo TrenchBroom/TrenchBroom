@@ -117,30 +117,6 @@ namespace TrenchBroom {
         m_camera{camera},
         m_orbit{false} {}
 
-        void CameraTool3D::fly(const int dx, const int dy, const bool forward, const bool backward, const bool left, const bool right, const unsigned int time) {
-            constexpr float speed = 256.0f / 1000.0f; // 64 units per second
-            const float dist  = speed * static_cast<float>(time);
-
-            auto delta = vm::vec3f{};
-            if (forward) {
-                delta = delta + m_camera.direction() * dist;
-            }
-            if (backward) {
-                delta = delta - m_camera.direction() * dist;
-            }
-            if (left) {
-                delta = delta - m_camera.right() * dist;
-            }
-            if (right) {
-                delta = delta + m_camera.right() * dist;
-            }
-            m_camera.moveBy(delta);
-
-            const float hAngle = static_cast<float>(dx) * lookSpeedH(m_camera);
-            const float vAngle = static_cast<float>(dy) * lookSpeedV(m_camera);
-            m_camera.rotate(hAngle, vAngle);
-        }
-
         Tool* CameraTool3D::doGetTool() {
             return this;
         }
