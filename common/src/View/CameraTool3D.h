@@ -34,14 +34,12 @@ namespace TrenchBroom {
 
     namespace View {
         class DragTracker;
-        class MapDocument;
 
         class CameraTool3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
-            std::weak_ptr<MapDocument> m_document;
             Renderer::PerspectiveCamera& m_camera;
         public:
-            CameraTool3D(std::weak_ptr<MapDocument> document, Renderer::PerspectiveCamera& camera);
+            CameraTool3D(Renderer::PerspectiveCamera& camera);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

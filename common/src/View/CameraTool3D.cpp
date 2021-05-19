@@ -30,7 +30,6 @@
 #include "Model/PickResult.h"
 #include "View/DragTracker.h"
 #include "View/InputState.h"
-#include "View/MapDocument.h"
 #include "Renderer/PerspectiveCamera.h"
 
 #include <vecmath/forward.h>
@@ -111,10 +110,9 @@ namespace TrenchBroom {
             return adjustSpeedToZoom(camera, speed);
         }
 
-        CameraTool3D::CameraTool3D(std::weak_ptr<MapDocument> document, Renderer::PerspectiveCamera& camera) :
+        CameraTool3D::CameraTool3D(Renderer::PerspectiveCamera& camera) :
         ToolControllerBase{},
         Tool{true},
-        m_document{document},
         m_camera{camera} {}
 
         Tool* CameraTool3D::doGetTool() {

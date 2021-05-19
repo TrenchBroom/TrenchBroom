@@ -102,7 +102,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
-            addTool(std::make_unique<CameraTool3D>(m_document, *m_camera));
+            addTool(std::make_unique<CameraTool3D>(*m_camera));
             addTool(std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
             addTool(std::make_unique<RotateObjectsToolController3D>(toolBox.rotateObjectsTool()));
             addTool(std::make_unique<ScaleObjectsToolController3D>(toolBox.scaleObjectsTool(), m_document));
