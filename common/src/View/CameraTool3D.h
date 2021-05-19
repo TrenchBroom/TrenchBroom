@@ -55,18 +55,6 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState) override;
             void doCancelMouseDrag() override;
 
-            bool move(const InputState& inputState) const;
-            bool look(const InputState& inputState) const;
-            bool pan(const InputState& inputState) const;
-            bool orbit(const InputState& inputState) const;
-            bool adjustFlySpeed(const InputState& inputState) const;
-
-            float lookSpeedH() const;
-            float lookSpeedV() const;
-            float panSpeedH() const;
-            float panSpeedV() const;
-            float moveSpeed(bool altMode) const;
-
             bool doCancel() override;
         };
     }

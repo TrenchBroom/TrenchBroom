@@ -40,6 +40,76 @@
 
 namespace TrenchBroom {
     namespace View {
+        static bool shouldMove(const InputState& inputState) {
+            return (inputState.mouseButtonsPressed(MouseButtons::MBNone) &&
+                    inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare));
+        }
+
+        static bool shouldLook(const InputState& inputState) {
+            return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
+                    inputState.modifierKeysPressed(ModifierKeys::MKNone));
+        }
+
+        static bool shouldPan(const InputState& inputState) {
+            return (inputState.mouseButtonsPressed(MouseButtons::MBMiddle) &&
+                    (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
+                     inputState.modifierKeysPressed(ModifierKeys::MKAlt)));
+        }
+
+        static bool shouldOrbit(const InputState& inputState) {
+            return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
+                    inputState.modifierKeysPressed(ModifierKeys::MKAlt));
+        }
+
+        static bool shouldAdjustFlySpeed(const InputState& inputState) {
+            return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
+                    inputState.checkModifierKeys(MK_No, MK_No, MK_No));
+        }
+
+        static float adjustSpeedToZoom(const Renderer::PerspectiveCamera& camera, const float speed) {
+            return speed * vm::min(1.0f, camera.zoomedFov() / camera.fov());
+        }
+
+        static float lookSpeedH(const Renderer::PerspectiveCamera& camera) {
+            float speed = pref(Preferences::CameraLookSpeed) / -50.0f;
+            if (pref(Preferences::CameraLookInvertH)) {
+                speed *= -1.0f;
+            }
+            return adjustSpeedToZoom(camera, speed);
+        }
+
+        static float lookSpeedV(const Renderer::PerspectiveCamera& camera) {
+            float speed = pref(Preferences::CameraLookSpeed) / -50.0f;
+            if (pref(Preferences::CameraLookInvertV)) {
+                speed *= -1.0f;
+            }
+            return adjustSpeedToZoom(camera, speed);
+        }
+
+        static float panSpeedH(const Renderer::PerspectiveCamera& camera) {
+            float speed = pref(Preferences::CameraPanSpeed);
+            if (pref(Preferences::CameraPanInvertH)) {
+                speed *= -1.0f;
+            }
+            return adjustSpeedToZoom(camera, speed);
+        }
+
+        static float panSpeedV(const Renderer::PerspectiveCamera& camera) {
+            float speed = pref(Preferences::CameraPanSpeed);
+            if (pref(Preferences::CameraPanInvertV)) {
+                speed *= -1.0f;
+            }
+            return adjustSpeedToZoom(camera, speed);
+        }
+
+        static float moveSpeed(const Renderer::PerspectiveCamera& camera, const bool altMode) {
+            float speed = pref(Preferences::CameraMoveSpeed) * 20.0f;
+            if (altMode && pref(Preferences::CameraAltMoveInvert)) {
+                speed *= -1.0f;
+            }
+            return adjustSpeedToZoom(camera, speed);
+        }
+
         CameraTool3D::CameraTool3D(std::weak_ptr<MapDocument> document, Renderer::PerspectiveCamera& camera) :
         ToolControllerBase{},
         Tool{true},
@@ -66,8 +136,8 @@ namespace TrenchBroom {
             }
             m_camera.moveBy(delta);
 
-            const float hAngle = static_cast<float>(dx) * lookSpeedH();
-            const float vAngle = static_cast<float>(dy) * lookSpeedV();
+            const float hAngle = static_cast<float>(dx) * lookSpeedH(m_camera);
+            const float vAngle = static_cast<float>(dy) * lookSpeedV(m_camera);
             m_camera.rotate(hAngle, vAngle);
         }
 
@@ -87,9 +157,9 @@ namespace TrenchBroom {
             if (m_orbit) {
                 const auto orbitPlane = vm::plane3f{m_orbitCenter, m_camera.direction()};
                 const float maxDistance = vm::max(vm::intersect_ray_plane(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
-                const float distance = vm::min(factor * scrollDist * moveSpeed(false), maxDistance);
+                const float distance = vm::min(factor * scrollDist * moveSpeed(m_camera, false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
-            } else if (adjustFlySpeed(inputState)) {
+            } else if (shouldAdjustFlySpeed(inputState)) {
                 const float speed = pref(Preferences::CameraFlyMoveSpeed);
                 // adjust speed by 5% of the current speed per scroll line
                 const float deltaSpeed = factor * speed * 0.05f * scrollDist;
@@ -98,13 +168,13 @@ namespace TrenchBroom {
                 // prefs are only changed when releasing RMB
                 auto& prefs = PreferenceManager::instance();
                 prefs.set(Preferences::CameraFlyMoveSpeed, newSpeed);
-            } else if (move(inputState)) {
+            } else if (shouldMove(inputState)) {
                 if (zoom) {
                     const float zoomFactor = 1.0f + scrollDist / 50.0f * factor;
                     m_camera.zoom(zoomFactor);
                 } else {
                     const auto moveDirection = pref(Preferences::CameraMoveInCursorDir) ? vm::vec3f{inputState.pickRay().direction} : m_camera.direction();
-                    const float distance = scrollDist * moveSpeed(false);
+                    const float distance = scrollDist * moveSpeed(m_camera, false);
                     m_camera.moveBy(factor * distance * moveDirection);
                 }
             }
@@ -122,7 +192,7 @@ namespace TrenchBroom {
         bool CameraTool3D::doStartMouseDrag(const InputState& inputState) {
             using namespace Model::HitFilters;
 
-            if (orbit(inputState)) {
+            if (shouldOrbit(inputState)) {
                 const auto& hit = inputState.pickResult().first(type(Model::nodeHitType()) && minDistance(3.0));
                 if (hit.isMatch()) {
                     m_orbitCenter = vm::vec3f{hit.hitPoint()};
@@ -133,11 +203,11 @@ namespace TrenchBroom {
                 return true;
             }
             
-            if (look(inputState)) {
+            if (shouldLook(inputState)) {
                 return true;
             }
             
-            if (pan(inputState)) {
+            if (shouldPan(inputState)) {
                 return true;
             }
 
@@ -146,28 +216,28 @@ namespace TrenchBroom {
 
         bool CameraTool3D::doMouseDrag(const InputState& inputState) {
             if (m_orbit) {
-                const float hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH();
-                const float vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV();
+                const float hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH(m_camera);
+                const float vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV(m_camera);
                 m_camera.orbit(m_orbitCenter, hAngle, vAngle);
                 return true;
             }
             
-            if (look(inputState)) {
-                const float hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH();
-                const float vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV();
+            if (shouldLook(inputState)) {
+                const float hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH(m_camera);
+                const float vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV(m_camera);
                 m_camera.rotate(hAngle, vAngle);
                 return true;
             }
             
-            if (pan(inputState)) {
+            if (shouldPan(inputState)) {
                 const bool altMove = pref(Preferences::CameraEnableAltMove);
                 auto delta = vm::vec3f{};
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
-                    delta = delta + static_cast<float>(inputState.mouseDX()) * panSpeedH() * m_camera.right();
-                    delta = delta + static_cast<float>(inputState.mouseDY()) * -moveSpeed(altMove) * m_camera.direction();
+                    delta = delta + static_cast<float>(inputState.mouseDX()) * panSpeedH(m_camera) * m_camera.right();
+                    delta = delta + static_cast<float>(inputState.mouseDY()) * -moveSpeed(m_camera, altMove) * m_camera.direction();
                 } else {
-                    delta = delta + static_cast<float>(inputState.mouseDX()) * panSpeedH() * m_camera.right();
-                    delta = delta + static_cast<float>(inputState.mouseDY()) * panSpeedV() * m_camera.up();
+                    delta = delta + static_cast<float>(inputState.mouseDX()) * panSpeedH(m_camera) * m_camera.right();
+                    delta = delta + static_cast<float>(inputState.mouseDY()) * panSpeedV(m_camera) * m_camera.up();
                 }
                 m_camera.moveBy(delta);
                 return true;
@@ -182,77 +252,6 @@ namespace TrenchBroom {
 
         void CameraTool3D::doCancelMouseDrag() {
             m_orbit = false;
-        }
-
-        bool CameraTool3D::move(const InputState& inputState) const {
-            return (inputState.mouseButtonsPressed(MouseButtons::MBNone) &&
-                    inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare));
-        }
-
-        bool CameraTool3D::look(const InputState& inputState) const {
-            return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
-                    inputState.modifierKeysPressed(ModifierKeys::MKNone));
-        }
-
-        bool CameraTool3D::pan(const InputState& inputState) const {
-            return (inputState.mouseButtonsPressed(MouseButtons::MBMiddle) &&
-                    (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                     inputState.modifierKeysPressed(ModifierKeys::MKAlt)));
-        }
-
-        bool CameraTool3D::orbit(const InputState& inputState) const {
-            return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
-                    inputState.modifierKeysPressed(ModifierKeys::MKAlt));
-        }
-
-        bool CameraTool3D::adjustFlySpeed(const InputState& inputState) const {
-            return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
-                    inputState.checkModifierKeys(MK_No, MK_No, MK_No));
-        }
-
-        float CameraTool3D::lookSpeedH() const {
-            float speed = pref(Preferences::CameraLookSpeed) / -50.0f;
-            if (pref(Preferences::CameraLookInvertH)) {
-                speed *= -1.0f;
-            }
-            speed *= vm::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
-            return speed;
-        }
-
-        float CameraTool3D::lookSpeedV() const {
-            float speed = pref(Preferences::CameraLookSpeed) / -50.0f;
-            if (pref(Preferences::CameraLookInvertV)) {
-                speed *= -1.0f;
-            }
-            speed *= vm::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
-            return speed;
-        }
-
-        float CameraTool3D::panSpeedH() const {
-            float speed = pref(Preferences::CameraPanSpeed);
-            if (pref(Preferences::CameraPanInvertH)) {
-                speed *= -1.0f;
-            }
-            speed *= vm::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
-            return speed;
-        }
-
-        float CameraTool3D::panSpeedV() const {
-            float speed = pref(Preferences::CameraPanSpeed);
-            if (pref(Preferences::CameraPanInvertV)) {
-                speed *= -1.0f;
-            }
-            speed *= vm::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
-            return speed;
-        }
-
-        float CameraTool3D::moveSpeed(const bool altMode) const {
-            float speed = pref(Preferences::CameraMoveSpeed) * 20.0f;
-            if (altMode && pref(Preferences::CameraAltMoveInvert)) {
-                speed *= -1.0f;
-            }
-            speed *= vm::min(1.0f, m_camera.zoomedFov() / m_camera.fov());
-            return speed;
         }
 
         bool CameraTool3D::doCancel() {
