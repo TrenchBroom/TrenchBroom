@@ -30,9 +30,9 @@
 namespace TrenchBroom {
     namespace View {
         CameraTool2D::CameraTool2D(Renderer::OrthographicCamera& camera) :
-        ToolControllerBase(),
-        Tool(true),
-        m_camera(camera) {}
+        ToolControllerBase{},
+        Tool{true},
+        m_camera{camera} {}
 
         Tool* CameraTool2D::doGetTool() {
             return this;
@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 if (inputState.scrollY() != 0.0f) {
                     const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
                     const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
-                    const auto mousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
+                    const auto mousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
 
                     if (factor > 0.0f) {
                         zoom(inputState, mousePos, factor);
@@ -58,10 +58,10 @@ namespace TrenchBroom {
 
         bool CameraTool2D::doStartMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
-                m_lastMousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
+                m_lastMousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
                 return true;
             } else if (dragZoom(inputState)) {
-                m_lastMousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
+                m_lastMousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
                 return true;
             }
             return false;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
         bool CameraTool2D::doMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
-                const auto currentMousePos = vm::vec2f(inputState.mouseX(), inputState.mouseY());
+                const auto currentMousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
                 const auto lastWorldPos = m_camera.unproject(m_lastMousePos.x(), m_lastMousePos.y(), 0.0f);
                 const auto currentWorldPos = m_camera.unproject(currentMousePos.x(), currentMousePos.y(), 0.0f);
                 const auto delta = currentWorldPos - lastWorldPos;
