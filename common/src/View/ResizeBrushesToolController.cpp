@@ -30,6 +30,7 @@
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
+#include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/ResizeBrushesTool.h"
 
@@ -72,14 +73,45 @@ namespace TrenchBroom {
             }
         }
 
-        bool ResizeBrushesToolController::doStartMouseDrag(const InputState& inputState) {
+        namespace {
+            class ResizeToolDragTracker : public DragTracker {
+            private:
+                using DragFunction = std::function<bool(const InputState&)>;
+
+                ResizeBrushesTool& m_tool;
+                DragFunction m_drag;
+            public:
+                ResizeToolDragTracker(ResizeBrushesTool& tool, DragFunction drag) :
+                m_tool{tool},
+                m_drag{std::move(drag)} {}
+
+                bool drag(const InputState& inputState) override {
+                    return m_drag(inputState);
+                }
+
+                void end(const InputState& inputState) override {
+                    m_tool.commit();
+                    m_tool.updateProposedDragHandles(inputState.pickResult());
+                }
+
+                void cancel() override {
+                    m_tool.cancel();
+                }
+
+                void setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
+                    renderContext.setForceShowSelectionGuide();
+                }
+            };
+        }
+
+        std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(const InputState& inputState) {
             if (!handleInput(inputState)) {
-                return false;
+                return nullptr;
             }
             // NOTE: We check for MBLeft here rather than in handleInput because we want the
             // yellow highlight to render as a preview when Shift is down, before you press MBLeft. 
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                return false;
+                return nullptr;
             }
 
             m_tool->updateProposedDragHandles(inputState.pickResult());
@@ -87,52 +119,26 @@ namespace TrenchBroom {
             if (m_mode == Mode::Resize) {
                 const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
                 if (m_tool->beginResize(inputState.pickResult(), split)) {
-                    return true;
+                    return std::make_unique<ResizeToolDragTracker>(*m_tool, [&](const InputState& inputState_) {
+                        return m_tool->resize(inputState_.pickRay(), inputState_.camera());
+                    });
                 }
             } else {
                 if (m_tool->beginMove(inputState.pickResult())) {
-                    return true;
+                    return std::make_unique<ResizeToolDragTracker>(*m_tool, [&](const InputState& inputState_) {
+                        return m_tool->move(inputState_.pickRay(), inputState_.camera());
+                    });
                 }
             }
-            return false;
+
+            return nullptr;
         }
 
-        bool ResizeBrushesToolController::doMouseDrag(const InputState& inputState) {
-            if (m_mode == Mode::Resize) {
-                return m_tool->resize(inputState.pickRay(), inputState.camera());
-            } else {
-                return m_tool->move(inputState.pickRay(), inputState.camera());
-            }
-        }
-
-        void ResizeBrushesToolController::doEndMouseDrag(const InputState& inputState) {
-            m_tool->commit();
-            m_tool->updateProposedDragHandles(inputState.pickResult());
-        }
-
-        void ResizeBrushesToolController::doCancelMouseDrag() {
-            m_tool->cancel();
-        }
-
-        void ResizeBrushesToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
-            if (thisToolDragging()) {
-                renderContext.setForceShowSelectionGuide();
-            }
-            // TODO: force rendering of all other map views if the input applies and the tool has drag faces
-        }
-
-        void ResizeBrushesToolController::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-            if (m_tool->hasVisualHandles()) {
-                Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer();
-                edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
-            }
-        }
-
-        Renderer::DirectEdgeRenderer ResizeBrushesToolController::buildEdgeRenderer() {
+        static Renderer::DirectEdgeRenderer buildEdgeRenderer(const std::vector<Model::BrushFaceHandle>& visualHandles) {
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
             auto vertices = std::vector<Vertex>{};
 
-            for (const auto& dragFaceHandle : m_tool->visualHandles()) {
+            for (const auto& dragFaceHandle : visualHandles) {
                 const auto& dragFace = dragFaceHandle.face();
                 for (const auto* edge : dragFace.edges()) {
                     vertices.emplace_back(vm::vec3f{edge->firstVertex()->position()});
@@ -141,6 +147,13 @@ namespace TrenchBroom {
             }
 
             return Renderer::DirectEdgeRenderer(Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines);
+        }
+
+        void ResizeBrushesToolController::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+            if (m_tool->hasVisualHandles()) {
+                Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer(m_tool->visualHandles());
+                edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
+            }
         }
 
         bool ResizeBrushesToolController::doCancel() {
