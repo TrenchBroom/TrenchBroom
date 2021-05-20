@@ -36,8 +36,8 @@
 namespace TrenchBroom {
     namespace View {
         ResizeBrushesToolController::ResizeBrushesToolController(ResizeBrushesTool* tool) :
-        m_tool(tool),
-        m_mode(Mode::Resize) {
+        m_tool{tool},
+        m_mode{Mode::Resize} {
             ensure(m_tool != nullptr, "tool is null");
         }
 
@@ -130,13 +130,13 @@ namespace TrenchBroom {
 
         Renderer::DirectEdgeRenderer ResizeBrushesToolController::buildEdgeRenderer() {
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
-            std::vector<Vertex> vertices;
+            auto vertices = std::vector<Vertex>{};
 
             for (const auto& dragFaceHandle : m_tool->visualHandles()) {
                 const auto& dragFace = dragFaceHandle.face();
                 for (const auto* edge : dragFace.edges()) {
-                    vertices.emplace_back(vm::vec3f(edge->firstVertex()->position()));
-                    vertices.emplace_back(vm::vec3f(edge->secondVertex()->position()));
+                    vertices.emplace_back(vm::vec3f{edge->firstVertex()->position()});
+                    vertices.emplace_back(vm::vec3f{edge->secondVertex()->position()});
                 }
             }
 
@@ -152,7 +152,7 @@ namespace TrenchBroom {
         }
 
         ResizeBrushesToolController2D::ResizeBrushesToolController2D(ResizeBrushesTool* tool) :
-        ResizeBrushesToolController(tool) {}
+        ResizeBrushesToolController{tool} {}
 
         Model::Hit ResizeBrushesToolController2D::doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             return m_tool->pick2D(pickRay, pickResult);
@@ -165,7 +165,7 @@ namespace TrenchBroom {
         }
 
         ResizeBrushesToolController3D::ResizeBrushesToolController3D(ResizeBrushesTool* tool) :
-        ResizeBrushesToolController(tool) {}
+        ResizeBrushesToolController{tool} {}
 
         Model::Hit ResizeBrushesToolController3D::doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             return m_tool->pick3D(pickRay, pickResult);
