@@ -42,9 +42,9 @@ namespace TrenchBroom {
         static const std::string TransferFaceAttributesTransactionName = "Transfer Face Attributes";
 
         SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document) :
-        ToolControllerBase(),
-        Tool(true),
-        m_document(document) {}
+        ToolControllerBase{},
+        Tool{true},
+        m_document{document} {}
 
         Tool* SetBrushFaceAttributesTool::doGetTool() {
             return this;
@@ -58,9 +58,9 @@ namespace TrenchBroom {
             if (canCopyAttributesFromSelection(inputState)) {
                 copyAttributesFromSelection(inputState, false);
                 return true;
-            } else {
-                return false;
             }
+            
+            return false;
         }
 
         bool SetBrushFaceAttributesTool::doMouseDoubleClick(const InputState& inputState) {
@@ -80,9 +80,9 @@ namespace TrenchBroom {
 
                 copyAttributesFromSelection(inputState, true);
                 return true;
-            } else {
-                return false;
             }
+            
+            return false;
         }
 
         void SetBrushFaceAttributesTool::copyAttributesFromSelection(const InputState& inputState, const bool applyToBrush) {
