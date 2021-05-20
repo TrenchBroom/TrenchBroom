@@ -61,10 +61,6 @@ namespace TrenchBroom {
             
             void copyAttributesFromSelection(const InputState& inputState, bool applyToBrush);
             bool canCopyAttributesFromSelection(const InputState& inputState) const;
-            bool applies(const InputState& inputState) const;
-            bool copyTextureOnlyModifiersDown(const InputState& inputState) const;
-            bool copyTextureAttribsProjectionModifiersDown(const InputState& inputState) const;
-            bool copyTextureAttribsRotationModifiersDown(const InputState& inputState) const;
 
             bool doCancel() override;
             
@@ -74,8 +70,6 @@ namespace TrenchBroom {
             void doCancelMouseDrag() override;
 
             void resetDragState();
-            void transferFaceAttributes(const InputState& inputState, const Model::BrushFaceHandle& sourceFaceHandle,
-                                        const std::vector<Model::BrushFaceHandle>& targetFaceHandles, const Model::BrushFaceHandle& faceToSelectAfter);
         };
     }
 }
