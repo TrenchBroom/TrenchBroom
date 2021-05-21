@@ -33,6 +33,7 @@
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
@@ -211,107 +212,121 @@ namespace TrenchBroom {
             renderContext.setForceHideSelectionGuide();
         }
 
-        void ScaleObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            using namespace Model::HitFilters;
+        static void renderBounds(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::bbox3& bounds) {
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+            renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+            renderService.renderBounds(vm::bbox3f{bounds});
+        }
 
-            const auto& camera = renderContext.camera();
+        static void renderCornerHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const std::vector<vm::vec3>& corners) {
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+            renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
 
-            // bounds and corner handles
-
-            if (!m_tool->bounds().is_empty())  {
-                // bounds
-                {
-                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
-                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderBounds(vm::bbox3f(m_tool->bounds()));
-                }
-
-                // corner handles
-                for (const auto& corner : m_tool->cornerHandles()) {
-                    const auto ray = vm::ray3{renderContext.camera().pickRay(vm::vec3f(corner))};
-
-                    if (renderContext.camera().perspectiveProjection()) {
-                        auto pr = Model::PickResult{};
-                        doPick(ray, renderContext.camera(), pr);
-
-                        if (pr.empty() || pr.all().front().type() != ScaleObjectsTool::ScaleToolCornerHitType) {
-                            // this corner is occluded => don't render it.
-                            continue;
-                        }
-                    }
-
-                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
-                    renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-                    renderService.renderHandle(vm::vec3f(corner));
-                }
+            for (const auto& corner : corners) {
+                renderService.renderHandle(vm::vec3f(corner));
             }
+        }
 
+        static void renderDragSideHighlights(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const std::vector<vm::polygon3f>& sides) {
             // Highlight all sides that will be moving as a result of the Shift/Alt modifiers
             // (proporitional scaling or center anchor modifiers)
-
-            auto highlightedPolys = m_tool->polygonsHighlightedByDrag();
-            for (const auto& poly : highlightedPolys) {
+            for (const auto& side : sides) {
                 {
                     auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setShowBackfaces();
                     renderService.setForegroundColor(pref(Preferences::ScaleFillColor));
-                    renderService.renderFilledPolygon(poly.vertices());
+                    renderService.renderFilledPolygon(side.vertices());
                 }
 
                 // In 2D, additionally stroke the edges of this polyhedron, so it's visible even when looking at it
                 // from an edge
-                if (camera.orthographicProjection()) {
+                if (renderContext.camera().orthographicProjection()) {
                     auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setLineWidth(2.0);
                     renderService.setForegroundColor(Color(pref(Preferences::ScaleOutlineColor), pref(Preferences::ScaleOutlineDimAlpha)));
-                    renderService.renderPolygonOutline(poly.vertices());
+                    renderService.renderPolygonOutline(side.vertices());
                 }
             }
+        }
 
+        static void renderDragSide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::polygon3f& side) {
             // draw the main highlighted handle
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+            renderService.setLineWidth(2.0);
+            renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
+            renderService.renderPolygonOutline(side.vertices());
+        }
+
+        static void renderDragEdge(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::segment3f& edge) {
+            const auto& camera = renderContext.camera();
+
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+            if (camera.orthographicProjection()
+                && vm::is_parallel(edge.direction(), camera.direction())) {
+                // for the 2D view, for drag edges that are parallel to the camera,
+                // render the highlight with a ring around the handle
+                renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+                renderService.renderHandleHighlight(edge.start());
+            } else {
+                // render as a thick line
+                renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
+                renderService.setLineWidth(2.0);
+                renderService.renderLine(edge.start(), edge.end());
+            }
+        }
+
+        static void renderDragCorner(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3f& corner) {
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+
+            // the filled circular handle
+            renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
+            renderService.renderHandle(corner);
+
+            // the ring around the handle
+            renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+            renderService.renderHandleHighlight(corner);
+        }
+
+        static std::vector<vm::vec3> visibleCornerHandles(const ScaleObjectsTool& tool, const Renderer::Camera& camera) {
+            using namespace Model::HitFilters;
+
+            const auto cornerHandles = tool.cornerHandles();
+            if (!camera.perspectiveProjection()) {
+                return cornerHandles;
+            }
+
+            return kdl::vec_filter(cornerHandles, [&](const auto& corner) {
+                const auto ray = vm::ray3{camera.pickRay(vm::vec3f{corner})};
+
+                auto pr = Model::PickResult{};
+                if (camera.orthographicProjection()) {
+                    tool.pick2D(ray, camera, pr);
+                } else {
+                    tool.pick3D(ray, camera, pr);
+                }
+
+                return !pr.empty() && pr.all().front().type() == ScaleObjectsTool::ScaleToolCornerHitType;
+            });
+        }
+
+        void ScaleObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            if (!m_tool->bounds().is_empty())  {
+                renderBounds(renderContext, renderBatch, m_tool->bounds());
+                renderCornerHandles(renderContext, renderBatch, visibleCornerHandles(*m_tool, renderContext.camera()));
+            }
+
+            renderDragSideHighlights(renderContext, renderBatch, m_tool->polygonsHighlightedByDrag());
 
             if (m_tool->hasDragSide()) {
-                auto renderService = Renderer::RenderService{renderContext, renderBatch};
-                renderService.setLineWidth(2.0);
-                renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
-                renderService.renderPolygonOutline(m_tool->dragSide().vertices());
+                renderDragSide(renderContext, renderBatch, m_tool->dragSide());
             }
 
             if (m_tool->hasDragEdge()) {
-                const auto line = m_tool->dragEdge();
-
-                if (camera.orthographicProjection()
-                    && vm::is_parallel(line.direction(), camera.direction())) {
-                    // for the 2D view, for drag edges that are parallel to the camera,
-                    // render the highlight with a ring around the handle
-                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
-                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderHandleHighlight(line.start());
-                } else {
-                    // render as a thick line
-                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
-                    renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
-                    renderService.setLineWidth(2.0);
-                    renderService.renderLine(line.start(), line.end());
-                }
+                renderDragEdge(renderContext, renderBatch, m_tool->dragEdge());
             }
 
             if (m_tool->hasDragCorner()) {
-                const auto corner = m_tool->dragCorner();
-
-                // the filled circular handle
-                {
-                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
-                    renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-                    renderService.renderHandle(corner);
-                }
-
-                // the ring around the handle
-                {
-                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
-                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderHandleHighlight(corner);
-                }
+                renderDragCorner(renderContext, renderBatch, m_tool->dragCorner());
             }
         }
 
@@ -319,13 +334,14 @@ namespace TrenchBroom {
             return false;
         }
 
+
         // ScaleObjectsToolController2D
 
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document) :
         ScaleObjectsToolController(tool, document) {}
 
         void ScaleObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
-                                                  Model::PickResult &pickResult) {
+                                                  Model::PickResult &pickResult) const {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
 
@@ -335,7 +351,7 @@ namespace TrenchBroom {
         ScaleObjectsToolController(tool, document) {}
 
         void ScaleObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
-                                                  Model::PickResult &pickResult) {
+                                                  Model::PickResult &pickResult) const {
             m_tool->pick3D(pickRay, camera, pickResult);
         }
     }
