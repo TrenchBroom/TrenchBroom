@@ -50,7 +50,6 @@ namespace TrenchBroom {
             const Tool* doGetTool() const override;
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
-            virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
 
             void doModifierKeyChange(const InputState& inputState) override;
 
@@ -63,10 +62,11 @@ namespace TrenchBroom {
             void doCancelDrag() override;
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
-
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
             bool doCancel() override;
+        private:
+            virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
         };
 
         class ScaleObjectsToolController2D : public ScaleObjectsToolController {
