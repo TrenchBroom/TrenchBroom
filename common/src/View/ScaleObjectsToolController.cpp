@@ -42,8 +42,8 @@
 namespace TrenchBroom {
     namespace View {
         ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document) :
-        m_tool(tool),
-        m_document(document) {
+        m_tool{tool},
+        m_document{document} {
             ensure(m_tool != nullptr, "tool is null");
         }
 
@@ -77,10 +77,10 @@ namespace TrenchBroom {
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)
             {
-                const vm::plane3 plane(dragStartHit.hitPoint(), vm::vec3(inputState.camera().direction()) * -1.0);
+                const auto plane = vm::plane3{dragStartHit.hitPoint(), vm::vec3{inputState.camera().direction()} * -1.0};
 
-                restricter = new PlaneDragRestricter(plane);
-                snapper = new DeltaDragSnapper(grid);
+                restricter = new PlaneDragRestricter{plane};
+                snapper = new DeltaDragSnapper{grid};
             } else {
                 assert(dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHitType
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
@@ -88,8 +88,8 @@ namespace TrenchBroom {
 
                 const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
-                restricter = new LineDragRestricter(handleLine);
-                snapper = new LineDragSnapper(grid, handleLine);
+                restricter = new LineDragRestricter{handleLine};
+                snapper = new LineDragSnapper{grid, handleLine};
             }
 
             // Snap the initial point
@@ -221,17 +221,17 @@ namespace TrenchBroom {
             if (!m_tool->bounds().is_empty())  {
                 // bounds
                 {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
                     renderService.renderBounds(vm::bbox3f(m_tool->bounds()));
                 }
 
                 // corner handles
                 for (const auto& corner : m_tool->cornerHandles()) {
-                    const auto ray = vm::ray3(renderContext.camera().pickRay(vm::vec3f(corner)));
+                    const auto ray = vm::ray3{renderContext.camera().pickRay(vm::vec3f(corner))};
 
                     if (renderContext.camera().perspectiveProjection()) {
-                        Model::PickResult pr;
+                        auto pr = Model::PickResult{};
                         doPick(ray, renderContext.camera(), pr);
 
                         if (pr.empty() || pr.all().front().type() != ScaleObjectsTool::ScaleToolCornerHitType) {
@@ -240,7 +240,7 @@ namespace TrenchBroom {
                         }
                     }
 
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
                     renderService.renderHandle(vm::vec3f(corner));
                 }
@@ -252,7 +252,7 @@ namespace TrenchBroom {
             auto highlightedPolys = m_tool->polygonsHighlightedByDrag();
             for (const auto& poly : highlightedPolys) {
                 {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setShowBackfaces();
                     renderService.setForegroundColor(pref(Preferences::ScaleFillColor));
                     renderService.renderFilledPolygon(poly.vertices());
@@ -261,7 +261,7 @@ namespace TrenchBroom {
                 // In 2D, additionally stroke the edges of this polyhedron, so it's visible even when looking at it
                 // from an edge
                 if (camera.orthographicProjection()) {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setLineWidth(2.0);
                     renderService.setForegroundColor(Color(pref(Preferences::ScaleOutlineColor), pref(Preferences::ScaleOutlineDimAlpha)));
                     renderService.renderPolygonOutline(poly.vertices());
@@ -271,7 +271,7 @@ namespace TrenchBroom {
             // draw the main highlighted handle
 
             if (m_tool->hasDragSide()) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
+                auto renderService = Renderer::RenderService{renderContext, renderBatch};
                 renderService.setLineWidth(2.0);
                 renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
                 renderService.renderPolygonOutline(m_tool->dragSide().vertices());
@@ -284,12 +284,12 @@ namespace TrenchBroom {
                     && vm::is_parallel(line.direction(), camera.direction())) {
                     // for the 2D view, for drag edges that are parallel to the camera,
                     // render the highlight with a ring around the handle
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
                     renderService.renderHandleHighlight(line.start());
                 } else {
                     // render as a thick line
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
                     renderService.setLineWidth(2.0);
                     renderService.renderLine(line.start(), line.end());
@@ -301,14 +301,14 @@ namespace TrenchBroom {
 
                 // the filled circular handle
                 {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
                     renderService.renderHandle(corner);
                 }
 
                 // the ring around the handle
                 {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
                     renderService.renderHandleHighlight(corner);
                 }
