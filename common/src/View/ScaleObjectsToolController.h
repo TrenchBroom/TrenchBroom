@@ -67,8 +67,6 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
             bool doCancel() override;
-        protected:
-            bool handleInput(const InputState& inputState) const;
         };
 
         class ScaleObjectsToolController2D : public ScaleObjectsToolController {

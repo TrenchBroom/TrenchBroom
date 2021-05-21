@@ -58,7 +58,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            if (handleInput(inputState)) {
+            if (m_tool->applies()) {
                 doPick(inputState.pickRay(), inputState.camera(), pickResult);
             }
         }
@@ -147,7 +147,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
-            if (handleInput(inputState) && !anyToolDragging(inputState)) {
+            if (m_tool->applies() && !anyToolDragging(inputState)) {
                 m_tool->updatePickedHandle(inputState.pickResult());
             }
         }
@@ -317,10 +317,6 @@ namespace TrenchBroom {
 
         bool ScaleObjectsToolController::doCancel() {
             return false;
-        }
-
-        bool ScaleObjectsToolController::handleInput(const InputState&) const {
-            return m_tool->applies();
         }
 
         // ScaleObjectsToolController2D
