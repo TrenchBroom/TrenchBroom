@@ -486,6 +486,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        const Grid& ScaleObjectsTool::grid() const {
+            return kdl::mem_lock(m_document)->grid();
+        }
+
         const Model::Hit& ScaleObjectsTool::dragStartHit() const {
             return m_dragStartHit;
         }

@@ -42,6 +42,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Grid;
         class MapDocument;
         class ScaleObjectsToolPage;
 
@@ -224,6 +225,8 @@ namespace TrenchBroom {
             ~ScaleObjectsTool() override;
 
             bool doActivate() override;
+
+            const Grid& grid() const;
 
             const Model::Hit& dragStartHit() const;
             bool applies() const;
