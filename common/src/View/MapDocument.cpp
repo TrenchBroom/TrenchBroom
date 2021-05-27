@@ -1461,25 +1461,32 @@ namespace TrenchBroom {
         }
 
         void MapDocument::ungroupSelection() {
-            if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
+            if (!hasSelectedNodes())
                 return;
 
             const Transaction transaction(this, "Ungroup");
             separateSelectedLinkedGroups(false);
 
-            const std::vector<Model::GroupNode*> groups = m_selectedNodes.groups();
-            std::vector<Model::Node*> allChildren;
+            const std::vector<Model::Node*> selectedNodes = m_selectedNodes.nodes();
+            std::vector<Model::Node*> nodesToReselect;
 
             deselectAll();
 
-            for (Model::GroupNode* group : groups) {
-                Model::Node* parent = group->parent();
-                const std::vector<Model::Node*> children = group->children();
-                reparentNodes({{parent, children}});
-                allChildren = kdl::vec_concat(std::move(allChildren), children);
-            }
+            Model::Node::visitAll(selectedNodes, kdl::overload(
+                [] (Model::WorldNode*)         {},
+                [] (Model::LayerNode*)         {},
+                [&](Model::GroupNode* group)   {
+                    Model::Node* parent = group->parent();
+                    const std::vector<Model::Node*> children = group->children();
+                    reparentNodes({{parent, children}});
+                    nodesToReselect = kdl::vec_concat(std::move(nodesToReselect), children);
+                },
+                [&](Model::EntityNode* entity) { nodesToReselect.push_back(entity); },
+                [&](Model::BrushNode* brush) { nodesToReselect.push_back(brush); },
+                [&](Model::PatchNode* patch) { nodesToReselect.push_back(patch); }
+            ));
 
-            select(allChildren);
+            select(nodesToReselect);
         }
 
         void MapDocument::renameGroups(const std::string& name) {
