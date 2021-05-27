@@ -401,7 +401,7 @@ namespace TrenchBroom {
 
             outerGroup->open();
             innerGroup->open();
-            document->select({ brushNode1 });
+            document->select(std::vector<Model::Node*>{ brushNode1 });
 
             document->selectTouching(false);
 
