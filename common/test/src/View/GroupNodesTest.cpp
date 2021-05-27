@@ -316,6 +316,23 @@ namespace TrenchBroom {
             CHECK(brushNode1->selected());
         }
 
+        // https://github.com/TrenchBroom/TrenchBroom/issues/3824
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity") {
+            auto* ent1 = new Model::EntityNode();
+            auto* ent2 = new Model::EntityNode();
+
+            addNode(*document, document->parentForNodes(), ent1);
+            addNode(*document, document->parentForNodes(), ent2);
+            document->select(std::vector<Model::Node*>{ ent1 });
+
+            auto* group = document->groupSelection("Group");
+            document->select(std::vector<Model::Node*>{ent2});
+            CHECK_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{group, ent2}));
+            
+            document->ungroupSelection();
+            CHECK_THAT(document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{ent1, ent2}));
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups") {
             document->selectAllNodes();
             document->deleteObjects();
