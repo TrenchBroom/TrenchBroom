@@ -1317,7 +1317,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canUngroupSelectedObjects() const {
-            return m_document->selectedNodes().hasOnlyGroups() && !m_mapView->anyToolActive();
+            return m_document->selectedNodes().hasGroups() && !m_mapView->anyToolActive();
         }
 
         void MapFrame::renameSelectedGroups() {
