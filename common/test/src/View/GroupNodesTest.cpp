@@ -318,8 +318,8 @@ namespace TrenchBroom {
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/3824
         TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity") {
-            auto* ent1 = new Model::EntityNode();
-            auto* ent2 = new Model::EntityNode();
+            auto* ent1 = new Model::EntityNode{};
+            auto* ent2 = new Model::EntityNode{};
 
             addNode(*document, document->parentForNodes(), ent1);
             addNode(*document, document->parentForNodes(), ent2);
