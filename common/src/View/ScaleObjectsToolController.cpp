@@ -194,8 +194,7 @@ namespace TrenchBroom {
             }
 
             const auto side = hit.target<BBoxSide>();
-            const auto handle = polygonForBBoxSide(bounds, side);
-            const auto handlePosition = handle.center();
+            const auto handlePosition = centerForBBoxSide(bounds, side);
             const auto handleOffset = handlePosition - hitPoint;
             return {handlePosition, handleOffset};
         }

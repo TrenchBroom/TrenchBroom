@@ -55,6 +55,10 @@ namespace TrenchBroom {
 
         ShearObjectsTool::~ShearObjectsTool() = default;
 
+        const Grid& ShearObjectsTool::grid() const {
+            return kdl::mem_lock(m_document)->grid();
+        }
+
         bool ShearObjectsTool::applies() const {
             auto document = kdl::mem_lock(m_document);
             return !document->selectedNodes().empty();
