@@ -42,8 +42,8 @@
 namespace TrenchBroom {
     namespace View {
         ShearObjectsToolController::ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
-        m_tool(tool),
-        m_document(std::move(document)) {
+        m_tool{tool},
+        m_document{std::move(document)} {
             ensure(m_tool != nullptr, "tool is null");
         }
 
@@ -73,25 +73,25 @@ namespace TrenchBroom {
 
             if (camera.perspectiveProjection()) {
                 if (side.normal == vm::vec3::pos_z() || side.normal == vm::vec3::neg_z()) {
-                    restricter = new PlaneDragRestricter(vm::plane3(sideCenter, side.normal));
-                    snapper = new DeltaDragSnapper(grid);
+                    restricter = new PlaneDragRestricter{vm::plane3(sideCenter, side.normal)};
+                    snapper = new DeltaDragSnapper{grid};
                 } else if (!vertical) {
-                    const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3::pos_z())));
+                    const auto sideways = vm::line3{sideCenter, vm::normalize(vm::cross(side.normal, vm::vec3::pos_z()))};
 
-                    restricter = new LineDragRestricter(sideways);
-                    snapper = new LineDragSnapper(grid, sideways);
+                    restricter = new LineDragRestricter{sideways};
+                    snapper = new LineDragSnapper{grid, sideways};
                 } else {
-                    const vm::line3 verticalLine(sideCenter, vm::vec3::pos_z());
+                    const auto verticalLine = vm::line3{sideCenter, vm::vec3::pos_z()};
 
-                    restricter = new LineDragRestricter(verticalLine);
-                    snapper = new LineDragSnapper(grid, verticalLine);
+                    restricter = new LineDragRestricter{verticalLine};
+                    snapper = new LineDragSnapper{grid, verticalLine};
                 }
             } else {
                 assert(camera.orthographicProjection());
 
-                const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3(camera.direction()))));
-                restricter = new LineDragRestricter(sideways);
-                snapper = new LineDragSnapper(grid, sideways);
+                const auto sideways = vm::line3{sideCenter, vm::normalize(vm::cross(side.normal, vm::vec3{camera.direction()}))};
+                restricter = new LineDragRestricter{sideways};
+                snapper = new LineDragSnapper{grid, sideways};
             }
 
             return std::make_tuple(restricter, snapper);
@@ -146,20 +146,20 @@ namespace TrenchBroom {
             const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                return DragInfo();
+                return DragInfo{};
             }
             if (!(inputState.modifierKeysPressed(ModifierKeys::MKNone) || vertical)) {
-                return DragInfo();
+                return DragInfo{};
             }
             if (!m_tool->applies()) {
-                return DragInfo();
+                return DragInfo{};
             }
 
             auto document = kdl::mem_lock(m_document);
 
             const Model::Hit& hit = inputState.pickResult().first(type(ShearObjectsTool::ShearToolSideHitType));
             if (!hit.isMatch()) {
-                return DragInfo();
+                return DragInfo{};
             }
 
             m_tool->startShearWithHit(hit);
@@ -209,7 +209,7 @@ namespace TrenchBroom {
         void ShearObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             // render sheared box
             {
-                Renderer::RenderService renderService(renderContext, renderBatch);
+                auto renderService = Renderer::RenderService{renderContext, renderBatch};
                 renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
                 const auto mat = m_tool->bboxShearMatrix();
                 const auto op = [&](const vm::vec3& start, const vm::vec3& end) {
@@ -224,7 +224,7 @@ namespace TrenchBroom {
                 if (poly.vertexCount() != 0) {
                     // fill
                     {
-                        Renderer::RenderService renderService(renderContext, renderBatch);
+                        auto renderService = Renderer::RenderService{renderContext, renderBatch};
                         renderService.setShowBackfaces();
                         renderService.setForegroundColor(pref(Preferences::ShearFillColor));
                         renderService.renderFilledPolygon(poly.vertices());
@@ -232,7 +232,7 @@ namespace TrenchBroom {
 
                     // outline
                     {
-                        Renderer::RenderService renderService(renderContext, renderBatch);
+                        auto renderService = Renderer::RenderService{renderContext, renderBatch};
                         renderService.setLineWidth(2.0);
                         renderService.setForegroundColor(pref(Preferences::ShearOutlineColor));
                         renderService.renderPolygonOutline(poly.vertices());
@@ -248,7 +248,7 @@ namespace TrenchBroom {
         // ShearObjectsToolController2D
 
         ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
-        ShearObjectsToolController(tool, std::move(document)) {}
+        ShearObjectsToolController{tool, std::move(document)} {}
 
         void ShearObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
@@ -258,7 +258,7 @@ namespace TrenchBroom {
         // ShearObjectsToolController3D
 
         ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
-        ShearObjectsToolController(tool, std::move(document)) {}
+        ShearObjectsToolController{tool, std::move(document)} {}
 
         void ShearObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
