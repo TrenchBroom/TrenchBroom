@@ -252,7 +252,7 @@ namespace TrenchBroom {
                     [] (auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::GroupNode* group) { 
-                        if (group->opened()) {
+                        if (group->opened() || group->hasOpenedDescendant()) {
                             group->visitChildren(thisLambda);
                         } else {
                             collectIfMatching(group);

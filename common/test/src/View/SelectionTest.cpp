@@ -376,6 +376,38 @@ namespace TrenchBroom {
             CHECK( patchNode->selected());
         }
 
+        // https://github.com/TrenchBroom/TrenchBroom/issues/3826
+        TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingInsideNestedGroup") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            auto* brushNode1 = createBrushNode();
+            auto* brushNode2 = createBrushNode();
+
+            auto* outerGroup = new Model::GroupNode{Model::Group{"outerGroup"}};
+            auto* innerGroup = new Model::GroupNode{Model::Group{"innerGroup"}};
+
+            addNode(*document, document->parentForNodes(), outerGroup);
+            addNode(*document, outerGroup, innerGroup);
+            addNode(*document, innerGroup, brushNode1);
+            addNode(*document, innerGroup, brushNode2);
+
+            // worldspawn {
+            //   outerGroup { 
+            //     innerGroup { brush1, brush2 }
+            //   }
+            // }
+
+            outerGroup->open();
+            innerGroup->open();
+            document->select(std::vector<Model::Node*>{ brushNode1 });
+
+            document->selectTouching(false);
+
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::BrushNode*>{ brushNode2 }));
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds") {
             auto* entityNode = new Model::EntityNode({
                 {"classname", "point_entity"}
