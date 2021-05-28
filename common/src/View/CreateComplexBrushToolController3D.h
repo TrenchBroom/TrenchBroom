@@ -27,10 +27,6 @@ namespace TrenchBroom {
 
         class CreateComplexBrushToolController3D : public ToolControllerGroup {
         private:
-            class Part;
-            class DrawFacePart;
-            class DuplicateFacePart;
-
             CreateComplexBrushTool* m_tool;
         public:
             explicit CreateComplexBrushToolController3D(CreateComplexBrushTool* tool);

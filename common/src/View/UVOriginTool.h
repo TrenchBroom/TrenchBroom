@@ -24,8 +24,6 @@
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
-#include <vector>
-
 namespace TrenchBroom {
     namespace Model {
         class PickResult;

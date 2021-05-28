@@ -47,6 +47,8 @@
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         const Model::HitType::Type UVOriginTool::XHandleHitType = Model::HitType::freeType();
