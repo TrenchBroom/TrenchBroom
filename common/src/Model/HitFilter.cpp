@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -23,117 +23,77 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 
+#include <vecmath/scalar.h>
+
+#include <kdl/vector_utils.h>
+
 namespace TrenchBroom {
     namespace Model {
-        class HitFilter::Always : public HitFilter {
-        private:
-            std::unique_ptr<HitFilter> doClone() const override {
-                return std::make_unique<Always>();
+        namespace HitFilters {
+            HitFilter any() {
+                return [](const Hit&) { return true; };
             }
 
-            bool doMatches(const Hit&) const override {
-                return true;
-            }
-        };
-
-        class HitFilter::Never : public HitFilter {
-        private:
-            std::unique_ptr<HitFilter> doClone() const override {
-                return std::make_unique<Never>();
+            HitFilter none() {
+                return [](const Hit&) { return false; };
             }
 
-            bool doMatches(const Hit&) const override {
-                return false;
+            HitFilter type(const HitType::Type typeMask) {
+                return [typeMask](const Hit& hit) {
+                    return hit.hasType(typeMask);
+                };
             }
-        };
 
-        std::unique_ptr<HitFilter> HitFilter::always() { return std::make_unique<Always>(); }
-        std::unique_ptr<HitFilter> HitFilter::never() { return std::make_unique<Never>(); }
+            HitFilter selected() {
+                return [](const Hit& hit) {
+                    if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                        return faceHandle->node()->selected() || faceHandle->face().selected();
+                    }
+                    if (const auto* node = hitToNode(hit)) {
+                        return node->selected();
+                    }
+                    return false;
+                };
+            }
 
-        HitFilter::~HitFilter() = default;
+            HitFilter transitivelySelected() {
+                return [](const Hit& hit) {
+                    if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                        return faceHandle->node()->transitivelySelected() || faceHandle->face().selected();
+                    }
+                    if (const auto* node = hitToNode(hit)) {
+                        return node->transitivelySelected();
+                    }
+                    return false;
+                };
+            }
 
-        std::unique_ptr<HitFilter> HitFilter::clone() const {
-            return doClone();
-        }
-
-        bool HitFilter::matches(const Hit& hit) const {
-            return doMatches(hit);
-        }
-
-        HitFilterChain::HitFilterChain(std::unique_ptr<const HitFilter> filter, std::unique_ptr<const HitFilter> next) :
-        m_filter(std::move(filter)),
-        m_next(std::move(next)) {
-            ensure(m_filter != nullptr, "filter is null");
-            ensure(m_next != nullptr, "next is null");
-        }
-
-        HitFilterChain::~HitFilterChain() = default;
-
-        std::unique_ptr<HitFilter> HitFilterChain::doClone() const {
-            return std::make_unique<HitFilterChain>(m_filter->clone(), m_next->clone());
-        }
-
-        bool HitFilterChain::doMatches(const Hit& hit) const {
-            if (!m_filter->matches(hit)) {
-                return false;
-            } else {
-                return m_next->matches(hit);
+            HitFilter minDistance(const FloatType minDistance) {
+                return [minDistance](const Hit& hit) {
+                    return hit.distance() >= minDistance;
+                };
             }
         }
 
-        TypedHitFilter::TypedHitFilter(const HitType::Type typeMask) :
-        m_typeMask(typeMask) {}
-
-        std::unique_ptr<HitFilter> TypedHitFilter::doClone() const {
-            return std::make_unique<TypedHitFilter>(m_typeMask);
+        HitFilter operator&&(HitFilter lhs, HitFilter rhs) {
+            return [lhs=std::move(lhs), rhs=std::move(rhs)](const Hit& hit) {
+                return lhs(hit) && rhs(hit);
+            };
         }
 
-        bool TypedHitFilter::doMatches(const Hit& hit) const {
-            return (hit.type() & m_typeMask) != 0;
+        HitFilter operator||(HitFilter lhs, HitFilter rhs) {
+            return [lhs=std::move(lhs), rhs=std::move(rhs)](const Hit& hit) {
+                return lhs(hit) || rhs(hit);
+            };
         }
 
-        std::unique_ptr<HitFilter> SelectionHitFilter::doClone() const {
-            return std::make_unique<SelectionHitFilter>();
-        }
-
-        bool SelectionHitFilter::doMatches(const Hit& hit) const {
-            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                return faceHandle->node()->selected() || faceHandle->face().selected();
-            } else if (const auto* node = hitToNode(hit)) {
-                return node->selected();
-            } else {
-                return false;
-            }
-        }
-
-        std::unique_ptr<HitFilter> TransitivelySelectedHitFilter::doClone() const {
-            return std::make_unique<TransitivelySelectedHitFilter>();
-        }
-
-        bool TransitivelySelectedHitFilter::doMatches(const Hit& hit) const {
-            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                return faceHandle->node()->transitivelySelected() || faceHandle->face().selected();
-            } else if (const auto* node = hitToNode(hit)) {
-                return node->transitivelySelected();
-            } else {
-                return false;
-            }
-        }
-
-        MinDistanceHitFilter::MinDistanceHitFilter(const FloatType minDistance) :
-        m_minDistance(minDistance) {}
-
-        std::unique_ptr<HitFilter> MinDistanceHitFilter::doClone() const {
-            return std::make_unique<MinDistanceHitFilter>(m_minDistance);
-        }
-
-        bool MinDistanceHitFilter::doMatches(const Hit& hit) const {
-            return hit.distance() >= m_minDistance;
+        HitFilter operator!(HitFilter filter) {
+            return [filter=std::move(filter)](const Hit& hit) {
+                return !filter(hit);
+            };
         }
     }
 }

@@ -24,58 +24,38 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 
-#include <vecmath/scalar.h>
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
         HitQuery::HitQuery(const std::vector<Hit>& hits) :
-        m_hits(&hits),
-        m_include(HitFilter::always()),
-        m_exclude(HitFilter::never()) {}
+        m_hits{&hits},
+        m_include{[](const Hit&) { return true; }},
+        m_exclude{[](const Hit&) { return false; }} {}
 
-        HitQuery::HitQuery(const HitQuery& other) :
-        m_hits(other.m_hits),
-        m_include(other.m_include->clone()),
-        m_exclude(other.m_exclude->clone()) {}
-
-        HitQuery::~HitQuery() = default;
-
-        HitQuery& HitQuery::operator=(HitQuery other) {
-            using std::swap;
-            swap(*this, other);
-            return *this;
+        HitQuery HitQuery::type(const HitType::Type typeMask) && {
+            m_include = std::move(m_include) && HitFilters::type(typeMask);
+            return std::move(*this);
         }
 
-        void swap(HitQuery& lhs, HitQuery& rhs) {
-            using std::swap;
-            swap(lhs.m_hits, rhs.m_hits);
-            swap(lhs.m_include, rhs.m_include);
-            swap(lhs.m_exclude, rhs.m_exclude);
+        HitQuery HitQuery::occluded(const HitType::Type typeMask) && {
+            m_exclude = HitFilters::type(typeMask);
+            return std::move(*this);
         }
 
-        HitQuery& HitQuery::type(const HitType::Type type) {
-            m_include = std::make_unique<HitFilterChain>(std::make_unique<TypedHitFilter>(type), std::move(m_include));
-            return *this;
+        HitQuery HitQuery::selected() && {
+            m_include = std::move(m_include) && HitFilters::selected();
+            return std::move(*this);
         }
 
-        HitQuery& HitQuery::occluded(const HitType::Type type) {
-            m_exclude = std::make_unique<TypedHitFilter>(type);
-            return *this;
+        HitQuery HitQuery::transitivelySelected() && {
+            m_include = std::move(m_include) && HitFilters::transitivelySelected();
+            return std::move(*this);
         }
 
-        HitQuery& HitQuery::selected() {
-            m_include = std::make_unique<HitFilterChain>(std::make_unique<SelectionHitFilter>(), std::move(m_include));
-            return *this;
-        }
-
-        HitQuery& HitQuery::transitivelySelected() {
-            m_include = std::make_unique<HitFilterChain>(std::make_unique<TransitivelySelectedHitFilter>(), std::move(m_include));
-            return *this;
-        }
-
-        HitQuery& HitQuery::minDistance(const FloatType minDistance) {
-            m_include = std::make_unique<HitFilterChain>(std::make_unique<MinDistanceHitFilter>(minDistance), std::move(m_include));
-            return *this;
+        HitQuery HitQuery::minDistance(const FloatType minDistance_) && {
+            m_include = std::move(m_include) && HitFilters::minDistance(minDistance_);
+            return std::move(*this);
         }
 
         bool HitQuery::empty() const {
@@ -83,25 +63,25 @@ namespace TrenchBroom {
         }
 
         const Hit& HitQuery::first() const {
-            if (!m_hits->empty()) {
-                auto it = m_hits->begin();
-                auto end = m_hits->end();
+            if (!empty()) {
+                auto it = std::begin(*m_hits);
+                auto end = std::end(*m_hits);
                 auto bestMatch = end;
 
-                FloatType bestMatchError = std::numeric_limits<FloatType>::max();
-                FloatType bestOccluderError = std::numeric_limits<FloatType>::max();
+                auto bestMatchError = std::numeric_limits<FloatType>::max();
+                auto bestOccluderError = std::numeric_limits<FloatType>::max();
 
                 bool containsOccluder = false;
                 while (it != end && !containsOccluder) {
                     const FloatType distance = it->distance();
                     do {
                         const Hit& hit = *it;
-                        if (m_include->matches(hit)) {
+                        if (m_include(hit)) {
                             if (hit.error() < bestMatchError) {
                                 bestMatch = it;
                                 bestMatchError = hit.error();
                             }
-                        } else if (!m_exclude->matches(hit)) {
+                        } else if (!m_exclude(hit)) {
                             bestOccluderError = vm::min(bestOccluderError, hit.error());
                             containsOccluder = true;
                         }
@@ -113,17 +93,12 @@ namespace TrenchBroom {
                     return *bestMatch;
                 }
             }
+
             return Hit::NoHit;
         }
 
         std::vector<Hit> HitQuery::all() const {
-            std::vector<Hit> result;
-            for (const Hit& hit : *m_hits) {
-                if (m_include->matches(hit)) {
-                    result.push_back(hit);
-                }
-            }
-            return result;
+            return kdl::vec_filter(*m_hits, m_include);
         }
     }
 }

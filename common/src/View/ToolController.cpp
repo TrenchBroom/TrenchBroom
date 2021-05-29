@@ -146,13 +146,13 @@ namespace TrenchBroom {
         Model::HitQuery SurfaceDragHelper::query(const InputState& inputState) const {
             Model::HitQuery query = inputState.pickResult().query();
             if (m_hitTypeSet)
-                query.type(m_hitTypeValue);
+                query = std::move(query).type(m_hitTypeValue);
             if (m_occludedTypeSet)
-                query.occluded(m_occludedTypeValue);
+                query = std::move(query).occluded(m_occludedTypeValue);
             if (m_selected)
-                query.selected();
+                query = std::move(query).selected();
             if (m_minDistanceSet)
-                query.minDistance(m_minDistanceValue);
+                query = std::move(query).minDistance(m_minDistanceValue);
             return query;
         }
 

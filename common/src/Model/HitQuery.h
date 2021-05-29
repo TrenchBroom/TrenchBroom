@@ -22,32 +22,27 @@
 #include "FloatType.h"
 #include "Model/HitType.h"
 
-#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class Hit;
-        class HitFilter;
 
         class HitQuery {
         private:
+            using HitFilter = std::function<bool(const Hit&)>;
+
             const std::vector<Hit>* m_hits;
-            std::unique_ptr<HitFilter> m_include;
-            std::unique_ptr<HitFilter> m_exclude;
+            HitFilter m_include;
+            HitFilter m_exclude;
         public:
             explicit HitQuery(const std::vector<Hit>& hits);
-            HitQuery(const HitQuery& other);
-            ~HitQuery();
 
-            HitQuery& operator=(HitQuery other);
-            friend void swap(HitQuery& lhs, HitQuery& rhs);
-
-            HitQuery& type(HitType::Type type);
-            HitQuery& occluded(HitType::Type type = HitType::AnyType);
-            HitQuery& selected();
-            HitQuery& transitivelySelected();
-            HitQuery& minDistance(FloatType minDistance);
+            HitQuery type(HitType::Type typeMask) &&;
+            HitQuery occluded(HitType::Type typeMask = HitType::AnyType) &&;
+            HitQuery selected() &&;
+            HitQuery transitivelySelected() &&;
+            HitQuery minDistance(FloatType minDistance) &&;
 
             bool empty() const;
             const Hit& first() const;
