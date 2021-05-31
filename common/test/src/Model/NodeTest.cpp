@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 popCall<DoAncestorDidChange>();
             }
 
-            void doPick(const vm::ray3& /*ray*/, PickResult& /*pickResult*/) override {
+            void doPick(const EditorContext&, const vm::ray3& /*ray*/, PickResult& /*pickResult*/) override {
             }
 
             void doFindNodesContaining(const vm::vec3& /*point*/, std::vector<Node*>& /*result*/) override {
@@ -226,7 +226,7 @@ namespace TrenchBroom {
             void doAncestorWillChange() override {}
             void doAncestorDidChange() override {}
 
-            void doPick(const vm::ray3& /* ray */, PickResult& /* pickResult */) override {}
+            void doPick(const EditorContext&, const vm::ray3& /* ray */, PickResult& /* pickResult */) override {}
             void doFindNodesContaining(const vm::vec3& /* point */, std::vector<Node*>& /* result */) override {}
 
             void doAccept(NodeVisitor& /* visitor */) override {}

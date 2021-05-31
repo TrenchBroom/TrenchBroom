@@ -338,9 +338,9 @@ namespace TrenchBroom {
             return false;
         }
 
-        void WorldNode::doPick(const vm::ray3& ray, PickResult& pickResult) {
+        void WorldNode::doPick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) {
             for (auto* node : m_nodeTree->findIntersectors(ray)) {
-                node->pick(ray, pickResult);
+                node->pick(editorContext, ray, pickResult);
             }
         }
 

@@ -26,6 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
+#include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Hit.h"
@@ -231,6 +232,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
+            const auto editorContext = EditorContext{};
 
             // build a cube with length 16 at the origin
             BrushNode brush(Brush::create(worldBounds, {
@@ -267,7 +269,7 @@ namespace TrenchBroom {
             }).value());
 
             PickResult hits1;
-            brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
+            brush.pick(editorContext, vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
             CHECK(hits1.size() == 1u);
 
             Hit hit1 = hits1.all().front();
@@ -275,7 +277,7 @@ namespace TrenchBroom {
             CHECK(hitToFaceHandle(hit1)->face().boundary().normal == vm::vec3::neg_y());
 
             PickResult hits2;
-            brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);
+            brush.pick(editorContext, vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);
             CHECK(hits2.empty());
         }
 

@@ -56,8 +56,6 @@ namespace TrenchBroom {
             bool empty() const;
             const Hit& first() const;
             std::vector<Hit> all() const;
-        private:
-            bool visible(const Hit& hit) const;
         };
     }
 }

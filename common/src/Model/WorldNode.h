@@ -139,7 +139,7 @@ namespace TrenchBroom {
             void doDescendantPhysicalBoundsDidChange(Node* node) override;
 
             bool doSelectable() const override;
-            void doPick(const vm::ray3& ray, PickResult& pickResult) override;
+            void doPick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
             void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;

@@ -653,8 +653,8 @@ namespace TrenchBroom {
 
         }
 
-        void Node::pick(const vm::ray3& ray, PickResult& pickResult) {
-            doPick(ray, pickResult);
+        void Node::pick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) {
+            doPick(editorContext, ray, pickResult);
         }
 
         void Node::findNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {

@@ -2944,7 +2944,7 @@ namespace TrenchBroom {
 
         void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const {
             if (m_world != nullptr)
-                m_world->pick(pickRay, pickResult);
+                m_world->pick(*m_editorContext, pickRay, pickResult);
         }
 
         std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point) const {

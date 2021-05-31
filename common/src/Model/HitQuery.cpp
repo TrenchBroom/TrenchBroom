@@ -110,11 +110,6 @@ namespace TrenchBroom {
 
                 bool containsOccluder = false;
                 while (it != end && !containsOccluder) {
-                    if (!visible(*it)) { // Don't consider hidden objects during picking at all.
-                        ++it;
-                        continue;
-                    }
-
                     const FloatType distance = it->distance();
                     do {
                         const Hit& hit = *it;
@@ -146,19 +141,6 @@ namespace TrenchBroom {
                 }
             }
             return result;
-        }
-
-        bool HitQuery::visible(const Hit& hit) const {
-            if (m_editorContext == nullptr) {
-                return true;
-            }
-
-            Node* node = hitToNode(hit);
-            if (node == nullptr) {
-                return true;
-            }
-
-            return m_editorContext->visible(hitToNode(hit));
         }
     }
 }
