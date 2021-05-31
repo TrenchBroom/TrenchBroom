@@ -156,10 +156,9 @@ namespace TrenchBroom {
 
         Model::PickResult MapView2D::doPick(const vm::ray3& pickRay) const {
             auto document = kdl::mem_lock(m_document);
-            const auto& editorContext = document->editorContext();
             const auto axis = vm::find_abs_max_component(pickRay.direction);
 
-            auto pickResult = Model::PickResult::bySize(editorContext, axis);
+            auto pickResult = Model::PickResult::bySize(axis);
             document->pick(pickRay, pickResult);
 
             return pickResult;
@@ -281,7 +280,7 @@ namespace TrenchBroom {
             const auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
 
-            const auto& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
+            const auto& hit = pickResult().query().type(Model::BrushNode::BrushHitType).occluded().selected().first();
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const auto& face = faceHandle->face();
                 return grid.moveDeltaForBounds(face.boundary(), bounds, worldBounds, pickRay());

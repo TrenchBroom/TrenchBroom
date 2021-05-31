@@ -23,7 +23,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
@@ -135,23 +134,6 @@ namespace TrenchBroom {
 
         bool MinDistanceHitFilter::doMatches(const Hit& hit) const {
             return hit.distance() >= m_minDistance;
-        }
-
-        ContextHitFilter::ContextHitFilter(const EditorContext& context) :
-        m_context(context) {}
-
-        std::unique_ptr<HitFilter> ContextHitFilter::doClone() const {
-            return std::make_unique<ContextHitFilter>(m_context);
-        }
-
-        bool ContextHitFilter::doMatches(const Hit& hit) const {
-            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                return m_context.pickable(faceHandle->node(), faceHandle->face());
-            } else if (const auto* node = hitToNode(hit)) {
-                return m_context.pickable(node);
-            } else {
-                return false;
-            }
         }
     }
 }

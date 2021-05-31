@@ -76,7 +76,7 @@ namespace TrenchBroom {
         }
 
         static const Model::Hit& firstHit(const InputState& inputState, const Model::HitType::Type type) {
-            return inputState.pickResult().query().pickable().type(type).occluded().first();
+            return inputState.pickResult().query().type(type).occluded().first();
         }
 
         static std::vector<Model::Node*> collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) {
@@ -303,7 +303,7 @@ namespace TrenchBroom {
         }
 
         void SelectionTool::drillSelection(const InputState& inputState) {
-            const auto hits = inputState.pickResult().query().pickable().type(Model::nodeHitType()).occluded().all();
+            const auto hits = inputState.pickResult().query().type(Model::nodeHitType()).occluded().all();
 
             // Hits may contain multiple brush/entity hits that are inside closed groups. These need to be converted
             // to group hits using findOutermostClosedGroupOrNode() and multiple hits on the same Group need to be collapsed.

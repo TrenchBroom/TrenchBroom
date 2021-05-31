@@ -41,24 +41,22 @@ namespace TrenchBroom {
             bool operator()(const Hit& lhs, const Hit& rhs) const { return m_compare->compare(lhs, rhs) < 0; }
         };
 
-        PickResult::PickResult(const EditorContext& editorContext, std::shared_ptr<CompareHits> compare) :
-        m_editorContext(&editorContext),
+        PickResult::PickResult(std::shared_ptr<CompareHits> compare) :
         m_compare(std::move(compare)) {}
 
         PickResult::PickResult() :
-        m_editorContext(nullptr),
         m_compare(std::make_shared<CompareHitsByDistance>()) {}
 
         PickResult::~PickResult() = default;
 
-        PickResult PickResult::byDistance(const EditorContext& editorContext) {
-            return PickResult(editorContext, std::make_shared<CombineCompareHits>(
+        PickResult PickResult::byDistance() {
+            return PickResult(std::make_shared<CombineCompareHits>(
                 std::make_unique<CompareHitsByDistance>(),
                 std::make_unique<CompareHitsByType>()));
         }
 
-        PickResult PickResult::bySize(const EditorContext& editorContext, const vm::axis::type axis) {
-            return PickResult(editorContext, std::make_shared<CompareHitsBySize>(axis));
+        PickResult PickResult::bySize(const vm::axis::type axis) {
+            return PickResult(std::make_shared<CompareHitsBySize>(axis));
         }
 
         bool PickResult::empty() const {
@@ -85,9 +83,7 @@ namespace TrenchBroom {
         }
 
         HitQuery PickResult::query() const {
-            if (m_editorContext != nullptr)
-                return HitQuery(m_hits, *m_editorContext);
-            return HitQuery(m_hits);
+            return HitQuery{m_hits};
         }
 
         void PickResult::clear() {

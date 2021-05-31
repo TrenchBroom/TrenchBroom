@@ -117,17 +117,12 @@ namespace TrenchBroom {
         m_hitTypeSet(false),
         m_occludedTypeSet(false),
         m_minDistanceSet(false),
-        m_pickable(false),
         m_selected(false),
         m_hitTypeValue(Model::HitType::NoType),
         m_occludedTypeValue(Model::HitType::NoType),
         m_minDistanceValue(FloatType(0)) {}
 
         SurfaceDragHelper::~SurfaceDragHelper() = default;
-
-        void SurfaceDragHelper::setPickable(const bool pickable) {
-            m_pickable = pickable;
-        }
 
         void SurfaceDragHelper::setSelected(const bool selected) {
             m_selected = selected;
@@ -150,8 +145,6 @@ namespace TrenchBroom {
 
         Model::HitQuery SurfaceDragHelper::query(const InputState& inputState) const {
             Model::HitQuery query = inputState.pickResult().query();
-            if (m_pickable)
-                query.pickable();
             if (m_hitTypeSet)
                 query.type(m_hitTypeValue);
             if (m_occludedTypeSet)

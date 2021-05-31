@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 }
 
                 bool setClipFace(const InputState& inputState) {
-                    const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+                    const Model::Hit& hit = inputState.pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
                     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                         m_tool->setFace(*faceHandle);
                         return true;
@@ -207,7 +207,6 @@ namespace TrenchBroom {
 
                 DragRestricter* createDragRestricter(const InputState&, const vm::vec3& /* initialPoint */) const override {
                     SurfaceDragRestricter* restricter = new SurfaceDragRestricter();
-                    restricter->setPickable(true);
                     restricter->setType(Model::BrushNode::BrushHitType);
                     restricter->setOccluded(Model::HitType::AnyType);
                     return restricter;
@@ -227,7 +226,6 @@ namespace TrenchBroom {
 
                 DragSnapper* createDragSnapper(const InputState&) const override {
                     SurfaceDragSnapper* snapper = new ClipPointSnapper(m_tool->grid());
-                    snapper->setPickable(true);
                     snapper->setType(Model::BrushNode::BrushHitType);
                     snapper->setOccluded(Model::HitType::AnyType);
                     return snapper;
@@ -236,7 +234,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& clipPoint) const override {
                     auto hit = inputState.pickResult().query().selected().type(Model::BrushNode::BrushHitType).occluded().first();
                     if (!hit.isMatch()) {
-                        hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+                        hit = inputState.pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
                     }
                     const auto faceHandle = Model::hitToFaceHandle(hit);
                     ensure(faceHandle, "hit is not a match");
@@ -245,7 +243,7 @@ namespace TrenchBroom {
                 }
 
                 bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const override {
-                    const auto hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+                    const auto hit = inputState.pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
                     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                         const Grid& grid = m_tool->grid();
                         position = grid.snap(hit.hitPoint(), faceHandle->face().boundary());

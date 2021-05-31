@@ -122,7 +122,7 @@ namespace TrenchBroom {
 
         bool CameraTool3D::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
-                const auto& hit = inputState.pickResult().query().pickable().type(Model::nodeHitType()).occluded().minDistance(3.0).first();
+                const auto& hit = inputState.pickResult().query().type(Model::nodeHitType()).occluded().minDistance(3.0).first();
                 if (hit.isMatch()) {
                     m_orbitCenter = vm::vec3f(hit.hitPoint());
                 } else {

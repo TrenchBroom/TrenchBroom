@@ -56,7 +56,7 @@ namespace TrenchBroom {
             // selected group, even though the entities/brushes aren't selected themselves.
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::nodeHitType()).transitivelySelected().occluded().first();
+            const Model::Hit& hit = pickResult.query().type(Model::nodeHitType()).transitivelySelected().occluded().first();
 
             if (!hit.isMatch())
                 return MoveInfo();

@@ -48,10 +48,10 @@ namespace TrenchBroom {
         }
 
         void SpikeGuideRenderer::add(const vm::ray3& ray, const FloatType length, std::shared_ptr<View::MapDocument> document) {
-            Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
+            Model::PickResult pickResult = Model::PickResult::byDistance();
             document->pick(ray, pickResult);
 
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().minDistance(1.0).first();
+            const Model::Hit& hit = pickResult.query().type(Model::BrushNode::BrushHitType).occluded().minDistance(1.0).first();
             if (hit.isMatch()) {
                 if (hit.distance() <= length)
                     addPoint(vm::point_at_distance(ray, hit.distance() - 0.01));

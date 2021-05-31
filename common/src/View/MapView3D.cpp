@@ -196,8 +196,7 @@ namespace TrenchBroom {
 
         Model::PickResult MapView3D::doPick(const vm::ray3& pickRay) const {
             auto document = kdl::mem_lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
-            Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
+            Model::PickResult pickResult = Model::PickResult::byDistance();
 
             document->pick(pickRay, pickResult);
             return pickResult;
@@ -216,12 +215,10 @@ namespace TrenchBroom {
 
             if (QRect(0, 0, width(), height()).contains(clientCoords)) {
                 const auto pickRay = vm::ray3(m_camera->pickRay(static_cast<float>(clientCoords.x()), static_cast<float>(clientCoords.y())));
-
-                const auto& editorContext = document->editorContext();
-                auto pickResult = Model::PickResult::byDistance(editorContext);
+                auto pickResult = Model::PickResult::byDistance();
 
                 document->pick(pickRay, pickResult);
-                const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+                const auto& hit = pickResult.query().type(Model::BrushNode::BrushHitType).occluded().first();
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     const auto& face = faceHandle->face();
                     return grid.moveDeltaForBounds(face.boundary(), bounds, document->worldBounds(), pickRay);
@@ -418,7 +415,7 @@ namespace TrenchBroom {
             auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
 
-            const auto& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const auto& hit = pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const auto& face = faceHandle->face();
                 return grid.moveDeltaForBounds(face.boundary(), bounds, worldBounds, pickRay());

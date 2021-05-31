@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace View {
         static void updatePickState(InputState& inputState, const Renderer::Camera& camera, const MapDocument& document) {
-            Model::PickResult pickResult = Model::PickResult::byDistance(document.editorContext());
+            Model::PickResult pickResult = Model::PickResult::byDistance();
             const PickRequest pickRequest(vm::ray3(camera.pickRay(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()))), camera);
 
             document.pick(pickRequest.pickRay(), pickResult);

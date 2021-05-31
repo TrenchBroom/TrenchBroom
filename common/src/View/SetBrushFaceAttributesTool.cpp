@@ -92,7 +92,7 @@ namespace TrenchBroom {
             const auto selectedFaces = document->selectedBrushFaces();
             assert(!selectedFaces.empty());
 
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
             if (const auto targetFaceHandle = Model::hitToFaceHandle(hit)) {
                 const auto sourceFaceHandle = selectedFaces.front();
                 const auto targetList = applyToBrush ? Model::toHandles(targetFaceHandle->node()) : std::vector<Model::BrushFaceHandle>{*targetFaceHandle};
@@ -113,7 +113,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
             if (!hit.isMatch()) {
                 return false;
             }
@@ -171,7 +171,7 @@ namespace TrenchBroom {
         }
 
         bool SetBrushFaceAttributesTool::doMouseDrag(const InputState& inputState) {            
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
             const auto faceHandle = Model::hitToFaceHandle(hit);
             if (!faceHandle) {
                 // Dragging over void

@@ -1111,7 +1111,7 @@ namespace TrenchBroom {
 
             menu.addSeparator();
 
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const Model::Hit& hit = pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
             const auto faceHandle = Model::hitToFaceHandle(hit);
             if (faceHandle) {
                 const Assets::Texture* texture = faceHandle->face().texture();
@@ -1247,7 +1247,7 @@ namespace TrenchBroom {
             Model::Node* newGroup = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().first();
+            const Model::Hit& hit = pickResult().query().first();
             if (hit.isMatch())
                 newGroup = Model::findOutermostClosedGroup(Model::hitToNode(hit));
 
@@ -1273,7 +1273,7 @@ namespace TrenchBroom {
             Model::GroupNode* mergeTarget = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().first();
+            const Model::Hit& hit = pickResult().query().first();
             if (hit.isMatch()) {
                 mergeTarget = findOutermostClosedGroup(Model::hitToNode(hit));
             }
@@ -1317,7 +1317,7 @@ namespace TrenchBroom {
             Model::Node* newParent = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const Model::Hit& hit = pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 Model::BrushNode* brush = faceHandle->node();
                 newParent = brush->entity();

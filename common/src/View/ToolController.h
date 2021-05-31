@@ -153,7 +153,6 @@ namespace TrenchBroom {
             bool m_occludedTypeSet;
             bool m_minDistanceSet;
 
-            bool m_pickable;
             bool m_selected;
             Model::HitType::Type m_hitTypeValue;
             Model::HitType::Type m_occludedTypeValue;
@@ -162,7 +161,6 @@ namespace TrenchBroom {
             SurfaceDragHelper();
             virtual ~SurfaceDragHelper();
 
-            void setPickable(bool pickable);
             void setSelected(bool selected);
             void setType(Model::HitType::Type type);
             void setOccluded(Model::HitType::Type type);

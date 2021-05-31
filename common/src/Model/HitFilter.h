@@ -26,7 +26,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
         class Hit;
 
         class HitFilter {
@@ -86,16 +85,6 @@ namespace TrenchBroom {
             FloatType m_minDistance;
         public:
             MinDistanceHitFilter(FloatType minDistance);
-        private:
-            std::unique_ptr<HitFilter> doClone() const override;
-            bool doMatches(const Hit& hit) const override;
-        };
-
-        class ContextHitFilter : public HitFilter {
-        private:
-            const EditorContext& m_context;
-        public:
-            ContextHitFilter(const EditorContext& context);
         private:
             std::unique_ptr<HitFilter> doClone() const override;
             bool doMatches(const Hit& hit) const override;

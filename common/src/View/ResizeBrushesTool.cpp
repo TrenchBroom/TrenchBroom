@@ -106,7 +106,7 @@ namespace TrenchBroom {
 
         Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             auto document = kdl::mem_lock(m_document);
-            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
+            const auto& hit = pickResult.query().type(Model::BrushNode::BrushHitType).occluded().selected().first();
             if (hit.isMatch()) {
                 return Model::Hit::NoHit;
             } else {
@@ -116,7 +116,7 @@ namespace TrenchBroom {
 
         Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             auto document = kdl::mem_lock(m_document);
-            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
+            const auto& hit = pickResult.query().type(Model::BrushNode::BrushHitType).occluded().selected().first();
             if (const auto faceHandle = hitToFaceHandle(hit)) {
                 return Model::Hit(Resize3DHitType, hit.distance(), hit.hitPoint(), *faceHandle);
             } else {

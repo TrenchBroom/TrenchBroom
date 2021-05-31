@@ -20,7 +20,6 @@
 #include "HitQuery.h"
 
 #include "FloatType.h"
-#include "Model/EditorContext.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
@@ -29,21 +28,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        HitQuery::HitQuery(const std::vector<Hit>& hits, const EditorContext& editorContext) :
-        m_hits(&hits),
-        m_editorContext(&editorContext),
-        m_include(HitFilter::always()),
-        m_exclude(HitFilter::never()) {}
-
         HitQuery::HitQuery(const std::vector<Hit>& hits) :
         m_hits(&hits),
-        m_editorContext(nullptr),
         m_include(HitFilter::always()),
         m_exclude(HitFilter::never()) {}
 
         HitQuery::HitQuery(const HitQuery& other) :
         m_hits(other.m_hits),
-        m_editorContext(other.m_editorContext),
         m_include(other.m_include->clone()),
         m_exclude(other.m_exclude->clone()) {}
 
@@ -58,16 +49,8 @@ namespace TrenchBroom {
         void swap(HitQuery& lhs, HitQuery& rhs) {
             using std::swap;
             swap(lhs.m_hits, rhs.m_hits);
-            swap(lhs.m_editorContext, rhs.m_editorContext);
             swap(lhs.m_include, rhs.m_include);
             swap(lhs.m_exclude, rhs.m_exclude);
-        }
-
-        HitQuery& HitQuery::pickable() {
-            if (m_editorContext != nullptr) {
-                m_include = std::make_unique<HitFilterChain>(std::make_unique<ContextHitFilter>(*m_editorContext), std::move(m_include));
-            }
-            return *this;
         }
 
         HitQuery& HitQuery::type(const HitType::Type type) {
