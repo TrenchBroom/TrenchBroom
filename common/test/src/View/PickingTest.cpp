@@ -28,6 +28,7 @@
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitFilter.h"
 #include "Model/HitQuery.h"
 #include "Model/WorldNode.h"
 #include "Model/PickResult.h"
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             Model::PickResult pickResult;
             document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x()), pickResult);
 
-            auto hits = pickResult.query().all();
+            auto hits = pickResult.all();
             CHECK(hits.size() == 1u);
 
             const auto& brush1 = brushNode1->brush();
@@ -67,7 +68,7 @@ namespace TrenchBroom {
 
             pickResult.clear();
             document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::neg_x()), pickResult);
-            CHECK(pickResult.query().all().empty());
+            CHECK(pickResult.all().empty());
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleEntity") {
@@ -86,7 +87,7 @@ namespace TrenchBroom {
             Model::PickResult pickResult;
             document->pick(vm::ray3(rayOrigin, vm::vec3::pos_x()), pickResult);
 
-            auto hits = pickResult.query().all();
+            auto hits = pickResult.all();
             CHECK(hits.size() == 1u);
 
             CHECK(hits.front().target<Model::EntityNode*>() == ent1);
@@ -94,10 +95,12 @@ namespace TrenchBroom {
 
             pickResult.clear();
             document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::neg_x()), pickResult);
-            CHECK(pickResult.query().all().empty());
+            CHECK(pickResult.all().empty());
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup") {
+            using namespace Model::HitFilters;
+
             // delete default brush
             document->selectAllNodes();
             document->deleteObjects();
@@ -118,7 +121,7 @@ namespace TrenchBroom {
 
             // picking a grouped object when the containing group is closed should return the object,
             // which is converted to the group when hitsToNodesWithGroupPicking() is used.
-            auto hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
+            auto hits = pickResult.all(type(Model::BrushNode::BrushHitType));
             CHECK(hits.size() == 1u);
 
             const auto& brush1 = brushNode1->brush();
@@ -131,7 +134,7 @@ namespace TrenchBroom {
             pickResult.clear();
             document->pick(vm::ray3(vm::vec3(32, 32, -32), vm::vec3::pos_z()), pickResult);
 
-            hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
+            hits = pickResult.all(type(Model::BrushNode::BrushHitType));
             CHECK(hits.size() == 2u);
 
             CHECK_THAT(hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Model::Node*>{ group }));
@@ -140,7 +143,7 @@ namespace TrenchBroom {
             pickResult.clear();
             document->pick(vm::ray3(vm::vec3(-32, 0, 96), vm::vec3::pos_x()), pickResult);
 
-            hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
+            hits = pickResult.all(type(Model::BrushNode::BrushHitType));
             CHECK(hits.empty());
 
             // hitting a grouped object when the containing group is open should return the object only
@@ -149,7 +152,7 @@ namespace TrenchBroom {
             pickResult.clear();
             document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x()), pickResult);
 
-            hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
+            hits = pickResult.all(type(Model::BrushNode::BrushHitType));
             CHECK(hits.size() == 1u);
 
             CHECK(Model::hitToFaceHandle(hits.front())->face() == brush1.face(*brush1.findFace(vm::vec3::neg_x())));
@@ -159,6 +162,8 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup") {
+            using namespace Model::HitFilters;
+
             // delete default brush
             document->selectAllNodes();
             document->deleteObjects();
@@ -236,7 +241,7 @@ namespace TrenchBroom {
             pickResult.clear();
             document->pick(highRay, pickResult);
 
-            auto hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
+            auto hits = pickResult.all(type(Model::BrushNode::BrushHitType));
             CHECK(hits.size() == 1u);
 
             const auto& brush3 = brushNode3->brush();
@@ -249,7 +254,7 @@ namespace TrenchBroom {
             pickResult.clear();
             document->pick(lowRay, pickResult);
 
-            hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
+            hits = pickResult.all(type(Model::BrushNode::BrushHitType));
             CHECK(hits.size() == 1u);
 
             const auto& brush1 = brushNode1->brush();
@@ -277,7 +282,7 @@ namespace TrenchBroom {
             pickResult.clear();
             document->pick(highRay, pickResult);
 
-            hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
+            hits = pickResult.all(type(Model::BrushNode::BrushHitType));
             CHECK(hits.size() == 1u);
 
             CHECK(Model::hitToFaceHandle(hits.front())->face() == brush3.face(*brush3.findFace(vm::vec3::neg_x())));
@@ -288,7 +293,7 @@ namespace TrenchBroom {
             pickResult.clear();
             document->pick(lowRay, pickResult);
 
-            hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
+            hits = pickResult.all(type(Model::BrushNode::BrushHitType));
             CHECK(hits.size() == 1u);
 
             CHECK(Model::hitToFaceHandle(hits.front())->face() == brush1.face(*brush1.findFace(vm::vec3::neg_x())));
@@ -319,7 +324,7 @@ namespace TrenchBroom {
             // picking entity brushes should only return the brushes and not the entity
             document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x()), pickResult);
 
-            auto hits = pickResult.query().all();
+            auto hits = pickResult.all();
             CHECK(hits.size() == 1u);
 
             const auto& brush1 = brushNode1->brush();

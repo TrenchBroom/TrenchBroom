@@ -23,6 +23,8 @@
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
@@ -112,6 +114,8 @@ namespace TrenchBroom {
         }
 
         bool UVOriginTool::doStartMouseDrag(const InputState& inputState) {
+            using namespace Model::HitFilters;
+
             assert(m_helper.valid());
 
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -119,9 +123,8 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const auto& pickResult = inputState.pickResult();
-            const auto& xHandleHit = pickResult.query().type(XHandleHitType).occluded().first();
-            const auto& yHandleHit = pickResult.query().type(YHandleHitType).occluded().first();
+            const auto& xHandleHit = inputState.pickResult().first(type(XHandleHitType));
+            const auto& yHandleHit = inputState.pickResult().first(type(YHandleHitType));
 
             if (!xHandleHit.isMatch() && !yHandleHit.isMatch()) {
                 return false;
@@ -233,9 +236,10 @@ namespace TrenchBroom {
         }
 
         std::vector<UVOriginTool::EdgeVertex> UVOriginTool::getHandleVertices(const InputState& inputState) const {
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& xHandleHit = pickResult.query().type(XHandleHitType).occluded().first();
-            const Model::Hit& yHandleHit = pickResult.query().type(YHandleHitType).occluded().first();
+            using namespace Model::HitFilters;
+
+            const Model::Hit& xHandleHit = inputState.pickResult().first(type(XHandleHitType));
+            const Model::Hit& yHandleHit = inputState.pickResult().first(type(YHandleHitType));
 
             const bool highlightXHandle = (thisToolDragging() && m_selector.x() > 0.0f) || (!thisToolDragging() && xHandleHit.isMatch());
             const bool highlightYHandle = (thisToolDragging() && m_selector.y() > 0.0f) || (!thisToolDragging() && yHandleHit.isMatch());
@@ -302,12 +306,13 @@ namespace TrenchBroom {
         }
 
         bool UVOriginTool::renderHighlight(const InputState& inputState) const {
+            using namespace Model::HitFilters;
+
             if (thisToolDragging()) {
                 return true;
             } else {
-                const auto& pickResult = inputState.pickResult();
-                const auto& xHandleHit = pickResult.query().type(XHandleHitType).occluded().first();
-                const auto& yHandleHit = pickResult.query().type(YHandleHitType).occluded().first();
+                const auto& xHandleHit = inputState.pickResult().first(type(XHandleHitType));
+                const auto& yHandleHit = inputState.pickResult().first(type(YHandleHitType));
                 return xHandleHit.isMatch() && yHandleHit.isMatch();
             }
         }

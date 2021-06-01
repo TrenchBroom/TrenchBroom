@@ -22,6 +22,8 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
@@ -140,6 +142,7 @@ namespace TrenchBroom {
 
         RestrictedDragPolicy::DragInfo ShearObjectsToolController::doStartDrag(const InputState& inputState) {
             // based on CreateSimpleBrushToolController3D::doStartDrag
+            using namespace Model::HitFilters;
 
             const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
@@ -155,8 +158,7 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
 
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().type(ShearObjectsTool::ShearToolSideHitType).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().first(type(ShearObjectsTool::ShearToolSideHitType));
             if (!hit.isMatch()) {
                 return DragInfo();
             }

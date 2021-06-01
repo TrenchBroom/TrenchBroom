@@ -27,7 +27,9 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitFilter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
@@ -109,13 +111,15 @@ namespace TrenchBroom {
         }
 
         void CreateEntityTool::updateEntityPosition3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
+            using namespace Model::HitFilters;
+
             ensure(m_entity != nullptr, "entity is null");
 
             auto document = kdl::mem_lock(m_document);
 
             vm::vec3 delta;
             const auto& grid = document->grid();
-            const auto& hit = pickResult.query().type(Model::BrushNode::BrushHitType).occluded().first();
+            const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType));
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const auto& face = faceHandle->face();
                 delta = grid.moveDeltaForBounds(face.boundary(), m_entity->logicalBounds(), document->worldBounds(), pickRay);

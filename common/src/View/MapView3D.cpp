@@ -30,7 +30,9 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitFilter.h"
 #include "Model/HitQuery.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
@@ -218,7 +220,9 @@ namespace TrenchBroom {
                 auto pickResult = Model::PickResult::byDistance();
 
                 document->pick(pickRay, pickResult);
-                const auto& hit = pickResult.query().type(Model::BrushNode::BrushHitType).occluded().first();
+
+                using namespace Model::HitFilters;
+                const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType));
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     const auto& face = faceHandle->face();
                     return grid.moveDeltaForBounds(face.boundary(), bounds, document->worldBounds(), pickRay);
@@ -415,7 +419,8 @@ namespace TrenchBroom {
             auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
 
-            const auto& hit = pickResult().query().type(Model::BrushNode::BrushHitType).occluded().first();
+            using namespace Model::HitFilters;
+            const auto& hit = pickResult().first(type(Model::BrushNode::BrushHitType));
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const auto& face = faceHandle->face();
                 return grid.moveDeltaForBounds(face.boundary(), bounds, worldBounds, pickRay());

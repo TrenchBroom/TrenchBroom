@@ -23,7 +23,9 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "FloatType.h"
+#include "Model/Hit.h"
 #include "Model/HitQuery.h"
+#include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
@@ -543,6 +545,8 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            using namespace Model::HitFilters;
+
             const vm::bbox3& myBounds = bounds();
 
             // origin in bbox
@@ -571,14 +575,14 @@ namespace TrenchBroom {
 
             pickBackSides(pickRay, camera, localPickResult);
 
-            auto hit = localPickResult.query().first();
-
-            if (hit.isMatch()) {
-                pickResult.addHit(hit);
+            if (!localPickResult.empty()) {
+                pickResult.addHit(localPickResult.all().front());
             }
         }
 
         void ScaleObjectsTool::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            using namespace Model::HitFilters;
+
             const auto& myBounds = bounds();
 
             // origin in bbox
@@ -626,10 +630,8 @@ namespace TrenchBroom {
 
             pickBackSides(pickRay, camera, localPickResult);
 
-            auto hit = localPickResult.query().first();
-
-            if (hit.isMatch()) {
-                pickResult.addHit(hit);
+            if (!localPickResult.empty()) {
+                pickResult.addHit(localPickResult.all().front());
             }
         }
 
@@ -837,7 +839,8 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::updatePickedHandle(const Model::PickResult &pickResult) {
-            const Model::Hit& hit = pickResult.query().type(ScaleToolSideHitType | ScaleToolEdgeHitType | ScaleToolCornerHitType).occluded().first();
+            using namespace Model::HitFilters;
+            const Model::Hit& hit = pickResult.first(type(ScaleToolSideHitType | ScaleToolEdgeHitType | ScaleToolCornerHitType));
 
             // extract the highlighted handle from the hit here, and only refresh views if it changed
             if (hit.type() == ScaleToolSideHitType && m_dragStartHit.type() == ScaleToolSideHitType) {

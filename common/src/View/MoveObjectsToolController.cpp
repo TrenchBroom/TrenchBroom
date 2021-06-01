@@ -19,6 +19,8 @@
 
 #include "MoveObjectsToolController.h"
 
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/HitQuery.h"
 #include "Model/ModelUtils.h"
 #include "Renderer/RenderContext.h"
@@ -46,6 +48,8 @@ namespace TrenchBroom {
         }
 
         MoveObjectsToolController::MoveInfo MoveObjectsToolController::doStartMove(const InputState& inputState) {
+            using namespace Model::HitFilters;
+
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) &&
                 !inputState.modifierKeysPressed(ModifierKeys::MKAlt) &&
                 !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) &&
@@ -55,9 +59,7 @@ namespace TrenchBroom {
             // The transitivelySelected() lets the hit query match entities/brushes inside a
             // selected group, even though the entities/brushes aren't selected themselves.
 
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().type(Model::nodeHitType()).transitivelySelected().occluded().first();
-
+            const Model::Hit& hit = inputState.pickResult().first(type(Model::nodeHitType()) && transitivelySelected());
             if (!hit.isMatch())
                 return MoveInfo();
 

@@ -21,6 +21,7 @@
 
 #include "FloatType.h"
 #include "ToolChain.h"
+#include "Model/HitFilter.h"
 #include "Model/HitType.h"
 #include "View/InputState.h"
 
@@ -148,28 +149,16 @@ namespace TrenchBroom {
         };
 
         class SurfaceDragHelper {
-        private:
-            bool m_hitTypeSet;
-            bool m_occludedTypeSet;
-            bool m_minDistanceSet;
-
-            bool m_selected;
-            Model::HitType::Type m_hitTypeValue;
-            Model::HitType::Type m_occludedTypeValue;
-            FloatType m_minDistanceValue;
-        public:
-            SurfaceDragHelper();
-            virtual ~SurfaceDragHelper();
-
-            void setSelected(bool selected);
-            void setType(Model::HitType::Type type);
-            void setOccluded(Model::HitType::Type type);
-            void setMinDistance(FloatType minDistance);
         protected:
-            Model::HitQuery query(const InputState& inputState) const;
+            Model::HitFilter m_filter;
+        public:
+            SurfaceDragHelper(Model::HitFilter filter);
+            virtual ~SurfaceDragHelper();
         };
 
         class SurfaceDragRestricter : public SurfaceDragHelper, public DragRestricter {
+        public:
+            using SurfaceDragHelper::SurfaceDragHelper;
         private:
             bool doComputeHitPoint(const InputState& inputState, vm::vec3& point) const override;
         };
@@ -261,7 +250,7 @@ namespace TrenchBroom {
         private:
             const Grid& m_grid;
         public:
-            explicit SurfaceDragSnapper(const Grid& grid);
+            explicit SurfaceDragSnapper(Model::HitFilter filter, const Grid& grid);
         private:
             bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         private:

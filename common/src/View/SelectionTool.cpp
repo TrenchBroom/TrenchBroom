@@ -25,7 +25,9 @@
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/GroupNode.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitFilter.h"
 #include "Model/HitQuery.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
@@ -75,8 +77,9 @@ namespace TrenchBroom {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
         }
 
-        static const Model::Hit& firstHit(const InputState& inputState, const Model::HitType::Type type) {
-            return inputState.pickResult().query().type(type).occluded().first();
+        static const Model::Hit& firstHit(const InputState& inputState, const Model::HitType::Type typeMask) {
+            using namespace Model::HitFilters;
+            return inputState.pickResult().first(type(typeMask));
         }
 
         static std::vector<Model::Node*> collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) {
@@ -303,7 +306,8 @@ namespace TrenchBroom {
         }
 
         void SelectionTool::drillSelection(const InputState& inputState) {
-            const auto hits = inputState.pickResult().query().type(Model::nodeHitType()).occluded().all();
+            using namespace Model::HitFilters;
+            const auto hits = inputState.pickResult().all(type(Model::nodeHitType()));
 
             // Hits may contain multiple brush/entity hits that are inside closed groups. These need to be converted
             // to group hits using findOutermostClosedGroupOrNode() and multiple hits on the same Group need to be collapsed.

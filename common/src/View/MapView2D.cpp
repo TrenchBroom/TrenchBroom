@@ -27,7 +27,9 @@
 #include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitFilter.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
 #include "Model/PointFile.h"
@@ -280,7 +282,8 @@ namespace TrenchBroom {
             const auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
 
-            const auto& hit = pickResult().query().type(Model::BrushNode::BrushHitType).occluded().selected().first();
+            using namespace Model::HitFilters;
+            const auto& hit = pickResult().first(type(Model::BrushNode::BrushHitType) && selected());
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const auto& face = faceHandle->face();
                 return grid.moveDeltaForBounds(face.boundary(), bounds, worldBounds, pickRay());
