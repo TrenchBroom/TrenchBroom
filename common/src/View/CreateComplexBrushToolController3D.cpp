@@ -28,7 +28,6 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
-#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"

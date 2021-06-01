@@ -26,7 +26,6 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
-#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Renderer/EdgeRenderer.h"

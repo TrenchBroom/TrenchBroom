@@ -58,8 +58,6 @@ namespace TrenchBroom {
             const Hit& first(const HitFilter& filter) const;
             std::vector<Hit> all(const HitFilter& filter) const;
 
-            HitQuery query() const;
-
             void clear();
         };
     }

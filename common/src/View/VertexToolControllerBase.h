@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Model/HitQuery.h"
 #include "Model/HitType.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"

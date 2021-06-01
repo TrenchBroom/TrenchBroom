@@ -25,7 +25,6 @@
 #include "Model/EntityNode.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
-#include "Model/HitQuery.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"

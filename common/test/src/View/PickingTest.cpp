@@ -29,7 +29,6 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
-#include "Model/HitQuery.h"
 #include "Model/WorldNode.h"
 #include "Model/PickResult.h"
 #include "View/SelectionTool.h"

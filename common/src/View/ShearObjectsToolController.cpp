@@ -24,7 +24,6 @@
 #include "Preferences.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
-#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"

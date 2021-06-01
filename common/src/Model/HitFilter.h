@@ -43,9 +43,6 @@ namespace TrenchBroom {
         HitFilter operator&&(HitFilter lhs, HitFilter rhs);
         HitFilter operator||(HitFilter lhs, HitFilter rhs);
         HitFilter operator!(HitFilter filter);
-
-        const Hit& firstHit(const HitFilter& filter, const std::vector<Hit>& hits);
-        std::vector<Hit> allHits(const HitFilter& filter, const std::vector<Hit>& hits);
     }
 }
 

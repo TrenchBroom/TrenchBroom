@@ -21,7 +21,6 @@
 
 #include "Ensure.h"
 #include "FloatType.h"
-#include "Model/HitQuery.h"
 #include "Model/HitType.h"
 #include "View/Grid.h"
 #include "View/Tool.h"

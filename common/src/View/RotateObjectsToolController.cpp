@@ -24,7 +24,6 @@
 #include "Preferences.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
-#include "Model/HitQuery.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"

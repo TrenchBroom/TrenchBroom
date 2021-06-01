@@ -24,7 +24,6 @@
 #include "PreferenceManager.h"
 #include "FloatType.h"
 #include "Model/Hit.h"
-#include "Model/HitQuery.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"

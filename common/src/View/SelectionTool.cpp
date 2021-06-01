@@ -28,7 +28,6 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
-#include "Model/HitQuery.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Renderer/RenderContext.h"

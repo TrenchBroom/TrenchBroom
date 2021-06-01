@@ -21,7 +21,6 @@
 
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
-#include "Model/HitQuery.h"
 #include "Model/ModelUtils.h"
 #include "Renderer/RenderContext.h"
 #include "View/MoveObjectsTool.h"

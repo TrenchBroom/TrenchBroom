@@ -27,7 +27,6 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
-#include "Model/HitQuery.h"
 #include "Model/TexCoordSystem.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"

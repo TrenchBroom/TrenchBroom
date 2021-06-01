@@ -22,7 +22,6 @@
 #include "Ensure.h"
 #include "Model/CompareHits.h"
 #include "Model/Hit.h"
-#include "Model/HitQuery.h"
 
 #include <vecmath/scalar.h>
 #include <vecmath/util.h>
@@ -85,15 +84,44 @@ namespace TrenchBroom {
         }
 
         const Hit& PickResult::first(const HitFilter& filter) const {
-            return firstHit(filter, m_hits);
+            const auto occluder = HitFilters::type(HitType::AnyType);
+
+            if (!m_hits.empty()) {
+                auto it = std::begin(m_hits);
+                auto end = std::end(m_hits);
+                auto bestMatch = end;
+
+                auto bestMatchError = std::numeric_limits<FloatType>::max();
+                auto bestOccluderError = std::numeric_limits<FloatType>::max();
+
+                bool containsOccluder = false;
+                while (it != end && !containsOccluder) {
+                    const FloatType distance = it->distance();
+                    do {
+                        const Hit& hit = *it;
+                        if (filter(hit)) {
+                            if (hit.error() < bestMatchError) {
+                                bestMatch = it;
+                                bestMatchError = hit.error();
+                            }
+                        } else if (!occluder(hit)) {
+                            bestOccluderError = vm::min(bestOccluderError, hit.error());
+                            containsOccluder = true;
+                        }
+                        ++it;
+                    } while (it != end && vm::is_equal(it->distance(), distance, vm::C::almost_zero()));
+                }
+
+                if (bestMatch != end && bestMatchError <= bestOccluderError) {
+                    return *bestMatch;
+                }
+            }
+
+            return Hit::NoHit;
         }
 
         std::vector<Hit> PickResult::all(const HitFilter& filter) const {
-            return allHits(filter, m_hits);
-        }
-
-        HitQuery PickResult::query() const {
-            return HitQuery{m_hits};
+            return kdl::vec_filter(m_hits, filter);
         }
 
         void PickResult::clear() {
