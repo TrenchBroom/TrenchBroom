@@ -24,8 +24,6 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 
-#include <kdl/vector_utils.h>
-
 namespace TrenchBroom {
     namespace Model {
         HitQuery::HitQuery(const std::vector<Hit>& hits) :
@@ -63,42 +61,11 @@ namespace TrenchBroom {
         }
 
         const Hit& HitQuery::first() const {
-            if (!empty()) {
-                auto it = std::begin(*m_hits);
-                auto end = std::end(*m_hits);
-                auto bestMatch = end;
-
-                auto bestMatchError = std::numeric_limits<FloatType>::max();
-                auto bestOccluderError = std::numeric_limits<FloatType>::max();
-
-                bool containsOccluder = false;
-                while (it != end && !containsOccluder) {
-                    const FloatType distance = it->distance();
-                    do {
-                        const Hit& hit = *it;
-                        if (m_include(hit)) {
-                            if (hit.error() < bestMatchError) {
-                                bestMatch = it;
-                                bestMatchError = hit.error();
-                            }
-                        } else if (!m_exclude(hit)) {
-                            bestOccluderError = vm::min(bestOccluderError, hit.error());
-                            containsOccluder = true;
-                        }
-                        ++it;
-                    } while (it != end && vm::is_equal(it->distance(), distance, vm::C::almost_zero()));
-                }
-
-                if (bestMatch != end && bestMatchError <= bestOccluderError) {
-                    return *bestMatch;
-                }
-            }
-
-            return Hit::NoHit;
+            return firstHit(m_include, *m_hits);
         }
 
         std::vector<Hit> HitQuery::all() const {
-            return kdl::vec_filter(*m_hits, m_include);
+            return allHits(m_include, *m_hits);
         }
     }
 }

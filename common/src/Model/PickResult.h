@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Model/Hit.h"
+#include "Model/HitFilter.h"
 
 #include <vecmath/util.h>
 
@@ -54,6 +55,9 @@ namespace TrenchBroom {
             void addHit(const Hit& hit);
 
             const std::vector<Hit>& all() const;
+            const Hit& first(const HitFilter& filter) const;
+            std::vector<Hit> all(const HitFilter& filter) const;
+
             HitQuery query() const;
 
             void clear();

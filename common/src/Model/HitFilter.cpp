@@ -95,5 +95,47 @@ namespace TrenchBroom {
                 return !filter(hit);
             };
         }
+
+
+        const Hit& firstHit(const HitFilter& filter, const std::vector<Hit>& hits) {
+            const auto occluder = HitFilters::type(HitType::AnyType);
+
+            if (!hits.empty()) {
+                auto it = std::begin(hits);
+                auto end = std::end(hits);
+                auto bestMatch = end;
+
+                auto bestMatchError = std::numeric_limits<FloatType>::max();
+                auto bestOccluderError = std::numeric_limits<FloatType>::max();
+
+                bool containsOccluder = false;
+                while (it != end && !containsOccluder) {
+                    const FloatType distance = it->distance();
+                    do {
+                        const Hit& hit = *it;
+                        if (filter(hit)) {
+                            if (hit.error() < bestMatchError) {
+                                bestMatch = it;
+                                bestMatchError = hit.error();
+                            }
+                        } else if (!occluder(hit)) {
+                            bestOccluderError = vm::min(bestOccluderError, hit.error());
+                            containsOccluder = true;
+                        }
+                        ++it;
+                    } while (it != end && vm::is_equal(it->distance(), distance, vm::C::almost_zero()));
+                }
+
+                if (bestMatch != end && bestMatchError <= bestOccluderError) {
+                    return *bestMatch;
+                }
+            }
+
+            return Hit::NoHit;
+        }
+
+        std::vector<Hit> allHits(const HitFilter& filter, const std::vector<Hit>& hits) {
+            return kdl::vec_filter(hits, filter);
+        }
     }
 }

@@ -28,6 +28,8 @@
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
 
+#include <kdl/vector_utils.h>
+
 #include <algorithm>
 #include <cassert>
 
@@ -80,6 +82,14 @@ namespace TrenchBroom {
 
         const std::vector<Hit>& PickResult::all() const {
             return m_hits;
+        }
+
+        const Hit& PickResult::first(const HitFilter& filter) const {
+            return firstHit(filter, m_hits);
+        }
+
+        std::vector<Hit> PickResult::all(const HitFilter& filter) const {
+            return allHits(filter, m_hits);
         }
 
         HitQuery PickResult::query() const {
