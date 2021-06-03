@@ -23,7 +23,8 @@
 #include "PreferenceManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/HitQuery.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/CreateSimpleBrushTool.h"
@@ -67,6 +68,8 @@ namespace TrenchBroom {
         }
 
         RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController3D::doStartDrag(const InputState& inputState) {
+            using namespace Model::HitFilters;
+
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return DragInfo();
             }
@@ -79,8 +82,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
             if (hit.isMatch()) {
                 m_initialPoint = hit.hitPoint();
             } else {

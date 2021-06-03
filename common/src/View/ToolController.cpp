@@ -21,7 +21,6 @@
 
 #include "Ensure.h"
 #include "FloatType.h"
-#include "Model/HitQuery.h"
 #include "Model/HitType.h"
 #include "View/Grid.h"
 #include "View/Tool.h"
@@ -113,58 +112,13 @@ namespace TrenchBroom {
             }
         }
 
-        SurfaceDragHelper::SurfaceDragHelper() :
-        m_hitTypeSet(false),
-        m_occludedTypeSet(false),
-        m_minDistanceSet(false),
-        m_pickable(false),
-        m_selected(false),
-        m_hitTypeValue(Model::HitType::NoType),
-        m_occludedTypeValue(Model::HitType::NoType),
-        m_minDistanceValue(FloatType(0)) {}
+        SurfaceDragHelper::SurfaceDragHelper(Model::HitFilter filter) :
+        m_filter{filter} {}
 
         SurfaceDragHelper::~SurfaceDragHelper() = default;
 
-        void SurfaceDragHelper::setPickable(const bool pickable) {
-            m_pickable = pickable;
-        }
-
-        void SurfaceDragHelper::setSelected(const bool selected) {
-            m_selected = selected;
-        }
-
-        void SurfaceDragHelper::setType(const Model::HitType::Type type) {
-            m_hitTypeSet = true;
-            m_hitTypeValue = type;
-        }
-
-        void SurfaceDragHelper::setOccluded(const Model::HitType::Type type) {
-            m_occludedTypeSet = true;
-            m_occludedTypeValue = type;
-        }
-
-        void SurfaceDragHelper::setMinDistance(const FloatType minDistance) {
-            m_minDistanceSet = true;
-            m_minDistanceValue = minDistance;
-        }
-
-        Model::HitQuery SurfaceDragHelper::query(const InputState& inputState) const {
-            Model::HitQuery query = inputState.pickResult().query();
-            if (m_pickable)
-                query.pickable();
-            if (m_hitTypeSet)
-                query.type(m_hitTypeValue);
-            if (m_occludedTypeSet)
-                query.occluded(m_occludedTypeValue);
-            if (m_selected)
-                query.selected();
-            if (m_minDistanceSet)
-                query.minDistance(m_minDistanceValue);
-            return query;
-        }
-
         bool SurfaceDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
-            const Model::Hit& hit = query(inputState).first();
+            const Model::Hit& hit = inputState.pickResult().first(m_filter);
             if (!hit.isMatch())
                 return false;
             point = hit.hitPoint();
@@ -263,11 +217,12 @@ namespace TrenchBroom {
             return true;
         }
 
-        SurfaceDragSnapper::SurfaceDragSnapper(const Grid& grid) :
+        SurfaceDragSnapper::SurfaceDragSnapper(Model::HitFilter filter, const Grid& grid) :
+        SurfaceDragHelper{filter},
         m_grid(grid) {}
 
         bool SurfaceDragSnapper::doSnap(const InputState& inputState, const vm::vec3& /* initialPoint */, const vm::vec3& /* lastPoint */, vm::vec3& curPoint) const {
-            const Model::Hit& hit = query(inputState).first();
+            const Model::Hit& hit = inputState.pickResult().first(m_filter);
             if (!hit.isMatch()) {
                 return false;
             }

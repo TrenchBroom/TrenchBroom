@@ -19,6 +19,7 @@
 
 #include "FloatType.h"
 #include "Model/BezierPatch.h"
+#include "Model/EditorContext.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 
@@ -165,8 +166,9 @@ namespace TrenchBroom {
 
             CAPTURE(pickRay);
 
+            const auto editorContext = EditorContext{};
             auto pickResult = PickResult{};
-            patchNode.pick(pickRay, pickResult);
+            patchNode.pick(editorContext, pickRay, pickResult);
             
             if (expectedHitPoint.has_value()) {
                 CHECK(pickResult.size() == 1u);

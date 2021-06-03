@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -22,84 +22,27 @@
 #include "FloatType.h"
 #include "Model/HitType.h"
 
-#include <memory>
+#include <functional>
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
         class Hit;
 
-        class HitFilter {
-        private:
-            class Always;
-            class Never;
-        public:
-            static std::unique_ptr<HitFilter> always();
-            static std::unique_ptr<HitFilter> never();
+        using HitFilter = std::function<bool(const Hit& hit)>;
 
-            virtual ~HitFilter();
+        namespace HitFilters {
+            HitFilter any();
+            HitFilter none();
 
-            std::unique_ptr<HitFilter> clone() const;
+            HitFilter type(HitType::Type typeMask = HitType::AnyType);
+            HitFilter selected();
+            HitFilter transitivelySelected();
+            HitFilter minDistance(FloatType minDistance);
+        }
 
-            bool matches(const Hit& hit) const;
-        private:
-            virtual std::unique_ptr<HitFilter> doClone() const = 0;
-            virtual bool doMatches(const Hit& hit) const = 0;
-        };
-
-        class HitFilterChain : public HitFilter {
-        private:
-            const std::unique_ptr<const HitFilter> m_filter;
-            const std::unique_ptr<const HitFilter> m_next;
-        public:
-            HitFilterChain(std::unique_ptr<const HitFilter> filter, std::unique_ptr<const HitFilter> next);
-            ~HitFilterChain() override;
-        private:
-            std::unique_ptr<HitFilter> doClone() const override;
-            bool doMatches(const Hit& hit) const override;
-        };
-
-        class TypedHitFilter : public HitFilter {
-        private:
-            HitType::Type m_typeMask;
-        public:
-            TypedHitFilter(HitType::Type typeMask);
-        private:
-            std::unique_ptr<HitFilter> doClone() const override;
-            bool doMatches(const Hit& hit) const override;
-        };
-
-        class SelectionHitFilter : public HitFilter {
-        private:
-            std::unique_ptr<HitFilter> doClone() const override;
-            bool doMatches(const Hit& hit) const override;
-        };
-
-        class TransitivelySelectedHitFilter : public HitFilter {
-        private:
-            std::unique_ptr<HitFilter> doClone() const override;
-            bool doMatches(const Hit& hit) const override;
-        };
-
-        class MinDistanceHitFilter : public HitFilter {
-        private:
-            FloatType m_minDistance;
-        public:
-            MinDistanceHitFilter(FloatType minDistance);
-        private:
-            std::unique_ptr<HitFilter> doClone() const override;
-            bool doMatches(const Hit& hit) const override;
-        };
-
-        class ContextHitFilter : public HitFilter {
-        private:
-            const EditorContext& m_context;
-        public:
-            ContextHitFilter(const EditorContext& context);
-        private:
-            std::unique_ptr<HitFilter> doClone() const override;
-            bool doMatches(const Hit& hit) const override;
-        };
+        HitFilter operator&&(HitFilter lhs, HitFilter rhs);
+        HitFilter operator||(HitFilter lhs, HitFilter rhs);
+        HitFilter operator!(HitFilter filter);
     }
 }
 

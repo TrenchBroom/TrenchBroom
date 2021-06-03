@@ -22,6 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Model/BrushNode.h"
+#include "Model/EditorContext.h"
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
@@ -147,8 +148,8 @@ namespace TrenchBroom {
             return !hasChildren();
         }
 
-        void EntityNode::doPick(const vm::ray3& ray, PickResult& pickResult) {
-            if (!hasChildren()) {
+        void EntityNode::doPick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) {
+            if (!hasChildren() && editorContext.visible(this)) {
                 const vm::bbox3& myBounds = logicalBounds();
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = vm::intersect_ray_bbox(ray, myBounds);

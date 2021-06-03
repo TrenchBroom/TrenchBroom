@@ -27,7 +27,9 @@
 #include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
+#include "Model/HitFilter.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
 #include "Model/PointFile.h"
@@ -156,10 +158,9 @@ namespace TrenchBroom {
 
         Model::PickResult MapView2D::doPick(const vm::ray3& pickRay) const {
             auto document = kdl::mem_lock(m_document);
-            const auto& editorContext = document->editorContext();
             const auto axis = vm::find_abs_max_component(pickRay.direction);
 
-            auto pickResult = Model::PickResult::bySize(editorContext, axis);
+            auto pickResult = Model::PickResult::bySize(axis);
             document->pick(pickRay, pickResult);
 
             return pickResult;
@@ -281,7 +282,8 @@ namespace TrenchBroom {
             const auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
 
-            const auto& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
+            using namespace Model::HitFilters;
+            const auto& hit = pickResult().first(type(Model::BrushNode::BrushHitType) && selected());
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const auto& face = faceHandle->face();
                 return grid.moveDeltaForBounds(face.boundary(), bounds, worldBounds, pickRay());

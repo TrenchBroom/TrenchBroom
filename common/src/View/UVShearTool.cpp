@@ -21,7 +21,8 @@
 
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/HitQuery.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -58,6 +59,8 @@ namespace TrenchBroom {
         }
 
         bool UVShearTool::doStartMouseDrag(const InputState& inputState) {
+            using namespace Model::HitFilters;
+
             assert(m_helper.valid());
 
             if (!inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
@@ -68,9 +71,8 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& xHit = pickResult.query().type(XHandleHitType).occluded().first();
-            const Model::Hit& yHit = pickResult.query().type(YHandleHitType).occluded().first();
+            const Model::Hit& xHit = inputState.pickResult().first(type(XHandleHitType));
+            const Model::Hit& yHit = inputState.pickResult().first(type(YHandleHitType));
 
             if (!(xHit.isMatch() ^ yHit.isMatch()))
                 return false;

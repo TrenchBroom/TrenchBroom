@@ -352,7 +352,7 @@ namespace TrenchBroom {
         }
 
         Model::PickResult UVView::doPick(const vm::ray3& pickRay) const {
-            Model::PickResult pickResult = Model::PickResult::byDistance(kdl::mem_lock(m_document)->editorContext());
+            Model::PickResult pickResult = Model::PickResult::byDistance();
             if (!m_helper.valid())
                 return pickResult;
 

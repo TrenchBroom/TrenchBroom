@@ -27,7 +27,8 @@
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
-#include "Model/HitQuery.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
@@ -274,7 +275,8 @@ namespace TrenchBroom {
             }
 
             bool doCanDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const override {
-                const auto& hit = pickResult.query().type(PointHitType).occluded().first();
+                using namespace Model::HitFilters;
+                const auto& hit = pickResult.first(type(PointHitType));
                 if (!hit.isMatch()) {
                     return false;
                 } else {
@@ -285,7 +287,8 @@ namespace TrenchBroom {
             }
 
             void doBeginDragPoint(const Model::PickResult& pickResult) override {
-                const auto& hit = pickResult.query().type(PointHitType).occluded().first();
+                using namespace Model::HitFilters;
+                const auto& hit = pickResult.first(type(PointHitType));
                 assert(hit.isMatch());
                 m_dragIndex = hit.target<size_t>();
                 m_originalPoint = m_points[m_dragIndex];
@@ -407,7 +410,8 @@ namespace TrenchBroom {
                 if (m_dragIndex < m_numPoints) {
                     renderHighlight(renderContext, renderBatch, m_dragIndex);
                 } else {
-                    const auto& hit = pickResult.query().type(PointHitType).occluded().first();
+                    using namespace Model::HitFilters;
+                    const auto& hit = pickResult.first(type(PointHitType));
                     if (hit.isMatch()) {
                         const auto index = hit.target<size_t>();
                         renderHighlight(renderContext, renderBatch, index);

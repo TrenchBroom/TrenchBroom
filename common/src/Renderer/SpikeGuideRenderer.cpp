@@ -20,7 +20,7 @@
 #include "SpikeGuideRenderer.h"
 
 #include "Model/Hit.h"
-#include "Model/HitQuery.h"
+#include "Model/HitFilter.h"
 #include "Model/BrushNode.h"
 #include "Model/PickResult.h"
 #include "Renderer/ActiveShader.h"
@@ -48,10 +48,11 @@ namespace TrenchBroom {
         }
 
         void SpikeGuideRenderer::add(const vm::ray3& ray, const FloatType length, std::shared_ptr<View::MapDocument> document) {
-            Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
+            Model::PickResult pickResult = Model::PickResult::byDistance();
             document->pick(ray, pickResult);
 
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().minDistance(1.0).first();
+            using namespace Model::HitFilters;
+            const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && minDistance(1.0));
             if (hit.isMatch()) {
                 if (hit.distance() <= length)
                     addPoint(vm::point_at_distance(ray, hit.distance() - 0.01));

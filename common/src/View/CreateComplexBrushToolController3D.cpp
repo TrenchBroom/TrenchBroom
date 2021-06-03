@@ -25,8 +25,9 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitQuery.h"
+#include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
@@ -75,12 +76,13 @@ namespace TrenchBroom {
             const Tool* doGetTool() const override { return m_tool; }
 
             DragInfo doStartDrag(const InputState& inputState) override {
+                using namespace Model::HitFilters;
+
                 if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                     return DragInfo();
                 }
 
-                const Model::PickResult& pickResult = inputState.pickResult();
-                const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+                const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     m_oldPolyhedron = m_tool->polyhedron();
 
@@ -89,11 +91,7 @@ namespace TrenchBroom {
                     m_initialPoint = hit.hitPoint();
                     updatePolyhedron(m_initialPoint);
 
-                    auto* restricter = new SurfaceDragRestricter();
-                    restricter->setPickable(true);
-                    restricter->setType(Model::BrushNode::BrushHitType);
-                    restricter->setOccluded(true);
-                    return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
+                    return DragInfo(new SurfaceDragRestricter{type(Model::BrushNode::BrushHitType)}, new NoDragSnapper(), m_initialPoint);
                 } else {
                     return DragInfo();
                 }
@@ -221,8 +219,8 @@ namespace TrenchBroom {
             if (!inputState.checkModifierKeys(MK_No, MK_No, MK_No))
                 return false;
 
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            using namespace Model::HitFilters;
+            const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const Grid& grid = m_tool->grid();
 
@@ -243,8 +241,8 @@ namespace TrenchBroom {
             if (!inputState.checkModifierKeys(MK_No, MK_No, MK_No))
                 return false;
 
-            const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            using namespace Model::HitFilters;
+            const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const Model::BrushFace& face = faceHandle->face();
 

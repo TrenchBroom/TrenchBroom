@@ -25,8 +25,9 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitQuery.h"
+#include "Model/HitFilter.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
@@ -75,7 +76,8 @@ namespace TrenchBroom {
                 }
 
                 bool setClipFace(const InputState& inputState) {
-                    const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+                    using namespace Model::HitFilters;
+                    const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
                     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                         m_tool->setFace(*faceHandle);
                         return true;
@@ -206,17 +208,13 @@ namespace TrenchBroom {
                 PartDelegateBase{tool} {}
 
                 DragRestricter* createDragRestricter(const InputState&, const vm::vec3& /* initialPoint */) const override {
-                    SurfaceDragRestricter* restricter = new SurfaceDragRestricter();
-                    restricter->setPickable(true);
-                    restricter->setType(Model::BrushNode::BrushHitType);
-                    restricter->setOccluded(Model::HitType::AnyType);
-                    return restricter;
+                    using namespace Model::HitFilters;
+                    return new SurfaceDragRestricter{type(Model::BrushNode::BrushHitType)};
                 }
 
                 class ClipPointSnapper : public SurfaceDragSnapper {
                 public:
-                    explicit ClipPointSnapper(const Grid& grid) :
-                    SurfaceDragSnapper{grid} {}
+                    using SurfaceDragSnapper::SurfaceDragSnapper;
                 private:
                     vm::plane3 doGetPlane(const InputState&, const Model::Hit& hit) const override {
                         const auto faceHandle = Model::hitToFaceHandle(hit);
@@ -226,17 +224,15 @@ namespace TrenchBroom {
                 };
 
                 DragSnapper* createDragSnapper(const InputState&) const override {
-                    SurfaceDragSnapper* snapper = new ClipPointSnapper(m_tool->grid());
-                    snapper->setPickable(true);
-                    snapper->setType(Model::BrushNode::BrushHitType);
-                    snapper->setOccluded(Model::HitType::AnyType);
-                    return snapper;
+                    using namespace Model::HitFilters;
+                    return new ClipPointSnapper{type(Model::BrushNode::BrushHitType), m_tool->grid()};
                 }
 
                 std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& clipPoint) const override {
-                    auto hit = inputState.pickResult().query().selected().type(Model::BrushNode::BrushHitType).occluded().first();
+                    using namespace Model::HitFilters;
+                    auto hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType) && selected());
                     if (!hit.isMatch()) {
-                        hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+                        hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
                     }
                     const auto faceHandle = Model::hitToFaceHandle(hit);
                     ensure(faceHandle, "hit is not a match");
@@ -245,7 +241,8 @@ namespace TrenchBroom {
                 }
 
                 bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const override {
-                    const auto hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+                    using namespace Model::HitFilters;
+                    auto hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
                     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                         const Grid& grid = m_tool->grid();
                         position = grid.snap(hit.hitPoint(), faceHandle->face().boundary());

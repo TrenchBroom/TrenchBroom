@@ -81,7 +81,7 @@ namespace TrenchBroom {
          * Boilerplate to perform picking
          */
         static Model::PickResult performPick(std::shared_ptr<View::MapDocument> document, ResizeBrushesTool& tool, const vm::ray3& pickRay) {
-            Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
+            Model::PickResult pickResult = Model::PickResult::byDistance();
             document->pick(pickRay, pickResult); // populate pickResult
 
             const Model::Hit hit = tool.pick3D(pickRay, pickResult);

@@ -26,7 +26,8 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
-#include "Model/HitQuery.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
@@ -72,6 +73,8 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            using namespace Model::HitFilters;
+
             const vm::bbox3& myBounds = bounds();
 
             // origin in bbox
@@ -83,14 +86,14 @@ namespace TrenchBroom {
 
             pickBackSides(pickRay, camera, localPickResult);
 
-            auto hit = localPickResult.query().first();
-
-            if (hit.isMatch()) {
-                pickResult.addHit(hit);
+            if (!localPickResult.empty()) {
+                pickResult.addHit(localPickResult.all().front());
             }
         }
 
         void ShearObjectsTool::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            using namespace Model::HitFilters;
+
             const auto& myBounds = bounds();
 
             // origin in bbox
@@ -115,10 +118,8 @@ namespace TrenchBroom {
 
             pickBackSides(pickRay, camera, localPickResult);
 
-            auto hit = localPickResult.query().first();
-
-            if (hit.isMatch()) {
-                pickResult.addHit(hit);
+            if (!localPickResult.empty()) {
+                pickResult.addHit(localPickResult.all().front());
             }
         }
 
@@ -233,7 +234,8 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::updatePickedSide(const Model::PickResult &pickResult) {
-            const Model::Hit& hit = pickResult.query().type(ShearToolSideHitType).occluded().first();
+            using namespace Model::HitFilters;
+            const Model::Hit& hit = pickResult.first(type(ShearToolSideHitType));
 
             // extract the highlighted handle from the hit here, and only refresh views if it changed
             if (hit.type() == ShearToolSideHitType && m_dragStartHit.type() == ShearToolSideHitType) {

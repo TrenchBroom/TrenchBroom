@@ -24,8 +24,9 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitQuery.h"
+#include "Model/HitFilter.h"
 #include "Model/TexCoordSystem.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -85,6 +86,8 @@ namespace TrenchBroom {
         }
 
         void SetBrushFaceAttributesTool::copyAttributesFromSelection(const InputState& inputState, const bool applyToBrush) {
+            using namespace Model::HitFilters;
+
             assert(canCopyAttributesFromSelection(inputState));
 
             auto document = kdl::mem_lock(m_document);
@@ -92,7 +95,7 @@ namespace TrenchBroom {
             const auto selectedFaces = document->selectedBrushFaces();
             assert(!selectedFaces.empty());
 
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
             if (const auto targetFaceHandle = Model::hitToFaceHandle(hit)) {
                 const auto sourceFaceHandle = selectedFaces.front();
                 const auto targetList = applyToBrush ? Model::toHandles(targetFaceHandle->node()) : std::vector<Model::BrushFaceHandle>{*targetFaceHandle};
@@ -102,6 +105,8 @@ namespace TrenchBroom {
         }
 
         bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(const InputState& inputState) const {
+            using namespace Model::HitFilters;
+
             if (!applies(inputState)) {
                 return false;
             }
@@ -113,7 +118,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
             if (!hit.isMatch()) {
                 return false;
             }
@@ -171,7 +176,9 @@ namespace TrenchBroom {
         }
 
         bool SetBrushFaceAttributesTool::doMouseDrag(const InputState& inputState) {            
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            using namespace Model::HitFilters;
+
+            const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
             const auto faceHandle = Model::hitToFaceHandle(hit);
             if (!faceHandle) {
                 // Dragging over void

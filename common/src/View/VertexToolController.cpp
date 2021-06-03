@@ -19,6 +19,8 @@
 
 #include "VertexToolController.h"
 
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "View/Grid.h"
 #include "View/VertexTool.h"
 
@@ -34,30 +36,34 @@ namespace TrenchBroom {
          * to contain this method due to the call to the inherited findDraggableHandle method.
          */
         Model::Hit VertexToolController::findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base) {
+            using namespace Model::HitFilters;
+
             const auto vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHitType);
             if (vertexHit.isMatch())
                 return vertexHit;
-            if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
-                const auto &firstHit = inputState.pickResult().query().first();
-                if (firstHit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
-                    return firstHit;
+            if (inputState.modifierKeysDown(ModifierKeys::MKShift) && !inputState.pickResult().empty()) {
+                const auto& anyHit = inputState.pickResult().all().front();
+                if (anyHit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
+                    return anyHit;
             }
             return Model::Hit::NoHit;
         }
 
 
         std::vector<Model::Hit> VertexToolController::findHandleHits(const InputState& inputState, const VertexToolController::PartBase& base) {
+            using namespace Model::HitFilters;
+
             const auto vertexHits = base.findDraggableHandles(inputState, VertexHandleManager::HandleHitType);
             if (!vertexHits.empty())
                 return vertexHits;
-            if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
-                const auto& firstHit = inputState.pickResult().query().first();
-                if (firstHit.hasType(EdgeHandleManager::HandleHitType)) {
-                    const std::vector<Model::Hit> edgeHits = inputState.pickResult().query().type(EdgeHandleManager::HandleHitType).all();
+            if (inputState.modifierKeysDown(ModifierKeys::MKShift) && !inputState.pickResult().empty()) {
+                const auto& anyHit = inputState.pickResult().all().front();
+                if (anyHit.hasType(EdgeHandleManager::HandleHitType)) {
+                    const auto edgeHits = inputState.pickResult().all(type(EdgeHandleManager::HandleHitType));
                     if (!edgeHits.empty())
                         return edgeHits;
-                } else if (firstHit.hasType(FaceHandleManager::HandleHitType)) {
-                    const std::vector<Model::Hit> faceHits = inputState.pickResult().query().type(FaceHandleManager::HandleHitType).all();
+                } else if (anyHit.hasType(FaceHandleManager::HandleHitType)) {
+                    const auto faceHits = inputState.pickResult().all(type(FaceHandleManager::HandleHitType));
                     if (!faceHits.empty())
                         return faceHits;
                 }

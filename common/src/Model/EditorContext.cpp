@@ -217,49 +217,6 @@ namespace TrenchBroom {
             return editable(brushNode);
         }
 
-        bool EditorContext::pickable(const Model::Node* node) const {
-            return node->accept(kdl::overload(
-                [&](const WorldNode* world)   { return pickable(world); },
-                [&](const LayerNode* layer)   { return pickable(layer); },
-                [&](const GroupNode* group)   { return pickable(group); },
-                [&](const EntityNode* entity) { return pickable(entity); },
-                [&](const BrushNode* brush)   { return pickable(brush); },
-                [&](const PatchNode* patch)   { return pickable(patch); }
-            ));
-        }
-
-        bool EditorContext::pickable(const Model::WorldNode*) const {
-            return false;
-        }
-
-        bool EditorContext::pickable(const Model::LayerNode*) const {
-            return false;
-        }
-
-        bool EditorContext::pickable(const Model::GroupNode* groupNode) const {
-            return visible(groupNode) && !groupNode->opened() && groupNode->containingGroupOpened();
-        }
-
-        bool EditorContext::pickable(const Model::EntityNode* entityNode) const {
-            // Do not check whether this is an open group or not -- we must be able
-            // to pick objects within groups in order to draw on them etc.
-            return visible(entityNode) && !entityNode->hasChildren();
-        }
-
-        bool EditorContext::pickable(const Model::BrushNode* brushNode) const {
-            // Do not check whether this is an open group or not -- we must be able
-            // to pick objects within groups in order to draw on them etc.
-            return visible(brushNode);
-        }
-
-        bool EditorContext::pickable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const {
-            return brushNode->selected() || visible(brushNode, face);
-        }
-
-        bool EditorContext::pickable(const Model::PatchNode* patchNode) const {
-            return visible(patchNode);
-        }
-
         bool EditorContext::selectable(const Model::Node* node) const {
             return node->accept(kdl::overload(
                 [&](const WorldNode* world)   { return selectable(world); },
@@ -280,23 +237,23 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::selectable(const Model::GroupNode* groupNode) const {
-            return visible(groupNode) && editable(groupNode) && pickable(groupNode) && inOpenGroup(groupNode);
+            return visible(groupNode) && editable(groupNode) && !groupNode->opened() && inOpenGroup(groupNode);
         }
 
         bool EditorContext::selectable(const Model::EntityNode* entityNode) const {
-            return visible(entityNode) && editable(entityNode) && pickable(entityNode) && inOpenGroup(entityNode);
+            return visible(entityNode) && editable(entityNode) && !entityNode->hasChildren() && inOpenGroup(entityNode);
         }
 
         bool EditorContext::selectable(const Model::BrushNode* brushNode) const {
-            return visible(brushNode) && editable(brushNode) && pickable(brushNode) && inOpenGroup(brushNode);
+            return visible(brushNode) && editable(brushNode) && inOpenGroup(brushNode);
         }
 
         bool EditorContext::selectable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const {
-            return visible(brushNode, face) && editable(brushNode, face) && pickable(brushNode, face);
+            return visible(brushNode, face) && editable(brushNode, face);
         }
 
         bool EditorContext::selectable(const Model::PatchNode* patchNode) const {
-            return visible(patchNode) && editable(patchNode) && pickable(patchNode) && inOpenGroup(patchNode);
+            return visible(patchNode) && editable(patchNode) && inOpenGroup(patchNode);
         }
 
         bool EditorContext::canChangeSelection() const {

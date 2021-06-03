@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Model/BrushNode.h"
+#include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/Hit.h"
 #include "Model/GroupNode.h"
@@ -344,7 +345,10 @@ namespace TrenchBroom {
             return true;
         }
 
-        void PatchNode::doPick(const vm::ray3& pickRay, PickResult& pickResult) {
+        void PatchNode::doPick(const EditorContext& editorContext, const vm::ray3& pickRay, PickResult& pickResult) {
+            if (!editorContext.visible(this)) {
+                return;
+            }
             const auto pickTriangle = [&](const auto& p0, const auto& p1, const auto& p2) {
                 if (const auto distance = vm::intersect_ray_triangle(pickRay, p0, p1, p2); !vm::is_nan(distance)) {
                     const auto hitPoint = vm::point_at_distance(pickRay, distance);

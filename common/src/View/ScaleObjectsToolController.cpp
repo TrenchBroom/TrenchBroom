@@ -22,7 +22,8 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Model/HitQuery.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
@@ -155,6 +156,7 @@ namespace TrenchBroom {
 
         RestrictedDragPolicy::DragInfo ScaleObjectsToolController::doStartDrag(const InputState& inputState) {
             // based on CreateSimpleBrushToolController3D::doStartDrag
+            using namespace Model::HitFilters;
 
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return DragInfo();
@@ -165,12 +167,10 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
 
-            const Model::PickResult& pickResult = inputState.pickResult();
-
-            const Model::Hit& hit = pickResult.query().type(
-                    ScaleObjectsTool::ScaleToolSideHitType
-                    | ScaleObjectsTool::ScaleToolEdgeHitType
-                    | ScaleObjectsTool::ScaleToolCornerHitType).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().first(type(
+                ScaleObjectsTool::ScaleToolSideHitType
+                | ScaleObjectsTool::ScaleToolEdgeHitType
+                | ScaleObjectsTool::ScaleToolCornerHitType));
             if (!hit.isMatch()) {
                 return DragInfo();
             }
@@ -212,6 +212,8 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            using namespace Model::HitFilters;
+
             const auto& camera = renderContext.camera();
 
             // bounds and corner handles
@@ -232,7 +234,7 @@ namespace TrenchBroom {
                         Model::PickResult pr;
                         doPick(ray, renderContext.camera(), pr);
 
-                        if (pr.query().first().type() != ScaleObjectsTool::ScaleToolCornerHitType) {
+                        if (pr.empty() || pr.all().front().type() != ScaleObjectsTool::ScaleToolCornerHitType) {
                             // this corner is occluded => don't render it.
                             continue;
                         }

@@ -25,7 +25,8 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/HitQuery.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Renderer/Circle.h"
@@ -96,6 +97,8 @@ namespace TrenchBroom {
         }
 
         bool UVRotateTool::doStartMouseDrag(const InputState& inputState) {
+            using namespace Model::HitFilters;
+
             assert(m_helper.valid());
 
             // If Ctrl is pressed, allow starting the drag anywhere, not just on the handle
@@ -106,16 +109,14 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const auto& pickResult = inputState.pickResult();
-            const auto& angleHandleHit = pickResult.query().type(AngleHandleHitType).occluded().first();
-
             if (!m_helper.face()->attributes().valid()) {
                 return false;
             }
 
             const auto toFace = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-
             vm::vec2f hitPointInFaceCoords;
+
+            const auto& angleHandleHit = inputState.pickResult().first(type(AngleHandleHitType));
             if (angleHandleHit.isMatch()) {
                 hitPointInFaceCoords = vm::vec2f(toFace * angleHandleHit.hitPoint());
             } else if (ctrlPressed) {
@@ -282,6 +283,8 @@ namespace TrenchBroom {
         };
 
         void UVRotateTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+            using namespace Model::HitFilters;
+
             if (!m_helper.valid()) {
                 return;
             }
@@ -290,8 +293,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const auto& pickResult = inputState.pickResult();
-            const auto& angleHandleHit = pickResult.query().type(AngleHandleHitType).occluded().first();
+            const auto& angleHandleHit = inputState.pickResult().first(type(AngleHandleHitType));
             const auto highlight = angleHandleHit.isMatch() || thisToolDragging();
 
             renderBatch.addOneShot(new Render(m_helper, static_cast<float>(CenterHandleRadius), static_cast<float>(RotateHandleRadius), highlight));

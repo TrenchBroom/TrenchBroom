@@ -36,7 +36,7 @@
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
-#include "Model/HitQuery.h"
+#include "Model/HitFilter.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
@@ -1111,7 +1111,8 @@ namespace TrenchBroom {
 
             menu.addSeparator();
 
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            using namespace Model::HitFilters;
+            const Model::Hit& hit = pickResult().first(type(Model::BrushNode::BrushHitType));
             const auto faceHandle = Model::hitToFaceHandle(hit);
             if (faceHandle) {
                 const Assets::Texture* texture = faceHandle->face().texture();
@@ -1244,10 +1245,12 @@ namespace TrenchBroom {
         }
 
         Model::Node* MapViewBase::findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const {
+            using namespace Model::HitFilters;
+
             Model::Node* newGroup = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().first();
+            const Model::Hit& hit = pickResult().empty() ? Model::Hit::NoHit : pickResult().all().front();
             if (hit.isMatch())
                 newGroup = Model::findOutermostClosedGroup(Model::hitToNode(hit));
 
@@ -1266,6 +1269,8 @@ namespace TrenchBroom {
         }
 
         Model::GroupNode* MapViewBase::findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const {
+            using namespace Model::HitFilters;
+
             if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groupCount() >= 2)) {
                 return nullptr;
             }
@@ -1273,7 +1278,7 @@ namespace TrenchBroom {
             Model::GroupNode* mergeTarget = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().first();
+            const Model::Hit& hit = pickResult().empty() ? Model::Hit::NoHit : pickResult().all().front();
             if (hit.isMatch()) {
                 mergeTarget = findOutermostClosedGroup(Model::hitToNode(hit));
             }
@@ -1314,10 +1319,12 @@ namespace TrenchBroom {
         }
 
         Model::Node* MapViewBase::findNewParentEntityForBrushes(const std::vector<Model::Node*>& nodes) const {
+            using namespace Model::HitFilters;
+
             Model::Node* newParent = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const Model::Hit& hit = pickResult().first(type(Model::BrushNode::BrushHitType));
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 Model::BrushNode* brush = faceHandle->node();
                 newParent = brush->entity();

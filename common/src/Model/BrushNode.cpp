@@ -29,6 +29,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
+#include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
@@ -302,12 +303,14 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void BrushNode::doPick(const vm::ray3& ray, PickResult& pickResult) {
-            if (const auto hit = findFaceHit(ray)) {
-                const auto [distance, faceIndex] = *hit;
-                ensure(!vm::is_nan(distance), "nan hit distance");
-                const auto hitPoint = vm::point_at_distance(ray, distance);
-                pickResult.addHit(Hit(BrushHitType, distance, hitPoint, BrushFaceHandle(this, faceIndex)));
+        void BrushNode::doPick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) {
+            if (editorContext.visible(this)) {
+                if (const auto hit = findFaceHit(ray)) {
+                    const auto [distance, faceIndex] = *hit;
+                    ensure(!vm::is_nan(distance), "nan hit distance");
+                    const auto hitPoint = vm::point_at_distance(ray, distance);
+                    pickResult.addHit(Hit(BrushHitType, distance, hitPoint, BrushFaceHandle(this, faceIndex)));
+                }
             }
         }
 

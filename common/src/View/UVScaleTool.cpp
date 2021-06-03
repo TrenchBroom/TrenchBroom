@@ -24,7 +24,8 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/HitQuery.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Renderer/EdgeRenderer.h"
@@ -86,6 +87,7 @@ namespace TrenchBroom {
         }
 
         bool UVScaleTool::doStartMouseDrag(const InputState& inputState) {
+            using namespace Model::HitFilters;
             assert(m_helper.valid());
 
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -97,10 +99,8 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const auto& pickResult = inputState.pickResult();
-            const auto& xHit = pickResult.query().type(XHandleHitType).occluded().first();
-            const auto& yHit = pickResult.query().type(YHandleHitType).occluded().first();
-
+            const auto& xHit = inputState.pickResult().first(type(XHandleHitType));
+            const auto& yHit = inputState.pickResult().first(type(YHandleHitType));
             if (!xHit.isMatch() && !yHit.isMatch()) {
                 return false;
             }
@@ -197,6 +197,8 @@ namespace TrenchBroom {
         }
 
         void UVScaleTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+            using namespace Model::HitFilters;
+
             if (!m_helper.valid()) {
                 return;
             }
@@ -205,9 +207,11 @@ namespace TrenchBroom {
                 return;
             }
 
-            // don't overdraw the origin handles
             const auto& pickResult = inputState.pickResult();
-            if (!pickResult.query().type(UVOriginTool::XHandleHitType | UVOriginTool::YHandleHitType).occluded().first().isMatch()) {
+
+            // don't overdraw the origin handles
+            const auto& handleHit = pickResult.first(type(UVOriginTool::XHandleHitType | UVOriginTool::YHandleHitType));
+            if (!handleHit.isMatch()) {
                 const Color color(1.0f, 0.0f, 0.0f, 1.0f);
 
                 Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::move(getHandleVertices(pickResult)), Renderer::PrimType::Lines);
@@ -216,8 +220,10 @@ namespace TrenchBroom {
         }
 
         std::vector<UVScaleTool::EdgeVertex> UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
-            const auto& xHandleHit = pickResult.query().type(XHandleHitType).occluded().first();
-            const auto& yHandleHit = pickResult.query().type(YHandleHitType).occluded().first();
+            using namespace Model::HitFilters;
+
+            const auto& xHandleHit = pickResult.first(type(XHandleHitType));
+            const auto& yHandleHit = pickResult.first(type(YHandleHitType));
             const auto stripeSize = m_helper.stripeSize();
 
             const auto xIndex = xHandleHit.isMatch() ? xHandleHit.target<int>() : 0;

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Model/HitQuery.h"
 #include "Model/HitType.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
@@ -73,21 +72,23 @@ namespace TrenchBroom {
                 }
             public:
                 Model::Hit findDraggableHandle(const InputState& inputState, const Model::HitType::Type hitType) const {
-                    const auto query = inputState.pickResult().query().type(hitType).occluded();
-                    if (!query.empty()) {
-                        const auto hits = query.all();
+                    using namespace Model::HitFilters;
+
+                    const auto hits = inputState.pickResult().all(type(hitType));
+                    if (!hits.empty()) {
                         for (const auto& hit : hits) {
                             if (this->selected(hit)) {
                                 return hit;
                             }
                         }
-                        return query.first();
+                        return inputState.pickResult().first(type(hitType));
                     }
                     return Model::Hit::NoHit;
                 }
 
                 std::vector<Model::Hit> findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
-                    return inputState.pickResult().query().type(hitType).occluded().all();
+                    using namespace Model::HitFilters;
+                    return inputState.pickResult().all(type(hitType));
                 }
             private:
                 bool selected(const Model::Hit& hit) const {
@@ -205,14 +206,16 @@ namespace TrenchBroom {
                 }
             protected:
                 std::vector<Model::Hit> firstHits(const Model::PickResult& pickResult) const {
+                    using namespace Model::HitFilters;
+
                     std::vector<Model::Hit> result;
                     std::unordered_set<Model::BrushNode*> visitedBrushes;
 
-                    const Model::Hit& first = pickResult.query().type(m_hitType).occluded().first();
+                    const Model::Hit& first = pickResult.first(type(m_hitType));
                     if (first.isMatch()) {
                         const H& firstHandle = first.target<const H&>();
 
-                        const std::vector<Model::Hit> matches = pickResult.query().type(m_hitType).all();
+                        const auto matches = pickResult.all(type(m_hitType));
                         for (const Model::Hit& match : matches) {
                             const H& handle = match.target<const H&>();
 

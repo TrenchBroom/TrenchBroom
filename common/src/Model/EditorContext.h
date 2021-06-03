@@ -85,18 +85,6 @@ namespace TrenchBroom {
             bool editable(const Model::Node* node) const;
             bool editable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const;
 
-        private:
-            class NodePickable;
-        public:
-            bool pickable(const Model::Node* node) const;
-            bool pickable(const Model::WorldNode* worldNode) const;
-            bool pickable(const Model::LayerNode* layerNode) const;
-            bool pickable(const Model::GroupNode* groupNode) const;
-            bool pickable(const Model::EntityNode* entityNode) const;
-            bool pickable(const Model::BrushNode* brushNode) const;
-            bool pickable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const;
-            bool pickable(const Model::PatchNode* patchNode) const;
-
             bool selectable(const Model::Node* node) const;
             bool selectable(const Model::WorldNode* worldNode) const;
             bool selectable(const Model::LayerNode* layerNode) const;

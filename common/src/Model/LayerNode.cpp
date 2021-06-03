@@ -133,7 +133,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void LayerNode::doPick(const vm::ray3& /* ray */, PickResult&) {}
+        void LayerNode::doPick(const EditorContext&, const vm::ray3& /* ray */, PickResult&) {}
 
         void LayerNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
             for (Node* child : Node::children())
