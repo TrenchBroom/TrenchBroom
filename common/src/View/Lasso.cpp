@@ -34,11 +34,8 @@ namespace TrenchBroom {
         Lasso::Lasso(const Renderer::Camera& camera, const FloatType distance, const vm::vec3& point) :
         m_camera{camera},
         m_distance{distance},
-        m_transform{vm::coordinate_system_matrix(
-            m_camera.right(), m_camera.up(), -m_camera.direction(),
-            m_camera.defaultPoint(static_cast<float>(m_distance)))},
         m_start{point},
-        m_cur{m_start} {}
+        m_cur{point} {}
 
         void Lasso::update(const vm::vec3& point) {
             m_cur = point;
@@ -65,14 +62,15 @@ namespace TrenchBroom {
             }
 
             const auto hitPoint = vm::point_at_distance(ray, hitDistance);
-            return m_transform * hitPoint;
+            return getTransform() * hitPoint;
         }
 
         void Lasso::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
-            const auto box = getBox();
-            const auto [invertible, inverseTransform] = vm::invert(m_transform);
+            const auto transform = getTransform();
+            const auto [invertible, inverseTransform] = vm::invert(transform);
             assert(invertible); unused(invertible);
 
+            const auto box = getBox(transform);
             const auto polygon = std::vector<vm::vec3f>{
                 vm::vec3f{inverseTransform * vm::vec3{box.min.x(), box.min.y(), 0.0}},
                 vm::vec3f{inverseTransform * vm::vec3{box.min.x(), box.max.y(), 0.0}},
@@ -93,9 +91,15 @@ namespace TrenchBroom {
             return vm::plane3{vm::vec3{m_camera.defaultPoint(static_cast<float>(m_distance))}, vm::vec3{m_camera.direction()}};
         }
 
-        vm::bbox2 Lasso::getBox() const {
-            const auto start = m_transform * m_start;
-            const auto cur   = m_transform * m_cur;
+        vm::mat4x4 Lasso::getTransform() const {
+            return vm::mat4x4{vm::coordinate_system_matrix(
+                m_camera.right(), m_camera.up(), -m_camera.direction(),
+                m_camera.defaultPoint(static_cast<float>(m_distance)))};
+        }
+
+        vm::bbox2 Lasso::getBox(const vm::mat4x4& transform) const {
+            const auto start = transform * m_start;
+            const auto cur   = transform * m_cur;
 
             const auto min = vm::min(start, cur);
             const auto max = vm::max(start, cur);
