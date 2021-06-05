@@ -69,7 +69,7 @@ namespace TrenchBroom {
         }
 
         void Lasso::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
-            const auto box = this->box();
+            const auto box = getBox();
             const auto [invertible, inverseTransform] = vm::invert(m_transform);
             assert(invertible); unused(invertible);
 
@@ -89,11 +89,11 @@ namespace TrenchBroom {
             renderService.renderFilledPolygon(polygon);
         }
 
-        vm::plane3 Lasso::plane() const {
+        vm::plane3 Lasso::getPlane() const {
             return vm::plane3{vm::vec3{m_camera.defaultPoint(static_cast<float>(m_distance))}, vm::vec3{m_camera.direction()}};
         }
 
-        vm::bbox2 Lasso::box() const {
+        vm::bbox2 Lasso::getBox() const {
             const auto start = m_transform * m_start;
             const auto cur   = m_transform * m_cur;
 

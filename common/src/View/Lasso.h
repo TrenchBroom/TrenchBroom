@@ -46,8 +46,8 @@ namespace TrenchBroom {
 
             template <typename I, typename O>
             void selected(I cur, I end, O out) const {
-                const vm::plane3 plane = this->plane();
-                const vm::bbox2 box = this->box();
+                const vm::plane3 plane = getPlane();
+                const vm::bbox2 box = getBox();
                 while (cur != end) {
                     if (selects(*cur, plane, box))
                         out = *cur;
@@ -62,8 +62,8 @@ namespace TrenchBroom {
         public:
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
         private:
-            vm::plane3 plane() const;
-            vm::bbox2 box() const;
+            vm::plane3 getPlane() const;
+            vm::bbox2 getBox() const;
         };
     }
 }
