@@ -22,6 +22,7 @@
 #include "Model/HitType.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
+#include "View/HandleDragTracker.h"
 #include "View/Lasso.h"
 #include "View/MoveToolController.h"
 #include "View/ToolController.h"
@@ -92,18 +93,48 @@ namespace TrenchBroom {
                 }
             };
 
-            template <typename H>
-            class SelectPartBase : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public PartBase {
+            class LassoDragDelegate : public HandleDragTrackerDelegate {
+            public:
+                static constexpr auto LassoDistance = 64.0;
             private:
-                Lasso* m_lasso;
+                T& m_tool;
+                std::unique_ptr<Lasso> m_lasso;
+            public:
+                LassoDragDelegate(T& tool) :
+                m_tool{tool} {}
+
+                HandlePositionProposer start(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) override {
+                    const auto& camera = inputState.camera();
+                    m_lasso = std::make_unique<Lasso>(camera, LassoDistance, initialHandlePosition);
+
+                    const auto plane = vm::orthogonal_plane(initialHandlePosition, vm::vec3{camera.direction()});
+                    return makeHandlePositionProposer(
+                        makePlaneHandlePicker(plane, handleOffset),
+                        makeIdentityHandleSnapper()
+                    );
+                }
+
+                DragStatus drag(const InputState&, const DragState&, const vm::vec3& proposedHandlePosition) override {
+                    m_lasso->update(proposedHandlePosition);
+                    return DragStatus::Continue;
+                }
+
+                void end(const InputState& inputState, const DragState&) override {
+                    m_tool.select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
+                }
+                
+                void cancel(const DragState&) override {}
+
+                void render(const InputState&, const DragState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const override {
+                    m_lasso->render(renderContext, renderBatch);
+                }
+            };
+
+            template <typename H>
+            class SelectPartBase : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public PartBase {
             protected:
                 SelectPartBase(T* tool, const Model::HitType::Type hitType) :
-                PartBase{tool, hitType},
-                m_lasso{nullptr} {}
-            public:
-                ~SelectPartBase() override {
-                    delete m_lasso;
-                }
+                PartBase{tool, hitType} {}
             protected:
                 using PartBase::m_tool;
                 using PartBase::m_hitType;
@@ -135,43 +166,22 @@ namespace TrenchBroom {
                     return m_tool->select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
                 }
 
-                DragInfo doStartDrag(const InputState& inputState) override {
+                std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                         !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No)) {
-                        return DragInfo{};
+                        return nullptr;
                     }
 
                     const auto hits = firstHits(inputState.pickResult());
                     if (!hits.empty()) {
-                        return DragInfo{};
+                        return nullptr;
                     }
 
                     const auto& camera = inputState.camera();
-                    const auto distance = 64.0f;
-                    const auto plane = vm::orthogonal_plane(vm::vec3(camera.defaultPoint(distance)), vm::vec3(camera.direction()));
+                    const auto plane = vm::orthogonal_plane(vm::vec3{camera.defaultPoint(static_cast<float>(LassoDragDelegate::LassoDistance))}, vm::vec3{camera.direction()});
                     const auto initialPoint = vm::point_at_distance(inputState.pickRay(), vm::intersect_ray_plane(inputState.pickRay(), plane));
-
-                    m_lasso = new Lasso(camera, static_cast<FloatType>(distance), initialPoint);
-                    return DragInfo{new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint};
-                }
-
-                DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
-                    ensure(m_lasso != nullptr, "lasso is null");
-                    m_lasso->update(nextHandlePosition);
-                    return DR_Continue;
-                }
-
-                void doEndDrag(const InputState& inputState) override {
-                    ensure(m_lasso != nullptr, "lasso is null");
-                    m_tool->select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
-                    delete m_lasso;
-                    m_lasso = nullptr;
-                }
-
-                void doCancelDrag() override {
-                    ensure(m_lasso != nullptr, "lasso is null");
-                    delete m_lasso;
-                    m_lasso = nullptr;
+                    
+                    return createHandleDragTracker(LassoDragDelegate{*m_tool}, inputState, initialPoint, vm::vec3::zero());
                 }
 
                 bool doCancel() override {
@@ -184,18 +194,14 @@ namespace TrenchBroom {
 
                 void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     m_tool->renderHandles(renderContext, renderBatch);
-                    if (m_lasso != nullptr) {
-                        m_lasso->render(renderContext, renderBatch);
-                    } else {
-                        if (!anyToolDragging(inputState)) {
-                            const auto hit = findDraggableHandle(inputState);
-                            if (hit.hasType(m_hitType)) {
-                                const auto handle = m_tool->getHandlePosition(hit);
-                                m_tool->renderHighlight(renderContext, renderBatch, handle);
+                    if (!anyToolDragging(inputState)) {
+                        const auto hit = findDraggableHandle(inputState);
+                        if (hit.hasType(m_hitType)) {
+                            const auto handle = m_tool->getHandlePosition(hit);
+                            m_tool->renderHighlight(renderContext, renderBatch, handle);
 
-                                if (inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                                    m_tool->renderGuide(renderContext, renderBatch, handle);
-                                }
+                            if (inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
+                                m_tool->renderGuide(renderContext, renderBatch, handle);
                             }
                         }
                     }
