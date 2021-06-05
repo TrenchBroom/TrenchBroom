@@ -54,9 +54,9 @@ namespace TrenchBroom {
             auto handles = m_edgeHandles->selectedHandles();
             if (document->moveEdges(std::move(handles), delta)) {
                 m_dragHandlePosition = translate(m_dragHandlePosition, delta);
-                return MR_Continue;
+                return MoveResult::Continue;
             }
-            return MR_Deny;
+            return MoveResult::Deny;
         }
 
         std::string EdgeTool::actionName() const {

@@ -75,11 +75,11 @@ namespace TrenchBroom {
         template <typename H>
         class VertexToolBase : public Tool {
         public:
-            typedef enum {
-                MR_Continue,
-                MR_Deny,
-                MR_Cancel
-            } MoveResult;
+            enum class MoveResult {
+                Continue,
+                Deny,
+                Cancel
+            };
         protected:
             std::weak_ptr<MapDocument> m_document;
         private:

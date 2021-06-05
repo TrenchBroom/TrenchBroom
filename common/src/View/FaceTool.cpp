@@ -52,9 +52,9 @@ namespace TrenchBroom {
             auto handles = m_faceHandles->selectedHandles();
             if (document->moveFaces(std::move(handles), delta)) {
                 m_dragHandlePosition = m_dragHandlePosition.translate(delta);
-                return MR_Continue;
+                return MoveResult::Continue;
             }
-            return MR_Deny;
+            return MoveResult::Deny;
         }
 
         std::string FaceTool::actionName() const {

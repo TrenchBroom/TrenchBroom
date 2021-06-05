@@ -294,11 +294,11 @@ namespace TrenchBroom {
 
                 DragResult doMove(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                     switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
-                        case T::MR_Continue:
+                        case T::MoveResult::Continue:
                             return DR_Continue;
-                        case T::MR_Deny:
+                        case T::MoveResult::Deny:
                             return DR_Deny;
-                        case T::MR_Cancel:
+                        case T::MoveResult::Cancel:
                             return DR_Cancel;
                         switchDefault()
                     }

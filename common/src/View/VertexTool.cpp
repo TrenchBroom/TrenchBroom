@@ -117,13 +117,13 @@ namespace TrenchBroom {
                 const auto result = document->moveVertices(std::move(handles), delta);
                 if (result.success) {
                     if (!result.hasRemainingVertices) {
-                        return MR_Cancel;
+                        return MoveResult::Cancel;
                     } else {
                         m_dragHandlePosition = m_dragHandlePosition + delta;
-                        return MR_Continue;
+                        return MoveResult::Continue;
                     }
                 } else {
-                    return MR_Deny;
+                    return MoveResult::Deny;
                 }
             } else {
                 std::vector<Model::BrushNode*> brushes;
@@ -149,11 +149,11 @@ namespace TrenchBroom {
                         m_dragHandlePosition = m_dragHandlePosition + delta;
                         m_vertexHandles->select(m_dragHandlePosition);
                     }
-                    return MR_Continue;
+                    return MoveResult::Continue;
                 }
 
                 // Catch all failure cases: no brushes were selected or vertices could not be added:
-                return MR_Deny;
+                return MoveResult::Deny;
             }
         }
 
