@@ -54,11 +54,6 @@ namespace TrenchBroom {
                     ++cur;
                 }
             }
-
-            template <typename H>
-            bool selects(const H& h) const {
-                return selects(h, plane(), box());
-            }
         private:
             bool selects(const vm::vec3& point, const vm::plane3& plane, const vm::bbox2& box) const;
             bool selects(const vm::segment3& edge, const vm::plane3& plane, const vm::bbox2& box) const;
