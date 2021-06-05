@@ -54,6 +54,8 @@ namespace TrenchBroom {
             EdgeHandleManager& handleManager() override;
             const EdgeHandleManager& handleManager() const override;
         public:
+            std::tuple<vm::vec3, vm::vec3> handlePositionAndOffset(const std::vector<Model::Hit>& hits) const override;
+
             MoveResult move(const vm::vec3& delta) override;
 
             std::string actionName() const override;

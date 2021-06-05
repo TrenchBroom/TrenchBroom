@@ -90,31 +90,10 @@ namespace TrenchBroom {
         };
 
         class VertexToolController::MoveVertexPart : public MovePartBase {
-        private:
-            enum class SnapType {
-                Relative,
-                Absolute
-            };
-
-            SnapType m_lastSnapType;
-            vm::vec3 m_handleOffset;
         public:
             explicit MoveVertexPart(VertexTool* tool) :
-            MovePartBase(tool, VertexHandleManager::HandleHitType),
-            m_lastSnapType(SnapType::Relative) {}
+            MovePartBase(tool, VertexHandleManager::HandleHitType) {}
         private:
-            void doModifierKeyChange(const InputState& inputState) override {
-                MoveToolController::doModifierKeyChange(inputState);
-
-                if (Super::thisToolDragging()) {
-                    const SnapType currentSnapType = snapType(inputState);
-                    if (currentSnapType != m_lastSnapType) {
-                        setSnapper(inputState, doCreateDragSnapper(inputState), false);
-                        m_lastSnapType = currentSnapType;
-                    }
-                }
-            }
-
             bool doMouseClick(const InputState& inputState) override {
                 if (inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) &&
@@ -133,17 +112,6 @@ namespace TrenchBroom {
                 return false;
             }
 
-            MoveInfo doStartMove(const InputState& inputState) override {
-                const MoveInfo info = MovePartBase::doStartMove(inputState);
-                if (info.move) {
-                    m_lastSnapType = snapType(inputState);
-                    const Model::Hit hit = findDraggableHandle(inputState);
-                    const vm::vec3 handlePos = m_tool->getHandlePosition(hit);
-                    m_handleOffset = handlePos - hit.hitPoint();
-                }
-                return info;
-            }
-
             bool shouldStartMove(const InputState& inputState) const override {
                 return (inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                         (inputState.modifierKeysPressed(ModifierKeys::MKNone)                            || // horizontal movement
@@ -155,16 +123,6 @@ namespace TrenchBroom {
                          inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd) || // add new vertex and horizontal movement with absolute snap
                          inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt)  // add new vertex and vertical movement with absolute snap
                         ));
-            }
-
-            DragSnapper* doCreateDragSnapper(const InputState& inputState) const override {
-                switch (snapType(inputState)) {
-                    case SnapType::Absolute:
-                        return new AbsoluteDragSnapper(m_tool->grid(), m_handleOffset);
-                    case SnapType::Relative:
-                        return new DeltaDragSnapper(m_tool->grid());
-                    switchDefault();
-                }
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
@@ -180,14 +138,6 @@ namespace TrenchBroom {
                             m_tool->renderHandle(renderContext, renderBatch, handle);
                         m_tool->renderHighlight(renderContext, renderBatch, handle);
                     }
-                }
-            }
-        private:
-            SnapType snapType(const InputState& inputState) const {
-                if (inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd)) {
-                    return SnapType::Absolute;
-                } else {
-                    return SnapType::Relative;
                 }
             }
         private:

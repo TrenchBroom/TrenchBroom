@@ -83,6 +83,21 @@ namespace TrenchBroom {
             return *m_vertexHandles;
         }
 
+        std::tuple<vm::vec3, vm::vec3> VertexTool::handlePositionAndOffset(const std::vector<Model::Hit>& hits) const {
+            assert(!hits.empty());
+
+            const auto& hit = hits.front();
+            assert(hit.hasType(VertexHandleManager::HandleHitType | EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType));
+
+            const auto position = hit.hasType(VertexHandleManager::HandleHitType)
+                ? hit.target<vm::vec3>()
+                : hit.hasType(EdgeHandleManager::HandleHitType)
+                ? std::get<1>(hit.target<EdgeHandleManager::HitType>())
+                : std::get<1>(hit.target<FaceHandleManager::HitType>());
+
+            return {position, hit.hitPoint() - position};
+        }
+
         bool VertexTool::startMove(const std::vector<Model::Hit>& hits) {
             const auto& hit = hits.front();
             if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType)) {
@@ -168,6 +183,10 @@ namespace TrenchBroom {
             m_edgeHandles->deselectAll();
             m_faceHandles->deselectAll();
             m_mode = Mode::Move;
+        }
+
+        bool VertexTool::allowAbsoluteSnapping() const {
+            return true;
         }
 
         vm::vec3 VertexTool::getHandlePosition(const Model::Hit& hit) const {

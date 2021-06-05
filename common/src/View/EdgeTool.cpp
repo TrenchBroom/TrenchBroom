@@ -48,6 +48,16 @@ namespace TrenchBroom {
             return *m_edgeHandles;
         }
 
+        std::tuple<vm::vec3, vm::vec3> EdgeTool::handlePositionAndOffset(const std::vector<Model::Hit>& hits) const {
+            assert(!hits.empty());
+
+            const auto& hit = hits.front();
+            assert(hit.hasType(EdgeHandleManager::HandleHitType));
+
+            const auto position = hit.target<vm::segment3>().center();
+            return {position, hit.hitPoint() - position};
+        }
+
         EdgeTool::MoveResult EdgeTool::move(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
 

@@ -207,6 +207,8 @@ namespace TrenchBroom {
             virtual HandleManager& handleManager() = 0;
             virtual const HandleManager& handleManager() const = 0;
         public: // performing moves
+            virtual std::tuple<vm::vec3, vm::vec3> handlePositionAndOffset(const std::vector<Model::Hit>& hits) const = 0;
+
             virtual bool startMove(const std::vector<Model::Hit>& hits) {
                 assert(!hits.empty());
 
@@ -253,6 +255,10 @@ namespace TrenchBroom {
                 --m_ignoreChangeNotifications;
             }
 
+            virtual bool allowAbsoluteSnapping() const {
+                // override in VertexTool
+                return false;
+            }
         public: // csg convex merge
             bool canDoCsgConvexMerge() {
                 return handleManager().selectedHandleCount() > 1;

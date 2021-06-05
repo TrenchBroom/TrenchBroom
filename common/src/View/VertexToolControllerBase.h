@@ -24,7 +24,7 @@
 #include "Renderer/RenderContext.h"
 #include "View/HandleDragTracker.h"
 #include "View/Lasso.h"
-#include "View/MoveToolController.h"
+#include "View/MoveHandleDragTracker.h"
 #include "View/ToolController.h"
 
 #include <vecmath/intersection.h>
@@ -244,10 +244,53 @@ namespace TrenchBroom {
                 virtual bool equalHandles(const H& lhs, const H& rhs) const = 0;
             };
 
-            class MovePartBase : public MoveToolController<NoPickingPolicy, MousePolicy>, public PartBase {
+
+            class MoveDragDelegate : public MoveHandleDragTrackerDelegate {
+            public:
+                static constexpr auto LassoDistance = 64.0;
+            private:
+                T& m_tool;
+            public:
+                MoveDragDelegate(T& tool) :
+                m_tool{tool} {}
+
+                DragStatus move(const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) override {
+                    switch (m_tool.move(proposedHandlePosition - dragState.currentHandlePosition)) {
+                        case T::MoveResult::Continue:
+                            return DragStatus::Continue;
+                        case T::MoveResult::Deny:
+                            return DragStatus::Deny;
+                        case T::MoveResult::Cancel:
+                            return DragStatus::End;
+                        switchDefault()
+                    }
+                }
+
+                void end(const InputState&, const DragState&) override {
+                    m_tool.endMove();
+                }
+
+                void cancel(const DragState&) override {
+                    m_tool.cancelMove();
+                }
+
+                void render(const InputState&, const DragState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const override {
+                    m_tool.renderDragHandle(renderContext, renderBatch);
+                    m_tool.renderDragHighlight(renderContext, renderBatch);
+                    m_tool.renderDragGuide(renderContext, renderBatch);
+                }
+
+                DragHandleSnapper makeDragHandleSnapper(const InputState&, const SnapMode snapMode) const override {
+                    if (m_tool.allowAbsoluteSnapping()) {
+                        return makeDragHandleSnapperFromSnapMode(m_tool.grid(), snapMode);
+                    }
+                    return makeRelativeHandleSnapper(m_tool.grid());
+                }
+            };
+
+            class MovePartBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public PartBase {
             protected:
                 MovePartBase(T* tool, const Model::HitType::Type hitType) :
-                MoveToolController{tool->grid()},
                 PartBase{tool, hitType} {}
             public:
                 ~MovePartBase() override = default;
@@ -268,21 +311,23 @@ namespace TrenchBroom {
                     return m_tool->deselectAll();
                 }
 
-                MoveInfo doStartMove(const InputState& inputState) override {
+                std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     if (!shouldStartMove(inputState)) {
-                        return MoveInfo{};
+                        return nullptr;
                     }
 
                     const auto hits = findDraggableHandles(inputState);
                     if (hits.empty()) {
-                        return MoveInfo{};
+                        return nullptr;
                     }
 
                     if (!m_tool->startMove(hits)) {
-                        return MoveInfo{};
+                        return nullptr;
                     }
-                    
-                    return MoveInfo{hits.front().hitPoint()};
+
+                    const auto [initialHandlePosition, handleOffset] = m_tool->handlePositionAndOffset(hits);
+
+                    return createMoveHandleDragTracker(MoveDragDelegate{*m_tool}, inputState, initialHandlePosition, handleOffset);
                 }
 
                 // Overridden in vertex tool controller to handle special cases for vertex moving.
@@ -291,42 +336,7 @@ namespace TrenchBroom {
                            && (inputState.modifierKeysPressed(ModifierKeys::MKNone) // horizontal movement
                                || inputState.modifierKeysPressed(ModifierKeys::MKAlt));  // vertical movement
                 }
-
-                DragResult doMove(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
-                    switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
-                        case T::MoveResult::Continue:
-                            return DR_Continue;
-                        case T::MoveResult::Deny:
-                            return DR_Deny;
-                        case T::MoveResult::Cancel:
-                            return DR_Cancel;
-                        switchDefault()
-                    }
-                }
-
-                void doEndMove(const InputState&) override {
-                    m_tool->endMove();
-                }
-
-                void doCancelMove() override {
-                    m_tool->cancelMove();
-                }
-
-                DragSnapper* doCreateDragSnapper(const InputState&) const  override {
-                    return new DeltaDragSnapper{m_tool->grid()};
-                }
-
-                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
-                    MoveToolController::doRender(inputState, renderContext, renderBatch);
-
-                    if (thisToolDragging()) {
-                        m_tool->renderDragHandle(renderContext, renderBatch);
-                        m_tool->renderDragHighlight(renderContext, renderBatch);
-                        m_tool->renderDragGuide(renderContext, renderBatch);
-                    }
-                }
             };
-
         protected:
             T* m_tool;
         protected:

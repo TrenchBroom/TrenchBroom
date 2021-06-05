@@ -76,10 +76,14 @@ namespace TrenchBroom {
             VertexHandleManager& handleManager() override;
             const VertexHandleManager& handleManager() const override;
         public: // Vertex moving
+            std::tuple<vm::vec3, vm::vec3> handlePositionAndOffset(const std::vector<Model::Hit>& hits) const override;
+
             bool startMove(const std::vector<Model::Hit>& hits) override;
             MoveResult move(const vm::vec3& delta) override;
             void endMove() override;
             void cancelMove() override;
+
+            bool allowAbsoluteSnapping() const override;
 
             vm::vec3 getHandlePosition(const Model::Hit& hit) const override;
             std::string actionName() const override;
