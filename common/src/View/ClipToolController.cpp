@@ -45,6 +45,7 @@
 #include <vecmath/intersection.h>
 
 #include <memory>
+#include <optional>
 
 namespace TrenchBroom {
     namespace View {
@@ -62,17 +63,18 @@ namespace TrenchBroom {
                     return m_tool;
                 }
 
-                bool addClipPoint(const InputState& inputState, vm::vec3& position) {
-                    if (!doGetNewClipPointPosition(inputState, position)) {
-                        return false;
+                std::optional<vm::vec3> addClipPoint(const InputState& inputState) {
+                    const auto position = doGetNewClipPointPosition(inputState);
+                    if (!position) {
+                        return std::nullopt;
                     }
 
-                    if (!m_tool->canAddPoint(position)) {
-                        return false;
+                    if (!m_tool->canAddPoint(*position)) {
+                        return std::nullopt;
                     }
 
-                    m_tool->addPoint(position, getHelpVectors(inputState, position));
-                    return true;
+                    m_tool->addPoint(*position, getHelpVectors(inputState, *position));
+                    return position;
                 }
 
                 bool setClipFace(const InputState& inputState) {
@@ -95,19 +97,12 @@ namespace TrenchBroom {
                         return;
                     }
 
-                    vm::vec3 position;
-                    if (!doGetNewClipPointPosition(inputState, position)) {
-                        return;
+                    if (const auto position = doGetNewClipPointPosition(inputState); position && m_tool->canAddPoint(*position)) {
+                        m_tool->renderFeedback(renderContext, renderBatch, *position);
                     }
-
-                    if (!m_tool->canAddPoint(position)) {
-                        return;
-                    }
-
-                    m_tool->renderFeedback(renderContext, renderBatch, position);
                 }
             private:
-                virtual bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const = 0;
+                virtual std::optional<vm::vec3> doGetNewClipPointPosition(const InputState& inputState) const = 0;
             };
 
             class PartDelegate2D : public PartDelegateBase {
@@ -129,7 +124,7 @@ namespace TrenchBroom {
                     return std::vector<vm::vec3>{vm::vec3(inputState.camera().direction())};
                 }
 
-                bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const override {
+                std::optional<vm::vec3> doGetNewClipPointPosition(const InputState& inputState) const override {
                     const auto& camera = inputState.camera();
                     const auto viewDir = vm::get_abs_max_component_axis(vm::vec3(camera.direction()));
 
@@ -137,12 +132,10 @@ namespace TrenchBroom {
                     const auto defaultPos = m_tool->defaultClipPointPos();
                     const auto distance = vm::intersect_ray_plane(pickRay, vm::plane3(defaultPos, viewDir));
                     if (vm::is_nan(distance)) {
-                        return false;
-                    } else {
-                        const auto& grid = m_tool->grid();
-                        position = grid.snap(vm::point_at_distance(pickRay, distance));
-                        return true;
+                        return std::nullopt;
                     }
+
+                    return m_tool->grid().snap(vm::point_at_distance(pickRay, distance));
                 }
             };
 
@@ -240,16 +233,14 @@ namespace TrenchBroom {
                     return selectHelpVectors(faceHandle->node(), faceHandle->face(), clipPoint);
                 }
 
-                bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const override {
+                std::optional<vm::vec3> doGetNewClipPointPosition(const InputState& inputState) const override {
                     using namespace Model::HitFilters;
-                    auto hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+                    const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
                     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                         const Grid& grid = m_tool->grid();
-                        position = grid.snap(hit.hitPoint(), faceHandle->face().boundary());
-                        return true;
-                    } else {
-                        return false;
+                        return grid.snap(hit.hitPoint(), faceHandle->face().boundary());
                     }
+                    return std::nullopt;
                 }
             };
 
@@ -287,8 +278,7 @@ namespace TrenchBroom {
                         return false;
                     }
 
-                    auto temp = vm::vec3{};
-                    return m_delegate->addClipPoint(inputState, temp);
+                    return m_delegate->addClipPoint(inputState) != std::nullopt;
                 }
 
                 bool doMouseDoubleClick(const InputState& inputState) override {
@@ -303,23 +293,22 @@ namespace TrenchBroom {
                     if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                         inputState.modifierKeys() != ModifierKeys::MKNone) {
                         return DragInfo();
-                        }
+                    }
 
-                    auto initialPoint = vm::vec3{};
-                    if (!m_delegate->addClipPoint(inputState, initialPoint)) {
+                    const auto initialPoint = m_delegate->addClipPoint(inputState);
+                    if (!initialPoint) {
                         return DragInfo();
                     }
 
                     m_secondPointSet = false;
-                    DragRestricter* restricter = m_delegate->createDragRestricter(inputState, initialPoint);
+                    DragRestricter* restricter = m_delegate->createDragRestricter(inputState, *initialPoint);
                     DragSnapper* snapper = m_delegate->createDragSnapper(inputState);
-                    return DragInfo(restricter, snapper, initialPoint);
+                    return DragInfo(restricter, snapper, *initialPoint);
                 }
 
                 DragResult doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                     if (!m_secondPointSet) {
-                        auto position = vm::vec3{};
-                        if (m_delegate->addClipPoint(inputState, position)) {
+                        if (m_delegate->addClipPoint(inputState)) {
                             m_delegate->tool()->beginDragLastPoint();
                             m_secondPointSet = true;
                             return DR_Continue;
