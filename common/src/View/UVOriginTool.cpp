@@ -57,9 +57,9 @@ namespace TrenchBroom {
         const float UVOriginTool::OriginHandleRadius =  5.0f;
 
         UVOriginTool::UVOriginTool(UVViewHelper& helper) :
-        ToolControllerBase(),
-        Tool(true),
-        m_helper(helper) {}
+        ToolControllerBase{},
+        Tool{true},
+        m_helper{helper} {}
 
         Tool* UVOriginTool::doGetTool() {
             return this;
@@ -75,14 +75,14 @@ namespace TrenchBroom {
                 computeOriginHandles(xHandle, yHandle);
 
                 const auto fromTex = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-                const auto origin = fromTex * vm::vec3(m_helper.originInFaceCoords());
+                const auto origin = fromTex * vm::vec3{m_helper.originInFaceCoords()};
 
                 const auto& pickRay = inputState.pickRay();
                 const auto oDistance = vm::distance(pickRay, origin);
                 if (oDistance.distance <= static_cast<FloatType>(OriginHandleRadius / m_helper.cameraZoom())) {
                     const auto hitPoint = vm::point_at_distance(pickRay, oDistance.position);
-                    pickResult.addHit(Model::Hit(XHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance));
-                    pickResult.addHit(Model::Hit(YHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance));
+                    pickResult.addHit(Model::Hit{XHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance});
+                    pickResult.addHit(Model::Hit{YHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance});
                 } else {
                     const auto xDistance = vm::distance(pickRay, xHandle);
                     const auto yDistance = vm::distance(pickRay, yHandle);
@@ -93,12 +93,12 @@ namespace TrenchBroom {
                     const auto maxDistance  = MaxPickDistance / static_cast<FloatType>(m_helper.cameraZoom());
                     if (xDistance.distance <= maxDistance) {
                         const auto hitPoint = vm::point_at_distance(pickRay, xDistance.position1);
-                        pickResult.addHit(Model::Hit(XHandleHitType, xDistance.position1, hitPoint, xHandle, xDistance.distance));
+                        pickResult.addHit(Model::Hit{XHandleHitType, xDistance.position1, hitPoint, xHandle, xDistance.distance});
                     }
 
                     if (yDistance.distance <= maxDistance) {
                         const auto hitPoint = vm::point_at_distance(pickRay, yDistance.position1);
-                        pickResult.addHit(Model::Hit(YHandleHitType, yDistance.position1, hitPoint, yHandle, yDistance.distance));
+                        pickResult.addHit(Model::Hit{YHandleHitType, yDistance.position1, hitPoint, yHandle, yDistance.distance});
                     }
                 }
             }
@@ -107,10 +107,10 @@ namespace TrenchBroom {
         void UVOriginTool::computeOriginHandles(vm::line3& xHandle, vm::line3& yHandle) const {
             const auto toWorld = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
-            const auto origin = vm::vec3(m_helper.originInFaceCoords());
+            const auto origin = vm::vec3{m_helper.originInFaceCoords()};
             xHandle.point = yHandle.point = toWorld * origin;
 
-            xHandle.direction = normalize(toWorld * (origin + vm::vec3::pos_y()) - xHandle.point);
+            xHandle.direction = vm::normalize(toWorld * (origin + vm::vec3::pos_y()) - xHandle.point);
             yHandle.direction = (toWorld * (origin + vm::vec3::pos_x()) - yHandle.point);
         }
 
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             const auto hitPoint = vm::point_at_distance(ray, distance);
 
             const auto transform = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-            return vm::vec2f(transform * hitPoint);
+            return vm::vec2f{transform * hitPoint};
         }
 
         vm::vec2f UVOriginTool::snapDelta(const vm::vec2f& delta) const {
@@ -193,30 +193,30 @@ namespace TrenchBroom {
             const auto t2fTransform = w2fTransform * t2wTransform;
 
             const auto newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
-            const auto newOriginInTexCoords  = vm::vec2f(f2tTransform * vm::vec3(newOriginInFaceCoords));
+            const auto newOriginInTexCoords  = vm::vec2f{f2tTransform * vm::vec3{newOriginInFaceCoords}};
 
             // now snap to the vertices
             // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of the vertices
             // instead, we must snap to the edges!
             auto distanceInTexCoords = vm::vec2f::max();
             for (const Model::BrushVertex* vertex : m_helper.face()->vertices()) {
-                distanceInTexCoords = vm::abs_min(distanceInTexCoords, vm::vec2f(w2tTransform * vertex->position()) - newOriginInTexCoords);
+                distanceInTexCoords = vm::abs_min(distanceInTexCoords, vm::vec2f{w2tTransform * vertex->position()} - newOriginInTexCoords);
             }
 
             // and to the texture grid
             const auto* texture = m_helper.face()->texture();
             if (texture != nullptr) {
-                distanceInTexCoords = vm::abs_min(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(vm::vec3(newOriginInTexCoords)));
+                distanceInTexCoords = vm::abs_min(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(vm::vec3{newOriginInTexCoords}));
             }
 
             // finally snap to the face center
-            const auto faceCenter = vm::vec2f(w2tTransform * m_helper.face()->boundsCenter());
+            const auto faceCenter = vm::vec2f{w2tTransform * m_helper.face()->boundsCenter()};
             distanceInTexCoords = vm::abs_min(distanceInTexCoords, faceCenter - newOriginInTexCoords);
 
             // now we have a distance in the scaled and translated texture coordinate system
             // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
             // and take the actual distance
-            const auto distanceInFaceCoords = newOriginInFaceCoords - vm::vec2f(t2fTransform * vm::vec3(newOriginInTexCoords + distanceInTexCoords));
+            const auto distanceInFaceCoords = newOriginInFaceCoords - vm::vec2f{t2fTransform * vm::vec3{newOriginInTexCoords + distanceInTexCoords}};
             return m_helper.snapDelta(delta, -distanceInFaceCoords);
         }
 
@@ -224,15 +224,16 @@ namespace TrenchBroom {
         void UVOriginTool::doCancelMouseDrag() {}
 
         void UVOriginTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (!m_helper.valid())
+            if (!m_helper.valid()) {
                 return;
+            }
 
             renderLineHandles(inputState, renderContext, renderBatch);
             renderOriginHandle(inputState, renderContext, renderBatch);
         }
 
         void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-            Renderer::DirectEdgeRenderer edgeRenderer(Renderer::VertexArray::move(getHandleVertices(inputState)), Renderer::PrimType::Lines);
+            auto edgeRenderer = Renderer::DirectEdgeRenderer{Renderer::VertexArray::move(getHandleVertices(inputState)), Renderer::PrimType::Lines};
             edgeRenderer.renderOnTop(renderBatch, 0.25f);
         }
 
@@ -245,17 +246,17 @@ namespace TrenchBroom {
             const bool highlightXHandle = (thisToolDragging() && m_selector.x() > 0.0f) || (!thisToolDragging() && xHandleHit.isMatch());
             const bool highlightYHandle = (thisToolDragging() && m_selector.y() > 0.0f) || (!thisToolDragging() && yHandleHit.isMatch());
 
-            const Color xColor = highlightXHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
-            const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
+            const auto xColor = highlightXHandle ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
+            const auto yColor = highlightYHandle ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
 
             vm::vec3 x1, x2, y1, y2;
             m_helper.computeOriginHandleVertices(x1, x2, y1, y2);
 
             return {
-                EdgeVertex(vm::vec3f(x1), xColor),
-                EdgeVertex(vm::vec3f(x2), xColor),
-                EdgeVertex(vm::vec3f(y1), yColor),
-                EdgeVertex(vm::vec3f(y2), yColor)
+                EdgeVertex{vm::vec3f{x1}, xColor},
+                EdgeVertex{vm::vec3f{x2}, xColor},
+                EdgeVertex{vm::vec3f{y1}, yColor},
+                EdgeVertex{vm::vec3f{y2}, yColor}
             };
         }
 
@@ -266,13 +267,13 @@ namespace TrenchBroom {
             Renderer::Circle m_originHandle;
         public:
             RenderOrigin(const UVViewHelper& helper, const float originRadius, const bool highlight) :
-            m_helper(helper),
-            m_highlight(highlight),
-            m_originHandle(makeCircle(m_helper, originRadius, 16, true)) {}
+            m_helper{helper},
+            m_highlight{highlight},
+            m_originHandle{makeCircle(m_helper, originRadius, 16, true)} {}
         private:
             static Renderer::Circle makeCircle(const UVViewHelper& helper, const float radius, const size_t segments, const bool fill) {
                 const float zoom = helper.cameraZoom();
-                return Renderer::Circle(radius / zoom, segments, fill);
+                return Renderer::Circle{radius / zoom, segments, fill};
             }
         private:
             void doPrepareVertices(Renderer::VboManager& vboManager) override {
@@ -284,18 +285,18 @@ namespace TrenchBroom {
 
                 const auto& boundary = m_helper.face()->boundary();
                 const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
-                const auto [invertible, fromPlane] = invert(toPlane);
-                const auto originPosition(toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords()));
+                const auto [invertible, fromPlane] = vm::invert(toPlane);
+                const auto originPosition(toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()});
                 assert(invertible); unused(invertible);
 
                 const auto& handleColor = pref(Preferences::HandleColor);
                 const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
-                const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), vm::mat4x4f(fromPlane));
-                const auto translation = vm::translation_matrix(vm::vec3(originPosition));
-                const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
+                const auto toWorldTransform = Renderer::MultiplyModelMatrix{renderContext.transformation(), vm::mat4x4f{fromPlane}};
+                const auto translation = vm::translation_matrix(vm::vec3{originPosition});
+                const auto centerTransform = Renderer::MultiplyModelMatrix{renderContext.transformation(), vm::mat4x4f{translation}};
 
-                Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
+                auto shader = Renderer::ActiveShader{renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
                 shader.set("Color", m_highlight ? highlightColor : handleColor);
                 m_originHandle.render();
             }
@@ -303,7 +304,7 @@ namespace TrenchBroom {
 
         void UVOriginTool::renderOriginHandle(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             const auto highlight = renderHighlight(inputState);
-            renderBatch.addOneShot(new RenderOrigin(m_helper, OriginHandleRadius, highlight));
+            renderBatch.addOneShot(new RenderOrigin{m_helper, OriginHandleRadius, highlight});
         }
 
         bool UVOriginTool::renderHighlight(const InputState& inputState) const {
