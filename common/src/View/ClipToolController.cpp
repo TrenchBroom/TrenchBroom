@@ -363,14 +363,14 @@ namespace TrenchBroom {
                         return DragInfo();
                     }
 
-                    auto initialPoint = vm::vec3{};
-                    if (!m_delegate->tool()->beginDragPoint(inputState.pickResult(), initialPoint)) {
+                    const auto initialPoint = m_delegate->tool()->beginDragPoint(inputState.pickResult());
+                    if (!initialPoint) {
                         return DragInfo();
                     }
 
-                    DragRestricter* restricter = m_delegate->createDragRestricter(inputState, initialPoint);
+                    DragRestricter* restricter = m_delegate->createDragRestricter(inputState, *initialPoint);
                     DragSnapper* snapper = m_delegate->createDragSnapper(inputState);
-                    return DragInfo(restricter, snapper, initialPoint);
+                    return DragInfo(restricter, snapper, *initialPoint);
                 }
 
                 DragResult doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {

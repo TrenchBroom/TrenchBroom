@@ -101,8 +101,8 @@ namespace TrenchBroom {
             doRemoveLastPoint();
         }
 
-        bool ClipTool::ClipStrategy::canDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const {
-            return doCanDragPoint(pickResult, initialPosition);
+        std::optional<vm::vec3> ClipTool::ClipStrategy::canDragPoint(const Model::PickResult& pickResult) const {
+            return doCanDragPoint(pickResult);
         }
 
         void ClipTool::ClipStrategy::beginDragPoint(const Model::PickResult& pickResult) {
@@ -274,16 +274,16 @@ namespace TrenchBroom {
                 --m_numPoints;
             }
 
-            bool doCanDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const override {
+            std::optional<vm::vec3> doCanDragPoint(const Model::PickResult& pickResult) const override {
                 using namespace Model::HitFilters;
+
                 const auto& hit = pickResult.first(type(PointHitType));
                 if (!hit.isMatch()) {
-                    return false;
-                } else {
-                    const auto index = hit.target<size_t>();
-                    initialPosition = m_points[index].point;
-                    return true;
+                    return std::nullopt;
                 }
+
+                const auto index = hit.target<size_t>();
+                return m_points[index].point;
             }
 
             void doBeginDragPoint(const Model::PickResult& pickResult) override {
@@ -466,7 +466,7 @@ namespace TrenchBroom {
             bool doCanRemoveLastPoint() const override { return false; }
             void doRemoveLastPoint() override {}
 
-            bool doCanDragPoint(const Model::PickResult&, vm::vec3& /* initialPosition */) const override { return false; }
+            std::optional<vm::vec3> doCanDragPoint(const Model::PickResult&) const override { return std::nullopt; }
             void doBeginDragPoint(const Model::PickResult&) override {}
             void doBeginDragLastPoint() override {}
             bool doDragPoint(const vm::vec3& /* newPosition */, const std::vector<vm::vec3>& /* helpVectors */) override { return false; }
@@ -664,17 +664,20 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ClipTool::beginDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) {
+        std::optional<vm::vec3> ClipTool::beginDragPoint(const Model::PickResult& pickResult) {
             assert(!m_dragging);
             if (m_strategy == nullptr) {
-                return false;
-            } else if (!m_strategy->canDragPoint(pickResult, initialPosition)) {
-                return false;
-            } else {
-                m_strategy->beginDragPoint(pickResult);
-                m_dragging = true;
-                return true;
+                return std::nullopt;
             }
+            
+            const auto point = m_strategy->canDragPoint(pickResult);
+            if (!point) {
+                return std::nullopt;
+            }
+
+            m_strategy->beginDragPoint(pickResult);
+            m_dragging = true;
+            return point;
         }
 
         void ClipTool::beginDragLastPoint() {
