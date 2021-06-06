@@ -40,10 +40,10 @@
 namespace TrenchBroom {
     namespace View {
         UVOffsetTool::UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper) :
-        ToolControllerBase(),
-        Tool(true),
-        m_document(std::move(document)),
-        m_helper(helper) {}
+        ToolControllerBase{},
+        Tool{true},
+        m_document{std::move(document)},
+        m_helper{helper} {}
 
         Tool* UVOffsetTool::doGetTool() {
             return this;
@@ -75,13 +75,13 @@ namespace TrenchBroom {
             const auto delta    = curPoint - m_lastPoint;
             const auto snapped  = snapDelta(delta);
 
-            const auto corrected = correct(m_helper.face()->attributes().offset() - snapped, 4, 0.0f);
+            const auto corrected = vm::correct(m_helper.face()->attributes().offset() - snapped, 4, 0.0f);
 
             if (corrected == m_helper.face()->attributes().offset()) {
                 return true;
             }
 
-            Model::ChangeBrushFaceAttributesRequest request;
+            auto request = Model::ChangeBrushFaceAttributesRequest{};
             request.setOffset(corrected);
 
             auto document = kdl::mem_lock(m_document);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             const auto hitPoint = vm::point_at_distance(ray, distance);
 
             const auto transform = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), m_helper.face()->attributes().scale(), true);
-            return vm::vec2f(transform * hitPoint);
+            return vm::vec2f{transform * hitPoint};
         }
 
         vm::vec2f UVOffsetTool::snapDelta(const vm::vec2f& delta) const {
@@ -115,7 +115,7 @@ namespace TrenchBroom {
 
             const auto* texture = m_helper.texture();
             if (texture == nullptr) {
-                return round(delta);
+                return vm::round(delta);
             }
 
             const auto transform = m_helper.face()->toTexCoordSystemMatrix(m_helper.face()->attributes().offset() - delta, m_helper.face()->attributes().scale(), true);
