@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 bool canRemoveLastPoint() const;
                 void removeLastPoint();
 
-                std::optional<vm::vec3> canDragPoint(const Model::PickResult& pickResult) const;
+                std::optional<std::tuple<vm::vec3, vm::vec3>> canDragPoint(const Model::PickResult& pickResult) const;
                 void beginDragPoint(const Model::PickResult& pickResult);
                 void beginDragLastPoint();
                 bool dragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors);
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                 virtual bool doCanRemoveLastPoint() const = 0;
                 virtual void doRemoveLastPoint() = 0;
 
-                virtual std::optional<vm::vec3> doCanDragPoint(const Model::PickResult& pickResult) const = 0;
+                virtual std::optional<std::tuple<vm::vec3, vm::vec3>> doCanDragPoint(const Model::PickResult& pickResult) const = 0;
                 virtual void doBeginDragPoint(const Model::PickResult& pickResult) = 0;
                 virtual void doBeginDragLastPoint() = 0;
                 virtual bool doDragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) = 0;
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             bool canRemoveLastPoint() const;
             bool removeLastPoint();
 
-            std::optional<vm::vec3> beginDragPoint(const Model::PickResult& pickResult);
+            std::optional<std::tuple<vm::vec3, vm::vec3>> beginDragPoint(const Model::PickResult& pickResult);
             void beginDragLastPoint();
             bool dragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors);
             void endDragPoint();

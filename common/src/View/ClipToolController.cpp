@@ -35,6 +35,7 @@
 #include "Renderer/RenderContext.h"
 #include "View/ClipTool.h"
 #include "View/Grid.h"
+#include "View/HandleDragTracker.h"
 #include "View/MapDocument.h"
 
 #include <kdl/vector_utils.h>
@@ -63,18 +64,19 @@ namespace TrenchBroom {
                     return m_tool;
                 }
 
-                std::optional<vm::vec3> addClipPoint(const InputState& inputState) {
-                    const auto position = doGetNewClipPointPosition(inputState);
-                    if (!position) {
+                std::optional<std::tuple<vm::vec3, vm::vec3>> addClipPoint(const InputState& inputState) {
+                    const auto positionAndOffset = doGetNewClipPointPositionAndOffset(inputState);
+                    if (!positionAndOffset) {
                         return std::nullopt;
                     }
 
-                    if (!m_tool->canAddPoint(*position)) {
+                    const auto position = std::get<0>(*positionAndOffset);
+                    if (!m_tool->canAddPoint(position)) {
                         return std::nullopt;
                     }
 
-                    m_tool->addPoint(*position, getHelpVectors(inputState, *position));
-                    return position;
+                    m_tool->addPoint(position, getHelpVectors(inputState, position));
+                    return positionAndOffset;
                 }
 
                 bool setClipFace(const InputState& inputState) {
@@ -88,8 +90,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                virtual DragRestricter* createDragRestricter(const InputState& inputState, const vm::vec3& initialPoint) const = 0;
-                virtual DragSnapper* createDragSnapper(const InputState& inputState) const = 0;
+                virtual HandlePositionProposer makeHandlePositionProposer(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) const = 0;
                 virtual std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& clipPoint) const = 0;
 
                 void renderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -97,12 +98,18 @@ namespace TrenchBroom {
                         return;
                     }
 
-                    if (const auto position = doGetNewClipPointPosition(inputState); position && m_tool->canAddPoint(*position)) {
-                        m_tool->renderFeedback(renderContext, renderBatch, *position);
+                    const auto positionAndOffset = doGetNewClipPointPositionAndOffset(inputState);
+                    if (!positionAndOffset) {
+                        return;
+                    }
+
+                    const auto position = std::get<0>(*positionAndOffset);
+                    if (m_tool->canAddPoint(position)) {
+                        m_tool->renderFeedback(renderContext, renderBatch, position);
                     }
                 }
             private:
-                virtual std::optional<vm::vec3> doGetNewClipPointPosition(const InputState& inputState) const = 0;
+                virtual std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndOffset(const InputState& inputState) const = 0;
             };
 
             class PartDelegate2D : public PartDelegateBase {
@@ -110,21 +117,17 @@ namespace TrenchBroom {
                 explicit PartDelegate2D(ClipTool* tool) :
                 PartDelegateBase{tool} {}
 
-                DragRestricter* createDragRestricter(const InputState& inputState, const vm::vec3& initialPoint) const override {
-                    const auto& camera = inputState.camera();
-                    const auto camDir = vm::vec3(camera.direction());
-                    return new PlaneDragRestricter(vm::plane3(initialPoint, vm::get_abs_max_component_axis(camDir)));
-                }
-
-                DragSnapper* createDragSnapper(const InputState&) const override {
-                    return new AbsoluteDragSnapper(m_tool->grid());
+                HandlePositionProposer makeHandlePositionProposer(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) const override {
+                    return View::makeHandlePositionProposer(
+                        makePlaneHandlePicker(vm::plane3{initialHandlePosition, vm::vec3{inputState.camera().direction()}}, handleOffset),
+                        makeAbsoluteHandleSnapper(m_tool->grid()));
                 }
 
                 std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& /* clipPoint */) const override {
                     return std::vector<vm::vec3>{vm::vec3(inputState.camera().direction())};
                 }
 
-                std::optional<vm::vec3> doGetNewClipPointPosition(const InputState& inputState) const override {
+                std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndOffset(const InputState& inputState) const override {
                     const auto& camera = inputState.camera();
                     const auto viewDir = vm::get_abs_max_component_axis(vm::vec3(camera.direction()));
 
@@ -135,7 +138,9 @@ namespace TrenchBroom {
                         return std::nullopt;
                     }
 
-                    return m_tool->grid().snap(vm::point_at_distance(pickRay, distance));
+                    const auto hitPoint = vm::point_at_distance(pickRay, distance);
+                    const auto position = m_tool->grid().snap(hitPoint);
+                    return {{position, hitPoint - position}};
                 }
             };
 
@@ -200,25 +205,8 @@ namespace TrenchBroom {
                 explicit PartDelegate3D(ClipTool* tool) :
                 PartDelegateBase{tool} {}
 
-                DragRestricter* createDragRestricter(const InputState&, const vm::vec3& /* initialPoint */) const override {
-                    using namespace Model::HitFilters;
-                    return new SurfaceDragRestricter{type(Model::BrushNode::BrushHitType)};
-                }
-
-                class ClipPointSnapper : public SurfaceDragSnapper {
-                public:
-                    using SurfaceDragSnapper::SurfaceDragSnapper;
-                private:
-                    vm::plane3 doGetPlane(const InputState&, const Model::Hit& hit) const override {
-                        const auto faceHandle = Model::hitToFaceHandle(hit);
-                        ensure(faceHandle, "invalid hit type");
-                        return faceHandle->face().boundary();
-                    }
-                };
-
-                DragSnapper* createDragSnapper(const InputState&) const override {
-                    using namespace Model::HitFilters;
-                    return new ClipPointSnapper{type(Model::BrushNode::BrushHitType), m_tool->grid()};
+                HandlePositionProposer makeHandlePositionProposer(const InputState&, const vm::vec3& /* initialHandlePosition */, const vm::vec3& /* handleOffset */) const override {
+                    return makeBrushFaceHandleProposer(m_tool->grid());
                 }
 
                 std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& clipPoint) const override {
@@ -233,12 +221,13 @@ namespace TrenchBroom {
                     return selectHelpVectors(faceHandle->node(), faceHandle->face(), clipPoint);
                 }
 
-                std::optional<vm::vec3> doGetNewClipPointPosition(const InputState& inputState) const override {
+                std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndOffset(const InputState& inputState) const override {
                     using namespace Model::HitFilters;
                     const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
                     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                         const Grid& grid = m_tool->grid();
-                        return grid.snap(hit.hitPoint(), faceHandle->face().boundary());
+                        const auto position = grid.snap(hit.hitPoint(), faceHandle->face().boundary());
+                        return {{position, hit.hitPoint() - position}};
                     }
                     return std::nullopt;
                 }
@@ -256,13 +245,52 @@ namespace TrenchBroom {
                 virtual ~PartBase() = default;
             };
 
-            class AddClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, protected PartBase {
+            class AddClipPointDragDelegate : public HandleDragTrackerDelegate {
             private:
-                bool m_secondPointSet;
+                PartDelegateBase& m_delegate;
+                bool m_secondPointSet{false};
+            public:
+                AddClipPointDragDelegate(PartDelegateBase& delegate) :
+                m_delegate{delegate} {}
+
+                HandlePositionProposer start(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) override {
+                    return m_delegate.makeHandlePositionProposer(inputState, initialHandlePosition, handleOffset);
+                }
+
+                DragStatus drag(const InputState& inputState, const DragState&, const vm::vec3& proposedHandlePosition) override {
+                    if (!m_secondPointSet) {
+                        if (m_delegate.addClipPoint(inputState)) {
+                            m_delegate.tool()->beginDragLastPoint();
+                            m_secondPointSet = true;
+                            return DragStatus::Continue;
+                        }
+                    } else {
+                        if (m_delegate.tool()->dragPoint(proposedHandlePosition, m_delegate.getHelpVectors(inputState, proposedHandlePosition))) {
+                            return DragStatus::Continue;
+                        }
+                    }
+                    return DragStatus::Deny;
+                }
+
+                void end(const InputState&, const DragState&) override {
+                    if (m_secondPointSet) {
+                        m_delegate.tool()->endDragPoint();
+                    }
+                }
+
+                void cancel(const DragState&) override {
+                    if (m_secondPointSet) {
+                        m_delegate.tool()->cancelDragPoint();
+                        m_delegate.tool()->removeLastPoint();
+                    }
+                    m_delegate.tool()->removeLastPoint();
+                }
+            };
+
+            class AddClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, protected PartBase {
             public:
                 explicit AddClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
-                PartBase{std::move(delegate)},
-                m_secondPointSet{false} {}
+                PartBase{std::move(delegate)} {}
             private:
                 Tool* doGetTool() override {
                     return m_delegate->tool();
@@ -289,50 +317,20 @@ namespace TrenchBroom {
                     return m_delegate->setClipFace(inputState);
                 }
 
-                DragInfo doStartDrag(const InputState& inputState) override {
+
+                std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                         inputState.modifierKeys() != ModifierKeys::MKNone) {
-                        return DragInfo();
+                        return nullptr;
                     }
 
-                    const auto initialPoint = m_delegate->addClipPoint(inputState);
-                    if (!initialPoint) {
-                        return DragInfo();
+                    const auto initialHandlePositionAndOffset = m_delegate->addClipPoint(inputState);
+                    if (!initialHandlePositionAndOffset) {
+                        return nullptr;
                     }
 
-                    m_secondPointSet = false;
-                    DragRestricter* restricter = m_delegate->createDragRestricter(inputState, *initialPoint);
-                    DragSnapper* snapper = m_delegate->createDragSnapper(inputState);
-                    return DragInfo(restricter, snapper, *initialPoint);
-                }
-
-                DragResult doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
-                    if (!m_secondPointSet) {
-                        if (m_delegate->addClipPoint(inputState)) {
-                            m_delegate->tool()->beginDragLastPoint();
-                            m_secondPointSet = true;
-                            return DR_Continue;
-                        }
-                    } else {
-                        if (m_delegate->tool()->dragPoint(nextHandlePosition, m_delegate->getHelpVectors(inputState, nextHandlePosition))) {
-                            return DR_Continue;
-                        }
-                    }
-                    return DR_Deny;
-                }
-
-                void doEndDrag(const InputState&) override {
-                    if (m_secondPointSet) {
-                        m_delegate->tool()->endDragPoint();
-                    }
-                }
-
-                void doCancelDrag() override {
-                    if (m_secondPointSet) {
-                        m_delegate->tool()->cancelDragPoint();
-                        m_delegate->tool()->removeLastPoint();
-                    }
-                    m_delegate->tool()->removeLastPoint();
+                    const auto [initialHandlePosition, handleOffset] = *initialHandlePositionAndOffset;
+                    return createHandleDragTracker(AddClipPointDragDelegate{*m_delegate}, inputState, initialHandlePosition, handleOffset);
                 }
 
                 void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
@@ -344,7 +342,35 @@ namespace TrenchBroom {
                 }
             };
 
-            class MoveClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy>, protected PartBase {
+            class MoveClipPointDragDelegate : public HandleDragTrackerDelegate {
+            private:
+                PartDelegateBase& m_delegate;
+            public:
+                MoveClipPointDragDelegate(PartDelegateBase& delegate) :
+                m_delegate{delegate} {}
+
+                HandlePositionProposer start(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) override {
+                    return m_delegate.makeHandlePositionProposer(inputState, initialHandlePosition, handleOffset);
+                }
+
+                DragStatus drag(const InputState& inputState, const DragState&, const vm::vec3& proposedHandlePosition) override {
+                    if (m_delegate.tool()->dragPoint(proposedHandlePosition, m_delegate.getHelpVectors(inputState, proposedHandlePosition))) {
+                        return DragStatus::Continue;
+                    } else {
+                        return DragStatus::Deny;
+                    }
+                }
+
+                void end(const InputState&, const DragState&) override {
+                    m_delegate.tool()->endDragPoint();
+                }
+
+                void cancel(const DragState&) override {
+                    m_delegate.tool()->cancelDragPoint();
+                }
+            };
+
+            class MoveClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, protected PartBase {
             public:
                 explicit MoveClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
                 PartBase{std::move(delegate)} {}
@@ -357,36 +383,20 @@ namespace TrenchBroom {
                     return m_delegate->tool();
                 }
 
-                DragInfo doStartDrag(const InputState& inputState) override {
+
+                std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                         inputState.modifierKeys() != ModifierKeys::MKNone) {
-                        return DragInfo();
+                        return nullptr;
                     }
 
-                    const auto initialPoint = m_delegate->tool()->beginDragPoint(inputState.pickResult());
-                    if (!initialPoint) {
-                        return DragInfo();
+                    const auto initialHandlePositionAndOffset = m_delegate->tool()->beginDragPoint(inputState.pickResult());
+                    if (!initialHandlePositionAndOffset) {
+                        return nullptr;
                     }
 
-                    DragRestricter* restricter = m_delegate->createDragRestricter(inputState, *initialPoint);
-                    DragSnapper* snapper = m_delegate->createDragSnapper(inputState);
-                    return DragInfo(restricter, snapper, *initialPoint);
-                }
-
-                DragResult doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
-                    if (m_delegate->tool()->dragPoint(nextHandlePosition, m_delegate->getHelpVectors(inputState, nextHandlePosition))) {
-                        return DR_Continue;
-                    } else {
-                        return DR_Deny;
-                    }
-                }
-
-                void doEndDrag(const InputState&) override {
-                    m_delegate->tool()->endDragPoint();
-                }
-        
-                void doCancelDrag() override {
-                    m_delegate->tool()->cancelDragPoint();
+                    const auto [initialHandlePosition, handleOffset] = *initialHandlePositionAndOffset;
+                    return createHandleDragTracker(MoveClipPointDragDelegate{*m_delegate}, inputState, initialHandlePosition, handleOffset);
                 }
 
                 bool doCancel() override {

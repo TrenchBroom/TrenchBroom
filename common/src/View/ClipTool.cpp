@@ -101,7 +101,7 @@ namespace TrenchBroom {
             doRemoveLastPoint();
         }
 
-        std::optional<vm::vec3> ClipTool::ClipStrategy::canDragPoint(const Model::PickResult& pickResult) const {
+        std::optional<std::tuple<vm::vec3, vm::vec3>> ClipTool::ClipStrategy::canDragPoint(const Model::PickResult& pickResult) const {
             return doCanDragPoint(pickResult);
         }
 
@@ -274,7 +274,7 @@ namespace TrenchBroom {
                 --m_numPoints;
             }
 
-            std::optional<vm::vec3> doCanDragPoint(const Model::PickResult& pickResult) const override {
+            std::optional<std::tuple<vm::vec3, vm::vec3>> doCanDragPoint(const Model::PickResult& pickResult) const override {
                 using namespace Model::HitFilters;
 
                 const auto& hit = pickResult.first(type(PointHitType));
@@ -283,7 +283,8 @@ namespace TrenchBroom {
                 }
 
                 const auto index = hit.target<size_t>();
-                return m_points[index].point;
+                const auto position = m_points[index].point;
+                return {{position, hit.hitPoint() - position}};
             }
 
             void doBeginDragPoint(const Model::PickResult& pickResult) override {
@@ -466,7 +467,7 @@ namespace TrenchBroom {
             bool doCanRemoveLastPoint() const override { return false; }
             void doRemoveLastPoint() override {}
 
-            std::optional<vm::vec3> doCanDragPoint(const Model::PickResult&) const override { return std::nullopt; }
+            std::optional<std::tuple<vm::vec3, vm::vec3>> doCanDragPoint(const Model::PickResult&) const override { return std::nullopt; }
             void doBeginDragPoint(const Model::PickResult&) override {}
             void doBeginDragLastPoint() override {}
             bool doDragPoint(const vm::vec3& /* newPosition */, const std::vector<vm::vec3>& /* helpVectors */) override { return false; }
@@ -664,20 +665,20 @@ namespace TrenchBroom {
             return false;
         }
 
-        std::optional<vm::vec3> ClipTool::beginDragPoint(const Model::PickResult& pickResult) {
+        std::optional<std::tuple<vm::vec3, vm::vec3>> ClipTool::beginDragPoint(const Model::PickResult& pickResult) {
             assert(!m_dragging);
             if (m_strategy == nullptr) {
                 return std::nullopt;
             }
             
-            const auto point = m_strategy->canDragPoint(pickResult);
-            if (!point) {
+            const auto pointAndOffset = m_strategy->canDragPoint(pickResult);
+            if (!pointAndOffset) {
                 return std::nullopt;
             }
 
             m_strategy->beginDragPoint(pickResult);
             m_dragging = true;
-            return point;
+            return pointAndOffset;
         }
 
         void ClipTool::beginDragLastPoint() {
