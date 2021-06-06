@@ -24,6 +24,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Polyhedron.h"
+#include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/UVView.h"
@@ -81,52 +82,61 @@ namespace TrenchBroom {
             return helper.snapDelta(delta, -distance);
         }
 
-        bool UVOffsetTool::doStartMouseDrag(const InputState& inputState) {
+        namespace {
+            class UVOffsetDragTracker : public DragTracker {
+            private:
+                MapDocument& m_document;
+                const UVViewHelper& m_helper;
+                vm::vec2f m_lastPoint;
+            public:
+                UVOffsetDragTracker(MapDocument& document, const UVViewHelper& helper, const InputState& inputState) :
+                m_document{document},
+                m_helper{helper},
+                m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())} {
+                    m_document.startTransaction("Move Texture");
+                }
+
+                bool drag(const InputState& inputState) {
+                    assert(m_helper.valid());
+
+                    const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
+                    const auto delta    = curPoint - m_lastPoint;
+                    const auto snapped  = snapDelta(m_helper, delta);
+
+                    const auto corrected = vm::correct(m_helper.face()->attributes().offset() - snapped, 4, 0.0f);
+
+                    if (corrected == m_helper.face()->attributes().offset()) {
+                        return true;
+                    }
+
+                    auto request = Model::ChangeBrushFaceAttributesRequest{};
+                    request.setOffset(corrected);
+
+                    m_document.setFaceAttributes(request);
+
+                    m_lastPoint = m_lastPoint + snapped;
+                    return true;
+                }
+
+                void end(const InputState&) {
+                    m_document.commitTransaction();
+                }
+
+                void cancel() {
+                    m_document.cancelTransaction();
+                }
+            };
+        }
+
+        std::unique_ptr<DragTracker> UVOffsetTool::acceptMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                return false;
+                return nullptr;
             }
 
-            m_lastPoint = computeHitPoint(m_helper, inputState.pickRay());
-
-            auto document = kdl::mem_lock(m_document);
-            document->startTransaction("Move Texture");
-            return true;
-        }
-
-        bool UVOffsetTool::doMouseDrag(const InputState& inputState) {
-            assert(m_helper.valid());
-
-            const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
-            const auto delta    = curPoint - m_lastPoint;
-            const auto snapped  = snapDelta(m_helper, delta);
-
-            const auto corrected = vm::correct(m_helper.face()->attributes().offset() - snapped, 4, 0.0f);
-
-            if (corrected == m_helper.face()->attributes().offset()) {
-                return true;
-            }
-
-            auto request = Model::ChangeBrushFaceAttributesRequest{};
-            request.setOffset(corrected);
-
-            auto document = kdl::mem_lock(m_document);
-            document->setFaceAttributes(request);
-
-            m_lastPoint = m_lastPoint + snapped;
-            return true;
-        }
-
-        void UVOffsetTool::doEndMouseDrag(const InputState&) {
-            auto document = kdl::mem_lock(m_document);
-            document->commitTransaction();
-        }
-
-        void UVOffsetTool::doCancelMouseDrag() {
-            auto document = kdl::mem_lock(m_document);
-            document->cancelTransaction();
+            return std::make_unique<UVOffsetDragTracker>(*kdl::mem_lock(m_document), m_helper, inputState);
         }
 
         bool UVOffsetTool::doCancel() {
