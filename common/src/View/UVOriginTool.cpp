@@ -37,6 +37,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
+#include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
@@ -114,6 +115,18 @@ namespace TrenchBroom {
             }
         }
 
+        static vm::vec2f getSelector(const InputState& inputState) {
+            using namespace Model::HitFilters;
+
+            const auto& xHandleHit = inputState.pickResult().first(type(UVOriginTool::XHandleHitType));
+            const auto& yHandleHit = inputState.pickResult().first(type(UVOriginTool::YHandleHitType));
+
+            return vm::vec2f{
+                xHandleHit.isMatch() ? 1.0f : 0.0f,
+                yHandleHit.isMatch() ? 1.0f : 0.0f
+            };
+        }
+
         static vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray) {
             const auto& boundary = helper.face()->boundary();
             const auto distance = vm::intersect_ray_plane(ray, boundary);
@@ -171,71 +184,11 @@ namespace TrenchBroom {
             return helper.snapDelta(delta, -distanceInFaceCoords);
         }
 
-        bool UVOriginTool::doStartMouseDrag(const InputState& inputState) {
-            using namespace Model::HitFilters;
-
-            assert(m_helper.valid());
-
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                return false;
-            }
-
-            const auto& xHandleHit = inputState.pickResult().first(type(XHandleHitType));
-            const auto& yHandleHit = inputState.pickResult().first(type(YHandleHitType));
-
-            if (!xHandleHit.isMatch() && !yHandleHit.isMatch()) {
-                return false;
-            }
-
-            if (xHandleHit.isMatch()) {
-                m_selector[0] = 1.0f;
-            } else {
-                m_selector[0] = 0.0f;
-            }
-
-            if (yHandleHit.isMatch()) {
-                m_selector[1] = 1.0f;
-            } else {
-                m_selector[1] = 0.0f;
-            }
-
-            m_lastPoint = computeHitPoint(m_helper, inputState.pickRay());
-            return true;
-        }
-
-        bool UVOriginTool::doMouseDrag(const InputState& inputState) {
-            const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
-
-            const auto delta = curPoint - m_lastPoint;
-
-            const auto snapped = snapDelta(m_helper, delta * m_selector);
-            if (vm::is_zero(snapped, vm::Cf::almost_zero())) {
-                return true;
-            } else {
-                m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
-                m_lastPoint = m_lastPoint + snapped;
-
-                return true;
-            }
-        }
-
-        void UVOriginTool::doEndMouseDrag(const InputState&) {}
-        void UVOriginTool::doCancelMouseDrag() {}
-
         using EdgeVertex = Renderer::GLVertexTypes::P3C4::Vertex;
 
-        static std::vector<EdgeVertex> getHandleVertices(const InputState& inputState, const UVViewHelper& helper, const bool dragInProgress, const vm::vec2f& selector) {
-            using namespace Model::HitFilters;
-
-            const Model::Hit& xHandleHit = inputState.pickResult().first(type(UVOriginTool::XHandleHitType));
-            const Model::Hit& yHandleHit = inputState.pickResult().first(type(UVOriginTool::YHandleHitType));
-
-            const bool highlightXHandle = (dragInProgress && selector.x() > 0.0f) || (!dragInProgress && xHandleHit.isMatch());
-            const bool highlightYHandle = (dragInProgress && selector.y() > 0.0f) || (!dragInProgress && yHandleHit.isMatch());
-
-            const auto xColor = highlightXHandle ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
-            const auto yColor = highlightYHandle ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
+        static std::vector<EdgeVertex> getHandleVertices(const UVViewHelper& helper, const vm::vec2b& highlightHandle) {
+            const auto xColor = highlightHandle.x() ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
+            const auto yColor = highlightHandle.y() ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
 
             vm::vec3 x1, x2, y1, y2;
             helper.computeOriginHandleVertices(x1, x2, y1, y2);
@@ -248,8 +201,8 @@ namespace TrenchBroom {
             };
         }
 
-        static void renderLineHandles(const InputState& inputState, const UVViewHelper& helper, const bool dragInProgress, const vm::vec2f& selector, Renderer::RenderBatch& renderBatch) {
-            auto edgeRenderer = Renderer::DirectEdgeRenderer{Renderer::VertexArray::move(getHandleVertices(inputState, helper, dragInProgress, selector)), Renderer::PrimType::Lines};
+        static void renderLineHandles(const UVViewHelper& helper, const vm::vec2b& highlightHandles, Renderer::RenderBatch& renderBatch) {
+            auto edgeRenderer = Renderer::DirectEdgeRenderer{Renderer::VertexArray::move(getHandleVertices(helper, highlightHandles)), Renderer::PrimType::Lines};
             edgeRenderer.renderOnTop(renderBatch, 0.25f);
         }
 
@@ -297,30 +250,90 @@ namespace TrenchBroom {
             };
         }
 
-        static bool shouldRenderHighlight(const InputState& inputState, const bool dragInProgress) {
-            using namespace Model::HitFilters;
-
-            if (dragInProgress) {
-                return true;
-            } else {
-                const auto& xHandleHit = inputState.pickResult().first(type(UVOriginTool::XHandleHitType));
-                const auto& yHandleHit = inputState.pickResult().first(type(UVOriginTool::YHandleHitType));
-                return xHandleHit.isMatch() && yHandleHit.isMatch();
-            }
-        }
-
-        static void renderOriginHandle(const InputState& inputState, const UVViewHelper& helper, const bool dragInProgress, Renderer::RenderBatch& renderBatch) {
-            const auto highlight = shouldRenderHighlight(inputState, dragInProgress);
+        static void renderOriginHandle(const UVViewHelper& helper, const bool highlight, Renderer::RenderBatch& renderBatch) {
             renderBatch.addOneShot(new RenderOrigin{helper, UVOriginTool::OriginHandleRadius, highlight});
         }
 
+        namespace {
+            class UVOriginDragTracker : public DragTracker {
+            private:
+                UVViewHelper& m_helper;
+                vm::vec2f m_selector;
+                vm::vec2f m_lastPoint;
+            public:
+                UVOriginDragTracker(UVViewHelper& helper, const InputState& inputState) :
+                m_helper{helper},
+                m_selector{getSelector(inputState)},
+                m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())} {}
+
+                bool drag(const InputState& inputState) {
+                    const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
+
+                    const auto delta = curPoint - m_lastPoint;
+
+                    const auto snapped = snapDelta(m_helper, delta * m_selector);
+                    if (vm::is_zero(snapped, vm::Cf::almost_zero())) {
+                        return true;
+                    } else {
+                        m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
+                        m_lastPoint = m_lastPoint + snapped;
+
+                        return true;
+                    }
+                }
+
+                void end(const InputState&) {}
+                void cancel() {}
+
+                void render(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) const {
+                    const auto highlightHandles = vm::vec2b{
+                        m_selector.x() > 0.0,
+                        m_selector.y() > 0.0
+                    };
+
+                    renderLineHandles(m_helper, highlightHandles, renderBatch);
+                    renderOriginHandle(m_helper, true, renderBatch);
+                }
+            };
+        }
+
+        std::unique_ptr<DragTracker> UVOriginTool::acceptMouseDrag(const InputState& inputState) {
+            using namespace Model::HitFilters;
+
+            assert(m_helper.valid());
+
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
+                !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
+                return nullptr;
+            }
+
+            const auto& xHandleHit = inputState.pickResult().first(type(XHandleHitType));
+            const auto& yHandleHit = inputState.pickResult().first(type(YHandleHitType));
+
+            if (!xHandleHit.isMatch() && !yHandleHit.isMatch()) {
+                return nullptr;
+            }
+
+            return std::make_unique<UVOriginDragTracker>(m_helper, inputState);
+        }
+
         void UVOriginTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-            if (!m_helper.valid()) {
+            if (!m_helper.valid() || anyToolDragging(inputState)) {
                 return;
             }
 
-            renderLineHandles(inputState, m_helper, thisToolDragging(), m_selector, renderBatch);
-            renderOriginHandle(inputState, m_helper, thisToolDragging(), renderBatch);
+            using namespace Model::HitFilters;
+
+            const Model::Hit& xHandleHit = inputState.pickResult().first(type(UVOriginTool::XHandleHitType));
+            const Model::Hit& yHandleHit = inputState.pickResult().first(type(UVOriginTool::YHandleHitType));
+
+            const auto highlightHandles = vm::vec2b{
+                xHandleHit.isMatch(),
+                yHandleHit.isMatch()
+            };
+
+            renderLineHandles(m_helper, highlightHandles, renderBatch);
+            renderOriginHandle(m_helper, xHandleHit.isMatch() || yHandleHit.isMatch(), renderBatch);
         }
 
         bool UVOriginTool::doCancel() {

@@ -35,9 +35,10 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class DragTracker;
         class UVViewHelper;
 
-        class UVOriginTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class UVOriginTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Model::HitType::Type XHandleHitType;
             static const Model::HitType::Type YHandleHitType;
@@ -46,9 +47,6 @@ namespace TrenchBroom {
             static const float OriginHandleRadius;
         private:
             UVViewHelper& m_helper;
-
-            vm::vec2f m_lastPoint;
-            vm::vec2f m_selector;
         public:
             explicit UVOriginTool(UVViewHelper& helper);
         private:
@@ -57,11 +55,7 @@ namespace TrenchBroom {
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            bool doStartMouseDrag(const InputState& inputState) override;
-            bool doMouseDrag(const InputState& inputState) override;
-
-            void doEndMouseDrag(const InputState& inputState) override;
-            void doCancelMouseDrag() override;
+            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
