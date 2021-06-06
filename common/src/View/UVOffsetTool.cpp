@@ -53,6 +53,34 @@ namespace TrenchBroom {
             return this;
         }
 
+        static vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray) {
+            const auto& boundary = helper.face()->boundary();
+            const auto distance = vm::intersect_ray_plane(ray, boundary);
+            const auto hitPoint = vm::point_at_distance(ray, distance);
+
+            const auto transform = helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), helper.face()->attributes().scale(), true);
+            return vm::vec2f{transform * hitPoint};
+        }
+
+        static vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta) {
+            assert(helper.valid());
+
+            const auto* texture = helper.texture();
+            if (texture == nullptr) {
+                return vm::round(delta);
+            }
+
+            const auto transform = helper.face()->toTexCoordSystemMatrix(helper.face()->attributes().offset() - delta, helper.face()->attributes().scale(), true);
+
+            auto distance = vm::vec2f::max();
+            for (const Model::BrushVertex* vertex : helper.face()->vertices()) {
+                const auto temp = helper.computeDistanceFromTextureGrid(transform * vertex->position());
+                distance = vm::abs_min(distance, temp);
+            }
+
+            return helper.snapDelta(delta, -distance);
+        }
+
         bool UVOffsetTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
@@ -61,7 +89,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_lastPoint = computeHitPoint(inputState.pickRay());
+            m_lastPoint = computeHitPoint(m_helper, inputState.pickRay());
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Move Texture");
@@ -71,9 +99,9 @@ namespace TrenchBroom {
         bool UVOffsetTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
-            const auto curPoint = computeHitPoint(inputState.pickRay());
+            const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
             const auto delta    = curPoint - m_lastPoint;
-            const auto snapped  = snapDelta(delta);
+            const auto snapped  = snapDelta(m_helper, delta);
 
             const auto corrected = vm::correct(m_helper.face()->attributes().offset() - snapped, 4, 0.0f);
 
@@ -99,34 +127,6 @@ namespace TrenchBroom {
         void UVOffsetTool::doCancelMouseDrag() {
             auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
-        }
-
-        vm::vec2f UVOffsetTool::computeHitPoint(const vm::ray3& ray) const {
-            const auto& boundary = m_helper.face()->boundary();
-            const auto distance = vm::intersect_ray_plane(ray, boundary);
-            const auto hitPoint = vm::point_at_distance(ray, distance);
-
-            const auto transform = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), m_helper.face()->attributes().scale(), true);
-            return vm::vec2f{transform * hitPoint};
-        }
-
-        vm::vec2f UVOffsetTool::snapDelta(const vm::vec2f& delta) const {
-            assert(m_helper.valid());
-
-            const auto* texture = m_helper.texture();
-            if (texture == nullptr) {
-                return vm::round(delta);
-            }
-
-            const auto transform = m_helper.face()->toTexCoordSystemMatrix(m_helper.face()->attributes().offset() - delta, m_helper.face()->attributes().scale(), true);
-
-            auto distance = vm::vec2f::max();
-            for (const Model::BrushVertex* vertex : m_helper.face()->vertices()) {
-                const auto temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
-                distance = vm::abs_min(distance, temp);
-            }
-
-            return m_helper.snapDelta(delta, -distance);
         }
 
         bool UVOffsetTool::doCancel() {
