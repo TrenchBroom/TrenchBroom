@@ -69,20 +69,20 @@ namespace TrenchBroom {
             return this;
         }
 
-        static void computeOriginHandles(const UVViewHelper& helper, vm::line3& xHandle, vm::line3& yHandle) {
+        static std::tuple<vm::line3, vm::line3> computeOriginHandles(const UVViewHelper& helper) {
             const auto toWorld = helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             const auto origin = vm::vec3{helper.originInFaceCoords()};
-            xHandle.point = yHandle.point = toWorld * origin;
-
-            xHandle.direction = vm::normalize(toWorld * (origin + vm::vec3::pos_y()) - xHandle.point);
-            yHandle.direction = (toWorld * (origin + vm::vec3::pos_x()) - yHandle.point);
+            const auto linePoint = toWorld * origin;
+            return {
+                vm::line3{linePoint, vm::normalize(toWorld * (origin + vm::vec3::pos_y()) - linePoint)},
+                vm::line3{linePoint, (toWorld * (origin + vm::vec3::pos_x()) - linePoint)},
+            };
         }
 
         void UVOriginTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (m_helper.valid()) {
-                vm::line3 xHandle, yHandle;
-                computeOriginHandles(m_helper, xHandle, yHandle);
+                const auto [xHandle, yHandle] = computeOriginHandles(m_helper);
 
                 const auto fromTex = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
                 const auto origin = fromTex * vm::vec3{m_helper.originInFaceCoords()};
