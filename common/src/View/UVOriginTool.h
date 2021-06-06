@@ -41,12 +41,10 @@ namespace TrenchBroom {
         public:
             static const Model::HitType::Type XHandleHitType;
             static const Model::HitType::Type YHandleHitType;
-        private:
+
             static const FloatType MaxPickDistance;
             static const float OriginHandleRadius;
-
-            using EdgeVertex = Renderer::GLVertexTypes::P3C4::Vertex;
-
+        private:
             UVViewHelper& m_helper;
 
             vm::vec2f m_lastPoint;
@@ -59,25 +57,13 @@ namespace TrenchBroom {
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void computeOriginHandles(vm::line3& xHandle, vm::line3& yHandle) const;
-
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
-
-            vm::vec2f computeHitPoint(const vm::ray3& ray) const;
-            vm::vec2f snapDelta(const vm::vec2f& delta) const;
 
             void doEndMouseDrag(const InputState& inputState) override;
             void doCancelMouseDrag() override;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
-
-            void renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            std::vector<EdgeVertex> getHandleVertices(const InputState& inputState) const;
-
-            class RenderOrigin;
-            void renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            bool renderHighlight(const InputState& inputState) const;
 
             bool doCancel() override;
         };
