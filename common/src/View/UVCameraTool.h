@@ -22,13 +22,17 @@
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
+#include <memory>
+
 namespace TrenchBroom {
     namespace Renderer {
         class OrthographicCamera;
     }
 
     namespace View {
-        class UVCameraTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class DragTracker;
+
+        class UVCameraTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             Renderer::OrthographicCamera& m_camera;
         public:
@@ -38,10 +42,8 @@ namespace TrenchBroom {
             const Tool* doGetTool() const override;
 
             void doMouseScroll(const InputState& inputState) override;
-            bool doStartMouseDrag(const InputState& inputState) override;
-            bool doMouseDrag(const InputState& inputState) override;
-            void doEndMouseDrag(const InputState& inputState) override;
-            void doCancelMouseDrag() override;
+
+            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
             bool doCancel() override;
         };
