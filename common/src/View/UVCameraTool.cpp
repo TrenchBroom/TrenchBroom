@@ -27,9 +27,9 @@
 namespace TrenchBroom {
     namespace View {
         UVCameraTool::UVCameraTool(Renderer::OrthographicCamera& camera) :
-        ToolControllerBase(),
-        Tool(true),
-        m_camera(camera) {}
+        ToolControllerBase{},
+        Tool{true},
+        m_camera{camera} {}
 
         Tool* UVCameraTool::doGetTool() {
             return this;
