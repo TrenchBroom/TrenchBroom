@@ -37,20 +37,17 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class DragTracker;
         class MapDocument;
         class UVViewHelper;
 
-        class UVScaleTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class UVScaleTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Model::HitType::Type XHandleHitType;
             static const Model::HitType::Type YHandleHitType;
         private:
             std::weak_ptr<MapDocument> m_document;
             UVViewHelper& m_helper;
-
-            vm::vec2i m_handle;
-            vm::vec2b m_selector;
-            vm::vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
         public:
             UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper);
         private:
@@ -59,10 +56,7 @@ namespace TrenchBroom {
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            bool doStartMouseDrag(const InputState& inputState) override;
-            bool doMouseDrag(const InputState& inputState) override;
-            void doEndMouseDrag(const InputState& inputState) override;
-            void doCancelMouseDrag() override;
+            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
