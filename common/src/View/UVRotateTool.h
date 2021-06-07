@@ -43,10 +43,6 @@ namespace TrenchBroom {
         public:
             static const Model::HitType::Type AngleHandleHitType;
         private:
-            static const FloatType CenterHandleRadius;
-            static const FloatType RotateHandleRadius;
-            static const FloatType RotateHandleWidth;
-
             std::weak_ptr<MapDocument> m_document;
             UVViewHelper& m_helper;
 
@@ -62,13 +58,9 @@ namespace TrenchBroom {
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
 
-            float measureAngle(const vm::vec2f& point) const;
-            float snapAngle(float angle) const;
-
             void doEndMouseDrag(const InputState& inputState) override;
             void doCancelMouseDrag() override;
 
-            class Render;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
             bool doCancel() override;
