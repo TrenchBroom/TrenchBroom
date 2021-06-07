@@ -44,6 +44,7 @@
 #include <vecmath/intersection.h>
 
 #include <numeric>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -71,18 +72,18 @@ namespace TrenchBroom {
             }
         }
 
-        vm::vec2i UVScaleTool::getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const {
+        static vm::vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) {
             const auto x = xHit.isMatch() ? xHit.target<int>() : 0;
             const auto y = yHit.isMatch() ? yHit.target<int>() : 0;
             return vm::vec2i{x, y};
         }
 
-        vm::vec2f UVScaleTool::getHitPoint(const vm::ray3& pickRay) const {
-            const auto& boundary = m_helper.face()->boundary();
+        static vm::vec2f getHitPoint(const UVViewHelper& helper, const vm::ray3& pickRay) {
+            const auto& boundary = helper.face()->boundary();
             const auto facePointDist = vm::intersect_ray_plane(pickRay, boundary);
             const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
 
-            const auto toTex = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto toTex = helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             return vm::vec2f{toTex * facePoint};
         }
 
@@ -108,20 +109,49 @@ namespace TrenchBroom {
 
             m_handle = getScaleHandle(xHit, yHit);
             m_selector = vm::vec2b{xHit.isMatch(), yHit.isMatch()};
-            m_lastHitPoint = getHitPoint(inputState.pickRay());
+            m_lastHitPoint = getHitPoint(m_helper, inputState.pickRay());
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Scale Texture");
             return true;
         }
 
+        static vm::vec2f getScaledTranslatedHandlePos(const UVViewHelper& helper, const vm::vec2i handle) {
+            return vm::vec2f{handle} * vm::vec2f{helper.stripeSize()};
+        }
+
+        static vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle) {
+            const auto toWorld = helper.face()->fromTexCoordSystemMatrix(helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
+            const auto toTex   = helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+
+            return vm::vec2f{toTex * toWorld * vm::vec3{getScaledTranslatedHandlePos(helper, handle)}};
+        }
+
+        static vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position) {
+            const auto toTex = helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+
+            const auto vertices = helper.face()->vertices();
+            auto distance = std::accumulate(std::begin(vertices), std::end(vertices), vm::vec2f::max(), [&](const vm::vec2f& current, const Model::BrushVertex* vertex) {
+                const auto vertex2 = vm::vec2f{toTex * vertex->position()};
+                return vm::abs_min(current, position - vertex2);
+            });
+
+            for (size_t i = 0; i < 2; ++i) {
+                if (vm::abs(distance[i]) > 4.0f / helper.cameraZoom()) {
+                    distance[i] = 0.0f;
+                }
+            }
+
+            return position - distance;
+        }
+
         bool UVScaleTool::doMouseDrag(const InputState& inputState) {
-            const auto curPoint = getHitPoint(inputState.pickRay());
+            const auto curPoint = getHitPoint(m_helper, inputState.pickRay());
             const auto dragDeltaFaceCoords = curPoint - m_lastHitPoint;
 
-            const auto curHandlePosTexCoords  = getScaledTranslatedHandlePos();
-            const auto newHandlePosFaceCoords = getHandlePos() + dragDeltaFaceCoords;
-            const auto newHandlePosSnapped    = snap(newHandlePosFaceCoords);
+            const auto curHandlePosTexCoords  = getScaledTranslatedHandlePos(m_helper, m_handle);
+            const auto newHandlePosFaceCoords = getHandlePos(m_helper, m_handle) + dragDeltaFaceCoords;
+            const auto newHandlePosSnapped    = snap(m_helper, newHandlePosFaceCoords);
 
             const auto originHandlePosFaceCoords = m_helper.originInFaceCoords();
             const auto originHandlePosTexCoords  = m_helper.originInTexCoords();
@@ -167,33 +197,36 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
 
-        vm::vec2f UVScaleTool::getScaledTranslatedHandlePos() const {
-            return vm::vec2f{m_handle} * vm::vec2f{m_helper.stripeSize()};
-        }
+        using EdgeVertex = Renderer::GLVertexTypes::P3::Vertex;
 
-        vm::vec2f UVScaleTool::getHandlePos() const {
-            const auto toWorld = m_helper.face()->fromTexCoordSystemMatrix(m_helper.face()->attributes().offset(), m_helper.face()->attributes().scale(), true);
-            const auto toTex   = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+        static std::vector<EdgeVertex> getHandleVertices(const UVViewHelper& helper, const Model::PickResult& pickResult) {
+            using namespace Model::HitFilters;
 
-            return vm::vec2f{toTex * toWorld * vm::vec3{getScaledTranslatedHandlePos()}};
-        }
+            const auto& xHandleHit = pickResult.first(type(UVScaleTool::XHandleHitType));
+            const auto& yHandleHit = pickResult.first(type(UVScaleTool::YHandleHitType));
+            const auto stripeSize = helper.stripeSize();
 
-        vm::vec2f UVScaleTool::snap(const vm::vec2f& position) const {
-            const auto toTex = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto xIndex = xHandleHit.isMatch() ? xHandleHit.target<int>() : 0;
+            const auto yIndex = yHandleHit.isMatch() ? yHandleHit.target<int>() : 0;
+            const auto pos = stripeSize * vm::vec2{static_cast<FloatType>(xIndex), static_cast<FloatType>(yIndex)};
 
-            const auto vertices = m_helper.face()->vertices();
-            auto distance = std::accumulate(std::begin(vertices), std::end(vertices), vm::vec2f::max(), [&](const vm::vec2f& current, const Model::BrushVertex* vertex) {
-                const auto vertex2 = vm::vec2f{toTex * vertex->position()};
-                return vm::abs_min(current, position - vertex2);
-            });
+            vm::vec3 h1, h2, v1, v2;
+            helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
 
-            for (size_t i = 0; i < 2; ++i) {
-                if (vm::abs(distance[i]) > 4.0f / m_helper.cameraZoom()) {
-                    distance[i] = 0.0f;
-                }
+            auto vertices = std::vector<EdgeVertex>{};
+            vertices.reserve(4);
+
+            if (xHandleHit.isMatch()) {
+                vertices.push_back(EdgeVertex(vm::vec3f(v1)));
+                vertices.push_back(EdgeVertex(vm::vec3f(v2)));
             }
 
-            return position - distance;
+            if (yHandleHit.isMatch()) {
+                vertices.push_back(EdgeVertex(vm::vec3f(h1)));
+                vertices.push_back(EdgeVertex(vm::vec3f(h2)));
+            }
+
+            return vertices;
         }
 
         void UVScaleTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
@@ -210,39 +243,9 @@ namespace TrenchBroom {
             if (!handleHit.isMatch()) {
                 static const auto color = Color{1.0f, 0.0f, 0.0f, 1.0f};
 
-                auto handleRenderer = Renderer::DirectEdgeRenderer{Renderer::VertexArray::move(getHandleVertices(pickResult)), Renderer::PrimType::Lines};
+                auto handleRenderer = Renderer::DirectEdgeRenderer{Renderer::VertexArray::move(getHandleVertices(m_helper, pickResult)), Renderer::PrimType::Lines};
                 handleRenderer.render(renderBatch, color, 0.5f);
             }
-        }
-
-        std::vector<UVScaleTool::EdgeVertex> UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
-            using namespace Model::HitFilters;
-
-            const auto& xHandleHit = pickResult.first(type(XHandleHitType));
-            const auto& yHandleHit = pickResult.first(type(YHandleHitType));
-            const auto stripeSize = m_helper.stripeSize();
-
-            const auto xIndex = xHandleHit.isMatch() ? xHandleHit.target<int>() : 0;
-            const auto yIndex = yHandleHit.isMatch() ? yHandleHit.target<int>() : 0;
-            const auto pos = stripeSize * vm::vec2{static_cast<FloatType>(xIndex), static_cast<FloatType>(yIndex)};
-
-            vm::vec3 h1, h2, v1, v2;
-            m_helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
-
-            auto vertices = std::vector<EdgeVertex>{};
-            vertices.reserve(4);
-
-            if (xHandleHit.isMatch()) {
-                vertices.push_back(EdgeVertex(vm::vec3f(v1)));
-                vertices.push_back(EdgeVertex(vm::vec3f(v2)));
-            }
-
-            if (yHandleHit.isMatch()) {
-                vertices.push_back(EdgeVertex(vm::vec3f(h1)));
-                vertices.push_back(EdgeVertex(vm::vec3f(h2)));
-            }
-
-            return vertices;
         }
 
         bool UVScaleTool::doCancel() {

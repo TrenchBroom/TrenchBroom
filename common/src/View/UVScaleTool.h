@@ -25,7 +25,6 @@
 #include "View/ToolController.h"
 
 #include <memory>
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -42,12 +41,10 @@ namespace TrenchBroom {
         class UVViewHelper;
 
         class UVScaleTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
-        private:
+        public:
             static const Model::HitType::Type XHandleHitType;
             static const Model::HitType::Type YHandleHitType;
         private:
-            using EdgeVertex = Renderer::GLVertexTypes::P3::Vertex;
-
             std::weak_ptr<MapDocument> m_document;
             UVViewHelper& m_helper;
 
@@ -62,20 +59,12 @@ namespace TrenchBroom {
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            vm::vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const;
-            vm::vec2f getHitPoint(const vm::ray3& pickRay) const;
-
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
             void doEndMouseDrag(const InputState& inputState) override;
             void doCancelMouseDrag() override;
 
-            vm::vec2f getScaledTranslatedHandlePos() const;
-            vm::vec2f getHandlePos() const;
-            vm::vec2f snap(const vm::vec2f& position) const;
-
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
-            std::vector<EdgeVertex> getHandleVertices(const Model::PickResult& pickResult) const;
 
             bool doCancel() override;
         };
