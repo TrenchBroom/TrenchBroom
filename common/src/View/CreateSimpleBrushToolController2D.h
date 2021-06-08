@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class DragTracker;
         class MapDocument;
 
-        class CreateSimpleBrushToolController2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy> {
+        class CreateSimpleBrushToolController2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy, NoDropPolicy> {
         private:
             CreateSimpleBrushTool* m_tool;
             std::weak_ptr<MapDocument> m_document;

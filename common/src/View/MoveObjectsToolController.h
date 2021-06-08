@@ -26,7 +26,7 @@ namespace TrenchBroom {
         class DragTracker;
         class MoveObjectsTool;
 
-        class MoveObjectsToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy> {
+        class MoveObjectsToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RenderPolicy, NoDropPolicy> {
         private:
             MoveObjectsTool* m_tool;
         public:

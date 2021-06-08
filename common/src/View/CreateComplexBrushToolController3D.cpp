@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class DrawFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy> {
+            class DrawFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy, NoDropPolicy> {
             private:
                 vm::plane3 m_plane;
                 vm::vec3 m_initialPoint;
@@ -197,7 +197,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class DuplicateFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy> {
+            class DuplicateFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy, NoDropPolicy> {
             private:
                 vm::vec3 m_dragDir;
             public:

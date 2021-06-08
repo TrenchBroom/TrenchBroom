@@ -432,54 +432,9 @@ namespace TrenchBroom {
         void ToolController::setThisToolDragging(const bool dragging) { m_dragging = dragging; }
         void ToolController::refreshViews() { tool()->refreshViews(); }
 
-        namespace {
-            class DragTrackerAdapter : public DragTracker {
-            private:
-                ToolController& m_delegate;
-            public:
-                DragTrackerAdapter(ToolController& delegate) : m_delegate{delegate} {
-                    m_delegate.setThisToolDragging(true);
-                }
-
-                void modifierKeyChange(const InputState& inputState) override {
-                    m_delegate.modifierKeyChange(inputState);
-                }
-
-                void mouseScroll(const InputState& inputState) override {
-                    m_delegate.mouseScroll(inputState);
-                }
-
-                bool drag(const InputState& inputState) override {
-                    return m_delegate.mouseDrag(inputState);
-                }
-
-                void end(const InputState& inputState) override {
-                    m_delegate.endMouseDrag(inputState);
-                    m_delegate.setThisToolDragging(false);
-                }
-
-                void cancel() override {
-                    m_delegate.cancelMouseDrag();
-                    m_delegate.setThisToolDragging(false);
-                }
-
-                void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override {
-                    m_delegate.setRenderOptions(inputState, renderContext);
-                }
-
-                void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const override {
-                    m_delegate.render(inputState, renderContext, renderBatch);
-                }
-            };
-        }
-
-        std::unique_ptr<DragTracker> ToolController::acceptMouseDrag(const InputState& inputState) {
-            if (startMouseDrag(inputState)) {
-                return std::make_unique<DragTrackerAdapter>(*this);
-            }
+        std::unique_ptr<DragTracker> ToolController::acceptMouseDrag(const InputState&) {
             return nullptr;
         }
-
 
         ToolControllerGroup::ToolControllerGroup() :
         m_dropReceiver(nullptr) {}

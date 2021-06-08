@@ -44,7 +44,7 @@ namespace TrenchBroom {
          * - LMB Drag: applies to all faces dragged over
          * - LMB Double click: applies to all faces of target brush
          */
-        class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
         public:

@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class MapDocument;
         class UVViewHelper;
 
-        class UVOffsetTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class UVOffsetTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
             const UVViewHelper& m_helper;

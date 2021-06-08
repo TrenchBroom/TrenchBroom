@@ -131,7 +131,7 @@ namespace TrenchBroom {
             };
 
             template <typename H>
-            class SelectPartBase : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public PartBase {
+            class SelectPartBase : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy>, public PartBase {
             protected:
                 SelectPartBase(T* tool, const Model::HitType::Type hitType) :
                 PartBase{tool, hitType} {}
@@ -288,7 +288,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class MovePartBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public PartBase {
+            class MovePartBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy>, public PartBase {
             protected:
                 MovePartBase(T* tool, const Model::HitType::Type hitType) :
                 PartBase{tool, hitType} {}

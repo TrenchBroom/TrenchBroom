@@ -38,7 +38,7 @@ namespace TrenchBroom {
         class DragTracker;
         class UVViewHelper;
 
-        class UVOriginTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class UVOriginTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Model::HitType::Type XHandleHitType;
             static const Model::HitType::Type YHandleHitType;

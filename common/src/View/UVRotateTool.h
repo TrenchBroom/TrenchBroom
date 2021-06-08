@@ -40,7 +40,7 @@ namespace TrenchBroom {
         class MapDocument;
         class UVViewHelper;
 
-        class UVRotateTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class UVRotateTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Model::HitType::Type AngleHandleHitType;
         private:

@@ -163,7 +163,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class RotateObjectsBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy> {
+            class RotateObjectsBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy> {
             protected:
                 RotateObjectsTool* m_tool;
             protected:
@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class MoveCenterBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy> {
+            class MoveCenterBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RenderPolicy, NoDropPolicy> {
             protected:
                 RotateObjectsTool* m_tool;
             protected:
