@@ -59,6 +59,18 @@ namespace TrenchBroom {
             }
         }
 
+        static vm::vec2f getHit(const UVViewHelper& helper, const vm::vec3& xAxis, const vm::vec3& yAxis, const vm::ray3& pickRay) {
+            const auto& boundary = helper.face()->boundary();
+            const auto hitPointDist = vm::intersect_ray_plane(pickRay, boundary);
+            const auto hitPoint = vm::point_at_distance(pickRay, hitPointDist);
+            const auto hitVec = hitPoint - helper.origin();
+
+            return vm::vec2f{
+                static_cast<float>(vm::dot(hitVec, xAxis)), 
+                static_cast<float>(vm::dot(hitVec, yAxis))
+            };
+        }
+
         bool UVShearTool::doStartMouseDrag(const InputState& inputState) {
             using namespace Model::HitFilters;
 
@@ -84,7 +96,7 @@ namespace TrenchBroom {
 
             m_xAxis = m_helper.face()->textureXAxis();
             m_yAxis = m_helper.face()->textureYAxis();
-            m_initialHit = m_lastHit = getHit(inputState.pickRay());
+            m_initialHit = m_lastHit = getHit(m_helper, m_xAxis, m_yAxis, inputState.pickRay());
 
             // #1350: Don't allow shearing if the shear would result in very large changes. This happens if
             // the shear handle to be dragged is very close to one of the texture axes.
@@ -99,7 +111,7 @@ namespace TrenchBroom {
         }
 
         bool UVShearTool::doMouseDrag(const InputState& inputState) {
-            const auto currentHit = getHit(inputState.pickRay());
+            const auto currentHit = getHit(m_helper, m_xAxis, m_yAxis, inputState.pickRay());
             const auto delta = currentHit - m_lastHit;
 
             const auto origin = m_helper.origin();
@@ -137,18 +149,6 @@ namespace TrenchBroom {
         void UVShearTool::doCancelMouseDrag() {
             auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
-        }
-
-        vm::vec2f UVShearTool::getHit(const vm::ray3& pickRay) const {
-            const auto& boundary = m_helper.face()->boundary();
-            const auto hitPointDist = vm::intersect_ray_plane(pickRay, boundary);
-            const auto hitPoint = vm::point_at_distance(pickRay, hitPointDist);
-            const auto hitVec = hitPoint - m_helper.origin();
-
-            return vm::vec2f{
-                static_cast<float>(vm::dot(hitVec, m_xAxis)), 
-                static_cast<float>(vm::dot(hitVec, m_yAxis))
-            };
         }
 
         bool UVShearTool::doCancel() {
