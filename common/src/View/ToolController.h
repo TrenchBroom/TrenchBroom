@@ -493,10 +493,9 @@ namespace TrenchBroom {
             virtual bool doCancel() = 0;
         };
 
-        class ToolControllerGroup : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, DropPolicy> {
+        class ToolControllerGroup : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, DropPolicy> {
         private:
             ToolChain m_chain;
-            std::unique_ptr<DragTracker> m_dragTracker;
             ToolController* m_dropReceiver;
         public:
             ToolControllerGroup();
@@ -515,10 +514,7 @@ namespace TrenchBroom {
             void doMouseMove(const InputState& inputState) override;
             void doMouseScroll(const InputState& inputState) override;
 
-            bool doStartMouseDrag(const InputState& inputState) override;
-            bool doMouseDrag(const InputState& inputState) override;
-            void doEndMouseDrag(const InputState& inputState) override;
-            void doCancelMouseDrag() override;
+            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
@@ -531,11 +527,6 @@ namespace TrenchBroom {
             bool doCancel() override;
         private: // subclassing interface
             virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;
-            virtual void doMouseDragStarted(const InputState& inputState);
-            virtual void doMouseDragged(const InputState& inputState);
-            virtual void doMouseDragEnded(const InputState& inputState);
-            virtual void doMouseDragCancelled();
-
             virtual bool doShouldHandleDrop(const InputState& inputState, const std::string& payload) const;
         };
     }

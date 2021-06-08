@@ -497,9 +497,6 @@ namespace TrenchBroom {
 
         void ToolControllerGroup::doModifierKeyChange(const InputState& inputState) {
             m_chain.modifierKeyChange(inputState);
-            if (m_dragTracker) {
-                m_dragTracker->modifierKeyChange(inputState);
-            }
         }
 
         void ToolControllerGroup::doMouseDown(const InputState& inputState) {
@@ -523,59 +520,23 @@ namespace TrenchBroom {
         }
 
         void ToolControllerGroup::doMouseScroll(const InputState& inputState) {
-            if (m_dragTracker) {
-                m_dragTracker->mouseScroll(inputState);
-            } else {
-                m_chain.mouseScroll(inputState);
+            m_chain.mouseScroll(inputState);
+        }
+
+        std::unique_ptr<DragTracker> ToolControllerGroup::acceptMouseDrag(const InputState& inputState) {
+            if (!doShouldHandleMouseDrag(inputState)) {
+                return nullptr;
             }
-        }
 
-        bool ToolControllerGroup::doStartMouseDrag(const InputState& inputState) {
-            assert(m_dragTracker == nullptr);
-            if (!doShouldHandleMouseDrag(inputState))
-                return false;
-            m_dragTracker = m_chain.startMouseDrag(inputState);
-            if (m_dragTracker != nullptr) {
-                doMouseDragStarted(inputState);
-            }
-            return m_dragTracker != nullptr;
-        }
-
-        bool ToolControllerGroup::doMouseDrag(const InputState& inputState) {
-            ensure(m_dragTracker != nullptr, "dragTracker is null");
-            if (m_dragTracker->drag(inputState)) {
-                doMouseDragged(inputState);
-                return true;
-            }
-            return false;
-        }
-
-        void ToolControllerGroup::doEndMouseDrag(const InputState& inputState) {
-            ensure(m_dragTracker != nullptr, "dragTracker is null");
-            m_dragTracker->end(inputState);
-            m_dragTracker = nullptr;
-            doMouseDragEnded(inputState);
-        }
-
-        void ToolControllerGroup::doCancelMouseDrag() {
-            ensure(m_dragTracker != nullptr, "dragTracker is null");
-            m_dragTracker->cancel();
-            m_dragTracker = nullptr;
-            doMouseDragCancelled();
+            return m_chain.startMouseDrag(inputState);
         }
 
         void ToolControllerGroup::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             m_chain.setRenderOptions(inputState, renderContext);
-            if (m_dragTracker) {
-                m_dragTracker->setRenderOptions(inputState, renderContext);
-            }
         }
 
         void ToolControllerGroup::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_chain.render(inputState, renderContext, renderBatch);
-            if (m_dragTracker) {
-                m_dragTracker->render(inputState, renderContext, renderBatch);
-            }
         }
 
         bool ToolControllerGroup::doDragEnter(const InputState& inputState, const std::string& payload) {
@@ -611,11 +572,6 @@ namespace TrenchBroom {
         bool ToolControllerGroup::doShouldHandleMouseDrag(const InputState&) const {
             return true;
         }
-
-        void ToolControllerGroup::doMouseDragStarted(const InputState&) {}
-        void ToolControllerGroup::doMouseDragged(const InputState&) {}
-        void ToolControllerGroup::doMouseDragEnded(const InputState&) {}
-        void ToolControllerGroup::doMouseDragCancelled() {}
 
         bool ToolControllerGroup::doShouldHandleDrop(const InputState&, const std::string& /* payload */) const {
             return true;
