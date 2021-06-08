@@ -885,7 +885,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MoveObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.h
-        ${COMMON_SOURCE_DIR}/View/MoveToolController.h
         ${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.h
         ${COMMON_SOURCE_DIR}/View/MultiMapView.h
         ${COMMON_SOURCE_DIR}/View/OnePaneMapView.h
