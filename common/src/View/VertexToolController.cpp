@@ -128,7 +128,7 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 MovePartBase::doRender(inputState, renderContext, renderBatch);
 
-                if (!thisToolDragging()) {
+                if (!anyToolDragging(inputState)) {
                     const Model::Hit hit = findDraggableHandle(inputState);
                     if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType)) {
                         const vm::vec3 handle = m_tool->getHandlePosition(hit);

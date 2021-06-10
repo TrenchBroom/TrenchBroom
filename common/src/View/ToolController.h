@@ -124,18 +124,12 @@ namespace TrenchBroom {
         class DragTracker;
 
         class ToolController {
-        private:
-            bool m_dragging;
         public:
-            ToolController();
             virtual ~ToolController();
 
             Tool* tool();
             const Tool* tool() const;
             bool toolActive() const;
-
-            bool thisToolDragging() const;
-            void setThisToolDragging(bool dragging);
 
             virtual void pick(const InputState& inputState, Model::PickResult& pickResult) = 0;
 

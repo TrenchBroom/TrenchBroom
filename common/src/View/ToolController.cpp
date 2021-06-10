@@ -65,13 +65,10 @@ namespace TrenchBroom {
         void NoDropPolicy::doDragLeave(const InputState&) {}
         bool NoDropPolicy::doDragDrop(const InputState&) { return false; }
 
-        ToolController::ToolController() : m_dragging{false} {}
         ToolController::~ToolController() = default;
         Tool* ToolController::tool() { return doGetTool(); }
         const Tool* ToolController::tool() const { return doGetTool(); }
         bool ToolController::toolActive() const { return tool()->active(); }
-        bool ToolController::thisToolDragging() const { return m_dragging; }
-        void ToolController::setThisToolDragging(const bool dragging) { m_dragging = dragging; }
         void ToolController::refreshViews() { tool()->refreshViews(); }
 
         std::unique_ptr<DragTracker> ToolController::acceptMouseDrag(const InputState&) {
