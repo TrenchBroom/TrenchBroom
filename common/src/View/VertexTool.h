@@ -47,11 +47,11 @@ namespace TrenchBroom {
 
         class VertexTool : public VertexToolBase<vm::vec3> {
         private:
-            typedef enum {
-                Mode_Move,
-                Mode_Split_Edge,
-                Mode_Split_Face
-            } Mode;
+            enum class Mode {
+                Move,
+                SplitEdge,
+                SplitFace
+            };
 
             Mode m_mode;
 
