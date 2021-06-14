@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,27 +19,17 @@
 
 #pragma once
 
-#include "View/ToolController.h"
-
 namespace TrenchBroom {
     namespace View {
-        class DragTracker;
-        class MoveObjectsTool;
+        class InputState;
 
-        class MoveObjectsToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RenderPolicy> {
-        private:
-            MoveObjectsTool* m_tool;
+        class DropTracker {
         public:
-            MoveObjectsToolController(MoveObjectsTool* tool);
-            virtual ~MoveObjectsToolController() override;
-        private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            virtual ~DropTracker();
 
-            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
-
-            bool doCancel() override;
+            virtual bool move(const InputState& inputState) = 0;
+            virtual bool drop(const InputState& inputState) = 0;
+            virtual void leave(const InputState& inputState) = 0;
         };
     }
 }
-

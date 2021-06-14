@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class AddClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy>, protected PartBase {
+            class AddClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy>, protected PartBase {
             public:
                 explicit AddClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
                 PartBase{std::move(delegate)} {}
@@ -370,7 +370,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class MoveClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy, NoDropPolicy>, protected PartBase {
+            class MoveClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy>, protected PartBase {
             public:
                 explicit MoveClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
                 PartBase{std::move(delegate)} {}

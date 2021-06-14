@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class DragTracker;
         class ResizeBrushesTool;
 
-        class ResizeBrushesToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy> {
+        class ResizeBrushesToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RenderPolicy> {
         protected:
             ResizeBrushesTool* m_tool;
         private:

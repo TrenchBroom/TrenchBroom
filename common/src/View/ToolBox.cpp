@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "View/DragTracker.h"
+#include "View/DropTracker.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
@@ -36,7 +37,6 @@
 namespace TrenchBroom {
     namespace View {
         ToolBox::ToolBox() :
-        m_dropReceiver(nullptr),
         m_modalTool(nullptr),
         m_enabled(true) {}
 
@@ -57,40 +57,40 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (m_dropReceiver != nullptr) {
+            if (m_dropTracker) {
                 dragLeave(chain, inputState);
             }
 
             deactivateAllTools();
-            m_dropReceiver = chain->dragEnter(inputState, text);
-            return m_dropReceiver != nullptr;
+            m_dropTracker = chain->dragEnter(inputState, text);
+            return m_dropTracker != nullptr;
         }
 
         bool ToolBox::dragMove(ToolChain* /* chain */, const InputState& inputState, const std::string& /* text */) {
-            if (!m_enabled || m_dropReceiver == nullptr) {
+            if (!m_enabled || m_dropTracker == nullptr) {
                 return false;
             }
 
-            m_dropReceiver->dragMove(inputState);
+            m_dropTracker->move(inputState);
             return true;
         }
 
         void ToolBox::dragLeave(ToolChain* /* chain */, const InputState& inputState) {
-            if (!m_enabled || m_dropReceiver == nullptr) {
+            if (!m_enabled || m_dropTracker == nullptr) {
                 return;
             }
 
-            m_dropReceiver->dragLeave(inputState);
-            m_dropReceiver = nullptr;
+            m_dropTracker->leave(inputState);
+            m_dropTracker = nullptr;
         }
 
         bool ToolBox::dragDrop(ToolChain* /* chain */, const InputState& inputState, const std::string& /* text */) {
-            if (!m_enabled || m_dropReceiver == nullptr) {
+            if (!m_enabled || m_dropTracker == nullptr) {
                 return false;
             }
 
-            const auto result = m_dropReceiver->dragDrop(inputState);
-            m_dropReceiver = nullptr;
+            const auto result = m_dropTracker->drop(inputState);
+            m_dropTracker = nullptr;
             return result;
         }
 

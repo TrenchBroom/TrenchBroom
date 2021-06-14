@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class MapDocument;
         class UVViewHelper;
 
-        class UVShearTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class UVShearTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy>, public Tool {
         private:
             static const Model::HitType::Type XHandleHitType;
             static const Model::HitType::Type YHandleHitType;

@@ -23,6 +23,7 @@
 #include "FloatType.h"
 #include "Model/HitType.h"
 #include "View/DragTracker.h"
+#include "View/DropTracker.h"
 #include "View/Grid.h"
 #include "View/Tool.h"
 
@@ -56,15 +57,6 @@ namespace TrenchBroom {
         void RenderPolicy::doSetRenderOptions(const InputState&, Renderer::RenderContext&) const {}
         void RenderPolicy::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
-        DropPolicy::~DropPolicy() = default;
-
-        NoDropPolicy::~NoDropPolicy() = default;
-
-        bool NoDropPolicy::doDragEnter(const InputState&, const std::string& /* payload */) { return false; }
-        bool NoDropPolicy::doDragMove(const InputState&) { return false; }
-        void NoDropPolicy::doDragLeave(const InputState&) {}
-        bool NoDropPolicy::doDragDrop(const InputState&) { return false; }
-
         ToolController::~ToolController() = default;
         Tool* ToolController::tool() { return doGetTool(); }
         const Tool* ToolController::tool() const { return doGetTool(); }
@@ -75,9 +67,11 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        ToolControllerGroup::ToolControllerGroup() :
-        m_dropReceiver(nullptr) {}
+        std::unique_ptr<DropTracker> ToolController::acceptDrop(const InputState&, const std::string& /* payload */) {
+            return nullptr;
+        }
 
+        ToolControllerGroup::ToolControllerGroup() = default;
         ToolControllerGroup::~ToolControllerGroup() = default;
 
         void ToolControllerGroup::addController(std::unique_ptr<ToolController> controller) {
@@ -125,38 +119,19 @@ namespace TrenchBroom {
             return m_chain.startMouseDrag(inputState);
         }
 
+        std::unique_ptr<DropTracker> ToolControllerGroup::acceptDrop(const InputState& inputState, const std::string& payload) {
+            if (!doShouldHandleDrop(inputState, payload)) {
+                return nullptr;
+            }
+            return m_chain.dragEnter(inputState, payload);
+        }
+
         void ToolControllerGroup::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             m_chain.setRenderOptions(inputState, renderContext);
         }
 
         void ToolControllerGroup::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_chain.render(inputState, renderContext, renderBatch);
-        }
-
-        bool ToolControllerGroup::doDragEnter(const InputState& inputState, const std::string& payload) {
-            assert(m_dropReceiver == nullptr);
-            if (!doShouldHandleDrop(inputState, payload))
-                return false;
-            m_dropReceiver = m_chain.dragEnter(inputState, payload);
-            return m_dropReceiver != nullptr;
-        }
-
-        bool ToolControllerGroup::doDragMove(const InputState& inputState) {
-            ensure(m_dropReceiver != nullptr, "dropReceiver is null");
-            return m_dropReceiver->dragMove(inputState);
-        }
-
-        void ToolControllerGroup::doDragLeave(const InputState& inputState) {
-            ensure(m_dropReceiver != nullptr, "dropReceiver is null");
-            m_dropReceiver->dragLeave(inputState);
-            m_dropReceiver = nullptr;
-        }
-
-        bool ToolControllerGroup::doDragDrop(const InputState& inputState) {
-            ensure(m_dropReceiver != nullptr, "dropReceiver is null");
-            const bool result = m_dropReceiver->dragDrop(inputState);
-            m_dropReceiver = nullptr;
-            return result;
         }
 
         bool ToolControllerGroup::doCancel() {
