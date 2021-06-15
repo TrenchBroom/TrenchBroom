@@ -1250,10 +1250,10 @@ namespace TrenchBroom {
             Model::Node* newGroup = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().empty() ? Model::Hit::NoHit : pickResult().all().front();
-            if (hit.isMatch())
-                newGroup = Model::findOutermostClosedGroup(Model::hitToNode(hit));
-
+            const auto hits = pickResult().all(type(Model::nodeHitType()));
+            if (!hits.empty()) {
+                newGroup = Model::findOutermostClosedGroup(Model::hitToNode(hits.front()));
+            }
             if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
                 return newGroup;
             return nullptr;
@@ -1278,9 +1278,9 @@ namespace TrenchBroom {
             Model::GroupNode* mergeTarget = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().empty() ? Model::Hit::NoHit : pickResult().all().front();
-            if (hit.isMatch()) {
-                mergeTarget = findOutermostClosedGroup(Model::hitToNode(hit));
+            const auto hits = pickResult().all(type(Model::nodeHitType()));
+            if (!hits.empty()) {
+                mergeTarget = findOutermostClosedGroup(Model::hitToNode(hits.front()));
             }
             if (mergeTarget == nullptr) {
                 return nullptr;
