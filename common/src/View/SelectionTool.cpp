@@ -38,6 +38,7 @@
 
 #include <kdl/memory_utils.h>
 
+#include <algorithm>
 #include <unordered_set>
 #include <vector>
 
@@ -263,18 +264,6 @@ namespace TrenchBroom {
             }
         }
 
-        template <typename I>
-        I findFirstSelected(I it, I end) {
-            while (it != end) {
-                auto* node = *it;
-                if (node->selected()) {
-                    break;
-                }
-                ++it;
-            }
-            return it;
-        }
-
         /**
          * Returns a pair where:
          *  - first is the first node in the given list that's currently selected
@@ -282,27 +271,17 @@ namespace TrenchBroom {
          */
         template <typename I>
         std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end, const Model::EditorContext& editorContext) {
-            static Model::Node* const NullNode = nullptr;
-
-            const auto first = findFirstSelected(it, end);
+            const auto first = std::find_if(it, end, [](const auto* node) { return node->selected(); });
             if (first == end) {
-                return std::make_pair(NullNode, NullNode);
+                return {nullptr, nullptr};
             }
 
-            auto next = std::next(first);
-            while (next != end) {
-                auto* node = *next;
-                if (editorContext.selectable(node)) {
-                    break;
-                }
-                ++next;
-            }
-
+            const auto next = std::find_if(std::next(first), end, [&](const auto* node) { return editorContext.selectable(node); });
             if (next == end) {
-                return std::make_pair(*first, NullNode);
-            } else {
-                return std::make_pair(*first, *next);
+                return {*first, nullptr};
             }
+
+            return {*first, *next};
         }
 
         void SelectionTool::drillSelection(const InputState& inputState) {
