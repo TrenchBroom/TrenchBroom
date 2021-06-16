@@ -107,7 +107,7 @@ namespace TrenchBroom {
         }
 
         SelectionTool::SelectionTool(std::weak_ptr<MapDocument> document) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_document{std::move(document)} {}
 
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             return this;
         }
 
-        bool SelectionTool::doMouseClick(const InputState& inputState) {
+        bool SelectionTool::mouseClick(const InputState& inputState) {
             auto document = kdl::mem_lock(m_document);
             const auto& editorContext = document->editorContext();
             
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SelectionTool::doMouseDoubleClick(const InputState& inputState) {
+        bool SelectionTool::mouseDoubleClick(const InputState& inputState) {
             auto document = kdl::mem_lock(m_document);
             const auto& editorContext = document->editorContext();
 
@@ -308,7 +308,7 @@ namespace TrenchBroom {
             }
         }
 
-        void SelectionTool::doMouseScroll(const InputState& inputState) {
+        void SelectionTool::mouseScroll(const InputState& inputState) {
             const auto document = kdl::mem_lock(m_document);
 
             if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No)) {
@@ -408,7 +408,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void SelectionTool::setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             auto document = kdl::mem_lock(m_document);
             const auto& hit = firstHit(inputState, Model::nodeHitType());
             if (hit.isMatch()) {
@@ -420,7 +420,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool SelectionTool::doCancel() {
+        bool SelectionTool::cancel() {
             // closing the current group is handled in MapViewBase
             return false;
         }
