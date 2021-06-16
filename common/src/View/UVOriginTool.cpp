@@ -58,7 +58,7 @@ namespace TrenchBroom {
         const float UVOriginTool::OriginHandleRadius =  5.0f;
 
         UVOriginTool::UVOriginTool(UVViewHelper& helper) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_helper{helper} {}
 
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             };
         }
 
-        void UVOriginTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickResult) {
             if (m_helper.valid()) {
                 const auto [xHandle, yHandle] = computeOriginHandles(m_helper);
 
@@ -317,7 +317,7 @@ namespace TrenchBroom {
             return std::make_unique<UVOriginDragTracker>(m_helper, inputState);
         }
 
-        void UVOriginTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+        void UVOriginTool::render(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             if (!m_helper.valid() || anyToolDragging(inputState)) {
                 return;
             }
@@ -336,7 +336,7 @@ namespace TrenchBroom {
             renderOriginHandle(m_helper, xHandleHit.isMatch() || yHandleHit.isMatch(), renderBatch);
         }
 
-        bool UVOriginTool::doCancel() {
+        bool UVOriginTool::cancel() {
             return false;
         }
     }

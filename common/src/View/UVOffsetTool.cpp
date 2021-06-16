@@ -41,7 +41,7 @@
 namespace TrenchBroom {
     namespace View {
         UVOffsetTool::UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_document{std::move(document)},
         m_helper{helper} {}
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             return std::make_unique<UVOffsetDragTracker>(*kdl::mem_lock(m_document), m_helper, inputState);
         }
 
-        bool UVOffsetTool::doCancel() {
+        bool UVOffsetTool::cancel() {
             return false;
         }
     }

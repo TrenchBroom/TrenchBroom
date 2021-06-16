@@ -60,7 +60,7 @@ namespace TrenchBroom {
         static constexpr auto RotateHandleWidth  =  5.0;
 
         UVRotateTool::UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_document{document},
         m_helper{helper} {}
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             return this;
         }
 
-        void UVRotateTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickResult) {
             if (!m_helper.valid()) {
                 return;
             }
@@ -304,7 +304,7 @@ namespace TrenchBroom {
             return std::make_unique<UVRotateDragTracker>(*kdl::mem_lock(m_document), m_helper, *initialAngle);
         }
 
-        void UVRotateTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+        void UVRotateTool::render(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             using namespace Model::HitFilters;
 
             if (anyToolDragging(inputState) || !m_helper.valid() || !m_helper.face()->attributes().valid()) {
@@ -315,7 +315,7 @@ namespace TrenchBroom {
             renderBatch.addOneShot(new Render{m_helper, static_cast<float>(CenterHandleRadius), static_cast<float>(RotateHandleRadius), highlight});
         }
 
-        bool UVRotateTool::doCancel() {
+        bool UVRotateTool::cancel() {
             return false;
         }
     }
