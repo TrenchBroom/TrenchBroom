@@ -54,8 +54,10 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits) {
-            std::vector<Model::Node*> hitNodes;
-            std::unordered_set<Model::Node*> duplicateCheck;
+            auto hitNodes = std::vector<Model::Node*>{};
+            hitNodes.reserve(hits.size());
+
+            auto duplicateCheck = std::unordered_set<Model::Node*>{};
 
             for (const auto& hit : hits) {
                 Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
@@ -88,9 +90,9 @@ namespace TrenchBroom {
         }
 
         SelectionTool::SelectionTool(std::weak_ptr<MapDocument> document) :
-        ToolControllerBase(),
-        Tool(true),
-        m_document(document) {}
+        ToolControllerBase{},
+        Tool{true},
+        m_document{std::move(document)} {}
 
         Tool* SelectionTool::doGetTool() {
             return this;
@@ -119,7 +121,7 @@ namespace TrenchBroom {
                                 if (brush->selected()) {
                                     document->deselect(*faceHandle);
                                 } else {
-                                    Transaction transaction(document, "Select Brush Face");
+                                    auto transaction = Transaction{document, "Select Brush Face"};
                                     document->convertToFaceSelection();
                                     document->select(*faceHandle);
                                 }
@@ -131,7 +133,7 @@ namespace TrenchBroom {
                                 }
                             }
                         } else {
-                            Transaction transaction(document, "Select Brush Face");
+                            auto transaction = Transaction{document, "Select Brush Face"};
                             document->deselectAll();
                             document->select(*faceHandle);
                         }
@@ -148,14 +150,14 @@ namespace TrenchBroom {
                             if (node->selected()) {
                                 document->deselect(node);
                             } else {
-                                Transaction transaction(document, "Select Object");
+                                auto transaction = Transaction{document, "Select Object"};
                                 if (document->hasSelectedBrushFaces()) {
                                     document->deselectAll();
                                 }
                                 document->select(node);
                             }
                         } else {
-                            Transaction transaction(document, "Select Object");
+                            auto transaction = Transaction{document, "Select Object"};
                             document->deselectAll();
                             document->select(node);
                         }
@@ -187,7 +189,7 @@ namespace TrenchBroom {
                             }
                             document->select(Model::toHandles(brush));
                         } else {
-                            Transaction transaction(document, "Select Brush Faces");
+                            auto transaction = Transaction{document, "Select Brush Faces"};
                             document->deselectAll();
                             document->select(Model::toHandles(brush));
                         }
@@ -216,7 +218,7 @@ namespace TrenchBroom {
                                     }
                                     document->select(siblings);
                                 } else {
-                                    Transaction transaction(document, "Select Brushes");
+                                    auto transaction = Transaction{document, "Select Brushes"};
                                     document->deselectAll();
                                     document->select(siblings);
                                 }
@@ -296,13 +298,15 @@ namespace TrenchBroom {
             const auto& editorContext = document->editorContext();
 
             const auto forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
-            const auto nodePair = forward ? findSelectionPair(std::begin(hitNodes), std::end(hitNodes), editorContext) : findSelectionPair(hitNodes.rbegin(), hitNodes.rend(), editorContext);
+            const auto nodePair = forward 
+                ? findSelectionPair(std::begin(hitNodes), std::end(hitNodes), editorContext) 
+                : findSelectionPair(std::rbegin(hitNodes), std::rend(hitNodes), editorContext);
 
             auto* selectedNode = nodePair.first;
             auto* nextNode = nodePair.second;
 
             if (nextNode != nullptr) {
-                Transaction transaction(document, "Drill Selection");
+                auto transaction = Transaction{document, "Drill Selection"};
                 document->deselect(selectedNode);
                 document->select(nextNode);
             }
