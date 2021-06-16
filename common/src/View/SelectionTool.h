@@ -40,14 +40,6 @@ namespace TrenchBroom {
         class MapDocument;
 
         /**
-         * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
-         * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is returned.
-         *
-         * This is used to implement the UI where clicking on a brush inside a group selects the group.
-         */
-        Model::Node* findOutermostClosedGroupOrNode(Model::Node* node);
-
-        /**
          * Applies the group picking logic of findOutermostClosedGroupOrNode() to a list of hits.
          * The order of the hits is preserved, but if multiple hits map to the same group, that group
          * will only be listed once in the output.
@@ -65,12 +57,7 @@ namespace TrenchBroom {
 
             bool doMouseClick(const InputState& inputState) override;
             bool doMouseDoubleClick(const InputState& inputState) override;
-
-            bool handleClick(const InputState& inputState) const;
-
             void doMouseScroll(const InputState& inputState) override;
-            void adjustGrid(const InputState& inputState);
-            void drillSelection(const InputState& inputState);
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
