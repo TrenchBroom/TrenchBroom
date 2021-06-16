@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         class DragTracker;
 
-        class CameraTool3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoRenderPolicy>, public Tool {
+        class CameraTool3D : public ToolController, public Tool {
         private:
             Renderer::PerspectiveCamera& m_camera;
         public:
@@ -44,12 +44,12 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            void doMouseScroll(const InputState& inputState) override;
-            void doMouseUp(const InputState& inputState) override;
+            void mouseScroll(const InputState& inputState) override;
+            void mouseUp(const InputState& inputState) override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
     }
 }

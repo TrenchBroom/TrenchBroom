@@ -111,7 +111,7 @@ namespace TrenchBroom {
         }
 
         CameraTool3D::CameraTool3D(Renderer::PerspectiveCamera& camera) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_camera{camera} {}
 
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             return this;
         }
 
-        void CameraTool3D::doMouseScroll(const InputState& inputState) {
+        void CameraTool3D::mouseScroll(const InputState& inputState) {
             const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
             const bool zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
             const float scrollDist = inputState.scrollY();
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             }
         }
 
-        void CameraTool3D::doMouseUp(const InputState& inputState) {
+        void CameraTool3D::mouseUp(const InputState& inputState) {
             if (inputState.mouseButtonsPressed(MouseButtons::MBRight)) {
                 auto& prefs = PreferenceManager::instance();
                 if (!prefs.saveInstantly()) {
@@ -261,7 +261,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        bool CameraTool3D::doCancel() {
+        bool CameraTool3D::cancel() {
             return false;
         }
     }
