@@ -26,27 +26,21 @@
 
 namespace TrenchBroom {
     namespace View {
+        class DragTracker;
         class MapDocument;
         class UVViewHelper;
 
-        class UVOffsetTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class UVOffsetTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
             const UVViewHelper& m_helper;
-            vm::vec2f m_lastPoint;
         public:
             UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            bool doStartMouseDrag(const InputState& inputState) override;
-            bool doMouseDrag(const InputState& inputState) override;
-            void doEndMouseDrag(const InputState& inputState) override;
-            void doCancelMouseDrag() override;
-
-            vm::vec2f computeHitPoint(const vm::ray3& ray) const;
-            vm::vec2f snapDelta(const vm::vec2f& delta) const;
+            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
             bool doCancel() override;
         };

@@ -301,6 +301,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
         ${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
+        ${COMMON_SOURCE_DIR}/View/DragTracker.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
         ${COMMON_SOURCE_DIR}/View/ElidedLabel.cpp
@@ -336,6 +337,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/GetVersion.cpp
         ${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
         ${COMMON_SOURCE_DIR}/View/Grid.cpp
+        ${COMMON_SOURCE_DIR}/View/HandleDragTracker.cpp
         ${COMMON_SOURCE_DIR}/View/ImageListBox.cpp
         ${COMMON_SOURCE_DIR}/View/InfoPanel.cpp
         ${COMMON_SOURCE_DIR}/View/InputEvent.cpp
@@ -368,6 +370,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
         ${COMMON_SOURCE_DIR}/View/ModEditor.cpp
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
+        ${COMMON_SOURCE_DIR}/View/MoveHandleDragTracker.cpp
         ${COMMON_SOURCE_DIR}/View/MoveObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
@@ -808,6 +811,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.h
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.h
         ${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.h
+        ${COMMON_SOURCE_DIR}/View/DragTracker.h
         ${COMMON_SOURCE_DIR}/View/EdgeTool.h
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.h
         ${COMMON_SOURCE_DIR}/View/ElidedLabel.h
@@ -843,6 +847,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/GetVersion.h
         ${COMMON_SOURCE_DIR}/View/GLContextManager.h
         ${COMMON_SOURCE_DIR}/View/Grid.h
+        ${COMMON_SOURCE_DIR}/View/HandleDragTracker.h
         ${COMMON_SOURCE_DIR}/View/ImageListBox.h
         ${COMMON_SOURCE_DIR}/View/InfoPanel.h
         ${COMMON_SOURCE_DIR}/View/InputEvent.h
@@ -876,10 +881,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.h
         ${COMMON_SOURCE_DIR}/View/ModEditor.h
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.h
+        ${COMMON_SOURCE_DIR}/View/MoveHandleDragTracker.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.h
-        ${COMMON_SOURCE_DIR}/View/MoveToolController.h
         ${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.h
         ${COMMON_SOURCE_DIR}/View/MultiMapView.h
         ${COMMON_SOURCE_DIR}/View/OnePaneMapView.h

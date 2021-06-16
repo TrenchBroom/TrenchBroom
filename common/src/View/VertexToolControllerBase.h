@@ -22,8 +22,9 @@
 #include "Model/HitType.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
+#include "View/HandleDragTracker.h"
 #include "View/Lasso.h"
-#include "View/MoveToolController.h"
+#include "View/MoveHandleDragTracker.h"
 #include "View/ToolController.h"
 
 #include <vecmath/intersection.h>
@@ -50,8 +51,8 @@ namespace TrenchBroom {
                 Model::HitType::Type m_hitType;
             protected:
                 PartBase(T* tool, const Model::HitType::Type hitType) :
-                m_tool(tool),
-                m_hitType(hitType) {}
+                m_tool{tool},
+                m_hitType{hitType} {}
             public:
                 virtual ~PartBase() = default;
             protected:
@@ -77,7 +78,7 @@ namespace TrenchBroom {
                     const auto hits = inputState.pickResult().all(type(hitType));
                     if (!hits.empty()) {
                         for (const auto& hit : hits) {
-                            if (this->selected(hit)) {
+                            if (m_tool->selected(hit)) {
                                 return hit;
                             }
                         }
@@ -90,24 +91,50 @@ namespace TrenchBroom {
                     using namespace Model::HitFilters;
                     return inputState.pickResult().all(type(hitType));
                 }
+            };
+
+            class LassoDragDelegate : public HandleDragTrackerDelegate {
+            public:
+                static constexpr auto LassoDistance = 64.0;
             private:
-                bool selected(const Model::Hit& hit) const {
-                    return m_tool->selected(hit);
+                T& m_tool;
+                std::unique_ptr<Lasso> m_lasso;
+            public:
+                LassoDragDelegate(T& tool) :
+                m_tool{tool} {}
+
+                HandlePositionProposer start(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) override {
+                    const auto& camera = inputState.camera();
+                    m_lasso = std::make_unique<Lasso>(camera, LassoDistance, initialHandlePosition);
+
+                    const auto plane = vm::orthogonal_plane(initialHandlePosition, vm::vec3{camera.direction()});
+                    return makeHandlePositionProposer(
+                        makePlaneHandlePicker(plane, handleOffset),
+                        makeIdentityHandleSnapper()
+                    );
+                }
+
+                DragStatus drag(const InputState&, const DragState&, const vm::vec3& proposedHandlePosition) override {
+                    m_lasso->update(proposedHandlePosition);
+                    return DragStatus::Continue;
+                }
+
+                void end(const InputState& inputState, const DragState&) override {
+                    m_tool.select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
+                }
+                
+                void cancel(const DragState&) override {}
+
+                void render(const InputState&, const DragState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const override {
+                    m_lasso->render(renderContext, renderBatch);
                 }
             };
 
             template <typename H>
-            class SelectPartBase : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public PartBase {
-            private:
-                Lasso* m_lasso;
+            class SelectPartBase : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy>, public PartBase {
             protected:
                 SelectPartBase(T* tool, const Model::HitType::Type hitType) :
-                PartBase(tool, hitType),
-                m_lasso(nullptr) {}
-            public:
-                ~SelectPartBase() override {
-                    delete m_lasso;
-                }
+                PartBase{tool, hitType} {}
             protected:
                 using PartBase::m_tool;
                 using PartBase::m_hitType;
@@ -134,48 +161,27 @@ namespace TrenchBroom {
                     const auto hits = firstHits(inputState.pickResult());
                     if (hits.empty()) {
                         return m_tool->deselectAll();
-                    } else {
-                        return m_tool->select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
                     }
+                    
+                    return m_tool->select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
                 }
 
-                DragInfo doStartDrag(const InputState& inputState) override {
+                std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                         !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No)) {
-                        return DragInfo();
+                        return nullptr;
                     }
 
                     const auto hits = firstHits(inputState.pickResult());
                     if (!hits.empty()) {
-                        return DragInfo();
+                        return nullptr;
                     }
 
                     const auto& camera = inputState.camera();
-                    const auto distance = 64.0f;
-                    const auto plane = vm::orthogonal_plane(vm::vec3(camera.defaultPoint(distance)), vm::vec3(camera.direction()));
+                    const auto plane = vm::orthogonal_plane(vm::vec3{camera.defaultPoint(static_cast<float>(LassoDragDelegate::LassoDistance))}, vm::vec3{camera.direction()});
                     const auto initialPoint = vm::point_at_distance(inputState.pickRay(), vm::intersect_ray_plane(inputState.pickRay(), plane));
-
-                    m_lasso = new Lasso(camera, static_cast<FloatType>(distance), initialPoint);
-                    return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
-                }
-
-                DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
-                    ensure(m_lasso != nullptr, "lasso is null");
-                    m_lasso->update(nextHandlePosition);
-                    return DR_Continue;
-                }
-
-                void doEndDrag(const InputState& inputState) override {
-                    ensure(m_lasso != nullptr, "lasso is null");
-                    m_tool->select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
-                    delete m_lasso;
-                    m_lasso = nullptr;
-                }
-
-                void doCancelDrag() override {
-                    ensure(m_lasso != nullptr, "lasso is null");
-                    delete m_lasso;
-                    m_lasso = nullptr;
+                    
+                    return createHandleDragTracker(LassoDragDelegate{*m_tool}, inputState, initialPoint, vm::vec3::zero());
                 }
 
                 bool doCancel() override {
@@ -188,18 +194,14 @@ namespace TrenchBroom {
 
                 void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     m_tool->renderHandles(renderContext, renderBatch);
-                    if (m_lasso != nullptr) {
-                        m_lasso->render(renderContext, renderBatch);
-                    } else {
-                        if (!anyToolDragging(inputState)) {
-                            const auto hit = findDraggableHandle(inputState);
-                            if (hit.hasType(m_hitType)) {
-                                const auto handle = m_tool->getHandlePosition(hit);
-                                m_tool->renderHighlight(renderContext, renderBatch, handle);
+                    if (!anyToolDragging(inputState)) {
+                        const auto hit = findDraggableHandle(inputState);
+                        if (hit.hasType(m_hitType)) {
+                            const auto handle = m_tool->getHandlePosition(hit);
+                            m_tool->renderHighlight(renderContext, renderBatch, handle);
 
-                                if (inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                                    m_tool->renderGuide(renderContext, renderBatch, handle);
-                                }
+                            if (inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
+                                m_tool->renderGuide(renderContext, renderBatch, handle);
                             }
                         }
                     }
@@ -208,8 +210,8 @@ namespace TrenchBroom {
                 std::vector<Model::Hit> firstHits(const Model::PickResult& pickResult) const {
                     using namespace Model::HitFilters;
 
-                    std::vector<Model::Hit> result;
-                    std::unordered_set<Model::BrushNode*> visitedBrushes;
+                    auto result = std::vector<Model::Hit>{};
+                    auto visitedBrushes = std::unordered_set<Model::BrushNode*>{};
 
                     const Model::Hit& first = pickResult.first(type(m_hitType));
                     if (first.isMatch()) {
@@ -242,11 +244,54 @@ namespace TrenchBroom {
                 virtual bool equalHandles(const H& lhs, const H& rhs) const = 0;
             };
 
-            class MovePartBase : public MoveToolController<NoPickingPolicy, MousePolicy>, public PartBase {
+
+            class MoveDragDelegate : public MoveHandleDragTrackerDelegate {
+            public:
+                static constexpr auto LassoDistance = 64.0;
+            private:
+                T& m_tool;
+            public:
+                MoveDragDelegate(T& tool) :
+                m_tool{tool} {}
+
+                DragStatus move(const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) override {
+                    switch (m_tool.move(proposedHandlePosition - dragState.currentHandlePosition)) {
+                        case T::MoveResult::Continue:
+                            return DragStatus::Continue;
+                        case T::MoveResult::Deny:
+                            return DragStatus::Deny;
+                        case T::MoveResult::Cancel:
+                            return DragStatus::End;
+                        switchDefault()
+                    }
+                }
+
+                void end(const InputState&, const DragState&) override {
+                    m_tool.endMove();
+                }
+
+                void cancel(const DragState&) override {
+                    m_tool.cancelMove();
+                }
+
+                void render(const InputState&, const DragState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const override {
+                    m_tool.renderDragHandle(renderContext, renderBatch);
+                    m_tool.renderDragHighlight(renderContext, renderBatch);
+                    m_tool.renderDragGuide(renderContext, renderBatch);
+                }
+
+                DragHandleSnapper makeDragHandleSnapper(const InputState&, const SnapMode snapMode) const override {
+                    if (m_tool.allowAbsoluteSnapping()) {
+                        return makeDragHandleSnapperFromSnapMode(m_tool.grid(), snapMode);
+                    }
+                    return makeRelativeHandleSnapper(m_tool.grid());
+                }
+            };
+
+            class MovePartBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy>, public PartBase {
             protected:
                 MovePartBase(T* tool, const Model::HitType::Type hitType) :
-                MoveToolController(tool->grid()),
-                PartBase(tool, hitType) {}
+                PartBase{tool, hitType} {}
             public:
                 ~MovePartBase() override = default;
             protected:
@@ -266,66 +311,32 @@ namespace TrenchBroom {
                     return m_tool->deselectAll();
                 }
 
-                MoveInfo doStartMove(const InputState& inputState) override {
+                std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     if (!shouldStartMove(inputState)) {
-                        return MoveInfo();
+                        return nullptr;
                     }
 
-                    const std::vector<Model::Hit> hits = findDraggableHandles(inputState);
+                    const auto hits = findDraggableHandles(inputState);
                     if (hits.empty()) {
-                        return MoveInfo();
+                        return nullptr;
                     }
 
                     if (!m_tool->startMove(hits)) {
-                        return MoveInfo();
-                    } else {
-                        return MoveInfo(hits.front().hitPoint());
+                        return nullptr;
                     }
+
+                    const auto [initialHandlePosition, handleOffset] = m_tool->handlePositionAndOffset(hits);
+
+                    return createMoveHandleDragTracker(MoveDragDelegate{*m_tool}, inputState, initialHandlePosition, handleOffset);
                 }
 
                 // Overridden in vertex tool controller to handle special cases for vertex moving.
                 virtual bool shouldStartMove(const InputState& inputState) const {
-                    return (inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
-                            (inputState.modifierKeysPressed(ModifierKeys::MKNone) || // horizontal movement
-                             inputState.modifierKeysPressed(ModifierKeys::MKAlt)     // vertical movement
-                            ));
-                }
-
-                DragResult doMove(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
-                    switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
-                        case T::MR_Continue:
-                            return DR_Continue;
-                        case T::MR_Deny:
-                            return DR_Deny;
-                        case T::MR_Cancel:
-                            return DR_Cancel;
-                        switchDefault()
-                    }
-                }
-
-                void doEndMove(const InputState&) override {
-                    m_tool->endMove();
-                }
-
-                void doCancelMove() override {
-                    m_tool->cancelMove();
-                }
-
-                DragSnapper* doCreateDragSnapper(const InputState&) const  override {
-                    return new DeltaDragSnapper(m_tool->grid());
-                }
-
-                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
-                    MoveToolController::doRender(inputState, renderContext, renderBatch);
-
-                    if (thisToolDragging()) {
-                        m_tool->renderDragHandle(renderContext, renderBatch);
-                        m_tool->renderDragHighlight(renderContext, renderBatch);
-                        m_tool->renderDragGuide(renderContext, renderBatch);
-                    }
+                    return inputState.mouseButtonsPressed(MouseButtons::MBLeft)
+                           && (inputState.modifierKeysPressed(ModifierKeys::MKNone) // horizontal movement
+                               || inputState.modifierKeysPressed(ModifierKeys::MKAlt));  // vertical movement
                 }
             };
-
         protected:
             T* m_tool;
         protected:

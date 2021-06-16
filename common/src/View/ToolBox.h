@@ -42,6 +42,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class DragTracker;
         class InputState;
         class Tool;
         class ToolController;
@@ -50,7 +51,7 @@ namespace TrenchBroom {
         class ToolBox : public QObject {
             Q_OBJECT
         private:
-            ToolController* m_dragReceiver;
+            std::unique_ptr<DragTracker> m_dragTracker;
             ToolController* m_dropReceiver;
             Tool* m_modalTool;
 
@@ -66,6 +67,7 @@ namespace TrenchBroom {
             Notifier<Tool*> toolHandleSelectionChangedNotifier;
         public:
             ToolBox();
+            ~ToolBox();
         protected:
             void addTool(Tool* tool);
         public: // picking

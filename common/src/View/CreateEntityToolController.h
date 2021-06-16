@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace View {
         class CreateEntityTool;
 
-        class CreateEntityToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, DropPolicy> {
+        class CreateEntityToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy, DropPolicy> {
         protected:
             CreateEntityTool* m_tool;
         protected:

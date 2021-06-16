@@ -33,39 +33,21 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class MapDocument;
+        class DragTracker;
 
-        class CameraTool3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class CameraTool3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
-            std::weak_ptr<MapDocument> m_document;
             Renderer::PerspectiveCamera& m_camera;
-            bool m_orbit;
-            vm::vec3f m_orbitCenter;
         public:
-            CameraTool3D(std::weak_ptr<MapDocument> document, Renderer::PerspectiveCamera& camera);
-            void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);
+            CameraTool3D(Renderer::PerspectiveCamera& camera);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
             void doMouseScroll(const InputState& inputState) override;
             void doMouseUp(const InputState& inputState) override;
-            bool doStartMouseDrag(const InputState& inputState) override;
-            bool doMouseDrag(const InputState& inputState) override;
-            void doEndMouseDrag(const InputState& inputState) override;
-            void doCancelMouseDrag() override;
 
-            bool move(const InputState& inputState) const;
-            bool look(const InputState& inputState) const;
-            bool pan(const InputState& inputState) const;
-            bool orbit(const InputState& inputState) const;
-            bool adjustFlySpeed(const InputState& inputState) const;
-
-            float lookSpeedH() const;
-            float lookSpeedV() const;
-            float panSpeedH() const;
-            float panSpeedV() const;
-            float moveSpeed(bool altMode) const;
+            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
             bool doCancel() override;
         };

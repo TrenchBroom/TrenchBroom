@@ -36,7 +36,6 @@ namespace TrenchBroom {
         private:
             const Renderer::Camera& m_camera;
             const FloatType m_distance;
-            const vm::mat4x4 m_transform;
             const vm::vec3 m_start;
             vm::vec3 m_cur;
         public:
@@ -46,18 +45,14 @@ namespace TrenchBroom {
 
             template <typename I, typename O>
             void selected(I cur, I end, O out) const {
-                const vm::plane3 plane = this->plane();
-                const vm::bbox2 box = this->box();
+                const auto plane = getPlane();
+                const auto box = getBox(getTransform());
                 while (cur != end) {
-                    if (selects(*cur, plane, box))
+                    if (selects(*cur, plane, box)) {
                         out = *cur;
+                    }
                     ++cur;
                 }
-            }
-
-            template <typename H>
-            bool selects(const H& h) const {
-                return selects(h, plane(), box());
             }
         private:
             bool selects(const vm::vec3& point, const vm::plane3& plane, const vm::bbox2& box) const;
@@ -67,8 +62,9 @@ namespace TrenchBroom {
         public:
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
         private:
-            vm::plane3 plane() const;
-            vm::bbox2 box() const;
+            vm::plane3 getPlane() const;
+            vm::mat4x4 getTransform() const;
+            vm::bbox2 getBox(const vm::mat4x4& transform) const;
         };
     }
 }

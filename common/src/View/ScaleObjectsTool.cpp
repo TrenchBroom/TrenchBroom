@@ -486,6 +486,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        const Grid& ScaleObjectsTool::grid() const {
+            return kdl::mem_lock(m_document)->grid();
+        }
+
         const Model::Hit& ScaleObjectsTool::dragStartHit() const {
             return m_dragStartHit;
         }
@@ -531,7 +535,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void ScaleObjectsTool::pickBackSides(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ScaleObjectsTool::pickBackSides(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             // select back sides. Used for both 2D and 3D.
             if (pickResult.empty()) {
                 const auto result = pickBackSideOfBox(pickRay, camera, bounds());
@@ -543,7 +547,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ScaleObjectsTool::pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ScaleObjectsTool::pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             using namespace Model::HitFilters;
 
             const vm::bbox3& myBounds = bounds();
@@ -579,7 +583,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ScaleObjectsTool::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ScaleObjectsTool::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             using namespace Model::HitFilters;
 
             const auto& myBounds = bounds();

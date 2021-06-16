@@ -40,7 +40,7 @@ namespace TrenchBroom {
     namespace View {
         VertexTool::VertexTool(const std::weak_ptr<MapDocument>& document) :
         VertexToolBase(document),
-        m_mode(Mode_Move),
+        m_mode(Mode::Move),
         m_vertexHandles(std::make_unique<VertexHandleManager>()),
         m_edgeHandles(std::make_unique<EdgeHandleManager>()),
         m_faceHandles(std::make_unique<FaceHandleManager>()),
@@ -83,6 +83,21 @@ namespace TrenchBroom {
             return *m_vertexHandles;
         }
 
+        std::tuple<vm::vec3, vm::vec3> VertexTool::handlePositionAndOffset(const std::vector<Model::Hit>& hits) const {
+            assert(!hits.empty());
+
+            const auto& hit = hits.front();
+            assert(hit.hasType(VertexHandleManager::HandleHitType | EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType));
+
+            const auto position = hit.hasType(VertexHandleManager::HandleHitType)
+                ? hit.target<vm::vec3>()
+                : hit.hasType(EdgeHandleManager::HandleHitType)
+                ? std::get<1>(hit.target<EdgeHandleManager::HitType>())
+                : std::get<1>(hit.target<FaceHandleManager::HitType>());
+
+            return {position, hit.hitPoint() - position};
+        }
+
         bool VertexTool::startMove(const std::vector<Model::Hit>& hits) {
             const auto& hit = hits.front();
             if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType)) {
@@ -90,19 +105,19 @@ namespace TrenchBroom {
                 if (hit.hasType(EdgeHandleManager::HandleHitType)) {
                     const vm::segment3& handle = std::get<0>(hit.target<const EdgeHandleManager::HitType&>());
                     m_edgeHandles->select(handle);
-                    m_mode = Mode_Split_Edge;
+                    m_mode = Mode::SplitEdge;
                 } else {
                     const vm::polygon3& handle = std::get<0>(hit.target<const FaceHandleManager::HitType&>());
                     m_faceHandles->select(handle);
-                    m_mode = Mode_Split_Face;
+                    m_mode = Mode::SplitFace;
                 }
                 refreshViews();
             } else {
-                m_mode = Mode_Move;
+                m_mode = Mode::Move;
             }
 
             if (!VertexToolBase::startMove(hits)) {
-                m_mode = Mode_Move;
+                m_mode = Mode::Move;
                 return false;
             } else {
                 return true;
@@ -112,28 +127,28 @@ namespace TrenchBroom {
         VertexTool::MoveResult VertexTool::move(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
 
-            if (m_mode == Mode_Move) {
+            if (m_mode == Mode::Move) {
                 auto handles = m_vertexHandles->selectedHandles();
                 const auto result = document->moveVertices(std::move(handles), delta);
                 if (result.success) {
                     if (!result.hasRemainingVertices) {
-                        return MR_Cancel;
+                        return MoveResult::Cancel;
                     } else {
                         m_dragHandlePosition = m_dragHandlePosition + delta;
-                        return MR_Continue;
+                        return MoveResult::Continue;
                     }
                 } else {
-                    return MR_Deny;
+                    return MoveResult::Deny;
                 }
             } else {
                 std::vector<Model::BrushNode*> brushes;
-                if (m_mode == Mode_Split_Edge) {
+                if (m_mode == Mode::SplitEdge) {
                     if (m_edgeHandles->selectedHandleCount() == 1) {
                         const vm::segment3 handle = m_edgeHandles->selectedHandles().front();
                         brushes = findIncidentBrushes(handle);
                     }
                 } else {
-                    assert(m_mode == Mode_Split_Face);
+                    assert(m_mode == Mode::SplitFace);
                     if (m_faceHandles->selectedHandleCount() == 1) {
                         const vm::polygon3 handle = m_faceHandles->selectedHandles().front();
                         brushes = findIncidentBrushes(handle);
@@ -143,17 +158,17 @@ namespace TrenchBroom {
                 if (!brushes.empty()) {
                     const auto newVertexPosition = m_dragHandlePosition + delta;
                     if (document->addVertex(newVertexPosition)) {
-                        m_mode = Mode_Move;
+                        m_mode = Mode::Move;
                         m_edgeHandles->deselectAll();
                         m_faceHandles->deselectAll();
                         m_dragHandlePosition = m_dragHandlePosition + delta;
                         m_vertexHandles->select(m_dragHandlePosition);
                     }
-                    return MR_Continue;
+                    return MoveResult::Continue;
                 }
 
                 // Catch all failure cases: no brushes were selected or vertices could not be added:
-                return MR_Deny;
+                return MoveResult::Deny;
             }
         }
 
@@ -161,13 +176,17 @@ namespace TrenchBroom {
             VertexToolBase::endMove();
             m_edgeHandles->deselectAll();
             m_faceHandles->deselectAll();
-            m_mode = Mode_Move;
+            m_mode = Mode::Move;
         }
         void VertexTool::cancelMove() {
             VertexToolBase::cancelMove();
             m_edgeHandles->deselectAll();
             m_faceHandles->deselectAll();
-            m_mode = Mode_Move;
+            m_mode = Mode::Move;
+        }
+
+        bool VertexTool::allowAbsoluteSnapping() const {
+            return true;
         }
 
         vm::vec3 VertexTool::getHandlePosition(const Model::Hit& hit) const {
@@ -185,11 +204,11 @@ namespace TrenchBroom {
 
         std::string VertexTool::actionName() const {
             switch (m_mode) {
-                case Mode_Move:
+                case Mode::Move:
                     return kdl::str_plural(m_vertexHandles->selectedHandleCount(), "Move Vertex", "Move Vertices");
-                case Mode_Split_Edge:
+                case Mode::SplitEdge:
                     return "Split Edge";
-                case Mode_Split_Face:
+                case Mode::SplitFace:
                     return "Split Face";
                 switchDefault();
             }
@@ -219,7 +238,7 @@ namespace TrenchBroom {
             m_edgeHandles->addHandles(std::begin(brushes), std::end(brushes));
             m_faceHandles->addHandles(std::begin(brushes), std::end(brushes));
 
-            m_mode = Mode_Move;
+            m_mode = Mode::Move;
             return true;
         }
 
@@ -257,7 +276,7 @@ namespace TrenchBroom {
 
         void VertexTool::resetModeAfterDeselection() {
             if (!m_vertexHandles->anySelected()) {
-                m_mode = Mode_Move;
+                m_mode = Mode::Move;
             }
         }
     }

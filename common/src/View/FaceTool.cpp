@@ -46,15 +46,25 @@ namespace TrenchBroom {
             return *m_faceHandles;
         }
 
+        std::tuple<vm::vec3, vm::vec3> FaceTool::handlePositionAndOffset(const std::vector<Model::Hit>& hits) const {
+            assert(!hits.empty());
+
+            const auto& hit = hits.front();
+            assert(hit.hasType(FaceHandleManager::HandleHitType));
+
+            const auto position = hit.target<vm::polygon3>().center();
+            return {position, hit.hitPoint() - position};
+        }
+
         FaceTool::MoveResult FaceTool::move(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
 
             auto handles = m_faceHandles->selectedHandles();
             if (document->moveFaces(std::move(handles), delta)) {
                 m_dragHandlePosition = m_dragHandlePosition.translate(delta);
-                return MR_Continue;
+                return MoveResult::Continue;
             }
-            return MR_Deny;
+            return MoveResult::Deny;
         }
 
         std::string FaceTool::actionName() const {

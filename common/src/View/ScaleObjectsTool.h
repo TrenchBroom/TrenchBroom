@@ -42,6 +42,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Grid;
         class MapDocument;
         class ScaleObjectsToolPage;
 
@@ -225,12 +226,14 @@ namespace TrenchBroom {
 
             bool doActivate() override;
 
+            const Grid& grid() const;
+
             const Model::Hit& dragStartHit() const;
             bool applies() const;
 
-            void pickBackSides(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
-            void pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
-            void pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pickBackSides(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             vm::bbox3 bounds() const;
 

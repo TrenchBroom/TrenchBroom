@@ -41,6 +41,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Grid;
         class MapDocument;
 
         class ShearObjectsTool : public Tool {
@@ -57,6 +58,8 @@ namespace TrenchBroom {
         public:
             explicit ShearObjectsTool(std::weak_ptr<MapDocument> document);
             ~ShearObjectsTool() override;
+
+            const Grid& grid() const;
 
             bool applies() const;
 

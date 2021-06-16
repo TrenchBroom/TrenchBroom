@@ -28,6 +28,7 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 #include "Model/TexCoordSystem.h"
+#include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
@@ -42,9 +43,9 @@ namespace TrenchBroom {
         static const std::string TransferFaceAttributesTransactionName = "Transfer Face Attributes";
 
         SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document) :
-        ToolControllerBase(),
-        Tool(true),
-        m_document(document) {}
+        ToolControllerBase{},
+        Tool{true},
+        m_document{document} {}
 
         Tool* SetBrushFaceAttributesTool::doGetTool() {
             return this;
@@ -58,9 +59,9 @@ namespace TrenchBroom {
             if (canCopyAttributesFromSelection(inputState)) {
                 copyAttributesFromSelection(inputState, false);
                 return true;
-            } else {
-                return false;
             }
+            
+            return false;
         }
 
         bool SetBrushFaceAttributesTool::doMouseDoubleClick(const InputState& inputState) {
@@ -80,9 +81,131 @@ namespace TrenchBroom {
 
                 copyAttributesFromSelection(inputState, true);
                 return true;
-            } else {
-                return false;
             }
+            
+            return false;
+        }
+
+        static bool copyTextureOnlyModifiersDown(const InputState& inputState) {
+            return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd);
+        }
+
+        static bool copyTextureAttribsProjectionModifiersDown(const InputState& inputState) {
+            return inputState.modifierKeys() == (ModifierKeys::MKAlt);
+        }
+
+        static bool copyTextureAttribsRotationModifiersDown(const InputState& inputState) {
+            return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKShift);
+        }
+
+        /**
+         * Checks the mouse state. The requirements are the same whether this is a click, a double click, or a drag.
+         */
+        static bool applies(const InputState& inputState) {
+            const bool textureOnly = copyTextureOnlyModifiersDown(inputState);
+            const bool projection = copyTextureAttribsProjectionModifiersDown(inputState);
+            const bool rotation = copyTextureAttribsRotationModifiersDown(inputState);
+
+            return inputState.mouseButtonsPressed(MouseButtons::MBLeft)
+                   && (textureOnly || projection || rotation);
+        }
+
+        static void transferFaceAttributes(MapDocument& document, const InputState& inputState, const Model::BrushFaceHandle& sourceFaceHandle, const std::vector<Model::BrushFaceHandle>& targetFaceHandles, const Model::BrushFaceHandle& faceToSelectAfter) {
+            const Model::WrapStyle style =
+                    copyTextureAttribsRotationModifiersDown(inputState) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
+
+            const Transaction transaction(&document, TransferFaceAttributesTransactionName);
+            document.deselectAll();
+            document.select(targetFaceHandles);
+
+            if (copyTextureOnlyModifiersDown(inputState)) {
+                Model::ChangeBrushFaceAttributesRequest request;
+                request.setTextureName(sourceFaceHandle.face().attributes().textureName());
+                document.setFaceAttributes(request);
+            } else {
+                auto snapshot = sourceFaceHandle.face().takeTexCoordSystemSnapshot();
+                document.setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
+                if (snapshot != nullptr) {
+                    document.copyTexCoordSystemFromFace(*snapshot, sourceFaceHandle.face().attributes(), sourceFaceHandle.face().boundary(), style);
+                }
+            }
+
+            document.deselectAll();
+            document.select(faceToSelectAfter);
+        }
+
+        namespace {
+            class SetBrushFaceAttributesDragTracker : public DragTracker {
+            private:
+                MapDocument& m_document;
+                Model::BrushFaceHandle m_initialSelectedFaceHandle;
+                std::optional<Model::BrushFaceHandle> m_sourceFaceHandle;
+                std::optional<Model::BrushFaceHandle> m_targetFaceHandle;
+            public:
+                SetBrushFaceAttributesDragTracker(MapDocument& document, Model::BrushFaceHandle initialSelectedFaceHandle) :
+                m_document{document},
+                m_initialSelectedFaceHandle{std::move(initialSelectedFaceHandle)} {}
+
+                bool drag(const InputState& inputState) {
+                    using namespace Model::HitFilters;
+
+                    const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+                    const auto faceHandle = Model::hitToFaceHandle(hit);
+                    if (!faceHandle) {
+                        // Dragging over void
+                        return true;
+                    }
+
+                    if (faceHandle == m_targetFaceHandle) {
+                        // Dragging on the same face as last frame
+                        return true;
+                    }
+
+                    if (!m_sourceFaceHandle && !m_targetFaceHandle) {
+                        // Start drag
+                        m_sourceFaceHandle = m_initialSelectedFaceHandle;
+                        m_targetFaceHandle = faceHandle;
+                    } else {
+                        // Continuing drag onto new face
+                        m_sourceFaceHandle = m_targetFaceHandle;
+                        m_targetFaceHandle = faceHandle;
+                    }
+
+                    transferFaceAttributes(m_document, inputState, *m_sourceFaceHandle, { *m_targetFaceHandle }, m_initialSelectedFaceHandle);
+
+                    return true;
+                }
+
+                void end(const InputState&) {
+                    m_document.commitTransaction();
+                }
+
+                void cancel() {
+                    m_document.cancelTransaction();
+                }
+            };
+        }
+
+        std::unique_ptr<DragTracker> SetBrushFaceAttributesTool::acceptMouseDrag(const InputState& inputState) {
+            if (!applies(inputState)) {
+                return nullptr;
+            }
+
+            auto document = kdl::mem_lock(m_document);
+
+            // Need to have a selected face to start painting alignment
+            const std::vector<Model::BrushFaceHandle>& selectedFaces = document->selectedBrushFaces();
+            if (selectedFaces.size() != 1) {
+                return nullptr;
+            }
+
+            document->startTransaction("Drag Apply Face Attributes");
+
+            return std::make_unique<SetBrushFaceAttributesDragTracker>(*kdl::mem_lock(m_document), selectedFaces.front());
+        }
+
+        bool SetBrushFaceAttributesTool::doCancel() {
+            return false;
         }
 
         void SetBrushFaceAttributesTool::copyAttributesFromSelection(const InputState& inputState, const bool applyToBrush) {
@@ -100,7 +223,7 @@ namespace TrenchBroom {
                 const auto sourceFaceHandle = selectedFaces.front();
                 const auto targetList = applyToBrush ? Model::toHandles(targetFaceHandle->node()) : std::vector<Model::BrushFaceHandle>{*targetFaceHandle};
 
-                transferFaceAttributes(inputState, sourceFaceHandle, targetList, sourceFaceHandle);
+                transferFaceAttributes(*document, inputState, sourceFaceHandle, targetList, sourceFaceHandle);
             }
         }
 
@@ -124,131 +247,6 @@ namespace TrenchBroom {
             }
 
             return true;
-        }
-
-        /**
-         * Checks the mouse state. The requirements are the same whether this is a click, a double click, or a drag.
-         */
-        bool SetBrushFaceAttributesTool::applies(const InputState& inputState) const {
-            const bool textureOnly = copyTextureOnlyModifiersDown(inputState);
-            const bool projection = copyTextureAttribsProjectionModifiersDown(inputState);
-            const bool rotation = copyTextureAttribsRotationModifiersDown(inputState);
-
-            return inputState.mouseButtonsPressed(MouseButtons::MBLeft)
-                   && (textureOnly || projection || rotation);
-        }
-
-        bool SetBrushFaceAttributesTool::copyTextureOnlyModifiersDown(const InputState& inputState) const {
-            return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd);
-        }
-
-        bool SetBrushFaceAttributesTool::copyTextureAttribsProjectionModifiersDown(const InputState& inputState) const {
-            return inputState.modifierKeys() == (ModifierKeys::MKAlt);
-        }
-
-        bool SetBrushFaceAttributesTool::copyTextureAttribsRotationModifiersDown(const InputState& inputState) const {
-            return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKShift);
-        }
-
-        bool SetBrushFaceAttributesTool::doCancel() {
-            return false;
-        }
-
-        bool SetBrushFaceAttributesTool::doStartMouseDrag(const InputState& inputState) {
-            if (!applies(inputState)) {
-                return false;
-            }
-
-            auto document = kdl::mem_lock(m_document);
-
-            // Need to have a selected face to start painting alignment
-            const std::vector<Model::BrushFaceHandle>& selectedFaces = document->selectedBrushFaces();
-            if (selectedFaces.size() != 1) {
-                return false;
-            }
-
-            resetDragState();
-            m_dragInitialSelectedFaceHandle = selectedFaces[0];
-
-            document->startTransaction("Drag Apply Face Attributes");
-
-            return true;
-        }
-
-        bool SetBrushFaceAttributesTool::doMouseDrag(const InputState& inputState) {            
-            using namespace Model::HitFilters;
-
-            const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-            const auto faceHandle = Model::hitToFaceHandle(hit);
-            if (!faceHandle) {
-                // Dragging over void
-                return true;
-            }
-
-            if (faceHandle == m_dragTargetFaceHandle) {
-                // Dragging on the same face as last frame
-                return true;
-            }
-
-            if (!m_dragSourceFaceHandle && !m_dragTargetFaceHandle) {
-                // Start drag
-                m_dragSourceFaceHandle = m_dragInitialSelectedFaceHandle;
-                m_dragTargetFaceHandle = faceHandle;
-            } else {
-                // Continuing drag onto new face
-                m_dragSourceFaceHandle = m_dragTargetFaceHandle;
-                m_dragTargetFaceHandle = faceHandle;
-            }
-
-            transferFaceAttributes(inputState, *m_dragSourceFaceHandle, { *m_dragTargetFaceHandle }, *m_dragInitialSelectedFaceHandle);
-
-            return true;
-        }
-
-        void SetBrushFaceAttributesTool::doEndMouseDrag(const InputState&) {
-            auto document = kdl::mem_lock(m_document);
-            document->commitTransaction();
-
-            resetDragState();
-        }
-
-        void SetBrushFaceAttributesTool::doCancelMouseDrag() {
-            auto document = kdl::mem_lock(m_document);
-            document->cancelTransaction();
-
-            resetDragState();
-        }
-
-        void SetBrushFaceAttributesTool::resetDragState() {
-            m_dragInitialSelectedFaceHandle = std::nullopt;
-            m_dragTargetFaceHandle = std::nullopt;
-            m_dragSourceFaceHandle = std::nullopt;
-        }
-
-        void SetBrushFaceAttributesTool::transferFaceAttributes(const InputState& inputState, const Model::BrushFaceHandle& sourceFaceHandle, const std::vector<Model::BrushFaceHandle>& targetFaceHandles, const Model::BrushFaceHandle& faceToSelectAfter) {
-            auto document = kdl::mem_lock(m_document);
-
-            const Model::WrapStyle style =
-                    copyTextureAttribsRotationModifiersDown(inputState) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
-
-            const Transaction transaction(document, TransferFaceAttributesTransactionName);
-            document->deselectAll();
-            document->select(targetFaceHandles);
-
-            if (copyTextureOnlyModifiersDown(inputState)) {
-                Model::ChangeBrushFaceAttributesRequest request;
-                request.setTextureName(sourceFaceHandle.face().attributes().textureName());
-                document->setFaceAttributes(request);
-            } else {
-                auto snapshot = sourceFaceHandle.face().takeTexCoordSystemSnapshot();
-                document->setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
-                if (snapshot != nullptr) {
-                    document->copyTexCoordSystemFromFace(*snapshot, sourceFaceHandle.face().attributes(), sourceFaceHandle.face().boundary(), style);
-                }
-            }
-
-            document->deselectAll();
-            document->select(faceToSelectAfter);
         }
     }
 }

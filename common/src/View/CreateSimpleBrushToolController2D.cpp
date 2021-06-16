@@ -23,6 +23,7 @@
 #include "Renderer/Camera.h"
 #include "View/CreateSimpleBrushTool.h"
 #include "View/Grid.h"
+#include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
@@ -31,11 +32,13 @@
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
 
+#include <optional>
+
 namespace TrenchBroom {
     namespace View {
         CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document) :
-        m_tool(tool),
-        m_document(document) {
+        m_tool{tool},
+        m_document{document} {
             ensure(m_tool != nullptr, "tool is null");
         }
 
@@ -47,94 +50,112 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController2D::doStartDrag(const InputState& inputState) {
+        namespace {
+            class CreateSimpleBrushDragDelegate : public HandleDragTrackerDelegate {
+            private:
+                CreateSimpleBrushTool& m_tool;
+                vm::bbox3 m_worldBounds;
+                vm::bbox3 m_referenceBounds;
+            public:
+                CreateSimpleBrushDragDelegate(CreateSimpleBrushTool& tool, const vm::bbox3& worldBounds, const vm::bbox3& referenceBounds) :
+                m_tool{tool},
+                m_worldBounds{worldBounds},
+                m_referenceBounds{referenceBounds} {}
+
+                HandlePositionProposer start(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) override {
+                    const auto currentBounds = makeBounds(inputState, initialHandlePosition, initialHandlePosition);
+                    m_tool.update(currentBounds);
+                    m_tool.refreshViews();
+
+                    const auto& camera = inputState.camera();
+                    const auto plane = vm::plane3{initialHandlePosition, vm::vec3{vm::get_abs_max_component_axis(camera.direction())}};
+
+                    return makeHandlePositionProposer(
+                        makePlaneHandlePicker(plane, handleOffset),
+                        makeIdentityHandleSnapper());
+                }
+
+                DragStatus drag(const InputState& inputState, const DragState& dragState, const vm::vec3& proposedHandlePosition) override {
+                    if (updateBounds(inputState, dragState.initialHandlePosition, dragState.currentHandlePosition, proposedHandlePosition)) {
+                        m_tool.refreshViews();
+                        return DragStatus::Continue;
+                    }
+                    return DragStatus::Deny;
+                }
+
+                void end(const InputState&, const DragState&) override {
+                    m_tool.createBrush();
+                }
+
+                void cancel(const DragState&) override {
+                    m_tool.cancel();
+                }
+
+                void render(const InputState&, const DragState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const override {
+                    m_tool.render(renderContext, renderBatch);
+                }
+            private:
+                bool updateBounds(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& lastHandlePosition, const vm::vec3& currentHandlePosition) {
+                    const auto lastBounds = makeBounds(inputState, initialHandlePosition, lastHandlePosition);
+                    const auto currentBounds = makeBounds(inputState, initialHandlePosition, currentHandlePosition);
+                    
+                    if (currentBounds.is_empty() || currentBounds == lastBounds) {
+                        return false;
+                    }
+
+                    m_tool.update(currentBounds);
+                    return true;
+                }
+
+                vm::bbox3 makeBounds(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& currentHandlePosition) const {
+                    const auto bounds = vm::merge(vm::bbox3{initialHandlePosition, initialHandlePosition}, currentHandlePosition);
+                    return vm::intersect(snapBounds(inputState, bounds), m_worldBounds);
+                }
+
+                vm::bbox3 snapBounds(const InputState& inputState, const vm::bbox3& bounds) const {
+                    const auto& grid = m_tool.grid();
+                    auto min = grid.snapDown(bounds.min);
+                    auto max = grid.snapUp(bounds.max);
+
+                    const auto& camera = inputState.camera();
+                    const auto& refBounds = m_referenceBounds;
+                    const auto factors = vm::vec3{vm::abs(vm::get_abs_max_component_axis(camera.direction()))};
+                    min = vm::mix(min, refBounds.min, factors);
+                    max = vm::mix(max, refBounds.max, factors);
+
+                    return vm::bbox3{min, max};
+                }
+            };
+        }
+
+        std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                return DragInfo();
+                return nullptr;
             }
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone)) {
-                return DragInfo();
+                return nullptr;
             }
 
             auto document = kdl::mem_lock(m_document);
             if (document->hasSelection()) {
-                return DragInfo();
+                return nullptr;
             }
 
             const auto& bounds = document->referenceBounds();
             const auto& camera = inputState.camera();
-            const vm::plane3 plane(bounds.min, vm::vec3(vm::get_abs_max_component_axis(camera.direction())));
+            const auto plane = vm::plane3{bounds.min, vm::vec3{vm::get_abs_max_component_axis(camera.direction())}};
 
             const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane);
             if (vm::is_nan(distance)) {
-                return DragInfo();
+                return nullptr;
             }
 
-            m_initialPoint = vm::point_at_distance(inputState.pickRay(), distance);
-            if (updateBounds(inputState, m_initialPoint)) {
-                m_tool->refreshViews();
-            }
-
-            return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
-        }
-
-        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) {
-            if (updateBounds(inputState, nextHandlePosition)) {
-                m_tool->refreshViews();
-                return DR_Continue;
-            }
-            return DR_Deny;
-        }
-
-        void CreateSimpleBrushToolController2D::doEndDrag(const InputState&) {
-            if (!m_bounds.is_empty())
-                m_tool->createBrush();
-        }
-
-        void CreateSimpleBrushToolController2D::doCancelDrag() {
-            m_tool->cancel();
-        }
-
-        void CreateSimpleBrushToolController2D::doSetRenderOptions(const InputState&, Renderer::RenderContext&) const {}
-
-        void CreateSimpleBrushToolController2D::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_tool->render(renderContext, renderBatch);
+            const auto initialHandlePosition = vm::point_at_distance(inputState.pickRay(), distance);
+            return createHandleDragTracker(CreateSimpleBrushDragDelegate{*m_tool, document->worldBounds(), document->referenceBounds()}, inputState, initialHandlePosition, vm::vec3::zero());
         }
 
         bool CreateSimpleBrushToolController2D::doCancel() {
             return false;
-        }
-
-        bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const vm::vec3& currentPoint) {
-            vm::bbox3 bounds(m_initialPoint, m_initialPoint);
-            bounds = merge(bounds, currentPoint);
-            snapBounds(inputState, bounds);
-
-            auto document = kdl::mem_lock(m_document);
-            bounds = vm::intersect(bounds, document->worldBounds());
-
-            if (bounds.is_empty() || bounds == m_bounds)
-                return false;
-
-            using std::swap;
-            swap(m_bounds, bounds);
-            m_tool->update(m_bounds);
-
-            return true;
-        }
-
-        void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, vm::bbox3& bounds) {
-            auto document = kdl::mem_lock(m_document);
-            const auto& grid = document->grid();
-            auto min = grid.snapDown(bounds.min);
-            auto max = grid.snapUp(bounds.max);
-
-            const auto& camera = inputState.camera();
-            const auto& refBounds = document->referenceBounds();
-            const auto factors = vm::vec3(abs(vm::get_abs_max_component_axis(camera.direction())));
-            min = vm::mix(min, refBounds.min, factors);
-            max = vm::mix(max, refBounds.max, factors);
-
-            bounds = vm::bbox3(min, max);
         }
     }
 }

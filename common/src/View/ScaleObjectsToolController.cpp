@@ -28,11 +28,13 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/Camera.h"
+#include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
@@ -42,8 +44,8 @@
 namespace TrenchBroom {
     namespace View {
         ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document) :
-        m_tool(tool),
-        m_document(document) {
+        m_tool{tool},
+        m_document{document} {
             ensure(m_tool != nullptr, "tool is null");
         }
 
@@ -58,29 +60,23 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            if (handleInput(inputState)) {
+            if (m_tool->applies()) {
                 doPick(inputState.pickRay(), inputState.camera(), pickResult);
             }
         }
 
-        static std::tuple<DragRestricter*, DragSnapper*, vm::vec3>
-        getDragRestricterSnapperAndInitialPoint(const InputState& inputState,
-                                                const Grid& grid,
-                                                const Model::Hit& dragStartHit,
-                                                const vm::bbox3& bboxAtDragStart) {
+        static HandlePositionProposer makeHandlePositionProposer(const InputState& inputState, const Grid& grid, const Model::Hit& dragStartHit, const vm::bbox3& bboxAtDragStart, const vm::vec3& handleOffset) {
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
-
-            DragRestricter* restricter = nullptr;
-            DragSnapper* snapper = nullptr;
 
             if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)
             {
-                const vm::plane3 plane(dragStartHit.hitPoint(), vm::vec3(inputState.camera().direction()) * -1.0);
-
-                restricter = new PlaneDragRestricter(plane);
-                snapper = new DeltaDragSnapper(grid);
+                const auto plane = vm::plane3{dragStartHit.hitPoint() + handleOffset, vm::vec3{inputState.camera().direction()} * -1.0};
+                return makeHandlePositionProposer(
+                    makePlaneHandlePicker(plane, handleOffset),
+                    makeRelativeHandleSnapper(grid)
+                );
             } else {
                 assert(dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHitType
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
@@ -88,19 +84,10 @@ namespace TrenchBroom {
 
                 const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
-                restricter = new LineDragRestricter(handleLine);
-                snapper = new LineDragSnapper(grid, handleLine);
+                return makeHandlePositionProposer(
+                    makeLineHandlePicker(handleLine, handleOffset),
+                    makeAbsoluteLineHandleSnapper(grid, handleLine));
             }
-
-            // Snap the initial point
-            const vm::vec3 initialPoint = [&]() {
-                vm::vec3 p = dragStartHit.hitPoint();
-                restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, vm::vec3::zero(), vm::vec3::zero(), p);
-                return p;
-            }();
-
-            return std::make_tuple(restricter, snapper, initialPoint);
         }
 
         static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(const InputState& inputState) {
@@ -128,18 +115,6 @@ namespace TrenchBroom {
                 // update state
                 m_tool->setProportionalAxes(scaleAllAxes);
                 m_tool->setAnchorPos(centerAnchor);
-
-                if (thisToolDragging()) {
-                    const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState, m_document.lock()->grid(), m_tool->dragStartHit(), m_tool->bboxAtDragStart());
-
-                    // false to keep the initial point. This is necessary to get the right behaviour when switching proportional scaling on and off.
-                    setRestricter(inputState, std::get<0>(tuple), false);
-                    setSnapper(inputState, std::get<1>(tuple), false);
-
-                    // Re-trigger the dragging logic with a delta of 0, so the new modifiers are applied right away.
-                    // TODO: Feels like there should be a clearer API for this
-                    doDrag(inputState, currentHandlePosition(), currentHandlePosition());
-                }
             }
 
             // Mouse might be over a different handle now
@@ -147,24 +122,93 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
-            if (handleInput(inputState) && !anyToolDragging(inputState)) {
+            if (m_tool->applies() && !anyToolDragging(inputState)) {
                 m_tool->updatePickedHandle(inputState.pickResult());
             }
         }
 
-        // RestrictedDragPolicy
+        namespace {
+            class ScaleObjectsDragDelegate : public HandleDragTrackerDelegate {
+            private:
+                ScaleObjectsTool& m_tool;
+            public:
+                ScaleObjectsDragDelegate(ScaleObjectsTool& tool) :
+                m_tool{tool} {}
 
-        RestrictedDragPolicy::DragInfo ScaleObjectsToolController::doStartDrag(const InputState& inputState) {
-            // based on CreateSimpleBrushToolController3D::doStartDrag
+                HandlePositionProposer start(const InputState& inputState, const vm::vec3& /* initialHandlePosition */, const vm::vec3& handleOffset) override {
+                    // update modifier settings
+                    const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
+                    m_tool.setAnchorPos(centerAnchor);
+                    m_tool.setProportionalAxes(scaleAllAxes);
+
+                    return makeHandlePositionProposer(inputState, m_tool.grid(), m_tool.dragStartHit(), m_tool.bboxAtDragStart(), handleOffset);
+                }
+
+                std::optional<UpdateDragConfig> modifierKeyChange(const InputState& inputState, const DragState& dragState) override {
+                    return UpdateDragConfig{
+                        makeHandlePositionProposer(inputState, m_tool.grid(), m_tool.dragStartHit(), m_tool.bboxAtDragStart(), dragState.handleOffset),
+                        ResetInitialHandlePosition::Keep
+                    };
+                }
+
+                DragStatus drag(const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) override {
+                    const auto delta = proposedHandlePosition - dragState.currentHandlePosition;
+                    m_tool.scaleByDelta(delta);
+                    return DragStatus::Continue;
+                }
+
+                void end(const InputState& inputState, const DragState&) override {
+                    m_tool.commitScale();
+
+                    // The mouse is in a different place now so update the highlighted side
+                    m_tool.updatePickedHandle(inputState.pickResult());
+                }
+
+                void cancel(const DragState&) override {
+                    m_tool.cancelScale();
+                }
+            };
+        }
+
+        static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndOffset(const vm::bbox3& bounds, const Model::Hit& hit) {
+            assert(hit.isMatch());
+            assert(hit.hasType(
+                ScaleObjectsTool::ScaleToolSideHitType
+                | ScaleObjectsTool::ScaleToolEdgeHitType
+                | ScaleObjectsTool::ScaleToolCornerHitType));
+
+            const auto& hitPoint = hit.hitPoint();
+            if (hit.hasType(ScaleObjectsTool::ScaleToolCornerHitType)) {
+                const auto corner = hit.target<BBoxCorner>();
+                const auto handlePosition = pointForBBoxCorner(bounds, corner);
+                const auto handleOffset = handlePosition - hitPoint;
+                return {handlePosition, handleOffset};
+            }
+            
+            if (hit.hasType(ScaleObjectsTool::ScaleToolEdgeHitType)) {
+                const auto edge = hit.target<BBoxEdge>();
+                const auto handle = pointsForBBoxEdge(bounds, edge);
+                const auto handlePosition = handle.center();
+                const auto handleOffset = handlePosition - hitPoint;
+                return {handlePosition, handleOffset};
+            }
+
+            const auto side = hit.target<BBoxSide>();
+            const auto handlePosition = centerForBBoxSide(bounds, side);
+            const auto handleOffset = handlePosition - hitPoint;
+            return {handlePosition, handleOffset};
+        }
+
+        std::unique_ptr<DragTracker> ScaleObjectsToolController::acceptMouseDrag(const InputState& inputState) {
             using namespace Model::HitFilters;
 
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                return DragInfo();
-            }
-            if (!m_tool->applies()) {
-                return DragInfo();
+                return nullptr;
             }
 
+            if (!m_tool->applies()) {
+                return nullptr;
+            }
             auto document = kdl::mem_lock(m_document);
 
             const Model::Hit& hit = inputState.pickResult().first(type(
@@ -172,146 +216,134 @@ namespace TrenchBroom {
                 | ScaleObjectsTool::ScaleToolEdgeHitType
                 | ScaleObjectsTool::ScaleToolCornerHitType));
             if (!hit.isMatch()) {
-                return DragInfo();
+                return nullptr;
             }
 
             m_tool->startScaleWithHit(hit);
 
-            // update modifier settings
-            const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
-            m_tool->setAnchorPos(centerAnchor);
-            m_tool->setProportionalAxes(scaleAllAxes);
-
-            const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState, m_document.lock()->grid(), m_tool->dragStartHit(), m_tool->bboxAtDragStart());
-
-            return DragInfo(std::get<0>(tuple),
-                            std::get<1>(tuple),
-                            std::get<2>(tuple));
-        }
-
-        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
-            const auto delta = nextHandlePosition - lastHandlePosition;
-            m_tool->scaleByDelta(delta);
-
-            return DR_Continue;
-        }
-
-        void ScaleObjectsToolController::doEndDrag(const InputState& inputState) {
-            m_tool->commitScale();
-
-            // The mouse is in a different place now so update the highlighted side
-            m_tool->updatePickedHandle(inputState.pickResult());
-        }
-
-        void ScaleObjectsToolController::doCancelDrag() {
-            m_tool->cancelScale();
+            const auto [handlePosition, handleOffset] = getInitialHandlePositionAndOffset(m_tool->bounds(), hit);
+            return createHandleDragTracker(ScaleObjectsDragDelegate{*m_tool}, inputState, handlePosition, handleOffset);
         }
 
         void ScaleObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
         }
 
-        void ScaleObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            using namespace Model::HitFilters;
+        static void renderBounds(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::bbox3& bounds) {
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+            renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+            renderService.renderBounds(vm::bbox3f{bounds});
+        }
 
-            const auto& camera = renderContext.camera();
+        static void renderCornerHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const std::vector<vm::vec3>& corners) {
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+            renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
 
-            // bounds and corner handles
-
-            if (!m_tool->bounds().is_empty())  {
-                // bounds
-                {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderBounds(vm::bbox3f(m_tool->bounds()));
-                }
-
-                // corner handles
-                for (const auto& corner : m_tool->cornerHandles()) {
-                    const auto ray = vm::ray3(renderContext.camera().pickRay(vm::vec3f(corner)));
-
-                    if (renderContext.camera().perspectiveProjection()) {
-                        Model::PickResult pr;
-                        doPick(ray, renderContext.camera(), pr);
-
-                        if (pr.empty() || pr.all().front().type() != ScaleObjectsTool::ScaleToolCornerHitType) {
-                            // this corner is occluded => don't render it.
-                            continue;
-                        }
-                    }
-
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-                    renderService.renderHandle(vm::vec3f(corner));
-                }
+            for (const auto& corner : corners) {
+                renderService.renderHandle(vm::vec3f(corner));
             }
+        }
 
+        static void renderDragSideHighlights(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const std::vector<vm::polygon3f>& sides) {
             // Highlight all sides that will be moving as a result of the Shift/Alt modifiers
             // (proporitional scaling or center anchor modifiers)
-
-            auto highlightedPolys = m_tool->polygonsHighlightedByDrag();
-            for (const auto& poly : highlightedPolys) {
+            for (const auto& side : sides) {
                 {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setShowBackfaces();
                     renderService.setForegroundColor(pref(Preferences::ScaleFillColor));
-                    renderService.renderFilledPolygon(poly.vertices());
+                    renderService.renderFilledPolygon(side.vertices());
                 }
 
                 // In 2D, additionally stroke the edges of this polyhedron, so it's visible even when looking at it
                 // from an edge
-                if (camera.orthographicProjection()) {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
+                if (renderContext.camera().orthographicProjection()) {
+                    auto renderService = Renderer::RenderService{renderContext, renderBatch};
                     renderService.setLineWidth(2.0);
                     renderService.setForegroundColor(Color(pref(Preferences::ScaleOutlineColor), pref(Preferences::ScaleOutlineDimAlpha)));
-                    renderService.renderPolygonOutline(poly.vertices());
+                    renderService.renderPolygonOutline(side.vertices());
                 }
             }
+        }
 
+        static void renderDragSide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::polygon3f& side) {
             // draw the main highlighted handle
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+            renderService.setLineWidth(2.0);
+            renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
+            renderService.renderPolygonOutline(side.vertices());
+        }
+
+        static void renderDragEdge(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::segment3f& edge) {
+            const auto& camera = renderContext.camera();
+
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+            if (camera.orthographicProjection()
+                && vm::is_parallel(edge.direction(), camera.direction())) {
+                // for the 2D view, for drag edges that are parallel to the camera,
+                // render the highlight with a ring around the handle
+                renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+                renderService.renderHandleHighlight(edge.start());
+            } else {
+                // render as a thick line
+                renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
+                renderService.setLineWidth(2.0);
+                renderService.renderLine(edge.start(), edge.end());
+            }
+        }
+
+        static void renderDragCorner(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3f& corner) {
+            auto renderService = Renderer::RenderService{renderContext, renderBatch};
+
+            // the filled circular handle
+            renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
+            renderService.renderHandle(corner);
+
+            // the ring around the handle
+            renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+            renderService.renderHandleHighlight(corner);
+        }
+
+        static std::vector<vm::vec3> visibleCornerHandles(const ScaleObjectsTool& tool, const Renderer::Camera& camera) {
+            using namespace Model::HitFilters;
+
+            const auto cornerHandles = tool.cornerHandles();
+            if (!camera.perspectiveProjection()) {
+                return cornerHandles;
+            }
+
+            return kdl::vec_filter(cornerHandles, [&](const auto& corner) {
+                const auto ray = vm::ray3{camera.pickRay(vm::vec3f{corner})};
+
+                auto pr = Model::PickResult{};
+                if (camera.orthographicProjection()) {
+                    tool.pick2D(ray, camera, pr);
+                } else {
+                    tool.pick3D(ray, camera, pr);
+                }
+
+                return !pr.empty() && pr.all().front().type() == ScaleObjectsTool::ScaleToolCornerHitType;
+            });
+        }
+
+        void ScaleObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            if (!m_tool->bounds().is_empty())  {
+                renderBounds(renderContext, renderBatch, m_tool->bounds());
+                renderCornerHandles(renderContext, renderBatch, visibleCornerHandles(*m_tool, renderContext.camera()));
+            }
+
+            renderDragSideHighlights(renderContext, renderBatch, m_tool->polygonsHighlightedByDrag());
 
             if (m_tool->hasDragSide()) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setLineWidth(2.0);
-                renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
-                renderService.renderPolygonOutline(m_tool->dragSide().vertices());
+                renderDragSide(renderContext, renderBatch, m_tool->dragSide());
             }
 
             if (m_tool->hasDragEdge()) {
-                const auto line = m_tool->dragEdge();
-
-                if (camera.orthographicProjection()
-                    && vm::is_parallel(line.direction(), camera.direction())) {
-                    // for the 2D view, for drag edges that are parallel to the camera,
-                    // render the highlight with a ring around the handle
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderHandleHighlight(line.start());
-                } else {
-                    // render as a thick line
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
-                    renderService.setLineWidth(2.0);
-                    renderService.renderLine(line.start(), line.end());
-                }
+                renderDragEdge(renderContext, renderBatch, m_tool->dragEdge());
             }
 
             if (m_tool->hasDragCorner()) {
-                const auto corner = m_tool->dragCorner();
-
-                // the filled circular handle
-                {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-                    renderService.renderHandle(corner);
-                }
-
-                // the ring around the handle
-                {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderHandleHighlight(corner);
-                }
+                renderDragCorner(renderContext, renderBatch, m_tool->dragCorner());
             }
         }
 
@@ -319,9 +351,6 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ScaleObjectsToolController::handleInput(const InputState&) const {
-            return m_tool->applies();
-        }
 
         // ScaleObjectsToolController2D
 
@@ -329,7 +358,7 @@ namespace TrenchBroom {
         ScaleObjectsToolController(tool, document) {}
 
         void ScaleObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
-                                                  Model::PickResult &pickResult) {
+                                                  Model::PickResult &pickResult) const {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
 
@@ -339,7 +368,7 @@ namespace TrenchBroom {
         ScaleObjectsToolController(tool, document) {}
 
         void ScaleObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
-                                                  Model::PickResult &pickResult) {
+                                                  Model::PickResult &pickResult) const {
             m_tool->pick3D(pickRay, camera, pickResult);
         }
     }

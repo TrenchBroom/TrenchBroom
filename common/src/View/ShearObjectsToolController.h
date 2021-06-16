@@ -32,10 +32,11 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class DragTracker;
         class MapDocument;
         class ShearObjectsTool;
 
-        class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
+        class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ShearObjectsTool* m_tool;
         private:
@@ -50,14 +51,9 @@ namespace TrenchBroom {
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
 
-            void doModifierKeyChange(const InputState& inputState) override;
             void doMouseMove(const InputState& inputState) override;
 
-            // RestrictedDragPolicy
-            DragInfo doStartDrag(const InputState& inputState) override;
-            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
-            void doEndDrag(const InputState& inputState) override;
-            void doCancelDrag() override;
+            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
 
