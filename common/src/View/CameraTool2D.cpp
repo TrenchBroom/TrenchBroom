@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace View {
         CameraTool2D::CameraTool2D(Renderer::OrthographicCamera& camera) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_camera{camera} {}
 
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             camera.moveBy(-delta);
         }
 
-        void CameraTool2D::doMouseScroll(const InputState& inputState) {
+        void CameraTool2D::mouseScroll(const InputState& inputState) {
             if (shouldZoom(inputState)) {
                 if (inputState.scrollY() != 0.0f) {
                     const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
@@ -143,7 +143,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        bool CameraTool2D::doCancel() {
+        bool CameraTool2D::cancel() {
             return false;
         }
     }

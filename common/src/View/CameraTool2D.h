@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class DragTracker;
 
-        class CameraTool2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoRenderPolicy>, public Tool {
+        class CameraTool2D : public ToolController, public Tool {
         private:
             Renderer::OrthographicCamera& m_camera;
             vm::vec2f m_lastMousePos;
@@ -43,11 +43,11 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            void doMouseScroll(const InputState& inputState) override;
+            void mouseScroll(const InputState& inputState) override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
     }
 }
