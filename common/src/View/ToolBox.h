@@ -43,6 +43,7 @@ namespace TrenchBroom {
 
     namespace View {
         class DragTracker;
+        class DropTracker;
         class InputState;
         class Tool;
         class ToolController;
@@ -52,7 +53,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::unique_ptr<DragTracker> m_dragTracker;
-            ToolController* m_dropReceiver;
+            std::unique_ptr<DropTracker> m_dropTracker;
             Tool* m_modalTool;
 
             using ToolList = std::vector<Tool*>;

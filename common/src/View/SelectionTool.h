@@ -54,7 +54,7 @@ namespace TrenchBroom {
          */
         std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits);
 
-        class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy>, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
         public:

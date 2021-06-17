@@ -32,7 +32,7 @@ namespace TrenchBroom {
     namespace View {
         class DragTracker;
 
-        class UVCameraTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class UVCameraTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoRenderPolicy>, public Tool {
         private:
             Renderer::OrthographicCamera& m_camera;
         public:

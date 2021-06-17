@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class MapDocument;
         class ScaleObjectsTool;
 
-        class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy> {
+        class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RenderPolicy> {
         protected:
             ScaleObjectsTool* m_tool;
         private:

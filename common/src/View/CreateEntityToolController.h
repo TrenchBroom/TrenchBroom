@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace View {
         class CreateEntityTool;
 
-        class CreateEntityToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy, DropPolicy> {
+        class CreateEntityToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy> {
         protected:
             CreateEntityTool* m_tool;
         protected:
@@ -38,29 +38,25 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            bool doDragEnter(const InputState& inputState, const std::string& payload) override;
-            bool doDragMove(const InputState& inputState) override;
-            void doDragLeave(const InputState& inputState) override;
-            bool doDragDrop(const InputState& inputState) override;
-            void updateEntityPosition(const InputState& inputState);
+            std::unique_ptr<DropTracker> acceptDrop(const InputState& inputState, const std::string& payload) override;
 
             bool doCancel() override;
         private:
-            virtual void doUpdateEntityPosition(const InputState& inputState) = 0;
+            virtual std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const = 0;
         };
 
         class CreateEntityToolController2D : public CreateEntityToolController {
         public:
             CreateEntityToolController2D(CreateEntityTool* tool);
         private:
-            void doUpdateEntityPosition(const InputState& inputState) override;
+            std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
         };
 
         class CreateEntityToolController3D : public CreateEntityToolController {
         public:
             CreateEntityToolController3D(CreateEntityTool* tool);
         private:
-            void doUpdateEntityPosition(const InputState& inputState) override;
+            std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
         };
     }
 }

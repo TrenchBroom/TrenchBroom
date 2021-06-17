@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class MapDocument;
         class ShearObjectsTool;
 
-        class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy, NoDropPolicy> {
+        class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy> {
         protected:
             ShearObjectsTool* m_tool;
         private:
