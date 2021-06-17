@@ -42,12 +42,12 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         private: // subclassing interface
             virtual Model::Hit doPick(const InputState& inputState) = 0;
             virtual void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;

@@ -418,23 +418,23 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        void ClipToolControllerBase::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void ClipToolControllerBase::pick(const InputState& inputState, Model::PickResult& pickResult) {
             m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
         }
 
-        void ClipToolControllerBase::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
+        void ClipToolControllerBase::setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             if (m_tool->hasBrushes()) {
                 renderContext.setHideSelection();
                 renderContext.setForceHideSelectionGuide();
             }
         }
 
-        void ClipToolControllerBase::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ClipToolControllerBase::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch, inputState.pickResult());
-            ToolControllerGroup::doRender(inputState, renderContext, renderBatch);
+            ToolControllerGroup::render(inputState, renderContext, renderBatch);
         }
 
-        bool ClipToolControllerBase::doCancel() {
+        bool ClipToolControllerBase::cancel() {
             if (m_tool->removeLastPoint()) {
                 if (!m_tool->hasPoints()) {
                     m_tool->reset();

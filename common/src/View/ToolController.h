@@ -195,7 +195,7 @@ namespace TrenchBroom {
             virtual bool doCancel() = 0;
         };
 
-        class ToolControllerGroup : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RenderPolicy> {
+        class ToolControllerGroup : public ToolController {
         private:
             ToolChain m_chain;
         public:
@@ -203,25 +203,25 @@ namespace TrenchBroom {
             ~ToolControllerGroup() override;
         protected:
             void addController(std::unique_ptr<ToolController> controller);
-        protected:
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+        public:
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void doModifierKeyChange(const InputState& inputState) override;
+            void modifierKeyChange(const InputState& inputState) override;
 
-            void doMouseDown(const InputState& inputState) override;
-            void doMouseUp(const InputState& inputState) override;
-            bool doMouseClick(const InputState& inputState) override;
-            bool doMouseDoubleClick(const InputState& inputState) override;
-            void doMouseMove(const InputState& inputState) override;
-            void doMouseScroll(const InputState& inputState) override;
+            void mouseDown(const InputState& inputState) override;
+            void mouseUp(const InputState& inputState) override;
+            bool mouseClick(const InputState& inputState) override;
+            bool mouseDoubleClick(const InputState& inputState) override;
+            void mouseMove(const InputState& inputState) override;
+            void mouseScroll(const InputState& inputState) override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
             std::unique_ptr<DropTracker> acceptDrop(const InputState& inputState, const std::string& payload) override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         private: // subclassing interface
             virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;
             virtual bool doShouldHandleDrop(const InputState& inputState, const std::string& payload) const;

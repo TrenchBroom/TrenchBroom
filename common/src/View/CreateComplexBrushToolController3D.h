@@ -34,14 +34,14 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            bool doMouseClick(const InputState& inputState) override;
-            bool doMouseDoubleClick(const InputState& inputState) override;
+            bool mouseClick(const InputState& inputState) override;
+            bool mouseDoubleClick(const InputState& inputState) override;
 
             bool doShouldHandleMouseDrag(const InputState& inputState) const override;
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
     }
 }

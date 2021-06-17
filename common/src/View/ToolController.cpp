@@ -97,35 +97,35 @@ namespace TrenchBroom {
             m_chain.append(std::move(controller));
         }
 
-        void ToolControllerGroup::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void ToolControllerGroup::pick(const InputState& inputState, Model::PickResult& pickResult) {
             m_chain.pick(inputState, pickResult);
         }
 
-        void ToolControllerGroup::doModifierKeyChange(const InputState& inputState) {
+        void ToolControllerGroup::modifierKeyChange(const InputState& inputState) {
             m_chain.modifierKeyChange(inputState);
         }
 
-        void ToolControllerGroup::doMouseDown(const InputState& inputState) {
+        void ToolControllerGroup::mouseDown(const InputState& inputState) {
             m_chain.mouseDown(inputState);
         }
 
-        void ToolControllerGroup::doMouseUp(const InputState& inputState) {
+        void ToolControllerGroup::mouseUp(const InputState& inputState) {
             m_chain.mouseUp(inputState);
         }
 
-        bool ToolControllerGroup::doMouseClick(const InputState& inputState) {
+        bool ToolControllerGroup::mouseClick(const InputState& inputState) {
             return m_chain.mouseClick(inputState);
         }
 
-        bool ToolControllerGroup::doMouseDoubleClick(const InputState& inputState) {
+        bool ToolControllerGroup::mouseDoubleClick(const InputState& inputState) {
             return m_chain.mouseDoubleClick(inputState);
         }
 
-        void ToolControllerGroup::doMouseMove(const InputState& inputState) {
+        void ToolControllerGroup::mouseMove(const InputState& inputState) {
             m_chain.mouseMove(inputState);
         }
 
-        void ToolControllerGroup::doMouseScroll(const InputState& inputState) {
+        void ToolControllerGroup::mouseScroll(const InputState& inputState) {
             m_chain.mouseScroll(inputState);
         }
 
@@ -144,15 +144,15 @@ namespace TrenchBroom {
             return m_chain.dragEnter(inputState, payload);
         }
 
-        void ToolControllerGroup::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void ToolControllerGroup::setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             m_chain.setRenderOptions(inputState, renderContext);
         }
 
-        void ToolControllerGroup::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ToolControllerGroup::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_chain.render(inputState, renderContext, renderBatch);
         }
 
-        bool ToolControllerGroup::doCancel() {
+        bool ToolControllerGroup::cancel() {
             return m_chain.cancel();
         }
 

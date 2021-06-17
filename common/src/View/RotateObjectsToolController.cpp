@@ -403,26 +403,26 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        void RotateObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void RotateObjectsToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {
             const Model::Hit hit = doPick(inputState);
             if (hit.isMatch()) {
                 pickResult.addHit(hit);
             }
         }
 
-        void RotateObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void RotateObjectsToolController::setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             using namespace Model::HitFilters;
             if (inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType)).isMatch()) {
                 renderContext.setForceShowSelectionGuide();
             }
         }
 
-        void RotateObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void RotateObjectsToolController::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             doRenderHandle(renderContext, renderBatch);
-            ToolControllerGroup::doRender(inputState, renderContext, renderBatch);
+            ToolControllerGroup::render(inputState, renderContext, renderBatch);
         }
 
-        bool RotateObjectsToolController::doCancel() {
+        bool RotateObjectsToolController::cancel() {
             return false;
         }
 

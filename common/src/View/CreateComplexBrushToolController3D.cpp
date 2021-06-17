@@ -248,7 +248,7 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        bool CreateComplexBrushToolController3D::doMouseClick(const InputState& inputState) {
+        bool CreateComplexBrushToolController3D::mouseClick(const InputState& inputState) {
             if (!inputState.mouseButtonsDown(MouseButtons::MBLeft)) {
                 return false;
             }
@@ -272,7 +272,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool CreateComplexBrushToolController3D::doMouseDoubleClick(const InputState& inputState) {
+        bool CreateComplexBrushToolController3D::mouseDoubleClick(const InputState& inputState) {
             if (!inputState.mouseButtonsDown(MouseButtons::MBLeft)) {
                 return false;
             }
@@ -304,7 +304,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void CreateComplexBrushToolController3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateComplexBrushToolController3D::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
 
             const Model::Polyhedron3& polyhedron = m_tool->polyhedron();
@@ -338,7 +338,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool CreateComplexBrushToolController3D::doCancel() {
+        bool CreateComplexBrushToolController3D::cancel() {
             const Model::Polyhedron3& polyhedron = m_tool->polyhedron();
             if (polyhedron.empty()) {
                 return false;
