@@ -34,29 +34,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        PickingPolicy::~PickingPolicy() = default;
-
-        NoPickingPolicy::~NoPickingPolicy() = default;
-        void NoPickingPolicy::doPick(const InputState&, Model::PickResult&) {}
-
-        KeyPolicy::~KeyPolicy() = default;
-
-        NoKeyPolicy::~NoKeyPolicy() = default;
-        void NoKeyPolicy::doModifierKeyChange(const InputState&) {}
-
-        MousePolicy::~MousePolicy() = default;
-
-        void MousePolicy::doMouseDown(const InputState&) {}
-        void MousePolicy::doMouseUp(const InputState&) {}
-        bool MousePolicy::doMouseClick(const InputState&) { return false; }
-        bool MousePolicy::doMouseDoubleClick(const InputState&) { return false; }
-        void MousePolicy::doMouseMove(const InputState&) {}
-        void MousePolicy::doMouseScroll(const InputState&) {}
-
-        RenderPolicy::~RenderPolicy() = default;
-        void RenderPolicy::doSetRenderOptions(const InputState&, Renderer::RenderContext&) const {}
-        void RenderPolicy::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) {}
-
         ToolController::~ToolController() = default;
         Tool* ToolController::tool() { return doGetTool(); }
         const Tool* ToolController::tool() const { return doGetTool(); }
