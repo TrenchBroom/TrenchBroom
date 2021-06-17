@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class AddClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy>, protected PartBase {
+            class AddClipPointPart : public ToolController, protected PartBase {
             public:
                 explicit AddClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
                 PartBase{std::move(delegate)} {}
@@ -300,7 +300,7 @@ namespace TrenchBroom {
                     return m_delegate->tool();
                 }
 
-                bool doMouseClick(const InputState& inputState) override {
+                bool mouseClick(const InputState& inputState) override {
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                         !inputState.modifierKeysPressed(ModifierKeys::MKNone)) {
                         return false;
@@ -309,7 +309,7 @@ namespace TrenchBroom {
                     return m_delegate->addClipPoint(inputState) != std::nullopt;
                 }
 
-                bool doMouseDoubleClick(const InputState& inputState) override {
+                bool mouseDoubleClick(const InputState& inputState) override {
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                         !inputState.modifierKeysPressed(ModifierKeys::MKNone)) {
                         return false;
@@ -333,11 +333,11 @@ namespace TrenchBroom {
                     return createHandleDragTracker(AddClipPointDragDelegate{*m_delegate}, inputState, initialHandlePosition, handleOffset);
                 }
 
-                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
+                void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     m_delegate->renderFeedback(inputState, renderContext, renderBatch);
                 }
 
-                bool doCancel() override {
+                bool cancel() override {
                     return false;
                 }
             };
@@ -370,7 +370,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class MoveClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy>, protected PartBase {
+            class MoveClipPointPart : public ToolController, protected PartBase {
             public:
                 explicit MoveClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
                 PartBase{std::move(delegate)} {}
@@ -399,7 +399,7 @@ namespace TrenchBroom {
                     return createHandleDragTracker(MoveClipPointDragDelegate{*m_delegate}, inputState, initialHandlePosition, handleOffset);
                 }
 
-                bool doCancel() override {
+                bool cancel() override {
                     return false;
                 }
             };
