@@ -109,7 +109,7 @@ namespace TrenchBroom {
             return createMoveHandleDragTracker(MoveObjectsDragDelegate{*m_tool}, inputState, hit.hitPoint(), vm::vec3::zero());
         }
 
-        bool MoveObjectsToolController::doCancel() {
+        bool MoveObjectsToolController::cancel() {
             return false;
         }
     }

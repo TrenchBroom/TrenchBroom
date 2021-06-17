@@ -26,7 +26,7 @@ namespace TrenchBroom {
         class DragTracker;
         class MoveObjectsTool;
 
-        class MoveObjectsToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RenderPolicy> {
+        class MoveObjectsToolController : public ToolController {
         private:
             MoveObjectsTool* m_tool;
         public:
@@ -38,7 +38,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
     }
 }
