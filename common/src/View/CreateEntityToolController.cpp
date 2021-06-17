@@ -39,11 +39,11 @@ namespace TrenchBroom {
 
         CreateEntityToolController::~CreateEntityToolController() = default;
 
-        Tool* CreateEntityToolController::doGetTool() {
+        Tool* CreateEntityToolController::tool() {
             return m_tool;
         }
 
-        const Tool* CreateEntityToolController::doGetTool() const {
+        const Tool* CreateEntityToolController::tool() const {
             return m_tool;
         }
 

@@ -41,8 +41,8 @@ namespace TrenchBroom {
         public:
             CameraTool3D(Renderer::PerspectiveCamera& camera);
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool* tool() override;
+            const Tool* tool() const override;
 
             void mouseScroll(const InputState& inputState) override;
             void mouseUp(const InputState& inputState) override;

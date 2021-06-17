@@ -31,8 +31,8 @@ namespace TrenchBroom {
         public:
             explicit CreateComplexBrushToolController3D(CreateComplexBrushTool* tool);
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool* tool() override;
+            const Tool* tool() const override;
 
             bool mouseClick(const InputState& inputState) override;
             bool mouseDoubleClick(const InputState& inputState) override;

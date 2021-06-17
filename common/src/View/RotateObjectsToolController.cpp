@@ -172,11 +172,11 @@ namespace TrenchBroom {
                     ensure(m_tool != nullptr, "tool is null");
                 }
             private:
-                Tool* doGetTool() override {
+                Tool* tool() override {
                     return m_tool;
                 }
 
-                const Tool* doGetTool() const override {
+                const Tool* tool() const override {
                     return m_tool;
                 }
 
@@ -296,11 +296,11 @@ namespace TrenchBroom {
                     ensure(m_tool != nullptr, "tool is null");
                 }
 
-                Tool* doGetTool() override {
+                Tool* tool() override {
                     return m_tool;
                 }
 
-                const Tool* doGetTool() const override {
+                const Tool* tool() const override {
                     return m_tool;
                 }
 
@@ -395,11 +395,11 @@ namespace TrenchBroom {
 
         RotateObjectsToolController::~RotateObjectsToolController() = default;
 
-        Tool* RotateObjectsToolController::doGetTool() {
+        Tool* RotateObjectsToolController::tool() {
             return m_tool;
         }
 
-        const Tool* RotateObjectsToolController::doGetTool() const {
+        const Tool* RotateObjectsToolController::tool() const {
             return m_tool;
         }
 

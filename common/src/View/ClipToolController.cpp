@@ -292,11 +292,11 @@ namespace TrenchBroom {
                 explicit AddClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
                 PartBase{std::move(delegate)} {}
             private:
-                Tool* doGetTool() override {
+                Tool* tool() override {
                     return m_delegate->tool();
                 }
 
-                const Tool* doGetTool() const override {
+                const Tool* tool() const override {
                     return m_delegate->tool();
                 }
 
@@ -375,11 +375,11 @@ namespace TrenchBroom {
                 explicit MoveClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
                 PartBase{std::move(delegate)} {}
             private:
-                Tool* doGetTool() override {
+                Tool* tool() override {
                     return m_delegate->tool();
                 }
 
-                const Tool* doGetTool() const override {
+                const Tool* tool() const override {
                     return m_delegate->tool();
                 }
 
@@ -410,11 +410,11 @@ namespace TrenchBroom {
 
         ClipToolControllerBase::~ClipToolControllerBase() = default;
 
-        Tool* ClipToolControllerBase::doGetTool() {
+        Tool* ClipToolControllerBase::tool() {
             return m_tool;
         }
 
-        const Tool* ClipToolControllerBase::doGetTool() const {
+        const Tool* ClipToolControllerBase::tool() const {
             return m_tool;
         }
 

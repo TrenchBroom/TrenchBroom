@@ -45,11 +45,11 @@ namespace TrenchBroom {
         m_document{document},
         m_helper{helper} {}
 
-        Tool* UVShearTool::doGetTool() {
+        Tool* UVShearTool::tool() {
             return this;
         }
 
-        const Tool* UVShearTool::doGetTool() const {
+        const Tool* UVShearTool::tool() const {
             return this;
         }
 

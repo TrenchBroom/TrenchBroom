@@ -35,8 +35,7 @@
 namespace TrenchBroom {
     namespace View {
         ToolController::~ToolController() = default;
-        Tool* ToolController::tool() { return doGetTool(); }
-        const Tool* ToolController::tool() const { return doGetTool(); }
+
         bool ToolController::toolActive() const { return tool()->active(); }
 
         void ToolController::pick(const InputState&, Model::PickResult&) {}

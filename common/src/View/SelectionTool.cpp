@@ -111,11 +111,11 @@ namespace TrenchBroom {
         Tool{true},
         m_document{std::move(document)} {}
 
-        Tool* SelectionTool::doGetTool() {
+        Tool* SelectionTool::tool() {
             return this;
         }
 
-        const Tool* SelectionTool::doGetTool() const {
+        const Tool* SelectionTool::tool() const {
             return this;
         }
 

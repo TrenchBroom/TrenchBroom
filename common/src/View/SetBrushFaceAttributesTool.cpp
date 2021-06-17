@@ -47,11 +47,11 @@ namespace TrenchBroom {
         Tool{true},
         m_document{document} {}
 
-        Tool* SetBrushFaceAttributesTool::doGetTool() {
+        Tool* SetBrushFaceAttributesTool::tool() {
             return this;
         }
 
-        const Tool* SetBrushFaceAttributesTool::doGetTool() const {
+        const Tool* SetBrushFaceAttributesTool::tool() const {
             return this;
         }
 

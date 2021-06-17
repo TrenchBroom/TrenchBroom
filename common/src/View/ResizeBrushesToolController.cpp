@@ -44,11 +44,11 @@ namespace TrenchBroom {
 
         ResizeBrushesToolController::~ResizeBrushesToolController() = default;
 
-        Tool* ResizeBrushesToolController::doGetTool() {
+        Tool* ResizeBrushesToolController::tool() {
             return m_tool;
         }
 
-        const Tool* ResizeBrushesToolController::doGetTool() const {
+        const Tool* ResizeBrushesToolController::tool() const {
             return m_tool;
         }
 

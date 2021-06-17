@@ -115,11 +115,11 @@ namespace TrenchBroom {
         Tool{true},
         m_camera{camera} {}
 
-        Tool* CameraTool3D::doGetTool() {
+        Tool* CameraTool3D::tool() {
             return this;
         }
 
-        const Tool* CameraTool3D::doGetTool() const {
+        const Tool* CameraTool3D::tool() const {
             return this;
         }
 

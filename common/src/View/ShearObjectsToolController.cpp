@@ -50,11 +50,11 @@ namespace TrenchBroom {
 
         ShearObjectsToolController::~ShearObjectsToolController() = default;
 
-        Tool* ShearObjectsToolController::doGetTool() {
+        Tool* ShearObjectsToolController::tool() {
             return m_tool;
         }
 
-        const Tool* ShearObjectsToolController::doGetTool() const {
+        const Tool* ShearObjectsToolController::tool() const {
             return m_tool;
         }
 

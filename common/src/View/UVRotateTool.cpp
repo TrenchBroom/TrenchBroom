@@ -65,11 +65,11 @@ namespace TrenchBroom {
         m_document{document},
         m_helper{helper} {}
 
-        Tool* UVRotateTool::doGetTool() {
+        Tool* UVRotateTool::tool() {
             return this;
         }
 
-        const Tool* UVRotateTool::doGetTool() const {
+        const Tool* UVRotateTool::tool() const {
             return this;
         }
 

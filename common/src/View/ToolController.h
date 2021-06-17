@@ -55,8 +55,8 @@ namespace TrenchBroom {
         public:
             virtual ~ToolController();
 
-            Tool* tool();
-            const Tool* tool() const;
+            virtual Tool* tool() = 0;
+            virtual const Tool* tool() const = 0;
             bool toolActive() const;
 
             virtual void pick(const InputState& inputState, Model::PickResult& pickResult);
@@ -81,9 +81,6 @@ namespace TrenchBroom {
             virtual bool cancel();
         protected:
             void refreshViews();
-        private:
-            virtual Tool* doGetTool() = 0;
-            virtual const Tool* doGetTool() const = 0;
         };
 
         class ToolControllerGroup : public ToolController {

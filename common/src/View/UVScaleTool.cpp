@@ -58,11 +58,11 @@ namespace TrenchBroom {
         m_document{std::move(document)},
         m_helper{helper} {}
 
-        Tool* UVScaleTool::doGetTool() {
+        Tool* UVScaleTool::tool() {
             return this;
         }
 
-        const Tool* UVScaleTool::doGetTool() const {
+        const Tool* UVScaleTool::tool() const {
             return this;
         }
 

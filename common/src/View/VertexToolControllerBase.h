@@ -140,11 +140,11 @@ namespace TrenchBroom {
                 using PartBase::m_hitType;
                 using PartBase::findDraggableHandle;
             private:
-                Tool* doGetTool() override {
+                Tool* tool() override {
                     return m_tool;
                 }
 
-                const Tool* doGetTool() const override {
+                const Tool* tool() const override {
                     return m_tool;
                 }
 
@@ -299,11 +299,11 @@ namespace TrenchBroom {
                 using PartBase::findDraggableHandle;
                 using PartBase::findDraggableHandles;
             protected:
-                Tool* doGetTool() override {
+                Tool* tool() override {
                     return m_tool;
                 }
 
-                const Tool* doGetTool() const override {
+                const Tool* tool() const override {
                     return m_tool;
                 }
 
@@ -345,11 +345,11 @@ namespace TrenchBroom {
         public:
             ~VertexToolControllerBase() override = default;
         private:
-            Tool* doGetTool() override {
+            Tool* tool() override {
                 return m_tool;
             }
 
-            const Tool* doGetTool() const override {
+            const Tool* tool() const override {
                 return m_tool;
             }
         };

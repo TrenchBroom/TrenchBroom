@@ -45,8 +45,8 @@ namespace TrenchBroom {
             explicit ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
             ~ShearObjectsToolController() override;
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool* tool() override;
+            const Tool* tool() const override;
 
             void pick(const InputState& inputState, Model::PickResult& pickResult) override;
             virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;

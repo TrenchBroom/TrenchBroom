@@ -32,11 +32,11 @@ namespace TrenchBroom {
         Tool{true},
         m_camera{camera} {}
 
-        Tool* UVCameraTool::doGetTool() {
+        Tool* UVCameraTool::tool() {
             return this;
         }
 
-        const Tool* UVCameraTool::doGetTool() const {
+        const Tool* UVCameraTool::tool() const {
             return this;
         }
 

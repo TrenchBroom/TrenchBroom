@@ -62,11 +62,11 @@ namespace TrenchBroom {
         Tool{true},
         m_helper{helper} {}
 
-        Tool* UVOriginTool::doGetTool() {
+        Tool* UVOriginTool::tool() {
             return this;
         }
 
-        const Tool* UVOriginTool::doGetTool() const {
+        const Tool* UVOriginTool::tool() const {
             return this;
         }
 

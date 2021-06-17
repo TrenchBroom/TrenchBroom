@@ -33,8 +33,8 @@ namespace TrenchBroom {
             MoveObjectsToolController(MoveObjectsTool* tool);
             virtual ~MoveObjectsToolController() override;
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool* tool() override;
+            const Tool* tool() const override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
