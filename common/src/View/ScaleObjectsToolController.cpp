@@ -59,7 +59,7 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        void ScaleObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void ScaleObjectsToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {
             if (m_tool->applies()) {
                 doPick(inputState.pickRay(), inputState.camera(), pickResult);
             }
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             return {centerAnchor, scaleAllAxes};
         }
 
-        void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
+        void ScaleObjectsToolController::modifierKeyChange(const InputState& inputState) {
             const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
 
             if ((centerAnchor != m_tool->anchorPos()) || (scaleAllAxes != m_tool->proportionalAxes())) {
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             m_tool->refreshViews();
         }
 
-        void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
+        void ScaleObjectsToolController::mouseMove(const InputState& inputState) {
             if (m_tool->applies() && !anyToolDragging(inputState)) {
                 m_tool->updatePickedHandle(inputState.pickResult());
             }
@@ -225,7 +225,7 @@ namespace TrenchBroom {
             return createHandleDragTracker(ScaleObjectsDragDelegate{*m_tool}, inputState, handlePosition, handleOffset);
         }
 
-        void ScaleObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
+        void ScaleObjectsToolController::setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
         }
 
@@ -326,7 +326,7 @@ namespace TrenchBroom {
             });
         }
 
-        void ScaleObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ScaleObjectsToolController::render(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (!m_tool->bounds().is_empty())  {
                 renderBounds(renderContext, renderBatch, m_tool->bounds());
                 renderCornerHandles(renderContext, renderBatch, visibleCornerHandles(*m_tool, renderContext.camera()));
@@ -347,7 +347,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool ScaleObjectsToolController::doCancel() {
+        bool ScaleObjectsToolController::cancel() {
             return false;
         }
 

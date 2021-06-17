@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class MapDocument;
         class ScaleObjectsTool;
 
-        class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RenderPolicy> {
+        class ScaleObjectsToolController : public ToolController {
         protected:
             ScaleObjectsTool* m_tool;
         private:
@@ -49,18 +49,18 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void doModifierKeyChange(const InputState& inputState) override;
+            void modifierKeyChange(const InputState& inputState) override;
 
-            void doMouseMove(const InputState& inputState) override;
+            void mouseMove(const InputState& inputState) override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         private:
             virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) const = 0;
         };
