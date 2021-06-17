@@ -58,7 +58,7 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        void ShearObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void ShearObjectsToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {
             if (m_tool->applies()) {
                 // forward to either ShearObjectsTool::pick2D or ShearObjectsTool::pick3D
                 doPick(inputState.pickRay(), inputState.camera(), pickResult);
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             );
         }
 
-        void ShearObjectsToolController::doMouseMove(const InputState& inputState) {
+        void ShearObjectsToolController::mouseMove(const InputState& inputState) {
             if (m_tool->applies() && !anyToolDragging(inputState)) {
                 m_tool->updatePickedSide(inputState.pickResult());
             }
@@ -205,11 +205,11 @@ namespace TrenchBroom {
             return createHandleDragTracker(ShearObjectsDragDelegate{*m_tool}, inputState, handlePosition, handleOffset);
         }
 
-        void ShearObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
+        void ShearObjectsToolController::setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
         }
 
-        void ShearObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ShearObjectsToolController::render(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             // render sheared box
             {
                 auto renderService = Renderer::RenderService{renderContext, renderBatch};
@@ -244,7 +244,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool ShearObjectsToolController::doCancel() {
+        bool ShearObjectsToolController::cancel() {
             return false;
         }
 

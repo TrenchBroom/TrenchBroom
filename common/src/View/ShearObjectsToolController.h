@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class MapDocument;
         class ShearObjectsTool;
 
-        class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy> {
+        class ShearObjectsToolController : public ToolController {
         protected:
             ShearObjectsTool* m_tool;
         private:
@@ -48,18 +48,18 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
             virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
 
-            void doMouseMove(const InputState& inputState) override;
+            void mouseMove(const InputState& inputState) override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
 
         class ShearObjectsToolController2D : public ShearObjectsToolController {
