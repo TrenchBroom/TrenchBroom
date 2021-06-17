@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class DrawFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy> {
+            class DrawFacePart : public Part, public ToolController {
             private:
                 vm::plane3 m_plane;
                 vm::vec3 m_initialPoint;
@@ -152,7 +152,7 @@ namespace TrenchBroom {
                     return createHandleDragTracker(DrawFaceDragDelegate{*m_tool, plane}, inputState, initialHandlePosition, handleOffset);
                 }
 
-                bool doCancel() override { return false; }
+                bool cancel() override { return false; }
             };
 
             class DuplicateFaceDragDelegate : public HandleDragTrackerDelegate {
@@ -197,7 +197,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class DuplicateFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy> {
+            class DuplicateFacePart : public Part, public ToolController {
             private:
                 vm::vec3 m_dragDir;
             public:
@@ -229,7 +229,7 @@ namespace TrenchBroom {
 
                     return createHandleDragTracker(DuplicateFaceDragDelegate{*m_tool, normal}, inputState, initialHandlePosition, handleOffset);
                 }
-                bool doCancel() override { return false; }
+                bool cancel() override { return false; }
             };
         }
 
