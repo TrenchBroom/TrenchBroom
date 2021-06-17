@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace View {
         class CreateEntityTool;
 
-        class CreateEntityToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy> {
+        class CreateEntityToolController : public ToolController {
         protected:
             CreateEntityTool* m_tool;
         protected:
@@ -40,7 +40,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<DropTracker> acceptDrop(const InputState& inputState, const std::string& payload) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         private:
             virtual std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const = 0;
         };

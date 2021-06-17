@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return createDropTracker(inputState);
         }
 
-        bool CreateEntityToolController::doCancel() {
+        bool CreateEntityToolController::cancel() {
             return false;
         }
 
