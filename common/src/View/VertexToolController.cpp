@@ -94,7 +94,7 @@ namespace TrenchBroom {
             explicit MoveVertexPart(VertexTool* tool) :
             MovePartBase(tool, VertexHandleManager::HandleHitType) {}
         private:
-            bool doMouseClick(const InputState& inputState) override {
+            bool mouseClick(const InputState& inputState) override {
                 if (inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) &&
                     m_tool->handleManager().selectedHandleCount() == 1) {
@@ -125,8 +125,8 @@ namespace TrenchBroom {
                         ));
             }
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
-                MovePartBase::doRender(inputState, renderContext, renderBatch);
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
+                MovePartBase::render(inputState, renderContext, renderBatch);
 
                 if (!anyToolDragging(inputState)) {
                     const Model::Hit hit = findDraggableHandle(inputState);

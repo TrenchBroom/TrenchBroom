@@ -131,7 +131,7 @@ namespace TrenchBroom {
             };
 
             template <typename H>
-            class SelectPartBase : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy>, public PartBase {
+            class SelectPartBase : public ToolController, public PartBase {
             protected:
                 SelectPartBase(T* tool, const Model::HitType::Type hitType) :
                 PartBase{tool, hitType} {}
@@ -148,11 +148,11 @@ namespace TrenchBroom {
                     return m_tool;
                 }
 
-                void doPick(const InputState& inputState, Model::PickResult& pickResult) override {
+                void pick(const InputState& inputState, Model::PickResult& pickResult) override {
                     m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
                 }
 
-                bool doMouseClick(const InputState& inputState) override {
+                bool mouseClick(const InputState& inputState) override {
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                         !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No)) {
                         return false;
@@ -184,15 +184,15 @@ namespace TrenchBroom {
                     return createHandleDragTracker(LassoDragDelegate{*m_tool}, inputState, initialPoint, vm::vec3::zero());
                 }
 
-                bool doCancel() override {
+                bool cancel() override {
                     return m_tool->deselectAll();
                 }
             protected:
-                void doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
+                void setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
                     renderContext.setForceHideSelectionGuide();
                 }
 
-                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
+                void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     m_tool->renderHandles(renderContext, renderBatch);
                     if (!anyToolDragging(inputState)) {
                         const auto hit = findDraggableHandle(inputState);
@@ -288,7 +288,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class MovePartBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy>, public PartBase {
+            class MovePartBase : public ToolController, public PartBase {
             protected:
                 MovePartBase(T* tool, const Model::HitType::Type hitType) :
                 PartBase{tool, hitType} {}
@@ -305,10 +305,6 @@ namespace TrenchBroom {
 
                 const Tool* doGetTool() const override {
                     return m_tool;
-                }
-
-                bool doCancel() override {
-                    return m_tool->deselectAll();
                 }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
@@ -328,6 +324,10 @@ namespace TrenchBroom {
                     const auto [initialHandlePosition, handleOffset] = m_tool->handlePositionAndOffset(hits);
 
                     return createMoveHandleDragTracker(MoveDragDelegate{*m_tool}, inputState, initialHandlePosition, handleOffset);
+                }
+
+                bool cancel() override {
+                    return m_tool->deselectAll();
                 }
 
                 // Overridden in vertex tool controller to handle special cases for vertex moving.
