@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class DragTracker;
         class MapDocument;
 
-        class CreateSimpleBrushToolController3D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy> {
+        class CreateSimpleBrushToolController3D : public ToolController {
         private:
             CreateSimpleBrushTool* m_tool;
             std::weak_ptr<MapDocument> m_document;
@@ -46,7 +46,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
     }
 }

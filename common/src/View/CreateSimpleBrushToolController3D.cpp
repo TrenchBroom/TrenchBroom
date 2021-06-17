@@ -185,7 +185,7 @@ namespace TrenchBroom {
             return createHandleDragTracker(CreateSimpleBrushDragDelegate{*m_tool, document->worldBounds()}, inputState, initialHandlePosition, vm::vec3::zero());
         }
 
-        bool CreateSimpleBrushToolController3D::doCancel() {
+        bool CreateSimpleBrushToolController3D::cancel() {
             return false;
         }
     }
