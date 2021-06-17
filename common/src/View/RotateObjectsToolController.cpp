@@ -163,7 +163,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class RotateObjectsBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy> {
+            class RotateObjectsBase : public ToolController {
             protected:
                 RotateObjectsTool* m_tool;
             protected:
@@ -180,7 +180,7 @@ namespace TrenchBroom {
                     return m_tool;
                 }
 
-                bool doMouseClick(const InputState& inputState) override {
+                bool mouseClick(const InputState& inputState) override {
                     using namespace Model::HitFilters;
 
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
@@ -237,7 +237,7 @@ namespace TrenchBroom {
                     return createHandleDragTracker(RotateObjectsDragDelegate{*m_tool, area, std::move(renderHighlight)}, inputState, initialHandlePosition, vm::vec3::zero());
                 }
 
-                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
+                void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     using namespace Model::HitFilters;
 
                     if (!anyToolDragging(inputState)) {
@@ -251,7 +251,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                bool doCancel() override {
+                bool cancel() override {
                     return false;
                 }
             private:
@@ -287,7 +287,7 @@ namespace TrenchBroom {
                 }
             };
 
-            class MoveCenterBase : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RenderPolicy> {
+            class MoveCenterBase : public ToolController {
             protected:
                 RotateObjectsTool* m_tool;
             protected:
@@ -331,7 +331,7 @@ namespace TrenchBroom {
                     return createMoveHandleDragTracker(MoveRotationCenterDragDelegate{*m_tool, std::move(renderHighlight)}, inputState, m_tool->rotationCenter(), handleOffset);
                 }
 
-                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
+                void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     using namespace Model::HitFilters;
 
                     if (!anyToolDragging(inputState)) {
@@ -342,7 +342,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                bool doCancel() override {
+                bool cancel() override {
                     return false;
                 }
             private:
