@@ -52,7 +52,7 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        void ResizeBrushesToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void ResizeBrushesToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {
             if (handleInput(inputState)) {
                 const Model::Hit hit = doPick(inputState.pickRay(), pickResult);
                 if (hit.isMatch()) {
@@ -61,13 +61,13 @@ namespace TrenchBroom {
             }
         }
 
-        void ResizeBrushesToolController::doModifierKeyChange(const InputState& inputState) {
+        void ResizeBrushesToolController::modifierKeyChange(const InputState& inputState) {
             if (!anyToolDragging(inputState)) {
                 m_tool->updateProposedDragHandles(inputState.pickResult());
             }
         }
 
-        void ResizeBrushesToolController::doMouseMove(const InputState& inputState) {
+        void ResizeBrushesToolController::mouseMove(const InputState& inputState) {
             if (handleInput(inputState) && !anyToolDragging(inputState)) {
                 m_tool->updateProposedDragHandles(inputState.pickResult());
             }
@@ -149,14 +149,14 @@ namespace TrenchBroom {
             return Renderer::DirectEdgeRenderer(Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines);
         }
 
-        void ResizeBrushesToolController::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+        void ResizeBrushesToolController::render(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             if (m_tool->hasVisualHandles()) {
                 Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer(m_tool->visualHandles());
                 edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
             }
         }
 
-        bool ResizeBrushesToolController::doCancel() {
+        bool ResizeBrushesToolController::cancel() {
             return false;
         }
 

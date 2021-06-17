@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class DragTracker;
         class ResizeBrushesTool;
 
-        class ResizeBrushesToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RenderPolicy> {
+        class ResizeBrushesToolController : public ToolController {
         protected:
             ResizeBrushesTool* m_tool;
         private:
@@ -50,17 +50,17 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void doModifierKeyChange(const InputState& inputState) override;
+            void modifierKeyChange(const InputState& inputState) override;
 
-            void doMouseMove(const InputState& inputState) override;
+            void mouseMove(const InputState& inputState) override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel() override;
+            bool cancel() override;
 
             bool handleInput(const InputState& inputState) const;
         private:
