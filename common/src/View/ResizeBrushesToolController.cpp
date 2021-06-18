@@ -44,12 +44,12 @@ namespace TrenchBroom {
 
         ResizeBrushesToolController::~ResizeBrushesToolController() = default;
 
-        Tool* ResizeBrushesToolController::tool() {
-            return m_tool;
+        Tool& ResizeBrushesToolController::tool() {
+            return *m_tool;
         }
 
-        const Tool* ResizeBrushesToolController::tool() const {
-            return m_tool;
+        const Tool& ResizeBrushesToolController::tool() const {
+            return *m_tool;
         }
 
         void ResizeBrushesToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {

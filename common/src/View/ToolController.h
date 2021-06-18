@@ -55,8 +55,8 @@ namespace TrenchBroom {
         public:
             virtual ~ToolController();
 
-            virtual Tool* tool() = 0;
-            virtual const Tool* tool() const = 0;
+            virtual Tool& tool() = 0;
+            virtual const Tool& tool() const = 0;
             bool toolActive() const;
 
             virtual void pick(const InputState& inputState, Model::PickResult& pickResult);

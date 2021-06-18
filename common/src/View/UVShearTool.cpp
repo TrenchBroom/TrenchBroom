@@ -45,12 +45,12 @@ namespace TrenchBroom {
         m_document{document},
         m_helper{helper} {}
 
-        Tool* UVShearTool::tool() {
-            return this;
+        Tool& UVShearTool::tool() {
+            return *this;
         }
 
-        const Tool* UVShearTool::tool() const {
-            return this;
+        const Tool& UVShearTool::tool() const {
+            return *this;
         }
 
         void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResult) {

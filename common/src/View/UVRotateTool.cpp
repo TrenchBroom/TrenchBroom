@@ -65,12 +65,12 @@ namespace TrenchBroom {
         m_document{document},
         m_helper{helper} {}
 
-        Tool* UVRotateTool::tool() {
-            return this;
+        Tool& UVRotateTool::tool() {
+            return *this;
         }
 
-        const Tool* UVRotateTool::tool() const {
-            return this;
+        const Tool& UVRotateTool::tool() const {
+            return *this;
         }
 
         void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickResult) {

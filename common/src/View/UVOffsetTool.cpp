@@ -46,12 +46,12 @@ namespace TrenchBroom {
         m_document{std::move(document)},
         m_helper{helper} {}
 
-        Tool* UVOffsetTool::tool() {
-            return this;
+        Tool& UVOffsetTool::tool() {
+            return *this;
         }
 
-        const Tool* UVOffsetTool::tool() const {
-            return this;
+        const Tool& UVOffsetTool::tool() const {
+            return *this;
         }
 
         static vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray) {

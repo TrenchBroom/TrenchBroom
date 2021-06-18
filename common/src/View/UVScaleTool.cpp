@@ -58,12 +58,12 @@ namespace TrenchBroom {
         m_document{std::move(document)},
         m_helper{helper} {}
 
-        Tool* UVScaleTool::tool() {
-            return this;
+        Tool& UVScaleTool::tool() {
+            return *this;
         }
 
-        const Tool* UVScaleTool::tool() const {
-            return this;
+        const Tool& UVScaleTool::tool() const {
+            return *this;
         }
 
         void UVScaleTool::pick(const InputState& inputState, Model::PickResult& pickResult) {

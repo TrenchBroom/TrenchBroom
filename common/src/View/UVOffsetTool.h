@@ -37,8 +37,8 @@ namespace TrenchBroom {
         public:
             UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper);
         private:
-            Tool* tool() override;
-            const Tool* tool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 

@@ -62,12 +62,12 @@ namespace TrenchBroom {
         Tool{true},
         m_helper{helper} {}
 
-        Tool* UVOriginTool::tool() {
-            return this;
+        Tool& UVOriginTool::tool() {
+            return *this;
         }
 
-        const Tool* UVOriginTool::tool() const {
-            return this;
+        const Tool& UVOriginTool::tool() const {
+            return *this;
         }
 
         static std::tuple<vm::line3, vm::line3> computeOriginHandles(const UVViewHelper& helper) {

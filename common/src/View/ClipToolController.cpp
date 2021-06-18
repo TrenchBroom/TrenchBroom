@@ -60,8 +60,8 @@ namespace TrenchBroom {
 
                 virtual ~PartDelegateBase() = default;
 
-                ClipTool* tool() const {
-                    return m_tool;
+                ClipTool& tool() const {
+                    return *m_tool;
                 }
 
                 std::optional<std::tuple<vm::vec3, vm::vec3>> addClipPoint(const InputState& inputState) {
@@ -260,12 +260,12 @@ namespace TrenchBroom {
                 DragStatus drag(const InputState& inputState, const DragState&, const vm::vec3& proposedHandlePosition) override {
                     if (!m_secondPointSet) {
                         if (m_delegate.addClipPoint(inputState)) {
-                            m_delegate.tool()->beginDragLastPoint();
+                            m_delegate.tool().beginDragLastPoint();
                             m_secondPointSet = true;
                             return DragStatus::Continue;
                         }
                     } else {
-                        if (m_delegate.tool()->dragPoint(proposedHandlePosition, m_delegate.getHelpVectors(inputState, proposedHandlePosition))) {
+                        if (m_delegate.tool().dragPoint(proposedHandlePosition, m_delegate.getHelpVectors(inputState, proposedHandlePosition))) {
                             return DragStatus::Continue;
                         }
                     }
@@ -274,16 +274,16 @@ namespace TrenchBroom {
 
                 void end(const InputState&, const DragState&) override {
                     if (m_secondPointSet) {
-                        m_delegate.tool()->endDragPoint();
+                        m_delegate.tool().endDragPoint();
                     }
                 }
 
                 void cancel(const DragState&) override {
                     if (m_secondPointSet) {
-                        m_delegate.tool()->cancelDragPoint();
-                        m_delegate.tool()->removeLastPoint();
+                        m_delegate.tool().cancelDragPoint();
+                        m_delegate.tool().removeLastPoint();
                     }
-                    m_delegate.tool()->removeLastPoint();
+                    m_delegate.tool().removeLastPoint();
                 }
             };
 
@@ -292,11 +292,11 @@ namespace TrenchBroom {
                 explicit AddClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
                 PartBase{std::move(delegate)} {}
             private:
-                Tool* tool() override {
+                Tool& tool() override {
                     return m_delegate->tool();
                 }
 
-                const Tool* tool() const override {
+                const Tool& tool() const override {
                     return m_delegate->tool();
                 }
 
@@ -354,7 +354,7 @@ namespace TrenchBroom {
                 }
 
                 DragStatus drag(const InputState& inputState, const DragState&, const vm::vec3& proposedHandlePosition) override {
-                    if (m_delegate.tool()->dragPoint(proposedHandlePosition, m_delegate.getHelpVectors(inputState, proposedHandlePosition))) {
+                    if (m_delegate.tool().dragPoint(proposedHandlePosition, m_delegate.getHelpVectors(inputState, proposedHandlePosition))) {
                         return DragStatus::Continue;
                     } else {
                         return DragStatus::Deny;
@@ -362,11 +362,11 @@ namespace TrenchBroom {
                 }
 
                 void end(const InputState&, const DragState&) override {
-                    m_delegate.tool()->endDragPoint();
+                    m_delegate.tool().endDragPoint();
                 }
 
                 void cancel(const DragState&) override {
-                    m_delegate.tool()->cancelDragPoint();
+                    m_delegate.tool().cancelDragPoint();
                 }
             };
 
@@ -375,11 +375,11 @@ namespace TrenchBroom {
                 explicit MoveClipPointPart(std::unique_ptr<PartDelegateBase> delegate) :
                 PartBase{std::move(delegate)} {}
             private:
-                Tool* tool() override {
+                Tool& tool() override {
                     return m_delegate->tool();
                 }
 
-                const Tool* tool() const override {
+                const Tool& tool() const override {
                     return m_delegate->tool();
                 }
 
@@ -390,7 +390,7 @@ namespace TrenchBroom {
                         return nullptr;
                     }
 
-                    const auto initialHandlePositionAndOffset = m_delegate->tool()->beginDragPoint(inputState.pickResult());
+                    const auto initialHandlePositionAndOffset = m_delegate->tool().beginDragPoint(inputState.pickResult());
                     if (!initialHandlePositionAndOffset) {
                         return nullptr;
                     }
@@ -410,12 +410,12 @@ namespace TrenchBroom {
 
         ClipToolControllerBase::~ClipToolControllerBase() = default;
 
-        Tool* ClipToolControllerBase::tool() {
-            return m_tool;
+        Tool& ClipToolControllerBase::tool() {
+            return *m_tool;
         }
 
-        const Tool* ClipToolControllerBase::tool() const {
-            return m_tool;
+        const Tool& ClipToolControllerBase::tool() const {
+            return *m_tool;
         }
 
         void ClipToolControllerBase::pick(const InputState& inputState, Model::PickResult& pickResult) {

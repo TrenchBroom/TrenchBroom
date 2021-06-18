@@ -50,12 +50,12 @@ namespace TrenchBroom {
 
         ShearObjectsToolController::~ShearObjectsToolController() = default;
 
-        Tool* ShearObjectsToolController::tool() {
-            return m_tool;
+        Tool& ShearObjectsToolController::tool() {
+            return *m_tool;
         }
 
-        const Tool* ShearObjectsToolController::tool() const {
-            return m_tool;
+        const Tool& ShearObjectsToolController::tool() const {
+            return *m_tool;
         }
 
         void ShearObjectsToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {

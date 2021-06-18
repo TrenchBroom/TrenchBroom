@@ -42,12 +42,12 @@ namespace TrenchBroom {
             ensure(m_tool != nullptr, "tool is null");
         }
 
-        Tool* CreateSimpleBrushToolController2D::tool() {
-            return m_tool;
+        Tool& CreateSimpleBrushToolController2D::tool() {
+            return *m_tool;
         }
 
-        const Tool* CreateSimpleBrushToolController2D::tool() const {
-            return m_tool;
+        const Tool& CreateSimpleBrushToolController2D::tool() const {
+            return *m_tool;
         }
 
         namespace {

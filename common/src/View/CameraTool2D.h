@@ -40,8 +40,8 @@ namespace TrenchBroom {
         public:
             explicit CameraTool2D(Renderer::OrthographicCamera& camera);
         private:
-            Tool* tool() override;
-            const Tool* tool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
             void mouseScroll(const InputState& inputState) override;
 

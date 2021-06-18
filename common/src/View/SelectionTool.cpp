@@ -111,12 +111,12 @@ namespace TrenchBroom {
         Tool{true},
         m_document{std::move(document)} {}
 
-        Tool* SelectionTool::tool() {
-            return this;
+        Tool& SelectionTool::tool() {
+            return *this;
         }
 
-        const Tool* SelectionTool::tool() const {
-            return this;
+        const Tool& SelectionTool::tool() const {
+            return *this;
         }
 
         bool SelectionTool::mouseClick(const InputState& inputState) {

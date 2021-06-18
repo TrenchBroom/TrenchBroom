@@ -140,12 +140,12 @@ namespace TrenchBroom {
                 using PartBase::m_hitType;
                 using PartBase::findDraggableHandle;
             private:
-                Tool* tool() override {
-                    return m_tool;
+                Tool& tool() override {
+                    return *m_tool;
                 }
 
-                const Tool* tool() const override {
-                    return m_tool;
+                const Tool& tool() const override {
+                    return *m_tool;
                 }
 
                 void pick(const InputState& inputState, Model::PickResult& pickResult) override {
@@ -299,12 +299,12 @@ namespace TrenchBroom {
                 using PartBase::findDraggableHandle;
                 using PartBase::findDraggableHandles;
             protected:
-                Tool* tool() override {
-                    return m_tool;
+                Tool& tool() override {
+                    return *m_tool;
                 }
 
-                const Tool* tool() const override {
-                    return m_tool;
+                const Tool& tool() const override {
+                    return *m_tool;
                 }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
@@ -345,12 +345,12 @@ namespace TrenchBroom {
         public:
             ~VertexToolControllerBase() override = default;
         private:
-            Tool* tool() override {
-                return m_tool;
+            Tool& tool() override {
+                return *m_tool;
             }
 
-            const Tool* tool() const override {
-                return m_tool;
+            const Tool& tool() const override {
+                return *m_tool;
             }
         };
     }

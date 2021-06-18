@@ -36,7 +36,7 @@ namespace TrenchBroom {
     namespace View {
         ToolController::~ToolController() = default;
 
-        bool ToolController::toolActive() const { return tool()->active(); }
+        bool ToolController::toolActive() const { return tool().active(); }
 
         void ToolController::pick(const InputState&, Model::PickResult&) {}
 
@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
         bool ToolController::cancel() { return false; }
 
-        void ToolController::refreshViews() { tool()->refreshViews(); }
+        void ToolController::refreshViews() { tool().refreshViews(); }
 
         std::unique_ptr<DropTracker> ToolController::acceptDrop(const InputState&, const std::string& /* payload */) {
             return nullptr;

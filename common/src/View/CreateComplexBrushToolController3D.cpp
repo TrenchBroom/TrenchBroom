@@ -130,8 +130,8 @@ namespace TrenchBroom {
                 explicit DrawFacePart(CreateComplexBrushTool* tool) :
                 Part{tool} {}
             private:
-                Tool* tool() override { return m_tool; }
-                const Tool* tool() const override { return m_tool; }
+                Tool& tool() override { return *m_tool; }
+                const Tool& tool() const override { return *m_tool; }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     using namespace Model::HitFilters;
@@ -204,8 +204,8 @@ namespace TrenchBroom {
                 DuplicateFacePart(CreateComplexBrushTool* tool) :
                 Part{tool} {}
             private:
-                Tool* tool() override { return m_tool; }
-                const Tool* tool() const override { return m_tool; }
+                Tool& tool() override { return *m_tool; }
+                const Tool& tool() const override { return *m_tool; }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     using namespace Model::HitFilters;
@@ -240,12 +240,12 @@ namespace TrenchBroom {
             addController(std::make_unique<DuplicateFacePart>(m_tool));
         }
 
-        Tool* CreateComplexBrushToolController3D::tool() {
-            return m_tool;
+        Tool& CreateComplexBrushToolController3D::tool() {
+            return *m_tool;
         }
 
-        const Tool* CreateComplexBrushToolController3D::tool() const {
-            return m_tool;
+        const Tool& CreateComplexBrushToolController3D::tool() const {
+            return *m_tool;
         }
 
         bool CreateComplexBrushToolController3D::mouseClick(const InputState& inputState) {

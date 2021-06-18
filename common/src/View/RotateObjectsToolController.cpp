@@ -172,12 +172,12 @@ namespace TrenchBroom {
                     ensure(m_tool != nullptr, "tool is null");
                 }
             private:
-                Tool* tool() override {
-                    return m_tool;
+                Tool& tool() override {
+                    return *m_tool;
                 }
 
-                const Tool* tool() const override {
-                    return m_tool;
+                const Tool& tool() const override {
+                    return *m_tool;
                 }
 
                 bool mouseClick(const InputState& inputState) override {
@@ -296,12 +296,12 @@ namespace TrenchBroom {
                     ensure(m_tool != nullptr, "tool is null");
                 }
 
-                Tool* tool() override {
-                    return m_tool;
+                Tool& tool() override {
+                    return *m_tool;
                 }
 
-                const Tool* tool() const override {
-                    return m_tool;
+                const Tool& tool() const override {
+                    return *m_tool;
                 }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
@@ -395,12 +395,12 @@ namespace TrenchBroom {
 
         RotateObjectsToolController::~RotateObjectsToolController() = default;
 
-        Tool* RotateObjectsToolController::tool() {
-            return m_tool;
+        Tool& RotateObjectsToolController::tool() {
+            return *m_tool;
         }
 
-        const Tool* RotateObjectsToolController::tool() const {
-            return m_tool;
+        const Tool& RotateObjectsToolController::tool() const {
+            return *m_tool;
         }
 
         void RotateObjectsToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {

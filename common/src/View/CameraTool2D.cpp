@@ -35,12 +35,12 @@ namespace TrenchBroom {
         Tool{true},
         m_camera{camera} {}
 
-        Tool* CameraTool2D::tool() {
-            return this;
+        Tool& CameraTool2D::tool() {
+            return *this;
         }
 
-        const Tool* CameraTool2D::tool() const {
-            return this;
+        const Tool& CameraTool2D::tool() const {
+            return *this;
         }
 
         static bool shouldZoom(const InputState& inputState) {

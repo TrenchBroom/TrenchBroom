@@ -39,12 +39,12 @@ namespace TrenchBroom {
 
         CreateEntityToolController::~CreateEntityToolController() = default;
 
-        Tool* CreateEntityToolController::tool() {
-            return m_tool;
+        Tool& CreateEntityToolController::tool() {
+            return *m_tool;
         }
 
-        const Tool* CreateEntityToolController::tool() const {
-            return m_tool;
+        const Tool& CreateEntityToolController::tool() const {
+            return *m_tool;
         }
 
         std::unique_ptr<DropTracker> CreateEntityToolController::acceptDrop(const InputState& inputState, const std::string& payload) {

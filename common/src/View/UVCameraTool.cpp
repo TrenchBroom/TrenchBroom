@@ -32,12 +32,12 @@ namespace TrenchBroom {
         Tool{true},
         m_camera{camera} {}
 
-        Tool* UVCameraTool::tool() {
-            return this;
+        Tool& UVCameraTool::tool() {
+            return *this;
         }
 
-        const Tool* UVCameraTool::tool() const {
-            return this;
+        const Tool& UVCameraTool::tool() const {
+            return *this;
         }
 
         void UVCameraTool::mouseScroll(const InputState& inputState) {

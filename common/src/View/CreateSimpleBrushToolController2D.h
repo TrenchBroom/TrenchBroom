@@ -40,8 +40,8 @@ namespace TrenchBroom {
         public:
             CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document);
         private:
-            Tool* tool() override;
-            const Tool* tool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 

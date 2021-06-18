@@ -115,12 +115,12 @@ namespace TrenchBroom {
         Tool{true},
         m_camera{camera} {}
 
-        Tool* CameraTool3D::tool() {
-            return this;
+        Tool& CameraTool3D::tool() {
+            return *this;
         }
 
-        const Tool* CameraTool3D::tool() const {
-            return this;
+        const Tool& CameraTool3D::tool() const {
+            return *this;
         }
 
         void CameraTool3D::mouseScroll(const InputState& inputState) {

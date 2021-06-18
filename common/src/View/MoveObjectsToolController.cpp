@@ -38,12 +38,12 @@ namespace TrenchBroom {
 
         MoveObjectsToolController::~MoveObjectsToolController() {}
 
-        Tool* MoveObjectsToolController::tool() {
-            return m_tool;
+        Tool& MoveObjectsToolController::tool() {
+            return *m_tool;
         }
 
-        const Tool* MoveObjectsToolController::tool() const {
-            return m_tool;
+        const Tool& MoveObjectsToolController::tool() const {
+            return *m_tool;
         }
 
         namespace {

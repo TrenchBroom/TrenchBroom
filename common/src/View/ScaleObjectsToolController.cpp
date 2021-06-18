@@ -51,12 +51,12 @@ namespace TrenchBroom {
 
         ScaleObjectsToolController::~ScaleObjectsToolController() = default;
 
-        Tool* ScaleObjectsToolController::tool() {
-            return m_tool;
+        Tool& ScaleObjectsToolController::tool() {
+            return *m_tool;
         }
 
-        const Tool* ScaleObjectsToolController::tool() const {
-            return m_tool;
+        const Tool& ScaleObjectsToolController::tool() const {
+            return *m_tool;
         }
 
         void ScaleObjectsToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {

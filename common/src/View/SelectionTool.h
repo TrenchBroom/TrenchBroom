@@ -52,8 +52,8 @@ namespace TrenchBroom {
         public:
             explicit SelectionTool(std::weak_ptr<MapDocument> document);
         private:
-            Tool* tool() override;
-            const Tool* tool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
             bool mouseClick(const InputState& inputState) override;
             bool mouseDoubleClick(const InputState& inputState) override;
