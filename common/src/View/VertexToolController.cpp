@@ -73,7 +73,7 @@ namespace TrenchBroom {
 
         class VertexToolController::SelectVertexPart : public SelectPartBase<vm::vec3> {
         public:
-            explicit SelectVertexPart(VertexTool* tool) :
+            explicit SelectVertexPart(VertexTool& tool) :
             SelectPartBase(tool, VertexHandleManager::HandleHitType) {}
         private:
             Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
@@ -91,20 +91,20 @@ namespace TrenchBroom {
 
         class VertexToolController::MoveVertexPart : public MovePartBase {
         public:
-            explicit MoveVertexPart(VertexTool* tool) :
+            explicit MoveVertexPart(VertexTool& tool) :
             MovePartBase(tool, VertexHandleManager::HandleHitType) {}
         private:
             bool mouseClick(const InputState& inputState) override {
                 if (inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) &&
-                    m_tool->handleManager().selectedHandleCount() == 1) {
+                    m_tool.handleManager().selectedHandleCount() == 1) {
 
                     const Model::Hit hit = VertexToolController::findHandleHit(inputState, *this);
                     if (hit.hasType(VertexHandleManager::HandleHitType)) {
-                        const vm::vec3 sourcePos = m_tool->handleManager().selectedHandles().front();
+                        const vm::vec3 sourcePos = m_tool.handleManager().selectedHandles().front();
                         const vm::vec3 targetPos = hit.target<vm::vec3>();
                         const vm::vec3 delta = targetPos - sourcePos;
-                        m_tool->moveSelection(delta);
+                        m_tool.moveSelection(delta);
                         return true;
                     }
                 }
@@ -131,12 +131,12 @@ namespace TrenchBroom {
                 if (!anyToolDragging(inputState)) {
                     const Model::Hit hit = findDraggableHandle(inputState);
                     if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType)) {
-                        const vm::vec3 handle = m_tool->getHandlePosition(hit);
+                        const vm::vec3 handle = m_tool.getHandlePosition(hit);
                         if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                            m_tool->renderHandle(renderContext, renderBatch, handle, pref(Preferences::SelectedHandleColor));
+                            m_tool.renderHandle(renderContext, renderBatch, handle, pref(Preferences::SelectedHandleColor));
                         else
-                            m_tool->renderHandle(renderContext, renderBatch, handle);
-                        m_tool->renderHighlight(renderContext, renderBatch, handle);
+                            m_tool.renderHandle(renderContext, renderBatch, handle);
+                        m_tool.renderHighlight(renderContext, renderBatch, handle);
                     }
                 }
             }
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             }
         };
 
-        VertexToolController::VertexToolController(VertexTool* tool) :
+        VertexToolController::VertexToolController(VertexTool& tool) :
         VertexToolControllerBase(tool) {
             addController(std::make_unique<MoveVertexPart>(tool));
             addController(std::make_unique<SelectVertexPart>(tool));

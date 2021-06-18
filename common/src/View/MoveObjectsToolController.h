@@ -28,9 +28,9 @@ namespace TrenchBroom {
 
         class MoveObjectsToolController : public ToolController {
         private:
-            MoveObjectsTool* m_tool;
+            MoveObjectsTool& m_tool;
         public:
-            MoveObjectsToolController(MoveObjectsTool* tool);
+            MoveObjectsToolController(MoveObjectsTool& tool);
             virtual ~MoveObjectsToolController() override;
         private:
             Tool& tool() override;

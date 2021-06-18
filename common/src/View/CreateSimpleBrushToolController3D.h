@@ -34,12 +34,12 @@ namespace TrenchBroom {
 
         class CreateSimpleBrushToolController3D : public ToolController {
         private:
-            CreateSimpleBrushTool* m_tool;
+            CreateSimpleBrushTool& m_tool;
             std::weak_ptr<MapDocument> m_document;
 
             vm::vec3 m_initialPoint;
         public:
-            CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document);
+            CreateSimpleBrushToolController3D(CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document);
         private:
             Tool& tool() override;
             const Tool& tool() const override;

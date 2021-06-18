@@ -47,10 +47,10 @@ namespace TrenchBroom {
         protected:
             class PartBase {
             protected:
-                T* m_tool;
+                T& m_tool;
                 Model::HitType::Type m_hitType;
             protected:
-                PartBase(T* tool, const Model::HitType::Type hitType) :
+                PartBase(T& tool, const Model::HitType::Type hitType) :
                 m_tool{tool},
                 m_hitType{hitType} {}
             public:
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                     const auto hits = inputState.pickResult().all(type(hitType));
                     if (!hits.empty()) {
                         for (const auto& hit : hits) {
-                            if (m_tool->selected(hit)) {
+                            if (m_tool.selected(hit)) {
                                 return hit;
                             }
                         }
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             template <typename H>
             class SelectPartBase : public ToolController, public PartBase {
             protected:
-                SelectPartBase(T* tool, const Model::HitType::Type hitType) :
+                SelectPartBase(T& tool, const Model::HitType::Type hitType) :
                 PartBase{tool, hitType} {}
             protected:
                 using PartBase::m_tool;
@@ -141,15 +141,15 @@ namespace TrenchBroom {
                 using PartBase::findDraggableHandle;
             private:
                 Tool& tool() override {
-                    return *m_tool;
+                    return m_tool;
                 }
 
                 const Tool& tool() const override {
-                    return *m_tool;
+                    return m_tool;
                 }
 
                 void pick(const InputState& inputState, Model::PickResult& pickResult) override {
-                    m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
+                    m_tool.pick(inputState.pickRay(), inputState.camera(), pickResult);
                 }
 
                 bool mouseClick(const InputState& inputState) override {
@@ -160,10 +160,10 @@ namespace TrenchBroom {
 
                     const auto hits = firstHits(inputState.pickResult());
                     if (hits.empty()) {
-                        return m_tool->deselectAll();
+                        return m_tool.deselectAll();
                     }
                     
-                    return m_tool->select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
+                    return m_tool.select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
                 }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
@@ -181,11 +181,11 @@ namespace TrenchBroom {
                     const auto plane = vm::orthogonal_plane(vm::vec3{camera.defaultPoint(static_cast<float>(LassoDragDelegate::LassoDistance))}, vm::vec3{camera.direction()});
                     const auto initialPoint = vm::point_at_distance(inputState.pickRay(), vm::intersect_ray_plane(inputState.pickRay(), plane));
                     
-                    return createHandleDragTracker(LassoDragDelegate{*m_tool}, inputState, initialPoint, vm::vec3::zero());
+                    return createHandleDragTracker(LassoDragDelegate{m_tool}, inputState, initialPoint, vm::vec3::zero());
                 }
 
                 bool cancel() override {
-                    return m_tool->deselectAll();
+                    return m_tool.deselectAll();
                 }
             protected:
                 void setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
@@ -193,15 +193,15 @@ namespace TrenchBroom {
                 }
 
                 void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
-                    m_tool->renderHandles(renderContext, renderBatch);
+                    m_tool.renderHandles(renderContext, renderBatch);
                     if (!anyToolDragging(inputState)) {
                         const auto hit = findDraggableHandle(inputState);
                         if (hit.hasType(m_hitType)) {
-                            const auto handle = m_tool->getHandlePosition(hit);
-                            m_tool->renderHighlight(renderContext, renderBatch, handle);
+                            const auto handle = m_tool.getHandlePosition(hit);
+                            m_tool.renderHighlight(renderContext, renderBatch, handle);
 
                             if (inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                                m_tool->renderGuide(renderContext, renderBatch, handle);
+                                m_tool.renderGuide(renderContext, renderBatch, handle);
                             }
                         }
                     }
@@ -234,7 +234,7 @@ namespace TrenchBroom {
 
                 bool allIncidentBrushesVisited(const H& handle, std::unordered_set<Model::BrushNode*>& visitedBrushes) const {
                     bool result = true;
-                    for (auto brush : m_tool->findIncidentBrushes(handle)) {
+                    for (auto brush : m_tool.findIncidentBrushes(handle)) {
                         const bool unvisited = visitedBrushes.insert(brush).second;
                         result &= unvisited;
                     }
@@ -290,7 +290,7 @@ namespace TrenchBroom {
 
             class MovePartBase : public ToolController, public PartBase {
             protected:
-                MovePartBase(T* tool, const Model::HitType::Type hitType) :
+                MovePartBase(T& tool, const Model::HitType::Type hitType) :
                 PartBase{tool, hitType} {}
             public:
                 ~MovePartBase() override = default;
@@ -300,11 +300,11 @@ namespace TrenchBroom {
                 using PartBase::findDraggableHandles;
             protected:
                 Tool& tool() override {
-                    return *m_tool;
+                    return m_tool;
                 }
 
                 const Tool& tool() const override {
-                    return *m_tool;
+                    return m_tool;
                 }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
@@ -317,17 +317,17 @@ namespace TrenchBroom {
                         return nullptr;
                     }
 
-                    if (!m_tool->startMove(hits)) {
+                    if (!m_tool.startMove(hits)) {
                         return nullptr;
                     }
 
-                    const auto [initialHandlePosition, handleOffset] = m_tool->handlePositionAndOffset(hits);
+                    const auto [initialHandlePosition, handleOffset] = m_tool.handlePositionAndOffset(hits);
 
-                    return createMoveHandleDragTracker(MoveDragDelegate{*m_tool}, inputState, initialHandlePosition, handleOffset);
+                    return createMoveHandleDragTracker(MoveDragDelegate{m_tool}, inputState, initialHandlePosition, handleOffset);
                 }
 
                 bool cancel() override {
-                    return m_tool->deselectAll();
+                    return m_tool.deselectAll();
                 }
 
                 // Overridden in vertex tool controller to handle special cases for vertex moving.
@@ -338,19 +338,19 @@ namespace TrenchBroom {
                 }
             };
         protected:
-            T* m_tool;
+            T& m_tool;
         protected:
-            explicit VertexToolControllerBase(T* tool) :
+            explicit VertexToolControllerBase(T& tool) :
             m_tool(tool) {}
         public:
             ~VertexToolControllerBase() override = default;
         private:
             Tool& tool() override {
-                return *m_tool;
+                return m_tool;
             }
 
             const Tool& tool() const override {
-                return *m_tool;
+                return m_tool;
             }
         };
     }

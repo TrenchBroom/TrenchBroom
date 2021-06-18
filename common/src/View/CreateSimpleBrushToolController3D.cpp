@@ -44,18 +44,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document) :
+        CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document) :
         m_tool{tool},
-        m_document{document} {
-            ensure(tool != nullptr, "tool is null");
-        }
+        m_document{document} {}
 
         Tool& CreateSimpleBrushToolController3D::tool() {
-            return *m_tool;
+            return m_tool;
         }
 
         const Tool& CreateSimpleBrushToolController3D::tool() const {
-            return *m_tool;
+            return m_tool;
         }
 
         namespace {
@@ -182,7 +180,7 @@ namespace TrenchBroom {
             const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
             const auto initialHandlePosition = hit.isMatch() ? hit.hitPoint() : inputState.defaultPointUnderMouse();
 
-            return createHandleDragTracker(CreateSimpleBrushDragDelegate{*m_tool, document->worldBounds()}, inputState, initialHandlePosition, vm::vec3::zero());
+            return createHandleDragTracker(CreateSimpleBrushDragDelegate{m_tool, document->worldBounds()}, inputState, initialHandlePosition, vm::vec3::zero());
         }
 
         bool CreateSimpleBrushToolController3D::cancel() {

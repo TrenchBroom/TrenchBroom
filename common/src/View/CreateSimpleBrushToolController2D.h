@@ -35,10 +35,10 @@ namespace TrenchBroom {
 
         class CreateSimpleBrushToolController2D : public ToolController {
         private:
-            CreateSimpleBrushTool* m_tool;
+            CreateSimpleBrushTool& m_tool;
             std::weak_ptr<MapDocument> m_document;
         public:
-            CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document);
+            CreateSimpleBrushToolController2D(CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document);
         private:
             Tool& tool() override;
             const Tool& tool() const override;

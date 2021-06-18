@@ -19,7 +19,6 @@
 
 #include "CreateSimpleBrushToolController2D.h"
 
-#include "Ensure.h"
 #include "Renderer/Camera.h"
 #include "View/CreateSimpleBrushTool.h"
 #include "View/Grid.h"
@@ -36,18 +35,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document) :
+        CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document) :
         m_tool{tool},
-        m_document{document} {
-            ensure(m_tool != nullptr, "tool is null");
-        }
+        m_document{document} {}
 
         Tool& CreateSimpleBrushToolController2D::tool() {
-            return *m_tool;
+            return m_tool;
         }
 
         const Tool& CreateSimpleBrushToolController2D::tool() const {
-            return *m_tool;
+            return m_tool;
         }
 
         namespace {
@@ -151,7 +148,7 @@ namespace TrenchBroom {
             }
 
             const auto initialHandlePosition = vm::point_at_distance(inputState.pickRay(), distance);
-            return createHandleDragTracker(CreateSimpleBrushDragDelegate{*m_tool, document->worldBounds(), document->referenceBounds()}, inputState, initialHandlePosition, vm::vec3::zero());
+            return createHandleDragTracker(CreateSimpleBrushDragDelegate{m_tool, document->worldBounds(), document->referenceBounds()}, inputState, initialHandlePosition, vm::vec3::zero());
         }
 
         bool CreateSimpleBrushToolController2D::cancel() {

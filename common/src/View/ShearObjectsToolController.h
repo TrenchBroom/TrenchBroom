@@ -38,11 +38,11 @@ namespace TrenchBroom {
 
         class ShearObjectsToolController : public ToolController {
         protected:
-            ShearObjectsTool* m_tool;
+            ShearObjectsTool& m_tool;
         private:
             std::weak_ptr<MapDocument> m_document;
         public:
-            explicit ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
+            explicit ShearObjectsToolController(ShearObjectsTool& tool, std::weak_ptr<MapDocument> document);
             ~ShearObjectsToolController() override;
         private:
             Tool& tool() override;
@@ -64,14 +64,14 @@ namespace TrenchBroom {
 
         class ShearObjectsToolController2D : public ShearObjectsToolController {
         public:
-            explicit ShearObjectsToolController2D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
+            explicit ShearObjectsToolController2D(ShearObjectsTool& tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };
 
         class ShearObjectsToolController3D : public ShearObjectsToolController {
         public:
-            explicit ShearObjectsToolController3D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
+            explicit ShearObjectsToolController3D(ShearObjectsTool& tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };

@@ -122,18 +122,18 @@ namespace TrenchBroom {
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
             addTool(std::make_unique<CameraTool2D>(*m_camera));
-            addTool(std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
-            addTool(std::make_unique<RotateObjectsToolController2D>(toolBox.rotateObjectsTool()));
-            addTool(std::make_unique<ScaleObjectsToolController2D>(toolBox.scaleObjectsTool(), m_document));
-            addTool(std::make_unique<ShearObjectsToolController2D>(toolBox.shearObjectsTool(), m_document));
-            addTool(std::make_unique<ResizeBrushesToolController2D>(toolBox.resizeBrushesTool()));
-            addTool(std::make_unique<ClipToolController2D>(toolBox.clipTool()));
-            addTool(std::make_unique<VertexToolController>(toolBox.vertexTool()));
-            addTool(std::make_unique<EdgeToolController>(toolBox.edgeTool()));
-            addTool(std::make_unique<FaceToolController>(toolBox.faceTool()));
-            addTool(std::make_unique<CreateEntityToolController2D>(toolBox.createEntityTool()));
+            addTool(std::make_unique<MoveObjectsToolController>(*toolBox.moveObjectsTool()));
+            addTool(std::make_unique<RotateObjectsToolController2D>(*toolBox.rotateObjectsTool()));
+            addTool(std::make_unique<ScaleObjectsToolController2D>(*toolBox.scaleObjectsTool(), m_document));
+            addTool(std::make_unique<ShearObjectsToolController2D>(*toolBox.shearObjectsTool(), m_document));
+            addTool(std::make_unique<ResizeBrushesToolController2D>(*toolBox.resizeBrushesTool()));
+            addTool(std::make_unique<ClipToolController2D>(*toolBox.clipTool()));
+            addTool(std::make_unique<VertexToolController>(*toolBox.vertexTool()));
+            addTool(std::make_unique<EdgeToolController>(*toolBox.edgeTool()));
+            addTool(std::make_unique<FaceToolController>(*toolBox.faceTool()));
+            addTool(std::make_unique<CreateEntityToolController2D>(*toolBox.createEntityTool()));
             addTool(std::make_unique<SelectionTool>(m_document));
-            addTool(std::make_unique<CreateSimpleBrushToolController2D>(toolBox.createSimpleBrushTool(), m_document));
+            addTool(std::make_unique<CreateSimpleBrushToolController2D>(*toolBox.createSimpleBrushTool(), m_document));
         }
 
         void MapView2D::connectObservers() {

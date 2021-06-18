@@ -19,7 +19,6 @@
 
 #include "CreateEntityToolController.h"
 
-#include "Ensure.h"
 #include "View/CreateEntityTool.h"
 #include "View/DropTracker.h"
 #include "View/InputState.h"
@@ -32,19 +31,17 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateEntityToolController::CreateEntityToolController(CreateEntityTool* tool) :
-        m_tool(tool) {
-            ensure(m_tool != nullptr, "tool is null");
-        }
+        CreateEntityToolController::CreateEntityToolController(CreateEntityTool& tool) :
+        m_tool(tool) {}
 
         CreateEntityToolController::~CreateEntityToolController() = default;
 
         Tool& CreateEntityToolController::tool() {
-            return *m_tool;
+            return m_tool;
         }
 
         const Tool& CreateEntityToolController::tool() const {
-            return *m_tool;
+            return m_tool;
         }
 
         std::unique_ptr<DropTracker> CreateEntityToolController::acceptDrop(const InputState& inputState, const std::string& payload) {
@@ -53,7 +50,7 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            if (!m_tool->createEntity(parts[1])) {
+            if (!m_tool.createEntity(parts[1])) {
                 return nullptr;
             }
 
@@ -93,18 +90,18 @@ namespace TrenchBroom {
             };
         }
 
-        CreateEntityToolController2D::CreateEntityToolController2D(CreateEntityTool* tool) :
+        CreateEntityToolController2D::CreateEntityToolController2D(CreateEntityTool& tool) :
         CreateEntityToolController(tool) {}
 
         std::unique_ptr<DropTracker> CreateEntityToolController2D::createDropTracker(const InputState& inputState) const {
-            return std::make_unique<CreateEntityDropTracker>(inputState, *m_tool, [](const auto& is, auto& t) { t.updateEntityPosition2D(is.pickRay()); });
+            return std::make_unique<CreateEntityDropTracker>(inputState, m_tool, [](const auto& is, auto& t) { t.updateEntityPosition2D(is.pickRay()); });
         }
 
-        CreateEntityToolController3D::CreateEntityToolController3D(CreateEntityTool* tool) :
+        CreateEntityToolController3D::CreateEntityToolController3D(CreateEntityTool& tool) :
         CreateEntityToolController(tool) {}
 
         std::unique_ptr<DropTracker> CreateEntityToolController3D::createDropTracker(const InputState& inputState) const {
-            return std::make_unique<CreateEntityDropTracker>(inputState, *m_tool, [](const auto& is, auto& t) { t.updateEntityPosition3D(is.pickRay(), is.pickResult()); });
+            return std::make_unique<CreateEntityDropTracker>(inputState, m_tool, [](const auto& is, auto& t) { t.updateEntityPosition3D(is.pickRay(), is.pickResult()); });
         }
     }
 }

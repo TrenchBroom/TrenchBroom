@@ -31,19 +31,17 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsToolController::MoveObjectsToolController(MoveObjectsTool* tool) :
-        m_tool(tool) {
-            ensure(m_tool != nullptr, "tool is null");
-        }
+        MoveObjectsToolController::MoveObjectsToolController(MoveObjectsTool& tool) :
+        m_tool(tool) {}
 
         MoveObjectsToolController::~MoveObjectsToolController() {}
 
         Tool& MoveObjectsToolController::tool() {
-            return *m_tool;
+            return m_tool;
         }
 
         const Tool& MoveObjectsToolController::tool() const {
-            return *m_tool;
+            return m_tool;
         }
 
         namespace {
@@ -102,11 +100,11 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            if (!m_tool->startMove(inputState)) {
+            if (!m_tool.startMove(inputState)) {
                 return nullptr;
             }
 
-            return createMoveHandleDragTracker(MoveObjectsDragDelegate{*m_tool}, inputState, hit.hitPoint(), vm::vec3::zero());
+            return createMoveHandleDragTracker(MoveObjectsDragDelegate{m_tool}, inputState, hit.hitPoint(), vm::vec3::zero());
         }
 
         bool MoveObjectsToolController::cancel() {

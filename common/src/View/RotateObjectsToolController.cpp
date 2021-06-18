@@ -165,19 +165,17 @@ namespace TrenchBroom {
 
             class RotateObjectsBase : public ToolController {
             protected:
-                RotateObjectsTool* m_tool;
+                RotateObjectsTool& m_tool;
             protected:
-                explicit RotateObjectsBase(RotateObjectsTool* tool) :
-                m_tool(tool) {
-                    ensure(m_tool != nullptr, "tool is null");
-                }
+                explicit RotateObjectsBase(RotateObjectsTool& tool) :
+                m_tool(tool) {}
             private:
                 Tool& tool() override {
-                    return *m_tool;
+                    return m_tool;
                 }
 
                 const Tool& tool() const override {
-                    return *m_tool;
+                    return m_tool;
                 }
 
                 bool mouseClick(const InputState& inputState) override {
@@ -197,7 +195,7 @@ namespace TrenchBroom {
                         return false;
                     }
 
-                    m_tool->updateToolPageAxis(area);
+                    m_tool.updateToolPageAxis(area);
                     return true;
                 }
 
@@ -221,8 +219,8 @@ namespace TrenchBroom {
 
                     // We cannot use the hit's hitpoint because it is on the surface of the handle torus, whereas our drag snapper expects it to
                     // be on the plane defined by the rotation handle center and the rotation axis.
-                    const auto center = m_tool->rotationCenter();
-                    const auto axis = m_tool->rotationAxis(area);
+                    const auto center = m_tool.rotationCenter();
+                    const auto axis = m_tool.rotationAxis(area);
                     const auto distance = vm::intersect_ray_plane(inputState.pickRay(), vm::plane3{center, axis});
                     if (vm::is_nan(distance)) {
                         return nullptr;
@@ -233,8 +231,8 @@ namespace TrenchBroom {
                         doRenderHighlight(inputState_, renderContext, renderBatch, area_);
                     };
 
-                    m_tool->beginRotation();
-                    return createHandleDragTracker(RotateObjectsDragDelegate{*m_tool, area, std::move(renderHighlight)}, inputState, initialHandlePosition, vm::vec3::zero());
+                    m_tool.beginRotation();
+                    return createHandleDragTracker(RotateObjectsDragDelegate{m_tool, area, std::move(renderHighlight)}, inputState, initialHandlePosition, vm::vec3::zero());
                 }
 
                 void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
@@ -289,19 +287,17 @@ namespace TrenchBroom {
 
             class MoveCenterBase : public ToolController {
             protected:
-                RotateObjectsTool* m_tool;
+                RotateObjectsTool& m_tool;
             protected:
-                explicit MoveCenterBase(RotateObjectsTool* tool) :
-                m_tool(tool) {
-                    ensure(m_tool != nullptr, "tool is null");
-                }
+                explicit MoveCenterBase(RotateObjectsTool& tool) :
+                m_tool(tool) {}
 
                 Tool& tool() override {
-                    return *m_tool;
+                    return m_tool;
                 }
 
                 const Tool& tool() const override {
-                    return *m_tool;
+                    return m_tool;
                 }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
@@ -325,10 +321,10 @@ namespace TrenchBroom {
                         doRenderHighlight(inputState_, renderContext, renderBatch, area_);
                     };
 
-                    const auto initialHandlePosition = m_tool->rotationCenter();
+                    const auto initialHandlePosition = m_tool.rotationCenter();
                     const auto handleOffset = initialHandlePosition - hit.hitPoint();
 
-                    return createMoveHandleDragTracker(MoveRotationCenterDragDelegate{*m_tool, std::move(renderHighlight)}, inputState, m_tool->rotationCenter(), handleOffset);
+                    return createMoveHandleDragTracker(MoveRotationCenterDragDelegate{m_tool, std::move(renderHighlight)}, inputState, m_tool.rotationCenter(), handleOffset);
                 }
 
                 void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
@@ -351,56 +347,56 @@ namespace TrenchBroom {
 
             class MoveCenterPart2D : public MoveCenterBase {
             public:
-                explicit MoveCenterPart2D(RotateObjectsTool* tool) :
+                explicit MoveCenterPart2D(RotateObjectsTool& tool) :
                 MoveCenterBase(tool) {}
             private:
                 void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
-                    m_tool->renderHighlight2D(renderContext, renderBatch, area);
+                    m_tool.renderHighlight2D(renderContext, renderBatch, area);
                 }
             };
 
             class RotateObjectsPart2D : public RotateObjectsBase {
             public:
-                explicit RotateObjectsPart2D(RotateObjectsTool* tool) :
+                explicit RotateObjectsPart2D(RotateObjectsTool& tool) :
                 RotateObjectsBase(tool) {}
             private:
                 void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
-                    m_tool->renderHighlight2D(renderContext, renderBatch, area);
+                    m_tool.renderHighlight2D(renderContext, renderBatch, area);
                 }
             };
 
             class MoveCenterPart3D : public MoveCenterBase {
             public:
-                explicit MoveCenterPart3D(RotateObjectsTool* tool) :
+                explicit MoveCenterPart3D(RotateObjectsTool& tool) :
                 MoveCenterBase(tool) {}
             private:
                 void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
-                    m_tool->renderHighlight3D(renderContext, renderBatch, area);
+                    m_tool.renderHighlight3D(renderContext, renderBatch, area);
                 }
             };
 
             class RotateObjectsPart3D : public RotateObjectsBase {
             public:
-                explicit RotateObjectsPart3D(RotateObjectsTool* tool) :
+                explicit RotateObjectsPart3D(RotateObjectsTool& tool) :
                 RotateObjectsBase(tool) {}
             private:
                 void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
-                    m_tool->renderHighlight3D(renderContext, renderBatch, area);
+                    m_tool.renderHighlight3D(renderContext, renderBatch, area);
                 }
             };
         }
 
-        RotateObjectsToolController::RotateObjectsToolController(RotateObjectsTool* tool) :
+        RotateObjectsToolController::RotateObjectsToolController(RotateObjectsTool& tool) :
         m_tool(tool) {}
 
         RotateObjectsToolController::~RotateObjectsToolController() = default;
 
         Tool& RotateObjectsToolController::tool() {
-            return *m_tool;
+            return m_tool;
         }
 
         const Tool& RotateObjectsToolController::tool() const {
-            return *m_tool;
+            return m_tool;
         }
 
         void RotateObjectsToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {
@@ -426,32 +422,32 @@ namespace TrenchBroom {
             return false;
         }
 
-        RotateObjectsToolController2D::RotateObjectsToolController2D(RotateObjectsTool* tool) :
+        RotateObjectsToolController2D::RotateObjectsToolController2D(RotateObjectsTool& tool) :
         RotateObjectsToolController(tool) {
             addController(std::make_unique<MoveCenterPart2D>(tool));
             addController(std::make_unique<RotateObjectsPart2D>(tool));
         }
 
         Model::Hit RotateObjectsToolController2D::doPick(const InputState& inputState) {
-            return m_tool->pick2D(inputState.pickRay(), inputState.camera());
+            return m_tool.pick2D(inputState.pickRay(), inputState.camera());
         }
 
         void RotateObjectsToolController2D::doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_tool->renderHandle2D(renderContext, renderBatch);
+            m_tool.renderHandle2D(renderContext, renderBatch);
         }
 
-        RotateObjectsToolController3D::RotateObjectsToolController3D(RotateObjectsTool* tool) :
+        RotateObjectsToolController3D::RotateObjectsToolController3D(RotateObjectsTool& tool) :
         RotateObjectsToolController(tool) {
             addController(std::make_unique<MoveCenterPart3D>(tool));
             addController(std::make_unique<RotateObjectsPart3D>(tool));
         }
 
         Model::Hit RotateObjectsToolController3D::doPick(const InputState& inputState) {
-            return m_tool->pick3D(inputState.pickRay(), inputState.camera());
+            return m_tool.pick3D(inputState.pickRay(), inputState.camera());
         }
 
         void RotateObjectsToolController3D::doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_tool->renderHandle3D(renderContext, renderBatch);
+            m_tool.renderHandle3D(renderContext, renderBatch);
         }
     }
 }

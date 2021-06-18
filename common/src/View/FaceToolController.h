@@ -30,7 +30,7 @@ namespace TrenchBroom {
             class SelectFacePart;
             class MoveFacePart;
         public:
-            explicit FaceToolController(FaceTool* tool);
+            explicit FaceToolController(FaceTool& tool);
         };
     }
 }

@@ -63,7 +63,7 @@ namespace TrenchBroom {
             REQUIRE(document->paste(data) == PasteType::Node);
 
             ClipTool tool(document);
-            ClipToolController3D controller(&tool);
+            ClipToolController3D controller(tool);
 
             CHECK(tool.activate());
 

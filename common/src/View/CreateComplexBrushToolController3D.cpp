@@ -54,13 +54,11 @@ namespace TrenchBroom {
         namespace {
             class Part {
             protected:
-                CreateComplexBrushTool* m_tool;
+                CreateComplexBrushTool& m_tool;
                 Model::Polyhedron3 m_oldPolyhedron;
             protected:
-                explicit Part(CreateComplexBrushTool* tool) :
-                m_tool{tool} {
-                    ensure(m_tool != nullptr, "tool is null");
-                }
+                explicit Part(CreateComplexBrushTool& tool) :
+                m_tool{tool} {}
             public:
                 virtual ~Part() = default;
             };
@@ -127,11 +125,11 @@ namespace TrenchBroom {
                 vm::plane3 m_plane;
                 vm::vec3 m_initialPoint;
             public:
-                explicit DrawFacePart(CreateComplexBrushTool* tool) :
+                explicit DrawFacePart(CreateComplexBrushTool& tool) :
                 Part{tool} {}
             private:
-                Tool& tool() override { return *m_tool; }
-                const Tool& tool() const override { return *m_tool; }
+                Tool& tool() override { return m_tool; }
+                const Tool& tool() const override { return m_tool; }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     using namespace Model::HitFilters;
@@ -149,7 +147,7 @@ namespace TrenchBroom {
                     const auto initialHandlePosition = hit.hitPoint();
                     const auto plane = faceHandle->face().boundary();
                     const auto handleOffset = vm::vec3::zero();
-                    return createHandleDragTracker(DrawFaceDragDelegate{*m_tool, plane}, inputState, initialHandlePosition, handleOffset);
+                    return createHandleDragTracker(DrawFaceDragDelegate{m_tool, plane}, inputState, initialHandlePosition, handleOffset);
                 }
 
                 bool cancel() override { return false; }
@@ -201,11 +199,11 @@ namespace TrenchBroom {
             private:
                 vm::vec3 m_dragDir;
             public:
-                DuplicateFacePart(CreateComplexBrushTool* tool) :
+                DuplicateFacePart(CreateComplexBrushTool& tool) :
                 Part{tool} {}
             private:
-                Tool& tool() override { return *m_tool; }
-                const Tool& tool() const override { return *m_tool; }
+                Tool& tool() override { return m_tool; }
+                const Tool& tool() const override { return m_tool; }
 
                 std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override {
                     using namespace Model::HitFilters;
@@ -214,11 +212,11 @@ namespace TrenchBroom {
                         return nullptr;
                     }
 
-                    if (!m_tool->polyhedron().polygon()) {
+                    if (!m_tool.polyhedron().polygon()) {
                         return nullptr;
                     }
 
-                    const auto hit = m_tool->polyhedron().pickFace(inputState.pickRay());
+                    const auto hit = m_tool.polyhedron().pickFace(inputState.pickRay());
                     if (!hit.isMatch()) {
                         return nullptr;
                     }
@@ -227,25 +225,24 @@ namespace TrenchBroom {
                     const vm::vec3 normal = hit.face->normal();
                     const auto handleOffset = vm::vec3::zero();
 
-                    return createHandleDragTracker(DuplicateFaceDragDelegate{*m_tool, normal}, inputState, initialHandlePosition, handleOffset);
+                    return createHandleDragTracker(DuplicateFaceDragDelegate{m_tool, normal}, inputState, initialHandlePosition, handleOffset);
                 }
                 bool cancel() override { return false; }
             };
         }
 
-        CreateComplexBrushToolController3D::CreateComplexBrushToolController3D(CreateComplexBrushTool* tool) :
+        CreateComplexBrushToolController3D::CreateComplexBrushToolController3D(CreateComplexBrushTool& tool) :
         m_tool{tool} {
-            ensure(m_tool != nullptr, "tool is null");
             addController(std::make_unique<DrawFacePart>(m_tool));
             addController(std::make_unique<DuplicateFacePart>(m_tool));
         }
 
         Tool& CreateComplexBrushToolController3D::tool() {
-            return *m_tool;
+            return m_tool;
         }
 
         const Tool& CreateComplexBrushToolController3D::tool() const {
-            return *m_tool;
+            return m_tool;
         }
 
         bool CreateComplexBrushToolController3D::mouseClick(const InputState& inputState) {
@@ -259,12 +256,12 @@ namespace TrenchBroom {
             using namespace Model::HitFilters;
             const Model::Hit& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                const Grid& grid = m_tool->grid();
+                const Grid& grid = m_tool.grid();
 
                 const Model::BrushFace& face = faceHandle->face();
                 const vm::vec3 snapped = grid.snap(hit.hitPoint(), face.boundary());
 
-                m_tool->update(Model::Polyhedron3{kdl::vec_concat(std::vector<vm::vec3>({snapped}), m_tool->polyhedron().vertexPositions())});
+                m_tool.update(Model::Polyhedron3{kdl::vec_concat(std::vector<vm::vec3>({snapped}), m_tool.polyhedron().vertexPositions())});
 
                 return true;
             } else {
@@ -285,7 +282,7 @@ namespace TrenchBroom {
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const Model::BrushFace& face = faceHandle->face();
 
-                m_tool->update(Model::Polyhedron3{kdl::vec_concat(face.vertexPositions(), m_tool->polyhedron().vertexPositions())});
+                m_tool.update(Model::Polyhedron3{kdl::vec_concat(face.vertexPositions(), m_tool.polyhedron().vertexPositions())});
 
                 return true;
             } else {
@@ -305,9 +302,9 @@ namespace TrenchBroom {
         }
 
         void CreateComplexBrushToolController3D::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_tool->render(renderContext, renderBatch);
+            m_tool.render(renderContext, renderBatch);
 
-            const Model::Polyhedron3& polyhedron = m_tool->polyhedron();
+            const Model::Polyhedron3& polyhedron = m_tool.polyhedron();
             if (!polyhedron.empty()) {
                 auto renderService = Renderer::RenderService{renderContext, renderBatch};
                 renderService.setForegroundColor(pref(Preferences::HandleColor));
@@ -339,12 +336,12 @@ namespace TrenchBroom {
         }
 
         bool CreateComplexBrushToolController3D::cancel() {
-            const Model::Polyhedron3& polyhedron = m_tool->polyhedron();
+            const Model::Polyhedron3& polyhedron = m_tool.polyhedron();
             if (polyhedron.empty()) {
                 return false;
             }
 
-            m_tool->update(Model::Polyhedron3());
+            m_tool.update(Model::Polyhedron3());
             return true;
         }
     }

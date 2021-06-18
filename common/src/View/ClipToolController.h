@@ -44,9 +44,9 @@ namespace TrenchBroom {
 
         class ClipToolControllerBase : public ToolControllerGroup {
         protected:
-            ClipTool* m_tool;
+            ClipTool& m_tool;
         protected:
-            explicit ClipToolControllerBase(ClipTool* tool);
+            explicit ClipToolControllerBase(ClipTool& tool);
             virtual ~ClipToolControllerBase() override;
         private:
             Tool& tool() override;
@@ -62,12 +62,12 @@ namespace TrenchBroom {
 
         class ClipToolController2D : public ClipToolControllerBase {
         public:
-            explicit ClipToolController2D(ClipTool* tool);
+            explicit ClipToolController2D(ClipTool& tool);
         };
 
         class ClipToolController3D : public ClipToolControllerBase {
         public:
-            explicit ClipToolController3D(ClipTool* tool);
+            explicit ClipToolController3D(ClipTool& tool);
         };
     }
 }

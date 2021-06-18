@@ -29,9 +29,9 @@ namespace TrenchBroom {
 
         class CreateEntityToolController : public ToolController {
         protected:
-            CreateEntityTool* m_tool;
+            CreateEntityTool& m_tool;
         protected:
-            CreateEntityToolController(CreateEntityTool* tool);
+            CreateEntityToolController(CreateEntityTool& tool);
         public:
             virtual ~CreateEntityToolController() override;
         private:
@@ -47,14 +47,14 @@ namespace TrenchBroom {
 
         class CreateEntityToolController2D : public CreateEntityToolController {
         public:
-            CreateEntityToolController2D(CreateEntityTool* tool);
+            CreateEntityToolController2D(CreateEntityTool& tool);
         private:
             std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
         };
 
         class CreateEntityToolController3D : public CreateEntityToolController {
         public:
-            CreateEntityToolController3D(CreateEntityTool* tool);
+            CreateEntityToolController3D(CreateEntityTool& tool);
         private:
             std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
         };

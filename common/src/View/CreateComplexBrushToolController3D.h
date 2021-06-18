@@ -27,9 +27,9 @@ namespace TrenchBroom {
 
         class CreateComplexBrushToolController3D : public ToolControllerGroup {
         private:
-            CreateComplexBrushTool* m_tool;
+            CreateComplexBrushTool& m_tool;
         public:
-            explicit CreateComplexBrushToolController3D(CreateComplexBrushTool* tool);
+            explicit CreateComplexBrushToolController3D(CreateComplexBrushTool& tool);
         private:
             Tool& tool() override;
             const Tool& tool() const override;

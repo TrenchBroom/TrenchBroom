@@ -53,15 +53,15 @@ namespace TrenchBroom {
         namespace {
             class PartDelegateBase {
             protected:
-                ClipTool* m_tool;
+                ClipTool& m_tool;
             public:
-                explicit PartDelegateBase(ClipTool* tool) :
+                explicit PartDelegateBase(ClipTool& tool) :
                 m_tool{tool} {}
 
                 virtual ~PartDelegateBase() = default;
 
                 ClipTool& tool() const {
-                    return *m_tool;
+                    return m_tool;
                 }
 
                 std::optional<std::tuple<vm::vec3, vm::vec3>> addClipPoint(const InputState& inputState) {
@@ -71,11 +71,11 @@ namespace TrenchBroom {
                     }
 
                     const auto position = std::get<0>(*positionAndOffset);
-                    if (!m_tool->canAddPoint(position)) {
+                    if (!m_tool.canAddPoint(position)) {
                         return std::nullopt;
                     }
 
-                    m_tool->addPoint(position, getHelpVectors(inputState, position));
+                    m_tool.addPoint(position, getHelpVectors(inputState, position));
                     return positionAndOffset;
                 }
 
@@ -83,7 +83,7 @@ namespace TrenchBroom {
                     using namespace Model::HitFilters;
                     const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
                     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                        m_tool->setFace(*faceHandle);
+                        m_tool.setFace(*faceHandle);
                         return true;
                     } else {
                         return false;
@@ -104,8 +104,8 @@ namespace TrenchBroom {
                     }
 
                     const auto position = std::get<0>(*positionAndOffset);
-                    if (m_tool->canAddPoint(position)) {
-                        m_tool->renderFeedback(renderContext, renderBatch, position);
+                    if (m_tool.canAddPoint(position)) {
+                        m_tool.renderFeedback(renderContext, renderBatch, position);
                     }
                 }
             private:
@@ -114,13 +114,13 @@ namespace TrenchBroom {
 
             class PartDelegate2D : public PartDelegateBase {
             public:
-                explicit PartDelegate2D(ClipTool* tool) :
+                explicit PartDelegate2D(ClipTool& tool) :
                 PartDelegateBase{tool} {}
 
                 HandlePositionProposer makeHandlePositionProposer(const InputState& inputState, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) const override {
                     return View::makeHandlePositionProposer(
                         makePlaneHandlePicker(vm::plane3{initialHandlePosition, vm::vec3{inputState.camera().direction()}}, handleOffset),
-                        makeAbsoluteHandleSnapper(m_tool->grid()));
+                        makeAbsoluteHandleSnapper(m_tool.grid()));
                 }
 
                 std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& /* clipPoint */) const override {
@@ -132,14 +132,14 @@ namespace TrenchBroom {
                     const auto viewDir = vm::get_abs_max_component_axis(vm::vec3(camera.direction()));
 
                     const auto& pickRay = inputState.pickRay();
-                    const auto defaultPos = m_tool->defaultClipPointPos();
+                    const auto defaultPos = m_tool.defaultClipPointPos();
                     const auto distance = vm::intersect_ray_plane(pickRay, vm::plane3(defaultPos, viewDir));
                     if (vm::is_nan(distance)) {
                         return std::nullopt;
                     }
 
                     const auto hitPoint = vm::point_at_distance(pickRay, distance);
-                    const auto position = m_tool->grid().snap(hitPoint);
+                    const auto position = m_tool.grid().snap(hitPoint);
                     return {{position, hitPoint - position}};
                 }
             };
@@ -202,11 +202,11 @@ namespace TrenchBroom {
 
             class PartDelegate3D : public PartDelegateBase {
             public:
-                explicit PartDelegate3D(ClipTool* tool) :
+                explicit PartDelegate3D(ClipTool& tool) :
                 PartDelegateBase{tool} {}
 
                 HandlePositionProposer makeHandlePositionProposer(const InputState&, const vm::vec3& /* initialHandlePosition */, const vm::vec3& /* handleOffset */) const override {
-                    return makeBrushFaceHandleProposer(m_tool->grid());
+                    return makeBrushFaceHandleProposer(m_tool.grid());
                 }
 
                 std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& clipPoint) const override {
@@ -225,7 +225,7 @@ namespace TrenchBroom {
                     using namespace Model::HitFilters;
                     const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
                     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                        const Grid& grid = m_tool->grid();
+                        const Grid& grid = m_tool.grid();
                         const auto position = grid.snap(hit.hitPoint(), faceHandle->face().boundary());
                         return {{position, hit.hitPoint() - position}};
                     }
@@ -405,52 +405,52 @@ namespace TrenchBroom {
             };
         }
 
-        ClipToolControllerBase::ClipToolControllerBase(ClipTool* tool) :
+        ClipToolControllerBase::ClipToolControllerBase(ClipTool& tool) :
         m_tool{tool} {}
 
         ClipToolControllerBase::~ClipToolControllerBase() = default;
 
         Tool& ClipToolControllerBase::tool() {
-            return *m_tool;
+            return m_tool;
         }
 
         const Tool& ClipToolControllerBase::tool() const {
-            return *m_tool;
+            return m_tool;
         }
 
         void ClipToolControllerBase::pick(const InputState& inputState, Model::PickResult& pickResult) {
-            m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
+            m_tool.pick(inputState.pickRay(), inputState.camera(), pickResult);
         }
 
         void ClipToolControllerBase::setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
-            if (m_tool->hasBrushes()) {
+            if (m_tool.hasBrushes()) {
                 renderContext.setHideSelection();
                 renderContext.setForceHideSelectionGuide();
             }
         }
 
         void ClipToolControllerBase::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_tool->render(renderContext, renderBatch, inputState.pickResult());
+            m_tool.render(renderContext, renderBatch, inputState.pickResult());
             ToolControllerGroup::render(inputState, renderContext, renderBatch);
         }
 
         bool ClipToolControllerBase::cancel() {
-            if (m_tool->removeLastPoint()) {
-                if (!m_tool->hasPoints()) {
-                    m_tool->reset();
+            if (m_tool.removeLastPoint()) {
+                if (!m_tool.hasPoints()) {
+                    m_tool.reset();
                 }
                 return true;
             }
             return false;
         }
 
-        ClipToolController2D::ClipToolController2D(ClipTool* tool) :
+        ClipToolController2D::ClipToolController2D(ClipTool& tool) :
         ClipToolControllerBase{tool} {
             addController(std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
             addController(std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
         }
 
-        ClipToolController3D::ClipToolController3D(ClipTool* tool) :
+        ClipToolController3D::ClipToolController3D(ClipTool& tool) :
         ClipToolControllerBase{tool} {
             addController(std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
             addController(std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate3D>(tool)));

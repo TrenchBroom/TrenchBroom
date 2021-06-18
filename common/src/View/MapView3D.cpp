@@ -101,20 +101,20 @@ namespace TrenchBroom {
 
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
             addTool(std::make_unique<CameraTool3D>(*m_camera));
-            addTool(std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
-            addTool(std::make_unique<RotateObjectsToolController3D>(toolBox.rotateObjectsTool()));
-            addTool(std::make_unique<ScaleObjectsToolController3D>(toolBox.scaleObjectsTool(), m_document));
-            addTool(std::make_unique<ShearObjectsToolController3D>(toolBox.shearObjectsTool(), m_document));
-            addTool(std::make_unique<ResizeBrushesToolController3D>(toolBox.resizeBrushesTool()));
-            addTool(std::make_unique<CreateComplexBrushToolController3D>(toolBox.createComplexBrushTool()));
-            addTool(std::make_unique<ClipToolController3D>(toolBox.clipTool()));
-            addTool(std::make_unique<VertexToolController>(toolBox.vertexTool()));
-            addTool(std::make_unique<EdgeToolController>(toolBox.edgeTool()));
-            addTool(std::make_unique<FaceToolController>(toolBox.faceTool()));
-            addTool(std::make_unique<CreateEntityToolController3D>(toolBox.createEntityTool()));
+            addTool(std::make_unique<MoveObjectsToolController>(*toolBox.moveObjectsTool()));
+            addTool(std::make_unique<RotateObjectsToolController3D>(*toolBox.rotateObjectsTool()));
+            addTool(std::make_unique<ScaleObjectsToolController3D>(*toolBox.scaleObjectsTool(), m_document));
+            addTool(std::make_unique<ShearObjectsToolController3D>(*toolBox.shearObjectsTool(), m_document));
+            addTool(std::make_unique<ResizeBrushesToolController3D>(*toolBox.resizeBrushesTool()));
+            addTool(std::make_unique<CreateComplexBrushToolController3D>(*toolBox.createComplexBrushTool()));
+            addTool(std::make_unique<ClipToolController3D>(*toolBox.clipTool()));
+            addTool(std::make_unique<VertexToolController>(*toolBox.vertexTool()));
+            addTool(std::make_unique<EdgeToolController>(*toolBox.edgeTool()));
+            addTool(std::make_unique<FaceToolController>(*toolBox.faceTool()));
+            addTool(std::make_unique<CreateEntityToolController3D>(*toolBox.createEntityTool()));
             addTool(std::make_unique<SetBrushFaceAttributesTool>(m_document));
             addTool(std::make_unique<SelectionTool>(m_document));
-            addTool(std::make_unique<CreateSimpleBrushToolController3D>(toolBox.createSimpleBrushTool(), m_document));
+            addTool(std::make_unique<CreateSimpleBrushToolController3D>(*toolBox.createSimpleBrushTool(), m_document));
         }
 
         void MapView3D::connectObservers() {
