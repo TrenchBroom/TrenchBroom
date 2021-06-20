@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 
 #include <QWidget>
@@ -48,16 +50,16 @@ namespace TrenchBroom {
             QLineEdit* m_filterBox;
             QScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
+
+            NotifierConnection m_notifierConnection;
         public:
             EntityBrowser(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
-            ~EntityBrowser() override;
 
             void reload();
         private:
             void createGui(GLContextManager& contextManager);
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);

@@ -38,12 +38,10 @@ namespace TrenchBroom {
         MapViewToolBox::MapViewToolBox(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl) :
         m_document(document) {
             createTools(document, bookCtrl);
-            bindObservers();
+            connectObservers();
         }
 
-        MapViewToolBox::~MapViewToolBox() {
-            unbindObservers();
-        }
+        MapViewToolBox::~MapViewToolBox() = default;
 
         ClipTool* MapViewToolBox::clipTool() const {
             return m_clipTool.get();
@@ -264,24 +262,13 @@ namespace TrenchBroom {
             addTool(tool);
         }
 
-        void MapViewToolBox::bindObservers() {
-            toolActivatedNotifier.addObserver(this, &MapViewToolBox::toolActivated);
-            toolDeactivatedNotifier.addObserver(this, &MapViewToolBox::toolDeactivated);
+        void MapViewToolBox::connectObservers() {
+            m_notifierConnection += toolActivatedNotifier.connect(this, &MapViewToolBox::toolActivated);
+            m_notifierConnection += toolDeactivatedNotifier.connect(this, &MapViewToolBox::toolDeactivated);
 
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
-            document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
-        }
-
-        void MapViewToolBox::unbindObservers() {
-            toolActivatedNotifier.removeObserver(this, &MapViewToolBox::toolActivated);
-            toolDeactivatedNotifier.removeObserver(this, &MapViewToolBox::toolDeactivated);
-
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
-                document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
-            }
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &MapViewToolBox::documentWasNewedOrLoaded);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &MapViewToolBox::documentWasNewedOrLoaded);
         }
 
         void MapViewToolBox::toolActivated(Tool* tool) {

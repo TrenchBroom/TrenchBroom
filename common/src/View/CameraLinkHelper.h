@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -31,12 +33,11 @@ namespace TrenchBroom {
         private:
             std::vector<Renderer::Camera*> m_cameras;
             bool m_ignoreNotifications;
+            NotifierConnection m_notifierConnection;
         public:
             CameraLinkHelper();
-            ~CameraLinkHelper();
 
             void addCamera(Renderer::Camera* camera);
-            void removeCamera(Renderer::Camera* camera);
         private:
             void cameraDidChange(const Renderer::Camera* camera);
         };

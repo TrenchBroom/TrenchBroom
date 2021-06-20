@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 
 #include <QListWidget>
@@ -53,15 +55,15 @@ namespace TrenchBroom {
             QLabel* m_external;
             QPushButton* m_chooseExternal;
             QPushButton* m_reloadExternal;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit EntityDefinitionFileChooser(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~EntityDefinitionFileChooser() override;
         private:
             void createGui();
             void bindEvents();
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);

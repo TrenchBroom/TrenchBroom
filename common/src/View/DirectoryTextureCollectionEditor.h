@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 #include <vector>
 
@@ -46,9 +48,10 @@ namespace TrenchBroom {
             QAbstractButton* m_addCollectionsButton;
             QAbstractButton* m_removeCollectionsButton;
             QAbstractButton* m_reloadCollectionsButton;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit DirectoryTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~DirectoryTextureCollectionEditor() override;
         private:
             void addSelectedTextureCollections();
             void removeSelectedTextureCollections();
@@ -63,8 +66,7 @@ namespace TrenchBroom {
             void createGui();
             void updateButtons();
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void textureCollectionsDidChange();
             void modsDidChange();

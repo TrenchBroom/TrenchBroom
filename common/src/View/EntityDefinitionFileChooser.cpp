@@ -73,11 +73,7 @@ namespace TrenchBroom {
         m_document(document) {
             createGui();
             bindEvents();
-            bindObservers();
-        }
-
-        EntityDefinitionFileChooser::~EntityDefinitionFileChooser() {
-            unbindObservers();
+            connectObservers();
         }
 
         void EntityDefinitionFileChooser::createGui() {
@@ -131,20 +127,11 @@ namespace TrenchBroom {
                 &EntityDefinitionFileChooser::reloadExternalClicked);
         }
 
-        void EntityDefinitionFileChooser::bindObservers() {
+        void EntityDefinitionFileChooser::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
-            document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
-        }
-
-        void EntityDefinitionFileChooser::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &EntityDefinitionFileChooser::documentWasLoaded);
-                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
-            }
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &EntityDefinitionFileChooser::documentWasNewed);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &EntityDefinitionFileChooser::documentWasLoaded);
+            m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
         }
 
         void EntityDefinitionFileChooser::documentWasNewed(MapDocument*) {

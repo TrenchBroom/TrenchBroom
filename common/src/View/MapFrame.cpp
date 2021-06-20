@@ -151,7 +151,7 @@ namespace TrenchBroom {
             m_autosaveTimer = new QTimer(this);
             m_autosaveTimer->start(1000);
 
-            bindObservers();
+            connectObservers();
             bindEvents();
 
             restoreWindowGeometry(this);
@@ -173,7 +173,7 @@ namespace TrenchBroom {
 
             m_mapView->deactivateTool();
 
-            unbindObservers();
+            m_notifierConnection.disconnect();
             removeRecentDocumentsMenu();
 
             // The order of deletion here is important because both the document and the children
@@ -638,56 +638,30 @@ namespace TrenchBroom {
             m_statusBarLabel->setText(QString(describeSelection(m_document.get())));
         }
 
-        void MapFrame::bindObservers() {
+        void MapFrame::connectObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &MapFrame::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &MapFrame::preferenceDidChange);
 
-            m_document->documentWasClearedNotifier.addObserver(this, &MapFrame::documentWasCleared);
-            m_document->documentWasNewedNotifier.addObserver(this, &MapFrame::documentDidChange);
-            m_document->documentWasLoadedNotifier.addObserver(this, &MapFrame::documentDidChange);
-            m_document->documentWasSavedNotifier.addObserver(this, &MapFrame::documentDidChange);
-            m_document->documentModificationStateDidChangeNotifier.addObserver(this, &MapFrame::documentModificationStateDidChange);
-            m_document->transactionDoneNotifier.addObserver(this, &MapFrame::transactionDone);
-            m_document->transactionUndoneNotifier.addObserver(this, &MapFrame::transactionUndone);
-            m_document->selectionDidChangeNotifier.addObserver(this, &MapFrame::selectionDidChange);
-            m_document->currentLayerDidChangeNotifier.addObserver(this, &MapFrame::currentLayerDidChange);
-            m_document->groupWasOpenedNotifier.addObserver(this, &MapFrame::groupWasOpened);
-            m_document->groupWasClosedNotifier.addObserver(this, &MapFrame::groupWasClosed);
-            m_document->nodeVisibilityDidChangeNotifier.addObserver(this, &MapFrame::nodeVisibilityDidChange);
-            m_document->editorContextDidChangeNotifier.addObserver(this, &MapFrame::editorContextDidChange);
+            m_notifierConnection += m_document->documentWasClearedNotifier.connect(this, &MapFrame::documentWasCleared);
+            m_notifierConnection += m_document->documentWasNewedNotifier.connect(this, &MapFrame::documentDidChange);
+            m_notifierConnection += m_document->documentWasLoadedNotifier.connect(this, &MapFrame::documentDidChange);
+            m_notifierConnection += m_document->documentWasSavedNotifier.connect(this, &MapFrame::documentDidChange);
+            m_notifierConnection += m_document->documentModificationStateDidChangeNotifier.connect(this, &MapFrame::documentModificationStateDidChange);
+            m_notifierConnection += m_document->transactionDoneNotifier.connect(this, &MapFrame::transactionDone);
+            m_notifierConnection += m_document->transactionUndoneNotifier.connect(this, &MapFrame::transactionUndone);
+            m_notifierConnection += m_document->selectionDidChangeNotifier.connect(this, &MapFrame::selectionDidChange);
+            m_notifierConnection += m_document->currentLayerDidChangeNotifier.connect(this, &MapFrame::currentLayerDidChange);
+            m_notifierConnection += m_document->groupWasOpenedNotifier.connect(this, &MapFrame::groupWasOpened);
+            m_notifierConnection += m_document->groupWasClosedNotifier.connect(this, &MapFrame::groupWasClosed);
+            m_notifierConnection += m_document->nodeVisibilityDidChangeNotifier.connect(this, &MapFrame::nodeVisibilityDidChange);
+            m_notifierConnection += m_document->editorContextDidChangeNotifier.connect(this, &MapFrame::editorContextDidChange);
 
             Grid& grid = m_document->grid();
-            grid.gridDidChangeNotifier.addObserver(this, &MapFrame::gridDidChange);
+            m_notifierConnection += grid.gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
 
-            m_mapView->mapViewToolBox()->toolActivatedNotifier.addObserver(this, &MapFrame::toolActivated);
-            m_mapView->mapViewToolBox()->toolDeactivatedNotifier.addObserver(this, &MapFrame::toolDeactivated);
-            m_mapView->mapViewToolBox()->toolHandleSelectionChangedNotifier.addObserver(this, &MapFrame::toolHandleSelectionChanged);
-        }
-
-        void MapFrame::unbindObservers() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            assertResult(prefs.preferenceDidChangeNotifier.removeObserver(this, &MapFrame::preferenceDidChange))
-
-            m_document->documentWasClearedNotifier.removeObserver(this, &MapFrame::documentWasCleared);
-            m_document->documentWasNewedNotifier.removeObserver(this, &MapFrame::documentDidChange);
-            m_document->documentWasLoadedNotifier.removeObserver(this, &MapFrame::documentDidChange);
-            m_document->documentWasSavedNotifier.removeObserver(this, &MapFrame::documentDidChange);
-            m_document->documentModificationStateDidChangeNotifier.removeObserver(this, &MapFrame::documentModificationStateDidChange);
-            m_document->transactionDoneNotifier.removeObserver(this, &MapFrame::transactionDone);
-            m_document->transactionUndoneNotifier.removeObserver(this, &MapFrame::transactionUndone);
-            m_document->selectionDidChangeNotifier.removeObserver(this, &MapFrame::selectionDidChange);
-            m_document->currentLayerDidChangeNotifier.removeObserver(this, &MapFrame::currentLayerDidChange);
-            m_document->groupWasOpenedNotifier.removeObserver(this, &MapFrame::groupWasOpened);
-            m_document->groupWasClosedNotifier.removeObserver(this, &MapFrame::groupWasClosed);
-            m_document->nodeVisibilityDidChangeNotifier.removeObserver(this, &MapFrame::nodeVisibilityDidChange);
-            m_document->editorContextDidChangeNotifier.removeObserver(this, &MapFrame::editorContextDidChange);
-
-            Grid& grid = m_document->grid();
-            grid.gridDidChangeNotifier.removeObserver(this, &MapFrame::gridDidChange);
-
-            m_mapView->mapViewToolBox()->toolActivatedNotifier.removeObserver(this, &MapFrame::toolActivated);
-            m_mapView->mapViewToolBox()->toolDeactivatedNotifier.removeObserver(this, &MapFrame::toolDeactivated);
-            m_mapView->mapViewToolBox()->toolHandleSelectionChangedNotifier.removeObserver(this, &MapFrame::toolHandleSelectionChanged);
+            m_notifierConnection += m_mapView->mapViewToolBox()->toolActivatedNotifier.connect(this, &MapFrame::toolActivated);
+            m_notifierConnection += m_mapView->mapViewToolBox()->toolDeactivatedNotifier.connect(this, &MapFrame::toolDeactivated);
+            m_notifierConnection += m_mapView->mapViewToolBox()->toolHandleSelectionChangedNotifier.connect(this, &MapFrame::toolHandleSelectionChanged);
         }
 
         void MapFrame::documentWasCleared(View::MapDocument*) {

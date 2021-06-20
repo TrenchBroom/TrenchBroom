@@ -76,7 +76,7 @@ namespace TrenchBroom {
                              GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger) :
         MapViewBase(logger, document, toolBox, renderer, contextManager),
         m_camera(std::make_unique<Renderer::OrthographicCamera>()) {
-            bindObservers();
+            connectObservers();
             initializeCamera(viewPlane);
             initializeToolChain(toolBox);
 
@@ -94,10 +94,6 @@ namespace TrenchBroom {
             }
 
             mapViewBaseVirtualInit();
-        }
-
-        MapView2D::~MapView2D() {
-            unbindObservers();
         }
 
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
@@ -140,12 +136,8 @@ namespace TrenchBroom {
             addTool(std::make_unique<CreateSimpleBrushToolController2D>(toolBox.createSimpleBrushTool(), m_document));
         }
 
-        void MapView2D::bindObservers() {
-            m_camera->cameraDidChangeNotifier.addObserver(this, &MapView2D::cameraDidChange);
-        }
-
-        void MapView2D::unbindObservers() {
-            m_camera->cameraDidChangeNotifier.removeObserver(this, &MapView2D::cameraDidChange);
+        void MapView2D::connectObservers() {
+            m_notifierConnection += m_camera->cameraDidChangeNotifier.connect(this, &MapView2D::cameraDidChange);
         }
 
         void MapView2D::cameraDidChange(const Renderer::Camera*) {

@@ -21,6 +21,7 @@
 
 #include "FloatType.h"
 #include "Notifier.h"
+#include "NotifierConnection.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/MapFacade.h"
@@ -187,6 +188,8 @@ namespace TrenchBroom {
 
             Notifier<> portalFileWasLoadedNotifier;
             Notifier<> portalFileWasUnloadedNotifier;
+        private:
+            NotifierConnection m_notifierConnection;
         protected:
             MapDocument();
         public:
@@ -585,7 +588,7 @@ namespace TrenchBroom {
             bool isRegisteredSmartTag(size_t index) const;
             const Model::SmartTag& smartTag(size_t index) const;
         private:
-            void initializeNodeTags(MapDocument* document);
+            void initializeAllNodeTags(MapDocument* document);
             void initializeNodeTags(const std::vector<Model::Node*>& nodes);
             void clearNodeTags(const std::vector<Model::Node*>& nodes);
             void updateNodeTags(const std::vector<Model::Node*>& nodes);
@@ -605,8 +608,7 @@ namespace TrenchBroom {
             void setLastSaveModificationCount();
             void clearModificationCount();
         private: // observers
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
             void textureCollectionsWillChange();
             void textureCollectionsDidChange();
             void entityDefinitionsWillChange();

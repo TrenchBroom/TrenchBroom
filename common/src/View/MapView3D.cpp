@@ -83,7 +83,7 @@ namespace TrenchBroom {
         m_flyModeHelper(std::make_unique<FlyModeHelper>(*m_camera)),
         m_ignoreCameraChangeEvents(false) {
             bindEvents();
-            bindObservers();
+            connectObservers();
             initializeCamera();
             initializeToolChain(toolBox);
 
@@ -92,9 +92,7 @@ namespace TrenchBroom {
             mapViewBaseVirtualInit();
         }
 
-        MapView3D::~MapView3D() {
-            unbindObservers();
-        }
+        MapView3D::~MapView3D() = default;
 
         void MapView3D::initializeCamera() {
             m_camera->moveTo(vm::vec3f(-80.0f, -128.0f, 96.0f));
@@ -119,18 +117,11 @@ namespace TrenchBroom {
             addTool(std::make_unique<CreateSimpleBrushToolController3D>(toolBox.createSimpleBrushTool(), m_document));
         }
 
-        void MapView3D::bindObservers() {
-            m_camera->cameraDidChangeNotifier.addObserver(this, &MapView3D::cameraDidChange);
+        void MapView3D::connectObservers() {
+            m_notifierConnection += m_camera->cameraDidChangeNotifier.connect(this, &MapView3D::cameraDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &MapView3D::preferenceDidChange);
-        }
-
-        void MapView3D::unbindObservers() {
-            m_camera->cameraDidChangeNotifier.removeObserver(this, &MapView3D::cameraDidChange);
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapView3D::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &MapView3D::preferenceDidChange);
         }
 
         void MapView3D::cameraDidChange(const Renderer::Camera* /* camera */) {

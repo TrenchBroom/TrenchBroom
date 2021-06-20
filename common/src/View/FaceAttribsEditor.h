@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <QWidget>
 
 #include <memory>
@@ -65,9 +67,10 @@ namespace TrenchBroom {
 
             QLabel* m_colorLabel;
             QLineEdit* m_colorEditor;
+
+            NotifierConnection m_notifierConnection;
         public:
             FaceAttribsEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
-            ~FaceAttribsEditor() override;
 
             bool cancelMouseDrag();
         private:
@@ -85,8 +88,7 @@ namespace TrenchBroom {
             void createGui(GLContextManager& contextManager);
             void bindEvents();
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);

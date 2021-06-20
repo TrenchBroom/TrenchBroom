@@ -41,10 +41,6 @@ Q_DECLARE_METATYPE(TrenchBroom::Model::MapFormat)
 
 namespace TrenchBroom {
     namespace View {
-        GameDialog::~GameDialog() {
-            unbindObservers();
-        }
-
         bool GameDialog::showNewDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat) {
             GameDialog dialog("Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.", GameDialog::DialogType::New, parent);
             if (dialog.exec() == QDialog::Rejected) {
@@ -114,7 +110,7 @@ namespace TrenchBroom {
         m_okButton(nullptr) {
             createGui(title, infoText);
             updateMapFormats("");
-            bindObservers();
+            connectObservers();
         }
 
         void GameDialog::createGui(const QString& title, const QString& infoText) {
@@ -234,14 +230,9 @@ namespace TrenchBroom {
             }
         }
 
-        void GameDialog::bindObservers() {
+        void GameDialog::connectObservers() {
             auto& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &GameDialog::preferenceDidChange);
-        }
-
-        void GameDialog::unbindObservers() {
-            auto& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &GameDialog::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &GameDialog::preferenceDidChange);
         }
 
         void GameDialog::preferenceDidChange(const IO::Path& /* path */) {

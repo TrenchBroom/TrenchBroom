@@ -46,11 +46,7 @@ namespace TrenchBroom {
             sizer->addWidget(m_view);
             setLayout(sizer);
 
-            bindObservers();
-        }
-
-        IssueBrowser::~IssueBrowser() {
-            unbindObservers();
+            connectObservers();
         }
 
         QWidget* IssueBrowser::createTabBarPage(QWidget* parent) {
@@ -72,28 +68,15 @@ namespace TrenchBroom {
             return barPage;
         }
 
-        void IssueBrowser::bindObservers() {
+        void IssueBrowser::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasSavedNotifier.addObserver(this, &IssueBrowser::documentWasSaved);
-            document->documentWasNewedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
-            document->documentWasLoadedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
-            document->nodesWereAddedNotifier.addObserver(this, &IssueBrowser::nodesWereAdded);
-            document->nodesWereRemovedNotifier.addObserver(this, &IssueBrowser::nodesWereRemoved);
-            document->nodesDidChangeNotifier.addObserver(this, &IssueBrowser::nodesDidChange);
-            document->brushFacesDidChangeNotifier.addObserver(this, &IssueBrowser::brushFacesDidChange);
-        }
-
-        void IssueBrowser::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasSavedNotifier.removeObserver(this, &IssueBrowser::documentWasSaved);
-                document->documentWasNewedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
-                document->documentWasLoadedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
-                document->nodesWereAddedNotifier.removeObserver(this, &IssueBrowser::nodesWereAdded);
-                document->nodesWereRemovedNotifier.removeObserver(this, &IssueBrowser::nodesWereRemoved);
-                document->nodesDidChangeNotifier.removeObserver(this, &IssueBrowser::nodesDidChange);
-                document->brushFacesDidChangeNotifier.removeObserver(this, &IssueBrowser::brushFacesDidChange);
-            }
+            m_notifierConnection += document->documentWasSavedNotifier.connect(this, &IssueBrowser::documentWasSaved);
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &IssueBrowser::documentWasNewedOrLoaded);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &IssueBrowser::documentWasNewedOrLoaded);
+            m_notifierConnection += document->nodesWereAddedNotifier.connect(this, &IssueBrowser::nodesWereAdded);
+            m_notifierConnection += document->nodesWereRemovedNotifier.connect(this, &IssueBrowser::nodesWereRemoved);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &IssueBrowser::nodesDidChange);
+            m_notifierConnection += document->brushFacesDidChangeNotifier.connect(this, &IssueBrowser::brushFacesDidChange);
         }
 
         void IssueBrowser::documentWasNewedOrLoaded(MapDocument*) {

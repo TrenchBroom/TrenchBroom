@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
 #include "Model/MapFormat.h"
 
 #include <string>
@@ -47,9 +48,9 @@ namespace TrenchBroom {
             QComboBox* m_mapFormatComboBox;
             QPushButton* m_openPreferencesButton;
             QPushButton* m_okButton;
-        public:
-            ~GameDialog() override;
 
+            NotifierConnection m_notifierConnection;
+        public:
             // FIXME: return a tuple instead of taking in/out parameters
             static bool showNewDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
             static bool showOpenDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
@@ -69,8 +70,7 @@ namespace TrenchBroom {
         private:
             void updateMapFormats(const std::string& gameName);
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
             void preferenceDidChange(const IO::Path& path);
         };
     }

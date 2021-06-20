@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -60,9 +62,10 @@ namespace TrenchBroom {
             QLineEdit* m_filterBox;
             QScrollBar* m_scrollBar;
             TextureBrowserView* m_view;
+
+            NotifierConnection m_notifierConnection;
         public:
             TextureBrowser(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
-            ~TextureBrowser() override;
 
             const Assets::Texture* selectedTexture() const;
             void setSelectedTexture(const Assets::Texture* selectedTexture);
@@ -78,8 +81,7 @@ namespace TrenchBroom {
             void createGui(GLContextManager& contextManager);
             void bindEvents();
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);

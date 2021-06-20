@@ -217,35 +217,18 @@ namespace TrenchBroom {
         m_showEdgesCheckBox(nullptr),
         m_entityLinkRadioGroup(nullptr),
         m_showSoftBoundsCheckBox(nullptr) {
-            bindObservers();
+            connectObservers();
         }
 
-        ViewEditor::~ViewEditor() {
-            unbindObservers();
-        }
-
-        void ViewEditor::bindObservers() {
+        void ViewEditor::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
-            document->documentWasLoadedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
-            document->editorContextDidChangeNotifier.addObserver(this, &ViewEditor::editorContextDidChange);
-            document->entityDefinitionsDidChangeNotifier.addObserver(this, &ViewEditor::entityDefinitionsDidChange);
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &ViewEditor::documentWasNewedOrLoaded);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &ViewEditor::documentWasNewedOrLoaded);
+            m_notifierConnection += document->editorContextDidChangeNotifier.connect(this, &ViewEditor::editorContextDidChange);
+            m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(this, &ViewEditor::entityDefinitionsDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &ViewEditor::preferenceDidChange);
-        }
-
-        void ViewEditor::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &ViewEditor::documentWasNewedOrLoaded);
-                document->documentWasLoadedNotifier.removeObserver(this, &ViewEditor::documentWasNewedOrLoaded);
-                document->editorContextDidChangeNotifier.removeObserver(this, &ViewEditor::editorContextDidChange);
-                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &ViewEditor::entityDefinitionsDidChange);
-            }
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &ViewEditor::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &ViewEditor::preferenceDidChange);
         }
 
         void ViewEditor::documentWasNewedOrLoaded(MapDocument*) {

@@ -76,12 +76,8 @@ namespace TrenchBroom {
         m_colorEditor(nullptr) {
             createGui(contextManager);
             bindEvents();
-            bindObservers();
+            connectObservers();
             updateIncrements();
-        }
-
-        FaceAttribsEditor::~FaceAttribsEditor() {
-            unbindObservers();
         }
 
         bool FaceAttribsEditor::cancelMouseDrag() {
@@ -380,28 +376,15 @@ namespace TrenchBroom {
             connect(m_colorEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::colorValueChanged);
         }
 
-        void FaceAttribsEditor::bindObservers() {
+        void FaceAttribsEditor::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
-            document->nodesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::nodesDidChange);
-            document->brushFacesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::brushFacesDidChange);
-            document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
-            document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
-            document->grid().gridDidChangeNotifier.addObserver(this, &FaceAttribsEditor::updateIncrements);
-        }
-
-        void FaceAttribsEditor::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
-                document->nodesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::nodesDidChange);
-                document->brushFacesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::brushFacesDidChange);
-                document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
-                document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
-                document->grid().gridDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::updateIncrements);
-            }
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &FaceAttribsEditor::documentWasNewed);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &FaceAttribsEditor::documentWasLoaded);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &FaceAttribsEditor::nodesDidChange);
+            m_notifierConnection += document->brushFacesDidChangeNotifier.connect(this, &FaceAttribsEditor::brushFacesDidChange);
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &FaceAttribsEditor::selectionDidChange);
+            m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(this, &FaceAttribsEditor::textureCollectionsDidChange);
+            m_notifierConnection += document->grid().gridDidChangeNotifier.connect(this, &FaceAttribsEditor::updateIncrements);
         }
 
         void FaceAttribsEditor::documentWasNewed(MapDocument*) {

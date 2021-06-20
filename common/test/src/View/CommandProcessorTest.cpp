@@ -18,6 +18,7 @@
  */
 
 #include "Macros.h"
+#include "NotifierConnection.h"
 #include "View/UndoableCommand.h"
 #include "View/CommandProcessor.h"
 
@@ -43,16 +44,17 @@ namespace TrenchBroom {
         class TestObserver {
         private:
             std::vector<NotificationTuple> m_notifications;
+            NotifierConnection m_notifierConnection;
         public:
             explicit TestObserver(CommandProcessor& commandProcessor) {                
-                commandProcessor.commandDoNotifier.addObserver(this, &TestObserver::commandDo);
-                commandProcessor.commandDoneNotifier.addObserver(this, &TestObserver::commandDone);
-                commandProcessor.commandDoFailedNotifier.addObserver(this, &TestObserver::commandDoFailed);
-                commandProcessor.commandUndoNotifier.addObserver(this, &TestObserver::commandUndo);
-                commandProcessor.commandUndoneNotifier.addObserver(this, &TestObserver::commandUndone);
-                commandProcessor.commandUndoFailedNotifier.addObserver(this, &TestObserver::commandUndoFailed);
-                commandProcessor.transactionDoneNotifier.addObserver(this, &TestObserver::transactionDone);
-                commandProcessor.transactionUndoneNotifier.addObserver(this, &TestObserver::transactionUndone);
+                m_notifierConnection += commandProcessor.commandDoNotifier.connect(this, &TestObserver::commandDo);
+                m_notifierConnection += commandProcessor.commandDoneNotifier.connect(this, &TestObserver::commandDone);
+                m_notifierConnection += commandProcessor.commandDoFailedNotifier.connect(this, &TestObserver::commandDoFailed);
+                m_notifierConnection += commandProcessor.commandUndoNotifier.connect(this, &TestObserver::commandUndo);
+                m_notifierConnection += commandProcessor.commandUndoneNotifier.connect(this, &TestObserver::commandUndone);
+                m_notifierConnection += commandProcessor.commandUndoFailedNotifier.connect(this, &TestObserver::commandUndoFailed);
+                m_notifierConnection += commandProcessor.transactionDoneNotifier.connect(this, &TestObserver::transactionDone);
+                m_notifierConnection += commandProcessor.transactionUndoneNotifier.connect(this, &TestObserver::transactionUndone);
             }
 
             // FIXME: should probably unregister from the notifications in the destructor

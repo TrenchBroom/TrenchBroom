@@ -68,7 +68,7 @@ namespace TrenchBroom {
 
         MapDocumentCommandFacade::MapDocumentCommandFacade() :
         m_commandProcessor(std::make_unique<CommandProcessor>(this)) {
-            bindObservers();
+            connectObservers();
         }
 
         MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
@@ -229,7 +229,7 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::performAddNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
             const std::vector<Model::Node*> parents = collectParents(nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
             std::vector<Model::Node*> addedNodes;
             for (const auto& [parent, children] : nodes) {
@@ -247,10 +247,10 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::performRemoveNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
             const std::vector<Model::Node*> parents = collectParents(nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
             const std::vector<Model::Node*> allChildren = collectChildren(nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyChildren(nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
+            NotifyBeforeAndAfter notifyChildren(nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
 
             for (const auto& [parent, children] : nodes) {
                 unsetEntityModels(children);
@@ -268,10 +268,10 @@ namespace TrenchBroom {
             }
 
             const std::vector<Model::Node*> parents = collectParents(nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
             const std::vector<Model::Node*> allChildren = collectChildren(nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyChildren(nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
+            NotifyBeforeAndAfter notifyChildren(nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
 
             auto result = std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>{};
             auto allOldChildren = std::vector<Model::Node*>{};
@@ -331,14 +331,14 @@ namespace TrenchBroom {
             const auto parents = collectParents(nodes);
             const auto descendants = collectDescendants(nodes);
 
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
+            NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
 
             const auto [notifyTextureCollectionChange, notifyEntityDefinitionsChange, notifyModsChange] = notifySpecialWorldProperties(*game(), nodesToSwap);
-            Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(notifyTextureCollectionChange, textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
-            Notifier<>::NotifyBeforeAndAfter notifyEntityDefinitions(notifyEntityDefinitionsChange, entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
-            Notifier<>::NotifyBeforeAndAfter notifyMods(notifyModsChange, modsWillChangeNotifier, modsDidChangeNotifier);
+            NotifyBeforeAndAfter notifyTextureCollections(notifyTextureCollectionChange, textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
+            NotifyBeforeAndAfter notifyEntityDefinitions(notifyEntityDefinitionsChange, entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
+            NotifyBeforeAndAfter notifyMods(notifyModsChange, modsWillChangeNotifier, modsDidChangeNotifier);
 
             for (auto& pair : nodesToSwap) {
                 auto* node = pair.first;
@@ -472,17 +472,17 @@ namespace TrenchBroom {
             documentModificationStateDidChangeNotifier();
         }
 
-        void MapDocumentCommandFacade::bindObservers() {
-            m_commandProcessor->commandDoNotifier.addObserver(commandDoNotifier);
-            m_commandProcessor->commandDoneNotifier.addObserver(commandDoneNotifier);
-            m_commandProcessor->commandDoFailedNotifier.addObserver(commandDoFailedNotifier);
-            m_commandProcessor->commandUndoNotifier.addObserver(commandUndoNotifier);
-            m_commandProcessor->commandUndoneNotifier.addObserver(commandUndoneNotifier);
-            m_commandProcessor->commandUndoFailedNotifier.addObserver(commandUndoFailedNotifier);
-            m_commandProcessor->transactionDoneNotifier.addObserver(transactionDoneNotifier);
-            m_commandProcessor->transactionUndoneNotifier.addObserver(transactionUndoneNotifier);
-            documentWasNewedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasNewed);
-            documentWasLoadedNotifier.addObserver(this, &MapDocumentCommandFacade::documentWasLoaded);
+        void MapDocumentCommandFacade::connectObservers() {
+            m_notifierConnection += m_commandProcessor->commandDoNotifier.connect(commandDoNotifier);
+            m_notifierConnection += m_commandProcessor->commandDoneNotifier.connect(commandDoneNotifier);
+            m_notifierConnection += m_commandProcessor->commandDoFailedNotifier.connect(commandDoFailedNotifier);
+            m_notifierConnection += m_commandProcessor->commandUndoNotifier.connect(commandUndoNotifier);
+            m_notifierConnection += m_commandProcessor->commandUndoneNotifier.connect(commandUndoneNotifier);
+            m_notifierConnection += m_commandProcessor->commandUndoFailedNotifier.connect(commandUndoFailedNotifier);
+            m_notifierConnection += m_commandProcessor->transactionDoneNotifier.connect(transactionDoneNotifier);
+            m_notifierConnection += m_commandProcessor->transactionUndoneNotifier.connect(transactionUndoneNotifier);
+            m_notifierConnection += documentWasNewedNotifier.connect(this, &MapDocumentCommandFacade::documentWasNewed);
+            m_notifierConnection += documentWasLoadedNotifier.connect(this, &MapDocumentCommandFacade::documentWasLoaded);
         }
 
         void MapDocumentCommandFacade::documentWasNewed(MapDocument*) {

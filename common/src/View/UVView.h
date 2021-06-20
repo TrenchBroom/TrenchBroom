@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "NotifierConnection.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Renderer/OrthographicCamera.h"
@@ -75,16 +76,16 @@ namespace TrenchBroom {
             UVViewHelper m_helper;
 
             ToolBox m_toolBox;
+
+            NotifierConnection m_notifierConnection;
         public:
             UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
-            ~UVView() override;
 
             void setSubDivisions(const vm::vec2i& subDivisions);
         private:
             void createTools();
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void selectionDidChange(const Selection& selection);
             void documentWasCleared(MapDocument* document);

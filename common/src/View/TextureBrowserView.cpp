@@ -65,14 +65,10 @@ namespace TrenchBroom {
         m_sortOrder(TextureSortOrder::Name),
         m_selectedTexture(nullptr) {
             auto doc = kdl::mem_lock(m_document);
-            doc->textureUsageCountsDidChangeNotifier.addObserver(this, &TextureBrowserView::usageCountDidChange);
+            m_notifierConnection += doc->textureUsageCountsDidChangeNotifier.connect(this, &TextureBrowserView::usageCountDidChange);
         }
 
         TextureBrowserView::~TextureBrowserView() {
-            if (!kdl::mem_expired(m_document)) {
-                auto doc = kdl::mem_lock(m_document);
-                doc->textureUsageCountsDidChangeNotifier.removeObserver(this, &TextureBrowserView::usageCountDidChange);
-            }
             clear();
         }
 

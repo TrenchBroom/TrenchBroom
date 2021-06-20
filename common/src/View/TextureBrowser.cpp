@@ -53,12 +53,8 @@ namespace TrenchBroom {
         m_view(nullptr) {
             createGui(contextManager);
             bindEvents();
-            bindObservers();
+            connectObservers();
             reload();
-        }
-
-        TextureBrowser::~TextureBrowser() {
-            unbindObservers();
         }
 
         const Assets::Texture* TextureBrowser::selectedTexture() const {
@@ -168,41 +164,21 @@ namespace TrenchBroom {
 
         void TextureBrowser::bindEvents() {
             connect(m_view, &TextureBrowserView::textureSelected, this, &TextureBrowser::textureSelected);
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
         }
 
-        void TextureBrowser::bindObservers() {
+        void TextureBrowser::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &TextureBrowser::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &TextureBrowser::documentWasLoaded);
-            document->nodesWereAddedNotifier.addObserver(this, &TextureBrowser::nodesWereAdded);
-            document->nodesWereRemovedNotifier.addObserver(this, &TextureBrowser::nodesWereRemoved);
-            document->nodesDidChangeNotifier.addObserver(this, &TextureBrowser::nodesDidChange);
-            document->brushFacesDidChangeNotifier.addObserver(this, &TextureBrowser::brushFacesDidChange);
-            document->textureCollectionsDidChangeNotifier.addObserver(this, &TextureBrowser::textureCollectionsDidChange);
-            document->currentTextureNameDidChangeNotifier.addObserver(this, &TextureBrowser::currentTextureNameDidChange);
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &TextureBrowser::documentWasNewed);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &TextureBrowser::documentWasLoaded);
+            m_notifierConnection += document->nodesWereAddedNotifier.connect(this, &TextureBrowser::nodesWereAdded);
+            m_notifierConnection += document->nodesWereRemovedNotifier.connect(this, &TextureBrowser::nodesWereRemoved);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &TextureBrowser::nodesDidChange);
+            m_notifierConnection += document->brushFacesDidChangeNotifier.connect(this, &TextureBrowser::brushFacesDidChange);
+            m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(this, &TextureBrowser::textureCollectionsDidChange);
+            m_notifierConnection += document->currentTextureNameDidChangeNotifier.connect(this, &TextureBrowser::currentTextureNameDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
-        }
-
-        void TextureBrowser::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &TextureBrowser::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &TextureBrowser::documentWasLoaded);
-                document->textureCollectionsDidChangeNotifier.removeObserver(this, &TextureBrowser::textureCollectionsDidChange);
-                document->nodesWereAddedNotifier.removeObserver(this, &TextureBrowser::nodesWereAdded);
-                document->nodesWereRemovedNotifier.removeObserver(this, &TextureBrowser::nodesWereRemoved);
-                document->nodesDidChangeNotifier.removeObserver(this, &TextureBrowser::nodesDidChange);
-                document->brushFacesDidChangeNotifier.removeObserver(this, &TextureBrowser::brushFacesDidChange);
-                document->currentTextureNameDidChangeNotifier.removeObserver(this, &TextureBrowser::currentTextureNameDidChange);
-            }
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureBrowser::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &TextureBrowser::preferenceDidChange);
         }
 
         void TextureBrowser::documentWasNewed(MapDocument*) {

@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
 #include "View/ControlListBox.h"
 
 #include <memory>
@@ -71,9 +72,10 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~LayerListBox() override;
 
             Model::LayerNode* selectedLayer() const;
             void setSelectedLayer(Model::LayerNode* layer);
@@ -84,8 +86,7 @@ namespace TrenchBroom {
 
             void selectedRowChanged(int index) override;
         private:
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentDidChange(MapDocument* document);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);

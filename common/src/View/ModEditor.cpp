@@ -52,11 +52,7 @@ namespace TrenchBroom {
         m_enabledModList(nullptr),
         m_filterBox(nullptr) {
             createGui();
-            bindObservers();
-        }
-
-        ModEditor::~ModEditor() {
-            unbindObservers();
+            connectObservers();
         }
 
         void ModEditor::createGui() {
@@ -139,26 +135,14 @@ namespace TrenchBroom {
             m_moveModDownButton->setEnabled(canEnableMoveDownButton());
         }
 
-        void ModEditor::bindObservers() {
+        void ModEditor::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &ModEditor::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &ModEditor::documentWasLoaded);
-            document->modsDidChangeNotifier.addObserver(this, &ModEditor::modsDidChange);
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &ModEditor::documentWasNewed);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &ModEditor::documentWasLoaded);
+            m_notifierConnection += document->modsDidChangeNotifier.connect(this, &ModEditor::modsDidChange);
 
             auto& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &ModEditor::preferenceDidChange);
-        }
-
-        void ModEditor::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &ModEditor::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &ModEditor::documentWasLoaded);
-                document->modsDidChangeNotifier.removeObserver(this, &ModEditor::modsDidChange);
-            }
-
-            auto& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &ModEditor::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &ModEditor::preferenceDidChange);
         }
 
         void ModEditor::documentWasNewed(MapDocument*) {

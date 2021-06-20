@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "NotifierConnection.h"
 #include "View/TabBook.h"
 
 #include <memory>
@@ -72,15 +73,15 @@ namespace TrenchBroom {
             QRadioButton* m_softBoundsFromMap;
             QLineEdit* m_softBoundsFromMapMinEdit;
             QLineEdit* m_softBoundsFromMapMaxEdit;         
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~MapPropertiesEditor() override;
         private:
             std::optional<vm::bbox3> parseLineEdits();
             void createGui();
         private:
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);

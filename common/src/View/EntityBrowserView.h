@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
@@ -78,6 +79,8 @@ namespace TrenchBroom {
             bool m_hideUnused;
             Assets::EntityDefinitionSortOrder m_sortOrder;
             std::string m_filterText;
+
+            NotifierConnection m_notifierConnection;
         public:
             EntityBrowserView(QScrollBar* scrollBar,
                               GLContextManager& contextManager,

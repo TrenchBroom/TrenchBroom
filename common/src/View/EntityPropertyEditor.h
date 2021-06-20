@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -57,14 +59,15 @@ namespace TrenchBroom {
             SmartPropertyEditorManager* m_smartEditorManager;
             QTextEdit* m_documentationText;
             const Assets::EntityDefinition* m_currentDefinition;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit EntityPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~EntityPropertyEditor() override;
         private:
             void OnCurrentRowChanged();
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void selectionDidChange(const Selection& selection);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);

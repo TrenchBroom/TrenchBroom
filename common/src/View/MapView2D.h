@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
 #include "View/MapViewBase.h"
 
 #include <vecmath/forward.h>
@@ -51,16 +52,16 @@ namespace TrenchBroom {
             } ViewPlane;
         private:
             std::unique_ptr<Renderer::OrthographicCamera> m_camera;
+
+            NotifierConnection m_notifierConnection;
         public:
             MapView2D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                       GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger);
-            ~MapView2D() override;
         private:
             void initializeCamera(ViewPlane viewPlane);
             void initializeToolChain(MapViewToolBox& toolBox);
         private: // notification
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
             void cameraDidChange(const Renderer::Camera* camera);
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(float x, float y) const override;

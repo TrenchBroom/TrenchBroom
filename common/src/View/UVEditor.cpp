@@ -50,11 +50,7 @@ namespace TrenchBroom {
         m_rotateTextureCCWButton(nullptr),
         m_rotateTextureCWButton(nullptr) {
             createGui(contextManager);
-            bindObservers();
-        }
-
-        UVEditor::~UVEditor() {
-            unbindObservers();
+            connectObservers();
         }
 
         bool UVEditor::cancelMouseDrag() {
@@ -138,16 +134,9 @@ namespace TrenchBroom {
             updateButtons();
         }
 
-        void UVEditor::bindObservers() {
+        void UVEditor::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &UVEditor::selectionDidChange);
-        }
-
-        void UVEditor::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &UVEditor::selectionDidChange);
-            }
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &UVEditor::selectionDidChange);
         }
 
         void UVEditor::resetTextureClicked() {

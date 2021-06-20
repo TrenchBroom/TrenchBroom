@@ -155,11 +155,7 @@ namespace TrenchBroom {
         LayerListBox::LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent) :
         ControlListBox("", true, parent),
         m_document(std::move(document)) {
-            bindObservers();
-        }
-
-        LayerListBox::~LayerListBox() {
-            unbindObservers();
+            connectObservers();
         }
 
         Model::LayerNode* LayerListBox::selectedLayer() const {
@@ -176,32 +172,17 @@ namespace TrenchBroom {
             setCurrentRow(-1);
         }
 
-        void LayerListBox::bindObservers() {
+        void LayerListBox::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &LayerListBox::documentDidChange);
-            document->documentWasLoadedNotifier.addObserver(this, &LayerListBox::documentDidChange);
-            document->documentWasClearedNotifier.addObserver(this, &LayerListBox::documentDidChange);
-            document->currentLayerDidChangeNotifier.addObserver(this, &LayerListBox::currentLayerDidChange);
-            document->nodesWereAddedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
-            document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
-            document->nodesDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
-            document->nodeVisibilityDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
-            document->nodeLockingDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
-        }
-
-        void LayerListBox::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
-                document->documentWasLoadedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
-                document->documentWasClearedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
-                document->currentLayerDidChangeNotifier.removeObserver(this, &LayerListBox::currentLayerDidChange);
-                document->nodesWereAddedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
-                document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
-                document->nodesDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
-                document->nodeVisibilityDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
-                document->nodeLockingDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
-            }
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &LayerListBox::documentDidChange);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &LayerListBox::documentDidChange);
+            m_notifierConnection += document->documentWasClearedNotifier.connect(this, &LayerListBox::documentDidChange);
+            m_notifierConnection += document->currentLayerDidChangeNotifier.connect(this, &LayerListBox::currentLayerDidChange);
+            m_notifierConnection += document->nodesWereAddedNotifier.connect(this, &LayerListBox::nodesDidChange);
+            m_notifierConnection += document->nodesWereRemovedNotifier.connect(this, &LayerListBox::nodesDidChange);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &LayerListBox::nodesDidChange);
+            m_notifierConnection += document->nodeVisibilityDidChangeNotifier.connect(this, &LayerListBox::nodesDidChange);
+            m_notifierConnection += document->nodeLockingDidChangeNotifier.connect(this, &LayerListBox::nodesDidChange);
         }
 
         void LayerListBox::documentDidChange(MapDocument*) {

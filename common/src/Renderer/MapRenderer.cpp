@@ -134,12 +134,11 @@ namespace TrenchBroom {
         m_lockedRenderer(createLockRenderer(m_document)),
         m_entityLinkRenderer(std::make_unique<EntityLinkRenderer>(m_document)),
         m_groupLinkRenderer(std::make_unique<GroupLinkRenderer>(m_document)) {
-            bindObservers();
+            connectObservers();
             setupRenderers();
         }
 
         MapRenderer::~MapRenderer() {
-            unbindObservers();
             clear();
         }
 
@@ -449,53 +448,29 @@ namespace TrenchBroom {
             m_lockedRenderer->reloadModels();
         }
 
-        void MapRenderer::bindObservers() {
+        void MapRenderer::connectObservers() {
             assert(!kdl::mem_expired(m_document));
             auto document = kdl::mem_lock(m_document);
-            document->documentWasClearedNotifier.addObserver(this, &MapRenderer::documentWasCleared);
-            document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
-            document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
-            document->nodesWereAddedNotifier.addObserver(this, &MapRenderer::nodesWereAdded);
-            document->nodesWereRemovedNotifier.addObserver(this, &MapRenderer::nodesWereRemoved);
-            document->nodesDidChangeNotifier.addObserver(this, &MapRenderer::nodesDidChange);
-            document->nodeVisibilityDidChangeNotifier.addObserver(this, &MapRenderer::nodeVisibilityDidChange);
-            document->nodeLockingDidChangeNotifier.addObserver(this, &MapRenderer::nodeLockingDidChange);
-            document->groupWasOpenedNotifier.addObserver(this, &MapRenderer::groupWasOpened);
-            document->groupWasClosedNotifier.addObserver(this, &MapRenderer::groupWasClosed);
-            document->brushFacesDidChangeNotifier.addObserver(this, &MapRenderer::brushFacesDidChange);
-            document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
-            document->textureCollectionsWillChangeNotifier.addObserver(this, &MapRenderer::textureCollectionsWillChange);
-            document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
-            document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
-            document->editorContextDidChangeNotifier.addObserver(this, &MapRenderer::editorContextDidChange);
+
+            m_notifierConnection += document->documentWasClearedNotifier.connect(this, &MapRenderer::documentWasCleared);
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &MapRenderer::documentWasNewedOrLoaded);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &MapRenderer::documentWasNewedOrLoaded);
+            m_notifierConnection += document->nodesWereAddedNotifier.connect(this, &MapRenderer::nodesWereAdded);
+            m_notifierConnection += document->nodesWereRemovedNotifier.connect(this, &MapRenderer::nodesWereRemoved);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &MapRenderer::nodesDidChange);
+            m_notifierConnection += document->nodeVisibilityDidChangeNotifier.connect(this, &MapRenderer::nodeVisibilityDidChange);
+            m_notifierConnection += document->nodeLockingDidChangeNotifier.connect(this, &MapRenderer::nodeLockingDidChange);
+            m_notifierConnection += document->groupWasOpenedNotifier.connect(this, &MapRenderer::groupWasOpened);
+            m_notifierConnection += document->groupWasClosedNotifier.connect(this, &MapRenderer::groupWasClosed);
+            m_notifierConnection += document->brushFacesDidChangeNotifier.connect(this, &MapRenderer::brushFacesDidChange);
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
+            m_notifierConnection += document->textureCollectionsWillChangeNotifier.connect(this, &MapRenderer::textureCollectionsWillChange);
+            m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(this, &MapRenderer::entityDefinitionsDidChange);
+            m_notifierConnection += document->modsDidChangeNotifier.connect(this, &MapRenderer::modsDidChange);
+            m_notifierConnection += document->editorContextDidChangeNotifier.connect(this, &MapRenderer::editorContextDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
-        }
-
-        void MapRenderer::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasClearedNotifier.removeObserver(this, &MapRenderer::documentWasCleared);
-                document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
-                document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
-                document->nodesWereAddedNotifier.removeObserver(this, &MapRenderer::nodesWereAdded);
-                document->nodesWereRemovedNotifier.removeObserver(this, &MapRenderer::nodesWereRemoved);
-                document->nodesDidChangeNotifier.removeObserver(this, &MapRenderer::nodesDidChange);
-                document->nodeVisibilityDidChangeNotifier.removeObserver(this, &MapRenderer::nodeVisibilityDidChange);
-                document->nodeLockingDidChangeNotifier.removeObserver(this, &MapRenderer::nodeLockingDidChange);
-                document->groupWasOpenedNotifier.removeObserver(this, &MapRenderer::groupWasOpened);
-                document->groupWasClosedNotifier.removeObserver(this, &MapRenderer::groupWasClosed);
-                document->brushFacesDidChangeNotifier.removeObserver(this, &MapRenderer::brushFacesDidChange);
-                document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
-                document->textureCollectionsWillChangeNotifier.removeObserver(this, &MapRenderer::textureCollectionsWillChange);
-                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
-                document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
-                document->editorContextDidChangeNotifier.removeObserver(this, &MapRenderer::editorContextDidChange);
-            }
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &MapRenderer::preferenceDidChange);
         }
 
         void MapRenderer::documentWasCleared(View::MapDocument*) {

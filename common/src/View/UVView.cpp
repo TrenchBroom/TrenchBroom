@@ -66,11 +66,7 @@ namespace TrenchBroom {
             setToolBox(m_toolBox);
             createTools();
             m_toolBox.disable();
-            bindObservers();
-        }
-
-        UVView::~UVView() {
-            unbindObservers();
+            connectObservers();
         }
 
         void UVView::setSubDivisions(const vm::vec2i& subDivisions) {
@@ -87,34 +83,18 @@ namespace TrenchBroom {
             addTool(std::make_unique<UVCameraTool>(m_camera));
         }
 
-        void UVView::bindObservers() {
+        void UVView::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasClearedNotifier.addObserver(this, &UVView::documentWasCleared);
-            document->nodesDidChangeNotifier.addObserver(this, &UVView::nodesDidChange);
-            document->brushFacesDidChangeNotifier.addObserver(this, &UVView::brushFacesDidChange);
-            document->selectionDidChangeNotifier.addObserver(this, &UVView::selectionDidChange);
-            document->grid().gridDidChangeNotifier.addObserver(this, &UVView::gridDidChange);
+            m_notifierConnection += document->documentWasClearedNotifier.connect(this, &UVView::documentWasCleared);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &UVView::nodesDidChange);
+            m_notifierConnection += document->brushFacesDidChangeNotifier.connect(this, &UVView::brushFacesDidChange);
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &UVView::selectionDidChange);
+            m_notifierConnection += document->grid().gridDidChangeNotifier.connect(this, &UVView::gridDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &UVView::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &UVView::preferenceDidChange);
 
-            m_camera.cameraDidChangeNotifier.addObserver(this, &UVView::cameraDidChange);
-        }
-
-        void UVView::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasClearedNotifier.removeObserver(this, &UVView::documentWasCleared);
-                document->nodesDidChangeNotifier.removeObserver(this, &UVView::nodesDidChange);
-                document->brushFacesDidChangeNotifier.removeObserver(this, &UVView::brushFacesDidChange);
-                document->selectionDidChangeNotifier.removeObserver(this, &UVView::selectionDidChange);
-                document->grid().gridDidChangeNotifier.removeObserver(this, &UVView::gridDidChange);
-            }
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &UVView::preferenceDidChange);
-
-            m_camera.cameraDidChangeNotifier.removeObserver(this, &UVView::cameraDidChange);
+            m_notifierConnection += m_camera.cameraDidChangeNotifier.connect(this, &UVView::cameraDidChange);
         }
 
         void UVView::selectionDidChange(const Selection&) {

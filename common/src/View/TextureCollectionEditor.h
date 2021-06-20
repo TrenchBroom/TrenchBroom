@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 
 #include <QWidget>
@@ -31,9 +33,10 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
+            
+            NotifierConnection m_notifierConnection;
         public:
             explicit TextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~TextureCollectionEditor() override ;
         private:
             void documentWasNewedOrLoaded(MapDocument* document);
 

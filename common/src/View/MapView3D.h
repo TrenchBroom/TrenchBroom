@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
 #include "View/MapViewBase.h"
 
 #include <vecmath/forward.h>
@@ -44,6 +45,8 @@ namespace TrenchBroom {
             std::unique_ptr<Renderer::PerspectiveCamera> m_camera;
             std::unique_ptr<FlyModeHelper> m_flyModeHelper;
             bool m_ignoreCameraChangeEvents;
+
+            NotifierConnection m_notifierConnection;
         public:
             MapView3D(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
                       GLContextManager& contextManager, Logger* logger);
@@ -52,8 +55,7 @@ namespace TrenchBroom {
             void initializeCamera();
             void initializeToolChain(MapViewToolBox& toolBox);
         private: // notification
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
             void cameraDidChange(const Renderer::Camera* camera);
             void preferenceDidChange(const IO::Path& path);
         protected: // QWidget overrides

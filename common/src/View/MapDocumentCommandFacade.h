@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "NotifierConnection.h"
 #include "Model/NodeContents.h"
 #include "View/MapDocument.h"
 
@@ -49,6 +50,8 @@ namespace TrenchBroom {
         class MapDocumentCommandFacade : public MapDocument {
         private:
             std::unique_ptr<CommandProcessor> m_commandProcessor;
+
+            NotifierConnection m_notifierConnection;
         public:
             static std::shared_ptr<MapDocument> newMapDocument();
         private:
@@ -103,7 +106,7 @@ namespace TrenchBroom {
             void incModificationCount(size_t delta = 1);
             void decModificationCount(size_t delta = 1);
         private: // notification
-            void bindObservers();
+            void connectObservers();
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
         private: // implement MapDocument interface

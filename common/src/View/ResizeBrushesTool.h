@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "NotifierConnection.h"
 #include "Model/Brush.h"
 #include "Model/HitType.h"
 #include "View/Tool.h"
@@ -100,6 +101,8 @@ namespace TrenchBroom {
              */
             std::vector<DragHandle> m_proposedDragHandles;
             bool m_dragging;
+
+            NotifierConnection m_notifierConnection;
         private: // drag state - should only be accessed when m_dragging is true
             std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
             std::vector<DragHandle> m_dragHandlesAtDragStart;
@@ -116,7 +119,6 @@ namespace TrenchBroom {
             vm::vec3 m_totalDelta;
         public:
             explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
-            ~ResizeBrushesTool() override;
 
             bool applies() const;
 
@@ -147,8 +149,7 @@ namespace TrenchBroom {
             std::vector<vm::polygon3> polygonsAtDragStart() const;
             void updateCurrentDragVisualHandles();
         private:
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void selectionDidChange(const Selection& selection);
         };

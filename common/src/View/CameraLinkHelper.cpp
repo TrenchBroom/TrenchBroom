@@ -35,23 +35,11 @@ namespace TrenchBroom {
         CameraLinkHelper::CameraLinkHelper() :
         m_ignoreNotifications(false) {}
 
-        CameraLinkHelper::~CameraLinkHelper() {
-            for (Renderer::Camera* camera : m_cameras) {
-                camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
-            }
-        }
-
         void CameraLinkHelper::addCamera(Renderer::Camera* camera) {
             ensure(camera != nullptr, "camera is null");
             assert(!kdl::vec_contains(m_cameras, camera));
             m_cameras.push_back(camera);
-            camera->cameraDidChangeNotifier.addObserver(this, &CameraLinkHelper::cameraDidChange);
-        }
-
-        void CameraLinkHelper::removeCamera(Renderer::Camera* camera) {
-            ensure(camera != nullptr, "camera is null");
-            m_cameras = kdl::vec_erase(std::move(m_cameras), camera);
-            camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
+            m_notifierConnection += camera->cameraDidChangeNotifier.connect(this, &CameraLinkHelper::cameraDidChange);
         }
 
         void CameraLinkHelper::cameraDidChange(const Renderer::Camera* camera) {

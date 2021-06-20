@@ -35,16 +35,8 @@ namespace TrenchBroom {
         QWidget(parent),
         m_document(std::move(document)) {
             auto doc = kdl::mem_lock(m_document);
-            doc->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
-            doc->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
-        }
-
-        TextureCollectionEditor::~TextureCollectionEditor() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
-                document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
-            }
+            m_notifierConnection += doc->documentWasNewedNotifier.connect(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
+            m_notifierConnection += doc->documentWasLoadedNotifier.connect(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
         }
 
         void TextureCollectionEditor::documentWasNewedOrLoaded(MapDocument*) {

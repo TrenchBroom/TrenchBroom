@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
 #include "View/TabBook.h"
 
 #include <memory>
@@ -52,14 +53,14 @@ namespace TrenchBroom {
             IssueBrowserView* m_view;
             QCheckBox* m_showHiddenIssuesCheckBox;
             FlagsPopupEditor* m_filterEditor;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~IssueBrowser() override;
 
             QWidget* createTabBarPage(QWidget* parent) override;
         private:
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
             void documentWasNewedOrLoaded(MapDocument* document);
             void documentWasSaved(MapDocument* document);
             void nodesWereAdded(const std::vector<Model::Node*>& nodes);
