@@ -49,6 +49,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/string_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/transform_range.h"
     "${KDL_INCLUDE_DIR}/kdl/tuple_io.h"
+    "${KDL_INCLUDE_DIR}/kdl/tuple_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/vector_set_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/vector_set.h"
     "${KDL_INCLUDE_DIR}/kdl/vector_utils.h"
