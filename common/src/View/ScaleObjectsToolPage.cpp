@@ -50,24 +50,13 @@ namespace TrenchBroom {
         m_scaleFactorsOrSize(nullptr),
         m_button(nullptr) {
             createGui();
-            bindObservers();
+            connectObservers();
             updateGui();
         }
 
-        ScaleObjectsToolPage::~ScaleObjectsToolPage() {
-            unbindObservers();
-        }
-
-        void ScaleObjectsToolPage::bindObservers() {
+        void ScaleObjectsToolPage::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &ScaleObjectsToolPage::selectionDidChange);
-        }
-
-        void ScaleObjectsToolPage::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &ScaleObjectsToolPage::selectionDidChange);
-            }
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &ScaleObjectsToolPage::selectionDidChange);
         }
 
         void ScaleObjectsToolPage::activate() {

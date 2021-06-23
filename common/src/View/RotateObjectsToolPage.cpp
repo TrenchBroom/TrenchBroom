@@ -53,24 +53,13 @@ namespace TrenchBroom {
         m_axis(nullptr),
         m_rotateButton(nullptr) {
             createGui();
-            bindObservers();
+            connectObservers();
             m_angle->setValue(vm::to_degrees(m_tool->angle()));
         }
 
-        RotateObjectsToolPage::~RotateObjectsToolPage() {
-            unbindObservers();
-        }
-
-        void RotateObjectsToolPage::bindObservers() {
+        void RotateObjectsToolPage::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &RotateObjectsToolPage::selectionDidChange);
-        }
-
-        void RotateObjectsToolPage::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &RotateObjectsToolPage::selectionDidChange);
-            }
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &RotateObjectsToolPage::selectionDidChange);
         }
 
         void RotateObjectsToolPage::setAxis(const vm::axis::type axis) {

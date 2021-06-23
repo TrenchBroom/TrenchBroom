@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,347 +19,87 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <kdl/set_temp.h>
+#include <kdl/tuple_utils.h>
 
 #include <cassert>
-#include <memory>
+#include <functional>
 #include <vector>
 
 namespace TrenchBroom {
     /**
-     * Encapsulates the internal state of a notifier. Handles adding and removing observers during notification.
-     *
-     * @tparam O the type of the observers registered with the notifier
+     * Base class for notifiers. This is only necessary so that NotifierConnection is independent of the Notifier type.
      */
-    template <typename O>
-    class NotifierState {
-    private:
-        std::vector<std::unique_ptr<O>> m_observers;
-        std::vector<std::unique_ptr<O>> m_toAdd;
-        std::vector<std::unique_ptr<O>> m_toRemove;
-
-        bool m_notifying;
+    class NotifierBase {
     public:
-        /**
-         * Creates a new notifier state.
-         */
-        NotifierState() : m_notifying(false) {}
-
-        /**
-         * Adds the given observer to this notifier state. If the notifier is currently notifying, then the given
-         * observer will be added when notification is finished. A given observer can be added only once.
-         *
-         * @param observer the observer to add
-         * @return true if the given observer was successfully registered and false otherwise
-         */
-        bool addObserver(std::unique_ptr<O> observer) {
-            if (!m_observers.empty()) {
-                auto it = findObserver(observer);
-                if (it != std::end(m_observers)) {
-                    return false;
-                }
-            }
-
-            if (m_notifying) {
-                m_toAdd.push_back(std::move(observer));
-            } else {
-                m_observers.push_back(std::move(observer));
-            }
-            return true;
-        }
-
-        /**
-         * Removes the given observer from this notifier state. If the notifier is currently, notifying, then the given
-         * observer will be removed when notification is finished.
-         *
-         * @param observer the observer to remove
-         * @return true if the given observer could be removed successfully and false otherwise
-         */
-        bool removeObserver(std::unique_ptr<O> observer) {
-            auto it = findObserver(observer);
-            if (it == std::end(m_observers)) {
-                return false;
-            } else {
-                (*it)->setSkip();
-            }
-
-            if (m_notifying) {
-                m_toRemove.push_back(std::move(observer));
-            } else {
-                m_observers.erase(it);
-            }
-
-            return true;
-        }
-
-        /**
-         * Notifies all registered observers and passes the given arguments.
-         *
-         * @tparam A the argument types
-         * @param a the arguments
-         */
-        template <typename... A>
-        void notify(A... a) {
-            {
-                const kdl::set_temp notifying(m_notifying);
-                for (auto& observer : m_observers) {
-                    if (!observer->skip()) {
-                        (*observer)(a...);
-                    }
-                }
-            }
-
-            removePending();
-            addPending();
-        }
+        ~NotifierBase() = default;
     private:
-        void addPending() {
-            assert(!m_notifying);
-
-            for (auto it = std::begin(m_toAdd), end = std::end(m_toAdd); it != end; ++it) {
-                m_observers.push_back(std::move(*it));
-            }
-            m_toAdd.clear();
-        }
-
-        void removePending() {
-            assert(!m_notifying);
-
-            for (const auto& observer : m_toRemove) {
-                auto it = findObserver(observer);
-                assert(it != std::end(m_observers));
-                m_observers.erase(it);
-            }
-
-            m_toRemove.clear();
-        }
-
-        auto findObserver(const std::unique_ptr<O>& observer) const {
-            for (auto it = std::begin(m_observers), end = std::end(m_observers); it != end; ++it) {
-                if (*observer == **it) {
-                    return it;
-                }
-            }
-            return std::end(m_observers);
-        }
+        friend class NotifierConnection;
+        virtual void disconnect(size_t id) = 0;
     };
 
     /**
-     * A notifier allows registering observers and notifying them. An observer is a member function whose signature
-     * matches the argument types given as parameters to this template.
+     * A notifier that multiple observers can connect to.
      *
-     * @tparam A the observer callback type parameter types
+     * Observers are notified in the order in which they were connected. The same observer can be connected multiple
+     * times.
+     *
+     * @tparam A the types of the parameters passed to the observer callbacks.
      */
     template <typename... A>
-    class Notifier {
+    class Notifier : public NotifierBase {
     private:
-        using N = Notifier<A...>;
+        using Callback = std::function<void(A...)>;
+        
+        struct Observer {
+            Callback callback;
+            size_t id;
+            bool pendingRemove;
 
-        class Observer {
-        private:
-            bool m_skip;
-        public:
-            Observer() :
-            m_skip(false) {}
-
-            virtual ~Observer()= default;
-
-            bool skip() const {
-                return m_skip;
-            }
-
-            void setSkip() {
-                m_skip = true;
-            }
-
-            virtual void* receiver() const = 0;
-            virtual void operator()(A... a) = 0;
-
-            bool operator==(const Observer& rhs) const {
-                return receiver() == rhs.receiver() && compareFunctions(rhs);
-            }
-        private:
-            virtual bool compareFunctions(const Observer& rhs) const = 0;
+            Observer(Callback i_callback, const size_t i_id) :
+            callback{std::move(i_callback)},
+            id{i_id},
+            pendingRemove{false} {}
         };
 
-        template <typename R>
-        class CObserver : public Observer {
-        private:
-            using F = void(R::*)(A...);
-
-            R* m_receiver;
-            F m_function;
-        public:
-            CObserver(R* receiver, F function) :
-            m_receiver(receiver),
-            m_function(function) {}
-
-            void operator()(A... a) override {
-                (m_receiver->*m_function)(a...);
-            }
-
-            void* receiver() const override {
-                return static_cast<void*>(m_receiver);
-            }
-
-            F function() const {
-                return m_function;
-            }
-
-            bool compareFunctions(const Observer& rhs) const override {
-                auto& rhsR = static_cast<const CObserver<R>&>(rhs);
-                return m_function == rhsR.function();
-            }
-        };
-    private:
-        NotifierState<Observer> m_state;
+        size_t m_nextId{0};
+        std::vector<Observer> m_observers;
+        std::vector<Observer> m_toAdd;
+        bool m_notifying{false};
     public:
-        /**
-         * RAII style helper tht notifies the given notifier immediately, passing the given arguments. This class in and
-         * of itself is not very useful and was only added for reasons of symmetry.
-         */
-        class NotifyBefore {
-        public:
-            /**
-             * Creates a new instance and immediately notifies the given notifier with the given parameters
-             *
-             * @param notify controls whether or not the notifications should be sent
-             * @param before the notifier to notify
-             * @param a the arguments to pass to the notifier
-             */
-            explicit NotifyBefore(const bool notify, N& before, A... a) {
-                if (notify) {
-                    before(a...);
-                }
-            }
-        };
+        friend class NotifierConnection;
 
         /**
-         * RAII style helper tht notifies the given notifier when it is destroyed, passing the given arguments.
-         */
-        class NotifyAfter {
-        private:
-            /**
-             * Holds a lambda; used in favor of std::function to keep compilation times low.
-             */
-            class BaseHolder {
-            public:
-                virtual ~BaseHolder() = default;
-                virtual void apply() = 0;
-            };
-
-            template <typename T>
-            class Holder : public BaseHolder {
-            private:
-                bool m_notify;
-                T m_func;
-            public:
-                explicit Holder(const bool notify, T&& func) : 
-                m_notify(notify),
-                m_func(std::move(func)) {}
-
-                void apply() override {
-                    if (m_notify) {
-                        m_func();
-                    }
-                }
-            };
-
-            std::unique_ptr<BaseHolder> m_after;
-        public:
-            /**
-             * Creates a new instance to notify the given notifier. The given arguments are passed to the notifier.
-             *
-             * @param notify controls whether or not the notifications should be sent
-             * @param after the notifier to notify
-             * @param a the arguments to pass to the notifier
-             */
-            explicit NotifyAfter(const bool notify, N& after, A... a) :
-            m_after(createLambda(notify, after, std::move(a)...)) {}
-
-            virtual ~NotifyAfter() {
-                m_after->apply();
-            }
-        private:
-            static std::unique_ptr<BaseHolder> createLambda(const bool notify, N& after, A... a) {
-                auto lambda = [&]() { after(a...); };
-                return std::make_unique<Holder<decltype(lambda)>>(notify, std::move(lambda));
-            }
-        };
-
-        /**
-         * RAII style helper tht notifies a given notifier immediately and another notifier when it is destroyed,
-         * passing the given arguments to either notifier.
-         */
-        class NotifyBeforeAndAfter : public NotifyBefore, public NotifyAfter {
-        public:
-            /**
-             * Creates a new instance that notifies the given notifiers.
-             *
-             * @param notify controls whether or not the notifications should be sent
-             * @param before the notifier to notify immediately
-             * @param after the notifier to notify later when this object is destroyed
-             * @param a the arguments to pass to either notifier
-             */
-            NotifyBeforeAndAfter(const bool notify, N& before, N& after, A... a) :
-            NotifyBefore(notify, before, a...),
-            NotifyAfter(notify, after, a...) {}
-
-            /**
-             * Creates a new instance that notifies the given notifiers.
-             *
-             * @param before the notifier to notify immediately
-             * @param after the notifier to notify later when this object is destroyed
-             * @param a the arguments to pass to either notifier
-             */
-            NotifyBeforeAndAfter(N& before, N& after, A... a) :
-            NotifyBeforeAndAfter(true, before, after, std::forward<A>(a)...) {}
-        };
-
-        /**
-         * Adds the given observer to this notifier.
+         * Adds the given observer callback to this notifier.
          *
-         * @tparam R the receiver type
-         * @param receiver the receiver
-         * @param function the member of the receiver to notify
-         * @return true if the given observer was successfully added to this notifier and false otherwise
+         * If this notifier is currently notifying, then the callback will be connected, but it will not be notified of
+         * the current notification.
+         *
+         * Returns connection object that disconnects the callback from this notification when it goes out of scope.
          */
-        template <typename R>
-        bool addObserver(R* receiver, void (R::*function)(A...)) {
-            return m_state.addObserver(std::make_unique<CObserver<R>>(receiver, function));
+        [[nodiscard]] NotifierConnection connect(Callback callback) {
+            const auto id = m_nextId++;
+            if (m_notifying) {
+                m_toAdd.emplace_back(std::move(callback), id);
+            } else {
+                m_observers.emplace_back(std::move(callback), id);
+            }
+            return NotifierConnection{*this, id};
         }
 
         /**
-         * Removes the given observer from this notifier.
+         * Adds the given observer callback to this notifier.
          *
-         * @tparam R the receiver type
-         * @param receiver the receiver
-         * @param function the member of the receiver to notify
-         * @return true if the given observer was successfully removed from this notifier and false otherwise
-         */
-        template <typename R>
-        bool removeObserver(R* receiver, void (R::*function)(A...)) {
-            return m_state.removeObserver(std::make_unique<CObserver<R>>(receiver, function));
-        }
-
-        /**
-         * Adds the given notifier as an observer to this notifier.
+         * This overload is useful when the callback is a member function.
          *
-         * @param notifier the notifier to add
-         * @return true if the given notifier was successfully added to this notifier and false otherwise
+         * @param receiver the receiver object, i.e. the owner of the member function
+         * @param callback the observer callback to call when the notification happens
          */
-        bool addObserver(Notifier<A...>& notifier) {
-            return addObserver(&notifier, &Notifier<A...>::operator());
-        }
-
-        /**
-         * Removes the given notifier as an observer from this notifier.
-         *
-         * @param notifier the notifier to remove
-         * @return true if the given notifier was successfully removed from this notifier and false otherwise
-         */
-        bool removeObserver(Notifier& notifier) {
-            return removeObserver(&notifier, &Notifier<A...>::operator());
+        template <typename R, typename MemberCallback>
+        [[nodiscard]] NotifierConnection connect(R* receiver, MemberCallback callback) {
+            return connect([receiver=receiver, callback=std::move(callback)](auto&&... args) { std::invoke(callback, receiver, std::forward<decltype(args)>(args)...); });
         }
 
         /**
@@ -367,8 +107,16 @@ namespace TrenchBroom {
          *
          * @param a the arguments to pass to each notifier
          */
-        void notify(A... a) {
-            m_state.notify(a...);
+        template <typename... NA>
+        void notify(NA&&... a) {
+            processPendingObservers();
+
+            const kdl::set_temp notifying(m_notifying);
+            for (const auto& observer : m_observers) {
+                if (!observer.pendingRemove) {
+                    observer.callback(std::forward<NA>(a)...);
+                }
+            }
         }
 
         /**
@@ -376,8 +124,127 @@ namespace TrenchBroom {
          *
          * @param a the arguments to pass to each notifier
          */
-        void operator()(A... a) {
-            notify(a...);
+        template <typename... NA>
+        void operator()(NA&&... a) {
+            notify(std::forward<NA>(a)...);
+        }
+    private:
+        void disconnect(const size_t id) override {
+            if (const auto it = findObserver(m_toAdd, id); it != std::end(m_toAdd)) {
+                m_toAdd.erase(it);
+                return;
+            }
+            
+            if (const auto it = findObserver(m_observers, id); it != std::end(m_observers)) {
+                if (m_notifying) {
+                    it->pendingRemove = true;
+                } else {
+                    m_observers.erase(it);
+                }
+            }
+        }
+
+        typename std::vector<Observer>::iterator findObserver(std::vector<Observer>& observers, const size_t id) {
+            return std::find_if(std::begin(observers), std::end(observers), [&](const auto& observer){ return observer.id == id; });
+        }
+
+        void processPendingObservers() {
+            assert(!m_notifying);
+
+            for (auto it = std::begin(m_observers); it != std::end(m_observers);) {
+                if (it->pendingRemove) {
+                    it = m_observers.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+
+            while (!m_toAdd.empty()) {
+                auto observer = std::move(m_toAdd.back());
+                m_observers.push_back(std::move(observer));
+                m_toAdd.pop_back();
+            }
         }
     };
+
+
+    /**
+    * RAII style helper tht notifies the given notifier when it is destroyed, passing the given arguments.
+    */
+    template <typename... A>
+    class NotifyAfter {
+    private:
+        Notifier<A...>& m_notifier;
+    protected:
+        std::function<void(Notifier<A...>&)> m_notify;
+    public:
+        /**
+         * Creates a new instance to notify the given notifier. The given arguments are passed to the notifier.
+         *
+         * The given arguments are captured using kdl::tup_capture. Callers must ensure that objects passed to the
+         * constructor by (const) lvalue reference outlive this object.
+         *
+         * @param notify controls whether or not the notifications should be sent
+         * @param notifier the notifier to notify
+         * @param a the arguments to pass to the notifier
+         */
+        template <typename... NA>
+        explicit NotifyAfter(const bool notify, Notifier<A...>& notifier, NA&&... a) :
+        m_notifier{notifier},
+        m_notify{makeNotify(notify, std::forward<NA>(a)...)} {}
+
+        virtual ~NotifyAfter() {
+            m_notify(m_notifier);
+        }
+    private:
+        template <typename... NA>
+        static std::function<void(Notifier<A...>&)> makeNotify(const bool notify, NA&&... a) {
+            if (notify) {
+                return [args=kdl::tup_capture(std::forward<NA>(a)...)](Notifier<A...>& notifier) { std::apply(notifier, args); };
+            }
+            return [](Notifier<A...>&) {};
+        }
+    };
+
+    template <typename... AA, typename... NA>
+    NotifyAfter(bool, Notifier<AA...>&, NA&&...) -> NotifyAfter<AA...>;
+
+    /**
+     * RAII style helper tht notifies a given notifier immediately and another notifier when it is destroyed,
+     * passing the given arguments to either notifier.
+     */
+    template <typename... A>
+    class NotifyBeforeAndAfter : public NotifyAfter<A...> {
+    public:
+        /**
+         * Creates a new instance that notifies the given notifiers.
+         *
+         * @param notify controls whether or not the notifications should be sent
+         * @param before the notifier to notify immediately
+         * @param after the notifier to notify later when this object is destroyed
+         * @param a the arguments to pass to either notifier
+         */
+        template <typename... NA>
+        NotifyBeforeAndAfter(const bool notify, Notifier<A...>& before, Notifier<A...>& after, NA&&... a) :
+        NotifyAfter<A...>{notify, after, std::forward<NA>(a)...} {
+            NotifyAfter<A...>::m_notify(before);
+        }
+
+        /**
+         * Creates a new instance that notifies the given notifiers.
+         *
+         * @param before the notifier to notify immediately
+         * @param after the notifier to notify later when this object is destroyed
+         * @param a the arguments to pass to either notifier
+         */
+        template <typename... NA>
+        NotifyBeforeAndAfter(Notifier<A...>& before, Notifier<A...>& after, NA&&... a) :
+        NotifyBeforeAndAfter{true, before, after, std::forward<NA>(a)...} {}
+    };
+
+    template <typename... AA, typename... NA>
+    NotifyBeforeAndAfter(bool, Notifier<AA...>&, Notifier<AA...>&, NA&&...) -> NotifyBeforeAndAfter<AA...>;
+
+    template <typename... AA, typename... NA>
+    NotifyBeforeAndAfter(Notifier<AA...>&, Notifier<AA...>&, NA&&...) -> NotifyBeforeAndAfter<AA...>;
 }

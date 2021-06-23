@@ -44,8 +44,8 @@ namespace TrenchBroom {
 
         void ToolBox::addTool(Tool* tool) {
             ensure(tool != nullptr, "tool is null");
-            tool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            tool->toolHandleSelectionChangedNotifier.addObserver(toolHandleSelectionChangedNotifier);
+            m_notifierConnection += tool->refreshViewsNotifier.connect(refreshViewsNotifier);
+            m_notifierConnection += tool->toolHandleSelectionChangedNotifier.connect(toolHandleSelectionChangedNotifier);
         }
 
         void ToolBox::pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult) {

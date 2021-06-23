@@ -50,12 +50,13 @@ namespace TrenchBroom {
             updateIndices();
             updateGroups();
             updateCache();
-            bindObservers();
+            connectObservers();
         }
 
         void EntityDefinitionManager::clear() {
             clearCache();
             clearGroups();
+            m_notifierConnection.disconnect();
             kdl::vec_clear_and_delete(m_definitions);
         }
 
@@ -113,9 +114,9 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityDefinitionManager::bindObservers() {
+        void EntityDefinitionManager::connectObservers() {
             for (EntityDefinition* definition : m_definitions) {
-                definition->usageCountDidChangeNotifier.addObserver(usageCountDidChangeNotifier);
+                m_notifierConnection += definition->usageCountDidChangeNotifier.connect(usageCountDidChangeNotifier);
             }
         }
 

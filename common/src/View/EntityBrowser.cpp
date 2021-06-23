@@ -52,11 +52,7 @@ namespace TrenchBroom {
         m_scrollBar(nullptr),
         m_view(nullptr) {
             createGui(contextManager);
-            bindObservers();
-        }
-
-        EntityBrowser::~EntityBrowser() {
-            unbindObservers();
+            connectObservers();
         }
 
         void EntityBrowser::reload() {
@@ -133,28 +129,15 @@ namespace TrenchBroom {
             setLayout(outerSizer);
         }
 
-        void EntityBrowser::bindObservers() {
+        void EntityBrowser::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &EntityBrowser::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &EntityBrowser::documentWasLoaded);
-            document->modsDidChangeNotifier.addObserver(this, &EntityBrowser::modsDidChange);
-            document->entityDefinitionsDidChangeNotifier.addObserver(this, &EntityBrowser::entityDefinitionsDidChange);
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &EntityBrowser::documentWasNewed);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &EntityBrowser::documentWasLoaded);
+            m_notifierConnection += document->modsDidChangeNotifier.connect(this, &EntityBrowser::modsDidChange);
+            m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(this, &EntityBrowser::entityDefinitionsDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &EntityBrowser::preferenceDidChange);
-        }
-
-        void EntityBrowser::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-            auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &EntityBrowser::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &EntityBrowser::documentWasLoaded);
-                document->modsDidChangeNotifier.removeObserver(this, &EntityBrowser::modsDidChange);
-                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &EntityBrowser::entityDefinitionsDidChange);
-            }
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &EntityBrowser::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &EntityBrowser::preferenceDidChange);
         }
 
         void EntityBrowser::documentWasNewed(MapDocument*) {

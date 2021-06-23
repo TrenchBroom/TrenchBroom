@@ -19,12 +19,14 @@
 
 #pragma once
 
-#include <QWidget>
+#include "NotifierConnection.h"
+#include "Model/TagType.h"
 
 #include <memory>
 #include <vector>
 
-#include "Model/TagType.h"
+
+#include <QWidget>
 
 class QCheckBox;
 class QWidget;
@@ -102,12 +104,12 @@ namespace TrenchBroom {
             QButtonGroup* m_entityLinkRadioGroup;
 
             QCheckBox* m_showSoftBoundsCheckBox;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit ViewEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~ViewEditor() override;
         private:
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentWasNewedOrLoaded(MapDocument* document);
             void editorContextDidChange();

@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "NotifierConnection.h"
 #include "Model/HitType.h"
 #include "View/Tool.h"
 
@@ -127,6 +128,8 @@ namespace TrenchBroom {
 
             bool m_ignoreNotifications;
             bool m_dragging;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit ClipTool(std::weak_ptr<MapDocument> document);
             ~ClipTool() override;
@@ -188,8 +191,7 @@ namespace TrenchBroom {
 
             bool doRemove();
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const std::vector<Model::Node*>& nodes);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);

@@ -54,12 +54,8 @@ namespace TrenchBroom {
         m_moveTextureCollectionDownButton(nullptr),
         m_reloadTextureCollectionsButton(nullptr) {
             createGui();
-            bindObservers();
+            connectObservers();
             updateControls();
-        }
-
-        FileTextureCollectionEditor::~FileTextureCollectionEditor() {
-            unbindObservers();
         }
 
         bool FileTextureCollectionEditor::debugUIConsistency() const {
@@ -274,22 +270,12 @@ namespace TrenchBroom {
             m_reloadTextureCollectionsButton->setEnabled(canReloadTextureCollections());
         }
 
-        void FileTextureCollectionEditor::bindObservers() {
+        void FileTextureCollectionEditor::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->textureCollectionsDidChangeNotifier.addObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
+            m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
 
             auto& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &FileTextureCollectionEditor::preferenceDidChange);
-        }
-
-        void FileTextureCollectionEditor::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->textureCollectionsDidChangeNotifier.removeObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
-            }
-
-            auto& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &FileTextureCollectionEditor::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &FileTextureCollectionEditor::preferenceDidChange);
         }
 
         void FileTextureCollectionEditor::textureCollectionsDidChange() {

@@ -49,11 +49,10 @@ namespace TrenchBroom {
         m_documentationText(nullptr),
         m_currentDefinition(nullptr) {
         createGui(document);
-        bindObservers();
+        connectObservers();
         }
 
         EntityPropertyEditor::~EntityPropertyEditor() {
-            unbindObservers();
             saveWindowState(m_splitter);
         }
 
@@ -61,18 +60,10 @@ namespace TrenchBroom {
             updateDocumentationAndSmartEditor();
         }
 
-        void EntityPropertyEditor::bindObservers() {
+        void EntityPropertyEditor::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &EntityPropertyEditor::selectionDidChange);
-            document->nodesDidChangeNotifier.addObserver(this, &EntityPropertyEditor::nodesDidChange);
-        }
-
-        void EntityPropertyEditor::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &EntityPropertyEditor::selectionDidChange);
-                document->nodesDidChangeNotifier.removeObserver(this, &EntityPropertyEditor::nodesDidChange);
-            }
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &EntityPropertyEditor::selectionDidChange);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &EntityPropertyEditor::nodesDidChange);
         }
 
         void EntityPropertyEditor::selectionDidChange(const Selection&) {

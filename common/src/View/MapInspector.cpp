@@ -134,11 +134,7 @@ namespace TrenchBroom {
         m_softBoundsFromMapMinEdit(nullptr),
         m_softBoundsFromMapMaxEdit(nullptr) {
             createGui();
-            bindObservers();
-        }
-
-        MapPropertiesEditor::~MapPropertiesEditor() {
-            unbindObservers();
+            connectObservers();
         }
 
         static std::optional<vm::vec3> parseVec(const QString& qString) {
@@ -288,20 +284,11 @@ namespace TrenchBroom {
             updateGui();
         }
 
-        void MapPropertiesEditor::bindObservers() {
+        void MapPropertiesEditor::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &MapPropertiesEditor::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &MapPropertiesEditor::documentWasLoaded);
-            document->nodesDidChangeNotifier.addObserver(this, &MapPropertiesEditor::nodesDidChange);
-        }
-
-        void MapPropertiesEditor::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &MapPropertiesEditor::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &MapPropertiesEditor::documentWasLoaded);
-                document->nodesDidChangeNotifier.removeObserver(this, &MapPropertiesEditor::nodesDidChange);
-            }
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &MapPropertiesEditor::documentWasNewed);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &MapPropertiesEditor::documentWasLoaded);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &MapPropertiesEditor::nodesDidChange);
         }
 
         void MapPropertiesEditor::documentWasNewed(MapDocument*) {

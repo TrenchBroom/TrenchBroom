@@ -39,24 +39,13 @@ namespace TrenchBroom {
         m_offset(nullptr),
         m_button(nullptr) {
             createGui();
-            bindObservers();
+            connectObservers();
             updateGui();
         }
 
-        MoveObjectsToolPage::~MoveObjectsToolPage() {
-            unbindObservers();
-        }
-
-        void MoveObjectsToolPage::bindObservers() {
+        void MoveObjectsToolPage::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &MoveObjectsToolPage::selectionDidChange);
-        }
-
-        void MoveObjectsToolPage::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &MoveObjectsToolPage::selectionDidChange);
-            }
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &MoveObjectsToolPage::selectionDidChange);
         }
 
         void MoveObjectsToolPage::createGui() {

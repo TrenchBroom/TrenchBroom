@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 
 #include <QWidget>
@@ -38,12 +40,12 @@ namespace TrenchBroom {
 
             QLineEdit* m_offset;
             QAbstractButton* m_button;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit MoveObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~MoveObjectsToolPage() override;
         private:
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void createGui();
             void updateGui();

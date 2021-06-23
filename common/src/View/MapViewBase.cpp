@@ -98,7 +98,7 @@ namespace TrenchBroom {
         m_portalFileRenderer(nullptr),
         m_isCurrent(false) {
             setToolBox(toolBox);
-            bindObservers();
+            connectObservers();
 
             setAcceptDrops(true);
         }
@@ -112,8 +112,6 @@ namespace TrenchBroom {
         }
 
         MapViewBase::~MapViewBase() {
-            unbindObservers();
-
             // Deleting m_compass will access the VBO so we need to be current
             // see: http://doc.qt.io/qt-5/qopenglwidget.html#resource-initialization-and-cleanup
             makeCurrent();
@@ -123,70 +121,36 @@ namespace TrenchBroom {
             m_isCurrent = isCurrent;
         }
 
-        void MapViewBase::bindObservers() {
+        void MapViewBase::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->nodesWereAddedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
-            document->nodesWereRemovedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
-            document->nodesDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
-            document->nodeVisibilityDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
-            document->nodeLockingDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
-            document->commandDoneNotifier.addObserver(this, &MapViewBase::commandDone);
-            document->commandUndoneNotifier.addObserver(this, &MapViewBase::commandUndone);
-            document->selectionDidChangeNotifier.addObserver(this, &MapViewBase::selectionDidChange);
-            document->textureCollectionsDidChangeNotifier.addObserver(this, &MapViewBase::textureCollectionsDidChange);
-            document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapViewBase::entityDefinitionsDidChange);
-            document->modsDidChangeNotifier.addObserver(this, &MapViewBase::modsDidChange);
-            document->editorContextDidChangeNotifier.addObserver(this, &MapViewBase::editorContextDidChange);
-            document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
-            document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
-            document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
-            document->pointFileWasLoadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
-            document->pointFileWasUnloadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
-            document->portalFileWasLoadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
-            document->portalFileWasUnloadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
+            m_notifierConnection += document->nodesWereAddedNotifier.connect(this, &MapViewBase::nodesDidChange);
+            m_notifierConnection += document->nodesWereRemovedNotifier.connect(this, &MapViewBase::nodesDidChange);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &MapViewBase::nodesDidChange);
+            m_notifierConnection += document->nodeVisibilityDidChangeNotifier.connect(this, &MapViewBase::nodesDidChange);
+            m_notifierConnection += document->nodeLockingDidChangeNotifier.connect(this, &MapViewBase::nodesDidChange);
+            m_notifierConnection += document->commandDoneNotifier.connect(this, &MapViewBase::commandDone);
+            m_notifierConnection += document->commandUndoneNotifier.connect(this, &MapViewBase::commandUndone);
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &MapViewBase::selectionDidChange);
+            m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(this, &MapViewBase::textureCollectionsDidChange);
+            m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(this, &MapViewBase::entityDefinitionsDidChange);
+            m_notifierConnection += document->modsDidChangeNotifier.connect(this, &MapViewBase::modsDidChange);
+            m_notifierConnection += document->editorContextDidChangeNotifier.connect(this, &MapViewBase::editorContextDidChange);
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &MapViewBase::documentDidChange);
+            m_notifierConnection += document->documentWasClearedNotifier.connect(this, &MapViewBase::documentDidChange);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &MapViewBase::documentDidChange);
+            m_notifierConnection += document->pointFileWasLoadedNotifier.connect(this, &MapViewBase::pointFileDidChange);
+            m_notifierConnection += document->pointFileWasUnloadedNotifier.connect(this, &MapViewBase::pointFileDidChange);
+            m_notifierConnection += document->portalFileWasLoadedNotifier.connect(this, &MapViewBase::portalFileDidChange);
+            m_notifierConnection += document->portalFileWasUnloadedNotifier.connect(this, &MapViewBase::portalFileDidChange);
 
             Grid& grid = document->grid();
-            grid.gridDidChangeNotifier.addObserver(this, &MapViewBase::gridDidChange);
+            m_notifierConnection += grid.gridDidChangeNotifier.connect(this, &MapViewBase::gridDidChange);
 
-            m_toolBox.toolActivatedNotifier.addObserver(this, &MapViewBase::toolChanged);
-            m_toolBox.toolDeactivatedNotifier.addObserver(this, &MapViewBase::toolChanged);
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &MapViewBase::preferenceDidChange);
-        }
-
-        void MapViewBase::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->nodesWereAddedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
-                document->nodesWereRemovedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
-                document->nodesDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
-                document->nodeVisibilityDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
-                document->nodeLockingDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
-                document->commandDoneNotifier.removeObserver(this, &MapViewBase::commandDone);
-                document->commandUndoneNotifier.removeObserver(this, &MapViewBase::commandUndone);
-                document->selectionDidChangeNotifier.removeObserver(this, &MapViewBase::selectionDidChange);
-                document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapViewBase::textureCollectionsDidChange);
-                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapViewBase::entityDefinitionsDidChange);
-                document->modsDidChangeNotifier.removeObserver(this, &MapViewBase::modsDidChange);
-                document->editorContextDidChangeNotifier.removeObserver(this, &MapViewBase::editorContextDidChange);
-                document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
-                document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
-                document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
-                document->pointFileWasLoadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
-                document->pointFileWasUnloadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
-                document->portalFileWasLoadedNotifier.removeObserver(this, &MapViewBase::portalFileDidChange);
-                document->portalFileWasUnloadedNotifier.removeObserver(this, &MapViewBase::portalFileDidChange);
-
-                Grid& grid = document->grid();
-                grid.gridDidChangeNotifier.removeObserver(this, &MapViewBase::gridDidChange);
-            }
-
-            m_toolBox.toolActivatedNotifier.removeObserver(this, &MapViewBase::toolChanged);
-            m_toolBox.toolDeactivatedNotifier.removeObserver(this, &MapViewBase::toolChanged);
+            m_notifierConnection += m_toolBox.toolActivatedNotifier.connect(this, &MapViewBase::toolChanged);
+            m_notifierConnection += m_toolBox.toolDeactivatedNotifier.connect(this, &MapViewBase::toolChanged);
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &MapViewBase::preferenceDidChange);
         }
 
         /**

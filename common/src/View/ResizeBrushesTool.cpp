@@ -93,11 +93,7 @@ namespace TrenchBroom {
         m_document(std::move(document)),
         m_dragging(false),
         m_splitBrushes(false) {
-            bindObservers();
-        }
-
-        ResizeBrushesTool::~ResizeBrushesTool() {
-            unbindObservers();
+            connectObservers();
         }
 
         bool ResizeBrushesTool::applies() const {
@@ -641,22 +637,12 @@ namespace TrenchBroom {
             }
         }
 
-        void ResizeBrushesTool::bindObservers() {
+        void ResizeBrushesTool::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->nodesWereAddedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
-            document->nodesWillChangeNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
-            document->nodesWillBeRemovedNotifier.addObserver(this, &ResizeBrushesTool::nodesDidChange);
-            document->selectionDidChangeNotifier.addObserver(this, &ResizeBrushesTool::selectionDidChange);
-        }
-
-        void ResizeBrushesTool::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->nodesWereAddedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
-                document->nodesWillChangeNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
-                document->nodesWillBeRemovedNotifier.removeObserver(this, &ResizeBrushesTool::nodesDidChange);
-                document->selectionDidChangeNotifier.removeObserver(this, &ResizeBrushesTool::selectionDidChange);
-            }
+            m_notifierConnection += document->nodesWereAddedNotifier.connect(this, &ResizeBrushesTool::nodesDidChange);
+            m_notifierConnection += document->nodesWillChangeNotifier.connect(this, &ResizeBrushesTool::nodesDidChange);
+            m_notifierConnection += document->nodesWillBeRemovedNotifier.connect(this, &ResizeBrushesTool::nodesDidChange);
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &ResizeBrushesTool::selectionDidChange);
         }
 
         void ResizeBrushesTool::nodesDidChange(const std::vector<Model::Node*>&) {

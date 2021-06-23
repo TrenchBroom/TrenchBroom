@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "FloatType.h"
+#include "NotifierConnection.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/BrushError.h"
@@ -85,6 +86,7 @@ namespace TrenchBroom {
         private:
             size_t m_changeCount;
             size_t m_ignoreChangeNotifications;
+            NotifierConnection m_notifierConnection;
         protected:
             H m_dragHandlePosition;
             bool m_dragging;
@@ -376,7 +378,7 @@ namespace TrenchBroom {
         protected: // Tool interface
             bool doActivate() override {
                 m_changeCount = 0;
-                bindObservers();
+                connectObservers();
 
                 const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
                 handleManager().clear();
@@ -386,37 +388,22 @@ namespace TrenchBroom {
             }
 
             bool doDeactivate() override {
-                unbindObservers();
+                m_notifierConnection.disconnect();
                 handleManager().clear();
                 return true;
             }
         private: // Observers and state management
-            void bindObservers() {
+            void connectObservers() {
                 auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.addObserver(this,  &VertexToolBase::selectionDidChange);
-                document->nodesWillChangeNotifier.addObserver(this,  &VertexToolBase::nodesWillChange);
-                document->nodesDidChangeNotifier.addObserver(this,  &VertexToolBase::nodesDidChange);
-                document->commandDoNotifier.addObserver(this,  &VertexToolBase::commandDo);
-                document->commandDoneNotifier.addObserver(this,  &VertexToolBase::commandDone);
-                document->commandDoFailedNotifier.addObserver(this,  &VertexToolBase::commandDoFailed);
-                document->commandUndoNotifier.addObserver(this,  &VertexToolBase::commandUndo);
-                document->commandUndoneNotifier.addObserver(this,  &VertexToolBase::commandUndone);
-                document->commandUndoFailedNotifier.addObserver(this,  &VertexToolBase::commandUndoFailed);
-            }
-
-            void unbindObservers() {
-                if (!kdl::mem_expired(m_document)) {
-                    auto document = kdl::mem_lock(m_document);
-                    document->selectionDidChangeNotifier.removeObserver(this,  &VertexToolBase::selectionDidChange);
-                    document->nodesWillChangeNotifier.removeObserver(this,  &VertexToolBase::nodesWillChange);
-                    document->nodesDidChangeNotifier.removeObserver(this,  &VertexToolBase::nodesDidChange);
-                    document->commandDoNotifier.removeObserver(this,  &VertexToolBase::commandDo);
-                    document->commandDoneNotifier.removeObserver(this,  &VertexToolBase::commandDone);
-                    document->commandDoFailedNotifier.removeObserver(this,  &VertexToolBase::commandDoFailed);
-                    document->commandUndoNotifier.removeObserver(this,  &VertexToolBase::commandUndo);
-                    document->commandUndoneNotifier.removeObserver(this,  &VertexToolBase::commandUndone);
-                    document->commandUndoFailedNotifier.removeObserver(this,  &VertexToolBase::commandUndoFailed);
-                }
+                m_notifierConnection += document->selectionDidChangeNotifier.connect(this,  &VertexToolBase::selectionDidChange);
+                m_notifierConnection += document->nodesWillChangeNotifier.connect(this,  &VertexToolBase::nodesWillChange);
+                m_notifierConnection += document->nodesDidChangeNotifier.connect(this,  &VertexToolBase::nodesDidChange);
+                m_notifierConnection += document->commandDoNotifier.connect(this,  &VertexToolBase::commandDo);
+                m_notifierConnection += document->commandDoneNotifier.connect(this,  &VertexToolBase::commandDone);
+                m_notifierConnection += document->commandDoFailedNotifier.connect(this,  &VertexToolBase::commandDoFailed);
+                m_notifierConnection += document->commandUndoNotifier.connect(this,  &VertexToolBase::commandUndo);
+                m_notifierConnection += document->commandUndoneNotifier.connect(this,  &VertexToolBase::commandUndone);
+                m_notifierConnection += document->commandUndoFailedNotifier.connect(this,  &VertexToolBase::commandUndoFailed);
             }
 
             void commandDo(Command* command) {

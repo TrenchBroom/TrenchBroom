@@ -323,12 +323,10 @@ namespace TrenchBroom {
         m_selectionBoundsValid(true),
         m_viewEffectsService(nullptr),
         m_repeatStack(std::make_unique<RepeatStack>()) {
-            bindObservers();
+            connectObservers();
         }
 
         MapDocument::~MapDocument() {
-            unbindObservers();
-
             if (isPointFileLoaded()) {
                 unloadPointFile();
             }
@@ -3021,19 +3019,19 @@ namespace TrenchBroom {
 
         void MapDocument::reloadTextureCollections() {
             const auto nodes = std::vector<Model::Node*>{m_world.get()};
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
+            NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
 
             info("Reloading texture collections");
             reloadTextures();
             setTextures();
-            initializeNodeTags(this);
+            initializeAllNodeTags(this);
         }
 
         void MapDocument::reloadEntityDefinitions() {
             const auto nodes = std::vector<Model::Node*>{m_world.get()};
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyBeforeAndAfter notifyEntityDefinitions(entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
+            NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            NotifyBeforeAndAfter notifyEntityDefinitions(entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
 
             info("Reloading entity definitions");
         }
@@ -3424,7 +3422,7 @@ namespace TrenchBroom {
             );
         }
 
-        void MapDocument::initializeNodeTags(MapDocument* document) {
+        void MapDocument::initializeAllNodeTags(MapDocument* document) {
             assert(document == this);
             unused(document);
             m_world->accept(makeInitializeNodeTagsVisitor(*m_tagManager));
@@ -3499,62 +3497,33 @@ namespace TrenchBroom {
             documentModificationStateDidChangeNotifier();
         }
 
-        void MapDocument::bindObservers() {
-            textureCollectionsWillChangeNotifier.addObserver(this, &MapDocument::textureCollectionsWillChange);
-            textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::textureCollectionsDidChange);
+        void MapDocument::connectObservers() {
+            m_notifierConnection += textureCollectionsWillChangeNotifier.connect(this, &MapDocument::textureCollectionsWillChange);
+            m_notifierConnection += textureCollectionsDidChangeNotifier.connect(this, &MapDocument::textureCollectionsDidChange);
 
-            entityDefinitionsWillChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsWillChange);
-            entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
+            m_notifierConnection += entityDefinitionsWillChangeNotifier.connect(this, &MapDocument::entityDefinitionsWillChange);
+            m_notifierConnection += entityDefinitionsDidChangeNotifier.connect(this, &MapDocument::entityDefinitionsDidChange);
 
-            modsWillChangeNotifier.addObserver(this, &MapDocument::modsWillChange);
-            modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
-            m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
-            commandDoneNotifier.addObserver(this, &MapDocument::commandDone);
-            commandUndoneNotifier.addObserver(this, &MapDocument::commandUndone);
-            transactionDoneNotifier.addObserver(this, &MapDocument::transactionDone);
-            transactionUndoneNotifier.addObserver(this, &MapDocument::transactionUndone);
-
-            // tag management
-            documentWasNewedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
-            documentWasLoadedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
-            nodesWereAddedNotifier.addObserver(this, &MapDocument::initializeNodeTags);
-            nodesWillBeRemovedNotifier.addObserver(this, &MapDocument::clearNodeTags);
-            nodesDidChangeNotifier.addObserver(this, &MapDocument::updateNodeTags);
-            brushFacesDidChangeNotifier.addObserver(this, &MapDocument::updateFaceTags);
-            modsDidChangeNotifier.addObserver(this, &MapDocument::updateAllFaceTags);
-            textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::updateAllFaceTags);
-        }
-
-        void MapDocument::unbindObservers() {
-            textureCollectionsWillChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsWillChange);
-            textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsDidChange);
-
-            entityDefinitionsWillChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsWillChange);
-            entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
-
-            modsWillChangeNotifier.removeObserver(this, &MapDocument::modsWillChange);
-            modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
+            m_notifierConnection += modsWillChangeNotifier.connect(this, &MapDocument::modsWillChange);
+            m_notifierConnection += modsDidChangeNotifier.connect(this, &MapDocument::modsDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
-            m_editorContext->editorContextDidChangeNotifier.removeObserver(editorContextDidChangeNotifier);
-            commandDoneNotifier.removeObserver(this, &MapDocument::commandDone);
-            commandUndoneNotifier.removeObserver(this, &MapDocument::commandUndone);
-            transactionDoneNotifier.removeObserver(this, &MapDocument::transactionDone);
-            transactionUndoneNotifier.removeObserver(this, &MapDocument::transactionUndone);
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &MapDocument::preferenceDidChange);
+            m_notifierConnection += m_editorContext->editorContextDidChangeNotifier.connect(editorContextDidChangeNotifier);
+            m_notifierConnection += commandDoneNotifier.connect(this, &MapDocument::commandDone);
+            m_notifierConnection += commandUndoneNotifier.connect(this, &MapDocument::commandUndone);
+            m_notifierConnection += transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
+            m_notifierConnection += transactionUndoneNotifier.connect(this, &MapDocument::transactionUndone);
 
             // tag management
-            documentWasNewedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
-            documentWasLoadedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
-            nodesWereAddedNotifier.removeObserver(this, &MapDocument::initializeNodeTags);
-            nodesWillBeRemovedNotifier.removeObserver(this, &MapDocument::clearNodeTags);
-            nodesDidChangeNotifier.removeObserver(this, &MapDocument::updateNodeTags);
-            brushFacesDidChangeNotifier.removeObserver(this, &MapDocument::updateFaceTags);
-            modsDidChangeNotifier.removeObserver(this, &MapDocument::updateAllFaceTags);
-            textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::updateAllFaceTags);
+            m_notifierConnection += documentWasNewedNotifier.connect(this, &MapDocument::initializeAllNodeTags);
+            m_notifierConnection += documentWasLoadedNotifier.connect(this, &MapDocument::initializeAllNodeTags);
+            m_notifierConnection += nodesWereAddedNotifier.connect(this, &MapDocument::initializeNodeTags);
+            m_notifierConnection += nodesWillBeRemovedNotifier.connect(this, &MapDocument::clearNodeTags);
+            m_notifierConnection += nodesDidChangeNotifier.connect(this, &MapDocument::updateNodeTags);
+            m_notifierConnection += brushFacesDidChangeNotifier.connect(this, &MapDocument::updateFaceTags);
+            m_notifierConnection += modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
+            m_notifierConnection += textureCollectionsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
         }
 
         void MapDocument::textureCollectionsWillChange() {

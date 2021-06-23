@@ -20,8 +20,10 @@
 #pragma once
 
 #include "Notifier.h"
+#include "NotifierConnection.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -61,6 +63,8 @@ namespace TrenchBroom {
             ToolMap m_suppressedTools;
 
             bool m_enabled;
+
+            NotifierConnection m_notifierConnection;
         public:
             Notifier<Tool*> toolActivatedNotifier;
             Notifier<Tool*> toolDeactivatedNotifier;

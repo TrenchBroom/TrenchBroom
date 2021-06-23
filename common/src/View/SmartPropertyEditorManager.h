@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -51,9 +53,10 @@ namespace TrenchBroom {
             EditorList m_editors;
             std::string m_propertyKey;
             QStackedLayout* m_stackedLayout;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit SmartPropertyEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~SmartPropertyEditorManager();
 
             void switchEditor(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes);
             bool isDefaultEditorActive() const;
@@ -61,8 +64,7 @@ namespace TrenchBroom {
             SmartPropertyEditor* activeEditor() const;
             void createEditors();
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void selectionDidChange(const Selection& selection);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);

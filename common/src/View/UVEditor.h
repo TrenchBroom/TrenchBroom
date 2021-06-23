@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 
 #include <QWidget>
@@ -49,9 +51,10 @@ namespace TrenchBroom {
             QAbstractButton* m_flipTextureVButton;
             QAbstractButton* m_rotateTextureCCWButton;
             QAbstractButton* m_rotateTextureCWButton;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit UVEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
-            ~UVEditor() override;
 
             bool cancelMouseDrag();
         private:
@@ -61,8 +64,7 @@ namespace TrenchBroom {
 
             void selectionDidChange(const Selection& selection);
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void resetTextureClicked();
             void resetTextureToWorldClicked();

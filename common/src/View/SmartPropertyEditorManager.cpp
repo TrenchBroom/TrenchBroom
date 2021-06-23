@@ -44,11 +44,7 @@ namespace TrenchBroom {
             m_stackedLayout(nullptr) {
             createEditors();
             activateEditor(defaultEditor(), "");
-            bindObservers();
-        }
-
-        SmartPropertyEditorManager::~SmartPropertyEditorManager() {
-            unbindObservers();
+            connectObservers();
         }
 
         void SmartPropertyEditorManager::switchEditor(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) {
@@ -85,18 +81,10 @@ namespace TrenchBroom {
             setLayout(m_stackedLayout);
         }
 
-        void SmartPropertyEditorManager::bindObservers() {
+        void SmartPropertyEditorManager::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::selectionDidChange);
-            document->nodesDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::nodesDidChange);
-        }
-
-        void SmartPropertyEditorManager::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::selectionDidChange);
-                document->nodesDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::nodesDidChange);
-            }
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &SmartPropertyEditorManager::selectionDidChange);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &SmartPropertyEditorManager::nodesDidChange);
         }
 
         void SmartPropertyEditorManager::selectionDidChange(const Selection&) {

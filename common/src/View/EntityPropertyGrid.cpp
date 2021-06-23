@@ -55,11 +55,7 @@ namespace TrenchBroom {
         QWidget(parent),
         m_document(document) {
             createGui(document);
-            bindObservers();
-        }
-
-        EntityPropertyGrid::~EntityPropertyGrid() {
-            unbindObservers();
+            connectObservers();
         }
 
         void EntityPropertyGrid::backupSelection() {
@@ -301,24 +297,13 @@ namespace TrenchBroom {
             m_table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::AnyKeyPressed);
         }
 
-        void EntityPropertyGrid::bindObservers() {
+        void EntityPropertyGrid::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &EntityPropertyGrid::documentWasNewed);
-            document->documentWasLoadedNotifier.addObserver(this, &EntityPropertyGrid::documentWasLoaded);
-            document->nodesDidChangeNotifier.addObserver(this, &EntityPropertyGrid::nodesDidChange);
-            document->selectionWillChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionWillChange);
-            document->selectionDidChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionDidChange);
-        }
-
-        void EntityPropertyGrid::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasLoaded);
-                document->nodesDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::nodesDidChange);
-                document->selectionWillChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionWillChange);
-                document->selectionDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionDidChange);
-            }
+            m_notifierConnection += document->documentWasNewedNotifier.connect(this, &EntityPropertyGrid::documentWasNewed);
+            m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &EntityPropertyGrid::documentWasLoaded);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &EntityPropertyGrid::nodesDidChange);
+            m_notifierConnection += document->selectionWillChangeNotifier.connect(this, &EntityPropertyGrid::selectionWillChange);
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &EntityPropertyGrid::selectionDidChange);
         }
 
         void EntityPropertyGrid::documentWasNewed(MapDocument*) {

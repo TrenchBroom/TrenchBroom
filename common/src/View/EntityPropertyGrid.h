@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -64,9 +66,10 @@ namespace TrenchBroom {
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;
             std::vector<PropertyGridSelection> m_selectionBackup;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit EntityPropertyGrid(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~EntityPropertyGrid() override;
         private:
             void backupSelection();
             void restoreSelection();
@@ -79,8 +82,7 @@ namespace TrenchBroom {
         private:
             void createGui(std::weak_ptr<MapDocument> document);
 
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);

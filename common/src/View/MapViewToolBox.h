@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "NotifierConnection.h"
 #include "View/ToolBox.h"
 
 #include <memory>
@@ -58,9 +59,11 @@ namespace TrenchBroom {
             std::unique_ptr<VertexTool> m_vertexTool;
             std::unique_ptr<EdgeTool> m_edgeTool;
             std::unique_ptr<FaceTool> m_faceTool;
+
+            NotifierConnection m_notifierConnection;
         public:
             MapViewToolBox(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl);
-            ~MapViewToolBox();
+            ~MapViewToolBox() override;
         public: // tools
             ClipTool* clipTool() const;
             CreateComplexBrushTool* createComplexBrushTool() const;
@@ -113,8 +116,7 @@ namespace TrenchBroom {
             void createTools(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl);
         private: // notification
             void registerTool(Tool* tool, QStackedLayout* bookCtrl);
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
             void toolActivated(Tool* tool);
             void toolDeactivated(Tool* tool);
             void updateEditorContext();

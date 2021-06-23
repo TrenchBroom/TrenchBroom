@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "NotifierConnection.h"
 
 #include <vecmath/forward.h>
 
@@ -50,13 +51,13 @@ namespace TrenchBroom {
 
             QComboBox* m_scaleFactorsOrSize;
             QAbstractButton* m_button;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit ScaleObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~ScaleObjectsToolPage() override;
             void activate();
         private:
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void createGui();
             void updateGui();

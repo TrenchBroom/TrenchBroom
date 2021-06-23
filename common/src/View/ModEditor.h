@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -52,16 +54,16 @@ namespace TrenchBroom {
             QAbstractButton* m_moveModDownButton;
 
             std::vector<std::string> m_availableMods;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~ModEditor() override;
         private:
             void createGui();
         private slots:
             void updateButtons();
         private:
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);

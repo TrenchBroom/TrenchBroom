@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
+
 #include <memory>
 
 #include <QWidget>
@@ -48,9 +50,10 @@ namespace TrenchBroom {
             QAbstractButton* m_moveTextureCollectionUpButton;
             QAbstractButton* m_moveTextureCollectionDownButton;
             QAbstractButton* m_reloadTextureCollectionsButton;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit FileTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~FileTextureCollectionEditor() override;
 
             bool debugUIConsistency() const;
             bool canRemoveTextureCollections() const;
@@ -68,8 +71,7 @@ namespace TrenchBroom {
         private slots:
             void updateButtons();
         private:
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);

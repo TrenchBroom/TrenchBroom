@@ -48,13 +48,9 @@ namespace TrenchBroom {
         m_removeCollectionsButton(nullptr),
         m_reloadCollectionsButton(nullptr) {
             createGui();
-            bindObservers();
+            connectObservers();
             updateAllTextureCollections();
             updateButtons();
-        }
-
-        DirectoryTextureCollectionEditor::~DirectoryTextureCollectionEditor() {
-            unbindObservers();
         }
 
         void DirectoryTextureCollectionEditor::addSelectedTextureCollections() {
@@ -189,24 +185,13 @@ namespace TrenchBroom {
             m_reloadCollectionsButton->setEnabled(canReloadTextureCollections());
         }
 
-        void DirectoryTextureCollectionEditor::bindObservers() {
+        void DirectoryTextureCollectionEditor::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->textureCollectionsDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
-            document->modsDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::modsDidChange);
+            m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
+            m_notifierConnection += document->modsDidChangeNotifier.connect(this, &DirectoryTextureCollectionEditor::modsDidChange);
 
             auto& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::preferenceDidChange);
-        }
-
-        void DirectoryTextureCollectionEditor::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->textureCollectionsDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
-                document->modsDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::modsDidChange);
-            }
-
-            auto& prefs = PreferenceManager::instance();
-            assertResult(prefs.preferenceDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::preferenceDidChange));
+            m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &DirectoryTextureCollectionEditor::preferenceDidChange);
         }
 
         void DirectoryTextureCollectionEditor::textureCollectionsDidChange() {

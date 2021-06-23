@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Macros.h"
+#include "NotifierConnection.h"
 
 #include <map>
 #include <memory>
@@ -68,6 +69,8 @@ namespace TrenchBroom {
             std::unique_ptr<ObjectRenderer> m_lockedRenderer;
             std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
             std::unique_ptr<GroupLinkRenderer> m_groupLinkRenderer;
+
+            NotifierConnection m_notifierConnection;
         public:
             explicit MapRenderer(std::weak_ptr<View::MapDocument> document);
             ~MapRenderer();
@@ -122,8 +125,7 @@ namespace TrenchBroom {
             void invalidateGroupLinkRenderer();
             void reloadEntityModels();
         private: // notification
-            void bindObservers();
-            void unbindObservers();
+            void connectObservers();
 
             void documentWasCleared(View::MapDocument* document);
             void documentWasNewedOrLoaded(View::MapDocument* document);

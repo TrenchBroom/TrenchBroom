@@ -66,53 +66,40 @@ namespace TrenchBroom {
     };
 
     TEST_CASE("NotifierTest.testAddRemoveObservers", "[NotifierTest]") {
-        Observer o1;
-        Observer o2;
+        auto o1 = Observer{};
+        auto o2 = Observer{};
 
-        Observed obs;
-        CHECK(obs.noArgNotifier.addObserver(&o1, &Observer::notify0));
-        CHECK(obs.noArgNotifier.addObserver(&o2, &Observer::notify0));
-        CHECK_FALSE(obs.noArgNotifier.addObserver(&o1, &Observer::notify0));
-        CHECK_FALSE(obs.noArgNotifier.addObserver(&o2, &Observer::notify0));
+        auto obs = Observed{};
 
-        CHECK(obs.oneArgNotifier.addObserver(&o1, &Observer::notify1));
-        CHECK(obs.oneArgNotifier.addObserver(&o2, &Observer::notify1));
-        CHECK_FALSE(obs.oneArgNotifier.addObserver(&o1, &Observer::notify1));
-        CHECK_FALSE(obs.oneArgNotifier.addObserver(&o2, &Observer::notify1));
+        {
+            auto con = NotifierConnection{};
+            con += obs.noArgNotifier.connect(&o1, &Observer::notify0);
+            con += obs.noArgNotifier.connect(&o1, &Observer::notify0);
+            con += obs.noArgNotifier.connect(&o2, &Observer::notify0);
 
-        CHECK(obs.twoArgNotifier.addObserver(&o1, &Observer::notify2));
-        CHECK(obs.twoArgNotifier.addObserver(&o2, &Observer::notify2));
-        CHECK_FALSE(obs.twoArgNotifier.addObserver(&o1, &Observer::notify2));
-        CHECK_FALSE(obs.twoArgNotifier.addObserver(&o2, &Observer::notify2));
+            obs.notify0();
+            CHECK(o1.notify0Calls == 2);
+            CHECK(o2.notify0Calls == 1);
+        }
 
-
-        CHECK(obs.noArgNotifier.removeObserver(&o1, &Observer::notify0));
-        CHECK(obs.noArgNotifier.removeObserver(&o2, &Observer::notify0));
-        CHECK_FALSE(obs.noArgNotifier.removeObserver(&o1, &Observer::notify0));
-        CHECK_FALSE(obs.noArgNotifier.removeObserver(&o2, &Observer::notify0));
-
-        CHECK(obs.oneArgNotifier.removeObserver(&o1, &Observer::notify1));
-        CHECK(obs.oneArgNotifier.removeObserver(&o2, &Observer::notify1));
-        CHECK_FALSE(obs.oneArgNotifier.removeObserver(&o1, &Observer::notify1));
-        CHECK_FALSE(obs.oneArgNotifier.removeObserver(&o2, &Observer::notify1));
-
-        CHECK(obs.twoArgNotifier.removeObserver(&o1, &Observer::notify2));
-        CHECK(obs.twoArgNotifier.removeObserver(&o2, &Observer::notify2));
-        CHECK_FALSE(obs.twoArgNotifier.removeObserver(&o1, &Observer::notify2));
-        CHECK_FALSE(obs.twoArgNotifier.removeObserver(&o2, &Observer::notify2));
+        obs.notify0();
+        CHECK(o1.notify0Calls == 2);
+        CHECK(o2.notify0Calls == 1);
     }
 
     TEST_CASE("NotifierTest.testNotifyObservers", "[NotifierTest]") {
-        Observer o1;
-        Observer o2;
+        auto o1 = Observer{};
+        auto o2 = Observer{};
 
-        Observed obs;
-        obs.noArgNotifier.addObserver(&o1, &Observer::notify0);
-        obs.noArgNotifier.addObserver(&o2, &Observer::notify0);
-        obs.oneArgNotifier.addObserver(&o1, &Observer::notify1);
-        obs.oneArgNotifier.addObserver(&o2, &Observer::notify1);
-        obs.twoArgNotifier.addObserver(&o1, &Observer::notify2);
-        obs.twoArgNotifier.addObserver(&o2, &Observer::notify2);
+        auto obs = Observed{};
+        auto con = NotifierConnection{};
+
+        con += obs.noArgNotifier.connect(&o1, &Observer::notify0);
+        con += obs.noArgNotifier.connect(&o2, &Observer::notify0);
+        con += obs.oneArgNotifier.connect(&o1, &Observer::notify1);
+        con += obs.oneArgNotifier.connect(&o2, &Observer::notify1);
+        con += obs.twoArgNotifier.connect(&o1, &Observer::notify2);
+        con += obs.twoArgNotifier.connect(&o2, &Observer::notify2);
 
         CHECK(0 == o1.notify0Calls);
         CHECK(o1.notify1Calls.empty());
@@ -134,5 +121,270 @@ namespace TrenchBroom {
         CHECK(1 == o2.notify0Calls);
         CHECK(std::vector<int>{1, 2} == o2.notify1Calls);
         CHECK(std::vector<std::tuple<int,int>>{{1, 2}} == o2.notify2Calls);
+    }
+
+    struct Param {
+        size_t& copyCount;
+        size_t& moveCount;
+
+        Param(size_t& i_copyCount, size_t& i_moveCount) :
+        copyCount{i_copyCount},
+        moveCount{i_moveCount} {}
+
+        Param(const Param& other) :
+        copyCount{other.copyCount},
+        moveCount{other.moveCount} {
+            ++copyCount;
+        }
+
+        Param(Param&& other) noexcept :
+        copyCount{other.copyCount},
+        moveCount{other.moveCount} {
+            ++moveCount;
+        }
+
+    };
+
+    TEST_CASE("NotifierTest.notifyObservers - test type qualifiers and value categories") {
+        /*
+                                     observer takes argument
+         notifier takes argument   | by value | by lvalue reference | by const lvalue reference | by rvalue reference
+         ==========================|==========|=====================|===========================|====================
+         by value                  |    X     |                     |              X            |         X
+         by lvalue reference       |    X     |          X          |              X            |
+         by const lvalue reference |    X     |                     |              X            |
+         by rvalue reference       |    X     |                     |              X            |         X
+
+         Cells marked with an 'X' should be supported since the type system allows the observer's argument to bind to
+         the notifier's argument.
+         */
+
+        size_t copyCount = 0;
+        size_t moveCount = 0;
+
+        SECTION("Call by value notifier") {
+            auto byValueNotifier = Notifier<Param>{};
+
+            SECTION("with by value observer") {
+                const auto c = byValueNotifier.connect([](Param) {});
+
+                copyCount = moveCount = 0;
+                auto p = Param{copyCount, moveCount};
+                byValueNotifier.notify(p);
+                CHECK(copyCount == 1);
+                CHECK(moveCount == 1);
+
+                copyCount = moveCount = 0;
+                byValueNotifier.notify(Param{copyCount, moveCount});
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 2);
+            }
+
+            SECTION("with by lvalue ref observer") {
+                // const auto c = byValueNotifier.connect([](Param&) {}); // does not compile
+            }
+
+            SECTION("with by const lvalue ref observer") {
+                const auto c = byValueNotifier.connect([](const Param&) {});
+
+                copyCount = moveCount = 0;
+                auto p = Param{copyCount, moveCount};
+                byValueNotifier.notify(p);
+                CHECK(copyCount == 1);
+                CHECK(moveCount == 0);
+
+                copyCount = moveCount = 0;
+                byValueNotifier.notify(Param{copyCount, moveCount});
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 1);
+            }
+
+            SECTION("with by rvalue ref observer") {
+                const auto c = byValueNotifier.connect([](Param&&) {});
+
+                copyCount = moveCount = 0;
+                auto p = Param{copyCount, moveCount};
+                byValueNotifier.notify(p);
+                CHECK(copyCount == 1);
+                CHECK(moveCount == 0);
+
+                copyCount = moveCount = 0;
+                byValueNotifier.notify(Param{copyCount, moveCount});
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 1);
+            }
+        }
+
+        SECTION("Call by lvalue ref notifier") {
+            auto byLvalueRefNotifier = Notifier<Param&>{};
+
+            SECTION("with by value observer") {
+                const auto c = byLvalueRefNotifier.connect([](Param) {});
+
+                copyCount = moveCount = 0;
+                auto p = Param{copyCount, moveCount};
+                byLvalueRefNotifier.notify(p);
+                CHECK(copyCount == 1);
+                CHECK(moveCount == 0);
+            }
+
+            SECTION("with by lvalue ref observer") {
+                const auto c = byLvalueRefNotifier.connect([](Param&) {});
+
+                copyCount = moveCount = 0;
+                auto p = Param{copyCount, moveCount};
+                byLvalueRefNotifier.notify(p);
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 0);
+            }
+
+            SECTION("with by const lvalue ref observer") {
+                const auto c = byLvalueRefNotifier.connect([](const Param&) {});
+
+                copyCount = moveCount = 0;
+                auto p = Param{copyCount, moveCount};
+                byLvalueRefNotifier.notify(p);
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 0);
+            }
+
+            SECTION("with by rvalue ref observer") {
+                // const auto c = byLvalueRefNotifier.connect([](Param&&) {}); // does not compile
+            }
+        }
+
+        SECTION("Call by const lvalue  notifier") {
+            auto byConstLvalueRefNotifier = Notifier<const Param&>{};
+
+            SECTION("with by value observer") {
+                const auto c = byConstLvalueRefNotifier.connect([](Param) {});
+
+                copyCount = moveCount = 0;
+                auto p = Param{copyCount, moveCount};
+                byConstLvalueRefNotifier.notify(p);
+                CHECK(copyCount == 1);
+                CHECK(moveCount == 0);
+
+                copyCount = moveCount = 0;
+                byConstLvalueRefNotifier.notify(Param{copyCount, moveCount});
+                CHECK(copyCount == 1);
+                CHECK(moveCount == 0);
+            }
+
+            SECTION("with by lvalue ref observer") {
+                // const auto c = byConstLvalueRefNotifier.connect([](Param&) {}); // does not compile
+            }
+
+            SECTION("with by const lvalue ref observer") {
+                const auto c = byConstLvalueRefNotifier.connect([](const Param&) {});
+
+                copyCount = moveCount = 0;
+                auto p = Param{copyCount, moveCount};
+                byConstLvalueRefNotifier.notify(p);
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 0);
+
+                copyCount = moveCount = 0;
+                byConstLvalueRefNotifier.notify(Param{copyCount, moveCount});
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 0);
+            }
+
+            SECTION("with by rvalue ref observer") {
+                // const auto c = byConstLvalueRefNotifier.connect([](Param&&) {}); // does not compile
+            }
+        }
+
+        SECTION("Call by rvalue ref notifier") {
+            auto byRvalueRef = Notifier<Param&&>{};
+
+            SECTION("with by value observer") {
+                const auto c = byRvalueRef.connect([](Param) {});
+
+                copyCount = moveCount = 0;
+                byRvalueRef.notify(Param{copyCount, moveCount});
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 1);
+            }
+
+            SECTION("with by lvalue ref observer") {
+                // const auto c = byValueNotifier.connect([](Param&) {}); // does not compile
+            }
+
+            SECTION("with by const lvalue ref observer") {
+                const auto c = byRvalueRef.connect([](const Param&) {});
+
+                copyCount = moveCount = 0;
+                byRvalueRef.notify(Param{copyCount, moveCount});
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 0);
+            }
+
+            SECTION("with by rvalue ref observer") {
+                const auto c = byRvalueRef.connect([](Param&&) {});
+
+                copyCount = moveCount = 0;
+                byRvalueRef.notify(Param{copyCount, moveCount});
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 0);
+            }
+        }
+    }
+
+    TEST_CASE("NotifyAfter") {
+        auto n = Notifier<const Param&>{};
+
+        size_t copyCount = 0;
+        size_t moveCount = 0;
+
+        SECTION("Call with lvalue") {
+            {
+                const auto p = Param{copyCount, moveCount};
+                auto after = NotifyAfter{true, n, p};
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 0);
+            }
+            CHECK(copyCount == 0);
+            CHECK(moveCount == 0);
+        }
+
+        SECTION("Call with rvalue") {
+            {
+                auto after = NotifyAfter{true, n, Param{copyCount, moveCount}};
+                CHECK(copyCount == 0);
+                CHECK(moveCount <= 3);
+            }
+            CHECK(copyCount == 0);
+            CHECK(moveCount <= 3);
+        }
+    }
+
+    TEST_CASE("NotifyBeforeAndAfter") {
+        auto b = Notifier<const Param&>{};
+        auto a = Notifier<const Param&>{};
+
+        size_t copyCount = 0;
+        size_t moveCount = 0;
+
+        SECTION("Call with lvalue") {
+            {
+                const auto p = Param{copyCount, moveCount};
+                auto after = NotifyBeforeAndAfter{true, b, a, p};
+                CHECK(copyCount == 0);
+                CHECK(moveCount == 0);
+            }
+            CHECK(copyCount == 0);
+            CHECK(moveCount == 0);
+        }
+
+        SECTION("Call with rvalue") {
+            {
+                auto after = NotifyBeforeAndAfter{true, b, a, Param{copyCount, moveCount}};
+                CHECK(copyCount == 0);
+                CHECK(moveCount <= 3);
+            }
+            CHECK(copyCount == 0);
+            CHECK(moveCount <= 3);
+        }
     }
 }

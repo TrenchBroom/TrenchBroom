@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
@@ -69,6 +70,8 @@ namespace TrenchBroom {
             std::string m_filterText;
 
             const Assets::Texture* m_selectedTexture;
+
+            NotifierConnection m_notifierConnection;
         public:
             TextureBrowserView(QScrollBar* scrollBar,
                                GLContextManager& contextManager,

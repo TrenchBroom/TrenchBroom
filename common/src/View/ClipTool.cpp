@@ -864,14 +864,14 @@ namespace TrenchBroom {
             if (!document->selectedNodes().hasOnlyBrushes()) {
                 return false;
             } else {
-                bindObservers();
+                connectObservers();
                 resetStrategy();
                 return true;
             }
         }
 
         bool ClipTool::doDeactivate() {
-            unbindObservers();
+            m_notifierConnection.disconnect();
 
             m_strategy.reset();
             clearRenderers();
@@ -884,22 +884,12 @@ namespace TrenchBroom {
             return removeLastPoint();
         }
 
-        void ClipTool::bindObservers() {
+        void ClipTool::connectObservers() {
             auto document = kdl::mem_lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &ClipTool::selectionDidChange);
-            document->nodesWillChangeNotifier.addObserver(this, &ClipTool::nodesWillChange);
-            document->nodesDidChangeNotifier.addObserver(this, &ClipTool::nodesDidChange);
-            document->brushFacesDidChangeNotifier.addObserver(this, &ClipTool::brushFacesDidChange);
-        }
-
-        void ClipTool::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &ClipTool::selectionDidChange);
-                document->nodesWillChangeNotifier.removeObserver(this, &ClipTool::nodesWillChange);
-                document->nodesDidChangeNotifier.removeObserver(this, &ClipTool::nodesDidChange);
-                document->brushFacesDidChangeNotifier.removeObserver(this, &ClipTool::brushFacesDidChange);
-            }
+            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &ClipTool::selectionDidChange);
+            m_notifierConnection += document->nodesWillChangeNotifier.connect(this, &ClipTool::nodesWillChange);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &ClipTool::nodesDidChange);
+            m_notifierConnection += document->brushFacesDidChangeNotifier.connect(this, &ClipTool::brushFacesDidChange);
         }
 
         void ClipTool::selectionDidChange(const Selection&) {
