@@ -946,7 +946,7 @@ namespace TrenchBroom {
                 defaultDir = IO::pathAsQString(m_document->path().deleteLastComponent());
             }
 
-            const QString fileName = QFileDialog::getOpenFileName(this, tr("Load Point File"), defaultDir, "Point files (*.pts);;Any files (*.*)");
+            const QString fileName = QFileDialog::getOpenFileName(this, tr("Load Point File"), defaultDir, "Point files (*.pts *.lin);;Any files (*.*)");
 
             if (!fileName.isEmpty()) {
                 m_document->loadPointFile(IO::pathFromQString(fileName));
