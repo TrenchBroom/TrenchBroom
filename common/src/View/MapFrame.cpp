@@ -659,9 +659,9 @@ namespace TrenchBroom {
             Grid& grid = m_document->grid();
             m_notifierConnection += grid.gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
 
-            m_notifierConnection += m_mapView->mapViewToolBox()->toolActivatedNotifier.connect(this, &MapFrame::toolActivated);
-            m_notifierConnection += m_mapView->mapViewToolBox()->toolDeactivatedNotifier.connect(this, &MapFrame::toolDeactivated);
-            m_notifierConnection += m_mapView->mapViewToolBox()->toolHandleSelectionChangedNotifier.connect(this, &MapFrame::toolHandleSelectionChanged);
+            m_notifierConnection += m_mapView->mapViewToolBox().toolActivatedNotifier.connect(this, &MapFrame::toolActivated);
+            m_notifierConnection += m_mapView->mapViewToolBox().toolDeactivatedNotifier.connect(this, &MapFrame::toolDeactivated);
+            m_notifierConnection += m_mapView->mapViewToolBox().toolHandleSelectionChangedNotifier.connect(this, &MapFrame::toolHandleSelectionChanged);
         }
 
         void MapFrame::documentWasCleared(View::MapDocument*) {
@@ -711,15 +711,15 @@ namespace TrenchBroom {
             updateToolBarWidgets();
         }
 
-        void MapFrame::toolActivated(Tool*) {
+        void MapFrame::toolActivated(Tool&) {
             updateActionState();
         }
 
-        void MapFrame::toolDeactivated(Tool*) {
+        void MapFrame::toolDeactivated(Tool&) {
             updateActionState();
         }
 
-        void MapFrame::toolHandleSelectionChanged(Tool*) {
+        void MapFrame::toolHandleSelectionChanged(Tool&) {
             updateActionState();
         }
 
@@ -1156,13 +1156,13 @@ namespace TrenchBroom {
         void MapFrame::deleteSelection() {
             if (canDeleteSelection()) {
                 if (m_mapView->clipToolActive())
-                    m_mapView->clipTool()->removeLastPoint();
+                    m_mapView->clipTool().removeLastPoint();
                 else if (m_mapView->vertexToolActive())
-                    m_mapView->vertexTool()->removeSelection();
+                    m_mapView->vertexTool().removeSelection();
                 else if (m_mapView->edgeToolActive())
-                    m_mapView->edgeTool()->removeSelection();
+                    m_mapView->edgeTool().removeSelection();
                 else if (m_mapView->faceToolActive())
-                    m_mapView->faceTool()->removeSelection();
+                    m_mapView->faceTool().removeSelection();
                 else if (!m_mapView->anyToolActive())
                     m_document->deleteObjects();
             }
@@ -1170,13 +1170,13 @@ namespace TrenchBroom {
 
         bool MapFrame::canDeleteSelection() const {
             if (m_mapView->clipToolActive()) {
-                return m_mapView->clipTool()->canRemoveLastPoint();
+                return m_mapView->clipTool().canRemoveLastPoint();
             } else if (m_mapView->vertexToolActive()) {
-                return m_mapView->vertexTool()->canRemoveSelection();
+                return m_mapView->vertexTool().canRemoveSelection();
             } else if (m_mapView->edgeToolActive()) {
-                return m_mapView->edgeTool()->canRemoveSelection();
+                return m_mapView->edgeTool().canRemoveSelection();
             } else if (m_mapView->faceToolActive()) {
-                return m_mapView->faceTool()->canRemoveSelection();
+                return m_mapView->faceTool().canRemoveSelection();
             } else {
                 return canCutSelection();
             }
@@ -1439,12 +1439,12 @@ namespace TrenchBroom {
 
         void MapFrame::csgConvexMerge() {
             if (canDoCsgConvexMerge()) {
-                if (m_mapView->vertexToolActive() && m_mapView->vertexTool()->canDoCsgConvexMerge()) {
-                    m_mapView->vertexTool()->csgConvexMerge();
-                } else if (m_mapView->edgeToolActive() && m_mapView->edgeTool()->canDoCsgConvexMerge()) {
-                    m_mapView->edgeTool()->csgConvexMerge();
-                } else if (m_mapView->faceToolActive() && m_mapView->faceTool()->canDoCsgConvexMerge()) {
-                    m_mapView->faceTool()->csgConvexMerge();
+                if (m_mapView->vertexToolActive() && m_mapView->vertexTool().canDoCsgConvexMerge()) {
+                    m_mapView->vertexTool().csgConvexMerge();
+                } else if (m_mapView->edgeToolActive() && m_mapView->edgeTool().canDoCsgConvexMerge()) {
+                    m_mapView->edgeTool().csgConvexMerge();
+                } else if (m_mapView->faceToolActive() && m_mapView->faceTool().canDoCsgConvexMerge()) {
+                    m_mapView->faceTool().csgConvexMerge();
                 } else {
                     m_document->csgConvexMerge();
                 }
@@ -1454,9 +1454,9 @@ namespace TrenchBroom {
         bool MapFrame::canDoCsgConvexMerge() const {
             return (m_document->hasSelectedBrushFaces() && m_document->selectedBrushFaces().size() > 1) ||
                    (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1) ||
-                   (m_mapView->vertexToolActive() && m_mapView->vertexTool()->canDoCsgConvexMerge()) ||
-                   (m_mapView->edgeToolActive() && m_mapView->edgeTool()->canDoCsgConvexMerge()) ||
-                   (m_mapView->faceToolActive() && m_mapView->faceTool()->canDoCsgConvexMerge());
+                   (m_mapView->vertexToolActive() && m_mapView->vertexTool().canDoCsgConvexMerge()) ||
+                   (m_mapView->edgeToolActive() && m_mapView->edgeTool().canDoCsgConvexMerge()) ||
+                   (m_mapView->faceToolActive() && m_mapView->faceTool().canDoCsgConvexMerge());
         }
 
         void MapFrame::csgSubtract() {

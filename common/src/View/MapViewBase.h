@@ -127,7 +127,7 @@ namespace TrenchBroom {
             void createActionsAndUpdatePicking();
 
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void toolChanged(Tool* tool);
+            void toolChanged(Tool& tool);
             void commandDone(Command* command);
             void commandUndone(UndoableCommand* command);
             void selectionDidChange(const Selection& selection);

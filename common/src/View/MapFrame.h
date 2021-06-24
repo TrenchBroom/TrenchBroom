@@ -154,9 +154,9 @@ namespace TrenchBroom {
 
             void preferenceDidChange(const IO::Path& path);
             void gridDidChange();
-            void toolActivated(Tool* tool);
-            void toolDeactivated(Tool* tool);
-            void toolHandleSelectionChanged(Tool* tool);
+            void toolActivated(Tool& tool);
+            void toolDeactivated(Tool& tool);
+            void toolHandleSelectionChanged(Tool& tool);
             void selectionDidChange(const Selection& selection);
             void currentLayerDidChange(const TrenchBroom::Model::LayerNode* layer);
             void groupWasOpened(Model::GroupNode* group);

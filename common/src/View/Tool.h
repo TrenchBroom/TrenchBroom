@@ -33,10 +33,10 @@ namespace TrenchBroom {
             QStackedLayout* m_book;
             int m_pageIndex;
         public:
-            Notifier<Tool*> toolActivatedNotifier;
-            Notifier<Tool*> toolDeactivatedNotifier;
-            Notifier<Tool*> refreshViewsNotifier;
-            Notifier<Tool*> toolHandleSelectionChangedNotifier;
+            Notifier<Tool&> toolActivatedNotifier;
+            Notifier<Tool&> toolDeactivatedNotifier;
+            Notifier<Tool&> refreshViewsNotifier;
+            Notifier<Tool&> toolHandleSelectionChangedNotifier;
         protected:
             explicit Tool(bool initiallyActive);
         public:

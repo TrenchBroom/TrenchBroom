@@ -149,7 +149,7 @@ namespace TrenchBroom {
             m_toolBox->toggleClipTool();
         }
 
-        ClipTool* SwitchableMapViewContainer::clipTool() {
+        ClipTool& SwitchableMapViewContainer::clipTool() {
             return m_toolBox->clipTool();
         }
 
@@ -227,20 +227,20 @@ namespace TrenchBroom {
             m_toolBox->toggleFaceTool();
         }
 
-        VertexTool* SwitchableMapViewContainer::vertexTool() {
+        VertexTool& SwitchableMapViewContainer::vertexTool() {
             return m_toolBox->vertexTool();
         }
 
-        EdgeTool* SwitchableMapViewContainer::edgeTool() {
+        EdgeTool& SwitchableMapViewContainer::edgeTool() {
             return m_toolBox->edgeTool();
         }
 
-        FaceTool* SwitchableMapViewContainer::faceTool() {
+        FaceTool& SwitchableMapViewContainer::faceTool() {
             return m_toolBox->faceTool();
         }
 
-        MapViewToolBox* SwitchableMapViewContainer::mapViewToolBox() {
-            return m_toolBox.get();
+        MapViewToolBox& SwitchableMapViewContainer::mapViewToolBox() {
+            return *m_toolBox;
         }
 
         bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {
@@ -297,7 +297,7 @@ namespace TrenchBroom {
             m_notifierConnection += m_toolBox->refreshViewsNotifier.connect(this, &SwitchableMapViewContainer::refreshViews);
         }
 
-        void SwitchableMapViewContainer::refreshViews(Tool*) {
+        void SwitchableMapViewContainer::refreshViews(Tool&) {
             // NOTE: it doesn't work to call QWidget::update() here. The actual OpenGL view is a QWindow embedded in
             // the widget hierarchy with QWidget::createWindowContainer(), and we need to call QWindow::requestUpdate().
             m_mapView->refreshViews();

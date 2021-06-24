@@ -43,7 +43,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
-            RotateObjectsTool* m_tool;
+            RotateObjectsTool& m_tool;
 
             QComboBox* m_recentlyUsedCentersList;
             QAbstractButton* m_resetCenterButton;
@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
             NotifierConnection m_notifierConnection;
         public:
-            RotateObjectsToolPage(std::weak_ptr<MapDocument> document, RotateObjectsTool* tool, QWidget* parent = nullptr);
+            RotateObjectsToolPage(std::weak_ptr<MapDocument> document, RotateObjectsTool& tool, QWidget* parent = nullptr);
 
             void setAxis(vm::axis::type axis);
             void setRecentlyUsedCenters(const std::vector<vm::vec3>& centers);
