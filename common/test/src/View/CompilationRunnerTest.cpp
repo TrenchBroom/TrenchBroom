@@ -19,6 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MapDocumentTest.h"
 #include "EL/VariableStore.h"
+#include "IO/TestEnvironment.h"
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationRunner.h"
@@ -77,6 +78,28 @@ namespace TrenchBroom {
             CHECK(exec.started);
             CHECK(exec.errored);
             CHECK_FALSE(exec.ended);
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDirectories") {
+            auto variables = EL::NullVariableStore{};
+            auto output = QTextEdit{};
+            auto outputAdapter = TextOutputAdapter{&output};
+            
+            auto context = CompilationContext{document, variables, outputAdapter, false};
+
+            auto testEnvironment = IO::TestEnvironment{"copyFilesTask"};
+
+            const auto sourcePath = IO::Path("my_map.map");
+            testEnvironment.createFile(sourcePath, "{}");
+
+            const auto targetPath = IO::Path("some/other/path");
+
+            auto task = Model::CompilationCopyFiles{true, (testEnvironment.dir() + sourcePath).asString(), (testEnvironment.dir() + targetPath).asString()};
+            auto runner = CompilationCopyFilesTaskRunner{context, task};
+
+            REQUIRE_NOTHROW(runner.execute());
+
+            CHECK(testEnvironment.directoryExists(targetPath));
         }
     }
 }

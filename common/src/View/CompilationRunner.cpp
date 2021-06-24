@@ -117,6 +117,7 @@ namespace TrenchBroom {
                 try {
                     m_context << "#### Copying '" << IO::pathAsQString(sourcePath) << "' to '" << IO::pathAsQString(targetPath) << "'\n";
                     if (!m_context.test()) {
+                        IO::Disk::ensureDirectoryExists(targetPath);
                         IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher{sourcePattern}, targetPath, true);
                     }
                     emit end();
