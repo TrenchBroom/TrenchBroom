@@ -71,6 +71,14 @@ namespace TrenchBroom {
     public:
         friend class NotifierConnection;
 
+        Notifier() = default;
+
+        Notifier(const Notifier&) = delete;
+        Notifier(Notifier&&) noexcept = default;
+
+        Notifier& operator=(const Notifier&) = delete;
+        Notifier& operator=(Notifier&&) noexcept = default;
+
         /**
          * Adds the given observer callback to this notifier.
          *
@@ -100,6 +108,25 @@ namespace TrenchBroom {
         template <typename R, typename MemberCallback>
         [[nodiscard]] NotifierConnection connect(R* receiver, MemberCallback callback) {
             return connect([receiver=receiver, callback=std::move(callback)](auto&&... args) { std::invoke(callback, receiver, std::forward<decltype(args)>(args)...); });
+        }
+
+        /**
+         * Adds the given observer callback to this notifier.
+         *
+         * If this notifier is currently notifying, then the callback will be connected, but it will not be notified of
+         * the current notification.
+         *
+         * Returns connection object that disconnects the callback from this notification when it goes out of scope.
+         */
+        [[nodiscard]] NotifierConnection connect(Notifier& notifier) {
+            const auto id = m_nextId++;
+            auto callback = [&](auto... a) { notifier(std::forward<decltype(a)>(a)...); };
+            if (m_notifying) {
+                m_toAdd.emplace_back(std::move(callback), id);
+            } else {
+                m_observers.emplace_back(std::move(callback), id);
+            }
+            return NotifierConnection{*this, id};
         }
 
         /**
