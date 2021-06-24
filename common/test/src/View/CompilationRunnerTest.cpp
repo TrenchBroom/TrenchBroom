@@ -42,36 +42,36 @@ namespace TrenchBroom {
             std::mutex m_mutex;
             std::condition_variable m_condition;
         public:
-            bool started = false;
-            bool errored = false;
-            bool ended = false;
+            bool started{false};
+            bool errored{false};
+            bool ended{false};
             
             ExecuteTask(CompilationTaskRunner& runner)
-            : m_runner(runner) {
-                QObject::connect(&m_runner, &CompilationTaskRunner::start, [&]() { started = true; std::unique_lock<std::mutex> lock(m_mutex); m_condition.notify_all(); });
-                QObject::connect(&m_runner, &CompilationTaskRunner::error, [&]() { errored = true; std::unique_lock<std::mutex> lock(m_mutex); m_condition.notify_all(); });
-                QObject::connect(&m_runner, &CompilationTaskRunner::end, [&]()   { ended = true;   std::unique_lock<std::mutex> lock(m_mutex); m_condition.notify_all(); });
+            : m_runner{runner} {
+                QObject::connect(&m_runner, &CompilationTaskRunner::start, [&]() { started = true; auto lock = std::unique_lock<std::mutex>{m_mutex}; m_condition.notify_all(); });
+                QObject::connect(&m_runner, &CompilationTaskRunner::error, [&]() { errored = true; auto lock = std::unique_lock<std::mutex>{m_mutex}; m_condition.notify_all(); });
+                QObject::connect(&m_runner, &CompilationTaskRunner::end, [&]()   { ended = true;   auto lock = std::unique_lock<std::mutex>{m_mutex}; m_condition.notify_all(); });
             }
             
             void executeAndWait(const int timeout) {
                 m_runner.execute();
                 
-                std::unique_lock<std::mutex> lock(m_mutex);
+                auto lock = std::unique_lock<std::mutex>{m_mutex};
                 m_condition.wait_for(lock, std::chrono::milliseconds{timeout}, [&]() { return errored || ended; });
             }
         };
         
         TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool") {
-            EL::NullVariableStore variables;
-            QTextEdit output;
-            TextOutputAdapter outputAdapter(&output);
+            auto variables = EL::NullVariableStore{};
+            auto output = QTextEdit{};
+            auto outputAdapter = TextOutputAdapter{&output};
             
-            CompilationContext context(document, variables, outputAdapter, false);
+            auto context = CompilationContext{document, variables, outputAdapter, false};
             
-            Model::CompilationRunTool task(true, "", "");
-            CompilationRunToolTaskRunner runner(context, task);
+            auto task = Model::CompilationRunTool{true, "", ""};
+            auto runner = CompilationRunToolTaskRunner{context, task};
             
-            ExecuteTask exec(runner);
+            auto exec = ExecuteTask{runner};
             exec.executeAndWait(500);
             
             CHECK(exec.started);
