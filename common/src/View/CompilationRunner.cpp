@@ -41,7 +41,7 @@
 namespace TrenchBroom {
     namespace View {
         CompilationTaskRunner::CompilationTaskRunner(CompilationContext& context) :
-        m_context(context) {}
+        m_context{context} {}
 
         CompilationTaskRunner::~CompilationTaskRunner() = default;
 
@@ -63,8 +63,8 @@ namespace TrenchBroom {
         }
 
         CompilationExportMapTaskRunner::CompilationExportMapTaskRunner(CompilationContext& context, const Model::CompilationExportMap& task) :
-        CompilationTaskRunner(context),
-        m_task(task.clone()) {}
+        CompilationTaskRunner{context},
+        m_task{task.clone()} {}
 
         CompilationExportMapTaskRunner::~CompilationExportMapTaskRunner() = default;
 
@@ -72,12 +72,12 @@ namespace TrenchBroom {
             emit start();
 
             try {
-                const IO::Path targetPath(interpolate(m_task->targetSpec()));
+                const auto targetPath = IO::Path{interpolate(m_task->targetSpec())};
                 try {
                     m_context << "#### Exporting map file '" << IO::pathAsQString(targetPath) << "'\n";
 
                     if (!m_context.test()) {
-                        const IO::Path directoryPath = targetPath.deleteLastComponent();
+                        const auto directoryPath = targetPath.deleteLastComponent();
                         if (!IO::Disk::directoryExists(directoryPath)) {
                             IO::Disk::createDirectory(directoryPath);
                         }
@@ -99,8 +99,8 @@ namespace TrenchBroom {
         void CompilationExportMapTaskRunner::doTerminate() {}
 
         CompilationCopyFilesTaskRunner::CompilationCopyFilesTaskRunner(CompilationContext& context, const Model::CompilationCopyFiles& task) :
-        CompilationTaskRunner(context),
-        m_task(task.clone()) {}
+        CompilationTaskRunner{context},
+        m_task{task.clone()} {}
 
         CompilationCopyFilesTaskRunner::~CompilationCopyFilesTaskRunner() = default;
 
@@ -108,16 +108,17 @@ namespace TrenchBroom {
             emit start();
 
             try {
-                const IO::Path sourcePath(interpolate(m_task->sourceSpec()));
-                const IO::Path targetPath(interpolate(m_task->targetSpec()));
+                const auto sourcePath = IO::Path{interpolate(m_task->sourceSpec())};
+                const auto targetPath = IO::Path{interpolate(m_task->targetSpec())};
 
-                const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
-                const std::string sourcePattern = sourcePath.lastComponent().asString();
+                const auto sourceDirPath = sourcePath.deleteLastComponent();
+                const auto sourcePattern = sourcePath.lastComponent().asString();
 
                 try {
                     m_context << "#### Copying '" << IO::pathAsQString(sourcePath) << "' to '" << IO::pathAsQString(targetPath) << "'\n";
                     if (!m_context.test()) {
-                        IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
+                        IO::Disk::ensureDirectoryExists(targetPath);
+                        IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher{sourcePattern}, targetPath, true);
                     }
                     emit end();
                 } catch (const Exception& e) {
@@ -132,10 +133,10 @@ namespace TrenchBroom {
         void CompilationCopyFilesTaskRunner::doTerminate() {}
 
         CompilationRunToolTaskRunner::CompilationRunToolTaskRunner(CompilationContext& context, const Model::CompilationRunTool& task) :
-        CompilationTaskRunner(context),
-        m_task(task.clone()),
-        m_process(nullptr),
-        m_terminated(false) {}
+        CompilationTaskRunner{context},
+        m_task{task.clone()},
+        m_process{nullptr},
+        m_terminated{false} {}
 
         CompilationRunToolTaskRunner::~CompilationRunToolTaskRunner() = default;
 
@@ -163,7 +164,7 @@ namespace TrenchBroom {
                 m_context << "#### Executing '" << QString::fromStdString(cmd) << "'\n";
 
                 if (!m_context.test()) {
-                    m_process = new QProcess(this);
+                    m_process = new QProcess{this};
                     connect(m_process, &QProcess::errorOccurred, this, &CompilationRunToolTaskRunner::processErrorOccurred);
                     connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &CompilationRunToolTaskRunner::processFinished);
                     connect(m_process, &QProcess::readyReadStandardError, this, &CompilationRunToolTaskRunner::processReadyReadStandardError);
@@ -183,14 +184,14 @@ namespace TrenchBroom {
         }
 
         std::string CompilationRunToolTaskRunner::cmd() {
-            const auto toolPath = IO::Path(interpolate(m_task->toolSpec()));
+            const auto toolPath = IO::Path{interpolate(m_task->toolSpec())};
             const auto parameters = interpolate(m_task->parameterSpec());
             if (parameters.empty()) {
-                return std::string("\"") + toolPath.asString() + "\"";
+                return "\"" + toolPath.asString() + "\"";
             } else if (toolPath.isEmpty()) {
                 return "";
             } else {
-                return std::string("\"") + toolPath.asString() + "\" " + parameters;
+                return "\"" + toolPath.asString() + "\" " + parameters;
             }
         }
 
@@ -221,10 +222,10 @@ namespace TrenchBroom {
         }
 
         CompilationRunner::CompilationRunner(std::unique_ptr<CompilationContext> context, const Model::CompilationProfile* profile, QObject* parent) :
-        QObject(parent),
-        m_context(std::move(context)),
-        m_taskRunners(createTaskRunners(*m_context, profile)),
-        m_currentTask(std::end(m_taskRunners)) {}
+        QObject{parent},
+        m_context{std::move(context)},
+        m_taskRunners{createTaskRunners(*m_context, profile)},
+        m_currentTask{std::end(m_taskRunners)} {}
 
         CompilationRunner::~CompilationRunner() = default;
 
@@ -234,7 +235,7 @@ namespace TrenchBroom {
             TaskRunnerList m_runners;
         public:
             explicit CreateTaskRunnerVisitor(CompilationContext& context) :
-            m_context(context) {}
+            m_context{context} {}
 
             TaskRunnerList runners() {
                 return std::move(m_runners);
@@ -265,7 +266,7 @@ namespace TrenchBroom {
         };
 
         CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(CompilationContext& context, const Model::CompilationProfile* profile) {
-            CreateTaskRunnerVisitor visitor(context);
+            auto visitor = CreateTaskRunnerVisitor{context};
             profile->accept(visitor);
             return visitor.runners();
         }
@@ -283,7 +284,7 @@ namespace TrenchBroom {
             emit compilationStarted();
 
             const auto workDir = QString::fromStdString(m_context->variableValue(CompilationVariableNames::WORK_DIR_PATH));
-            if (!QDir(workDir).exists()) {
+            if (!QDir{workDir}.exists()) {
                 *m_context << "#### Error: working directory '" << workDir << "' does not exist\n";
             } else {
                 *m_context << "#### Using working directory '" << workDir << "'\n";
