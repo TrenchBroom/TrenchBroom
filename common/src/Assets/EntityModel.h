@@ -150,9 +150,6 @@ namespace TrenchBroom {
             void addToSpacialTree(const std::vector<EntityModelVertex>& vertices, Renderer::PrimType primType, size_t index, size_t count);
         };
 
-        class EntityModelUnloadedFrame;
-
-
         class EntityModelMesh;
         class EntityModelIndexedMesh;
         class EntityModelTexturedMesh;
@@ -176,7 +173,7 @@ namespace TrenchBroom {
              * @param name the surface's name
              * @param frameCount the number of frames
              */
-            explicit EntityModelSurface(const std::string& name, size_t frameCount);
+            explicit EntityModelSurface(std::string name, size_t frameCount);
 
             ~EntityModelSurface();
 
@@ -210,7 +207,7 @@ namespace TrenchBroom {
              * @param vertices the mesh vertices
              * @param indices the vertex indices
              */
-            void addIndexedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelIndices& indices);
+            void addIndexedMesh(EntityModelLoadedFrame& frame, std::vector<EntityModelVertex> vertices, EntityModelIndices indices);
 
             /**
              * Adds a new multitextured mesh to this surface.
@@ -219,7 +216,7 @@ namespace TrenchBroom {
              * @param vertices the mesh vertices
              * @param indices the per texture vertex indices
              */
-            void addTexturedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelTexturedIndices& indices);
+            void addTexturedMesh(EntityModelLoadedFrame& frame, std::vector<EntityModelVertex> vertices, EntityModelTexturedIndices indices);
 
             /**
              * Sets the given textures as skins to this surface.
@@ -280,7 +277,7 @@ namespace TrenchBroom {
              * @param name the name of the model
              * @param pitchType the pitch type
              */
-            explicit EntityModel(const std::string& name, PitchType pitchType);
+            explicit EntityModel(std::string name, PitchType pitchType);
 
             /**
              * Creates a renderer to render the given frame of the model using the skin with the given index.
@@ -347,7 +344,7 @@ namespace TrenchBroom {
              * @param name the surface name
              * @return the newly added surface
              */
-            EntityModelSurface& addSurface(const std::string& name);
+            EntityModelSurface& addSurface(std::string name);
 
             /**
              * Returns the number of frames of this model.

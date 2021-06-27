@@ -534,7 +534,7 @@ namespace TrenchBroom {
                 }
 
             }
-            surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
+            surface.addTexturedMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 
             return model;
         }

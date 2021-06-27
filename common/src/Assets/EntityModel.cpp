@@ -30,6 +30,8 @@
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>
 
+#include <kdl/vector_utils.h>
+
 #include <string>
 
 namespace TrenchBroom {
@@ -37,7 +39,7 @@ namespace TrenchBroom {
         // EntityModelFrame
 
         EntityModelFrame::EntityModelFrame(const size_t index) :
-        m_index(index) {}
+        m_index{index} {}
 
         EntityModelFrame::~EntityModelFrame() = default;
 
@@ -48,11 +50,11 @@ namespace TrenchBroom {
         // EntityModel::LoadedFrame
 
         EntityModelLoadedFrame::EntityModelLoadedFrame(const size_t index, const std::string& name, const vm::bbox3f& bounds, const PitchType pitchType) :
-        EntityModelFrame(index),
-        m_name(name),
-        m_bounds(bounds),
-        m_pitchType(pitchType),
-        m_spacialTree(std::make_unique<SpacialTree>()) {}
+        EntityModelFrame{index},
+        m_name{name},
+        m_bounds{bounds},
+        m_pitchType{pitchType},
+        m_spacialTree{std::make_unique<SpacialTree>()} {}
 
         EntityModelLoadedFrame::~EntityModelLoadedFrame() = default;
 
@@ -97,7 +99,7 @@ namespace TrenchBroom {
                     assert(count % 3 == 0);
                     m_tris.reserve(m_tris.size() + count);
                     for (size_t i = 0; i < count; i += 3) {
-                        vm::bbox3f::builder bounds;
+                        auto bounds = vm::bbox3f::builder{};
                         const auto& p1 = Renderer::getVertexComponent<0>(vertices[index + i + 0]);
                         const auto& p2 = Renderer::getVertexComponent<0>(vertices[index + i + 1]);
                         const auto& p3 = Renderer::getVertexComponent<0>(vertices[index + i + 2]);
@@ -120,7 +122,7 @@ namespace TrenchBroom {
 
                     const auto& p1 = Renderer::getVertexComponent<0>(vertices[index]);
                     for (size_t i = 1; i < count - 1; ++i) {
-                        vm::bbox3f::builder bounds;
+                        auto bounds = vm::bbox3f::builder{};
                         const auto& p2 = Renderer::getVertexComponent<0>(vertices[index + i]);
                         const auto& p3 = Renderer::getVertexComponent<0>(vertices[index + i + 1]);
                         bounds.add(p1);
@@ -141,7 +143,7 @@ namespace TrenchBroom {
                     assert(count > 2);
                     m_tris.reserve(m_tris.size() + (count - 2) * 3);
                     for (size_t i = 0; i < count-2; ++i) {
-                        vm::bbox3f::builder bounds;
+                        auto bounds = vm::bbox3f::builder{};
                         const auto& p1 = Renderer::getVertexComponent<0>(vertices[index + i + 0]);
                         const auto& p2 = Renderer::getVertexComponent<0>(vertices[index + i + 1]);
                         const auto& p3 = Renderer::getVertexComponent<0>(vertices[index + i + 2]);
@@ -180,7 +182,7 @@ namespace TrenchBroom {
              * @param index the index of this frame
              */
             explicit EntityModelUnloadedFrame(const size_t index) :
-            EntityModelFrame(index) {}
+            EntityModelFrame{index} {}
 
             bool loaded() const override {
                 return false;
@@ -211,16 +213,16 @@ namespace TrenchBroom {
          * The mesh associated with a frame and a surface.
          */
         class EntityModelMesh {
-        private:
-            std::vector<EntityModelVertex> m_vertices;
         protected:
+            std::vector<EntityModelVertex> m_vertices;
+
             /**
              * Creates a new frame mesh that uses the given vertices.
              *
              * @param vertices the vertices
              */
-            explicit EntityModelMesh(const std::vector<EntityModelVertex>& vertices) :
-            m_vertices(vertices) {}
+            explicit EntityModelMesh(std::vector<EntityModelVertex> vertices) :
+            m_vertices{std::move(vertices)} {}
         public:
             virtual ~EntityModelMesh() = default;
         public:
@@ -261,11 +263,11 @@ namespace TrenchBroom {
              * @param vertices the vertices
              * @param indices the indices
              */
-            EntityModelIndexedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelIndices& indices) :
-            EntityModelMesh(vertices),
-            m_indices(indices) {
-                m_indices.forEachPrimitive([&frame, &vertices](const Renderer::PrimType primType, const size_t index, const size_t count) {
-                    frame.addToSpacialTree(vertices, primType, index, count);
+            EntityModelIndexedMesh(EntityModelLoadedFrame& frame, std::vector<EntityModelVertex> vertices, EntityModelIndices indices) :
+            EntityModelMesh{std::move(vertices)},
+            m_indices{std::move(indices)} {
+                m_indices.forEachPrimitive([&](const Renderer::PrimType primType, const size_t index, const size_t count) {
+                    frame.addToSpacialTree(m_vertices, primType, index, count);
                 });
         }
         private:
@@ -291,11 +293,11 @@ namespace TrenchBroom {
              * @param vertices the vertices
              * @param indices the per texture indices
              */
-            EntityModelTexturedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelTexturedIndices& indices) :
-            EntityModelMesh(vertices),
-            m_indices(indices) {
-                m_indices.forEachPrimitive([&frame, &vertices](const Texture* /* texture */, const Renderer::PrimType primType, const size_t index, const size_t count) {
-                    frame.addToSpacialTree(vertices, primType, index, count);
+            EntityModelTexturedMesh(EntityModelLoadedFrame& frame, std::vector<EntityModelVertex> vertices, EntityModelTexturedIndices indices) :
+            EntityModelMesh{std::move(vertices)},
+            m_indices{std::move(indices)} {
+                m_indices.forEachPrimitive([&](const Texture* /* texture */, const Renderer::PrimType primType, const size_t index, const size_t count) {
+                    frame.addToSpacialTree(m_vertices, primType, index, count);
                 });
             }
         private:
@@ -306,10 +308,10 @@ namespace TrenchBroom {
 
         // EntityModel::Surface
 
-        EntityModelSurface::EntityModelSurface(const std::string& name, const size_t frameCount) :
-        m_name(name),
-        m_meshes(frameCount),
-        m_skins(std::make_unique<TextureCollection>()) {}
+        EntityModelSurface::EntityModelSurface(std::string name, const size_t frameCount) :
+        m_name{std::move(name)},
+        m_meshes{frameCount},
+        m_skins{std::make_unique<TextureCollection>()} {}
 
         EntityModelSurface::~EntityModelSurface() = default;
 
@@ -325,14 +327,14 @@ namespace TrenchBroom {
             m_skins->setTextureMode(minFilter, magFilter);
         }
 
-        void EntityModelSurface::addIndexedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelIndices& indices) {
+        void EntityModelSurface::addIndexedMesh(EntityModelLoadedFrame& frame, std::vector<EntityModelVertex> vertices, EntityModelIndices indices) {
             assert(frame.index() < frameCount());
-            m_meshes[frame.index()] = std::make_unique<EntityModelIndexedMesh>(frame, vertices, indices);
+            m_meshes[frame.index()] = std::make_unique<EntityModelIndexedMesh>(frame, std::move(vertices), std::move(indices));
         }
 
-        void EntityModelSurface::addTexturedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelTexturedIndices& indices) {
+        void EntityModelSurface::addTexturedMesh(EntityModelLoadedFrame& frame, std::vector<EntityModelVertex> vertices, EntityModelTexturedIndices indices) {
             assert(frame.index() < frameCount());
-            m_meshes[frame.index()] = std::make_unique<EntityModelTexturedMesh>(frame, vertices, indices);
+            m_meshes[frame.index()] = std::make_unique<EntityModelTexturedMesh>(frame, std::move(vertices), std::move(indices));
         }
 
         void EntityModelSurface::setSkins(std::vector<Texture> skins) {
@@ -355,7 +357,7 @@ namespace TrenchBroom {
             return m_skins->textureByIndex(index);
         }
 
-        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModelSurface::buildRenderer(size_t skinIndex, size_t frameIndex) {
+        std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModelSurface::buildRenderer(const size_t skinIndex, const size_t frameIndex) {
             if (skinIndex >= skinCount() || frameIndex >= frameCount() || m_meshes[frameIndex] == nullptr) {
                 return nullptr;
             } else {
@@ -366,10 +368,10 @@ namespace TrenchBroom {
 
         // EntityModel
 
-        EntityModel::EntityModel(const std::string& name, PitchType pitchType) :
-        m_name(name),
-        m_prepared(false),
-        m_pitchType(pitchType) {}
+        EntityModel::EntityModel(std::string name, const PitchType pitchType) :
+        m_name{std::move(name)},
+        m_prepared{false},
+        m_pitchType{pitchType} {}
 
         std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             std::vector<std::unique_ptr<Renderer::TexturedIndexRangeRenderer>> renderers;
@@ -430,8 +432,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        EntityModelSurface& EntityModel::addSurface(const std::string& name) {
-            m_surfaces.push_back(std::make_unique<EntityModelSurface>(name, frameCount()));
+        EntityModelSurface& EntityModel::addSurface(std::string name) {
+            m_surfaces.push_back(std::make_unique<EntityModelSurface>(std::move(name), frameCount()));
             return *m_surfaces.back();
         }
 
@@ -444,30 +446,15 @@ namespace TrenchBroom {
         }
 
         std::vector<const EntityModelFrame*> EntityModel::frames() const {
-            std::vector<const EntityModelFrame*> result;
-            result.reserve(frameCount());
-            for (const auto& frame : m_frames) {
-                result.push_back(frame.get());
-            }
-            return result;
+            return kdl::vec_transform(m_frames, [](const auto& frame) { return const_cast<const EntityModelFrame*>(frame.get()); });
         }
 
         std::vector<EntityModelFrame*> EntityModel::frames() {
-            std::vector<EntityModelFrame*> result;
-            result.reserve(frameCount());
-            for (const auto& frame : m_frames) {
-                result.push_back(frame.get());
-            }
-            return result;
+            return kdl::vec_transform(m_frames, [](const auto& frame) { return frame.get(); });
         }
 
         std::vector<const EntityModelSurface*> EntityModel::surfaces() const {
-            std::vector<const EntityModelSurface*> result;
-            result.reserve(surfaceCount());
-            for (const auto& surface : m_surfaces) {
-                result.push_back(surface.get());
-            }
-            return result;
+            return kdl::vec_transform(m_surfaces, [](const auto& surface) { return const_cast<const EntityModelSurface*>(surface.get()); });
         }
 
         const EntityModelFrame* EntityModel::frame(const std::string& name) const {

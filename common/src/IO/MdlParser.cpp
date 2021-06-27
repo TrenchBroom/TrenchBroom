@@ -447,7 +447,7 @@ namespace TrenchBroom {
             builder.addTriangles(frameTriangles);
 
             auto& frame = model.loadFrame(frameIndex, name, bounds.bounds());
-            surface.addIndexedMesh(frame, builder.vertices(), builder.indices());
+            surface.addIndexedMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
         }
 
         vm::vec3f MdlParser::unpackFrameVertex(const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const {

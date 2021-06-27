@@ -453,7 +453,7 @@ namespace TrenchBroom {
             }
 
             auto& modelFrame = model.loadFrame(frameIndex, frame.name, bounds.bounds());
-            surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
+            surface.addIndexedMesh(modelFrame, std::move(builder.vertices()), std::move(builder.indices()));
         }
 
         std::vector<Assets::EntityModelVertex> DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {

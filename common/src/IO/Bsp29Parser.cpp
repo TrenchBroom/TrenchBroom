@@ -296,7 +296,7 @@ namespace TrenchBroom {
             frameName << m_name << "_" << frameIndex;
 
             auto& frame = model.loadFrame(frameIndex, frameName.str(), bounds.bounds());
-            surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
+            surface.addTexturedMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 
         }
 

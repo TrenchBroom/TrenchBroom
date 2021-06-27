@@ -300,7 +300,7 @@ namespace TrenchBroom {
                 frameVertices.push_back(v3);
             }
 
-            surface.addIndexedMesh(frame, frameVertices, rangeMap);
+            surface.addIndexedMesh(frame, std::move(frameVertices), std::move(rangeMap));
         }
     }
 }
