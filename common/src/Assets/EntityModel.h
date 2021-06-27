@@ -92,6 +92,10 @@ namespace TrenchBroom {
              */
             virtual const vm::bbox3f& bounds() const = 0;
 
+            /**
+             * Returns this frame's pitch type. The pitch type controls how a rotational transformation matrix can be
+             * computed from an entity that uses this model frame.
+             */
             virtual PitchType pitchType() const = 0;
 
             /**
@@ -271,9 +275,10 @@ namespace TrenchBroom {
             PitchType m_pitchType;
         public:
             /**
-             * Creates a new entity model with the given name.
-
+             * Creates a new entity model.
+             *
              * @param name the name of the model
+             * @param pitchType the pitch type
              */
             explicit EntityModel(const std::string& name, PitchType pitchType);
 
