@@ -43,24 +43,22 @@
 
 namespace TrenchBroom {
     namespace View {
-        ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document) :
+        ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document) :
         m_tool{tool},
-        m_document{document} {
-            ensure(m_tool != nullptr, "tool is null");
-        }
+        m_document{document} {}
 
         ScaleObjectsToolController::~ScaleObjectsToolController() = default;
 
-        Tool* ScaleObjectsToolController::doGetTool() {
+        Tool& ScaleObjectsToolController::tool() {
             return m_tool;
         }
 
-        const Tool* ScaleObjectsToolController::doGetTool() const {
+        const Tool& ScaleObjectsToolController::tool() const {
             return m_tool;
         }
 
-        void ScaleObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            if (m_tool->applies()) {
+        void ScaleObjectsToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {
+            if (m_tool.applies()) {
                 doPick(inputState.pickRay(), inputState.camera(), pickResult);
             }
         }
@@ -108,22 +106,22 @@ namespace TrenchBroom {
             return {centerAnchor, scaleAllAxes};
         }
 
-        void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
+        void ScaleObjectsToolController::modifierKeyChange(const InputState& inputState) {
             const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
 
-            if ((centerAnchor != m_tool->anchorPos()) || (scaleAllAxes != m_tool->proportionalAxes())) {
+            if ((centerAnchor != m_tool.anchorPos()) || (scaleAllAxes != m_tool.proportionalAxes())) {
                 // update state
-                m_tool->setProportionalAxes(scaleAllAxes);
-                m_tool->setAnchorPos(centerAnchor);
+                m_tool.setProportionalAxes(scaleAllAxes);
+                m_tool.setAnchorPos(centerAnchor);
             }
 
             // Mouse might be over a different handle now
-            m_tool->refreshViews();
+            m_tool.refreshViews();
         }
 
-        void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
-            if (m_tool->applies() && !anyToolDragging(inputState)) {
-                m_tool->updatePickedHandle(inputState.pickResult());
+        void ScaleObjectsToolController::mouseMove(const InputState& inputState) {
+            if (m_tool.applies() && !anyToolDragging(inputState)) {
+                m_tool.updatePickedHandle(inputState.pickResult());
             }
         }
 
@@ -206,7 +204,7 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            if (!m_tool->applies()) {
+            if (!m_tool.applies()) {
                 return nullptr;
             }
             auto document = kdl::mem_lock(m_document);
@@ -219,13 +217,13 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            m_tool->startScaleWithHit(hit);
+            m_tool.startScaleWithHit(hit);
 
-            const auto [handlePosition, handleOffset] = getInitialHandlePositionAndOffset(m_tool->bounds(), hit);
-            return createHandleDragTracker(ScaleObjectsDragDelegate{*m_tool}, inputState, handlePosition, handleOffset);
+            const auto [handlePosition, handleOffset] = getInitialHandlePositionAndOffset(m_tool.bounds(), hit);
+            return createHandleDragTracker(ScaleObjectsDragDelegate{m_tool}, inputState, handlePosition, handleOffset);
         }
 
-        void ScaleObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
+        void ScaleObjectsToolController::setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
         }
 
@@ -326,50 +324,50 @@ namespace TrenchBroom {
             });
         }
 
-        void ScaleObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (!m_tool->bounds().is_empty())  {
-                renderBounds(renderContext, renderBatch, m_tool->bounds());
-                renderCornerHandles(renderContext, renderBatch, visibleCornerHandles(*m_tool, renderContext.camera()));
+        void ScaleObjectsToolController::render(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            if (!m_tool.bounds().is_empty())  {
+                renderBounds(renderContext, renderBatch, m_tool.bounds());
+                renderCornerHandles(renderContext, renderBatch, visibleCornerHandles(m_tool, renderContext.camera()));
             }
 
-            renderDragSideHighlights(renderContext, renderBatch, m_tool->polygonsHighlightedByDrag());
+            renderDragSideHighlights(renderContext, renderBatch, m_tool.polygonsHighlightedByDrag());
 
-            if (m_tool->hasDragSide()) {
-                renderDragSide(renderContext, renderBatch, m_tool->dragSide());
+            if (m_tool.hasDragSide()) {
+                renderDragSide(renderContext, renderBatch, m_tool.dragSide());
             }
 
-            if (m_tool->hasDragEdge()) {
-                renderDragEdge(renderContext, renderBatch, m_tool->dragEdge());
+            if (m_tool.hasDragEdge()) {
+                renderDragEdge(renderContext, renderBatch, m_tool.dragEdge());
             }
 
-            if (m_tool->hasDragCorner()) {
-                renderDragCorner(renderContext, renderBatch, m_tool->dragCorner());
+            if (m_tool.hasDragCorner()) {
+                renderDragCorner(renderContext, renderBatch, m_tool.dragCorner());
             }
         }
 
-        bool ScaleObjectsToolController::doCancel() {
+        bool ScaleObjectsToolController::cancel() {
             return false;
         }
 
 
         // ScaleObjectsToolController2D
 
-        ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document) :
+        ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document) :
         ScaleObjectsToolController(tool, document) {}
 
         void ScaleObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) const {
-            m_tool->pick2D(pickRay, camera, pickResult);
+            m_tool.pick2D(pickRay, camera, pickResult);
         }
 
         // ScaleObjectsToolController3D
 
-        ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document) :
+        ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document) :
         ScaleObjectsToolController(tool, document) {}
 
         void ScaleObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) const {
-            m_tool->pick3D(pickRay, camera, pickResult);
+            m_tool.pick3D(pickRay, camera, pickResult);
         }
     }
 }

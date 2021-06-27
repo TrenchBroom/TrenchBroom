@@ -36,42 +36,42 @@ namespace TrenchBroom {
         class MapDocument;
         class ShearObjectsTool;
 
-        class ShearObjectsToolController : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy> {
+        class ShearObjectsToolController : public ToolController {
         protected:
-            ShearObjectsTool* m_tool;
+            ShearObjectsTool& m_tool;
         private:
             std::weak_ptr<MapDocument> m_document;
         public:
-            explicit ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
+            explicit ShearObjectsToolController(ShearObjectsTool& tool, std::weak_ptr<MapDocument> document);
             ~ShearObjectsToolController() override;
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
             virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
 
-            void doMouseMove(const InputState& inputState) override;
+            void mouseMove(const InputState& inputState) override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
 
         class ShearObjectsToolController2D : public ShearObjectsToolController {
         public:
-            explicit ShearObjectsToolController2D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
+            explicit ShearObjectsToolController2D(ShearObjectsTool& tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };
 
         class ShearObjectsToolController3D : public ShearObjectsToolController {
         public:
-            explicit ShearObjectsToolController3D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document);
+            explicit ShearObjectsToolController3D(ShearObjectsTool& tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };

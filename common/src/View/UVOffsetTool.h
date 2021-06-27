@@ -30,19 +30,19 @@ namespace TrenchBroom {
         class MapDocument;
         class UVViewHelper;
 
-        class UVOffsetTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy>, public Tool {
+        class UVOffsetTool : public ToolController, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
             const UVViewHelper& m_helper;
         public:
             UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper);
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
     }
 }

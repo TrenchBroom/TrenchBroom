@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class MapDocument;
         class UVViewHelper;
 
-        class UVShearTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, NoRenderPolicy>, public Tool {
+        class UVShearTool : public ToolController, public Tool {
         private:
             static const Model::HitType::Type XHandleHitType;
             static const Model::HitType::Type YHandleHitType;
@@ -41,14 +41,14 @@ namespace TrenchBroom {
         public:
             UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper);
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
     }
 }

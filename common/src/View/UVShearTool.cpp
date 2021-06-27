@@ -40,20 +40,20 @@ namespace TrenchBroom {
         const Model::HitType::Type UVShearTool::YHandleHitType = Model::HitType::freeType();
 
         UVShearTool::UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_document{document},
         m_helper{helper} {}
 
-        Tool* UVShearTool::doGetTool() {
-            return this;
+        Tool& UVShearTool::tool() {
+            return *this;
         }
 
-        const Tool* UVShearTool::doGetTool() const {
-            return this;
+        const Tool& UVShearTool::tool() const {
+            return *this;
         }
 
-        void UVShearTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResult) {
             static const Model::HitType::Type HitTypes[] = { XHandleHitType, YHandleHitType };
             if (m_helper.valid()) {
                 m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             return std::make_unique<UVShearDragTracker>(*kdl::mem_lock(m_document), m_helper, selector, xAxis, yAxis, initialHit);
         }
 
-        bool UVShearTool::doCancel() {
+        bool UVShearTool::cancel() {
             return false;
         }
     }

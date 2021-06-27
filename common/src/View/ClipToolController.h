@@ -44,30 +44,30 @@ namespace TrenchBroom {
 
         class ClipToolControllerBase : public ToolControllerGroup {
         protected:
-            ClipTool* m_tool;
+            ClipTool& m_tool;
         protected:
-            explicit ClipToolControllerBase(ClipTool* tool);
+            explicit ClipToolControllerBase(ClipTool& tool);
             virtual ~ClipToolControllerBase() override;
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
 
         class ClipToolController2D : public ClipToolControllerBase {
         public:
-            explicit ClipToolController2D(ClipTool* tool);
+            explicit ClipToolController2D(ClipTool& tool);
         };
 
         class ClipToolController3D : public ClipToolControllerBase {
         public:
-            explicit ClipToolController3D(ClipTool* tool);
+            explicit ClipToolController3D(ClipTool& tool);
         };
     }
 }

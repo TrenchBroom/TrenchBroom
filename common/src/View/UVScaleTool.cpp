@@ -53,20 +53,20 @@ namespace TrenchBroom {
         const Model::HitType::Type UVScaleTool::YHandleHitType = Model::HitType::freeType();
 
         UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_document{std::move(document)},
         m_helper{helper} {}
 
-        Tool* UVScaleTool::doGetTool() {
-            return this;
+        Tool& UVScaleTool::tool() {
+            return *this;
         }
 
-        const Tool* UVScaleTool::doGetTool() const {
-            return this;
+        const Tool& UVScaleTool::tool() const {
+            return *this;
         }
 
-        void UVScaleTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+        void UVScaleTool::pick(const InputState& inputState, Model::PickResult& pickResult) {
             static const Model::HitType::Type HitTypes[] = { XHandleHitType, YHandleHitType };
             if (m_helper.valid()) {
                 m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
@@ -257,7 +257,7 @@ namespace TrenchBroom {
             return std::make_unique<UVScaleDragTracker>(*kdl::mem_lock(m_document), m_helper, handle, selector, initialHitPoint);
         }
 
-        void UVScaleTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+        void UVScaleTool::render(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             using namespace Model::HitFilters;
 
             if (anyToolDragging(inputState) || !m_helper.valid() || !m_helper.face()->attributes().valid()) {
@@ -280,7 +280,7 @@ namespace TrenchBroom {
             renderHighlight(m_helper, handle, selector, renderBatch);
         }
 
-        bool UVScaleTool::doCancel() {
+        bool UVScaleTool::cancel() {
             return false;
         }
     }

@@ -43,7 +43,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        RotateObjectsToolPage::RotateObjectsToolPage(std::weak_ptr<MapDocument> document, RotateObjectsTool* tool, QWidget* parent) :
+        RotateObjectsToolPage::RotateObjectsToolPage(std::weak_ptr<MapDocument> document, RotateObjectsTool& tool, QWidget* parent) :
         QWidget(parent),
         m_document(std::move(document)),
         m_tool(tool),
@@ -54,7 +54,7 @@ namespace TrenchBroom {
         m_rotateButton(nullptr) {
             createGui();
             connectObservers();
-            m_angle->setValue(vm::to_degrees(m_tool->angle()));
+            m_angle->setValue(vm::to_degrees(m_tool.angle()));
         }
 
         void RotateObjectsToolPage::connectObservers() {
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             auto* text3 = new QLabel(tr("axis"));
             m_angle = new SpinControl(this);
             m_angle->setRange(-360.0, 360.0);
-            m_angle->setValue(vm::to_degrees(m_tool->angle()));
+            m_angle->setValue(vm::to_degrees(m_tool.angle()));
 
             m_axis = new QComboBox();
             m_axis->addItem("X");
@@ -157,22 +157,22 @@ namespace TrenchBroom {
 
         void RotateObjectsToolPage::centerChanged() {
             if (const auto center = vm::parse<FloatType, 3>(m_recentlyUsedCentersList->currentText().toStdString())) {
-                m_tool->setRotationCenter(*center);
+                m_tool.setRotationCenter(*center);
             }
         }
 
         void RotateObjectsToolPage::resetCenterClicked() {
-            m_tool->resetRotationCenter();
+            m_tool.resetRotationCenter();
         }
 
         void RotateObjectsToolPage::angleChanged(double value) {
             const double newAngleDegs = vm::correct(value);
             m_angle->setValue(newAngleDegs);
-            m_tool->setAngle(vm::to_radians(newAngleDegs));
+            m_tool.setAngle(vm::to_radians(newAngleDegs));
         }
 
         void RotateObjectsToolPage::rotateClicked() {
-            const auto center = m_tool->rotationCenter();
+            const auto center = m_tool.rotationCenter();
             const auto axis = getAxis();
             const auto angle = vm::to_radians(m_angle->value());
 

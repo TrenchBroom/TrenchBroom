@@ -28,19 +28,19 @@
 namespace TrenchBroom {
     namespace View {
         UVCameraTool::UVCameraTool(Renderer::OrthographicCamera& camera) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_camera{camera} {}
 
-        Tool* UVCameraTool::doGetTool() {
-            return this;
+        Tool& UVCameraTool::tool() {
+            return *this;
         }
 
-        const Tool* UVCameraTool::doGetTool() const {
-            return this;
+        const Tool& UVCameraTool::tool() const {
+            return *this;
         }
 
-        void UVCameraTool::doMouseScroll(const InputState& inputState) {
+        void UVCameraTool::mouseScroll(const InputState& inputState) {
             const auto oldWorldPos = m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
 
             // NOTE: some events will have scrollY() == 0, and have horizontal scorlling. We only care about scrollY().
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             return std::make_unique<UVCameraToolDragTracker>(m_camera);
         }
 
-        bool UVCameraTool::doCancel() {
+        bool UVCameraTool::cancel() {
             return false;
         }
     }

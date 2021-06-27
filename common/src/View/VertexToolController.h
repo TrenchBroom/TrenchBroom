@@ -36,7 +36,7 @@ namespace TrenchBroom {
             class SelectVertexPart;
             class MoveVertexPart;
         public:
-            VertexToolController(VertexTool* tool);
+            VertexToolController(VertexTool& tool);
         };
     }
 }

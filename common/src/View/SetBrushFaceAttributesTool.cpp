@@ -43,19 +43,19 @@ namespace TrenchBroom {
         static const std::string TransferFaceAttributesTransactionName = "Transfer Face Attributes";
 
         SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document) :
-        ToolControllerBase{},
+        ToolController{},
         Tool{true},
         m_document{document} {}
 
-        Tool* SetBrushFaceAttributesTool::doGetTool() {
-            return this;
+        Tool& SetBrushFaceAttributesTool::tool() {
+            return *this;
         }
 
-        const Tool* SetBrushFaceAttributesTool::doGetTool() const {
-            return this;
+        const Tool& SetBrushFaceAttributesTool::tool() const {
+            return *this;
         }
 
-        bool SetBrushFaceAttributesTool::doMouseClick(const InputState& inputState) {
+        bool SetBrushFaceAttributesTool::mouseClick(const InputState& inputState) {
             if (canCopyAttributesFromSelection(inputState)) {
                 copyAttributesFromSelection(inputState, false);
                 return true;
@@ -64,9 +64,9 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SetBrushFaceAttributesTool::doMouseDoubleClick(const InputState& inputState) {
+        bool SetBrushFaceAttributesTool::mouseDoubleClick(const InputState& inputState) {
             if (canCopyAttributesFromSelection(inputState)) {
-                // The typical use case is, doMouseClick() previously copied the selected attributes to the clicked face,
+                // The typical use case is, mouseClick() previously copied the selected attributes to the clicked face,
                 // and now the second click has arrived so we're about to copy the selected attributes to the whole brush.
                 // To make undo/redo more intuitivie, undo the application to the single face now, so that if the
                 // double click is later undone/redone, it appears as one atomic action.
@@ -204,7 +204,7 @@ namespace TrenchBroom {
             return std::make_unique<SetBrushFaceAttributesDragTracker>(*kdl::mem_lock(m_document), selectedFaces.front());
         }
 
-        bool SetBrushFaceAttributesTool::doCancel() {
+        bool SetBrushFaceAttributesTool::cancel() {
             return false;
         }
 

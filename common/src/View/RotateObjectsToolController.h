@@ -33,21 +33,21 @@ namespace TrenchBroom {
 
         class RotateObjectsToolController : public ToolControllerGroup {
         protected:
-            RotateObjectsTool* m_tool;
+            RotateObjectsTool& m_tool;
         protected:
-            explicit RotateObjectsToolController(RotateObjectsTool* tool);
+            explicit RotateObjectsToolController(RotateObjectsTool& tool);
         public:
             ~RotateObjectsToolController() override;
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel() override;
+            bool cancel() override;
         private: // subclassing interface
             virtual Model::Hit doPick(const InputState& inputState) = 0;
             virtual void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
         class RotateObjectsToolController2D : public RotateObjectsToolController {
         public:
-            explicit RotateObjectsToolController2D(RotateObjectsTool* tool);
+            explicit RotateObjectsToolController2D(RotateObjectsTool& tool);
         private:
             Model::Hit doPick(const InputState& inputState) override;
             void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
@@ -63,7 +63,7 @@ namespace TrenchBroom {
 
         class RotateObjectsToolController3D : public RotateObjectsToolController {
         public:
-            explicit RotateObjectsToolController3D(RotateObjectsTool* tool);
+            explicit RotateObjectsToolController3D(RotateObjectsTool& tool);
         private:
             Model::Hit doPick(const InputState& inputState) override;
             void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;

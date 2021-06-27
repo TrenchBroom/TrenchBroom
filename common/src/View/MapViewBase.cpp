@@ -167,7 +167,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void MapViewBase::toolChanged(Tool*) {
+        void MapViewBase::toolChanged(Tool&) {
             updatePickResult();
             updateActionStates();
             update();

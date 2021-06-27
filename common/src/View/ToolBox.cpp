@@ -42,10 +42,9 @@ namespace TrenchBroom {
 
         ToolBox::~ToolBox() = default;
 
-        void ToolBox::addTool(Tool* tool) {
-            ensure(tool != nullptr, "tool is null");
-            m_notifierConnection += tool->refreshViewsNotifier.connect(refreshViewsNotifier);
-            m_notifierConnection += tool->toolHandleSelectionChangedNotifier.connect(toolHandleSelectionChangedNotifier);
+        void ToolBox::addTool(Tool& tool) {
+            m_notifierConnection += tool.refreshViewsNotifier.connect(refreshViewsNotifier);
+            m_notifierConnection += tool.toolHandleSelectionChangedNotifier.connect(toolHandleSelectionChangedNotifier);
         }
 
         void ToolBox::pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult) {
@@ -196,49 +195,35 @@ namespace TrenchBroom {
             return false;
         }
 
-        void ToolBox::suppressWhileActive(Tool* suppressedTool, Tool* primaryTool) {
-            ensure(primaryTool != nullptr, "primary is null");
-            ensure(suppressedTool != nullptr, "supressed is null");
-            assert(primaryTool != suppressedTool);
-            m_suppressedTools[primaryTool].push_back(suppressedTool);
+        void ToolBox::suppressWhileActive(Tool& suppressedTool, Tool& primaryTool) {
+            assert(&primaryTool != &suppressedTool);
+            m_suppressedTools[&primaryTool].push_back(&suppressedTool);
         }
 
         bool ToolBox::anyToolActive() const {
             return m_modalTool != nullptr;
         }
 
-        bool ToolBox::toolActive(const Tool* tool) const {
-            if (tool == nullptr) {
-                return false;
+        void ToolBox::toggleTool(Tool& tool) {
+            if (&tool == m_modalTool) {
+                Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
+                deactivateTool(*previousModalTool);
             } else {
-                return tool->active();
-            }
-        }
-
-        void ToolBox::toggleTool(Tool* tool) {
-            if (tool == nullptr) {
                 if (m_modalTool != nullptr) {
                     Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
-                    deactivateTool(previousModalTool);
+                    deactivateTool(*previousModalTool);
                 }
-            } else {
-                if (m_modalTool == tool) {
-                    Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
-                    deactivateTool(previousModalTool);
-                } else {
-                    if (m_modalTool != nullptr) {
-                        Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
-                        deactivateTool(previousModalTool);
-                    }
-                    if (activateTool(tool)) {
-                        m_modalTool = tool;
-                    }
+                if (activateTool(tool)) {
+                    m_modalTool = &tool;
                 }
             }
         }
 
         void ToolBox::deactivateAllTools() {
-            toggleTool(nullptr);
+            if (m_modalTool != nullptr) {
+                Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
+                deactivateTool(*previousModalTool);
+            }
         }
 
         bool ToolBox::enabled() const {
@@ -271,16 +256,16 @@ namespace TrenchBroom {
             }
         }
 
-        bool ToolBox::activateTool(Tool* tool) {
-            if (!tool->activate()) {
+        bool ToolBox::activateTool(Tool& tool) {
+            if (!tool.activate()) {
                 return false;
             }
 
-            auto it = m_suppressedTools.find(tool);
+            auto it = m_suppressedTools.find(&tool);
             if (it != std::end(m_suppressedTools)) {
                 for (Tool* suppress : it->second) {
                     suppress->deactivate();
-                    toolDeactivatedNotifier(suppress);
+                    toolDeactivatedNotifier(*suppress);
                 }
             }
 
@@ -288,20 +273,20 @@ namespace TrenchBroom {
             return true;
         }
 
-        void ToolBox::deactivateTool(Tool* tool) {
+        void ToolBox::deactivateTool(Tool& tool) {
             if (dragging()) {
                 cancelMouseDrag();
             }
 
-            auto it = m_suppressedTools.find(tool);
+            auto it = m_suppressedTools.find(&tool);
             if (it != std::end(m_suppressedTools)) {
                 for (Tool* suppress : it->second) {
                     suppress->activate();
-                    toolActivatedNotifier(suppress);
+                    toolActivatedNotifier(*suppress);
                 }
             }
 
-            tool->deactivate();
+            tool.deactivate();
             toolDeactivatedNotifier(tool);
         }
     }

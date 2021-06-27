@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace View {
         class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3> {
         public:
-            SelectEdgePart(EdgeTool* tool) :
+            SelectEdgePart(EdgeTool& tool) :
             SelectPartBase(tool, EdgeHandleManager::HandleHitType) {}
         private:
             bool equalHandles(const vm::segment3& lhs, const vm::segment3& rhs) const override {
@@ -39,11 +39,11 @@ namespace TrenchBroom {
 
         class EdgeToolController::MoveEdgePart : public MovePartBase {
         public:
-            MoveEdgePart(EdgeTool* tool) :
+            MoveEdgePart(EdgeTool& tool) :
             MovePartBase(tool, EdgeHandleManager::HandleHitType) {}
         };
 
-        EdgeToolController::EdgeToolController(EdgeTool* tool) :
+        EdgeToolController::EdgeToolController(EdgeTool& tool) :
         VertexToolControllerBase(tool) {
             addController(std::make_unique<MoveEdgePart>(tool));
             addController(std::make_unique<SelectEdgePart>(tool));

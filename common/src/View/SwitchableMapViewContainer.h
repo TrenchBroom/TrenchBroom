@@ -86,7 +86,7 @@ namespace TrenchBroom {
             bool clipToolActive() const;
             bool canToggleClipTool() const;
             void toggleClipTool();
-            ClipTool* clipTool();
+            ClipTool& clipTool();
 
             bool rotateObjectsToolActive() const;
             bool canToggleRotateObjectsTool() const;
@@ -108,10 +108,10 @@ namespace TrenchBroom {
             void toggleVertexTool();
             void toggleEdgeTool();
             void toggleFaceTool();
-            VertexTool* vertexTool();
-            EdgeTool* edgeTool();
-            FaceTool* faceTool();
-            MapViewToolBox* mapViewToolBox();
+            VertexTool& vertexTool();
+            EdgeTool& edgeTool();
+            FaceTool& faceTool();
+            MapViewToolBox& mapViewToolBox();
 
             bool canMoveCameraToNextTracePoint() const;
             bool canMoveCameraToPreviousTracePoint() const;
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             void toggleMaximizeCurrentView();
         private:
             void connectObservers();
-            void refreshViews(Tool* tool);
+            void refreshViews(Tool& tool);
         private: // implement MapView interface
             void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
             bool doGetIsCurrent() const override;

@@ -65,18 +65,18 @@ namespace TrenchBroom {
             MapViewToolBox(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl);
             ~MapViewToolBox() override;
         public: // tools
-            ClipTool* clipTool() const;
-            CreateComplexBrushTool* createComplexBrushTool() const;
-            CreateEntityTool* createEntityTool() const;
-            CreateSimpleBrushTool* createSimpleBrushTool() const;
-            MoveObjectsTool* moveObjectsTool() const;
-            ResizeBrushesTool* resizeBrushesTool() const;
-            RotateObjectsTool* rotateObjectsTool() const;
-            ScaleObjectsTool* scaleObjectsTool() const;
-            ShearObjectsTool* shearObjectsTool() const;
-            VertexTool* vertexTool() const;
-            EdgeTool* edgeTool() const;
-            FaceTool* faceTool() const;
+            ClipTool& clipTool();
+            CreateComplexBrushTool& createComplexBrushTool();
+            CreateEntityTool& createEntityTool();
+            CreateSimpleBrushTool& createSimpleBrushTool();
+            MoveObjectsTool& moveObjectsTool();
+            ResizeBrushesTool& resizeBrushesTool();
+            RotateObjectsTool& rotateObjectsTool();
+            ScaleObjectsTool& scaleObjectsTool();
+            ShearObjectsTool& shearObjectsTool();
+            VertexTool& vertexTool();
+            EdgeTool& edgeTool();
+            FaceTool& faceTool();
 
             void toggleCreateComplexBrushTool();
             bool createComplexBrushToolActive() const;
@@ -115,10 +115,10 @@ namespace TrenchBroom {
         private: // Tool related methods
             void createTools(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl);
         private: // notification
-            void registerTool(Tool* tool, QStackedLayout* bookCtrl);
+            void registerTool(Tool& tool, QStackedLayout* bookCtrl);
             void connectObservers();
-            void toolActivated(Tool* tool);
-            void toolDeactivated(Tool* tool);
+            void toolActivated(Tool& tool);
+            void toolDeactivated(Tool& tool);
             void updateEditorContext();
             void documentWasNewedOrLoaded(MapDocument* document);
         };

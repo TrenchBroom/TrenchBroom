@@ -42,24 +42,22 @@
 
 namespace TrenchBroom {
     namespace View {
-        ShearObjectsToolController::ShearObjectsToolController(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
+        ShearObjectsToolController::ShearObjectsToolController(ShearObjectsTool& tool, std::weak_ptr<MapDocument> document) :
         m_tool{tool},
-        m_document{std::move(document)} {
-            ensure(m_tool != nullptr, "tool is null");
-        }
+        m_document{std::move(document)} {}
 
         ShearObjectsToolController::~ShearObjectsToolController() = default;
 
-        Tool* ShearObjectsToolController::doGetTool() {
+        Tool& ShearObjectsToolController::tool() {
             return m_tool;
         }
 
-        const Tool* ShearObjectsToolController::doGetTool() const {
+        const Tool& ShearObjectsToolController::tool() const {
             return m_tool;
         }
 
-        void ShearObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            if (m_tool->applies()) {
+        void ShearObjectsToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {
+            if (m_tool.applies()) {
                 // forward to either ShearObjectsTool::pick2D or ShearObjectsTool::pick3D
                 doPick(inputState.pickRay(), inputState.camera(), pickResult);
             }
@@ -102,9 +100,9 @@ namespace TrenchBroom {
             );
         }
 
-        void ShearObjectsToolController::doMouseMove(const InputState& inputState) {
-            if (m_tool->applies() && !anyToolDragging(inputState)) {
-                m_tool->updatePickedSide(inputState.pickResult());
+        void ShearObjectsToolController::mouseMove(const InputState& inputState) {
+            if (m_tool.applies() && !anyToolDragging(inputState)) {
+                m_tool.updatePickedSide(inputState.pickResult());
             }
         }
 
@@ -187,7 +185,7 @@ namespace TrenchBroom {
             if (!(inputState.modifierKeysPressed(ModifierKeys::MKNone) || vertical)) {
                 return nullptr;
             }
-            if (!m_tool->applies()) {
+            if (!m_tool.applies()) {
                 return nullptr;
             }
 
@@ -198,32 +196,32 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            m_tool->startShearWithHit(hit);
-            m_tool->setConstrainVertical(vertical);
+            m_tool.startShearWithHit(hit);
+            m_tool.setConstrainVertical(vertical);
 
-            const auto [handlePosition, handleOffset] = getInitialHandlePositionAndOffset(m_tool->bounds(), hit);
-            return createHandleDragTracker(ShearObjectsDragDelegate{*m_tool}, inputState, handlePosition, handleOffset);
+            const auto [handlePosition, handleOffset] = getInitialHandlePositionAndOffset(m_tool.bounds(), hit);
+            return createHandleDragTracker(ShearObjectsDragDelegate{m_tool}, inputState, handlePosition, handleOffset);
         }
 
-        void ShearObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
+        void ShearObjectsToolController::setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
         }
 
-        void ShearObjectsToolController::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ShearObjectsToolController::render(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             // render sheared box
             {
                 auto renderService = Renderer::RenderService{renderContext, renderBatch};
                 renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                const auto mat = m_tool->bboxShearMatrix();
+                const auto mat = m_tool.bboxShearMatrix();
                 const auto op = [&](const vm::vec3& start, const vm::vec3& end) {
                     renderService.renderLine(vm::vec3f(mat * start), vm::vec3f(mat * end));
                 };
-                m_tool->bboxAtDragStart().for_each_edge(op);
+                m_tool.bboxAtDragStart().for_each_edge(op);
             }
 
             // render shear handle
             {
-                const vm::polygon3f poly = m_tool->shearHandle();
+                const vm::polygon3f poly = m_tool.shearHandle();
                 if (poly.vertexCount() != 0) {
                     // fill
                     {
@@ -244,28 +242,28 @@ namespace TrenchBroom {
             }
         }
 
-        bool ShearObjectsToolController::doCancel() {
+        bool ShearObjectsToolController::cancel() {
             return false;
         }
 
         // ShearObjectsToolController2D
 
-        ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
+        ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool& tool, std::weak_ptr<MapDocument> document) :
         ShearObjectsToolController{tool, std::move(document)} {}
 
         void ShearObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
-            m_tool->pick2D(pickRay, camera, pickResult);
+            m_tool.pick2D(pickRay, camera, pickResult);
         }
 
         // ShearObjectsToolController3D
 
-        ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool* tool, std::weak_ptr<MapDocument> document) :
+        ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool& tool, std::weak_ptr<MapDocument> document) :
         ShearObjectsToolController{tool, std::move(document)} {}
 
         void ShearObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
-            m_tool->pick3D(pickRay, camera, pickResult);
+            m_tool.pick3D(pickRay, camera, pickResult);
         }
     }
 }

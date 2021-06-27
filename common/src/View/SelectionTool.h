@@ -40,43 +40,30 @@ namespace TrenchBroom {
         class MapDocument;
 
         /**
-         * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
-         * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is returned.
-         *
-         * This is used to implement the UI where clicking on a brush inside a group selects the group.
-         */
-        Model::Node* findOutermostClosedGroupOrNode(Model::Node* node);
-
-        /**
          * Applies the group picking logic of findOutermostClosedGroupOrNode() to a list of hits.
          * The order of the hits is preserved, but if multiple hits map to the same group, that group
          * will only be listed once in the output.
          */
         std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits);
 
-        class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, RenderPolicy>, public Tool {
+        class SelectionTool : public ToolController, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
         public:
             explicit SelectionTool(std::weak_ptr<MapDocument> document);
         private:
-            Tool* doGetTool() override;
-            const Tool* doGetTool() const override;
+            Tool& tool() override;
+            const Tool& tool() const override;
 
-            bool doMouseClick(const InputState& inputState) override;
-            bool doMouseDoubleClick(const InputState& inputState) override;
-
-            bool handleClick(const InputState& inputState) const;
-
-            void doMouseScroll(const InputState& inputState) override;
-            void adjustGrid(const InputState& inputState);
-            void drillSelection(const InputState& inputState);
+            bool mouseClick(const InputState& inputState) override;
+            bool mouseDoubleClick(const InputState& inputState) override;
+            void mouseScroll(const InputState& inputState) override;
 
             std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
 
-            bool doCancel() override;
+            bool cancel() override;
         };
     }
 }

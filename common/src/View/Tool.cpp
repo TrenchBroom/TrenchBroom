@@ -43,7 +43,7 @@ namespace TrenchBroom {
             assert(!active());
             if (doActivate()) {
                 m_active = true;
-                toolActivatedNotifier(this);
+                toolActivatedNotifier(*this);
             }
             return m_active;
         }
@@ -52,17 +52,17 @@ namespace TrenchBroom {
             assert(active());
             if (doDeactivate()) {
                 m_active = false;
-                toolDeactivatedNotifier(this);
+                toolDeactivatedNotifier(*this);
             }
             return !m_active;
         }
 
         void Tool::refreshViews() {
-            refreshViewsNotifier(this);
+            refreshViewsNotifier(*this);
         }
 
         void Tool::notifyToolHandleSelectionChanged() {
-            toolHandleSelectionChangedNotifier(this);
+            toolHandleSelectionChangedNotifier(*this);
         }
 
         void Tool::createPage(QStackedLayout* book) {

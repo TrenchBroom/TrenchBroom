@@ -38,12 +38,19 @@
 
 #include <kdl/memory_utils.h>
 
+#include <algorithm>
 #include <unordered_set>
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        Model::Node* findOutermostClosedGroupOrNode(Model::Node* node) {
+        /**
+         * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
+         * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is returned.
+         *
+         * This is used to implement the UI where clicking on a brush inside a group selects the group.
+         */
+        static Model::Node* findOutermostClosedGroupOrNode(Model::Node* node) {
             Model::GroupNode* group = findOutermostClosedGroup(node);
             if (group != nullptr) {
                 return group;
@@ -53,8 +60,10 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits) {
-            std::vector<Model::Node*> hitNodes;
-            std::unordered_set<Model::Node*> duplicateCheck;
+            auto hitNodes = std::vector<Model::Node*>{};
+            hitNodes.reserve(hits.size());
+
+            auto duplicateCheck = std::unordered_set<Model::Node*>{};
 
             for (const auto& hit : hits) {
                 Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
@@ -86,26 +95,38 @@ namespace TrenchBroom {
             return Model::collectSelectableNodes(node->children(), editorContext);
         }
 
-        SelectionTool::SelectionTool(std::weak_ptr<MapDocument> document) :
-        ToolControllerBase(),
-        Tool(true),
-        m_document(document) {}
-
-        Tool* SelectionTool::doGetTool() {
-            return this;
-        }
-
-        const Tool* SelectionTool::doGetTool() const {
-            return this;
-        }
-
-        bool SelectionTool::doMouseClick(const InputState& inputState) {
-            if (!handleClick(inputState)) {
+        static bool handleClick(const InputState& inputState, const Model::EditorContext& editorContext) {
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
+                return false;
+            }
+            if (!inputState.checkModifierKeys(MK_DontCare, MK_No, MK_DontCare)) {
                 return false;
             }
 
+            return editorContext.canChangeSelection();
+        }
+
+        SelectionTool::SelectionTool(std::weak_ptr<MapDocument> document) :
+        ToolController{},
+        Tool{true},
+        m_document{std::move(document)} {}
+
+        Tool& SelectionTool::tool() {
+            return *this;
+        }
+
+        const Tool& SelectionTool::tool() const {
+            return *this;
+        }
+
+        bool SelectionTool::mouseClick(const InputState& inputState) {
             auto document = kdl::mem_lock(m_document);
             const auto& editorContext = document->editorContext();
+            
+            if (!handleClick(inputState, editorContext)) {
+                return false;
+            }
+
             if (isFaceClick(inputState)) {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
@@ -118,7 +139,7 @@ namespace TrenchBroom {
                                 if (brush->selected()) {
                                     document->deselect(*faceHandle);
                                 } else {
-                                    Transaction transaction(document, "Select Brush Face");
+                                    auto transaction = Transaction{document, "Select Brush Face"};
                                     document->convertToFaceSelection();
                                     document->select(*faceHandle);
                                 }
@@ -130,7 +151,7 @@ namespace TrenchBroom {
                                 }
                             }
                         } else {
-                            Transaction transaction(document, "Select Brush Face");
+                            auto transaction = Transaction{document, "Select Brush Face"};
                             document->deselectAll();
                             document->select(*faceHandle);
                         }
@@ -147,14 +168,14 @@ namespace TrenchBroom {
                             if (node->selected()) {
                                 document->deselect(node);
                             } else {
-                                Transaction transaction(document, "Select Object");
+                                auto transaction = Transaction{document, "Select Object"};
                                 if (document->hasSelectedBrushFaces()) {
                                     document->deselectAll();
                                 }
                                 document->select(node);
                             }
                         } else {
-                            Transaction transaction(document, "Select Object");
+                            auto transaction = Transaction{document, "Select Object"};
                             document->deselectAll();
                             document->select(node);
                         }
@@ -167,13 +188,14 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SelectionTool::doMouseDoubleClick(const InputState& inputState) {
-            if (!handleClick(inputState)) {
+        bool SelectionTool::mouseDoubleClick(const InputState& inputState) {
+            auto document = kdl::mem_lock(m_document);
+            const auto& editorContext = document->editorContext();
+
+            if (!handleClick(inputState, editorContext)) {
                 return false;
             }
 
-            auto document = kdl::mem_lock(m_document);
-            const auto& editorContext = document->editorContext();
             if (isFaceClick(inputState)) {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
@@ -186,7 +208,7 @@ namespace TrenchBroom {
                             }
                             document->select(Model::toHandles(brush));
                         } else {
-                            Transaction transaction(document, "Select Brush Faces");
+                            auto transaction = Transaction{document, "Select Brush Faces"};
                             document->deselectAll();
                             document->select(Model::toHandles(brush));
                         }
@@ -215,7 +237,7 @@ namespace TrenchBroom {
                                     }
                                     document->select(siblings);
                                 } else {
-                                    Transaction transaction(document, "Select Brushes");
+                                    auto transaction = Transaction{document, "Select Brushes"};
                                     document->deselectAll();
                                     document->select(siblings);
                                 }
@@ -232,47 +254,13 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SelectionTool::handleClick(const InputState& inputState) const {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
-                return false;
-            }
-            if (!inputState.checkModifierKeys(MK_DontCare, MK_No, MK_DontCare)) {
-                return false;
-            }
-
-            auto document = kdl::mem_lock(m_document);
-            return document->editorContext().canChangeSelection();
-        }
-
-        void SelectionTool::doMouseScroll(const InputState& inputState) {
-            if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No)) {
-                adjustGrid(inputState);
-            } else if (inputState.checkModifierKeys(MK_Yes, MK_No, MK_No)) {
-                drillSelection(inputState);
-            }
-        }
-
-        void SelectionTool::adjustGrid(const InputState& inputState) {
+        static void adjustGrid(const InputState& inputState, Grid& grid) {
             const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-            auto document = kdl::mem_lock(m_document);
-            auto& grid = document->grid();
             if (factor * inputState.scrollY() < 0.0f) {
                 grid.incSize();
             } else if (factor * inputState.scrollY() > 0.0f) {
                 grid.decSize();
             }
-        }
-
-        template <typename I>
-        I findFirstSelected(I it, I end) {
-            while (it != end) {
-                auto* node = *it;
-                if (node->selected()) {
-                    break;
-                }
-                ++it;
-            }
-            return it;
         }
 
         /**
@@ -281,31 +269,21 @@ namespace TrenchBroom {
          *  - second is the next selectable node in the list
          */
         template <typename I>
-        std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end, const Model::EditorContext& editorContext) {
-            static Model::Node* const NullNode = nullptr;
-
-            const auto first = findFirstSelected(it, end);
+        static std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end, const Model::EditorContext& editorContext) {
+            const auto first = std::find_if(it, end, [](const auto* node) { return node->selected(); });
             if (first == end) {
-                return std::make_pair(NullNode, NullNode);
+                return {nullptr, nullptr};
             }
 
-            auto next = std::next(first);
-            while (next != end) {
-                auto* node = *next;
-                if (editorContext.selectable(node)) {
-                    break;
-                }
-                ++next;
-            }
-
+            const auto next = std::find_if(std::next(first), end, [&](const auto* node) { return editorContext.selectable(node); });
             if (next == end) {
-                return std::make_pair(*first, NullNode);
-            } else {
-                return std::make_pair(*first, *next);
+                return {*first, nullptr};
             }
+
+            return {*first, *next};
         }
 
-        void SelectionTool::drillSelection(const InputState& inputState) {
+        static void drillSelection(const InputState& inputState, MapDocument& document) {
             using namespace Model::HitFilters;
             const auto hits = inputState.pickResult().all(type(Model::nodeHitType()));
 
@@ -313,19 +291,30 @@ namespace TrenchBroom {
             // to group hits using findOutermostClosedGroupOrNode() and multiple hits on the same Group need to be collapsed.
             const std::vector<Model::Node*> hitNodes = hitsToNodesWithGroupPicking(hits);
 
-            auto document = kdl::mem_lock(m_document);
-            const auto& editorContext = document->editorContext();
+            const auto& editorContext = document.editorContext();
 
             const auto forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
-            const auto nodePair = forward ? findSelectionPair(std::begin(hitNodes), std::end(hitNodes), editorContext) : findSelectionPair(hitNodes.rbegin(), hitNodes.rend(), editorContext);
+            const auto nodePair = forward 
+                ? findSelectionPair(std::begin(hitNodes), std::end(hitNodes), editorContext) 
+                : findSelectionPair(std::rbegin(hitNodes), std::rend(hitNodes), editorContext);
 
             auto* selectedNode = nodePair.first;
             auto* nextNode = nodePair.second;
 
             if (nextNode != nullptr) {
-                Transaction transaction(document, "Drill Selection");
-                document->deselect(selectedNode);
-                document->select(nextNode);
+                auto transaction = Transaction{&document, "Drill Selection"};
+                document.deselect(selectedNode);
+                document.select(nextNode);
+            }
+        }
+
+        void SelectionTool::mouseScroll(const InputState& inputState) {
+            const auto document = kdl::mem_lock(m_document);
+
+            if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No)) {
+                adjustGrid(inputState, document->grid());
+            } else if (inputState.checkModifierKeys(MK_Yes, MK_No, MK_No)) {
+                drillSelection(inputState, *document);
             }
         }
 
@@ -372,12 +361,12 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<DragTracker> SelectionTool::acceptMouseDrag(const InputState& inputState) {
-            if (!handleClick(inputState) || !isMultiClick(inputState)) {
-                return nullptr;
-            }
-
             auto document = kdl::mem_lock(m_document);
             const auto& editorContext = document->editorContext();
+
+            if (!handleClick(inputState, editorContext) || !isMultiClick(inputState)) {
+                return nullptr;
+            }
 
             if (isFaceClick(inputState)) {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
@@ -419,7 +408,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void SelectionTool::setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             auto document = kdl::mem_lock(m_document);
             const auto& hit = firstHit(inputState, Model::nodeHitType());
             if (hit.isMatch()) {
@@ -431,7 +420,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool SelectionTool::doCancel() {
+        bool SelectionTool::cancel() {
             // closing the current group is handled in MapViewBase
             return false;
         }
