@@ -120,7 +120,7 @@ namespace TrenchBroom {
          */
         [[nodiscard]] NotifierConnection connect(Notifier& notifier) {
             const auto id = m_nextId++;
-            auto callback = [&](auto... a) { notifier(std::forward<decltype(a)>(a)...); };
+            auto callback = [&](auto&&... a) { notifier(std::forward<decltype(a)>(a)...); };
             if (m_notifying) {
                 m_toAdd.emplace_back(std::move(callback), id);
             } else {
