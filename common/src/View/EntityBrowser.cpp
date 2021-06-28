@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Model/WorldNode.h"
 #include "View/EntityBrowserView.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
@@ -57,6 +58,9 @@ namespace TrenchBroom {
 
         void EntityBrowser::reload() {
             if (m_view != nullptr) {
+                auto document = kdl::mem_lock(m_document);
+                m_view->setDefaultModelScaleExpression(document->world()->entityPropertyConfig().defaultModelScaleExpression);
+
                 m_view->invalidate();
                 m_view->update();
             }

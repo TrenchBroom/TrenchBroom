@@ -49,11 +49,12 @@ namespace TrenchBroom {
 
         // EntityModel::LoadedFrame
 
-        EntityModelLoadedFrame::EntityModelLoadedFrame(const size_t index, const std::string& name, const vm::bbox3f& bounds, const PitchType pitchType) :
+        EntityModelLoadedFrame::EntityModelLoadedFrame(const size_t index, const std::string& name, const vm::bbox3f& bounds, const PitchType pitchType, const Orientation orientation) :
         EntityModelFrame{index},
         m_name{name},
         m_bounds{bounds},
         m_pitchType{pitchType},
+        m_orientation{orientation},
         m_spacialTree{std::make_unique<SpacialTree>()} {}
 
         EntityModelLoadedFrame::~EntityModelLoadedFrame() = default;
@@ -72,6 +73,10 @@ namespace TrenchBroom {
 
         PitchType EntityModelLoadedFrame::pitchType() const {
             return m_pitchType;
+        }
+
+        Orientation EntityModelLoadedFrame::orientation() const {
+            return m_orientation;
         }
 
         float EntityModelLoadedFrame::intersect(const vm::ray3f& ray) const {
@@ -200,6 +205,10 @@ namespace TrenchBroom {
 
             PitchType pitchType() const override {
                 return PitchType::Normal;
+            }
+
+            Orientation orientation() const override {
+                return Orientation::Oriented;
             }
 
             float intersect(const vm::ray3f& /* ray */) const override {
@@ -368,10 +377,11 @@ namespace TrenchBroom {
 
         // EntityModel
 
-        EntityModel::EntityModel(std::string name, const PitchType pitchType) :
+        EntityModel::EntityModel(std::string name, const PitchType pitchType, const Orientation orientation) :
         m_name{std::move(name)},
         m_prepared{false},
-        m_pitchType{pitchType} {}
+        m_pitchType{pitchType},
+        m_orientation{orientation} {}
 
         std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             std::vector<std::unique_ptr<Renderer::TexturedIndexRangeRenderer>> renderers;
@@ -426,7 +436,7 @@ namespace TrenchBroom {
                 throw AssetException("Frame index " + std::to_string(frameIndex) + " is out of bounds (frame count = " + std::to_string(frameCount()) + ")");
             }
 
-            auto frame = std::make_unique<EntityModelLoadedFrame>(frameIndex, name, bounds, m_pitchType);
+            auto frame = std::make_unique<EntityModelLoadedFrame>(frameIndex, name, bounds, m_pitchType, m_orientation);
             auto& result = *frame;
             m_frames[frameIndex] = std::move(frame);
             return result;

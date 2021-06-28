@@ -84,7 +84,7 @@ namespace TrenchBroom {
             /* const auto tagOffset = */ reader.readSize<int32_t>();
             const auto surfaceOffset = reader.readSize<int32_t>();
 
-            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal);
+            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
             model->addFrames(frameCount);
             parseSurfaces(reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model, logger);
 

@@ -29,6 +29,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
+#include "EL/VariableStore.h"
 #include "Renderer/GL.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
@@ -79,6 +80,10 @@ namespace TrenchBroom {
 
         EntityBrowserView::~EntityBrowserView() {
             clear();
+        }
+
+        void EntityBrowserView::setDefaultModelScaleExpression(std::optional<EL::Expression> defaultScaleExpression) {
+            m_defaultScaleModelExpression = std::move(defaultScaleExpression);
         }
 
         void EntityBrowserView::setSortOrder(const Assets::EntityDefinitionSortOrder sortOrder) {
@@ -179,15 +184,19 @@ namespace TrenchBroom {
                 });
 
                 const auto* frame = m_entityModelManager.frame(spec);
-                Renderer::TexturedRenderer* modelRenderer = nullptr;
+                const auto modelScale = vm::vec3f{definition->modelDefinition().scale(EL::NullVariableStore{}, m_defaultScaleModelExpression)};
 
+                Renderer::TexturedRenderer* modelRenderer = nullptr;
                 vm::bbox3f rotatedBounds;
+                auto modelOrientation = Assets::Orientation::Oriented;
+
                 if (frame != nullptr) {
                     const auto bounds = frame->bounds();
                     const auto center = bounds.center();
                     const auto transform =vm::translation_matrix(center) * vm::rotation_matrix(m_rotation) *vm::translation_matrix(-center);
                     rotatedBounds = bounds.transform(transform);
                     modelRenderer = m_entityModelManager.renderer(spec);
+                    modelOrientation = frame->orientation();
                 } else {
                     rotatedBounds = vm::bbox3f(definition->bounds());
                     const auto center = rotatedBounds.center();
@@ -196,7 +205,7 @@ namespace TrenchBroom {
                 }
 
                 const auto boundsSize = rotatedBounds.size();
-                layout.addItem(EntityCellData{definition, modelRenderer, actualFont, rotatedBounds},
+                layout.addItem(EntityCellData{definition, modelRenderer, modelOrientation, actualFont, rotatedBounds, modelScale},
                                boundsSize.y(),
                                boundsSize.z(),
                                actualSize.x(),
@@ -213,7 +222,7 @@ namespace TrenchBroom {
             const float viewBottom    = static_cast<float>(0);
 
             const vm::mat4x4f projection = vm::ortho_matrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
-            const vm::mat4x4f view = vm::view_matrix(vm::vec3f::neg_x(), vm::vec3f::pos_z()) *vm::translation_matrix(vm::vec3f(256.0f, 0.0f, 0.0f));
+            const vm::mat4x4f view = vm::view_matrix(CameraDirection, CameraUp) * vm::translation_matrix(CameraPosition);
             Renderer::Transformation transformation(projection, view);
 
             renderBounds(layout, y, height);
@@ -278,14 +287,20 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation) {
-            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::EntityModelShader);
+            glAssert(glFrontFace(GL_CW));
+
+            m_entityModelManager.prepare(vboManager());
+
+            auto shader = Renderer::ActiveShader{shaderManager(), Renderer::Shaders::EntityModelShader};
             shader.set("ApplyTinting", false);
             shader.set("Brightness", pref(Preferences::Brightness));
             shader.set("GrayScale", false);
 
-            glAssert(glFrontFace(GL_CW));
-
-            m_entityModelManager.prepare(vboManager());
+            shader.set("CameraPosition", CameraPosition);
+            shader.set("CameraDirection", CameraDirection);
+            shader.set("CameraRight", vm::cross(CameraDirection, CameraUp));
+            shader.set("CameraUp", CameraUp);
+            shader.set("ViewMatrix", transformation.viewMatrix());
 
             for (const auto& group : layout.groups()) {
                 if (group.intersectsY(y, height)) {
@@ -295,7 +310,11 @@ namespace TrenchBroom {
                                 auto* modelRenderer = cellData(cell).modelRenderer;
 
                                 if (modelRenderer != nullptr) {
+                                    shader.set("Orientation", static_cast<int>(cellData(cell).modelOrientation));
+
                                     const auto itemTrans = itemTransformation(cell, y, height);
+                                    shader.set("ModelMatrix", itemTrans);
+
                                     Renderer::MultiplyModelMatrix multMatrix(transformation, itemTrans);
                                     modelRenderer->render();
                                 }
@@ -414,11 +433,13 @@ namespace TrenchBroom {
         }
 
         vm::mat4x4f EntityBrowserView::itemTransformation(const Cell& cell, const float y, const float height) const {
-            auto* definition = cellData(cell).entityDefinition;
+            const auto& cellData = this->cellData(cell);
+            const auto* definition = cellData.entityDefinition;
 
             const auto offset = vm::vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
             const auto scaling = cell.scale();
-            const auto& rotatedBounds = cellData(cell).bounds;
+            const auto& rotatedBounds = cellData.bounds;
+            const auto& modelScale = cellData.modelScale;
             const auto rotationOffset = vm::vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
             const auto boundsCenter = vm::vec3f(definition->bounds().center());
 
@@ -427,6 +448,7 @@ namespace TrenchBroom {
                     vm::translation_matrix(rotationOffset) *
                     vm::translation_matrix(boundsCenter) *
                     vm::rotation_matrix(m_rotation) *
+                    vm::scaling_matrix(modelScale) *
                     vm::translation_matrix(-boundsCenter));
         }
 

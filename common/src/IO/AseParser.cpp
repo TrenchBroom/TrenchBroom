@@ -464,7 +464,7 @@ namespace TrenchBroom {
         std::unique_ptr<Assets::EntityModel> AseParser::buildModel(Logger& logger, const Scene& scene) const {
             using Vertex = Assets::EntityModelVertex;
 
-            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal);
+            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
             model->addFrames(1);
             auto& surface = model->addSurface(m_name);
 

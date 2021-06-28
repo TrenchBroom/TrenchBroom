@@ -1,7 +1,7 @@
 #version 120
 
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2020 MaxED
  
  This file is part of TrenchBroom.
  
@@ -20,11 +20,140 @@
  */
 
 uniform mat4 ModelMatrix;
+uniform mat4 ViewMatrix;
+uniform vec3 CameraPosition;
+uniform vec3 CameraDirection;
+uniform vec3 CameraRight;
+uniform vec3 CameraUp;
+
+// see Orientation enum in EntityModel.h
+uniform int Orientation;
 
 varying vec4 worldCoordinates;
 
+mat4 getScaleMatrix() {
+    float sx = length(vec3(ModelMatrix[0]));
+    float sy = length(vec3(ModelMatrix[1]));
+    float sz = length(vec3(ModelMatrix[2]));
+
+    return mat4(
+        vec4(sx,  0.0, 0.0, 0.0),
+        vec4(0.0, sy,  0.0, 0.0),
+        vec4(0.0, 0.0, sz,  0.0),
+        vec4(0.0, 0.0, 0.0, 1.0)
+    );
+}
+
+mat4 getViewPlaneParallelUprightModelMatrix() {
+    // Faces view plane, up is towards the heavens.
+    vec3 right = CameraRight;
+    vec3 up = vec3(0.0, 0.0, 1.0);
+    vec3 normal = normalize(cross(right, up));
+
+    return mat4(
+        vec4(right, 0.0),
+        vec4(up, 0.0),
+        vec4(normal, 0.0),
+        ModelMatrix[3]
+    ) * getScaleMatrix();
+}
+
+mat4 getFacingUprightModelMatrix() {
+    // Faces camera origin, up is towards the heavens.
+    vec3 toCam = CameraPosition - vec3(ModelMatrix[3]);
+    vec3 up = vec3(0.0, 0.0, 1.0);
+    vec3 right = normalize(cross(up, toCam));
+    vec3 normal = normalize(cross(right, up));
+
+    return mat4(
+        vec4(right, 0.0),
+        vec4(up, 0.0),
+        vec4(normal, 0.0),
+        ModelMatrix[3]
+    ) * getScaleMatrix();
+}
+
+mat4 getViewPlaneParallelModelMatrix() {
+    // Faces view plane, up is towards the top of the screen.
+    vec3 normal = -CameraDirection;
+    vec3 right = CameraRight;
+    vec3 up = CameraUp;
+
+    return mat4(
+        vec4(right, 0.0),
+        vec4(up, 0.0),
+        vec4(normal, 0.0),
+        ModelMatrix[3]
+    ) * getScaleMatrix();
+}
+
+float extractRollAngle(mat4 rotation) {
+    if (abs(rotation[0][2]) != 1.0) {
+        float theta = -asin(rotation[0][1]);
+        float cosTheta = cos(theta);
+        return atan(rotation[1][2] / cosTheta, rotation[2][2] / cosTheta);
+    }  else if (rotation[0][2] == -1.0) {
+        return atan(rotation[1][0], rotation[2][0]);
+    } else {
+        return atan(-rotation[1][0], -rotation[2][0]);
+    }
+}
+
+mat4 getViewPlaneParallelOrientedModelMatrix() {
+    // Faces view plane, but obeys roll value.
+
+    mat4 transform = mat4(
+        ModelMatrix[0],
+        ModelMatrix[1],
+        ModelMatrix[2],
+        vec4(0.0, 0.0, 0.0, 1.0)
+    );
+
+    // the rotated unit vectors
+    vec3 x = normalize((transform * vec4(1.0, 0.0, 0.0, 1.0)).xyz);
+    vec3 y = normalize(cross((transform * vec4(0.0, 0.0, 1.0, 1.0)).xyz, x));
+    vec3 z = normalize(cross(x, y));
+
+    mat4 rotation = mat4(
+        vec4(x, 0.0),
+        vec4(y, 0.0),
+        vec4(z, 0.0),
+        vec4(0.0, 0.0, 0.0, 1.0)
+    );
+
+    float roll = extractRollAngle(rotation);
+    float s = sin(roll);
+    float c = cos(roll);
+
+    vec3 normal = -CameraDirection;
+    vec3 right = CameraRight * c + CameraUp * s;
+    vec3 up = CameraRight * -s + CameraUp * c;
+
+    return mat4(
+        vec4(right, 0.0),
+        vec4(up, 0.0),
+        vec4(normal, 0.0),
+        ModelMatrix[3]
+    ) * getScaleMatrix();
+}
+
+mat4 getModelMatrix() {
+    if (Orientation == 0) {
+        return getViewPlaneParallelUprightModelMatrix();
+    } else if (Orientation == 1) {
+        return getFacingUprightModelMatrix();
+    } else if (Orientation == 2) {
+        return getViewPlaneParallelModelMatrix();
+    } else if (Orientation == 4) {
+        return getViewPlaneParallelOrientedModelMatrix();
+    }
+
+    // Pitch yaw roll are independent of camera.
+    return ModelMatrix;
+}
+
 void main(void) {
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
+    gl_Position = gl_ProjectionMatrix * ViewMatrix * getModelMatrix() * gl_Vertex;
     worldCoordinates = ModelMatrix * gl_Vertex;
     gl_TexCoord[0] = gl_MultiTexCoord0;
 }

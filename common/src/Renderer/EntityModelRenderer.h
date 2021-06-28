@@ -38,6 +38,7 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class RenderBatch;
+        class ShaderConfig;
         class TexturedRenderer;
 
         class EntityModelRenderer : public DirectRenderable {

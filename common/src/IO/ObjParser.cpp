@@ -84,7 +84,7 @@ namespace TrenchBroom {
 
         std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger) {
             // Model construction prestart (skins are added to this mid-parse)
-            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal);
+            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
             model->addFrames(1);
             auto& surface = model->addSurface(m_name);
 

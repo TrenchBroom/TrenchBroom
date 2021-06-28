@@ -39,6 +39,21 @@ namespace TrenchBroom {
                 loadModelViewMatrix(m_viewStack.front() * m_modelStack.front());
         }
 
+        const vm::mat4x4f& Transformation::projectionMatrix() const {
+            assert(!m_projectionStack.empty());
+            return m_projectionStack.back();
+        }
+
+        const vm::mat4x4f& Transformation::viewMatrix() const {
+            assert(!m_viewStack.empty());
+            return m_viewStack.back();
+        }
+
+        const vm::mat4x4f& Transformation::modelMatrix() const {
+            assert(!m_modelStack.empty());
+            return m_modelStack.back();
+        }
+
         Transformation Transformation::slice() const {
             return Transformation(m_projectionStack.back(), m_viewStack.back(), m_modelStack.back());
         }

@@ -31,6 +31,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Renderer/ActiveShader.h"
+#include "Renderer/Camera.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
@@ -39,6 +40,8 @@
 #include "Renderer/Transformation.h"
 
 #include <vecmath/mat.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -126,6 +129,9 @@ namespace TrenchBroom {
         void EntityModelRenderer::doRender(RenderContext& renderContext) {
             auto& prefs = PreferenceManager::instance();
 
+            glAssert(glEnable(GL_TEXTURE_2D));
+            glAssert(glActiveTexture(GL_TEXTURE0));
+
             auto shader = ActiveShader{renderContext.shaderManager(), Shaders::EntityModelShader};
             shader.set("Brightness", prefs.get(Preferences::Brightness));
             shader.set("ApplyTinting", m_applyTinting);
@@ -136,17 +142,27 @@ namespace TrenchBroom {
             shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
             shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
             shader.set("SoftMapBoundsColor", vm::vec4f{prefs.get(Preferences::SoftMapBoundsColor).r(),
-                                                       prefs.get(Preferences::SoftMapBoundsColor).g(),
-                                                       prefs.get(Preferences::SoftMapBoundsColor).b(),
-                                                       0.1f});
+                                                    prefs.get(Preferences::SoftMapBoundsColor).g(),
+                                                    prefs.get(Preferences::SoftMapBoundsColor).b(),
+                                                    0.1f});
 
-            glAssert(glEnable(GL_TEXTURE_2D));
-            glAssert(glActiveTexture(GL_TEXTURE0));
+            shader.set("CameraPosition", renderContext.camera().position());
+            shader.set("CameraDirection", renderContext.camera().direction());
+            shader.set("CameraRight", renderContext.camera().right());
+            shader.set("CameraUp", renderContext.camera().up());
+            shader.set("ViewMatrix", renderContext.camera().viewMatrix());
 
             for (const auto& [entityNode, renderer] : m_entities) {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entityNode)) {
                     continue;
                 }
+
+                const auto* model = entityNode->entity().model();
+                if (!model) {
+                    continue;
+                }
+
+                shader.set("Orientation", static_cast<int>(model->orientation()));
 
                 const auto transformation = vm::mat4x4f{entityNode->entity().modelTransformation()};
                 const auto multMatrix = MultiplyModelMatrix{renderContext.transformation(), transformation};

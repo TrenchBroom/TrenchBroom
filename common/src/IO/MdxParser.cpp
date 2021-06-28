@@ -259,7 +259,7 @@ namespace TrenchBroom {
 
             const MdxSkinList skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
-            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal);
+            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
             model->addFrames(frameCount);
 
             auto& surface = model->addSurface(m_name);
