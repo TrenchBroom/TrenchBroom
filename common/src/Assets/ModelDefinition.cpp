@@ -143,7 +143,7 @@ namespace TrenchBroom {
                                               index(value["skin"]),
                                               index(value["frame"])};
                 case EL::ValueType::String:
-                    return ModelSpecification{path(value)};
+                    return ModelSpecification{path(value), 0, 0};
                 case EL::ValueType::Boolean:
                 case EL::ValueType::Number:
                 case EL::ValueType::Array:

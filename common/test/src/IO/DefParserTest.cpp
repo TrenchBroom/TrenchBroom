@@ -385,10 +385,10 @@ namespace TrenchBroom {
         TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition", "[DefParserTest]") {
             static const std::string ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
 
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
                                              ModelDefinition,
                                              DefModelDefinitionTemplate);
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
                                              ModelDefinition,
                                              DefModelDefinitionTemplate,
                                              "{ 'spawnflags': 1 }");
@@ -397,7 +397,7 @@ namespace TrenchBroom {
         TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition", "[DefParserTest]") {
             static const std::string ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
 
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
                                              ModelDefinition,
                                              DefModelDefinitionTemplate,
                                              "{ 'model': 'maps/b_shell1.bsp' }");
@@ -410,14 +410,14 @@ namespace TrenchBroom {
         TEST_CASE("DefParserTest.parseELStaticModelDefinition", "[DefParserTest]") {
             static const std::string ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
 
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
                                              ModelDefinition,
                                              DefModelDefinitionTemplate);
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
                                              ModelDefinition,
                                              DefModelDefinitionTemplate,
                                              "{ 'spawnflags': 1 }");
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
                                              ModelDefinition,
                                              DefModelDefinitionTemplate,
                                              "{ 'spawnflags': 2 }");
@@ -426,7 +426,7 @@ namespace TrenchBroom {
         TEST_CASE("DefParserTest.parseELDynamicModelDefinition", "[DefParserTest]") {
             static const std::string ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
 
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
                                              ModelDefinition,
                                              DefModelDefinitionTemplate,
                                              "{ 'model': 'maps/b_shell1.bsp' }");

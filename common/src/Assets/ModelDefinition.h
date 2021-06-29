@@ -32,7 +32,7 @@ namespace TrenchBroom {
             size_t frameIndex;
 
             ModelSpecification();
-            explicit ModelSpecification(const IO::Path& path, size_t skinIndex = 0, size_t frameIndex = 0);
+            ModelSpecification(const IO::Path& path, size_t skinIndex, size_t frameIndex);
 
             bool operator<(const ModelSpecification& rhs) const;
             bool operator>(const ModelSpecification& rhs) const;
