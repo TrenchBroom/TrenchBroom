@@ -120,16 +120,23 @@ namespace TrenchBroom {
             m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, line, column};
         }
 
-        ModelSpecification ModelDefinition::modelSpecification(const EL::VariableStore& variableStore) const {
-            const auto context = EL::EvaluationContext{variableStore};
-            return convertToModel(m_expression.evaluate(context));
+        static IO::Path path(const EL::Value& value) {
+            if (value.type() != EL::ValueType::String) {
+                return IO::Path();
+            }
+            const std::string& path = value.stringValue();
+            return IO::Path{kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path};
         }
 
-        ModelSpecification ModelDefinition::defaultModelSpecification() const {
-            return modelSpecification(EL::NullVariableStore{});
+        static size_t index(const EL::Value& value) {
+            if (!value.convertibleTo(EL::ValueType::Number)) {
+                return 0;
+            }
+            const EL::IntegerType intValue = value.convertTo(EL::ValueType::Number).integerValue();
+            return static_cast<size_t>(vm::max(0l, intValue));
         }
 
-        ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {
+        static ModelSpecification convertToModel(const EL::Value& value) {
             switch (value.type()) {
                 case EL::ValueType::Map:
                     return ModelSpecification{ path(value["path"]),
@@ -149,20 +156,13 @@ namespace TrenchBroom {
             return ModelSpecification{};
         }
 
-        IO::Path ModelDefinition::path(const EL::Value& value) const {
-            if (value.type() != EL::ValueType::String) {
-                return IO::Path();
-            }
-            const std::string& path = value.stringValue();
-            return IO::Path{kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path};
+        ModelSpecification ModelDefinition::modelSpecification(const EL::VariableStore& variableStore) const {
+            const auto context = EL::EvaluationContext{variableStore};
+            return convertToModel(m_expression.evaluate(context));
         }
 
-        size_t ModelDefinition::index(const EL::Value& value) const {
-            if (!value.convertibleTo(EL::ValueType::Number)) {
-                return 0;
-            }
-            const EL::IntegerType intValue = value.convertTo(EL::ValueType::Number).integerValue();
-            return static_cast<size_t>(vm::max(0l, intValue));
+        ModelSpecification ModelDefinition::defaultModelSpecification() const {
+            return modelSpecification(EL::NullVariableStore{});
         }
     }
 }

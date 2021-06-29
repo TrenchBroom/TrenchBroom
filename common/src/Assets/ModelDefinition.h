@@ -77,10 +77,6 @@ namespace TrenchBroom {
              * @throws EL::Exception if the expression could not be evaluated
              */
             ModelSpecification defaultModelSpecification() const;
-        private:
-            ModelSpecification convertToModel(const EL::Value& value) const;
-            IO::Path path(const EL::Value& value) const;
-            size_t index(const EL::Value& value) const;
         };
     }
 }
