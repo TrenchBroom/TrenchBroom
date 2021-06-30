@@ -19,10 +19,14 @@
 
 #pragma once
 
+#include "FloatType.h"
 #include "EL/Expression.h"
 #include "IO/Path.h"
 
+#include <vecmath/vec.h>
+
 #include <iosfwd>
+#include <optional>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -77,6 +81,15 @@ namespace TrenchBroom {
              * @throws EL::Exception if the expression could not be evaluated
              */
             ModelSpecification defaultModelSpecification() const;
+
+            /**
+             * Evaluates the model expression using the given variable store to interpolate variables, and returns the
+             * scale value configured for the model, if any. If the model expression doesn't have its own scale
+             * expression, then the given scale expression is used instead.
+             *
+             * @throws EL::Exception if the expression could not be evaluated
+             */
+            vm::vec3 scale(const EL::VariableStore& variableStore, const std::optional<EL::Expression>& defaultScaleExpression) const;
         };
     }
 }

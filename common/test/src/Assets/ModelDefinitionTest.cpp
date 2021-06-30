@@ -98,5 +98,35 @@ namespace TrenchBroom {
             const auto modelDefinition = makeModelDefinition(expression);
             CHECK(modelDefinition.defaultModelSpecification() == expectedModelSpecification);
         }
+
+        TEST_CASE("ModelDefinitionTest.scale") {
+            using T = std::tuple<std::string, std::optional<std::string>, vm::vec3>;
+
+            const auto
+            [expression,                                                                                 globalScaleExpressionStr, expectedScale] = GENERATE(values<T>({
+            {R"("maps/b_shell0.bsp")",                                                                   std::nullopt,             vm::vec3{1, 1, 1}},
+            {R"("maps/b_shell0.bsp")",                                                                   R"(2)",                   vm::vec3{2, 2, 2}},
+            {R"("maps/b_shell0.bsp")",                                                                   R"(modelscale)",          vm::vec3{4, 4, 4}},
+            {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: 1.5 })",                          std::nullopt,             vm::vec3{1.5, 1.5, 1.5}},
+            {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: 1.5 })",                          R"(modelscale)",          vm::vec3{1.5, 1.5, 1.5}},
+            {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: '1.5' })",                        std::nullopt,             vm::vec3{1.5, 1.5, 1.5}},
+            {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: '1 2 3' })",                      std::nullopt,             vm::vec3{1, 2, 3}},
+            {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: modelscale })",                   std::nullopt,             vm::vec3{4, 4, 4}},
+            {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: [modelscale, modelscale_vec] })", std::nullopt,             vm::vec3{4, 4, 4}},
+            {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: [modelscale_vec, modelscale] })", std::nullopt,             vm::vec3{5, 6, 7}},
+            }));
+
+            CAPTURE(expression, globalScaleExpressionStr);
+
+            const auto modelDefinition = makeModelDefinition(expression);
+            const auto variables = EL::VariableTable{{
+                {"modelscale", EL::Value{4}},
+                {"modelscale_vec", EL::Value{"5, 6, 7"}},
+            }};
+
+            const auto defaultScaleExpression = globalScaleExpressionStr ? std::optional<EL::Expression>{IO::ELParser::parseStrict(*globalScaleExpressionStr)} : std::nullopt;
+
+            CHECK(modelDefinition.scale(variables, defaultScaleExpression) == expectedScale);
+        }
     }
 }

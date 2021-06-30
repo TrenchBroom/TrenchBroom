@@ -28,6 +28,7 @@
 #include <kdl/string_compare.h>
 
 #include <vecmath/scalar.h>
+#include <vecmath/vec_io.h>
 
 #include <ostream>
 
@@ -82,7 +83,10 @@ namespace TrenchBroom {
         }
 
         std::ostream& operator<<(std::ostream& stream, const ModelSpecification& spec) {
-            stream << spec.path << ":" << spec.skinIndex << ":" << spec.frameIndex;
+            stream << "ModelSpecification{path: " << spec.path 
+                   << ", skinIndex: " << spec.skinIndex 
+                   << ", frameIndex: " << spec.frameIndex
+                   << "}";
             return stream;
         }
 
@@ -163,6 +167,70 @@ namespace TrenchBroom {
 
         ModelSpecification ModelDefinition::defaultModelSpecification() const {
             return modelSpecification(EL::NullVariableStore{});
+        }
+
+        static std::optional<vm::vec3> scaleValue(const EL::Value& value) {
+            if (value.type() == EL::ValueType::Number) {
+                const auto scale = value.numberValue();
+                return vm::vec3{scale, scale, scale};
+            }
+
+            if (value.type() != EL::ValueType::String) {
+                return std::nullopt;
+            }
+
+            if (const auto scale = vm::parse<FloatType, 3>(value.stringValue())) {
+                return *scale;
+            }
+
+            if (!value.convertibleTo(EL::ValueType::Number)) {
+                return std::nullopt;
+            }
+
+            const auto scale = value.convertTo(EL::ValueType::Number).numberValue();
+            return vm::vec3{scale, scale, scale};
+        }
+
+        static std::optional<vm::vec3> convertToScale(const EL::Value& value) {
+            if (value.type() == EL::ValueType::Array) {
+                for (const auto& x : value.arrayValue()) {
+                    if (const auto scale = scaleValue(x)) {
+                        return scale;
+                    }
+                }
+
+                return std::nullopt;
+            }
+
+            return scaleValue(value);
+        }
+
+        vm::vec3 ModelDefinition::scale(const EL::VariableStore& variableStore, const std::optional<EL::Expression>& defaultScaleExpression) const {
+            const auto context = EL::EvaluationContext{variableStore};
+            const auto value = m_expression.evaluate(context);
+
+            switch (value.type()) {
+                case EL::ValueType::Map:
+                    if (const auto scale = convertToScale(value["scale"])) {
+                        return *scale;
+                    }
+                case EL::ValueType::String:
+                case EL::ValueType::Boolean:
+                case EL::ValueType::Number:
+                case EL::ValueType::Array:
+                case EL::ValueType::Range:
+                case EL::ValueType::Null:
+                case EL::ValueType::Undefined:
+                    break;
+            }
+
+            if (defaultScaleExpression) {
+                if (const auto scale = convertToScale(defaultScaleExpression->evaluate(context))) {
+                    return *scale;
+                }
+            }
+
+            return vm::vec3{1, 1, 1};
         }
     }
 }
