@@ -407,33 +407,12 @@ namespace TrenchBroom {
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
-        TEST_CASE("DefParserTest.parseELStaticModelDefinition", "[DefParserTest]") {
+        TEST_CASE("DefParserTest.parseELModelDefinition", "[DefParserTest]") {
             static const std::string ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
 
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
                                              ModelDefinition,
                                              DefModelDefinitionTemplate);
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
-                                             ModelDefinition,
-                                             DefModelDefinitionTemplate,
-                                             "{ 'spawnflags': 1 }");
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
-                                             ModelDefinition,
-                                             DefModelDefinitionTemplate,
-                                             "{ 'spawnflags': 2 }");
-        }
-
-        TEST_CASE("DefParserTest.parseELDynamicModelDefinition", "[DefParserTest]") {
-            static const std::string ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
-
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
-                                             ModelDefinition,
-                                             DefModelDefinitionTemplate,
-                                             "{ 'model': 'maps/b_shell1.bsp' }");
-            assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
-                                             ModelDefinition,
-                                             DefModelDefinitionTemplate,
-                                             "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
         TEST_CASE("DefParserTest.parseInvalidBounds", "[DefParserTest]") {
