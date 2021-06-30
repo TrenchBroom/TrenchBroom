@@ -39,14 +39,16 @@ namespace TrenchBroom {
             const std::vector<IO::Path> fileSearchPaths{ root };
             const IO::DiskFileSystem fileSystem(root, true);
 
-            const Model::TextureConfig textureConfig(
-                Model::TexturePackageConfig(
-                    Model::PackageFormatConfig("wad", "idmip")),
-                    Model::PackageFormatConfig("D", "idmip"),
-                    IO::Path("fixture/test/palette.lmp"),
-                    "wad",
-                    IO::Path(),
-                    {});
+            const Model::TextureConfig textureConfig{
+                Model::TexturePackageConfig{
+                    Model::PackageFormatConfig{{"wad"}, "idmip"}
+                },
+                Model::PackageFormatConfig{{"D"}, "idmip"},
+                IO::Path{"fixture/test/palette.lmp"},
+                "wad",
+                IO::Path{},
+                {}
+            };
 
             auto logger = NullLogger();
             auto textureManager = Assets::TextureManager(0, 0, logger);
@@ -96,18 +98,20 @@ namespace TrenchBroom {
             const std::vector<IO::Path> fileSearchPaths{ root };
             const IO::DiskFileSystem fileSystem(root, true);
 
-            const Model::TextureConfig textureConfig(
-                Model::TexturePackageConfig(
-                    Model::PackageFormatConfig("wad", "idmip")),
-                    Model::PackageFormatConfig("D", "idmip"),
-                    IO::Path("fixture/test/palette.lmp"),
-                    "wad",
-                    IO::Path(),
-                    {
-                        "*-jam",
-                        "coffin2",
-                        "czg_*"
-                    });
+            const Model::TextureConfig textureConfig{
+                Model::TexturePackageConfig{
+                    Model::PackageFormatConfig{{"wad"}, "idmip"}
+                },
+                Model::PackageFormatConfig{{"D"}, "idmip"},
+                IO::Path{"fixture/test/palette.lmp"},
+                "wad",
+                IO::Path{},
+                {
+                    "*-jam",
+                    "coffin2",
+                    "czg_*"
+                }
+            };
 
             auto logger = NullLogger();
             auto textureManager = Assets::TextureManager(0, 0, logger);

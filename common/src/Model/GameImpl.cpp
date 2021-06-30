@@ -258,11 +258,11 @@ namespace TrenchBroom {
         Game::TexturePackageType GameImpl::doTexturePackageType() const {
             using Model::GameConfig;
             switch (m_config.textureConfig().package.type) {
-                case TexturePackageConfig::PT_File:
+                case TexturePackageConfig::PackageType::File:
                     return TexturePackageType::File;
-                case TexturePackageConfig::PT_Directory:
+                case TexturePackageConfig::PackageType::Directory:
                     return TexturePackageType::Directory;
-                case TexturePackageConfig::PT_Unset:
+                case TexturePackageConfig::PackageType::Unset:
                     throw GameException("Texture package type is not set in game configuration");
                 switchDefault()
             }
@@ -294,10 +294,10 @@ namespace TrenchBroom {
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {
             const auto& packageConfig = m_config.textureConfig().package;
             switch (packageConfig.type) {
-                case TexturePackageConfig::PT_File:
+                case TexturePackageConfig::PackageType::File:
                     return path.hasExtension(packageConfig.fileFormat.extensions, false);
-                case TexturePackageConfig::PT_Directory:
-                case TexturePackageConfig::PT_Unset:
+                case TexturePackageConfig::PackageType::Directory:
+                case TexturePackageConfig::PackageType::Unset:
                     return false;
                 switchDefault()
             }

@@ -39,10 +39,6 @@ namespace TrenchBroom {
         struct MapFormatConfig {
             std::string format;
             IO::Path initialMap;
-
-            MapFormatConfig(const std::string& i_format, const IO::Path& i_initialMap);
-            MapFormatConfig();
-
         };
 
         bool operator==(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
@@ -51,10 +47,6 @@ namespace TrenchBroom {
         struct PackageFormatConfig {
             std::vector<std::string> extensions;
             std::string format;
-
-            PackageFormatConfig(const std::string& i_extension, const std::string& i_format);
-            PackageFormatConfig(const std::vector<std::string>& i_extensions, const std::string& i_format);
-            PackageFormatConfig();
         };
 
         bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
@@ -63,28 +55,25 @@ namespace TrenchBroom {
         struct FileSystemConfig {
             IO::Path searchPath;
             PackageFormatConfig packageFormat;
-
-            FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat);
-            FileSystemConfig();
         };
 
         bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
         bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
 
         struct TexturePackageConfig {
-            typedef enum {
-                PT_File,
-                PT_Directory,
-                PT_Unset
-            } PackageType;
+            enum class PackageType {
+                File,
+                Directory,
+                Unset
+            };
 
             PackageType type;
             PackageFormatConfig fileFormat;
             IO::Path rootDirectory;
 
-            explicit TexturePackageConfig(const PackageFormatConfig& i_format);
-            explicit TexturePackageConfig(const IO::Path& directoryRoot);
-            TexturePackageConfig();
+            explicit TexturePackageConfig(PackageFormatConfig i_format);
+            explicit TexturePackageConfig(IO::Path directoryRoot);
+            TexturePackageConfig();        
         };
 
         bool operator==(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs);
@@ -97,9 +86,6 @@ namespace TrenchBroom {
             std::string property;
             IO::Path shaderSearchPath;
             std::vector<std::string> excludes; // Glob patterns used to match texture names for exclusion
-
-            TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const std::string& i_property, const IO::Path& i_shaderSearchPath, const std::vector<std::string>& i_excludes);
-            TextureConfig();
         };
 
         bool operator==(const TextureConfig& lhs, const TextureConfig& rhs);
@@ -109,10 +95,6 @@ namespace TrenchBroom {
             std::vector<IO::Path> defFilePaths;
             std::vector<std::string> modelFormats;
             Color defaultColor;
-
-            EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor);
-            EntityConfig(const std::vector<IO::Path>& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor);
-            EntityConfig();
         };
 
         bool operator==(const EntityConfig& lhs, const EntityConfig& rhs);
@@ -122,9 +104,6 @@ namespace TrenchBroom {
             std::string name;
             std::string description;
             int value;
-
-            FlagConfig(const std::string& i_name, const std::string& i_description, const int i_value);
-            FlagConfig();
         };
 
         bool operator==(const FlagConfig& lhs, const FlagConfig& rhs);
@@ -132,9 +111,6 @@ namespace TrenchBroom {
 
         struct FlagsConfig {
             std::vector<FlagConfig> flags;
-
-            FlagsConfig();
-            explicit FlagsConfig(const std::vector<FlagConfig>& i_flags);
 
             int flagValue(const std::string& flagName) const;
             std::string flagName(size_t index) const;
@@ -147,11 +123,7 @@ namespace TrenchBroom {
         struct FaceAttribsConfig {
             FlagsConfig surfaceFlags;
             FlagsConfig contentFlags;
-            BrushFaceAttributes defaults;
-
-            FaceAttribsConfig();
-            FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags, const BrushFaceAttributes& i_defaults);
-            FaceAttribsConfig(const FlagsConfig& i_surfaceFlags, const FlagsConfig& i_contentFlags, const BrushFaceAttributes& i_defaults);
+            BrushFaceAttributes defaults{BrushFaceAttributes::NoTextureName};
         };
 
         bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);

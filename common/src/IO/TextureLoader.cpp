@@ -93,11 +93,11 @@ namespace TrenchBroom {
         std::unique_ptr<TextureCollectionLoader> TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const std::vector<IO::Path>& fileSearchPaths, const Model::TextureConfig& textureConfig, Logger& logger) {
             using Model::GameConfig;
             switch (textureConfig.package.type) {
-                case Model::TexturePackageConfig::PT_File:
+                case Model::TexturePackageConfig::PackageType::File:
                     return std::make_unique<FileTextureCollectionLoader>(logger, fileSearchPaths, textureConfig.excludes);
-                case Model::TexturePackageConfig::PT_Directory:
+                case Model::TexturePackageConfig::PackageType::Directory:
                     return std::make_unique<DirectoryTextureCollectionLoader>(logger, gameFS, textureConfig.excludes);
-                case Model::TexturePackageConfig::PT_Unset:
+                case Model::TexturePackageConfig::PackageType::Unset:
                     throw GameException("Texture package format is not set");
                 switchDefault()
             }

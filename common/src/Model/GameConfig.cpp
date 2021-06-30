@@ -30,12 +30,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        MapFormatConfig::MapFormatConfig(const std::string& i_format, const IO::Path& i_initialMap) :
-        format(i_format),
-        initialMap(i_initialMap) {}
-
-        MapFormatConfig::MapFormatConfig() = default;
-
         bool operator==(const MapFormatConfig& lhs, const MapFormatConfig& rhs) {
             return lhs.format == rhs.format && lhs.initialMap == rhs.initialMap;
         }
@@ -43,16 +37,6 @@ namespace TrenchBroom {
         bool operator!=(const MapFormatConfig& lhs, const MapFormatConfig& rhs) {
             return !(lhs == rhs);
         }
-
-        PackageFormatConfig::PackageFormatConfig(const std::string& i_extension, const std::string& i_format) :
-        extensions(1, i_extension),
-        format(i_format) {}
-
-        PackageFormatConfig::PackageFormatConfig(const std::vector<std::string>& i_extensions, const std::string& i_format) :
-        extensions(i_extensions),
-        format(i_format) {}
-
-        PackageFormatConfig::PackageFormatConfig() = default;
 
         bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs) {
             return lhs.extensions == rhs.extensions && lhs.format == rhs.format;
@@ -62,12 +46,6 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :
-        searchPath(i_searchPath),
-        packageFormat(i_packageFormat) {}
-
-        FileSystemConfig::FileSystemConfig() = default;
-
         bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs) {
             return lhs.searchPath == rhs.searchPath && lhs.packageFormat == rhs.packageFormat;
         }
@@ -76,16 +54,16 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        TexturePackageConfig::TexturePackageConfig(const PackageFormatConfig& i_fileFormat) :
-        type(PT_File),
-        fileFormat(i_fileFormat) {}
+        TexturePackageConfig::TexturePackageConfig(PackageFormatConfig i_fileFormat) :
+        type{PackageType::File},
+        fileFormat{std::move(i_fileFormat)} {}
 
-        TexturePackageConfig::TexturePackageConfig(const IO::Path& i_rootDirectory) :
-        type(PT_Directory),
-        rootDirectory(i_rootDirectory) {}
+        TexturePackageConfig::TexturePackageConfig(IO::Path i_rootDirectory) :
+        type{PackageType::Directory},
+        rootDirectory{std::move(i_rootDirectory)} {}
 
         TexturePackageConfig::TexturePackageConfig() :
-        type(PT_Unset) {}
+        type{PackageType::Unset} {}
 
         bool operator==(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs) {
             return lhs.type == rhs.type &&
@@ -96,16 +74,6 @@ namespace TrenchBroom {
         bool operator!=(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs) {
             return !(lhs == rhs);
         }
-
-        TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const std::string& i_property, const IO::Path& i_shaderSearchPath, const std::vector<std::string>& i_excludes) :
-            package(i_package),
-            format(i_format),
-            palette(i_palette),
-            property(i_property),
-            shaderSearchPath(i_shaderSearchPath),
-            excludes(i_excludes) {}
-
-        TextureConfig::TextureConfig() = default;
 
         bool operator==(const TextureConfig& lhs, const TextureConfig& rhs) {
             return lhs.package == rhs.package &&
@@ -120,19 +88,6 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
-        modelFormats(i_modelFormats),
-        defaultColor(i_defaultColor) {
-            defFilePaths.push_back(i_defFilePath);
-        }
-
-        EntityConfig::EntityConfig(const std::vector<IO::Path>& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
-        defFilePaths(i_defFilePaths),
-        modelFormats(i_modelFormats),
-        defaultColor(i_defaultColor) {}
-
-        EntityConfig::EntityConfig() = default;
-
         bool operator==(const EntityConfig& lhs, const EntityConfig& rhs) {
             return lhs.defFilePaths == rhs.defFilePaths &&
                    lhs.modelFormats == rhs.modelFormats &&
@@ -143,13 +98,6 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        FlagConfig::FlagConfig(const std::string& i_name, const std::string& i_description, const int i_value) :
-        name(i_name),
-        description(i_description),
-        value(i_value) {}
-
-        FlagConfig::FlagConfig() = default;
-
         bool operator==(const FlagConfig& lhs, const FlagConfig& rhs) {
             return lhs.name == rhs.name &&
                    lhs.description == rhs.description &&
@@ -159,11 +107,6 @@ namespace TrenchBroom {
         bool operator!=(const FlagConfig& lhs, const FlagConfig& rhs) {
             return !(lhs == rhs);
         }
-
-        FlagsConfig::FlagsConfig() = default;
-
-        FlagsConfig::FlagsConfig(const std::vector<FlagConfig>& i_flags) :
-        flags(i_flags) {}
 
         int FlagsConfig::flagValue(const std::string& flagName) const {
             for (size_t i = 0; i < flags.size(); ++i) {
@@ -200,19 +143,6 @@ namespace TrenchBroom {
         bool operator!=(const FlagsConfig& lhs, const FlagsConfig& rhs) {
             return !(lhs == rhs);
         }
-
-        FaceAttribsConfig::FaceAttribsConfig() :
-        defaults(BrushFaceAttributes::NoTextureName) {}
-
-        FaceAttribsConfig::FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags, const BrushFaceAttributes& i_defaults) :
-        surfaceFlags(i_surfaceFlags),
-        contentFlags(i_contentFlags),
-        defaults(i_defaults) {}
-
-        FaceAttribsConfig::FaceAttribsConfig(const FlagsConfig& i_surfaceFlags, const FlagsConfig& i_contentFlags, const BrushFaceAttributes& i_defaults) :
-        surfaceFlags(i_surfaceFlags),
-        contentFlags(i_contentFlags),
-        defaults(i_defaults) {}
 
         bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs) {
             return lhs.surfaceFlags == rhs.surfaceFlags &&

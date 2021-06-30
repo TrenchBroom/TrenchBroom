@@ -69,10 +69,6 @@ namespace TrenchBroom {
                             "{'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map', 'softMapBounds': 'String'}"
                             "]");
 
-            auto name = root["name"].stringValue();
-            auto icon = Path(root["icon"].stringValue());
-            auto experimental = root["experimental"].booleanValue();
-
             auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"]);
             auto fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
             auto textureConfig = parseTextureConfig(root["textures"]);
@@ -82,11 +78,11 @@ namespace TrenchBroom {
             auto softMapBounds = parseSoftMapBounds(root["softMapBounds"]);
             auto compilationTools = parseCompilationTools(root["compilationTools"]);
 
-            return GameConfig(
-                std::move(name),
+            return GameConfig{
+                root["name"].stringValue(),
                 m_path,
-                std::move(icon),
-                experimental,
+                Path{root["icon"].stringValue()},
+                root["experimental"].booleanValue(),
                 std::move(mapFormatConfigs),
                 std::move(fileSystemConfig),
                 std::move(textureConfig),
@@ -94,7 +90,8 @@ namespace TrenchBroom {
                 std::move(faceAttribsConfig),
                 std::move(tags),
                 std::move(softMapBounds),
-                std::move(compilationTools));
+                std::move(compilationTools)
+            };
         }
 
         std::vector<Model::MapFormatConfig> GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
@@ -109,10 +106,10 @@ namespace TrenchBroom {
                     "{'initialmap': 'String'}"
                     "]");
 
-                const std::string format = value[i]["format"].stringValue();
+                std::string format = value[i]["format"].stringValue();
                 const std::string initialMap = value[i]["initialmap"].stringValue();
 
-                result.emplace_back(format, IO::Path(initialMap));
+                result.push_back(Model::MapFormatConfig{std::move(format), Path{initialMap}});
             }
 
             return result;
@@ -125,11 +122,10 @@ namespace TrenchBroom {
                             "{}"
                             "]");
 
-
-            const std::string searchPath = value["searchpath"].stringValue();
-            const Model::PackageFormatConfig packageFormatConfig = parsePackageFormatConfig(value["packageformat"]);
-
-            return Model::FileSystemConfig(Path(searchPath), packageFormatConfig);
+            return Model::FileSystemConfig{
+                Path{value["searchpath"].stringValue()},
+                parsePackageFormatConfig(value["packageformat"])
+            };
         }
 
         Model::PackageFormatConfig GameConfigParser::parsePackageFormatConfig(const EL::Value& value) const {
@@ -138,19 +134,19 @@ namespace TrenchBroom {
             expectType(formatValue, EL::typeForName("String"));
 
             if (value["extension"] != EL::Value::Null) {
-                const auto extensionValue = value["extension"];
-                expectType(extensionValue, EL::typeForName("String"));
-                const auto extension = value["extension"].stringValue();
-                const auto format = formatValue.stringValue();
+                expectType(value["extension"], EL::typeForName("String"));
 
-                return Model::PackageFormatConfig(extension, format);
+                return Model::PackageFormatConfig{
+                    {value["extension"].stringValue()},
+                    formatValue.stringValue()
+                };
             } else if (value["extensions"] != EL::Value::Null) {
-                const auto extensionsValue = value["extensions"];
-                expectType(extensionsValue, EL::typeForName("Array"));
-                const auto extensions = extensionsValue.asStringList();
-                const auto format = formatValue.stringValue();
+                expectType(value["extensions"], EL::typeForName("Array"));
 
-                return Model::PackageFormatConfig(extensions, format);
+                return Model::PackageFormatConfig{
+                    value["extensions"].asStringList(),
+                    formatValue.stringValue()
+                };
             }
             throw ParserException(value.line(), value.column(), "Expected map entry 'extension' of type 'String' or 'extensions' of type 'Array'");
         }
@@ -162,14 +158,15 @@ namespace TrenchBroom {
                             "{'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String', 'excludes': 'Array'}"
                             "]");
 
-            const Model::TexturePackageConfig packageConfig = parseTexturePackageConfig(value["package"]);
-            const Model::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
-            const Path palette(value["palette"].stringValue());
-            const std::string property = value["attribute"].stringValue();
-            const Path shaderSearchPath(value["shaderSearchPath"].stringValue());
-            const std::vector<std::string> excludes = std::vector<std::string>(value["excludes"].asStringList());
+            return Model::TextureConfig{
+                parseTexturePackageConfig(value["package"]),
+                parsePackageFormatConfig(value["format"]),
+                Path{value["palette"].stringValue()},
+                value["attribute"].stringValue(),
+                Path{value["shaderSearchPath"].stringValue()},
+                value["excludes"].asStringList()
+            };
 
-            return Model::TextureConfig(packageConfig, formatConfig, palette, property, shaderSearchPath, excludes);
         }
 
         Model::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const EL::Value& value) const {
@@ -182,12 +179,14 @@ namespace TrenchBroom {
             const std::string typeStr = value["type"].stringValue();
             if (typeStr == "file") {
                 expectMapEntry(value, "format", EL::ValueType::Map);
-                const Model::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
-                return Model::TexturePackageConfig(formatConfig);
+                return Model::TexturePackageConfig{
+                    parsePackageFormatConfig(value["format"])
+                };
             } else if (typeStr == "directory") {
                 expectMapEntry(value, "root", EL::ValueType::String);
-                const Path root(value["root"].stringValue());
-                return Model::TexturePackageConfig(root);
+                return Model::TexturePackageConfig{
+                    Path{value["root"].stringValue()}
+                };
             } else {
                 throw ParserException(value.line(), value.column(), "Unexpected texture package type '" + typeStr + "'");
             }
@@ -200,16 +199,20 @@ namespace TrenchBroom {
                             "{}"
                             "]");
 
-            const std::vector<Path> defFilePaths = Path::asPaths(value["definitions"].asStringList());
-            const std::vector<std::string> modelFormats = value["modelformats"].asStringSet();
-            const Color defaultColor = Color::parse(value["defaultcolor"].stringValue()).value_or(Color());
-
-            return Model::EntityConfig(defFilePaths, modelFormats, defaultColor);
+            return Model::EntityConfig{
+                Path::asPaths(value["definitions"].asStringList()),
+                value["modelformats"].asStringSet(),
+                Color::parse(value["defaultcolor"].stringValue()).value_or(Color())
+            };
         }
 
         Model::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const EL::Value& value) const {
             if (value.null())
-                return Model::FaceAttribsConfig();
+                return Model::FaceAttribsConfig{
+                    {}, 
+                    {}, 
+                    Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName}
+                };
 
             expectStructure(value,
                             "["
@@ -217,11 +220,15 @@ namespace TrenchBroom {
                             "{'defaults': 'Map'}"
                             "]");
 
-            const Model::FlagsConfig surfaceFlags = parseFlagsConfig(value["surfaceflags"]);
-            const Model::FlagsConfig contentFlags = parseFlagsConfig(value["contentflags"]);
-            const Model::BrushFaceAttributes defaults = parseFaceAttribsDefaults(value["defaults"], surfaceFlags, contentFlags);
+            auto surfaceFlags = parseFlagsConfig(value["surfaceflags"]);
+            auto contentFlags = parseFlagsConfig(value["contentflags"]);
+            auto defaults = parseFaceAttribsDefaults(value["defaults"], surfaceFlags, contentFlags);
 
-            return Model::FaceAttribsConfig(surfaceFlags, contentFlags, defaults);
+            return Model::FaceAttribsConfig{
+                std::move(surfaceFlags),
+                std::move(contentFlags),
+                std::move(defaults)
+            };
         }
 
         Model::FlagsConfig GameConfigParser::parseFlagsConfig(const EL::Value& value) const {
@@ -236,7 +243,7 @@ namespace TrenchBroom {
                 parseFlag(value[i], i, flags);
             }
 
-            return Model::FlagsConfig(flags);
+            return Model::FlagsConfig{flags};
         }
 
         void GameConfigParser::parseFlag(const EL::Value& value, const size_t index, std::vector<Model::FlagConfig>& flags) const {
@@ -265,9 +272,11 @@ namespace TrenchBroom {
                 }
             }
             if (!unused) {
-                const std::string name = value["name"].stringValue();
-                const std::string description = value["description"].stringValue();
-                flags.push_back(Model::FlagConfig(name, description, 1 << index));
+                flags.push_back(Model::FlagConfig{
+                    value["name"].stringValue(),
+                    value["description"].stringValue(),
+                    1 << index
+                });
             }
         }
 
@@ -348,7 +357,7 @@ namespace TrenchBroom {
                 }
             }
         }
-    
+
         void GameConfigParser::parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& result) const {
             if (value.null()) {
                 return;
@@ -359,16 +368,15 @@ namespace TrenchBroom {
 
                 expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'texture': 'String' } ]");
                 checkTagName(entry["name"], result);
-                
-                auto name = entry["name"].stringValue();
-                auto match = entry["match"].stringValue();
 
+                const auto match = entry["match"].stringValue();
                 if (match == "classname") {
-                    auto pattern = entry["pattern"].stringValue();
-                    auto attribs = parseTagAttributes(entry["attribs"]);
-                    auto texture = entry["texture"].stringValue();
-                    auto matcher = std::make_unique<Model::EntityClassNameTagMatcher>(std::move(pattern), std::move(texture));
-                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                    result.emplace_back(
+                        entry["name"].stringValue(),
+                        parseTagAttributes(entry["attribs"]),
+                        std::make_unique<Model::EntityClassNameTagMatcher>(
+                            entry["pattern"].stringValue(),
+                            entry["texture"].stringValue()));
                 } else {
                     throw ParserException(entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'");
                 }
@@ -386,50 +394,48 @@ namespace TrenchBroom {
                 expectStructure(entry, "[ {'name': 'String', 'match': 'String'}, {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array' } ]");
                 checkTagName(entry["name"], result);
 
-                auto name = entry["name"].stringValue();
-                auto match = entry["match"].stringValue();
-
+                const auto match = entry["match"].stringValue();
                 if (match == "texture") {
                     expectMapEntry(entry, "pattern", EL::ValueType::String);
-                    auto pattern = entry["pattern"].stringValue();
-                    auto attribs = parseTagAttributes(entry["attribs"]);
-                    auto matcher = std::make_unique<Model::TextureNameTagMatcher>(std::move(pattern));
-                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                    result.emplace_back(
+                        entry["name"].stringValue(),
+                        parseTagAttributes(entry["attribs"]),
+                        std::make_unique<Model::TextureNameTagMatcher>(entry["pattern"].stringValue()));
                 } else if (match == "surfaceparm") {
-                    parseSurfaceParmTag(name, entry, result);
+                    parseSurfaceParmTag(entry["name"].stringValue(), entry, result);
                 } else if (match == "contentflag") {
                     expectMapEntry(entry, "flags", EL::ValueType::Array);
-                    const auto flagValue = parseFlagValue(entry["flags"], faceAttribsConfig.contentFlags);
-                    auto attribs = parseTagAttributes(entry["attribs"]);
-                    auto matcher = std::make_unique<Model::ContentFlagsTagMatcher>(flagValue);
-                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                    result.emplace_back(
+                        entry["name"].stringValue(),
+                        parseTagAttributes(entry["attribs"]),
+                        std::make_unique<Model::ContentFlagsTagMatcher>(
+                            parseFlagValue(entry["flags"],
+                            faceAttribsConfig.contentFlags)));
                 } else if (match == "surfaceflag") {
                     expectMapEntry(entry, "flags", EL::ValueType::Array);
-                    const auto flagValue = parseFlagValue(entry["flags"], faceAttribsConfig.surfaceFlags);
-                    auto attribs = parseTagAttributes(entry["attribs"]);
-                    auto matcher = std::make_unique<Model::SurfaceFlagsTagMatcher>(flagValue);
-                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                    result.emplace_back(
+                        entry["name"].stringValue(),
+                        parseTagAttributes(entry["attribs"]),
+                        std::make_unique<Model::SurfaceFlagsTagMatcher>(
+                            parseFlagValue(entry["flags"],
+                            faceAttribsConfig.surfaceFlags)));
                 } else {
                     throw ParserException(entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'");
                 }
             }
         }
 
-        void GameConfigParser::parseSurfaceParmTag(const std::string& name, const EL::Value& value, std::vector<Model::SmartTag>& result) const {
+        void GameConfigParser::parseSurfaceParmTag(std::string name, const EL::Value& value, std::vector<Model::SmartTag>& result) const {
             auto attribs = parseTagAttributes(value["attribs"]);
             std::unique_ptr<Model::SurfaceParmTagMatcher> matcher;
             if (m_version == 3) {
                 expectMapEntry(value, "pattern", EL::ValueType::String);
-                auto pattern = value["pattern"].stringValue();
-                matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
+                matcher = std::make_unique<Model::SurfaceParmTagMatcher>(value["pattern"].stringValue());
             } else {
                 if (value["pattern"].type() == EL::ValueType::String) {
-                    auto pattern = value["pattern"].stringValue();
-                    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
+                    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(value["pattern"].stringValue());
                 } else if (value["pattern"].type() == EL::ValueType::Array) {
-                    auto patternVector = value["pattern"].asStringSet();
-                    const kdl::vector_set<std::string> patternSet(patternVector.begin(), patternVector.end());
-                    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(patternSet);
+                    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(value["pattern"].asStringSet());
                 } else {
                     // Generate the type exception specifying Array as the
                     // expected type, since String is really a legacy type for
@@ -500,12 +506,16 @@ namespace TrenchBroom {
                         "{'description': 'String'}"
                         "]");
 
-                const std::string name = value[i]["name"].stringValue();
                 if (!value[i]["description"].null()) {
-                    const std::string desc = value[i]["description"].stringValue();
-                    result.push_back(Model::CompilationTool{name, desc});
+                    result.push_back(Model::CompilationTool{
+                        value[i]["name"].stringValue(),
+                        value[i]["description"].stringValue()
+                    });
                 } else {
-                    result.push_back(Model::CompilationTool{name, std::nullopt});
+                    result.push_back(Model::CompilationTool{
+                        value[i]["name"].stringValue(),
+                        std::nullopt
+                    });
                 }
             }
 
