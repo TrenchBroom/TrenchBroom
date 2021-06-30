@@ -40,7 +40,7 @@ namespace TrenchBroom {
             const IO::DiskFileSystem fileSystem(root, true);
 
             const Model::TextureConfig textureConfig{
-                Model::TexturePackageConfig{
+                Model::TextureFilePackageConfig{
                     Model::PackageFormatConfig{{"wad"}, "idmip"}
                 },
                 Model::PackageFormatConfig{{"D"}, "idmip"},
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             const IO::DiskFileSystem fileSystem(root, true);
 
             const Model::TextureConfig textureConfig{
-                Model::TexturePackageConfig{
+                Model::TextureFilePackageConfig{
                     Model::PackageFormatConfig{{"wad"}, "idmip"}
                 },
                 Model::PackageFormatConfig{{"D"}, "idmip"},

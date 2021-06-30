@@ -47,7 +47,7 @@ namespace TrenchBroom {
                     PackageFormatConfig{}
                 },
                 TextureConfig{
-                    TexturePackageConfig{IO::Path{"textures"}},
+                    TextureDirectoryPackageConfig{IO::Path{"textures"}},
                     PackageFormatConfig{{"wal"}, "wal"},
                     IO::Path{"pics/colormap.pcx"},
                     "_tb_textures",

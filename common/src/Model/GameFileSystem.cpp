@@ -146,7 +146,7 @@ namespace TrenchBroom {
                 logger.info() << "Adding shader file system";
                 auto shaderSearchPath = textureConfig.shaderSearchPath;
                 auto textureSearchPaths = std::vector<IO::Path> {
-                    textureConfig.package.rootDirectory,
+                    getRootDirectory(textureConfig.package),
                     IO::Path("models")
                 };
                 auto shaderFS = std::make_shared<IO::Quake3ShaderFileSystem>(m_next, std::move(shaderSearchPath), std::move(textureSearchPaths), logger);

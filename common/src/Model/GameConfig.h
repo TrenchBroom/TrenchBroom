@@ -32,6 +32,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -60,24 +61,23 @@ namespace TrenchBroom {
         bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
         bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
 
-        struct TexturePackageConfig {
-            enum class PackageType {
-                File,
-                Directory,
-                Unset
-            };
-
-            PackageType type;
+        struct TextureFilePackageConfig {
             PackageFormatConfig fileFormat;
-            IO::Path rootDirectory;
-
-            explicit TexturePackageConfig(PackageFormatConfig i_format);
-            explicit TexturePackageConfig(IO::Path directoryRoot);
-            TexturePackageConfig();        
         };
 
-        bool operator==(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs);
-        bool operator!=(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs);
+        bool operator==(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
+        bool operator!=(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
+
+        struct TextureDirectoryPackageConfig {
+            IO::Path rootDirectory;
+        };
+
+        bool operator==(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
+        bool operator!=(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
+
+        using TexturePackageConfig = std::variant<TextureFilePackageConfig, TextureDirectoryPackageConfig>;
+
+        IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig);
 
         struct TextureConfig {
             TexturePackageConfig package;

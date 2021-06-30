@@ -179,12 +179,12 @@ namespace TrenchBroom {
             const std::string typeStr = value["type"].stringValue();
             if (typeStr == "file") {
                 expectMapEntry(value, "format", EL::ValueType::Map);
-                return Model::TexturePackageConfig{
+                return Model::TextureFilePackageConfig{
                     parsePackageFormatConfig(value["format"])
                 };
             } else if (typeStr == "directory") {
                 expectMapEntry(value, "root", EL::ValueType::String);
-                return Model::TexturePackageConfig{
+                return Model::TextureDirectoryPackageConfig{
                     Path{value["root"].stringValue()}
                 };
             } else {

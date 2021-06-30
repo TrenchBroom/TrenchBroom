@@ -132,7 +132,7 @@ namespace TrenchBroom {
                 },
                 Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
                 Model::TextureConfig{
-                    Model::TexturePackageConfig{Model::PackageFormatConfig{{"wad"}, "wad2"}},
+                    Model::TextureFilePackageConfig{Model::PackageFormatConfig{{"wad"}, "wad2"}},
                     Model::PackageFormatConfig{{"D"}, "idmip"},
                     Path{"gfx/palette.lmp"},
                     "wad",
@@ -376,7 +376,7 @@ namespace TrenchBroom {
                 },
                 Model::FileSystemConfig{Path{"baseq2"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
                 Model::TextureConfig{
-                    Model::TexturePackageConfig{Path{"textures"}},
+                    Model::TextureDirectoryPackageConfig{Path{"textures"}},
                     Model::PackageFormatConfig{{"wal"}, "wal"},
                     Path{"pics/colormap.pcx"},
                     "_tb_textures",
@@ -675,7 +675,7 @@ namespace TrenchBroom {
                 },
                 Model::FileSystemConfig{Path{"baseq3"}, Model::PackageFormatConfig{{"pk3"}, "zip"}},
                 Model::TextureConfig{
-                    Model::TexturePackageConfig{Path{"textures"}},
+                    Model::TextureDirectoryPackageConfig{Path{"textures"}},
                     Model::PackageFormatConfig{{""}, "q3shader"},
                     Path{},
                     "_tb_textures",

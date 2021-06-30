@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 
+#include <kdl/overload.h>
 #include <kdl/string_utils.h>
 
 #include <cassert>
@@ -53,22 +54,32 @@ namespace TrenchBroom {
         bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs) {
             return !(lhs == rhs);
         }
+        
+        bool operator==(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs) {
+            return lhs.fileFormat == rhs.fileFormat;
+        }
 
-        TexturePackageConfig::TexturePackageConfig(PackageFormatConfig i_fileFormat) :
-        type{PackageType::File},
-        fileFormat{std::move(i_fileFormat)} {}
+        bool operator!=(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs) {
+            return !(lhs == rhs);
+        }
 
-        TexturePackageConfig::TexturePackageConfig(IO::Path i_rootDirectory) :
-        type{PackageType::Directory},
-        rootDirectory{std::move(i_rootDirectory)} {}
+        bool operator==(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs) {
+            return lhs.rootDirectory == rhs.rootDirectory;
+        }
 
-        TexturePackageConfig::TexturePackageConfig() :
-        type{PackageType::Unset} {}
+        bool operator!=(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs) {
+            return !(lhs == rhs);
+        }
 
-        bool operator==(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs) {
-            return lhs.type == rhs.type &&
-                   lhs.fileFormat == rhs.fileFormat &&
-                   lhs.rootDirectory == rhs.rootDirectory;
+        IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig) {
+            return std::visit(kdl::overload(
+                [](const TextureFilePackageConfig&) {
+                    return IO::Path{};
+                },
+                [](const TextureDirectoryPackageConfig& directoryConfig) {
+                    return directoryConfig.rootDirectory;
+                }
+            ), texturePackageConfig);
         }
 
         bool operator!=(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs) {

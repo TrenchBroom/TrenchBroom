@@ -155,14 +155,15 @@ namespace TrenchBroom {
             const IO::DiskFileSystem fileSystem(root, true);
 
             const Model::TextureConfig textureConfig{
-                Model::TexturePackageConfig{
-                    Model::PackageFormatConfig{{"wad"}, "idmip"}},
-                    Model::PackageFormatConfig{{"D"}, "idmip"},
-                    IO::Path{"data/palette.lmp"},
-                    "wad",
-                    IO::Path{},
-                    {}
-                };
+                Model::TextureFilePackageConfig{
+                    Model::PackageFormatConfig{{"wad"}, "idmip"}
+                },
+                Model::PackageFormatConfig{{"D"}, "idmip"},
+                IO::Path{"data/palette.lmp"},
+                "wad",
+                IO::Path{},
+                {}
+            };
 
             IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
             textureLoader.loadTextures(paths, textureManager);

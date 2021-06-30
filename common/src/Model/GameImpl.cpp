@@ -257,15 +257,14 @@ namespace TrenchBroom {
 
         Game::TexturePackageType GameImpl::doTexturePackageType() const {
             using Model::GameConfig;
-            switch (m_config.textureConfig().package.type) {
-                case TexturePackageConfig::PackageType::File:
+            return std::visit(kdl::overload(
+                [](const TextureFilePackageConfig&) {
                     return TexturePackageType::File;
-                case TexturePackageConfig::PackageType::Directory:
+                },
+                [](const TextureDirectoryPackageConfig&) {
                     return TexturePackageType::Directory;
-                case TexturePackageConfig::PackageType::Unset:
-                    throw GameException("Texture package type is not set in game configuration");
-                switchDefault()
-            }
+                }
+            ), m_config.textureConfig().package);
         }
 
         void GameImpl::doLoadTextureCollections(const Entity& entity, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
@@ -292,20 +291,19 @@ namespace TrenchBroom {
         }
 
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {
-            const auto& packageConfig = m_config.textureConfig().package;
-            switch (packageConfig.type) {
-                case TexturePackageConfig::PackageType::File:
-                    return path.hasExtension(packageConfig.fileFormat.extensions, false);
-                case TexturePackageConfig::PackageType::Directory:
-                case TexturePackageConfig::PackageType::Unset:
+            return std::visit(kdl::overload(
+                [&](const TextureFilePackageConfig& filePackageConfig) {
+                    return path.hasExtension(filePackageConfig.fileFormat.extensions, false);
+                },
+                [](const TextureDirectoryPackageConfig&) {
                     return false;
-                switchDefault()
-            }
+                }
+            ), m_config.textureConfig().package);
         }
 
         std::vector<IO::Path> GameImpl::doFindTextureCollections() const {
             try {
-                const auto& searchPath = m_config.textureConfig().package.rootDirectory;
+                const auto searchPath = getRootDirectory(m_config.textureConfig().package);
                 if (!searchPath.isEmpty() && m_fs.directoryExists(searchPath)) {
                     return kdl::vec_concat(std::vector<IO::Path>({searchPath}), m_fs.findItemsRecursively(searchPath, IO::FileTypeMatcher(false, true)));
                 }
@@ -316,7 +314,14 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> GameImpl::doFileTextureCollectionExtensions() const {
-            return m_config.textureConfig().package.fileFormat.extensions;
+            return std::visit(kdl::overload(
+                [](const TextureFilePackageConfig& filePackageConfig) {
+                    return filePackageConfig.fileFormat.extensions;
+                },
+                [](const TextureDirectoryPackageConfig&) {
+                    return std::vector<std::string>{};
+                }
+            ), m_config.textureConfig().package);
         }
 
         std::vector<IO::Path> GameImpl::doExtractTextureCollections(const Entity& entity) const {

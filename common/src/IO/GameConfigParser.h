@@ -34,19 +34,8 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttributes;
-        struct EntityConfig;
-        struct FaceAttribsConfig;
-        struct FileSystemConfig;
-        struct FlagConfig;
-        struct FlagsConfig;
-        class GameConfig;
-        struct MapFormatConfig;
-        struct PackageFormatConfig;
-        class SmartTag;
-        class TagAttribute;
-        struct TextureConfig;
-        struct TexturePackageConfig;
     }
+
     namespace IO {
         class Path;
 
