@@ -37,7 +37,7 @@ namespace TrenchBroom {
             EL::MapType map;
             map["version"] = EL::Value(1.0);
             map["profiles"] = writeProfiles(m_config);
-            m_stream << EL::Value(map) << "\n";
+            m_stream << EL::Value(std::move(map)) << "\n";
         }
 
         EL::Value GameEngineConfigWriter::writeProfiles(const Model::GameEngineConfig& config) const {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 array.push_back(writeProfile(profile));
             }
 
-            return EL::Value(array);
+            return EL::Value(std::move(array));
         }
 
         EL::Value GameEngineConfigWriter::writeProfile(const Model::GameEngineProfile* profile) const {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             map["name"] = EL::Value(profile->name());
             map["path"] = EL::Value(profile->path().asString());
             map["parameters"] = EL::Value(profile->parameterSpec());
-            return EL::Value(map);
+            return EL::Value(std::move(map));
         }
     }
 }

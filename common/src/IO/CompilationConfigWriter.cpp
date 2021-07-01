@@ -40,7 +40,7 @@ namespace TrenchBroom {
             EL::MapType map;
             map["version"] = EL::Value(1.0);
             map["profiles"] = writeProfiles(m_config);
-            m_stream << EL::Value(map) << "\n";
+            m_stream << EL::Value(std::move(map)) << "\n";
         }
 
         EL::Value CompilationConfigWriter::writeProfiles(const Model::CompilationConfig& config) const {
@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 array.push_back(writeProfile(profile));
             }
 
-            return EL::Value(array);
+            return EL::Value(std::move(array));
         }
 
         EL::Value CompilationConfigWriter::writeProfile(const Model::CompilationProfile* profile) const {
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             map["name"] = EL::Value(profile->name());
             map["workdir"] = EL::Value(profile->workDirSpec());
             map["tasks"] = writeTasks(profile);
-            return EL::Value(map);
+            return EL::Value(std::move(map));
         }
 
         class CompilationConfigWriter::WriteCompilationTaskVisitor : public Model::ConstCompilationTaskVisitor {
@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 }
                 map["type"] = EL::Value("export");
                 map["target"] = EL::Value(task.targetSpec());
-                m_array.push_back(EL::Value(map));
+                m_array.push_back(EL::Value(std::move(map)));
             }
 
             void visit(const Model::CompilationCopyFiles& task) override {
@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 map["type"] = EL::Value("copy");
                 map["source"] = EL::Value(task.sourceSpec());
                 map["target"] = EL::Value(task.targetSpec());
-                m_array.push_back(EL::Value(map));
+                m_array.push_back(EL::Value(std::move(map)));
             }
 
             void visit(const Model::CompilationRunTool& task) override {
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 map["type"] = EL::Value("tool");
                 map["tool"] = EL::Value(task.toolSpec());
                 map["parameters"] = EL::Value(task.parameterSpec());
-                m_array.push_back(EL::Value(map));
+                m_array.push_back(EL::Value(std::move(map)));
             }
         };
 

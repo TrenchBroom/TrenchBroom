@@ -54,8 +54,8 @@ namespace TrenchBroom {
 
         VariableTable::VariableTable() = default;
 
-        VariableTable::VariableTable(const Table& variables) :
-            m_variables(variables) {}
+        VariableTable::VariableTable(Table variables) :
+        m_variables(std::move(variables)) {}
 
         VariableStore* VariableTable::doClone() const {
             return new VariableTable(m_variables);
@@ -64,6 +64,7 @@ namespace TrenchBroom {
         size_t VariableTable::doGetSize() const {
             return m_variables.size();
         }
+
         Value VariableTable::doGetValue(const std::string& name) const {
             auto it = m_variables.find(name);
             if (it != std::end(m_variables)) {
