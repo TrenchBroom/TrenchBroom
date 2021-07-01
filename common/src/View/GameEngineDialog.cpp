@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
             auto& gameFactory = Model::GameFactory::instance();
             auto& gameConfig = gameFactory.gameConfig(m_gameName);
-            m_profileManager = new GameEngineProfileManager(gameConfig.gameEngineConfig());
+            m_profileManager = new GameEngineProfileManager(gameConfig.gameEngineConfig);
 
             auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close);
 

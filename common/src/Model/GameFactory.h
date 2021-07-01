@@ -39,7 +39,7 @@ namespace TrenchBroom {
     namespace Model {
         class CompilationConfig;
         class Game;
-        class GameConfig;
+        struct GameConfig;
         class GameEngineConfig;
 
         class GameFactory {

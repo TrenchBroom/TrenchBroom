@@ -66,7 +66,7 @@ namespace TrenchBroom {
             // 'assets' folder in the game configuration folders. We add filesystems for both types here.
             
             std::vector<IO::Path> defaultFolderPaths = IO::SystemPaths::findResourceDirectories(IO::Path("defaults"));
-            const auto& configPath = config.path();
+            const auto& configPath = config.path;
             if (!configPath.isEmpty()) {
                 defaultFolderPaths.push_back(configPath.deleteLastComponent());
             }
@@ -87,7 +87,7 @@ namespace TrenchBroom {
         }
 
         void GameFileSystem::addGameFileSystems(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger& logger) {
-            const auto& fileSystemConfig = config.fileSystemConfig();
+            const auto& fileSystemConfig = config.fileSystemConfig;
             addFileSystemPath(gamePath + fileSystemConfig.searchPath, logger);
             addFileSystemPackages(config, gamePath + fileSystemConfig.searchPath, logger);
 
@@ -107,7 +107,7 @@ namespace TrenchBroom {
         }
 
         void GameFileSystem::addFileSystemPackages(const GameConfig& config, const IO::Path& searchPath, Logger& logger) {
-            const auto& fileSystemConfig = config.fileSystemConfig();
+            const auto& fileSystemConfig = config.fileSystemConfig;
             const auto& packageFormatConfig = fileSystemConfig.packageFormat;
 
             const auto& packageExtensions = packageFormatConfig.extensions;
@@ -140,7 +140,7 @@ namespace TrenchBroom {
         void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logger) {
             // To support Quake 3 shaders, we add a shader file system that loads the shaders
             // and makes them available as virtual files.
-            const auto& textureConfig = config.textureConfig();
+            const auto& textureConfig = config.textureConfig;
             const auto& textureFormat = textureConfig.format.format;
             if (kdl::ci::str_is_equal(textureFormat, "q3shader")) {
                 logger.info() << "Adding shader file system";

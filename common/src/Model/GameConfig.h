@@ -137,72 +137,33 @@ namespace TrenchBroom {
         bool operator==(const CompilationTool& lhs, const CompilationTool& rhs);
         bool operator!=(const CompilationTool& lhs, const CompilationTool& rhs);
 
-        class GameConfig {
-        private:
-            std::string m_name;
-            IO::Path m_path;
-            IO::Path m_icon;
-            bool m_experimental;
-            std::vector<MapFormatConfig> m_fileFormats;
-            FileSystemConfig m_fileSystemConfig;
-            TextureConfig m_textureConfig;
-            EntityConfig m_entityConfig;
-            FaceAttribsConfig m_faceAttribsConfig;
-            std::vector<SmartTag> m_smartTags;
-            CompilationConfig m_compilationConfig;
-            GameEngineConfig m_gameEngineConfig;
-            size_t m_maxPropertyLength;
-            std::optional<vm::bbox3> m_softMapBounds;
-            mutable bool m_compilationConfigParseFailed;
-            mutable bool m_gameEngineConfigParseFailed;
-            std::vector<CompilationTool> m_compilationTools;
-        public:
-            GameConfig();
-            GameConfig(
-                std::string name,
-                IO::Path path,
-                IO::Path icon,
-                bool experimental,
-                std::vector<MapFormatConfig> fileFormats,
-                FileSystemConfig fileSystemConfig,
-                TextureConfig textureConfig,
-                EntityConfig entityConfig,
-                FaceAttribsConfig faceAttribsConfig,
-                std::vector<SmartTag> smartTags,
-                std::optional<vm::bbox3> softMapBounds,
-                std::vector<CompilationTool> compilationTools);
+        struct GameConfig {
+            std::string name;
+            IO::Path path;
+            IO::Path icon;
+            bool experimental;
+            std::vector<MapFormatConfig> fileFormats;
+            FileSystemConfig fileSystemConfig;
+            TextureConfig textureConfig;
+            EntityConfig entityConfig;
+            FaceAttribsConfig faceAttribsConfig;
+            std::vector<SmartTag> smartTags;
+            std::optional<vm::bbox3> softMapBounds;
+            std::vector<CompilationTool> compilationTools;
 
-            const std::string& name() const;
-            const IO::Path& path() const;
-            const IO::Path& icon() const;
-            bool experimental() const;
-            const std::vector<MapFormatConfig>& fileFormats() const;
-            const FileSystemConfig& fileSystemConfig() const;
-            const TextureConfig& textureConfig() const;
-            const EntityConfig& entityConfig() const;
-            const FaceAttribsConfig& faceAttribsConfig() const;
-            const std::vector<SmartTag>& smartTags() const;
-            const std::optional<vm::bbox3>& softMapBounds() const;
-            const std::vector<CompilationTool>& compilationTools() const;
+            CompilationConfig compilationConfig{};
+            GameEngineConfig gameEngineConfig{};
+            mutable bool compilationConfigParseFailed{false};
+            mutable bool gameEngineConfigParseFailed{false};
 
-            const CompilationConfig& compilationConfig() const;
-            void setCompilationConfig(const CompilationConfig& compilationConfig);
-            bool compilationConfigParseFailed() const;
-            void setCompilationConfigParseFailed(bool failed) const;
-
-            const GameEngineConfig& gameEngineConfig() const;
-            void setGameEngineConfig(const GameEngineConfig& gameEngineConfig);
-            bool gameEngineConfigParseFailed() const;
-            void setGameEngineConfigParseFailed(bool failed) const;
-
-            size_t maxPropertyLength() const;
+            size_t maxPropertyLength{1023};
 
             IO::Path findInitialMap(const std::string& formatName) const;
             IO::Path findConfigFile(const IO::Path& filePath) const;
-
-            friend bool operator==(const GameConfig& lhs, const GameConfig& rhs);
-            friend bool operator!=(const GameConfig& lhs, const GameConfig& rhs);
         };
+
+        bool operator==(const GameConfig& lhs, const GameConfig& rhs);
+        bool operator!=(const GameConfig& lhs, const GameConfig& rhs);
     }
 }
 

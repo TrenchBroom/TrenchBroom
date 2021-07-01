@@ -206,7 +206,7 @@ namespace TrenchBroom {
             auto& gameFactory = Model::GameFactory::instance();
             const auto& gameConfig = gameFactory.gameConfig(m_gameName);
 
-            for (auto& tool : gameConfig.compilationTools()) {
+            for (auto& tool : gameConfig.compilationTools) {
                 const std::string toolName = tool.name;
                 auto* edit = new QLineEdit();
                 edit->setText(IO::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));

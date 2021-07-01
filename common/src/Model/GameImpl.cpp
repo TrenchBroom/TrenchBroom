@@ -87,7 +87,7 @@ namespace TrenchBroom {
         }
 
         const std::string& GameImpl::doGameName() const {
-            return m_config.name();
+            return m_config.name;
         }
 
         IO::Path GameImpl::doGamePath() const {
@@ -120,15 +120,15 @@ namespace TrenchBroom {
         }
 
         const CompilationConfig& GameImpl::doCompilationConfig() {
-            return m_config.compilationConfig();
+            return m_config.compilationConfig;
         }
 
         size_t GameImpl::doMaxPropertyLength() const {
-            return m_config.maxPropertyLength();
+            return m_config.maxPropertyLength;
         }
 
         std::optional<vm::bbox3> GameImpl::doSoftMapBounds() const {
-            return m_config.softMapBounds();
+            return m_config.softMapBounds;
         }
 
         Game::SoftMapBounds GameImpl::doExtractSoftMapBounds(const Entity& entity) const {
@@ -145,7 +145,7 @@ namespace TrenchBroom {
         }
 
         const std::vector<SmartTag>& GameImpl::doSmartTags() const {
-            return m_config.smartTags();
+            return m_config.smartTags;
         }
 
         std::unique_ptr<WorldNode> GameImpl::doNewMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             auto fileReader = file->reader().buffer();
             if (format == MapFormat::Unknown) {
                 // Try all formats listed in the game config
-                const auto possibleFormats = kdl::vec_transform(m_config.fileFormats(), [](const MapFormatConfig& config) {
+                const auto possibleFormats = kdl::vec_transform(m_config.fileFormats, [](const MapFormatConfig& config) {
                     return Model::formatFromName(config.format);
                 });
                 return IO::WorldReader::tryRead(fileReader.stringView(), possibleFormats, worldBounds, parserStatus);
@@ -264,14 +264,14 @@ namespace TrenchBroom {
                 [](const TextureDirectoryPackageConfig&) {
                     return TexturePackageType::Directory;
                 }
-            ), m_config.textureConfig().package);
+            ), m_config.textureConfig.package);
         }
 
         void GameImpl::doLoadTextureCollections(const Entity& entity, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const {
             const auto paths = extractTextureCollections(entity);
 
             const auto fileSearchPaths = textureCollectionSearchPaths(documentPath);
-            IO::TextureLoader textureLoader(m_fs, fileSearchPaths, m_config.textureConfig(), logger);
+            IO::TextureLoader textureLoader(m_fs, fileSearchPaths, m_config.textureConfig, logger);
             textureLoader.loadTextures(paths, textureManager);
         }
 
@@ -298,12 +298,12 @@ namespace TrenchBroom {
                 [](const TextureDirectoryPackageConfig&) {
                     return false;
                 }
-            ), m_config.textureConfig().package);
+            ), m_config.textureConfig.package);
         }
 
         std::vector<IO::Path> GameImpl::doFindTextureCollections() const {
             try {
-                const auto searchPath = getRootDirectory(m_config.textureConfig().package);
+                const auto searchPath = getRootDirectory(m_config.textureConfig.package);
                 if (!searchPath.isEmpty() && m_fs.directoryExists(searchPath)) {
                     return kdl::vec_concat(std::vector<IO::Path>({searchPath}), m_fs.findItemsRecursively(searchPath, IO::FileTypeMatcher(false, true)));
                 }
@@ -321,11 +321,11 @@ namespace TrenchBroom {
                 [](const TextureDirectoryPackageConfig&) {
                     return std::vector<std::string>{};
                 }
-            ), m_config.textureConfig().package);
+            ), m_config.textureConfig.package);
         }
 
         std::vector<IO::Path> GameImpl::doExtractTextureCollections(const Entity& entity) const {
-            const auto& property = m_config.textureConfig().property;
+            const auto& property = m_config.textureConfig.property;
             if (property.empty()) {
                 return {};
             }
@@ -339,7 +339,7 @@ namespace TrenchBroom {
         }
 
         void GameImpl::doUpdateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const {
-            const auto& attribute = m_config.textureConfig().property;
+            const auto& attribute = m_config.textureConfig.property;
             if (attribute.empty()) {
                 return;
             }
@@ -367,7 +367,7 @@ namespace TrenchBroom {
 
         std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
             const auto extension = path.extension();
-            const auto& defaultColor = m_config.entityConfig().defaultColor;
+            const auto& defaultColor = m_config.entityConfig.defaultColor;
 
             if (kdl::ci::str_is_equal("fgd", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
@@ -390,7 +390,7 @@ namespace TrenchBroom {
         }
 
         std::vector<Assets::EntityDefinitionFileSpec> GameImpl::doAllEntityDefinitionFiles() const {
-            const auto paths = m_config.entityConfig().defFilePaths;
+            const auto paths = m_config.entityConfig.defFilePaths;
             const auto count = paths.size();
 
             std::vector<Assets::EntityDefinitionFileSpec> result;
@@ -412,7 +412,7 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const {
-            const auto paths = m_config.entityConfig().defFilePaths;
+            const auto paths = m_config.entityConfig.defFilePaths;
             if (paths.empty()) {
                 throw GameException("No entity definition files found for game '" + gameName() + "'");
             }
@@ -445,7 +445,7 @@ namespace TrenchBroom {
 
                 const auto modelName = path.lastComponent().asString();
                 const auto extension = kdl::str_to_lower(path.extension());
-                const auto supported = m_config.entityConfig().modelFormats;
+                const auto supported = m_config.entityConfig.modelFormats;
 
                 if (extension == "mdl" && kdl::vec_contains(supported, "mdl")) {
                     const auto palette = loadTexturePalette();
@@ -505,7 +505,7 @@ namespace TrenchBroom {
 
                 const auto modelName = path.lastComponent().asString();
                 const auto extension = kdl::str_to_lower(path.extension());
-                const auto supported = m_config.entityConfig().modelFormats;
+                const auto supported = m_config.entityConfig.modelFormats;
 
                 if (extension == "mdl" && kdl::vec_contains(supported, "mdl")) {
                     const auto palette = loadTexturePalette();
@@ -554,7 +554,7 @@ namespace TrenchBroom {
         }
 
         Assets::Palette GameImpl::loadTexturePalette() const {
-            const auto& path = m_config.textureConfig().palette;
+            const auto& path = m_config.textureConfig.palette;
             return Assets::Palette::loadFile(m_fs, path);
         }
 
@@ -564,7 +564,7 @@ namespace TrenchBroom {
                 return result;
             }
 
-            const auto& defaultMod = m_config.fileSystemConfig().searchPath.lastComponent().asString();
+            const auto& defaultMod = m_config.fileSystemConfig.searchPath.lastComponent().asString();
             const IO::DiskFileSystem fs(m_gamePath);
             const auto subDirs = fs.findItems(IO::Path(""), IO::FileTypeMatcher(false, true));
             for (size_t i = 0; i < subDirs.size(); ++i) {
@@ -585,23 +585,23 @@ namespace TrenchBroom {
         }
 
         std::string GameImpl::doDefaultMod() const {
-            return m_config.fileSystemConfig().searchPath.asString();
+            return m_config.fileSystemConfig.searchPath.asString();
         }
 
         const FlagsConfig& GameImpl::doSurfaceFlags() const {
-            return m_config.faceAttribsConfig().surfaceFlags;
+            return m_config.faceAttribsConfig.surfaceFlags;
         }
 
         const FlagsConfig& GameImpl::doContentFlags() const {
-            return m_config.faceAttribsConfig().contentFlags;
+            return m_config.faceAttribsConfig.contentFlags;
         }
 
         const BrushFaceAttributes& GameImpl::doDefaultFaceAttribs() const {
-            return m_config.faceAttribsConfig().defaults;
+            return m_config.faceAttribsConfig.defaults;
         }
 
         const std::vector<CompilationTool>& GameImpl::doCompilationTools() const {
-            return m_config.compilationTools();
+            return m_config.compilationTools;
         }
 
         void GameImpl::writeLongAttribute(EntityNodeBase& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {

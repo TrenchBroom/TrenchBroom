@@ -174,129 +174,8 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        GameConfig::GameConfig() :
-        m_experimental(false),
-        m_maxPropertyLength(1023),
-        m_compilationConfigParseFailed(false),
-        m_gameEngineConfigParseFailed(false) {}
-
-        GameConfig::GameConfig(std::string name,
-                               IO::Path path,
-                               IO::Path icon,
-                               const bool experimental,
-                               std::vector<MapFormatConfig> fileFormats,
-                               FileSystemConfig fileSystemConfig,
-                               TextureConfig textureConfig,
-                               EntityConfig entityConfig,
-                               FaceAttribsConfig faceAttribsConfig,
-                               std::vector<SmartTag> smartTags,
-                               std::optional<vm::bbox3> softMapBounds,
-                               std::vector<CompilationTool> compilationTools) :
-        m_name(std::move(name)),
-        m_path(std::move(path)),
-        m_icon(std::move(icon)),
-        m_experimental(experimental),
-        m_fileFormats(std::move(fileFormats)),
-        m_fileSystemConfig(std::move(fileSystemConfig)),
-        m_textureConfig(std::move(textureConfig)),
-        m_entityConfig(std::move(entityConfig)),
-        m_faceAttribsConfig(std::move(faceAttribsConfig)),
-        m_smartTags(std::move(smartTags)),
-        m_maxPropertyLength(1023),
-        m_softMapBounds(std::move(softMapBounds)),
-        m_compilationConfigParseFailed(false),
-        m_gameEngineConfigParseFailed(false),
-        m_compilationTools(std::move(compilationTools)) {
-            assert(!kdl::str_trim(m_name).empty());
-            assert(m_path.isEmpty() || m_path.isAbsolute());
-        }
-
-        const std::string& GameConfig::name() const {
-            return m_name;
-        }
-
-        const IO::Path& GameConfig::path() const {
-            return m_path;
-        }
-
-        const IO::Path& GameConfig::icon() const {
-            return m_icon;
-        }
-
-        bool GameConfig::experimental() const {
-            return m_experimental;
-        }
-
-        const std::vector<MapFormatConfig>& GameConfig::fileFormats() const {
-            return m_fileFormats;
-        }
-
-        const FileSystemConfig& GameConfig::fileSystemConfig() const {
-            return m_fileSystemConfig;
-        }
-
-        const TextureConfig& GameConfig::textureConfig() const {
-            return m_textureConfig;
-        }
-
-        const EntityConfig& GameConfig::entityConfig() const {
-            return m_entityConfig;
-        }
-
-        const FaceAttribsConfig& GameConfig::faceAttribsConfig() const {
-            return m_faceAttribsConfig;
-        }
-
-        const std::vector<SmartTag>& GameConfig::smartTags() const {
-            return m_smartTags;
-        }
-
-        const std::optional<vm::bbox3>& GameConfig::softMapBounds() const {
-            return m_softMapBounds;
-        }
-
-        const std::vector<CompilationTool>& GameConfig::compilationTools() const {
-            return m_compilationTools;
-        }
-
-        const CompilationConfig& GameConfig::compilationConfig() const {
-            return m_compilationConfig;
-        }
-
-        void GameConfig::setCompilationConfig(const CompilationConfig& compilationConfig) {
-            m_compilationConfig = compilationConfig;
-        }
-
-        bool GameConfig::compilationConfigParseFailed() const {
-            return m_compilationConfigParseFailed;
-        }
-
-        void GameConfig::setCompilationConfigParseFailed(const bool failed) const {
-            m_compilationConfigParseFailed = failed;
-        }
-
-        const GameEngineConfig& GameConfig::gameEngineConfig() const {
-            return m_gameEngineConfig;
-        }
-
-        void GameConfig::setGameEngineConfig(const GameEngineConfig& gameEngineConfig) {
-            m_gameEngineConfig = gameEngineConfig;
-        }
-
-        bool GameConfig::gameEngineConfigParseFailed() const {
-            return m_gameEngineConfigParseFailed;
-        }
-
-        void GameConfig::setGameEngineConfigParseFailed(const bool failed) const {
-            m_gameEngineConfigParseFailed = failed;
-        }
-
-        size_t GameConfig::maxPropertyLength() const {
-            return m_maxPropertyLength;
-        }
-
         IO::Path GameConfig::findInitialMap(const std::string& formatName) const {
-            for (const auto& format : m_fileFormats) {
+            for (const auto& format : fileFormats) {
                 if (format.format == formatName) {
                     if (!format.initialMap.isEmpty()) {
                         return findConfigFile(format.initialMap);
@@ -309,27 +188,27 @@ namespace TrenchBroom {
         }
 
         IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
-            return path().deleteLastComponent() + filePath;
+            return path.deleteLastComponent() + filePath;
         }
 
         bool operator==(const GameConfig& lhs, const GameConfig& rhs) {
-            return lhs.m_name == rhs.m_name &&
-                   lhs.m_path == rhs.m_path &&
-                   lhs.m_icon == rhs.m_icon &&
-                   lhs.m_experimental == rhs.m_experimental &&
-                   lhs.m_fileFormats == rhs.m_fileFormats &&
-                   lhs.m_fileSystemConfig == rhs.m_fileSystemConfig &&
-                   lhs.m_textureConfig == rhs.m_textureConfig &&
-                   lhs.m_entityConfig == rhs.m_entityConfig &&
-                   lhs.m_faceAttribsConfig == rhs.m_faceAttribsConfig &&
-                   lhs.m_smartTags == rhs.m_smartTags &&
-                   lhs.m_compilationConfig == rhs.m_compilationConfig &&
-                   lhs.m_gameEngineConfig == rhs.m_gameEngineConfig &&
-                   lhs.m_maxPropertyLength == rhs.m_maxPropertyLength &&
-                   lhs.m_softMapBounds == rhs.m_softMapBounds &&
-                   lhs.m_compilationConfigParseFailed == rhs.m_compilationConfigParseFailed &&
-                   lhs.m_gameEngineConfigParseFailed == rhs.m_gameEngineConfigParseFailed &&
-                   lhs.m_compilationTools == rhs.m_compilationTools;
+            return lhs.name == rhs.name &&
+                   lhs.path == rhs.path &&
+                   lhs.icon == rhs.icon &&
+                   lhs.experimental == rhs.experimental &&
+                   lhs.fileFormats == rhs.fileFormats &&
+                   lhs.fileSystemConfig == rhs.fileSystemConfig &&
+                   lhs.textureConfig == rhs.textureConfig &&
+                   lhs.entityConfig == rhs.entityConfig &&
+                   lhs.faceAttribsConfig == rhs.faceAttribsConfig &&
+                   lhs.smartTags == rhs.smartTags &&
+                   lhs.compilationConfig == rhs.compilationConfig &&
+                   lhs.gameEngineConfig == rhs.gameEngineConfig &&
+                   lhs.maxPropertyLength == rhs.maxPropertyLength &&
+                   lhs.softMapBounds == rhs.softMapBounds &&
+                   lhs.compilationConfigParseFailed == rhs.compilationConfigParseFailed &&
+                   lhs.gameEngineConfigParseFailed == rhs.gameEngineConfigParseFailed &&
+                   lhs.compilationTools == rhs.compilationTools;
         }
 
         bool operator!=(const GameConfig& lhs, const GameConfig& rhs) {

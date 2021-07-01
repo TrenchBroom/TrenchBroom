@@ -56,7 +56,7 @@ namespace TrenchBroom {
         class BrushFace;
         class BrushNode;
         class Game;
-        class GameConfig;
+        struct GameConfig;
         class Node;
 
         BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");

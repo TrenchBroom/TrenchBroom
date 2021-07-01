@@ -85,7 +85,7 @@ namespace TrenchBroom {
 
         std::vector<std::string> GameFactory::fileFormats(const std::string& gameName) const {
             std::vector<std::string> result;
-            for (const auto& format : gameConfig(gameName).fileFormats()) {
+            for (const auto& format : gameConfig(gameName).fileFormats) {
                 result.push_back(format.format);
             }
             return result;
@@ -93,7 +93,7 @@ namespace TrenchBroom {
 
         IO::Path GameFactory::iconPath(const std::string& gameName) const {
             const auto& config = gameConfig(gameName);
-            return config.findConfigFile(config.icon());
+            return config.findConfigFile(config.icon);
         }
 
         IO::Path GameFactory::gamePath(const std::string& gameName) const {
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             loadCompilationConfig(config);
             loadGameEngineConfig(config);
 
-            const auto configName = config.name();
+            const auto configName = config.name;
             m_configs.emplace(std::make_pair(configName, std::move(config)));
             m_names.push_back(configName);
 
@@ -252,32 +252,32 @@ namespace TrenchBroom {
         }
 
         void GameFactory::loadCompilationConfig(GameConfig& gameConfig) {
-            const auto path = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
+            const auto path = IO::Path(gameConfig.name) + IO::Path("CompilationProfiles.cfg");
             try {
                 if (m_configFS->fileExists(path)) {
                     const auto profilesFile = m_configFS->openFile(path);
                     auto reader = profilesFile->reader().buffer();
                     IO::CompilationConfigParser parser(reader.stringView(), m_configFS->makeAbsolute(path));
-                    gameConfig.setCompilationConfig(parser.parse());
+                    gameConfig.compilationConfigParseFailed = false;
                 }
             } catch (const Exception& e) {
                 std::cerr << "Could not load compilation configuration '" + path.asString() + "': " + std::string(e.what()) << "\n";
-                gameConfig.setCompilationConfigParseFailed(true);
+                gameConfig.compilationConfigParseFailed = true;
             }
         }
 
         void GameFactory::loadGameEngineConfig(GameConfig& gameConfig) {
-            const auto path = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
+            const auto path = IO::Path(gameConfig.name) + IO::Path("GameEngineProfiles.cfg");
             try {
                 if (m_configFS->fileExists(path)) {
                     const auto profilesFile = m_configFS->openFile(path);
                     auto reader = profilesFile->reader().buffer();
                     IO::GameEngineConfigParser parser(reader.stringView(), m_configFS->makeAbsolute(path));
-                    gameConfig.setGameEngineConfig(parser.parse());
+                    gameConfig.gameEngineConfig = parser.parse();
                 }
             } catch (const Exception& e) {
                 std::cerr << "Could not load game engine configuration '" + path.asString() + "': " + std::string(e.what()) << "\n";
-                gameConfig.setGameEngineConfigParseFailed(true);
+                gameConfig.gameEngineConfigParseFailed = true;
             }
         }
 
@@ -288,12 +288,12 @@ namespace TrenchBroom {
         }
 
         void GameFactory::writeCompilationConfig(GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger) {
-            if (!gameConfig.compilationConfigParseFailed()
-                && gameConfig.compilationConfig() == compilationConfig) {
+            if (!gameConfig.compilationConfigParseFailed
+                && gameConfig.compilationConfig == std::move(compilationConfig)) {
                 // NOTE: this is not just an optimization, but important for ensuring that
                 // we don't clobber data saved by a newer version of TB, unless we actually make changes
                 // to the config in this version of TB (see: https://github.com/TrenchBroom/TrenchBroom/issues/3424)
-                logger.debug() << "Skipping writing unchanged compilation config for " << gameConfig.name();
+                logger.debug() << "Skipping writing unchanged compilation config for " << gameConfig.name;
                 return;
             }
 
@@ -301,24 +301,24 @@ namespace TrenchBroom {
             IO::CompilationConfigWriter writer(compilationConfig, stream);
             writer.writeConfig();
 
-            const auto profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
-            if (gameConfig.compilationConfigParseFailed()) {
+            const auto profilesPath = IO::Path(gameConfig.name) + IO::Path("CompilationProfiles.cfg");
+            if (gameConfig.compilationConfigParseFailed) {
                 const IO::Path backupPath = backupFile(*m_configFS, profilesPath);
 
                 logger.warn() << "Backed up malformed compilation config " << m_configFS->makeAbsolute(profilesPath).asString()
                               << " to " << m_configFS->makeAbsolute(backupPath).asString();
 
-                gameConfig.setCompilationConfigParseFailed(false);
+                gameConfig.compilationConfigParseFailed = false;
             }
             m_configFS->createFileAtomic(profilesPath, stream.str());
-            gameConfig.setCompilationConfig(compilationConfig);
+            gameConfig.compilationConfig = std::move(compilationConfig);
             logger.debug() << "Wrote compilation config to " << m_configFS->makeAbsolute(profilesPath).asString();
         }
 
         void GameFactory::writeGameEngineConfig(GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig) {
-            if (!gameConfig.gameEngineConfigParseFailed()
-                && gameConfig.gameEngineConfig() == gameEngineConfig) {
-                std::cout << "Skipping writing unchanged game engine config for " << gameConfig.name();
+            if (!gameConfig.gameEngineConfigParseFailed
+                && gameConfig.gameEngineConfig == std::move(gameEngineConfig)) {
+                std::cout << "Skipping writing unchanged game engine config for " << gameConfig.name;
                 return;
             }
 
@@ -326,17 +326,17 @@ namespace TrenchBroom {
             IO::GameEngineConfigWriter writer(gameEngineConfig, stream);
             writer.writeConfig();
 
-            const auto profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
-            if (gameConfig.gameEngineConfigParseFailed()) {
+            const auto profilesPath = IO::Path(gameConfig.name) + IO::Path("GameEngineProfiles.cfg");
+            if (gameConfig.gameEngineConfigParseFailed) {
                 const IO::Path backupPath = backupFile(*m_configFS, profilesPath);
 
                 std::cerr << "Backed up malformed game engine config " << m_configFS->makeAbsolute(profilesPath).asString()
                           << " to " << m_configFS->makeAbsolute(backupPath).asString() << std::endl;
 
-                gameConfig.setGameEngineConfigParseFailed(false);
+                gameConfig.gameEngineConfigParseFailed = false;
             }
             m_configFS->createFileAtomic(profilesPath, stream.str());
-            gameConfig.setGameEngineConfig(gameEngineConfig);
+            gameConfig.gameEngineConfig = std::move(gameEngineConfig);
             std::cout << "Wrote game engine config to " << m_configFS->makeAbsolute(profilesPath).asString() << std::endl;
         }
     }
