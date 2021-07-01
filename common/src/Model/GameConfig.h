@@ -153,8 +153,8 @@ namespace TrenchBroom {
 
             CompilationConfig compilationConfig{};
             GameEngineConfig gameEngineConfig{};
-            mutable bool compilationConfigParseFailed{false};
-            mutable bool gameEngineConfigParseFailed{false};
+            bool compilationConfigParseFailed{false};
+            bool gameEngineConfigParseFailed{false};
 
             size_t maxPropertyLength{1023};
 
