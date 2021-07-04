@@ -71,6 +71,10 @@ namespace TrenchBroom {
                     lhs.m_color == rhs.m_color);
         }
 
+        bool operator!=(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs) {
+            return !(lhs == rhs);
+        }
+
         void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs) {
             using std::swap;
             swap(lhs.m_textureName, rhs.m_textureName);
