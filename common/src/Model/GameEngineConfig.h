@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>
@@ -48,6 +49,7 @@ namespace TrenchBroom {
 
             friend bool operator==(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
             friend bool operator!=(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
+            friend std::ostream& operator<<(std::ostream& str, const GameEngineConfig& config);
         };
     }
 }

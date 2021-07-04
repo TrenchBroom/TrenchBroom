@@ -22,8 +22,11 @@
 #include "Ensure.h"
 #include "Model/GameEngineProfile.h"
 
+#include <kdl/deref_iterator.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -97,6 +100,12 @@ namespace TrenchBroom {
 
         bool operator!=(const GameEngineConfig& lhs, const GameEngineConfig& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const GameEngineConfig& config) {
+            str << "GameEngineConfig{"
+                << "profiles: [" << kdl::str_join(kdl::const_deref_range{config.m_profiles}) << "]};";
+            return str;
         }
     }
 }
