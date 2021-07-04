@@ -44,6 +44,10 @@ namespace TrenchBroom {
             return lhs.m_name == rhs.m_name;
         }
 
+        bool operator!=(const TagAttribute& lhs, const TagAttribute& rhs) {
+            return !(lhs == rhs);
+        }
+
         bool operator<(const TagAttribute& lhs, const TagAttribute& rhs) {
             return lhs.m_name < rhs.m_name;
         }
@@ -88,6 +92,10 @@ namespace TrenchBroom {
             return lhs.m_name == rhs.m_name;
         }
 
+        bool operator!=(const Tag& lhs, const Tag& rhs) {
+            return !(lhs == rhs);
+        }
+
         bool operator<(const Tag& lhs, const Tag& rhs) {
             return lhs.m_name < rhs.m_name;
         }
@@ -101,6 +109,10 @@ namespace TrenchBroom {
 
         bool operator==(const TagReference& lhs, const TagReference& rhs) {
             return *(lhs.m_tag) == *(rhs.m_tag);
+        }
+
+        bool operator!=(const TagReference& lhs, const TagReference& rhs) {
+            return !(lhs == rhs);
         }
 
         bool operator<(const TagReference& lhs, const TagReference& rhs) {

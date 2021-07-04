@@ -64,6 +64,7 @@ namespace TrenchBroom {
             const std::string& name() const;
 
             friend bool operator==(const TagAttribute& lhs, const TagAttribute& rhs);
+            friend bool operator!=(const TagAttribute& lhs, const TagAttribute& rhs);
             friend bool operator<(const TagAttribute& lhs, const TagAttribute& rhs);
         };
 
@@ -132,6 +133,7 @@ namespace TrenchBroom {
             const std::vector<TagAttribute>& attributes() const;
 
             friend bool operator==(const Tag& lhs, const Tag& rhs);
+            friend bool operator!=(const Tag& lhs, const Tag& rhs);
             friend bool operator<(const Tag& lhs, const Tag& rhs);
         };
 
@@ -157,6 +159,7 @@ namespace TrenchBroom {
             const Tag& tag() const;
 
             friend bool operator==(const TagReference& lhs, const TagReference& rhs);
+            friend bool operator!=(const TagReference& lhs, const TagReference& rhs);
             friend bool operator<(const TagReference& lhs, const TagReference& rhs);
         };
 
