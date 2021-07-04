@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
@@ -39,6 +40,7 @@ namespace TrenchBroom {
             friend void swap(CompilationConfig& lhs, CompilationConfig& rhs);
             friend bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs);
             friend bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs);
+            friend std::ostream& operator<<(std::ostream& str, const CompilationConfig& config);
 
             size_t profileCount() const;
             CompilationProfile* profile(size_t index) const;

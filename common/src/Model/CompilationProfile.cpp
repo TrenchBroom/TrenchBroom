@@ -22,8 +22,11 @@
 #include "Ensure.h"
 #include "Model/CompilationTask.h"
 
+#include <kdl/deref_iterator.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <ostream>
 #include <string>
 
 namespace TrenchBroom {
@@ -70,6 +73,14 @@ namespace TrenchBroom {
 
         bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const CompilationProfile& profile) {
+            str << "CompilationProfile{"
+                << "name: " << profile.m_name << ", "
+                << "workDirSpec: " << profile.m_workDirSpec << ", "
+                << "tasks: [" << kdl::str_join(kdl::const_deref_range{profile.m_tasks}) << "]}";
+            return str;
         }
 
         const std::string& CompilationProfile::name() const  {

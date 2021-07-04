@@ -22,7 +22,11 @@
 #include "Ensure.h"
 #include "Model/CompilationProfile.h"
 
+#include <kdl/deref_iterator.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
+
+#include <ostream>
 
 namespace TrenchBroom {
     namespace Model {
@@ -66,6 +70,12 @@ namespace TrenchBroom {
 
         bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const CompilationConfig& config) {
+            str << "CompilationConfig{"
+                << "profiles: [" << kdl::str_join(kdl::const_deref_range{config.m_profiles}) << "]}";
+            return str;
         }
 
         size_t CompilationConfig::profileCount() const {

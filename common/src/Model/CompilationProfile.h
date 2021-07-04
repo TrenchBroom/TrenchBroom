@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>
@@ -46,6 +47,7 @@ namespace TrenchBroom {
             std::unique_ptr<CompilationProfile> clone() const;
             friend bool operator==(const CompilationProfile& lhs, const CompilationProfile& rhs);
             friend bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs);
+            friend std::ostream& operator<<(std::ostream& str, const CompilationProfile& profile);
 
             const std::string& name() const;
             void setName(const std::string& name);

@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 
+#include <iosfwd>
 #include <string>
 
 namespace TrenchBroom {
@@ -49,9 +50,12 @@ namespace TrenchBroom {
             virtual CompilationTask* clone() const = 0;
             virtual bool operator==(const CompilationTask& other) const = 0;
             bool operator!=(const CompilationTask& other) const;
+            virtual void appendToStream(std::ostream& str) const = 0;
 
             deleteCopyAndMove(CompilationTask)
         };
+
+        std::ostream& operator<<(std::ostream& str, const CompilationTask& task);
 
         class CompilationExportMap : public CompilationTask {
         private:
@@ -70,6 +74,7 @@ namespace TrenchBroom {
 
             CompilationExportMap* clone() const override;
             bool operator==(const CompilationTask& other) const override;
+            void appendToStream(std::ostream& str) const override;
 
             deleteCopyAndMove(CompilationExportMap)
         };
@@ -94,6 +99,7 @@ namespace TrenchBroom {
 
             CompilationCopyFiles* clone() const override;
             bool operator==(const CompilationTask& other) const override;
+            void appendToStream(std::ostream& str) const override;
 
             deleteCopyAndMove(CompilationCopyFiles)
         };
@@ -118,6 +124,7 @@ namespace TrenchBroom {
 
             CompilationRunTool* clone() const override;
             bool operator==(const CompilationTask& other) const override;
+            void appendToStream(std::ostream& str) const override;
 
             deleteCopyAndMove(CompilationRunTool)
         };
