@@ -50,26 +50,26 @@ namespace TrenchBroom {
             return std::make_unique<CompilationProfile>(m_name, m_workDirSpec, std::move(clones));
         }
 
-        bool CompilationProfile::operator==(const CompilationProfile& other) const {
-            if (m_name != other.m_name) {
+        bool operator==(const CompilationProfile& lhs, const CompilationProfile& rhs) {
+            if (lhs.m_name != rhs.m_name) {
                 return false;
             }
-            if (m_workDirSpec != other.m_workDirSpec) {
+            if (lhs.m_workDirSpec != rhs.m_workDirSpec) {
                 return false;
             }
-            if (m_tasks.size() != other.m_tasks.size()) {
+            if (lhs.m_tasks.size() != rhs.m_tasks.size()) {
                 return false;
             }
-            for (size_t i = 0; i < m_tasks.size(); ++i) {
-                if (*m_tasks[i] != *other.m_tasks[i]) {
+            for (size_t i = 0; i < lhs.m_tasks.size(); ++i) {
+                if (*lhs.m_tasks[i] != *rhs.m_tasks[i]) {
                     return false;
                 }
             }
             return true;
         }
 
-        bool CompilationProfile::operator!=(const CompilationProfile& other) const {
-            return !(*this == other);
+        bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs) {
+            return !(lhs == rhs);
         }
 
         const std::string& CompilationProfile::name() const  {

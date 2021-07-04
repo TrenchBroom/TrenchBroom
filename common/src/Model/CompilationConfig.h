@@ -37,8 +37,8 @@ namespace TrenchBroom {
 
             CompilationConfig& operator=(CompilationConfig other);
             friend void swap(CompilationConfig& lhs, CompilationConfig& rhs);
-            bool operator==(const CompilationConfig& other) const;
-            bool operator!=(const CompilationConfig& other) const;
+            friend bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs);
+            friend bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs);
 
             size_t profileCount() const;
             CompilationProfile* profile(size_t index) const;

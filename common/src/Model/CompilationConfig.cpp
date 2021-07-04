@@ -52,20 +52,20 @@ namespace TrenchBroom {
             swap(lhs.m_profiles, rhs.m_profiles);
         }
 
-        bool CompilationConfig::operator==(const CompilationConfig& other) const {
-            if (m_profiles.size() != other.m_profiles.size()) {
+        bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs) {
+            if (lhs.m_profiles.size() != rhs.m_profiles.size()) {
                 return false;
             }
-            for (size_t i = 0; i < m_profiles.size(); ++i) {
-                if (*m_profiles[i] != *other.m_profiles[i]) {
+            for (size_t i = 0; i < lhs.m_profiles.size(); ++i) {
+                if (*lhs.m_profiles[i] != *rhs.m_profiles[i]) {
                     return false;
                 }
             }
             return true;
         }
 
-        bool CompilationConfig::operator!=(const CompilationConfig& other) const {
-            return !(*this == other);
+        bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs) {
+            return !(lhs == rhs);
         }
 
         size_t CompilationConfig::profileCount() const {
