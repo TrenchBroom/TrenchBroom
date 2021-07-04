@@ -18,6 +18,7 @@
  */
 
 #include "Assets/PropertyDefinition.h"
+#include "EL/Expressions.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"

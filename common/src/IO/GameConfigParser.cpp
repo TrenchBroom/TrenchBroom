@@ -207,7 +207,7 @@ namespace TrenchBroom {
         }
 
         Model::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const EL::Value& value) const {
-            if (value.null())
+            if (value == EL::Value::Null)
                 return Model::FaceAttribsConfig{
                     {}, 
                     {}, 
@@ -234,7 +234,7 @@ namespace TrenchBroom {
         Model::FlagsConfig GameConfigParser::parseFlagsConfig(const EL::Value& value) const {
             using Model::GameConfig;
 
-            if (value.null()) {
+            if (value == EL::Value::Null) {
                 return {};
             }
 
@@ -282,7 +282,7 @@ namespace TrenchBroom {
 
         Model::BrushFaceAttributes GameConfigParser::parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const {
             Model::BrushFaceAttributes defaults(Model::BrushFaceAttributes::NoTextureName);
-            if (value.null()) {
+            if (value == EL::Value::Null) {
                 return defaults;
             }
 
@@ -292,21 +292,21 @@ namespace TrenchBroom {
                             "{'textureName': 'String', 'offset': 'Array', 'scale': 'Array', 'rotation': 'Number', 'surfaceContents': 'Array', 'surfaceFlags': 'Array', 'surfaceValue': 'Number', 'color': 'String'}"
                             "]");
 
-            if (!value["textureName"].null()) {
+            if (value["textureName"] != EL::Value::Null) {
                 defaults = Model::BrushFaceAttributes(value["textureName"].stringValue());
             }
-            if (!value["offset"].null() && value["offset"].length() == 2) {
+            if (value["offset"] != EL::Value::Null && value["offset"].length() == 2) {
                 auto offset = value["offset"];
                 defaults.setOffset(vm::vec2f(offset[0].numberValue(), offset[1].numberValue()));
             }
-            if (!value["scale"].null() && value["scale"].length() == 2) {
+            if (value["scale"] != EL::Value::Null && value["scale"].length() == 2) {
                 auto scale = value["scale"];
                 defaults.setScale(vm::vec2f(scale[0].numberValue(), scale[1].numberValue()));
             }
-            if (!value["rotation"].null()) {
+            if (value["rotation"] != EL::Value::Null) {
                 defaults.setRotation(static_cast<float>(value["rotation"].numberValue()));
             }
-            if (!value["surfaceContents"].null()) {
+            if (value["surfaceContents"] != EL::Value::Null) {
                 int defaultSurfaceContents = 0;
                 for (size_t i = 0; i < value["surfaceContents"].length(); ++i) {
                     auto name = value["surfaceContents"][i].stringValue();
@@ -314,7 +314,7 @@ namespace TrenchBroom {
                 }
                 defaults.setSurfaceContents(defaultSurfaceContents);
             }
-            if (!value["surfaceFlags"].null()) {
+            if (value["surfaceFlags"] != EL::Value::Null) {
                 int defaultSurfaceFlags = 0;
                 for (size_t i = 0; i < value["surfaceFlags"].length(); ++i) {
                     auto name = value["surfaceFlags"][i].stringValue();
@@ -322,10 +322,10 @@ namespace TrenchBroom {
                 }
                 defaults.setSurfaceFlags(defaultSurfaceFlags);
             }
-            if (!value["surfaceValue"].null()) {
+            if (value["surfaceValue"] != EL::Value::Null) {
                 defaults.setSurfaceValue(static_cast<float>(value["surfaceValue"].numberValue()));
             }
-            if (!value["color"].null()) {
+            if (value["color"] != EL::Value::Null) {
                 defaults.setColor(Color::parse(value["color"].stringValue()).value_or(Color()));
             }
 
@@ -334,7 +334,7 @@ namespace TrenchBroom {
 
         std::vector<Model::SmartTag> GameConfigParser::parseTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig) const {
             std::vector<Model::SmartTag> result{};
-            if (value.null()) {
+            if (value == EL::Value::Null) {
                 return result;
             }
 
@@ -359,7 +359,7 @@ namespace TrenchBroom {
         }
 
         void GameConfigParser::parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& result) const {
-            if (value.null()) {
+            if (value == EL::Value::Null) {
                 return;
             }
 
@@ -384,7 +384,7 @@ namespace TrenchBroom {
         }
 
         void GameConfigParser::parseFaceTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& result) const {
-            if (value.null()) {
+            if (value == EL::Value::Null) {
                 return;
             }
 
@@ -458,7 +458,7 @@ namespace TrenchBroom {
 
         std::vector<Model::TagAttribute> GameConfigParser::parseTagAttributes(const EL::Value& value) const {
             auto result = std::vector<Model::TagAttribute>{};
-            if (value.null()) {
+            if (value == EL::Value::Null) {
                 return result;
             }
 
@@ -478,7 +478,7 @@ namespace TrenchBroom {
         }
 
         std::optional<vm::bbox3> GameConfigParser::parseSoftMapBounds(const EL::Value& value) const {
-            if (value.null()) {
+            if (value == EL::Value::Null) {
                 return std::nullopt;
             }
 
@@ -491,7 +491,7 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::CompilationTool> GameConfigParser::parseCompilationTools(const EL::Value& value) const {
-            if (value.null()) {
+            if (value == EL::Value::Null) {
                 return {};
             }
 
@@ -506,7 +506,7 @@ namespace TrenchBroom {
                         "{'description': 'String'}"
                         "]");
 
-                if (!value[i]["description"].null()) {
+                if (value[i]["description"] != EL::Value::Null) {
                     result.push_back(Model::CompilationTool{
                         value[i]["name"].stringValue(),
                         value[i]["description"].stringValue()

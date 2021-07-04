@@ -21,7 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
-#include "EL/Expression.h"
+#include "EL/Expressions.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
 #include "IO/ELParser.h"

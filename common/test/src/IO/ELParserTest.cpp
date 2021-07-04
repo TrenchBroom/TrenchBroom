@@ -145,9 +145,9 @@ namespace TrenchBroom {
         TEST_CASE("ELParserTest.parseLogicalNegation", "[ELParserTest]") {
             CHECK(evaluate("!true") == EL::Value(false));
             CHECK(evaluate("!false") == EL::Value(true));
-            CHECK_THROWS_AS(evaluate("!0"), EL::ConversionError);
-            CHECK_THROWS_AS(evaluate("!1"), EL::ConversionError);
-            CHECK_THROWS_AS(evaluate("!'true'"), EL::ConversionError);
+            CHECK_THROWS_AS(evaluate("!0"), EL::EvaluationError);
+            CHECK_THROWS_AS(evaluate("!1"), EL::EvaluationError);
+            CHECK_THROWS_AS(evaluate("!'true'"), EL::EvaluationError);
         }
 
         TEST_CASE("ELParserTest.parseBitwiseNegation", "[ELParserTest]") {
