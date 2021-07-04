@@ -29,6 +29,7 @@
 
 #include <vecmath/bbox.h>
 
+#include <iosfwd>
 #include <optional>
 #include <set>
 #include <string>
@@ -44,6 +45,7 @@ namespace TrenchBroom {
 
         bool operator==(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
         bool operator!=(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const MapFormatConfig& config);
 
         struct PackageFormatConfig {
             std::vector<std::string> extensions;
@@ -52,6 +54,7 @@ namespace TrenchBroom {
 
         bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
         bool operator!=(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const PackageFormatConfig& config);
 
         struct FileSystemConfig {
             IO::Path searchPath;
@@ -60,6 +63,7 @@ namespace TrenchBroom {
 
         bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
         bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const FileSystemConfig& config);
 
         struct TextureFilePackageConfig {
             PackageFormatConfig fileFormat;
@@ -67,6 +71,7 @@ namespace TrenchBroom {
 
         bool operator==(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
         bool operator!=(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const TextureFilePackageConfig& config);
 
         struct TextureDirectoryPackageConfig {
             IO::Path rootDirectory;
@@ -74,8 +79,10 @@ namespace TrenchBroom {
 
         bool operator==(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
         bool operator!=(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const TextureDirectoryPackageConfig& config);
 
         using TexturePackageConfig = std::variant<TextureFilePackageConfig, TextureDirectoryPackageConfig>;
+        std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config);
 
         IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig);
 
@@ -90,6 +97,7 @@ namespace TrenchBroom {
 
         bool operator==(const TextureConfig& lhs, const TextureConfig& rhs);
         bool operator!=(const TextureConfig& lhs, const TextureConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const TextureConfig& config);
 
         struct EntityConfig {
             std::vector<IO::Path> defFilePaths;
@@ -99,6 +107,7 @@ namespace TrenchBroom {
 
         bool operator==(const EntityConfig& lhs, const EntityConfig& rhs);
         bool operator!=(const EntityConfig& lhs, const EntityConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const EntityConfig& config);
 
         struct FlagConfig {
             std::string name;
@@ -108,6 +117,7 @@ namespace TrenchBroom {
 
         bool operator==(const FlagConfig& lhs, const FlagConfig& rhs);
         bool operator!=(const FlagConfig& lhs, const FlagConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const FlagConfig& config);
 
         struct FlagsConfig {
             std::vector<FlagConfig> flags;
@@ -119,6 +129,7 @@ namespace TrenchBroom {
 
         bool operator==(const FlagsConfig& lhs, const FlagsConfig& rhs);
         bool operator!=(const FlagsConfig& lhs, const FlagsConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const FlagsConfig& config);
 
         struct FaceAttribsConfig {
             FlagsConfig surfaceFlags;
@@ -128,6 +139,7 @@ namespace TrenchBroom {
 
         bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
         bool operator!=(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const FaceAttribsConfig& config);
 
         struct CompilationTool {
             std::string name;
@@ -136,6 +148,7 @@ namespace TrenchBroom {
 
         bool operator==(const CompilationTool& lhs, const CompilationTool& rhs);
         bool operator!=(const CompilationTool& lhs, const CompilationTool& rhs);
+        std::ostream& operator<<(std::ostream& str, const CompilationTool& tool);
 
         struct GameConfig {
             std::string name;
@@ -164,6 +177,7 @@ namespace TrenchBroom {
 
         bool operator==(const GameConfig& lhs, const GameConfig& rhs);
         bool operator!=(const GameConfig& lhs, const GameConfig& rhs);
+        std::ostream& operator<<(std::ostream& str, const GameConfig& config);
     }
 }
 

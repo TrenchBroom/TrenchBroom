@@ -22,10 +22,15 @@
 #include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 
+#include <kdl/opt_utils.h>
 #include <kdl/overload.h>
 #include <kdl/string_utils.h>
 
+#include <vecmath/bbox_io.h>
+#include <vecmath/vec_io.h>
+
 #include <cassert>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -39,6 +44,13 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
+        std::ostream& operator<<(std::ostream& str, const MapFormatConfig& config) {
+            str << "MapFormatConfig{"
+                << "format: " << config.format << ", "
+                << "initialMap: " << config.initialMap << "}";
+            return str;
+        }
+
         bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs) {
             return lhs.extensions == rhs.extensions && lhs.format == rhs.format;
         }
@@ -47,12 +59,26 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
+        std::ostream& operator<<(std::ostream& str, const PackageFormatConfig& config) {
+            str << "PackageFormatConfig{"
+                << "extensions: [" << kdl::str_join(config.extensions) << "], "
+                << "format: " << config.format << "}";
+            return str;
+        }
+
         bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs) {
             return lhs.searchPath == rhs.searchPath && lhs.packageFormat == rhs.packageFormat;
         }
 
         bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const FileSystemConfig& config) {
+            str << "FileSystemConfig{"
+                << "searchPath: " << config.searchPath << ", "
+                << "packageFormat: " << config.packageFormat << "}";
+            return str;
         }
         
         bool operator==(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs) {
@@ -63,12 +89,29 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
+        std::ostream& operator<<(std::ostream& str, const TextureFilePackageConfig& config) {
+            str << "TextureFilePackageConfig{"
+                << "fileFormat: " << config.fileFormat << "}";
+            return str;
+        }
+
         bool operator==(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs) {
             return lhs.rootDirectory == rhs.rootDirectory;
         }
 
         bool operator!=(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const TextureDirectoryPackageConfig& config) {
+            str << "TextureDirectoryPackageConfig{"
+                << "rootDirectory: " << config.rootDirectory << "}";
+            return str;
+        }
+
+        std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config) {
+            std::visit([&](const auto& c) { str << c; }, config);
+            return str;
         }
 
         IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig) {
@@ -99,6 +142,17 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
+        std::ostream& operator<<(std::ostream& str, const TextureConfig& config) {
+            str << "TextureConfig{"
+                << "package: " << config.package << ", "
+                << "format: " << config.format << ", "
+                << "palette: " << config.palette << ", "
+                << "property: " << config.property << ", "
+                << "shaderSearchPath: " << config.shaderSearchPath << ", "
+                << "excludes: [" << kdl::str_join(config.excludes) << "]}";
+            return str;
+        }
+
         bool operator==(const EntityConfig& lhs, const EntityConfig& rhs) {
             return lhs.defFilePaths == rhs.defFilePaths &&
                    lhs.modelFormats == rhs.modelFormats &&
@@ -109,6 +163,14 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
+        std::ostream& operator<<(std::ostream& str, const EntityConfig& config) {
+            str << "EntityConfig{"
+                << "defFilePaths: [" << kdl::str_join(config.defFilePaths) << "], "
+                << "modelFormats: [" << kdl::str_join(config.modelFormats) << "], "
+                << "defaultColor: " << config.defaultColor << "}";
+            return str;
+        }
+
         bool operator==(const FlagConfig& lhs, const FlagConfig& rhs) {
             return lhs.name == rhs.name &&
                    lhs.description == rhs.description &&
@@ -117,6 +179,14 @@ namespace TrenchBroom {
 
         bool operator!=(const FlagConfig& lhs, const FlagConfig& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const FlagConfig& config) {
+            str << "FlagConfig{"
+                << "name: " << config.name << ", "
+                << "description: " << config.description << ", "
+                << "value: " << config.value << "}";
+            return str;
         }
 
         int FlagsConfig::flagValue(const std::string& flagName) const {
@@ -155,6 +225,12 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
+        std::ostream& operator<<(std::ostream& str, const FlagsConfig& config) {
+            str << "FlagsConfig{"
+                << "flags: [" << kdl::str_join(config.flags) << "]}";
+            return str;
+        }
+
         bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs) {
             return lhs.surfaceFlags == rhs.surfaceFlags &&
                    lhs.contentFlags == rhs.contentFlags &&
@@ -165,6 +241,14 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
+        std::ostream& operator<<(std::ostream& str, const FaceAttribsConfig& config) {
+            str << "FaceAttribsConfig{"
+                << "surfaceFlags: " << config.surfaceFlags << ", "
+                << "contentFlags: " << config.contentFlags << ", "
+                << "defaults: " << config.defaults << "}";
+            return str;
+        }
+
         bool operator==(const CompilationTool& lhs, const CompilationTool& rhs) {
             return lhs.name == rhs.name && 
                    lhs.description == rhs.description;
@@ -172,6 +256,13 @@ namespace TrenchBroom {
 
         bool operator!=(const CompilationTool& lhs, const CompilationTool& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const CompilationTool& tool) {
+            str << "CompilationTool{"
+                << "name: " << tool.name << ", "
+                << "description: " << tool.description.value_or("") << "}";
+            return str;
         }
 
         IO::Path GameConfig::findInitialMap(const std::string& formatName) const {
@@ -213,6 +304,26 @@ namespace TrenchBroom {
 
         bool operator!=(const GameConfig& lhs, const GameConfig& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const GameConfig& config) {
+            str << "GameConfig{\n"
+                << "  name: " << config.name << ",\n"
+                << "  path: " << config.path << ",\n"
+                << "  icon: " << config.icon << ",\n"
+                << "  experimental: " << config.experimental << ",\n"
+                << "  fileFormats: [" << kdl::str_join(config.fileFormats) << "],\n"
+                << "  fileSystemConfig: " << config.fileSystemConfig << ",\n"
+                << "  textureConfig: " << config.textureConfig << ",\n"
+                << "  entityConfig: " << config.entityConfig << ",\n"
+                << "  faceAttribsConfig: " << config.faceAttribsConfig << ",\n"
+                << "  smartTags: [" << kdl::str_join(config.smartTags) << "],\n"
+                << "  compilationConfig: " << config.compilationConfig << ",\n"
+                << "  gameEngineConfig: " << config.gameEngineConfig << ",\n"
+                << "  maxPropertyLength: " << config.maxPropertyLength << ",\n"
+                << "  softMapBounds: " << kdl::opt_to_string(config.softMapBounds) << ",\n"
+                << "  compilationTools: [" << kdl::str_join(config.compilationTools) << "]}\n";
+            return str;
         }
     }
 }
