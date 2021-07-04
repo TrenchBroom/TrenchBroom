@@ -22,7 +22,10 @@
 #include "IO/Path.h"
 #include "Model/TagManager.h"
 
+#include <kdl/string_utils.h>
+
 #include <cassert>
+#include <ostream>
 #include <string>
 #include <utility>
 
@@ -50,6 +53,10 @@ namespace TrenchBroom {
 
         bool operator<(const TagAttribute& lhs, const TagAttribute& rhs) {
             return lhs.m_name < rhs.m_name;
+        }
+
+        std::ostream& operator<<(std::ostream& str, const TagAttribute& attr) {
+            return str << "TagAttribute{type: " << attr.m_type << ", name: " << attr.m_name << "}";
         }
 
         Tag::Tag(const size_t index, const std::string& name, std::vector<TagAttribute> attributes) :
@@ -98,6 +105,18 @@ namespace TrenchBroom {
 
         bool operator<(const Tag& lhs, const Tag& rhs) {
             return lhs.m_name < rhs.m_name;
+        }
+
+        void Tag::appendToStream(std::ostream& str) const {
+            str << "Tag{"
+                << "index: " << m_index << ", "
+                << "name: " << m_name << ", "
+                << "attributes: " << kdl::str_join(m_attributes) << "}";
+        }
+
+        std::ostream& operator<<(std::ostream& str, const Tag& tag) {
+            tag.appendToStream(str);
+            return str;
         }
 
         TagReference::TagReference(const Tag& tag) :
@@ -227,6 +246,11 @@ namespace TrenchBroom {
             return false;
         }
 
+        std::ostream& operator<<(std::ostream& str, const TagMatcher& matcher) {
+            matcher.appendToStream(str);
+            return str;
+        }
+
         SmartTag::SmartTag(const std::string& name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
         Tag(name, std::move(attributes)),
         m_matcher(std::move(matcher)) {}
@@ -273,6 +297,14 @@ namespace TrenchBroom {
 
         bool SmartTag::canDisable() const {
             return m_matcher->canDisable();
+        }
+
+        void SmartTag::appendToStream(std::ostream& str) const {
+            str << "SmartTag{"
+                << "index: " << m_index << ", "
+                << "name: " << m_name << ", "
+                << "attributes: " << kdl::str_join(m_attributes) << ", "
+                << "matcher: " << *m_matcher << "}";
         }
     }
 }
