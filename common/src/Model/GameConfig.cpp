@@ -156,7 +156,8 @@ namespace TrenchBroom {
         bool operator==(const EntityConfig& lhs, const EntityConfig& rhs) {
             return lhs.defFilePaths == rhs.defFilePaths &&
                    lhs.modelFormats == rhs.modelFormats &&
-                   lhs.defaultColor == rhs.defaultColor;
+                   lhs.defaultColor == rhs.defaultColor &&
+                   lhs.scaleExpression == rhs.scaleExpression;
         }
 
         bool operator!=(const EntityConfig& lhs, const EntityConfig& rhs) {
@@ -167,7 +168,8 @@ namespace TrenchBroom {
             str << "EntityConfig{"
                 << "defFilePaths: [" << kdl::str_join(config.defFilePaths) << "], "
                 << "modelFormats: [" << kdl::str_join(config.modelFormats) << "], "
-                << "defaultColor: " << config.defaultColor << "}";
+                << "defaultColor: " << config.defaultColor << ", "
+                << "scaleExpression: " << kdl::opt_to_string(config.scaleExpression) << "}";
             return str;
         }
 

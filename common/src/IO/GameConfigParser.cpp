@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
+#include "EL/Expressions.h"
 #include "EL/Value.h"
 #include "FloatType.h"
 #include "Model/GameConfig.h"
@@ -196,13 +197,14 @@ namespace TrenchBroom {
             expectStructure(value,
                             "["
                             "{'definitions': 'Array', 'modelformats': 'Array', 'defaultcolor': 'String'},"
-                            "{}"
+                            "{'scale': '*'}" // scale is an expression
                             "]");
 
             return Model::EntityConfig{
                 Path::asPaths(value["definitions"].asStringList()),
                 value["modelformats"].asStringSet(),
-                Color::parse(value["defaultcolor"].stringValue()).value_or(Color())
+                Color::parse(value["defaultcolor"].stringValue()).value_or(Color()),
+                value["scale"].expression()
             };
         }
 

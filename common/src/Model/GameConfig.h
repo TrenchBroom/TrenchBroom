@@ -21,6 +21,7 @@
 
 #include "Color.h"
 #include "FloatType.h"
+#include "EL/Expression.h"
 #include "IO/Path.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"
@@ -103,6 +104,7 @@ namespace TrenchBroom {
             std::vector<IO::Path> defFilePaths;
             std::vector<std::string> modelFormats;
             Color defaultColor;
+            std::optional<EL::Expression> scaleExpression;
         };
 
         bool operator==(const EntityConfig& lhs, const EntityConfig& rhs);

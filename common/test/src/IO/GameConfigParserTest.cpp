@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "EL/Expression.h"
+#include "EL/Expressions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
@@ -141,7 +143,8 @@ namespace TrenchBroom {
                 Model::EntityConfig{
                     { Path{"Quake.fgd"}, Path{"Quoth2.fgd"}, Path{"Rubicon2.def"}, Path{"Teamfortress.fgd"} },
                     { "bsp", "mdl" },
-                    Color{0.6f, 0.6f, 0.6f, 1.0f}},
+                    Color{0.6f, 0.6f, 0.6f, 1.0f},
+                    {}},
                 Model::FaceAttribsConfig{},
                 {
                   Model::SmartTag{"Trigger", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "")},
@@ -385,7 +388,8 @@ namespace TrenchBroom {
                 Model::EntityConfig{
                     { Path{"Quake2.fgd"} },
                     { "md2" },
-                    Color{0.6f, 0.6f, 0.6f, 1.0f}},
+                    Color{0.6f, 0.6f, 0.6f, 1.0f},
+                    {}},
                 Model::FaceAttribsConfig{
                     {{
                         { "light", "Emit light from the surface, brightness is specified in the 'value' field", 1<<0 },
@@ -460,7 +464,8 @@ namespace TrenchBroom {
     "entities": {
         "definitions": [ "Extras.ent" ],
         "defaultcolor": "0.6 0.6 0.6 1.0",
-        "modelformats": [ "md3" ]
+        "modelformats": [ "md3" ],
+        "scale": [ modelscale, modelscale_vec ]
     },
     "tags": {
         "brush": [
@@ -687,7 +692,12 @@ namespace TrenchBroom {
                 Model::EntityConfig{
                     { Path{"Extras.ent"} },
                     { "md3" },
-                    Color{0.6f, 0.6f, 0.6f, 1.0f}},
+                    Color{0.6f, 0.6f, 0.6f, 1.0f},
+                    EL::Expression{EL::ArrayExpression{{ // the line numbers are not checked
+                        EL::Expression{EL::VariableExpression{"modelscale"}, 0, 0},
+                        EL::Expression{EL::VariableExpression{"modelscale_vec"}, 0, 0},
+                    }}, 0, 0}
+                },
                 Model::FaceAttribsConfig{
                     {{
                         { "light", "Emit light from the surface, brightness is specified in the 'value' field", 1<<0 },
