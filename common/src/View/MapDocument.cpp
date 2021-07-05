@@ -105,6 +105,7 @@
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
 #include <kdl/overload.h>
+#include <kdl/parallel.h>
 #include <kdl/string_format.h>
 #include <kdl/result.h>
 #include <kdl/result_for_each.h>
@@ -120,6 +121,7 @@
 #include <cassert>
 #include <cstdlib> // for std::abs
 #include <map>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -2037,50 +2039,54 @@ namespace TrenchBroom {
                 ));
             }
 
-            auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
-            nodesToUpdate.reserve(nodesToTransform.size());
-            for (auto* node : nodesToTransform) {
-                bool success = true;
+            using TransformResult = kdl::result<std::pair<Model::Node*, Model::NodeContents>, Model::BrushError>;
 
-                node->accept(kdl::overload(
-                    [&](Model::WorldNode*) {},
-                    [&](Model::LayerNode*) {},
-                    [&](Model::GroupNode* groupNode) {
+            const bool lockTexturesPref = pref(Preferences::TextureLock);
+            const auto transformResults = kdl::vec_parallel_transform(nodesToTransform, [&](Model::Node* node) -> TransformResult {
+                return node->accept(kdl::overload(
+                    [&](Model::WorldNode*) -> TransformResult { ensure(false, "Unexpected world node"); },
+                    [&](Model::LayerNode*) -> TransformResult { ensure(false, "Unexpected layer node"); },
+                    [&](Model::GroupNode* groupNode) -> TransformResult {
                         auto group = groupNode->group();
                         group.transform(transformation);
-                        nodesToUpdate.emplace_back(groupNode, std::move(group));
+                        return std::make_pair(groupNode, Model::NodeContents{std::move(group)});
                     },
-                    [&](Model::EntityNode* entityNode) {
+                    [&](Model::EntityNode* entityNode) -> TransformResult {
                         auto entity = entityNode->entity();
                         entity.transform(transformation);
-                        nodesToUpdate.emplace_back(entityNode, std::move(entity));
+                        return std::make_pair(entityNode, Model::NodeContents{std::move(entity)});
                     },
-                    [&](Model::BrushNode* brushNode) {
-                        const bool lockTextures = pref(Preferences::TextureLock)
+                    [&](Model::BrushNode* brushNode) -> TransformResult {
+                        const bool lockTextures = lockTexturesPref
                             || (Model::findContainingLinkedGroup(*brushNode) != nullptr);
 
                         auto brush = brushNode->brush();
-                        brush.transform(m_worldBounds, transformation, lockTextures)
-                            .and_then([&](){
-                                nodesToUpdate.emplace_back(brushNode, std::move(brush));
-                            }).handle_errors([&](const Model::BrushError e) {
-                                error() << "Could not transform brush: " << e;
-                                success = false;
+                        return brush.transform(m_worldBounds, transformation, lockTextures)
+                            .and_then([&]() -> TransformResult {
+                                return std::make_pair(brushNode, Model::NodeContents{std::move(brush)});
                             });
                     },
-                    [&](Model::PatchNode* patchNode) {
+                    [&](Model::PatchNode* patchNode) -> TransformResult {
                         auto patch = patchNode->patch();
                         patch.transform(transformation);
-                        nodesToUpdate.emplace_back(patchNode, std::move(patch));
+                        return std::make_pair(patchNode, Model::NodeContents{std::move(patch)});
                     }
                 ));
+            });
 
-                if (!success) {
-                    return false;
+            bool transformFailed = false;
+            const auto nodesToUpdate = kdl::collect_values(transformResults, kdl::overload(
+                [&](const Model::BrushError& e) {
+                    error() << "Could not transform brush: " << e;
+                    transformFailed = true;
                 }
+            ));
+
+            if (transformFailed) {
+                return false;
             }
 
-            const auto success = swapNodeContents(commandName, nodesToUpdate, findContainingLinkedGroupsToUpdate(*m_world, m_selectedNodes.nodes()));
+            const auto success = swapNodeContents(commandName, std::move(nodesToUpdate), findContainingLinkedGroupsToUpdate(*m_world, m_selectedNodes.nodes()));
 
             if (success) {
                 m_repeatStack->push([=]() { this->transformObjects(commandName, transformation); });
