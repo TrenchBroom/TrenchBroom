@@ -19,6 +19,8 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -78,5 +80,34 @@ namespace kdl {
         }
 
         CHECK(expected == kdl::vec_parallel_transform(input, [](int i){ return std::to_string(i); }));
+    }
+
+    TEST_CASE("overhead for small work batches", "[parallel_test]") {
+        constexpr size_t OuterLoop = 1'000;
+        constexpr size_t InnerLoop = 10;
+        auto counter = std::atomic<size_t>{0};
+        const auto startTime = std::chrono::high_resolution_clock::now();
+
+        SECTION("sequential") {
+            for (size_t i = 0; i < OuterLoop * InnerLoop; ++i) {
+                std::atomic_fetch_add(&counter, static_cast<size_t>(1));
+            }
+
+            const auto endTime = std::chrono::high_resolution_clock::now();
+            std::cout << "sequential took " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << "us\n";
+        }
+
+        SECTION("run parallel_for on batches of 10") {
+            for (size_t i = 0; i < OuterLoop; ++i) {
+                kdl::parallel_for(InnerLoop, [&](const size_t) {
+                    std::atomic_fetch_add(&counter, static_cast<size_t>(1));
+                });
+            }
+
+            const auto endTime = std::chrono::high_resolution_clock::now();
+            std::cout << "small batches took " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << "us\n";
+        }
+
+        CHECK(static_cast<size_t>(counter) == OuterLoop * InnerLoop);
     }
 }

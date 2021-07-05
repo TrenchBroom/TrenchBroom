@@ -18,6 +18,10 @@
 #ifndef KDL_PARALLEL_H
 #define KDL_PARALLEL_H
 
+#ifdef _WIN32
+#include <ppl.h>
+#endif
+
 #include <atomic>
 #include <future> // for std::async
 #include <thread>
@@ -39,6 +43,9 @@ namespace kdl {
      */
     template<class L>
     void parallel_for(const size_t count, L&& lambda) {
+#ifdef _WIN32
+        concurrency::parallel_for<size_t>(0, count, lambda);
+#else
         size_t numThreads = static_cast<size_t>(std::thread::hardware_concurrency());
         if (numThreads == 0) {
             numThreads = 1;
@@ -64,6 +71,7 @@ namespace kdl {
         for (size_t i = 0; i < numThreads; ++i) {
             threads[i].wait();
         }
+#endif
     }
 
     /**
