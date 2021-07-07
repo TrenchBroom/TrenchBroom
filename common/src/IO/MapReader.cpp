@@ -453,7 +453,7 @@ namespace TrenchBroom {
         static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(std::vector<MapReader::ObjectInfo> objectInfos, const vm::bbox3& worldBounds, const Model::MapFormat mapFormat, ParserStatus& status) {
             // create nodes in parallel, moving data out of objectInfos
             // we store optionals in the result vector to make the elements default constructible, which is a requirement for parallel transform
-            std::vector<std::optional<CreateNodeResult>> createNodeResults = kdl::vec_parallel_transform(std::move(objectInfos), [&](auto&& objectInfo) -> std::optional<CreateNodeResult> {
+            std::vector<CreateNodeResult> createNodeResults = kdl::vec_parallel_transform(std::move(objectInfos), [&](auto&& objectInfo) -> CreateNodeResult {
                 return std::visit(kdl::overload(
                     [&](MapReader::EntityInfo&& entityInfo) {
                         return createNodeFromEntityInfo(std::move(entityInfo), mapFormat);
