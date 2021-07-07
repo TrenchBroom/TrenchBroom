@@ -97,7 +97,7 @@ namespace kdl {
          * @tparam T the type of the value, must match the value type or one of the error types of this result
          * @param v the value
          */
-        template <typename T>
+        template <typename T, typename std::enable_if<std::disjunction_v<std::is_convertible<T, Value>, std::is_convertible<T, Errors>...>>::type* = nullptr>
         result(T&& v)
         : m_value(std::forward<T>(v)) {}
 
@@ -601,7 +601,7 @@ namespace kdl {
          * @tparam T the type of the value, must match detail::void_success_value_type or one of the error types of this result
          * @param v the value
          */
-        template <typename T>
+        template <typename T, typename std::enable_if<std::disjunction_v<std::is_convertible<T, value_type>, std::is_convertible<T, Errors>...>>::type* = nullptr>
         result(T&& v)
         : m_value(std::forward<T>(v)) {}
 
