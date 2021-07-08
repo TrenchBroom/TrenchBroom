@@ -2707,7 +2707,6 @@ namespace TrenchBroom {
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
 
-            // FIXME: handle 2 linked groups in a link set being selected.
             const auto allSelectedBrushes = allSelectedBrushNodes();
             applyAndSwap(*this, "Snap Brush Vertices", allSelectedBrushes, findContainingLinkedGroupsToUpdate(*m_world, allSelectedBrushes), kdl::overload(
                 [] (Model::Layer&)  { return true; },
