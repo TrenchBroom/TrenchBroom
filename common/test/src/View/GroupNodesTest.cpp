@@ -21,6 +21,7 @@
 #include "TestUtils.h"
 
 #include "Model/BrushBuilder.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
@@ -595,6 +596,60 @@ namespace TrenchBroom {
             document->newDocument(Model::MapFormat::Valve, MapDocument::DefaultWorldBounds, document->game());
 
             CHECK(document->currentGroup() == nullptr);
+        }
+
+        // https://github.com/TrenchBroom/TrenchBroom/issues/3768
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLinkSet", "[GroupNodesTest]") {
+            auto* brushNode = createBrushNode();
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
+            document->select(brushNode);
+
+            auto* groupNode = document->groupSelection("test");
+            REQUIRE(groupNode != nullptr);
+
+            auto* linkedGroupNode = document->createLinkedDuplicate();
+            REQUIRE(linkedGroupNode != nullptr);
+            
+            document->deselectAll();
+            CHECK(!linkedGroupNode->locked());
+
+            SECTION("face selection locks other groups in link set") {
+                document->select({Model::BrushFaceHandle{brushNode, 0}});
+                CHECK(linkedGroupNode->locked());
+
+                document->deselectAll();
+                CHECK(!linkedGroupNode->locked());
+            }
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLinkSetWithPointEntities", "[GroupNodesTest]") {
+            auto* entityNode = new Model::EntityNode();
+            document->addNodes({{document->parentForNodes(), {entityNode}}});
+            document->select(entityNode);
+
+            auto* groupNode = document->groupSelection("test");
+            auto* linkedGroupNode1 = document->createLinkedDuplicate();
+            auto* linkedGroupNode2 = document->createLinkedDuplicate();
+
+            REQUIRE(groupNode != nullptr);
+            REQUIRE(linkedGroupNode1 != nullptr);
+            REQUIRE(linkedGroupNode2 != nullptr);
+
+            auto* linkedEntityNode1 = dynamic_cast<Model::EntityNode*>(linkedGroupNode1->children().at(0));
+            auto* linkedEntityNode2 = dynamic_cast<Model::EntityNode*>(linkedGroupNode2->children().at(0));
+            REQUIRE(linkedEntityNode1 != nullptr);
+            REQUIRE(linkedEntityNode2 != nullptr);
+            
+            document->deselectAll();
+
+            SECTION("can set property with both groups selected") {
+                document->select(std::vector<Model::Node*>{groupNode, linkedGroupNode1});
+
+                document->setProperty("key", "value");
+
+                CHECK(entityNode->entity().hasProperty("key", "value"));
+                CHECK(linkedEntityNode1->entity().hasProperty("key", "value"));
+            }
         }
     }
 }
