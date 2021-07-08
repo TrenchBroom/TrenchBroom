@@ -20,11 +20,13 @@
 #include "NotifierConnection.h"
 #include "Notifier.h"
 
+#include <kdl/memory_utils.h>
+
 namespace TrenchBroom {
     NotifierConnection::NotifierConnection() = default;
 
-    NotifierConnection::NotifierConnection(NotifierBase& notifier, const size_t id) :
-    m_connections{{notifier, id}} {}
+    NotifierConnection::NotifierConnection(std::weak_ptr<NotifierStateBase> notifier, const size_t id) :
+    m_connections{{std::move(notifier), id}} {}
 
     NotifierConnection::NotifierConnection(NotifierConnection&&) noexcept = default;
 
@@ -42,7 +44,9 @@ namespace TrenchBroom {
 
     void NotifierConnection::disconnect() {
         for (auto& [notifier, id] : m_connections) {
-            notifier.disconnect(id);
+            if (!kdl::mem_expired(notifier)) {
+                kdl::mem_lock(notifier)->disconnect(id);
+            }
         }
         m_connections.clear();
     }

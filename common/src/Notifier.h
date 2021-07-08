@@ -26,15 +26,17 @@
 
 #include <cassert>
 #include <functional>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     /**
-     * Base class for notifiers. This is only necessary so that NotifierConnection is independent of the Notifier type.
+     * Base class for notifier state. This is only necessary so that NotifierConnection is independent of the Notifier 
+     * type.
      */
-    class NotifierBase {
+    class NotifierStateBase {
     public:
-        ~NotifierBase() = default;
+        virtual ~NotifierStateBase() = default;
     private:
         friend class NotifierConnection;
         virtual void disconnect(size_t id) = 0;
@@ -49,7 +51,7 @@ namespace TrenchBroom {
      * @tparam A the types of the parameters passed to the observer callbacks.
      */
     template <typename... A>
-    class Notifier : public NotifierBase {
+    class Notifier {
     private:
         using Callback = std::function<void(A...)>;
         
@@ -64,10 +66,87 @@ namespace TrenchBroom {
             pendingRemove{false} {}
         };
 
-        size_t m_nextId{0};
-        std::vector<Observer> m_observers;
-        std::vector<Observer> m_toAdd;
-        bool m_notifying{false};
+        class NotifierState : public NotifierStateBase {
+        private:
+            size_t m_nextId{0};
+            std::vector<Observer> m_observers;
+            std::vector<Observer> m_toAdd;
+            bool m_notifying{false};
+        public:
+            ~NotifierState() override = default;
+
+            size_t connect(Callback callback) {
+                const auto id = m_nextId++;
+                if (m_notifying) {
+                    m_toAdd.emplace_back(std::move(callback), id);
+                } else {
+                    m_observers.emplace_back(std::move(callback), id);
+                }
+                return id;
+            }
+
+            size_t connect(Notifier& notifier) {
+                const auto id = m_nextId++;
+                auto callback = [&](auto&&... a) { notifier(std::forward<decltype(a)>(a)...); };
+                if (m_notifying) {
+                    m_toAdd.emplace_back(std::move(callback), id);
+                } else {
+                    m_observers.emplace_back(std::move(callback), id);
+                }
+                return id;
+            }
+
+            template <typename... NA>
+            void notify(NA&&... a) {
+                processPendingObservers();
+
+                const kdl::set_temp notifying(m_notifying);
+                for (const auto& observer : m_observers) {
+                    if (!observer.pendingRemove) {
+                        observer.callback(std::forward<NA>(a)...);
+                    }
+                }
+            }
+
+            void disconnect(const size_t id) override {
+                if (const auto it = findObserver(m_toAdd, id); it != std::end(m_toAdd)) {
+                    m_toAdd.erase(it);
+                    return;
+                }
+                
+                if (const auto it = findObserver(m_observers, id); it != std::end(m_observers)) {
+                    if (m_notifying) {
+                        it->pendingRemove = true;
+                    } else {
+                        m_observers.erase(it);
+                    }
+                }
+            }
+        private:
+            typename std::vector<Observer>::iterator findObserver(std::vector<Observer>& observers, const size_t id) {
+                return std::find_if(std::begin(observers), std::end(observers), [&](const auto& observer){ return observer.id == id; });
+            }
+
+            void processPendingObservers() {
+                assert(!m_notifying);
+
+                for (auto it = std::begin(m_observers); it != std::end(m_observers);) {
+                    if (it->pendingRemove) {
+                        it = m_observers.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+
+                while (!m_toAdd.empty()) {
+                    auto observer = std::move(m_toAdd.back());
+                    m_observers.push_back(std::move(observer));
+                    m_toAdd.pop_back();
+                }
+            }
+        };
+
+        std::shared_ptr<NotifierState> m_state{std::make_shared<NotifierState>()};
     public:
         friend class NotifierConnection;
 
@@ -88,13 +167,8 @@ namespace TrenchBroom {
          * Returns connection object that disconnects the callback from this notification when it goes out of scope.
          */
         [[nodiscard]] NotifierConnection connect(Callback callback) {
-            const auto id = m_nextId++;
-            if (m_notifying) {
-                m_toAdd.emplace_back(std::move(callback), id);
-            } else {
-                m_observers.emplace_back(std::move(callback), id);
-            }
-            return NotifierConnection{*this, id};
+            const auto id = m_state->connect(std::move(callback));
+            return NotifierConnection{m_state, id};
         }
 
         /**
@@ -119,14 +193,8 @@ namespace TrenchBroom {
          * Returns connection object that disconnects the callback from this notification when it goes out of scope.
          */
         [[nodiscard]] NotifierConnection connect(Notifier& notifier) {
-            const auto id = m_nextId++;
-            auto callback = [&](auto&&... a) { notifier(std::forward<decltype(a)>(a)...); };
-            if (m_notifying) {
-                m_toAdd.emplace_back(std::move(callback), id);
-            } else {
-                m_observers.emplace_back(std::move(callback), id);
-            }
-            return NotifierConnection{*this, id};
+            const auto id = m_state->connect(notifier);
+            return NotifierConnection{m_state, id};
         }
 
         /**
@@ -136,14 +204,7 @@ namespace TrenchBroom {
          */
         template <typename... NA>
         void notify(NA&&... a) {
-            processPendingObservers();
-
-            const kdl::set_temp notifying(m_notifying);
-            for (const auto& observer : m_observers) {
-                if (!observer.pendingRemove) {
-                    observer.callback(std::forward<NA>(a)...);
-                }
-            }
+            m_state->notify(std::forward<NA>(a)...);
         }
 
         /**
@@ -154,43 +215,6 @@ namespace TrenchBroom {
         template <typename... NA>
         void operator()(NA&&... a) {
             notify(std::forward<NA>(a)...);
-        }
-    private:
-        void disconnect(const size_t id) override {
-            if (const auto it = findObserver(m_toAdd, id); it != std::end(m_toAdd)) {
-                m_toAdd.erase(it);
-                return;
-            }
-            
-            if (const auto it = findObserver(m_observers, id); it != std::end(m_observers)) {
-                if (m_notifying) {
-                    it->pendingRemove = true;
-                } else {
-                    m_observers.erase(it);
-                }
-            }
-        }
-
-        typename std::vector<Observer>::iterator findObserver(std::vector<Observer>& observers, const size_t id) {
-            return std::find_if(std::begin(observers), std::end(observers), [&](const auto& observer){ return observer.id == id; });
-        }
-
-        void processPendingObservers() {
-            assert(!m_notifying);
-
-            for (auto it = std::begin(m_observers); it != std::end(m_observers);) {
-                if (it->pendingRemove) {
-                    it = m_observers.erase(it);
-                } else {
-                    ++it;
-                }
-            }
-
-            while (!m_toAdd.empty()) {
-                auto observer = std::move(m_toAdd.back());
-                m_observers.push_back(std::move(observer));
-                m_toAdd.pop_back();
-            }
         }
     };
 
