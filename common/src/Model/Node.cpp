@@ -66,6 +66,7 @@ namespace TrenchBroom {
         m_descendantSelectionCount(0),
         m_visibilityState(VisibilityState::Inherited),
         m_lockState(LockState::Inherited),
+        m_lockedByOtherSelection(false),
         m_lineNumber(0),
         m_lineCount(0),
         m_issuesValid(false),
@@ -625,6 +626,9 @@ namespace TrenchBroom {
         }
 
         bool Node::editable() const {
+            if (m_lockedByOtherSelection) {
+                return false;
+            }
             switch (m_lockState) {
                 case LockState::Inherited:
                     return m_parent == nullptr || m_parent->editable();
@@ -651,6 +655,14 @@ namespace TrenchBroom {
             }
             return false;
 
+        }
+
+        bool Node::lockedByOtherSelection() const {
+            return m_lockedByOtherSelection;
+        }
+
+        void Node::setLockedByOtherSelection(const bool lockedByOtherSelection) {
+            m_lockedByOtherSelection = lockedByOtherSelection;
         }
 
         void Node::pick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) {

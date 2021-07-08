@@ -95,35 +95,6 @@ namespace TrenchBroom {
             return !empty() && nodeCount() == brushCount();
         }
 
-        bool NodeCollection::hasBrushesRecursively() const {
-            // This is just an optimization of `!brushesRecursively().empty()`
-            // that stops after finding the first brush
-            const auto visitChildrenAndExitEarly = [](auto&& thisLambda, const auto* node) {
-                for (const auto* child : node->children()) {
-                    if (child->accept(thisLambda)) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-
-            for (const auto* node : m_nodes) {
-                const auto hasBrush = node->accept(kdl::overload(
-                    [&](auto&& thisLambda, const WorldNode* world)   -> bool { return visitChildrenAndExitEarly(thisLambda, world); },
-                    [&](auto&& thisLambda, const LayerNode* layer)   -> bool { return visitChildrenAndExitEarly(thisLambda, layer); },
-                    [&](auto&& thisLambda, const GroupNode* group)   -> bool { return visitChildrenAndExitEarly(thisLambda, group); },
-                    [&](auto&& thisLambda, const EntityNode* entity) -> bool { return visitChildrenAndExitEarly(thisLambda, entity); },
-                    [] (const BrushNode*)                            -> bool { return true; },
-                    [] (const PatchNode*)                            -> bool { return false; }
-                ));
-                if (hasBrush) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         bool NodeCollection::hasPatches() const {
             return !m_patches.empty();
         }
@@ -166,21 +137,6 @@ namespace TrenchBroom {
 
         const std::vector<BrushNode*>& NodeCollection::brushes() const {
             return m_brushes;
-        }
-
-        std::vector<BrushNode*> NodeCollection::brushesRecursively() const {
-            auto brushes = std::vector<BrushNode*>{};
-            for (auto* node : m_nodes) {
-                node->accept(kdl::overload(
-                    [] (auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
-                    [] (auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
-                    [] (auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
-                    [] (auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
-                    [&](BrushNode* brush)                      { brushes.push_back(brush); },
-                    [&](PatchNode*)                            {}
-                ));
-            }
-            return brushes;
         }
 
         const std::vector<PatchNode*>& NodeCollection::patches() const {

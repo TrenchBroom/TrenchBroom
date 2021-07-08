@@ -103,10 +103,17 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::performSelect(const std::vector<Model::BrushFaceHandle>& faces) {
             selectionWillChangeNotifier();
 
-            std::vector<Model::BrushFaceHandle> selected;
-            selected.reserve(faces.size());
+            const auto constrained = Model::facesWithLinkedGroupConstraintsApplied(*m_world.get(), faces);
 
-            for (const auto& handle : faces) {
+            for (Model::GroupNode* node : constrained.nodesToLock) {
+                node->setLockedByOtherSelection(true);
+            }
+            nodeLockingDidChangeNotifier(kdl::vec_element_cast<Model::Node*>(constrained.nodesToLock));
+
+            std::vector<Model::BrushFaceHandle> selected;
+            selected.reserve(constrained.facesToSelect.size());
+
+            for (const auto& handle : constrained.facesToSelect) {
                 Model::BrushNode* node = handle.node();
                 const Model::BrushFace& face = handle.face();
                 if (!face.selected() && m_editorContext->selectable(node, face)) {
@@ -185,46 +192,35 @@ namespace TrenchBroom {
             selection.addDeselectedBrushFaces(deselected);
 
             selectionDidChangeNotifier(selection);
+
+            // Selection change is done. Next, update implicit locking of linked groups.
+            // The strategy is to figure out what needs to be locked given m_selectedBrushFaces, and then un-implicitly-lock all other linked groups.
+            const auto constrained = Model::facesWithLinkedGroupConstraintsApplied(*m_world.get(), m_selectedBrushFaces);            
+
+            for (Model::GroupNode* node : constrained.nodesToLock) {
+                node->setLockedByOtherSelection(true);
+            }
+            nodeLockingDidChangeNotifier(kdl::vec_element_cast<Model::Node*>(constrained.nodesToLock));
+
+            auto nodesToUnlock = kdl::vector_set<Model::GroupNode*>{Model::findLinkedGroups(*m_world.get())};
+            for (Model::GroupNode* node : constrained.nodesToLock) {
+                nodesToUnlock.erase(node);
+            }
+            for (Model::GroupNode* node : nodesToUnlock) {
+                node->setLockedByOtherSelection(false);
+            }
+            nodeLockingDidChangeNotifier(kdl::vec_element_cast<Model::Node*>(nodesToUnlock.release_data()));            
         }
 
         void MapDocumentCommandFacade::performDeselectAll() {
-            if (hasSelectedNodes())
-                deselectAllNodes();
-            if (hasSelectedBrushFaces())
-                deselectAllBrushFaces();
-        }
-
-        void MapDocumentCommandFacade::deselectAllNodes() {
-            selectionWillChangeNotifier();
-            updateLastSelectionBounds();
-
-            for (Model::Node* node : m_selectedNodes) {
-                node->deselect();
+            if (hasSelectedNodes()) {
+                const auto previousSelection = m_selectedNodes.nodes();
+                performDeselect(previousSelection);
             }
-
-            Selection selection;
-            selection.addDeselectedNodes(m_selectedNodes.nodes());
-
-            m_selectedNodes.clear();
-
-            selectionDidChangeNotifier(selection);
-            invalidateSelectionBounds();
-        }
-
-        void MapDocumentCommandFacade::deselectAllBrushFaces() {
-            selectionWillChangeNotifier();
-
-            for (const auto& handle : m_selectedBrushFaces) {
-                Model::BrushNode* node = handle.node();
-                node->deselectFace(handle.faceIndex());
+            if (hasSelectedBrushFaces()) {
+                const auto previousSelection = m_selectedBrushFaces;
+                performDeselect(previousSelection);
             }
-
-            Selection selection;
-            selection.addDeselectedBrushFaces(m_selectedBrushFaces);
-
-            m_selectedBrushFaces.clear();
-
-            selectionDidChangeNotifier(selection);
         }
 
         void MapDocumentCommandFacade::performAddNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
