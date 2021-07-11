@@ -39,21 +39,21 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const vm::bbox3 Entity::DefaultBounds = vm::bbox3(8.0);
+        const vm::bbox3 Entity::DefaultBounds = vm::bbox3{8.0};
 
         Entity::Entity() :
-        m_pointEntity(true),
-        m_model(nullptr) {}
+        m_pointEntity{true},
+        m_model{nullptr} {}
 
         Entity::Entity(std::vector<EntityProperty> properties) :
-        m_properties(std::move(properties)),
-        m_pointEntity(true),
-        m_model(nullptr) {}
+        m_properties{std::move(properties)},
+        m_pointEntity{true},
+        m_model{nullptr} {}
 
         Entity::Entity(std::initializer_list<EntityProperty> properties) :
-        m_properties(properties),
-        m_pointEntity(true),
-        m_model(nullptr) {}
+        m_properties{std::move(properties)},
+        m_pointEntity{true},
+        m_model{nullptr} {}
 
         const std::vector<EntityProperty>& Entity::properties() const {
             return m_properties;
@@ -112,7 +112,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            m_definition = Assets::AssetReference(definition);
+            m_definition = Assets::AssetReference{definition};
             invalidateCachedProperties();
         }
 
@@ -131,10 +131,10 @@ namespace TrenchBroom {
 
         Assets::ModelSpecification Entity::modelSpecification() const {
             if (const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get())) {
-                const auto variableStore = EntityPropertiesVariableStore(*this);
+                const auto variableStore = EntityPropertiesVariableStore{*this};
                 return pointDefinition->model(variableStore);
             } else {
-                return Assets::ModelSpecification();
+                return Assets::ModelSpecification{};
             }
         }
 
@@ -145,12 +145,12 @@ namespace TrenchBroom {
         void Entity::addOrUpdateProperty(std::string key, std::string value, const bool defaultToProtected) {
             auto it = findProperty(key);
             if (it != std::end(m_properties)) {
-                it->setValue(value);
+                it->setValue(std::move(value));
             } else {
-                m_properties.emplace_back(key, value);
+                m_properties.emplace_back(key, std::move(value));
 
                 if (defaultToProtected && !kdl::vec_contains(m_protectedProperties, key)) {
-                    m_protectedProperties.push_back(key);
+                    m_protectedProperties.push_back(std::move(key));
                 }
             }
             invalidateCachedProperties();
@@ -208,21 +208,15 @@ namespace TrenchBroom {
         }
 
         bool Entity::hasPropertyWithPrefix(const std::string& prefix, const std::string& value) const {
-            for (const auto& property : m_properties) {
-                if (property.hasPrefixAndValue(prefix, value)) {
-                    return true;
-                }
-            }
-            return false;
+            return std::any_of(std::begin(m_properties), std::end(m_properties), [&](const auto& property) {
+                return property.hasPrefixAndValue(prefix, value);
+            });
         }
 
         bool Entity::hasNumberedProperty(const std::string& prefix, const std::string& value) const {
-            for (const auto& property : m_properties) {
-                if (property.hasNumberedPrefixAndValue(prefix, value)) {
-                    return true;
-                }
-            }
-            return false;
+            return std::any_of(std::begin(m_properties), std::end(m_properties), [&](const auto& property) {
+                return property.hasNumberedPrefixAndValue(prefix, value);
+            });
         }
 
         const std::string* Entity::property(const std::string& key) const {
