@@ -19,10 +19,11 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
-    class NotifierBase;
+    class NotifierStateBase;
 
     /**
      * Manages one or multiple connections of observer calllbacks to notifiers.
@@ -31,7 +32,7 @@ namespace TrenchBroom {
      */
     class NotifierConnection {
     private:
-        std::vector<std::tuple<NotifierBase&, size_t>> m_connections;
+        std::vector<std::tuple<std::weak_ptr<NotifierStateBase>, size_t>> m_connections;
     public:
         /**
          * Creates a new instance that contains no connections.
@@ -41,7 +42,7 @@ namespace TrenchBroom {
         /**
          * Creates a new instance that contains one connection to the given notifier with the given id.
          */
-        NotifierConnection(NotifierBase& notifier, const size_t id);
+        NotifierConnection(std::weak_ptr<NotifierStateBase> notifier, const size_t id);
 
         NotifierConnection(const NotifierConnection&) = delete;
         NotifierConnection(NotifierConnection&&) noexcept;
