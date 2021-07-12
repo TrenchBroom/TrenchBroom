@@ -31,10 +31,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace EL {
-        class VariableStore;
-    }
-
     namespace Assets {
         class PropertyDefinition;
         class FlagsPropertyDefinition;
@@ -98,8 +94,6 @@ namespace TrenchBroom {
 
             EntityDefinitionType type() const override;
             const vm::bbox3& bounds() const;
-            ModelSpecification model(const EL::VariableStore& variableStore) const;
-            ModelSpecification defaultModel() const;
             const ModelDefinition& modelDefinition() const;
         };
 

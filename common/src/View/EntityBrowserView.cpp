@@ -184,7 +184,7 @@ namespace TrenchBroom {
                 const auto actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
                 const auto actualSize = fontManager().font(actualFont).measure(definition->name());
                 const auto spec = Assets::safeGetModelSpecification(m_logger, definition->name(), [&]() {
-                    return definition->defaultModel();
+                    return definition->modelDefinition().defaultModelSpecification();
                 });
 
                 const auto* frame = m_entityModelManager.frame(spec);
