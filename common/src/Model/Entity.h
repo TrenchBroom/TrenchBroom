@@ -84,6 +84,7 @@ namespace TrenchBroom {
                 std::string classname;
                 vm::vec3 origin;
                 vm::mat4x4 rotation;
+                vm::mat4x4 modelTransformation;
             };
 
             CachedProperties m_cachedProperties;
@@ -124,7 +125,7 @@ namespace TrenchBroom {
             void setModel(const Assets::EntityModelFrame* model);
 
             Assets::ModelSpecification modelSpecification() const;
-            const vm::mat4x4 modelTransformation() const;
+            const vm::mat4x4& modelTransformation() const;
 
             void addOrUpdateProperty(std::string key, std::string value, bool defaultToProtected = false);
             void renameProperty(const std::string& oldKey, std::string newKey);

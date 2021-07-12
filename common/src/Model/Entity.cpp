@@ -144,8 +144,8 @@ namespace TrenchBroom {
             }
         }
 
-        const vm::mat4x4 Entity::modelTransformation() const {
-            return vm::translation_matrix(origin()) * rotation();
+        const vm::mat4x4& Entity::modelTransformation() const {
+            return m_cachedProperties.modelTransformation;
         }
 
         void Entity::addOrUpdateProperty(std::string key, std::string value, const bool defaultToProtected) {
@@ -299,6 +299,7 @@ namespace TrenchBroom {
             m_cachedProperties.classname = classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
             m_cachedProperties.origin = originValue ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
             m_cachedProperties.rotation = EntityRotationPolicy::getRotation(*this);
+            m_cachedProperties.modelTransformation = vm::translation_matrix(origin()) * rotation();
         }
 
         std::vector<EntityProperty>::const_iterator Entity::findProperty(const std::string& key) const {

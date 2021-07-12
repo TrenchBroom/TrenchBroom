@@ -19,7 +19,10 @@
 
 #pragma once
 
+#include "EL/Expression.h"
+
 #include <iosfwd>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -72,6 +75,10 @@ namespace TrenchBroom {
             extern const std::string LayerHiddenValue;
             extern const std::string LayerOmitFromExportValue;
         }
+
+        struct EntityPropertyConfig {
+            std::optional<EL::Expression> defaultModelScaleExpression;
+        };
 
         bool isNumberedProperty(std::string_view prefix, std::string_view key);
 
