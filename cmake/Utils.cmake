@@ -125,6 +125,9 @@ macro(set_compiler_config TARGET)
         # signed/unsigned mismatch: https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4365
         target_compile_options(${TARGET} PRIVATE /w44365)
 
+        # class has virtual functions, but destructor is not virtual: https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-3-c4265
+        target_compile_options(${TARGET} PRIVATE /w44265)
+
         # disable warnings on external code: https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/
         target_compile_options(${TARGET} PRIVATE /experimental:external /external:anglebrackets /external:W0)
 
