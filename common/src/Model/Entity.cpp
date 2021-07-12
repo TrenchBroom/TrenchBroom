@@ -43,17 +43,23 @@ namespace TrenchBroom {
 
         Entity::Entity() :
         m_pointEntity{true},
-        m_model{nullptr} {}
+        m_model{nullptr} {
+            updateCachedProperties();
+        }
 
         Entity::Entity(std::vector<EntityProperty> properties) :
         m_properties{std::move(properties)},
         m_pointEntity{true},
-        m_model{nullptr} {}
+        m_model{nullptr} {
+            updateCachedProperties();
+        }
 
         Entity::Entity(std::initializer_list<EntityProperty> properties) :
         m_properties{std::move(properties)},
         m_pointEntity{true},
-        m_model{nullptr} {}
+        m_model{nullptr} {
+            updateCachedProperties();
+        }
 
         const std::vector<EntityProperty>& Entity::properties() const {
             return m_properties;
@@ -69,7 +75,7 @@ namespace TrenchBroom {
 
         void Entity::setProperties(std::vector<EntityProperty> properties) {
             m_properties = std::move(properties);
-            invalidateCachedProperties();
+            updateCachedProperties();
         }
 
         const std::vector<std::string>& Entity::protectedProperties() const {
@@ -90,7 +96,7 @@ namespace TrenchBroom {
             }
 
             m_pointEntity = pointEntity;
-            invalidateCachedProperties();
+            updateCachedProperties();
         }
 
         Assets::EntityDefinition* Entity::definition() {
@@ -113,7 +119,7 @@ namespace TrenchBroom {
             }
 
             m_definition = Assets::AssetReference{definition};
-            invalidateCachedProperties();
+            updateCachedProperties();
         }
 
         const Assets::EntityModelFrame* Entity::model() const {
@@ -126,7 +132,7 @@ namespace TrenchBroom {
             }
 
             m_model = model;
-            invalidateCachedProperties();
+            updateCachedProperties();
         }
 
         Assets::ModelSpecification Entity::modelSpecification() const {
@@ -153,7 +159,7 @@ namespace TrenchBroom {
                     m_protectedProperties.push_back(std::move(key));
                 }
             }
-            invalidateCachedProperties();
+            updateCachedProperties();
         }
 
         void Entity::renameProperty(const std::string& oldKey, std::string newKey) {
@@ -174,7 +180,7 @@ namespace TrenchBroom {
                 }
 
                 oldIt->setKey(std::move(newKey));
-                invalidateCachedProperties();
+                updateCachedProperties();
             }
         }
 
@@ -182,7 +188,7 @@ namespace TrenchBroom {
             const auto it = findProperty(key);
             if (it != std::end(m_properties)) {
                 m_properties.erase(it);
-                invalidateCachedProperties();
+                updateCachedProperties();
             }
         }
 
@@ -195,7 +201,7 @@ namespace TrenchBroom {
                     ++it;
                 }
             }
-            invalidateCachedProperties();
+            updateCachedProperties();
         }
 
         bool Entity::hasProperty(const std::string& key) const {
@@ -230,8 +236,7 @@ namespace TrenchBroom {
 
 
         const std::string& Entity::classname() const {
-            validateCachedProperties();
-            return m_cachedProperties->classname;
+            return m_cachedProperties.classname;
         }
 
         void Entity::setClassname(const std::string& classname) {
@@ -239,8 +244,7 @@ namespace TrenchBroom {
         }
 
         const vm::vec3& Entity::origin() const {
-            validateCachedProperties();
-            return m_cachedProperties->origin;
+            return m_cachedProperties.origin;
         }
 
         void Entity::setOrigin(const vm::vec3& origin) {
@@ -248,8 +252,7 @@ namespace TrenchBroom {
         }
 
         const vm::mat4x4& Entity::rotation() const {
-            validateCachedProperties();
-            return m_cachedProperties->rotation;
+            return m_cachedProperties.rotation;
         }
 
         std::vector<EntityProperty> Entity::propertiesWithKey(const std::string& key) const {
@@ -288,21 +291,14 @@ namespace TrenchBroom {
             EntityRotationPolicy::applyRotation(*this, rotation);
         }
 
-        void Entity::invalidateCachedProperties() {
-            m_cachedProperties = std::nullopt;
-        }
-        
-        void Entity::validateCachedProperties() const {
-            if (!m_cachedProperties.has_value()) {
-                const auto* classnameValue = property(EntityPropertyKeys::Classname);
-                const auto* originValue = property(EntityPropertyKeys::Origin);
+        void Entity::updateCachedProperties() {
+            const auto* classnameValue = property(EntityPropertyKeys::Classname);
+            const auto* originValue = property(EntityPropertyKeys::Origin);
 
-                // order is important here because EntityRotationPolicy::getRotation accesses classname
-                m_cachedProperties = CachedProperties{};
-                m_cachedProperties->classname = classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
-                m_cachedProperties->origin = originValue ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
-                m_cachedProperties->rotation = EntityRotationPolicy::getRotation(*this);
-            }
+            // order is important here because EntityRotationPolicy::getRotation accesses classname
+            m_cachedProperties.classname = classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
+            m_cachedProperties.origin = originValue ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
+            m_cachedProperties.rotation = EntityRotationPolicy::getRotation(*this);
         }
 
         std::vector<EntityProperty>::const_iterator Entity::findProperty(const std::string& key) const {

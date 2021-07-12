@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 vm::mat4x4 rotation;
             };
 
-            mutable std::optional<CachedProperties> m_cachedProperties;
+            CachedProperties m_cachedProperties;
         public:
             Entity();
             explicit Entity(std::vector<EntityProperty> properties);
@@ -156,8 +156,7 @@ namespace TrenchBroom {
         private:
             void applyRotation(const vm::mat4x4& rotation);
             
-            void invalidateCachedProperties();
-            void validateCachedProperties() const;
+            void updateCachedProperties();
 
             std::vector<EntityProperty>::const_iterator findProperty(const std::string& property) const;
             std::vector<EntityProperty>::iterator findProperty(const std::string& property);
