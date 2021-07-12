@@ -191,7 +191,7 @@ namespace TrenchBroom {
             auto beginEntityCalled = false;
 
             auto properties = std::vector<Model::EntityProperty>();
-            auto propertyKeys = PropertyKeys();
+            auto propertyKeys = EntityPropertyKeys();
 
             const auto startLine = token.line();
 
@@ -226,7 +226,7 @@ namespace TrenchBroom {
             }
         }
 
-        void StandardMapParser::parseEntityProperty(std::vector<Model::EntityProperty>& properties, PropertyKeys& keys, ParserStatus& status) {
+        void StandardMapParser::parseEntityProperty(std::vector<Model::EntityProperty>& properties, EntityPropertyKeys& keys, ParserStatus& status) {
             auto token = m_tokenizer.nextToken();
             assert(token.type() == QuakeMapToken::String);
             const auto name = token.data();

@@ -38,7 +38,7 @@ namespace TrenchBroom {
         TEST_CASE("EntityTest.defaults") {
             Entity entity;
 
-            CHECK(entity.classname() == PropertyValues::NoClassname);
+            CHECK(entity.classname() == EntityPropertyValues::NoClassname);
             CHECK(entity.pointEntity());
             CHECK(entity.origin() == vm::vec3::zero());
             CHECK(entity.rotation() == vm::mat4x4::identity());
@@ -193,73 +193,73 @@ namespace TrenchBroom {
 
         TEST_CASE("EntityTest.classname") {
             Entity entity;
-            REQUIRE(!entity.hasProperty(PropertyKeys::Classname));
+            REQUIRE(!entity.hasProperty(EntityPropertyKeys::Classname));
 
             SECTION("Entities without a classname property return a default name") {
-                CHECK(entity.classname() == PropertyValues::NoClassname);
+                CHECK(entity.classname() == EntityPropertyValues::NoClassname);
             }
 
-            entity.addOrUpdateProperty(PropertyKeys::Classname, "testclass");
+            entity.addOrUpdateProperty(EntityPropertyKeys::Classname, "testclass");
             SECTION("Entities with a classname property return the value") {
-                CHECK(*entity.property(PropertyKeys::Classname) == "testclass");
+                CHECK(*entity.property(EntityPropertyKeys::Classname) == "testclass");
                 CHECK(entity.classname() == "testclass");
             }
 
             SECTION("addOrUpdateProperty updates cached classname property") {
-                entity.addOrUpdateProperty(PropertyKeys::Classname, "newclass");
-                CHECK(*entity.property(PropertyKeys::Classname) == "newclass");
+                entity.addOrUpdateProperty(EntityPropertyKeys::Classname, "newclass");
+                CHECK(*entity.property(EntityPropertyKeys::Classname) == "newclass");
                 CHECK(entity.classname() == "newclass");
             }
 
             SECTION("setProperties updates cached classname property") {
                 entity.setProperties({
-                    EntityProperty(PropertyKeys::Classname, "newclass")
+                    EntityProperty(EntityPropertyKeys::Classname, "newclass")
                 });
-                CHECK(*entity.property(PropertyKeys::Classname) == "newclass");
+                CHECK(*entity.property(EntityPropertyKeys::Classname) == "newclass");
                 CHECK(entity.classname() == "newclass");
             }
         }
 
         TEST_CASE("EntityTest.setClassname") {
             Entity entity;
-            REQUIRE(entity.classname() == PropertyValues::NoClassname);
+            REQUIRE(entity.classname() == EntityPropertyValues::NoClassname);
 
             entity.setClassname("testclass");
-            CHECK(*entity.property(PropertyKeys::Classname) == "testclass");
+            CHECK(*entity.property(EntityPropertyKeys::Classname) == "testclass");
             CHECK(entity.classname() == "testclass");
 
             SECTION("Updates cached classname property") {
                 entity.setClassname("otherclass");
-                CHECK(*entity.property(PropertyKeys::Classname) == "otherclass");
+                CHECK(*entity.property(EntityPropertyKeys::Classname) == "otherclass");
                 CHECK(entity.classname() == "otherclass");
             }
         }
 
         TEST_CASE("EntityTest.origin") {
             Entity entity;
-            REQUIRE(!entity.hasProperty(PropertyKeys::Origin));
+            REQUIRE(!entity.hasProperty(EntityPropertyKeys::Origin));
 
             SECTION("Entities without an origin property return 0,0,0") {
                 CHECK(entity.origin() == vm::vec3::zero());
             }
 
-            entity.addOrUpdateProperty(PropertyKeys::Origin, "1 2 3");
+            entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 3");
             SECTION("Entities with an origin property return the value") {
-                CHECK(*entity.property(PropertyKeys::Origin) == "1 2 3");
+                CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");
                 CHECK(entity.origin() == vm::vec3(1, 2, 3));
             }
 
             SECTION("addOrUpdateProperty updates cached classname property") {
-                entity.addOrUpdateProperty(PropertyKeys::Origin, "1 2 3");
-                CHECK(*entity.property(PropertyKeys::Origin) == "1 2 3");
+                entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 3");
+                CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");
                 CHECK(entity.origin() == vm::vec3(1, 2, 3));
             }
 
             SECTION("setProperties updates cached classname property") {
                 entity.setProperties({
-                    EntityProperty(PropertyKeys::Origin, "3 4 5")
+                    EntityProperty(EntityPropertyKeys::Origin, "3 4 5")
                 });
-                CHECK(*entity.property(PropertyKeys::Origin) == "3 4 5");
+                CHECK(*entity.property(EntityPropertyKeys::Origin) == "3 4 5");
                 CHECK(entity.origin() == vm::vec3(3, 4, 5));
             }
         }
@@ -269,12 +269,12 @@ namespace TrenchBroom {
             REQUIRE(entity.origin() == vm::vec3::zero());
 
             entity.setOrigin(vm::vec3(1, 2, 3));
-            CHECK(*entity.property(PropertyKeys::Origin) == "1 2 3");
+            CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");
             CHECK(entity.origin() == vm::vec3(1, 2, 3));
 
             SECTION("Updates cached origin property") {
                 entity.setOrigin(vm::vec3(3, 4, 5));
-                CHECK(*entity.property(PropertyKeys::Origin) == "3 4 5");
+                CHECK(*entity.property(EntityPropertyKeys::Origin) == "3 4 5");
                 CHECK(entity.origin() == vm::vec3(3, 4, 5));
             }
         }

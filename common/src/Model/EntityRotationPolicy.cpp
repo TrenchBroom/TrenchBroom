@@ -172,20 +172,20 @@ namespace TrenchBroom {
 
             // determine the type of rotation to apply to this entity
             const auto classname = entity.classname();
-            if (classname != PropertyValues::NoClassname) {
+            if (classname != EntityPropertyValues::NoClassname) {
                 if (kdl::cs::str_is_prefix(classname, "light")) {
-                    if (entity.hasProperty(PropertyKeys::Mangle)) {
+                    if (entity.hasProperty(EntityPropertyKeys::Mangle)) {
                         // spotlight without a target, update mangle
                         type = RotationType::Mangle;
-                        propertyKey = PropertyKeys::Mangle;
-                    } else if (!entity.hasProperty(PropertyKeys::Target)) {
+                        propertyKey = EntityPropertyKeys::Mangle;
+                    } else if (!entity.hasProperty(EntityPropertyKeys::Target)) {
                         // not a spotlight, but might have a rotatable model, so change angle or angles
-                        if (entity.hasProperty(PropertyKeys::Angles)) {
+                        if (entity.hasProperty(EntityPropertyKeys::Angles)) {
                             type = eulerType;
-                            propertyKey = PropertyKeys::Angles;
+                            propertyKey = EntityPropertyKeys::Angles;
                         } else {
                             type = RotationType::Angle;
-                            propertyKey = PropertyKeys::Angle;
+                            propertyKey = EntityPropertyKeys::Angle;
                         }
                     } else {
                         // spotlight with target, don't modify
@@ -195,15 +195,15 @@ namespace TrenchBroom {
 
                     if (!entity.pointEntity()) {
                         // brush entity
-                        if (entity.hasProperty(PropertyKeys::Angles)) {
+                        if (entity.hasProperty(EntityPropertyKeys::Angles)) {
                             type = eulerType;
-                            propertyKey = PropertyKeys::Angles;
-                        } else if (entity.hasProperty(PropertyKeys::Mangle)) {
+                            propertyKey = EntityPropertyKeys::Angles;
+                        } else if (entity.hasProperty(EntityPropertyKeys::Mangle)) {
                             type = eulerType;
-                            propertyKey = PropertyKeys::Mangle;
-                        } else if (entity.hasProperty(PropertyKeys::Angle)) {
+                            propertyKey = EntityPropertyKeys::Mangle;
+                        } else if (entity.hasProperty(EntityPropertyKeys::Angle)) {
                             type = RotationType::AngleUpDown;
-                            propertyKey = PropertyKeys::Angle;
+                            propertyKey = EntityPropertyKeys::Angle;
                         }
                     } else {
                         // point entity
@@ -215,15 +215,15 @@ namespace TrenchBroom {
                             usage = RotationUsage::BlockRotation;
                         }
 
-                        if (entity.hasProperty(PropertyKeys::Angles)) {
+                        if (entity.hasProperty(EntityPropertyKeys::Angles)) {
                             type = eulerType;
-                            propertyKey = PropertyKeys::Angles;
-                        } else if (entity.hasProperty(PropertyKeys::Mangle)) {
+                            propertyKey = EntityPropertyKeys::Angles;
+                        } else if (entity.hasProperty(EntityPropertyKeys::Mangle)) {
                             type = eulerType;
-                            propertyKey = PropertyKeys::Mangle;
+                            propertyKey = EntityPropertyKeys::Mangle;
                         } else {
                             type = RotationType::AngleUpDown;
-                            propertyKey = PropertyKeys::Angle;
+                            propertyKey = EntityPropertyKeys::Angle;
                         }
                     }
                 }

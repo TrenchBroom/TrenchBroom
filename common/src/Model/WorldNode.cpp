@@ -51,7 +51,7 @@ namespace TrenchBroom {
         m_issueGeneratorRegistry(std::make_unique<IssueGeneratorRegistry>()),
         m_nodeTree(std::make_unique<NodeTree>()),
         m_updateNodeTree(true) {
-            entity.addOrUpdateProperty(PropertyKeys::Classname, PropertyValues::WorldspawnClassname);
+            entity.addOrUpdateProperty(EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname);
             entity.setPointEntity(false);
             setEntity(std::move(entity));
             createDefaultLayer();

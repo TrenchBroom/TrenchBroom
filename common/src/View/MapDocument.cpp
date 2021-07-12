@@ -1345,7 +1345,7 @@ namespace TrenchBroom {
             ensure(definition != nullptr, "definition is null");
 
             auto* entityNode = new Model::EntityNode(Model::Entity({
-                {Model::PropertyKeys::Classname, definition->name()}
+                {Model::EntityPropertyKeys::Classname, definition->name()}
             }));
 
             std::stringstream name;
@@ -1383,7 +1383,7 @@ namespace TrenchBroom {
                 }
             }
 
-            entity.addOrUpdateProperty(Model::PropertyKeys::Classname, definition->name());
+            entity.addOrUpdateProperty(Model::EntityPropertyKeys::Classname, definition->name());
             auto* entityNode = new Model::EntityNode(std::move(entity));
 
             std::stringstream name;
@@ -3003,7 +3003,7 @@ namespace TrenchBroom {
             const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
             auto entity = m_world->entity();
-            entity.addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, formatted);
+            entity.addOrUpdateProperty(Model::EntityPropertyKeys::EntityDefinitions, formatted);
             swapNodeContents("Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}}, {});
         }
 
@@ -3309,10 +3309,10 @@ namespace TrenchBroom {
         void MapDocument::setMods(const std::vector<std::string>& mods) {
             auto entity = m_world->entity();
             if (mods.empty()) {
-                entity.removeProperty(Model::PropertyKeys::Mods);
+                entity.removeProperty(Model::EntityPropertyKeys::Mods);
             } else {
                 const std::string newValue = kdl::str_join(mods, ";");
-                entity.addOrUpdateProperty(Model::PropertyKeys::Mods, newValue);
+                entity.addOrUpdateProperty(Model::EntityPropertyKeys::Mods, newValue);
             }
             swapNodeContents("Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}}, {});
         }
@@ -3329,16 +3329,16 @@ namespace TrenchBroom {
             switch (bounds.source) {
                 case Model::Game::SoftMapBoundsType::Map:
                     if (!bounds.bounds.has_value()) {
-                        // Set the worldspawn key PropertyKeys::SoftMaxMapSize's value to the empty string
+                        // Set the worldspawn key EntityPropertyKeys::SoftMaxMapSize's value to the empty string
                         // to indicate that we are overriding the Game's bounds with unlimited.
-                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds, Model::PropertyValues::NoSoftMapBounds);
+                        entity.addOrUpdateProperty(Model::EntityPropertyKeys::SoftMapBounds, Model::EntityPropertyValues::NoSoftMapBounds);
                     } else {
-                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
+                        entity.addOrUpdateProperty(Model::EntityPropertyKeys::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
                     }
                     break;
                 case Model::Game::SoftMapBoundsType::Game:
                     // Unset the map's setting
-                    entity.removeProperty(Model::PropertyKeys::SoftMapBounds);
+                    entity.removeProperty(Model::EntityPropertyKeys::SoftMapBounds);
                     break;
                 switchDefault()
             }

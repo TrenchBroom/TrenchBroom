@@ -235,7 +235,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setClassname(const std::string& classname) {
-            addOrUpdateProperty(PropertyKeys::Classname, classname);
+            addOrUpdateProperty(EntityPropertyKeys::Classname, classname);
         }
 
         const vm::vec3& Entity::origin() const {
@@ -244,7 +244,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setOrigin(const vm::vec3& origin) {
-            addOrUpdateProperty(PropertyKeys::Origin, kdl::str_to_string(vm::correct(origin)));
+            addOrUpdateProperty(EntityPropertyKeys::Origin, kdl::str_to_string(vm::correct(origin)));
         }
 
         const vm::mat4x4& Entity::rotation() const {
@@ -294,12 +294,12 @@ namespace TrenchBroom {
         
         void Entity::validateCachedProperties() const {
             if (!m_cachedProperties.has_value()) {
-                const auto* classnameValue = property(PropertyKeys::Classname);
-                const auto* originValue = property(PropertyKeys::Origin);
+                const auto* classnameValue = property(EntityPropertyKeys::Classname);
+                const auto* originValue = property(EntityPropertyKeys::Origin);
 
                 // order is important here because EntityRotationPolicy::getRotation accesses classname
                 m_cachedProperties = CachedProperties{};
-                m_cachedProperties->classname = classnameValue ? *classnameValue : PropertyValues::NoClassname;
+                m_cachedProperties->classname = classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
                 m_cachedProperties->origin = originValue ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
                 m_cachedProperties->rotation = EntityRotationPolicy::getRotation(*this);
             }

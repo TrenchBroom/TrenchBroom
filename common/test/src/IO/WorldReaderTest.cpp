@@ -95,7 +95,7 @@ namespace TrenchBroom {
             REQUIRE(defaultLayer != nullptr);
             REQUIRE(!defaultLayer->hasChildren());
 
-            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
             CHECK(worldNode->entity().hasProperty("message"));
             CHECK(*worldNode->entity().property("message") == "yay");
 
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             auto worldNode = reader.read(worldBounds, status);
 
             CHECK(worldNode != nullptr);
-            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
             CHECK(worldNode->entity().hasProperty("message"));
             CHECK(*worldNode->entity().property("message") == "yay");
 
@@ -1168,7 +1168,7 @@ common/caulk
             CHECK(worldNode->childCount() == 1u);
             CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
             CHECK(worldNode->entity().hasProperty("message"));
             CHECK(*worldNode->entity().property("message") == "yay \\\"Mr. Robot!\\\"");
         }
@@ -1190,7 +1190,7 @@ common/caulk
             CHECK(worldNode->childCount() == 1u);
             CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
             CHECK(worldNode->entity().hasProperty("path"));
             CHECK(*worldNode->entity().property("path") == "c:\\a\\b\\c\\");
         }
@@ -1212,7 +1212,7 @@ common/caulk
             CHECK(worldNode->childCount() == 1u);
             CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
             CHECK(worldNode->entity().hasProperty("path"));
             CHECK(*worldNode->entity().property("path") == "c:\\\\a\\\\b\\\\c\\\\");
         }
@@ -1235,7 +1235,7 @@ common/caulk
             CHECK(worldNode->childCount() == 1u);
             CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
             CHECK(worldNode->entity().hasProperty("message"));
             CHECK(*worldNode->entity().property("message") == "test\\\\");
         }
@@ -1258,7 +1258,7 @@ common/caulk
             CHECK(worldNode->childCount() == 1u);
             CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-            CHECK(worldNode->entity().hasProperty(Model::PropertyKeys::Classname));
+            CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
             CHECK(worldNode->entity().hasProperty("message"));
             CHECK(*worldNode->entity().property("message") == "vm::line1\\nvm::line2");
         }

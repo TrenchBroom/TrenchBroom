@@ -132,12 +132,12 @@ namespace TrenchBroom {
         }
 
         Game::SoftMapBounds GameImpl::doExtractSoftMapBounds(const Entity& entity) const {
-            if (!entity.hasProperty(PropertyKeys::SoftMapBounds)) {
+            if (!entity.hasProperty(EntityPropertyKeys::SoftMapBounds)) {
                 // Not set in map -> use Game value
                 return {SoftMapBoundsType::Game, doSoftMapBounds()};
             }
 
-            if (const auto* mapValue = entity.property(PropertyKeys::SoftMapBounds); mapValue && *mapValue != PropertyValues::NoSoftMapBounds) {
+            if (const auto* mapValue = entity.property(EntityPropertyKeys::SoftMapBounds); mapValue && *mapValue != EntityPropertyValues::NoSoftMapBounds) {
                 return {SoftMapBoundsType::Map, IO::parseSoftMapBoundsString(*mapValue)};
             } else {
                 return {SoftMapBoundsType::Map, std::nullopt};
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             } else {
                 auto worldEntity = Model::Entity();
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
-                    worldEntity.addOrUpdateProperty(PropertyKeys::ValveVersion, "220");
+                    worldEntity.addOrUpdateProperty(EntityPropertyKeys::ValveVersion, "220");
                 }
 
                 auto worldNode = std::make_unique<WorldNode>(std::move(worldEntity), format);
@@ -404,7 +404,7 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const Entity& entity) const {
-            if (const auto* defValue = entity.property(PropertyKeys::EntityDefinitions)) {
+            if (const auto* defValue = entity.property(EntityPropertyKeys::EntityDefinitions)) {
                 return Assets::EntityDefinitionFileSpec::parse(*defValue);
             } else {
                 return defaultEntityDefinitionFile();
@@ -577,7 +577,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> GameImpl::doExtractEnabledMods(const Entity& entity) const {
-            if (const auto* modStr = entity.property(PropertyKeys::Mods)) {
+            if (const auto* modStr = entity.property(EntityPropertyKeys::Mods)) {
                 return kdl::str_split(*modStr, ";");
             } else {
                 return {};

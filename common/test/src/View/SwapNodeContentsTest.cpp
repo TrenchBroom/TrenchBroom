@@ -120,7 +120,7 @@ namespace TrenchBroom {
             constexpr auto Classname = "point_entity";
 
             auto* entityNode = new Model::EntityNode({
-                {Model::PropertyKeys::Classname, Classname}
+                {Model::EntityPropertyKeys::Classname, Classname}
             });
 
             addNode(*document, document->parentForNodes(), entityNode);

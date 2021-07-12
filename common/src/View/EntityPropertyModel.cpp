@@ -67,16 +67,16 @@ namespace TrenchBroom {
             assert(!Model::isLayer(entity.classname(), entity.properties()));
 
             if (Model::isWorldspawn(entity.classname(), entity.properties())) {
-                return !(key == Model::PropertyKeys::Classname
-                    || key == Model::PropertyKeys::Mods
-                    || key == Model::PropertyKeys::EntityDefinitions
-                    || key == Model::PropertyKeys::Wad
-                    || key == Model::PropertyKeys::Textures
-                    || key == Model::PropertyKeys::SoftMapBounds
-                    || key == Model::PropertyKeys::LayerColor
-                    || key == Model::PropertyKeys::LayerLocked
-                    || key == Model::PropertyKeys::LayerHidden
-                    || key == Model::PropertyKeys::LayerOmitFromExport);
+                return !(key == Model::EntityPropertyKeys::Classname
+                    || key == Model::EntityPropertyKeys::Mods
+                    || key == Model::EntityPropertyKeys::EntityDefinitions
+                    || key == Model::EntityPropertyKeys::Wad
+                    || key == Model::EntityPropertyKeys::Textures
+                    || key == Model::EntityPropertyKeys::SoftMapBounds
+                    || key == Model::EntityPropertyKeys::LayerColor
+                    || key == Model::EntityPropertyKeys::LayerLocked
+                    || key == Model::EntityPropertyKeys::LayerHidden
+                    || key == Model::EntityPropertyKeys::LayerOmitFromExport);
             }
 
             return true;
@@ -87,23 +87,23 @@ namespace TrenchBroom {
             assert(!Model::isLayer(entity.classname(), entity.properties()));
 
             if (Model::isWorldspawn(entity.classname(), entity.properties())) {
-                return !(key == Model::PropertyKeys::Classname
-                    || key == Model::PropertyKeys::Mods
-                    || key == Model::PropertyKeys::EntityDefinitions
-                    || key == Model::PropertyKeys::Wad
-                    || key == Model::PropertyKeys::Textures
-                    || key == Model::PropertyKeys::SoftMapBounds
-                    || key == Model::PropertyKeys::LayerColor
-                    || key == Model::PropertyKeys::LayerLocked
-                    || key == Model::PropertyKeys::LayerHidden
-                    || key == Model::PropertyKeys::LayerOmitFromExport);
+                return !(key == Model::EntityPropertyKeys::Classname
+                    || key == Model::EntityPropertyKeys::Mods
+                    || key == Model::EntityPropertyKeys::EntityDefinitions
+                    || key == Model::EntityPropertyKeys::Wad
+                    || key == Model::EntityPropertyKeys::Textures
+                    || key == Model::EntityPropertyKeys::SoftMapBounds
+                    || key == Model::EntityPropertyKeys::LayerColor
+                    || key == Model::EntityPropertyKeys::LayerLocked
+                    || key == Model::EntityPropertyKeys::LayerHidden
+                    || key == Model::EntityPropertyKeys::LayerOmitFromExport);
             }
 
             return true;
         }
 
         static bool isPropertyProtectable(const Model::EntityNodeBase& entityNode, const std::string& key) {
-            return Model::findContainingLinkedGroup(entityNode) != nullptr && key != Model::PropertyKeys::Origin;
+            return Model::findContainingLinkedGroup(entityNode) != nullptr && key != Model::EntityPropertyKeys::Origin;
         }
 
         static PropertyProtection isPropertyProtected(const Model::EntityNodeBase& entityNode, const std::string& key) {
@@ -507,13 +507,13 @@ namespace TrenchBroom {
             if (index.column() == ColumnKey) {
                 result = getAllPropertyKeys();
             } else if (index.column() == ColumnValue) {
-                if (key == Model::PropertyKeys::Target ||
-                    key == Model::PropertyKeys::Killtarget) {
-                    result = getAllValuesForPropertyKeys({ Model::PropertyKeys::Targetname });
-                } else if (key == Model::PropertyKeys::Targetname) {
+                if (key == Model::EntityPropertyKeys::Target ||
+                    key == Model::EntityPropertyKeys::Killtarget) {
+                    result = getAllValuesForPropertyKeys({ Model::EntityPropertyKeys::Targetname });
+                } else if (key == Model::EntityPropertyKeys::Targetname) {
                     result = getAllValuesForPropertyKeys(
-                        { Model::PropertyKeys::Target, Model::PropertyKeys::Killtarget });
-                } else if (key == Model::PropertyKeys::Classname) {
+                        { Model::EntityPropertyKeys::Target, Model::EntityPropertyKeys::Killtarget });
+                } else if (key == Model::EntityPropertyKeys::Classname) {
                     result = getAllClassnames();
                 }
             }
@@ -579,7 +579,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             // start with currently used classnames
-            auto result = getAllValuesForPropertyKeys({ Model::PropertyKeys::Classname });
+            auto result = getAllValuesForPropertyKeys({ Model::EntityPropertyKeys::Classname });
             auto resultSet = kdl::wrap_set(result);
 
             // add keys from all loaded entity definitions

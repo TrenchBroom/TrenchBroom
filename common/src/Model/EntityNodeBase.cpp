@@ -275,18 +275,18 @@ namespace TrenchBroom {
         bool EntityNodeBase::hasMissingSources() const {
             return (m_linkSources.empty() &&
                     m_killSources.empty() &&
-                m_entity.hasProperty(PropertyKeys::Targetname));
+                m_entity.hasProperty(EntityPropertyKeys::Targetname));
         }
 
         std::vector<std::string> EntityNodeBase::findMissingLinkTargets() const {
             std::vector<std::string> result;
-            findMissingTargets(PropertyKeys::Target, result);
+            findMissingTargets(EntityPropertyKeys::Target, result);
             return result;
         }
 
         std::vector<std::string> EntityNodeBase::findMissingKillTargets() const {
             std::vector<std::string> result;
-            findMissingTargets(PropertyKeys::Killtarget, result);
+            findMissingTargets(EntityPropertyKeys::Killtarget, result);
             return result;
         }
 
@@ -297,7 +297,7 @@ namespace TrenchBroom {
                     result.push_back(property.key());
                 } else {
                     std::vector<EntityNodeBase*> linkTargets;
-                    findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, linkTargets);
+                    findEntityNodesWithProperty(EntityPropertyKeys::Targetname, targetname, linkTargets);
                     if (linkTargets.empty())
                         result.push_back(property.key());
                 }
@@ -305,22 +305,22 @@ namespace TrenchBroom {
         }
 
         void EntityNodeBase::addLinks(const std::string& name, const std::string& value) {
-            if (isNumberedProperty(PropertyKeys::Target, name)) {
+            if (isNumberedProperty(EntityPropertyKeys::Target, name)) {
                 addLinkTargets(value);
-            } else if (isNumberedProperty(PropertyKeys::Killtarget, name)) {
+            } else if (isNumberedProperty(EntityPropertyKeys::Killtarget, name)) {
                 addKillTargets(value);
-            } else if (name == PropertyKeys::Targetname) {
+            } else if (name == EntityPropertyKeys::Targetname) {
                 addAllLinkSources(value);
                 addAllKillSources(value);
             }
         }
 
         void EntityNodeBase::removeLinks(const std::string& name, const std::string& value) {
-            if (isNumberedProperty(PropertyKeys::Target, name)) {
+            if (isNumberedProperty(EntityPropertyKeys::Target, name)) {
                 removeLinkTargets(value);
-            } else if (isNumberedProperty(PropertyKeys::Killtarget, name)) {
+            } else if (isNumberedProperty(EntityPropertyKeys::Killtarget, name)) {
                 removeKillTargets(value);
-            } else if (name == PropertyKeys::Targetname) {
+            } else if (name == EntityPropertyKeys::Targetname) {
                 removeAllLinkSources();
                 removeAllKillSources();
             }
@@ -337,7 +337,7 @@ namespace TrenchBroom {
         void EntityNodeBase::addLinkTargets(const std::string& targetname) {
             if (!targetname.empty()) {
                 std::vector<EntityNodeBase*> targets;
-                findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, targets);
+                findEntityNodesWithProperty(EntityPropertyKeys::Targetname, targetname, targets);
                 addLinkTargets(targets);
             }
         }
@@ -345,7 +345,7 @@ namespace TrenchBroom {
         void EntityNodeBase::addKillTargets(const std::string& targetname) {
             if (!targetname.empty()) {
                 std::vector<EntityNodeBase*> targets;
-                findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, targets);
+                findEntityNodesWithProperty(EntityPropertyKeys::Targetname, targetname, targets);
                 addKillTargets(targets);
             }
         }
@@ -356,7 +356,7 @@ namespace TrenchBroom {
                 std::vector<EntityNodeBase*>::iterator it = std::begin(m_linkTargets);
                 while (it != rem) {
                     EntityNodeBase* target = *it;
-                    const auto* targetTargetname = target->entity().property(PropertyKeys::Targetname);
+                    const auto* targetTargetname = target->entity().property(EntityPropertyKeys::Targetname);
                     if (targetTargetname && *targetTargetname == targetname) {
                         target->removeLinkSource(this);
                         --rem;
@@ -375,7 +375,7 @@ namespace TrenchBroom {
                 std::vector<EntityNodeBase*>::iterator it = std::begin(m_killTargets);
                 while (it != rem) {
                     EntityNodeBase* target = *it;
-                    const auto* targetTargetname = target->entity().property(PropertyKeys::Targetname);
+                    const auto* targetTargetname = target->entity().property(EntityPropertyKeys::Targetname);
                     if (targetTargetname && *targetTargetname == targetname) {
                         target->removeKillSource(this);
                         --rem;
@@ -391,17 +391,17 @@ namespace TrenchBroom {
         void EntityNodeBase::addAllLinkSources(const std::string& targetname) {
             if (!targetname.empty()) {
                 std::vector<EntityNodeBase*> linkSources;
-                findEntityNodesWithNumberedProperty(PropertyKeys::Target, targetname, linkSources);
+                findEntityNodesWithNumberedProperty(EntityPropertyKeys::Target, targetname, linkSources);
                 addLinkSources(linkSources);
             }
         }
 
         void EntityNodeBase::addAllLinkTargets() {
-            for (const EntityProperty& property : m_entity.numberedProperties(PropertyKeys::Target)) {
+            for (const EntityProperty& property : m_entity.numberedProperties(EntityPropertyKeys::Target)) {
                 const std::string& targetname = property.value();
                 if (!targetname.empty()) {
                     std::vector<EntityNodeBase*> linkTargets;
-                    findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, linkTargets);
+                    findEntityNodesWithProperty(EntityPropertyKeys::Targetname, targetname, linkTargets);
                     addLinkTargets(linkTargets);
                 }
             }
@@ -410,17 +410,17 @@ namespace TrenchBroom {
         void EntityNodeBase::addAllKillSources(const std::string& targetname) {
             if (!targetname.empty()) {
                 std::vector<EntityNodeBase*> killSources;
-                findEntityNodesWithNumberedProperty(PropertyKeys::Killtarget, targetname, killSources);
+                findEntityNodesWithNumberedProperty(EntityPropertyKeys::Killtarget, targetname, killSources);
                 addKillSources(killSources);
             }
         }
 
         void EntityNodeBase::addAllKillTargets() {
-            for (const EntityProperty& property : m_entity.numberedProperties(PropertyKeys::Killtarget)) {
+            for (const EntityProperty& property : m_entity.numberedProperties(EntityPropertyKeys::Killtarget)) {
                 const std::string& targetname = property.value();
                 if (!targetname.empty()) {
                     std::vector<EntityNodeBase*> killTargets;
-                    findEntityNodesWithProperty(PropertyKeys::Targetname, targetname, killTargets);
+                    findEntityNodesWithProperty(EntityPropertyKeys::Targetname, targetname, killTargets);
                     addKillTargets(killTargets);
                 }
             }
@@ -501,7 +501,7 @@ namespace TrenchBroom {
             addAllLinkTargets();
             addAllKillTargets();
 
-            const std::string* targetname = m_entity.property(PropertyKeys::Targetname);
+            const std::string* targetname = m_entity.property(EntityPropertyKeys::Targetname);
             if (targetname != nullptr && !targetname->empty()) {
                 addAllLinkSources(*targetname);
                 addAllKillSources(*targetname);
