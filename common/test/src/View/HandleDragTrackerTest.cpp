@@ -95,7 +95,7 @@ namespace TrenchBroom {
             }
         };
 
-        auto makeHandleTracker(TestDelegateData& data, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) {
+        static auto makeHandleTracker(TestDelegateData& data, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) {
             return HandleDragTracker<TestDelegate>{TestDelegate{data}, InputState{}, initialHandlePosition, handleOffset};
         }
 

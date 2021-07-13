@@ -46,7 +46,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        void setLinkedGroupId(Model::GroupNode& groupNode, std::string linkedGroupId) {
+        static void setLinkedGroupId(Model::GroupNode& groupNode, std::string linkedGroupId) {
             auto group = groupNode.group();
             group.setLinkedGroupId(std::move(linkedGroupId));
             groupNode.setGroup(std::move(group));
