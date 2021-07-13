@@ -96,6 +96,8 @@ namespace TrenchBroom {
          * that can arise during a drag.
          */
         struct HandleDragTrackerDelegate {
+            virtual ~HandleDragTrackerDelegate() = default;
+
             /**
              * Called once when the drag starts. Use this function to start a transaction if necessary.
              *

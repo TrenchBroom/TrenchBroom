@@ -51,6 +51,8 @@ namespace TrenchBroom {
          * can arise.
          */
         struct MoveHandleDragTrackerDelegate {
+            virtual ~MoveHandleDragTrackerDelegate() = default;
+
             /**
              * Called every time when a new proposed handle position is computed by the move tracker. This function
              * should be used to update the object being moved.
