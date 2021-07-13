@@ -51,6 +51,8 @@ namespace TrenchBroom {
          * can arise.
          */
         struct MoveHandleDragTrackerDelegate {
+            virtual ~MoveHandleDragTrackerDelegate() = default;
+
             /**
              * Called every time when a new proposed handle position is computed by the move tracker. This function
              * should be used to update the object being moved.
@@ -64,7 +66,7 @@ namespace TrenchBroom {
              *
              * @param inputState the current input state
              * @param dragState the last drag state
-             * @param proposed handle position the next proposed handle position
+             * @param proposedHandlePosition handle position the next proposed handle position
              * @return a value of DragStatus that instructs the move tracker on how to continue
              */
             virtual DragStatus move(const InputState& inputState, const DragState& dragState, const vm::vec3& proposedHandlePosition) = 0;

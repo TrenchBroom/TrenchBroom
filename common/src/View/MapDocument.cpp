@@ -586,7 +586,7 @@ namespace TrenchBroom {
             return PasteType::Failed;
         }
 
-        std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root) {
+        static std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root) {
             auto result = std::vector<Model::IdType>{};
             root.accept(kdl::overload(
                 [] (auto&& thisLambda, const Model::WorldNode* worldNode) {
@@ -1115,7 +1115,7 @@ namespace TrenchBroom {
             return addedNodes;
         }
 
-        std::vector<std::string> getLinkedGroupIdsRecursively(const std::map<Model::Node*, std::vector<Model::Node*>>& parentChildrenMap) {
+        static std::vector<std::string> getLinkedGroupIdsRecursively(const std::map<Model::Node*, std::vector<Model::Node*>>& parentChildrenMap) {
             std::vector<std::string> linkedGroupIds;
             for (const auto& [parent, children] : parentChildrenMap) {
                 Model::Node::visitAll(children, kdl::overload(

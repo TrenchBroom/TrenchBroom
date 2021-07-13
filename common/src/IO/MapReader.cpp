@@ -547,7 +547,7 @@ namespace TrenchBroom {
          * Not every node comes with parent information, so the returned map does not contain entries for each 
          * of the given nodes.
          */
-        NodeToParentMap buildNodeToParentMap(std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status) {
+        static NodeToParentMap buildNodeToParentMap(std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status) {
             auto layerIdMap = std::unordered_map<Model::IdType, Model::LayerNode*>{};
             auto groupIdMap = std::unordered_map<Model::IdType, Model::GroupNode*>{};
 
