@@ -66,7 +66,7 @@ namespace TrenchBroom {
              *
              * @param inputState the current input state
              * @param dragState the last drag state
-             * @param proposed handle position the next proposed handle position
+             * @param proposedHandlePosition handle position the next proposed handle position
              * @return a value of DragStatus that instructs the move tracker on how to continue
              */
             virtual DragStatus move(const InputState& inputState, const DragState& dragState, const vm::vec3& proposedHandlePosition) = 0;
