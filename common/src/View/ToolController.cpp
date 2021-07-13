@@ -52,8 +52,6 @@ namespace TrenchBroom {
         std::unique_ptr<DragTracker> ToolController::acceptMouseDrag(const InputState&) { return nullptr;}
         bool ToolController::anyToolDragging(const InputState&) const {return false; }
 
-        std::unique_ptr<DropTracker> acceptDrop(const InputState&, const std::string& /* payload */) { return nullptr; }
-
         void ToolController::setRenderOptions(const InputState&, Renderer::RenderContext&) const {}
         void ToolController::render(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
