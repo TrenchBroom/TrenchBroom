@@ -89,7 +89,7 @@ endmacro(SET_XCODE_ATTRIBUTES)
 
 macro(set_compiler_config TARGET)
     if(COMPILER_IS_CLANG)
-        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wconversion -Wshadow-all -Wnon-virtual-dtor -Wmissing-declarations -pedantic)
+        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wconversion -Wshadow-all -Wnon-virtual-dtor -Wmissing-prototypes -pedantic)
         target_compile_options(${TARGET} PRIVATE -Wno-global-constructors -Wno-exit-time-destructors -Wno-padded -Wno-format-nonliteral -Wno-used-but-marked-unused)
 
         # disable C++98 compatibility warnings
