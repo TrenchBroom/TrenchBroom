@@ -2042,7 +2042,7 @@ namespace TrenchBroom {
             using TransformResult = kdl::result<std::pair<Model::Node*, Model::NodeContents>, Model::BrushError>;
 
             const bool lockTexturesPref = pref(Preferences::TextureLock);
-            const auto transformResults = kdl::vec_parallel_transform(nodesToTransform, [&](Model::Node* node) -> TransformResult {
+            auto transformResults = kdl::vec_parallel_transform(nodesToTransform, [&](Model::Node* node) -> TransformResult {
                 return node->accept(kdl::overload(
                     [&](Model::WorldNode*) -> TransformResult { ensure(false, "Unexpected world node"); },
                     [&](Model::LayerNode*) -> TransformResult { ensure(false, "Unexpected layer node"); },
@@ -2075,7 +2075,7 @@ namespace TrenchBroom {
             });
 
             bool transformFailed = false;
-            const auto nodesToUpdate = kdl::collect_values(transformResults, kdl::overload(
+            auto nodesToUpdate = kdl::collect_values(std::move(transformResults), kdl::overload(
                 [&](const Model::BrushError& e) {
                     error() << "Could not transform brush: " << e;
                     transformFailed = true;
