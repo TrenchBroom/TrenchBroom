@@ -423,10 +423,14 @@ namespace TrenchBroom {
                     m_lockedRenderer->removeNode(node);
                 }
 
+                m_trackedNodes.erase(it);
+
                 // At this point, none of the default/selection/locked renderers,
                 // or their underlying node-type specific renderers, have a reference 
                 // to `node` anymore, and they won't render it.
             }
+
+            assert(m_trackedNodes.find(node) == std::end(m_trackedNodes));
         }
 
         /**
