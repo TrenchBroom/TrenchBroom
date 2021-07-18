@@ -610,18 +610,22 @@ namespace TrenchBroom {
 
         void MapRenderer::documentWasNewedOrLoaded(View::MapDocument*) {
             clear();
-            updateRenderers(Renderer_All);
+            updateAllNodes();
             invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>&) {
-            updateRenderers(Renderer_All);
+        void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                updateAndInvalidateNode(node);
+            }
             invalidateGroupLinkRenderer();
             invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>&) {
-            updateRenderers(Renderer_All);
+        void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                removeNode(node);
+            }
             invalidateGroupLinkRenderer();
             invalidateEntityLinkRenderer();
         }
@@ -632,46 +636,52 @@ namespace TrenchBroom {
             invalidateGroupLinkRenderer();
         }
 
-        void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>&) {
-            invalidateRenderers(Renderer_All);
+        void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                updateAndInvalidateNode(node);
+            }
         }
 
-        void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>&) {
-            updateRenderers(Renderer_Default_Locked);
+        void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                updateAndInvalidateNode(node);
+            }
             invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::groupWasOpened(Model::GroupNode*) {
-            updateRenderers(Renderer_Default_Selection);
+            // FIXME: do we need to do anything here as the old code was?
             invalidateGroupLinkRenderer();
             invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::groupWasClosed(Model::GroupNode*) {
-            updateRenderers(Renderer_Default_Selection);
+            // FIXME: do we need to do anything here as the old code was?
             invalidateGroupLinkRenderer();
             invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
-            invalidateRenderers(Renderer_Selection);
+        void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces) {
+            for (const auto& face : faces) {
+                updateAndInvalidateNode(face.node());
+            }
         }
 
         void MapRenderer::selectionDidChange(const View::Selection& selection) {
-            updateRenderers(Renderer_All); // need to update locked objects also because a selected object may have been reparented into a locked layer before deselection
-            invalidateEntityLinkRenderer();
-
-            // selecting faces needs to invalidate the brushes
-            if (!selection.selectedBrushFaces().empty()
-                || !selection.deselectedBrushFaces().empty()) {
-
-                
-                const auto toBrush = [](const auto& handle) { return handle.node(); };
-                auto brushes = kdl::vec_concat(kdl::vec_transform(selection.selectedBrushFaces(), toBrush), kdl::vec_transform(selection.deselectedBrushFaces(), toBrush));
-                brushes = kdl::vec_sort_and_remove_duplicates(std::move(brushes));
-                invalidateBrushesInRenderers(Renderer_All, brushes);
+            for (const auto& face : selection.deselectedBrushFaces()) {
+                updateAndInvalidateNode(face.node());
+            }
+            for (const auto& face : selection.selectedBrushFaces()) {
+                updateAndInvalidateNode(face.node());
+            }
+            for (auto* node : selection.deselectedNodes()) {
+                updateAndInvalidateNode(node);
+            }
+            for (auto* node : selection.selectedNodes()) {
+                updateAndInvalidateNode(node);
             }
 
+            invalidateEntityLinkRenderer();
             invalidateGroupLinkRenderer();
         }
 
