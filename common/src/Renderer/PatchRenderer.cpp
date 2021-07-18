@@ -99,6 +99,22 @@ namespace TrenchBroom {
             invalidate();
         }
 
+        void PatchRenderer::addPatch(Model::PatchNode* patchNode) {
+            m_patchNodes.push_back(patchNode);
+            invalidate();
+        }
+
+        void PatchRenderer::removePatch(Model::PatchNode* patchNode) {
+            auto it = std::find(std::begin(m_patchNodes), std::end(m_patchNodes), patchNode);
+            assert(it != std::end(m_patchNodes));
+            m_patchNodes.erase(it);
+            invalidate();
+        }
+
+        void PatchRenderer::invalidatePatch(Model::PatchNode*) {
+            invalidate();
+        }
+
         void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_valid) {
                 validate();

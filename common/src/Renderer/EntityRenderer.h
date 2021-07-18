@@ -80,6 +80,10 @@ namespace TrenchBroom {
             void clear();
             void reloadModels();
 
+            void addEntity(Model::EntityNode* entity);
+            void removeEntity(Model::EntityNode* entity);
+            void invalidateEntity(Model::EntityNode* entity);
+
             void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);

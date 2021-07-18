@@ -60,6 +60,10 @@ namespace TrenchBroom {
             void invalidate();
             void clear();
 
+            void addGroup(Model::GroupNode* group);
+            void removeGroup(Model::GroupNode* group);
+            void invalidateGroup(Model::GroupNode* group);
+
             template <typename Iter>
             void addGroups(Iter cur, const Iter end) {
                 while (cur != end) {

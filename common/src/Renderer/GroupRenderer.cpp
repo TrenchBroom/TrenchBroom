@@ -30,8 +30,8 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
 
-#include <vector>
-
+#include <cassert>
+#include <algorithm>
 #include <vector>
 
 namespace TrenchBroom {
@@ -75,6 +75,25 @@ namespace TrenchBroom {
         void GroupRenderer::clear() {
             m_groups.clear();
             m_boundsRenderer = DirectEdgeRenderer();
+        }
+
+        void GroupRenderer::addGroup(Model::GroupNode* group) {
+            // caller responsible for ensuring the same group is not added twice
+            assert(std::find(std::begin(m_groups), std::end(m_groups), group)
+                   == m_groups.end());
+            m_groups.push_back(group);
+            invalidate();
+        }
+
+        void GroupRenderer::removeGroup(Model::GroupNode* group) {
+            auto it = std::find(std::begin(m_groups), std::end(m_groups), group);
+            assert(it != m_groups.end());
+            m_groups.erase(it);
+            invalidate();
+        }
+
+        void GroupRenderer::invalidateGroup(Model::GroupNode*) {
+            invalidate();
         }
 
         void GroupRenderer::setOverrideColors(const bool overrideColors) {

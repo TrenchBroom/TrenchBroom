@@ -42,6 +42,7 @@
 #include <vecmath/mat_ext.h>
 #include <vecmath/scalar.h>
 
+#include <algorithm>
 #include <vector>
 
 namespace TrenchBroom {
@@ -99,6 +100,25 @@ namespace TrenchBroom {
 
         void EntityRenderer::reloadModels() {
             m_modelRenderer.updateEntities(std::begin(m_entities), std::end(m_entities));
+        }
+
+        void EntityRenderer::addEntity(Model::EntityNode* entity) {
+            m_entities.push_back(entity);
+            m_modelRenderer.addEntity(entity);
+            invalidateBounds();
+        }
+
+        void EntityRenderer::removeEntity(Model::EntityNode* entity) {
+            auto it = std::find(std::begin(m_entities), std::end(m_entities), entity);
+            assert(it != m_entities.end());
+            m_entities.erase(it);
+            m_modelRenderer.removeEntity(entity);
+            invalidateBounds();
+        }
+
+        void EntityRenderer::invalidateEntity(Model::EntityNode* entity) {
+            m_modelRenderer.updateEntity(entity);
+            invalidateBounds();
         }
 
         void EntityRenderer::setShowOverlays(const bool showOverlays) {

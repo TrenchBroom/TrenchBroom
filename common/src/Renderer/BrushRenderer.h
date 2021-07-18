@@ -206,6 +206,7 @@ namespace TrenchBroom {
              * Brushes not in the renderer are ignored.
              */
             void invalidateBrushes(const std::vector<Model::BrushNode*>& brushes);
+            void invalidateBrush(const Model::BrushNode* brush);
             bool valid() const;
 
             /**
@@ -289,9 +290,10 @@ namespace TrenchBroom {
         private:
             bool shouldDrawFaceInTransparentPass(const Model::BrushNode* brush, const Model::BrushFace& face) const;
             void validateBrush(const Model::BrushNode* brush);
+        public:
             void addBrush(const Model::BrushNode* brush);
             void removeBrush(const Model::BrushNode* brush);
-
+        private:
             /**
              * If the given brush is not currently in the VBO, it's silently ignored.
              * Otherwise, it's removed from the VBO (having its indices zeroed out, causing it to no longer draw).

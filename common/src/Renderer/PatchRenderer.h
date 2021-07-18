@@ -87,6 +87,10 @@ namespace TrenchBroom {
             void invalidate();
             void clear();
 
+            void addPatch(Model::PatchNode* patchNode);
+            void removePatch(Model::PatchNode* patchNode);
+            void invalidatePatch(Model::PatchNode* patchNode);
+
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
             void validate();
