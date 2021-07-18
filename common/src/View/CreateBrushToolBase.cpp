@@ -81,7 +81,7 @@ namespace TrenchBroom {
             m_brushRenderer->setForceTransparent(true);
             m_brushRenderer->setTransparencyAlpha(0.7f);
 
-            m_brushRenderer->setBrushes({ m_brush });
+            m_brushRenderer->addBrush(m_brush);
             m_brushRenderer->render(renderContext, renderBatch);
 
             Renderer::SelectionBoundsRenderer boundsRenderer(m_brush->logicalBounds());
