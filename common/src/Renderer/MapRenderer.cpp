@@ -429,6 +429,31 @@ namespace TrenchBroom {
             }
         }
 
+        /**
+         * Calls updateAndInvalidateNode() on every node in the world.
+         */
+        void MapRenderer::updateAllNodes() {
+            auto document = kdl::mem_lock(m_document);
+            document->world()->accept(kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* group) {
+                    updateAndInvalidateNode(group);
+                    group->visitChildren(thisLambda);
+                },
+                [&](auto&& thisLambda, Model::EntityNode* entity) {
+                    updateAndInvalidateNode(entity);
+                    entity->visitChildren(thisLambda);
+                },
+                [&](Model::BrushNode* brush) {
+                    updateAndInvalidateNode(brush);
+                },
+                [&](Model::PatchNode* patchNode) {
+                    updateAndInvalidateNode(patchNode);
+                }
+            ));
+        }
+
         void MapRenderer::updateRenderers(const Renderer renderers) {
             const auto renderDefault   = (renderers & Renderer_Default) != 0;
             const auto renderSelection = (renderers & Renderer_Selection) != 0;

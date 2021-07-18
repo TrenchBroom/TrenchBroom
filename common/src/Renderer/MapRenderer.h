@@ -123,6 +123,7 @@ namespace TrenchBroom {
              */
             void updateAndInvalidateNode(Model::Node* node);
             void removeNode(Model::Node* node);
+            void updateAllNodes();
             /**
              * Clears the set of nodes being tracked and repopulates it by traversing the node tree from the world.
              *
