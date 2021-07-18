@@ -513,7 +513,6 @@ namespace TrenchBroom {
                                              lockedNodes.brushes,
                                              lockedNodes.patches);
             }
-            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::invalidateRenderers(Renderer renderers) {
@@ -583,16 +582,19 @@ namespace TrenchBroom {
         void MapRenderer::documentWasNewedOrLoaded(View::MapDocument*) {
             clear();
             updateRenderers(Renderer_All);
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>&) {
             updateRenderers(Renderer_All);
             invalidateGroupLinkRenderer();
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>&) {
             updateRenderers(Renderer_All);
             invalidateGroupLinkRenderer();
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::nodesDidChange(const std::vector<Model::Node*>&) {
@@ -607,16 +609,19 @@ namespace TrenchBroom {
 
         void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>&) {
             updateRenderers(Renderer_Default_Locked);
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::groupWasOpened(Model::GroupNode*) {
             updateRenderers(Renderer_Default_Selection);
             invalidateGroupLinkRenderer();
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::groupWasClosed(Model::GroupNode*) {
             updateRenderers(Renderer_Default_Selection);
             invalidateGroupLinkRenderer();
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
@@ -625,6 +630,7 @@ namespace TrenchBroom {
 
         void MapRenderer::selectionDidChange(const View::Selection& selection) {
             updateRenderers(Renderer_All); // need to update locked objects also because a selected object may have been reparented into a locked layer before deselection
+            invalidateEntityLinkRenderer();
 
             // selecting faces needs to invalidate the brushes
             if (!selection.selectedBrushFaces().empty()
