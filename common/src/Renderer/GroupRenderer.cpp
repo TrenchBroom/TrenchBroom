@@ -63,11 +63,6 @@ namespace TrenchBroom {
         m_showOccludedOverlays(false),
         m_showOccludedBounds(false) {}
 
-        void GroupRenderer::setGroups(const std::vector<Model::GroupNode*>& groups) {
-            m_groups = groups;
-            invalidate();
-        }
-
         void GroupRenderer::invalidate() {
             invalidateBounds();
         }

@@ -25,13 +25,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void ObjectRenderer::setObjects(const std::vector<Model::GroupNode*>& groups, const std::vector<Model::EntityNode*>& entities, const std::vector<Model::BrushNode*>& brushes, const std::vector<Model::PatchNode*>& patches) {
-            m_groupRenderer.setGroups(groups);
-            m_entityRenderer.setEntities(entities);
-            m_brushRenderer.setBrushes(brushes);
-            m_patchRenderer.setPatches(patches);
-        }
-
         void ObjectRenderer::addNode(Model::Node* node) {
             node->accept(kdl::overload(
                 [](Model::WorldNode*) {},
@@ -94,10 +87,6 @@ namespace TrenchBroom {
             m_entityRenderer.invalidate();
             m_brushRenderer.invalidate();
             m_patchRenderer.invalidate();
-        }
-
-        void ObjectRenderer::invalidateBrushes(const std::vector<Model::BrushNode*>& brushes) {
-            m_brushRenderer.invalidateBrushes(brushes);
         }
 
         void ObjectRenderer::clear() {

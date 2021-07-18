@@ -85,11 +85,6 @@ namespace TrenchBroom {
             m_occludedEdgeColor = occludedEdgeColor;
         }
 
-        void PatchRenderer::setPatches(std::vector<Model::PatchNode*> patchNodes) {
-            m_patchNodes = std::move(patchNodes);
-            invalidate();
-        }
-
         void PatchRenderer::invalidate() {
             m_valid = false;
         }

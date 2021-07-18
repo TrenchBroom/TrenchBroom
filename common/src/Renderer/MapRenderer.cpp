@@ -458,92 +458,6 @@ namespace TrenchBroom {
             ));
         }
 
-        void MapRenderer::updateRenderers(const Renderer renderers) {
-            const auto renderDefault   = (renderers & Renderer_Default) != 0;
-            const auto renderSelection = (renderers & Renderer_Selection) != 0;
-            const auto renderLocked    = (renderers & Renderer_Locked) != 0;
-
-            struct RenderableNodes {
-                std::vector<Model::GroupNode*> groups;
-                std::vector<Model::EntityNode*> entities;
-                std::vector<Model::BrushNode*> brushes;
-                std::vector<Model::PatchNode*> patches;
-            };
-
-            RenderableNodes defaultNodes;
-            RenderableNodes selectedNodes;
-            RenderableNodes lockedNodes;
-
-            const auto selected = [](const auto* node) {
-                return node->selected() || node->descendantSelected() || node->parentSelected();
-            };
-
-            auto document = kdl::mem_lock(m_document);
-            document->world()->accept(kdl::overload(
-                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
-                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-                [&](auto&& thisLambda, Model::GroupNode* group) {
-                    if (group->locked()) {
-                        if (renderLocked) lockedNodes.groups.push_back(group);
-                    } else if (selected(group) || group->opened()) {
-                        if (renderSelection) selectedNodes.groups.push_back(group);
-                    } else {
-                        if (renderDefault) defaultNodes.groups.push_back(group);
-                    }
-                    group->visitChildren(thisLambda);
-                },
-                [&](auto&& thisLambda, Model::EntityNode* entity) {
-                    if (entity->locked()) {
-                        if (renderLocked) lockedNodes.entities.push_back(entity);
-                    } else if (selected(entity)) {
-                        if (renderSelection) selectedNodes.entities.push_back(entity);
-                    } else {
-                        if (renderDefault) defaultNodes.entities.push_back(entity);
-                    }
-                    entity->visitChildren(thisLambda);
-                },
-                [&](Model::BrushNode* brush) {
-                    if (brush->locked()) {
-                        if (renderLocked) lockedNodes.brushes.push_back(brush);
-                    } else if (selected(brush) || brush->hasSelectedFaces()) {
-                        if (renderSelection) selectedNodes.brushes.push_back(brush);
-                    }
-                    if (!brush->selected() && !brush->parentSelected() && !brush->locked()) {
-                        if (renderDefault) defaultNodes.brushes.push_back(brush);
-                    }
-                },
-                [&](Model::PatchNode* patchNode) {
-                    if (patchNode->locked()) {
-                        if (renderLocked) lockedNodes.patches.push_back(patchNode);
-                    } else if (selected(patchNode)) {
-                        if (renderSelection) selectedNodes.patches.push_back(patchNode);
-                    }
-                    if (!patchNode->selected() && !patchNode->parentSelected() && !patchNode->locked()) {
-                        if (renderDefault) defaultNodes.patches.push_back(patchNode);
-                    }
-                }
-            ));
-
-            if (renderDefault) {
-                m_defaultRenderer->setObjects(defaultNodes.groups,
-                                              defaultNodes.entities,
-                                              defaultNodes.brushes,
-                                              defaultNodes.patches);
-            }
-            if (renderSelection) {
-                m_selectionRenderer->setObjects(selectedNodes.groups,
-                                                selectedNodes.entities,
-                                                selectedNodes.brushes,
-                                                selectedNodes.patches);
-            }
-            if (renderLocked) {
-                m_lockedRenderer->setObjects(lockedNodes.groups,
-                                             lockedNodes.entities,
-                                             lockedNodes.brushes,
-                                             lockedNodes.patches);
-            }
-        }
-
         void MapRenderer::invalidateRenderers(Renderer renderers) {
             if ((renderers & Renderer_Default) != 0)
                 m_defaultRenderer->invalidate();
@@ -551,18 +465,6 @@ namespace TrenchBroom {
                 m_selectionRenderer->invalidate();
             if ((renderers& Renderer_Locked) != 0)
                 m_lockedRenderer->invalidate();
-        }
-
-        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes) {
-            if ((renderers & Renderer_Default) != 0) {
-                m_defaultRenderer->invalidateBrushes(brushes);
-            }
-            if ((renderers & Renderer_Selection) != 0) {
-                m_selectionRenderer->invalidateBrushes(brushes);
-            }
-            if ((renderers& Renderer_Locked) != 0) {
-                m_lockedRenderer->invalidateBrushes(brushes);
-            }
         }
 
         void MapRenderer::invalidateEntityLinkRenderer() {

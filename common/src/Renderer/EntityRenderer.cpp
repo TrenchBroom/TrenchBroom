@@ -79,12 +79,6 @@ namespace TrenchBroom {
         m_showAngles(false),
         m_showHiddenEntities(false) {}
 
-        void EntityRenderer::setEntities(const std::vector<Model::EntityNode*>& entities) {
-            m_entities = entities;
-            m_modelRenderer.setEntities(std::begin(m_entities), std::end(m_entities));
-            invalidate();
-        }
-
         void EntityRenderer::invalidate() {
             invalidateBounds();
             reloadModels();

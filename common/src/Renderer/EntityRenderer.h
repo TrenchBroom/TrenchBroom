@@ -75,7 +75,6 @@ namespace TrenchBroom {
         public:
             EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 
-            void setEntities(const std::vector<Model::EntityNode*>& entities);
             void invalidate();
             void clear();
             void reloadModels();

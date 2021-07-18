@@ -125,20 +125,10 @@ namespace TrenchBroom {
             void removeNode(Model::Node* node);
             void updateAllNodes();
             /**
-             * Clears the set of nodes being tracked and repopulates it by traversing the node tree from the world.
-             *
-             * This moves nodes between default / selection / locked renderers as needed,
-             * but doesn't otherwise invalidate them.
-             * (in particular, brushes are not updated unless they move between renderers.)
-             * If brushes are modified, you need to call invalidateRenderers() or invalidateObjectsInRenderers()
-             */
-            void updateRenderers(Renderer renderers);
-            /**
              * Marks the nodes that are already tracked in the given renderers as invalid, i.e.
              * needing to be re-rendered.
              */
             void invalidateRenderers(Renderer renderers);
-            void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes);
             void invalidateEntityLinkRenderer();
             void invalidateGroupLinkRenderer();
             void reloadEntityModels();

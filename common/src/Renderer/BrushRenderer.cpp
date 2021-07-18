@@ -137,32 +137,6 @@ namespace TrenchBroom {
             clear();
         }
 
-        void BrushRenderer::addBrushes(const std::vector<Model::BrushNode*>& brushes) {
-            for (auto* brush : brushes) {
-                addBrush(brush);
-            }
-        }
-
-        void BrushRenderer::setBrushes(const std::vector<Model::BrushNode*>& brushes) {
-            // start with adding nothing, and removing everything
-            std::unordered_set<const Model::BrushNode*> toAdd;
-            std::unordered_set<const Model::BrushNode*> toRemove = m_allBrushes;
-
-            // update toAdd and toRemove using the input list
-            for (const auto* brush : brushes) {
-                if (toRemove.erase(brush) == 0u) {
-                    toAdd.insert(brush);
-                }
-            }
-
-            for (auto brush : toRemove) {
-                removeBrush(brush);
-            }
-            for (auto brush : toAdd) {
-                addBrush(brush);
-            }
-        }
-
         void BrushRenderer::invalidate() {
             for (auto& brush : m_allBrushes) {
                 // this will also invalidate already invalid brushes, which
@@ -174,12 +148,6 @@ namespace TrenchBroom {
             assert(m_brushInfo.empty());
             assert(m_transparentFaces->empty());
             assert(m_opaqueFaces->empty());
-        }
-
-        void BrushRenderer::invalidateBrushes(const std::vector<Model::BrushNode*>& brushes) {
-            for (auto* brush : brushes) {
-                invalidateBrush(brush);
-            }
         }
 
         void BrushRenderer::invalidateBrush(const Model::BrushNode* brush) {
