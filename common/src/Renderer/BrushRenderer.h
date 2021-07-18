@@ -185,6 +185,9 @@ namespace TrenchBroom {
              * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
              */
             void setBrushes(const std::vector<Model::BrushNode*>& brushes);
+            /**
+             * Remove all brushes.
+             */
             void clear();
 
             /**
@@ -198,6 +201,10 @@ namespace TrenchBroom {
              * maps will be empty, so the BrushRenderer will not have any lingering Texture* pointers.
              */
             void invalidate();
+            /**
+             * Invalidates the given brushes, if they were previously added with addBrushes()/setBrushes().
+             * Brushes not in the renderer are ignored.
+             */
             void invalidateBrushes(const std::vector<Model::BrushNode*>& brushes);
             bool valid() const;
 
