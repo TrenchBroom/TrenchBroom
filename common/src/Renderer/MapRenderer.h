@@ -70,6 +70,17 @@ namespace TrenchBroom {
             std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
             std::unique_ptr<GroupLinkRenderer> m_groupLinkRenderer;
 
+            typedef enum {
+                Renderer_Default            = 1,
+                Renderer_Selection          = 2,
+                Renderer_Locked             = 4,
+                Renderer_Default_Selection  = Renderer_Default | Renderer_Selection,
+                Renderer_Default_Locked     = Renderer_Default | Renderer_Locked,
+                Renderer_All                = Renderer_Default | Renderer_Selection | Renderer_Locked
+            } Renderer;
+
+            std::unordered_map<Model::Node*, Renderer> m_trackedNodes;
+
             NotifierConnection m_notifierConnection;
         public:
             explicit MapRenderer(std::weak_ptr<View::MapDocument> document);
@@ -103,15 +114,15 @@ namespace TrenchBroom {
             void setupSelectionRenderer(ObjectRenderer& renderer);
             void setupLockedRenderer(ObjectRenderer& renderer);
 
-            typedef enum {
-                Renderer_Default            = 1,
-                Renderer_Selection          = 2,
-                Renderer_Locked             = 4,
-                Renderer_Default_Selection  = Renderer_Default | Renderer_Selection,
-                Renderer_Default_Locked     = Renderer_Default | Renderer_Locked,
-                Renderer_All                = Renderer_Default | Renderer_Selection | Renderer_Locked
-            } Renderer;
-
+            Renderer determineRenderers(Model::Node* node);
+            /**
+             * - Determine which renderers the given node should be in
+             * - Remove from any renderers the node shouldn't be in
+             * - Add to new renderers, if not already present
+             * - Invalidate, for any renderers it was already present in
+             */
+            void updateAndInvalidateNode(Model::Node* node);
+            void removeNode(Model::Node* node);
             /**
              * Clears the set of nodes being tracked and repopulates it by traversing the node tree from the world.
              *

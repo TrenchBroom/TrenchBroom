@@ -326,6 +326,109 @@ namespace TrenchBroom {
             renderer.setBrushEdgeColor(pref(Preferences::LockedEdgeColor));
         }
 
+        MapRenderer::Renderer MapRenderer::determineRenderers(Model::Node* node) {
+            const auto selected = [](const auto* node) {
+                return node->selected() || node->descendantSelected() || node->parentSelected();
+            };
+
+            int result = 0;
+
+            node->accept(kdl::overload(
+                [](Model::WorldNode*) {},
+                [](Model::LayerNode*) {},
+                [&](Model::GroupNode* group) {
+                    if (group->locked()) {
+                        result = Renderer_Locked;
+                    } else if (selected(group) || group->opened()) {
+                        result = Renderer_Selection;
+                    } else {
+                        result = Renderer_Default;
+                    }
+                },
+                [&](Model::EntityNode* entity) {
+                    if (entity->locked()) {
+                        result = Renderer_Locked;
+                    } else if (selected(entity)) {
+                        result = Renderer_Selection;
+                    } else {
+                        result = Renderer_Default;
+                    }
+                },
+                [&](Model::BrushNode* brush) {
+                    if (brush->locked()) {
+                        result = Renderer_Locked;
+                    } else if (selected(brush) || brush->hasSelectedFaces()) {
+                        result = Renderer_Selection;
+                    }
+                    if (!brush->selected() && !brush->parentSelected() && !brush->locked()) {
+                        result |= Renderer_Default;
+                    }
+                },
+                [&](Model::PatchNode* patchNode) {
+                    if (patchNode->locked()) {
+                        result = Renderer_Locked;
+                    } else if (selected(patchNode)) {
+                        result = Renderer_Selection;
+                    }
+                    if (!patchNode->selected() && !patchNode->parentSelected() && !patchNode->locked()) {
+                        result |= Renderer_Default;
+                    }
+                }
+            ));
+            return static_cast<Renderer>(result);
+        }
+        
+        void MapRenderer::updateAndInvalidateNode(Model::Node* node) {
+            const Renderer desiredRenderers = determineRenderers(node);
+            Renderer currentRenderers;
+
+            if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end()) {
+                currentRenderers = it->second;
+            } else {
+                currentRenderers = static_cast<Renderer>(0);
+            }
+
+            auto updateForRenderer = [&](const Renderer r, ObjectRenderer* o) {
+                const bool isRDesired = (desiredRenderers & r) != 0;
+                const bool isRCurrent = (currentRenderers & r) != 0;
+
+                if (isRCurrent && !isRDesired) {
+                    o->removeNode(node);
+                } else if (!isRCurrent && isRDesired) {
+                    o->addNode(node);
+                } else if (isRCurrent && isRDesired) {
+                    o->invalidateNode(node);
+                }
+            };
+
+            updateForRenderer(Renderer_Default, m_defaultRenderer.get());
+            updateForRenderer(Renderer_Selection, m_selectionRenderer.get());
+            updateForRenderer(Renderer_Locked, m_lockedRenderer.get());
+
+            // Update the metadata to reflect the changes that we made above
+            m_trackedNodes[node] = desiredRenderers;
+        }
+
+        void MapRenderer::removeNode(Model::Node* node) {
+            if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end()) {
+                const Renderer renderers = it->second;
+
+                if (renderers & Renderer_Default) {
+                    m_defaultRenderer->removeNode(node);
+                }
+                if (renderers & Renderer_Selection) {
+                    m_selectionRenderer->removeNode(node);
+                }
+                if (renderers & Renderer_Locked) {
+                    m_lockedRenderer->removeNode(node);
+                }
+
+                // At this point, none of the default/selection/locked renderers,
+                // or their underlying node-type specific renderers, have a reference 
+                // to `node` anymore, and they won't render it.
+            }
+        }
+
         void MapRenderer::updateRenderers(const Renderer renderers) {
             const auto renderDefault   = (renderers & Renderer_Default) != 0;
             const auto renderSelection = (renderers & Renderer_Selection) != 0;
