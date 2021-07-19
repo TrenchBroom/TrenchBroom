@@ -39,7 +39,7 @@ You'll also need to install these dependencies using Visual Studio Installer (in
 
 - Download and install [Qt](https://www.qt.io/download) for MSVC 2017 32-bit and/or 64-bit
   - **Important**: You have to create a personal account
-  - Minimum required version is `5.9`
+  - Minimum required version is `5.12`
 - Download and install latest version of [CMake](http://www.cmake.org) for Windows
   - Make sure to add `cmake` as [global or user environment variable](https://support.shotgunsoftware.com/hc/en-us/articles/114094235653-Setting-global-environment-variables-on-Windows)
 - Download and install latest version of [pandoc](http://www.pandoc.org)
