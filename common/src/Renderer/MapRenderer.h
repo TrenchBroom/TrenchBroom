@@ -122,7 +122,9 @@ namespace TrenchBroom {
              * - Invalidate, for any renderers it was already present in
              */
             void updateAndInvalidateNode(Model::Node* node);
+            void updateAndInvalidateNodeRecursive(Model::Node* node);
             void removeNode(Model::Node* node);
+            void removeNodeRecursive(Model::Node* node);
             void updateAllNodes();
             /**
              * Marks the nodes that are already tracked in the given renderers as invalid, i.e.

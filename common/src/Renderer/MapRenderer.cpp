@@ -409,6 +409,27 @@ namespace TrenchBroom {
             m_trackedNodes[node] = desiredRenderers;
         }
 
+        void MapRenderer::updateAndInvalidateNodeRecursive(Model::Node* node) {
+            node->accept(kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* group) {
+                    updateAndInvalidateNode(group);
+                    group->visitChildren(thisLambda);
+                },
+                [&](auto&& thisLambda, Model::EntityNode* entity) {
+                    updateAndInvalidateNode(entity);
+                    entity->visitChildren(thisLambda);
+                },
+                [&](Model::BrushNode* brush) {
+                    updateAndInvalidateNode(brush);
+                },
+                [&](Model::PatchNode* patchNode) {
+                    updateAndInvalidateNode(patchNode);
+                }
+            ));
+        }
+
         void MapRenderer::removeNode(Model::Node* node) {
             if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end()) {
                 const Renderer renderers = it->second;
@@ -433,29 +454,33 @@ namespace TrenchBroom {
             assert(m_trackedNodes.find(node) == std::end(m_trackedNodes));
         }
 
+        void MapRenderer::removeNodeRecursive(Model::Node* node) {
+            node->accept(kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* group) {
+                    removeNode(group);
+                    group->visitChildren(thisLambda);
+                },
+                [&](auto&& thisLambda, Model::EntityNode* entity) {
+                    removeNode(entity);
+                    entity->visitChildren(thisLambda);
+                },
+                [&](Model::BrushNode* brush) {
+                    removeNode(brush);
+                },
+                [&](Model::PatchNode* patchNode) {
+                    removeNode(patchNode);
+                }
+            ));
+        }
+
         /**
          * Calls updateAndInvalidateNode() on every node in the world.
          */
         void MapRenderer::updateAllNodes() {
             auto document = kdl::mem_lock(m_document);
-            document->world()->accept(kdl::overload(
-                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
-                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-                [&](auto&& thisLambda, Model::GroupNode* group) {
-                    updateAndInvalidateNode(group);
-                    group->visitChildren(thisLambda);
-                },
-                [&](auto&& thisLambda, Model::EntityNode* entity) {
-                    updateAndInvalidateNode(entity);
-                    entity->visitChildren(thisLambda);
-                },
-                [&](Model::BrushNode* brush) {
-                    updateAndInvalidateNode(brush);
-                },
-                [&](Model::PatchNode* patchNode) {
-                    updateAndInvalidateNode(patchNode);
-                }
-            ));
+            updateAndInvalidateNodeRecursive(document->world());
         }
 
         void MapRenderer::invalidateRenderers(Renderer renderers) {
@@ -518,7 +543,8 @@ namespace TrenchBroom {
 
         void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes) {
             for (auto* node : nodes) {
-                updateAndInvalidateNode(node);
+                // FIXME: Recursive?
+                updateAndInvalidateNodeRecursive(node);
             }
             invalidateGroupLinkRenderer();
             invalidateEntityLinkRenderer();
@@ -526,39 +552,43 @@ namespace TrenchBroom {
 
         void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes) {
             for (auto* node : nodes) {
-                removeNode(node);
+                // The node list passed in doesn't include recursive children, so we need to visit the children
+                // ourselves. Otherwise deleting a group doesn't delete the brushes within.
+                removeNodeRecursive(node);
             }
             invalidateGroupLinkRenderer();
             invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodesDidChange(const std::vector<Model::Node*>&) {
-            invalidateRenderers(Renderer_Selection);
+        void MapRenderer::nodesDidChange(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                // don't use the Recursive variant here
+                updateAndInvalidateNode(node);
+            }
             invalidateEntityLinkRenderer();
             invalidateGroupLinkRenderer();
         }
 
         void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes) {
             for (auto* node : nodes) {
-                updateAndInvalidateNode(node);
+                updateAndInvalidateNodeRecursive(node);
             }
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>& nodes) {
             for (auto* node : nodes) {
-                updateAndInvalidateNode(node);
+                updateAndInvalidateNodeRecursive(node);
             }
             invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::groupWasOpened(Model::GroupNode*) {
-            // FIXME: do we need to do anything here as the old code was?
             invalidateGroupLinkRenderer();
             invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::groupWasClosed(Model::GroupNode*) {
-            // FIXME: do we need to do anything here as the old code was?
             invalidateGroupLinkRenderer();
             invalidateEntityLinkRenderer();
         }
@@ -576,11 +606,12 @@ namespace TrenchBroom {
             for (const auto& face : selection.selectedBrushFaces()) {
                 updateAndInvalidateNode(face.node());
             }
+            // These need to be recursive otherwise selecting a Group doesn't render the contents selected
             for (auto* node : selection.deselectedNodes()) {
-                updateAndInvalidateNode(node);
+                updateAndInvalidateNodeRecursive(node);
             }
             for (auto* node : selection.selectedNodes()) {
-                updateAndInvalidateNode(node);
+                updateAndInvalidateNodeRecursive(node);
             }
 
             invalidateEntityLinkRenderer();
