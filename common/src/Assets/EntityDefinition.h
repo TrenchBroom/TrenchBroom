@@ -21,7 +21,6 @@
 
 #include "Color.h"
 #include "FloatType.h"
-#include "Notifier.h"
 #include "Assets/ModelDefinition.h"
 
 #include <vecmath/bbox.h>
@@ -62,8 +61,6 @@ namespace TrenchBroom {
             std::string m_description;
             std::unique_ptr<std::atomic<size_t>> m_usageCount;
             PropertyDefinitionList m_propertyDefinitions;
-        public:
-            Notifier<> usageCountDidChangeNotifier;
         public:
             virtual ~EntityDefinition();
 

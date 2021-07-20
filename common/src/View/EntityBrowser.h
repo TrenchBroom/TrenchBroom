@@ -22,6 +22,7 @@
 #include "NotifierConnection.h"
 
 #include <memory>
+#include <vector>
 
 #include <QWidget>
 
@@ -33,6 +34,9 @@ class QScrollBar;
 namespace TrenchBroom {
     namespace IO {
         class Path;
+    }
+    namespace Model {
+        class Node;
     }
 
     namespace View {
@@ -65,6 +69,7 @@ namespace TrenchBroom {
             void documentWasLoaded(MapDocument* document);
 
             void modsDidChange();
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void entityDefinitionsDidChange();
             void preferenceDidChange(const IO::Path& path);
         };

@@ -135,6 +135,7 @@ namespace TrenchBroom {
             m_notifierConnection += document->documentWasLoadedNotifier.connect(this, &EntityBrowser::documentWasLoaded);
             m_notifierConnection += document->modsDidChangeNotifier.connect(this, &EntityBrowser::modsDidChange);
             m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(this, &EntityBrowser::entityDefinitionsDidChange);
+            m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &EntityBrowser::nodesDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
             m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &EntityBrowser::preferenceDidChange);
@@ -149,6 +150,11 @@ namespace TrenchBroom {
         }
 
         void EntityBrowser::modsDidChange() {
+            reload();
+        }
+
+        void EntityBrowser::nodesDidChange(const std::vector<Model::Node*>&) {
+            // to handle definition usage count changes
             reload();
         }
 

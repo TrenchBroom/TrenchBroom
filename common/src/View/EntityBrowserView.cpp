@@ -84,8 +84,6 @@ namespace TrenchBroom {
             const vm::quatf hRotation = vm::quatf(vm::vec3f::pos_z(), vm::to_radians(-30.0f));
             const vm::quatf vRotation = vm::quatf(vm::vec3f::pos_y(), vm::to_radians(20.0f));
             m_rotation = vRotation * hRotation;
-
-            m_notifierConnection += m_entityDefinitionManager.usageCountDidChangeNotifier.connect(this, &EntityBrowserView::usageCountDidChange);
         }
 
         EntityBrowserView::~EntityBrowserView() {
@@ -124,11 +122,6 @@ namespace TrenchBroom {
                 return;
             }
             m_filterText = filterText;
-            invalidate();
-            update();
-        }
-
-        void EntityBrowserView::usageCountDidChange() {
             invalidate();
             update();
         }

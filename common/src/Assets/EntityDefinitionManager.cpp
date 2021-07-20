@@ -114,11 +114,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityDefinitionManager::connectObservers() {
-            for (EntityDefinition* definition : m_definitions) {
-                m_notifierConnection += definition->usageCountDidChangeNotifier.connect(usageCountDidChangeNotifier);
-            }
-        }
+        void EntityDefinitionManager::connectObservers() {}
 
         void EntityDefinitionManager::clearCache() {
             m_cache.clear();

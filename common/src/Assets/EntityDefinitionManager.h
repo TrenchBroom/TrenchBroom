@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Notifier.h"
 #include "NotifierConnection.h"
 
 #include <map>
@@ -51,8 +50,6 @@ namespace TrenchBroom {
             Cache m_cache;
 
             NotifierConnection m_notifierConnection;
-        public:
-            Notifier<> usageCountDidChangeNotifier;
         public:
             ~EntityDefinitionManager();
 
