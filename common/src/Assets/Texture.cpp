@@ -18,6 +18,7 @@
  */
 
 #include "Texture.h"
+#include "Macros.h"
 #include "Assets/TextureBuffer.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/GL.h"
@@ -32,7 +33,7 @@ namespace TrenchBroom {
         m_width(width),
         m_height(height),
         m_averageColor(averageColor),
-        m_usageCount(0),
+        m_usageCount(std::make_unique<std::atomic<size_t>>(0u)),
         m_overridden(false),
         m_format(format),
         m_type(type),
@@ -50,7 +51,7 @@ namespace TrenchBroom {
         m_width(width),
         m_height(height),
         m_averageColor(averageColor),
-        m_usageCount(0),
+        m_usageCount(std::make_unique<std::atomic<size_t>>(0u)),
         m_overridden(false),
         m_format(format),
         m_type(type),
@@ -75,7 +76,7 @@ namespace TrenchBroom {
         m_width(width),
         m_height(height),
         m_averageColor(Color(0.0f, 0.0f, 0.0f, 1.0f)),
-        m_usageCount(0),
+        m_usageCount(std::make_unique<std::atomic<size_t>>(0u)),
         m_overridden(false),
         m_format(format),
         m_type(type),
@@ -160,16 +161,17 @@ namespace TrenchBroom {
         }
 
         size_t Texture::usageCount() const {
-            return m_usageCount;
+            return m_usageCount->load();
         }
 
         void Texture::incUsageCount() {
-            ++m_usageCount;
+            m_usageCount->fetch_add(1u);
         }
 
         void Texture::decUsageCount() {
-            assert(m_usageCount > 0);
-            --m_usageCount;
+            const size_t previous = m_usageCount->fetch_sub(1u);
+            assert(previous > 0);
+            unused(previous);
         }
 
         bool Texture::overridden() const {

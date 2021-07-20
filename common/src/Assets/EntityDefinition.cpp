@@ -19,6 +19,8 @@
 
 #include "EntityDefinition.h"
 
+#include "Ensure.h"
+#include "Macros.h"
 #include "Assets/PropertyDefinition.h"
 #include "Model/EntityProperties.h"
 
@@ -69,18 +71,17 @@ namespace TrenchBroom {
         }
 
         size_t EntityDefinition::usageCount() const {
-            return m_usageCount;
+            return m_usageCount->load();
         }
 
         void EntityDefinition::incUsageCount() {
-            ++m_usageCount;
-            usageCountDidChangeNotifier();
+            m_usageCount->fetch_add(1u);
         }
 
         void EntityDefinition::decUsageCount() {
-            assert(m_usageCount > 0);
-            --m_usageCount;
-            usageCountDidChangeNotifier();
+            const size_t previous = m_usageCount->fetch_sub(1u);
+            assert(previous > 0);
+            unused(previous);
         }
 
         const FlagsPropertyDefinition* EntityDefinition::spawnflags() const {
@@ -159,7 +160,7 @@ namespace TrenchBroom {
             m_name(name),
             m_color(color),
             m_description(description),
-            m_usageCount(0),
+            m_usageCount(std::make_unique<std::atomic<size_t>>(0u)),
             m_propertyDefinitions(propertyDefinitions) {}
 
         PointEntityDefinition::PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const PropertyDefinitionList& propertyDefinitions, const ModelDefinition& modelDefinition) :

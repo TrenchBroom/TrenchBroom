@@ -26,6 +26,7 @@
 
 #include <vecmath/bbox.h>
 
+#include <atomic>
 #include <memory>
 #include <string>
 #include <vector>
@@ -59,7 +60,7 @@ namespace TrenchBroom {
             std::string m_name;
             Color m_color;
             std::string m_description;
-            size_t m_usageCount;
+            std::unique_ptr<std::atomic<size_t>> m_usageCount;
             PropertyDefinitionList m_propertyDefinitions;
         public:
             Notifier<> usageCountDidChangeNotifier;
