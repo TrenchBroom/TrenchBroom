@@ -62,6 +62,15 @@ namespace TrenchBroom {
                 CHECK(texture->usageCount() == 6u);
             }
 
+            SECTION("delete brush") {
+                document->select(brushNode);
+                document->deleteObjects();
+                CHECK(texture->usageCount() == 0u);
+
+                document->undoCommand();
+                CHECK(texture->usageCount() == 6u);
+            }
+
             SECTION("select top face, move texture") {
                 auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
                 REQUIRE(topFaceIndex.has_value());
