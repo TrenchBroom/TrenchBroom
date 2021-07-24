@@ -19,7 +19,6 @@
 
 #include "EntityDefinition.h"
 
-#include "Ensure.h"
 #include "Macros.h"
 #include "Assets/PropertyDefinition.h"
 #include "Model/EntityProperties.h"
