@@ -27,7 +27,6 @@
 #include <vecmath/forward.h>
 
 #include <atomic>
-#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -86,7 +85,7 @@ namespace TrenchBroom {
             size_t m_height;
             Color m_averageColor;
 
-            std::unique_ptr<std::atomic<size_t>> m_usageCount;
+            std::atomic<size_t> m_usageCount;
             bool m_overridden;
 
             GLenum m_format;
@@ -111,8 +110,8 @@ namespace TrenchBroom {
             Texture(const Texture&) = delete;
             Texture& operator=(const Texture&) = delete;
             
-            Texture(Texture&& other) = default;
-            Texture& operator=(Texture&& other) = default;
+            Texture(Texture&& other);
+            Texture& operator=(Texture&& other);
 
             ~Texture();
 

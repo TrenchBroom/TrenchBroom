@@ -33,7 +33,7 @@ namespace TrenchBroom {
         m_width(width),
         m_height(height),
         m_averageColor(averageColor),
-        m_usageCount(std::make_unique<std::atomic<size_t>>(0u)),
+        m_usageCount(0u),
         m_overridden(false),
         m_format(format),
         m_type(type),
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         m_width(width),
         m_height(height),
         m_averageColor(averageColor),
-        m_usageCount(std::make_unique<std::atomic<size_t>>(0u)),
+        m_usageCount(0u),
         m_overridden(false),
         m_format(format),
         m_type(type),
@@ -76,7 +76,7 @@ namespace TrenchBroom {
         m_width(width),
         m_height(height),
         m_averageColor(Color(0.0f, 0.0f, 0.0f, 1.0f)),
-        m_usageCount(std::make_unique<std::atomic<size_t>>(0u)),
+        m_usageCount(0u),
         m_overridden(false),
         m_format(format),
         m_type(type),
@@ -85,6 +85,34 @@ namespace TrenchBroom {
         m_textureId(0) {}
 
         Texture::~Texture() = default;
+
+        Texture::Texture(Texture&& other) :
+        m_name{std::move(other.m_name)},
+        m_width{std::move(other.m_width)},
+        m_height{std::move(other.m_height)},
+        m_averageColor{std::move(other.m_averageColor)},
+        m_usageCount{other.m_usageCount.load()},
+        m_overridden{std::move(other.m_overridden)},
+        m_format{std::move(other.m_format)},
+        m_type{std::move(other.m_type)},
+        m_culling{std::move(other.m_culling)},
+        m_blendFunc{std::move(other.m_blendFunc)},
+        m_textureId{std::move(other.m_textureId)} {}
+
+        Texture& Texture::operator=(Texture&& other) {
+            m_name = std::move(other.m_name);
+            m_width = std::move(other.m_width);
+            m_height = std::move(other.m_height);
+            m_averageColor = std::move(other.m_averageColor);
+            m_usageCount = other.m_usageCount.load();
+            m_overridden = std::move(other.m_overridden);
+            m_format = std::move(other.m_format);
+            m_type = std::move(other.m_type);
+            m_culling = std::move(other.m_culling);
+            m_blendFunc = std::move(other.m_blendFunc);
+            m_textureId = std::move(other.m_textureId);
+            return *this;
+        }
 
         TextureType Texture::selectTextureType(const bool masked) {
             if (masked) {
@@ -161,15 +189,15 @@ namespace TrenchBroom {
         }
 
         size_t Texture::usageCount() const {
-            return m_usageCount->load();
+            return m_usageCount.load();
         }
 
         void Texture::incUsageCount() {
-            m_usageCount->fetch_add(1u);
+            m_usageCount.fetch_add(1u);
         }
 
         void Texture::decUsageCount() {
-            const size_t previous = m_usageCount->fetch_sub(1u);
+            const size_t previous = m_usageCount.fetch_sub(1u);
             assert(previous > 0);
             unused(previous);
         }
