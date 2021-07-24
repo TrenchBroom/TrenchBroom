@@ -50,13 +50,11 @@ namespace TrenchBroom {
             updateIndices();
             updateGroups();
             updateCache();
-            connectObservers();
         }
 
         void EntityDefinitionManager::clear() {
             clearCache();
             clearGroups();
-            m_notifierConnection.disconnect();
             kdl::vec_clear_and_delete(m_definitions);
         }
 
@@ -113,8 +111,6 @@ namespace TrenchBroom {
                 m_cache[definition->name()] = definition;
             }
         }
-
-        void EntityDefinitionManager::connectObservers() {}
 
         void EntityDefinitionManager::clearCache() {
             m_cache.clear();
