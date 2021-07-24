@@ -71,7 +71,7 @@ namespace TrenchBroom {
         }
 
         size_t EntityDefinition::usageCount() const {
-            return m_usageCount.load();
+            return static_cast<size_t>(m_usageCount);
         }
 
         void EntityDefinition::incUsageCount() {

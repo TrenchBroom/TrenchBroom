@@ -91,7 +91,7 @@ namespace TrenchBroom {
         m_width{std::move(other.m_width)},
         m_height{std::move(other.m_height)},
         m_averageColor{std::move(other.m_averageColor)},
-        m_usageCount{other.m_usageCount.load()},
+        m_usageCount{static_cast<size_t>(other.m_usageCount)},
         m_overridden{std::move(other.m_overridden)},
         m_format{std::move(other.m_format)},
         m_type{std::move(other.m_type)},
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             m_width = std::move(other.m_width);
             m_height = std::move(other.m_height);
             m_averageColor = std::move(other.m_averageColor);
-            m_usageCount = other.m_usageCount.load();
+            m_usageCount = static_cast<size_t>(other.m_usageCount);
             m_overridden = std::move(other.m_overridden);
             m_format = std::move(other.m_format);
             m_type = std::move(other.m_type);
@@ -189,7 +189,7 @@ namespace TrenchBroom {
         }
 
         size_t Texture::usageCount() const {
-            return m_usageCount.load();
+            return static_cast<size_t>(m_usageCount);
         }
 
         void Texture::incUsageCount() {
