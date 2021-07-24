@@ -94,8 +94,6 @@ namespace TrenchBroom {
             void setHideUnused(bool hideUnused);
             void setFilterText(const std::string& filterText);
         private:
-            void usageCountDidChange();
-
             void doInitLayout(Layout& layout) override;
             void doReloadLayout(Layout& layout) override;
 

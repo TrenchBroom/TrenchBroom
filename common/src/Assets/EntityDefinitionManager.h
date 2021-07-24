@@ -19,9 +19,6 @@
 
 #pragma once
 
-#include "Notifier.h"
-#include "NotifierConnection.h"
-
 #include <map>
 #include <string>
 #include <vector>
@@ -49,10 +46,6 @@ namespace TrenchBroom {
             std::vector<EntityDefinition*> m_definitions;
             std::vector<EntityDefinitionGroup> m_groups;
             Cache m_cache;
-
-            NotifierConnection m_notifierConnection;
-        public:
-            Notifier<> usageCountDidChangeNotifier;
         public:
             ~EntityDefinitionManager();
 
@@ -70,7 +63,6 @@ namespace TrenchBroom {
             void updateIndices();
             void updateGroups();
             void updateCache();
-            void connectObservers();
             void clearCache();
             void clearGroups();
         };
