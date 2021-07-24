@@ -59,7 +59,7 @@ namespace TrenchBroom {
             std::string m_name;
             Color m_color;
             std::string m_description;
-            std::unique_ptr<std::atomic<size_t>> m_usageCount;
+            std::atomic<size_t> m_usageCount;
             PropertyDefinitionList m_propertyDefinitions;
         public:
             virtual ~EntityDefinition();

@@ -71,15 +71,15 @@ namespace TrenchBroom {
         }
 
         size_t EntityDefinition::usageCount() const {
-            return m_usageCount->load();
+            return m_usageCount.load();
         }
 
         void EntityDefinition::incUsageCount() {
-            m_usageCount->fetch_add(1u);
+            m_usageCount.fetch_add(1u);
         }
 
         void EntityDefinition::decUsageCount() {
-            const size_t previous = m_usageCount->fetch_sub(1u);
+            const size_t previous = m_usageCount.fetch_sub(1u);
             assert(previous > 0);
             unused(previous);
         }
@@ -160,7 +160,7 @@ namespace TrenchBroom {
             m_name(name),
             m_color(color),
             m_description(description),
-            m_usageCount(std::make_unique<std::atomic<size_t>>(0u)),
+            m_usageCount(0u),
             m_propertyDefinitions(propertyDefinitions) {}
 
         PointEntityDefinition::PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const PropertyDefinitionList& propertyDefinitions, const ModelDefinition& modelDefinition) :
