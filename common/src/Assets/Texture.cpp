@@ -193,11 +193,11 @@ namespace TrenchBroom {
         }
 
         void Texture::incUsageCount() {
-            m_usageCount.fetch_add(1u);
+            ++m_usageCount;
         }
 
         void Texture::decUsageCount() {
-            const size_t previous = m_usageCount.fetch_sub(1u);
+            const size_t previous = m_usageCount--;
             assert(previous > 0);
             unused(previous);
         }
