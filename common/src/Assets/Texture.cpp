@@ -88,6 +88,8 @@ namespace TrenchBroom {
 
         Texture::Texture(Texture&& other) :
         m_name{std::move(other.m_name)},
+        m_absolutePath{std::move(other.m_absolutePath)},
+        m_relativePath{std::move(other.m_relativePath)},
         m_width{std::move(other.m_width)},
         m_height{std::move(other.m_height)},
         m_averageColor{std::move(other.m_averageColor)},
@@ -95,12 +97,16 @@ namespace TrenchBroom {
         m_overridden{std::move(other.m_overridden)},
         m_format{std::move(other.m_format)},
         m_type{std::move(other.m_type)},
+        m_surfaceParms{std::move(other.m_surfaceParms)},
         m_culling{std::move(other.m_culling)},
         m_blendFunc{std::move(other.m_blendFunc)},
-        m_textureId{std::move(other.m_textureId)} {}
+        m_textureId{std::move(other.m_textureId)},
+        m_buffers{std::move(other.m_buffers)} {}
 
         Texture& Texture::operator=(Texture&& other) {
             m_name = std::move(other.m_name);
+            m_absolutePath = std::move(other.m_absolutePath);
+            m_relativePath = std::move(other.m_relativePath);
             m_width = std::move(other.m_width);
             m_height = std::move(other.m_height);
             m_averageColor = std::move(other.m_averageColor);
@@ -108,9 +114,11 @@ namespace TrenchBroom {
             m_overridden = std::move(other.m_overridden);
             m_format = std::move(other.m_format);
             m_type = std::move(other.m_type);
+            m_surfaceParms = std::move(other.m_surfaceParms);
             m_culling = std::move(other.m_culling);
             m_blendFunc = std::move(other.m_blendFunc);
             m_textureId = std::move(other.m_textureId);
+            m_buffers = std::move(other.m_buffers);
             return *this;
         }
 
