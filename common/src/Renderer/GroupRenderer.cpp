@@ -30,8 +30,6 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
 
-#include <cassert>
-#include <algorithm>
 #include <vector>
 
 namespace TrenchBroom {
