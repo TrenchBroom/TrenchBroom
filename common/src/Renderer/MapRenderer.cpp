@@ -570,7 +570,9 @@ namespace TrenchBroom {
 
         void MapRenderer::nodesDidChange(const std::vector<Model::Node*>& nodes) {
             for (auto* node : nodes) {
-                // don't use the Recursive variant here
+                // nodesDidChange() will report ancestors changing, e.g. the world and layer are reported as 
+                // changing when a brush is dragged. So, don't update recursively here as it would cause 
+                // the entire map to be invalidated on every change.
                 updateAndInvalidateNode(node);
             }
             invalidateEntityLinkRenderer();
