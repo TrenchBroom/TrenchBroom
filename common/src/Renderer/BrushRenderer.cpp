@@ -552,7 +552,7 @@ namespace TrenchBroom {
 
         void BrushRenderer::removeBrush(const Model::BrushNode* brush) {
             // update m_brushValid
-            assertResult(m_allBrushes.erase(brush) > 0u);
+            m_allBrushes.erase(brush);
 
             if (m_invalidBrushes.erase(brush) > 0u) {
                 // invalid brushes are not in the VBO, so we can return  now.
