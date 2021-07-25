@@ -326,11 +326,11 @@ namespace TrenchBroom {
             renderer.setBrushEdgeColor(pref(Preferences::LockedEdgeColor));
         }
 
-        MapRenderer::Renderer MapRenderer::determineRenderers(Model::Node* node) {
-            const auto selected = [](const auto* node) {
-                return node->selected() || node->descendantSelected() || node->parentSelected();
-            };
+        static bool selected(const Model::Node* node) {
+            return node->selected() || node->descendantSelected() || node->parentSelected();
+        }
 
+        MapRenderer::Renderer MapRenderer::determineRenderers(Model::Node* node) {
             int result = 0;
 
             node->accept(kdl::overload(
