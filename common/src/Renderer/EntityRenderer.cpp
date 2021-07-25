@@ -42,7 +42,6 @@
 #include <vecmath/mat_ext.h>
 #include <vecmath/scalar.h>
 
-#include <algorithm>
 #include <vector>
 
 namespace TrenchBroom {

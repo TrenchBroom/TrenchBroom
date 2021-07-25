@@ -68,12 +68,7 @@ namespace TrenchBroom {
         }
 
         void EntityModelRenderer::removeEntity(const Model::EntityNode* entityNode) {
-            // Because calling addEntity() doesn't necessairily mean the entity will be added,
-            // this needs to be safe to call for entities that weren't added.
-            auto it = m_entities.find(entityNode);
-            if (it != std::end(m_entities)) {
-                m_entities.erase(it);
-            }
+            m_entities.erase(entityNode);
         }
 
         void EntityModelRenderer::updateEntity(const Model::EntityNode* entityNode) {

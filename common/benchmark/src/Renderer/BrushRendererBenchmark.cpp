@@ -111,12 +111,10 @@ namespace TrenchBroom {
             }, "validate after removing one brush");
 
             // Large change: keep every second brush
-            size_t numRemoved = 0;
             timeLambda([&](){
                 for (size_t i = 0; i < brushes.size(); ++i) {
                     if ((i % 2) == 0) {
                         r.removeBrush(brushes[i]);
-                        ++numRemoved;
                     }
                 }
             }, "remove every second brush");
