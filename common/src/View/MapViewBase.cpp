@@ -63,6 +63,7 @@
 #include "View/MapViewActivationTracker.h"
 #include "View/MapViewToolBox.h"
 #include "View/SelectionTool.h"
+#include "View/SignalDelayer.h"
 #include "View/QtUtils.h"
 #include "kdl/vector_utils.h"
 
@@ -96,7 +97,8 @@ namespace TrenchBroom {
         m_renderer(renderer),
         m_compass(nullptr),
         m_portalFileRenderer(nullptr),
-        m_isCurrent(false) {
+        m_isCurrent(false),
+        m_updateActionStatesSignalDelayer{new SignalDelayer{this}} {
             setToolBox(toolBox);
             connectObservers();
 
@@ -174,19 +176,19 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::commandDone(Command*) {
-            updateActionStates();
+            updateActionStatesDelayed();
             updatePickResult();
             update();
         }
 
         void MapViewBase::commandUndone(UndoableCommand*) {
-            updateActionStates();
+            updateActionStatesDelayed();
             updatePickResult();
             update();
         }
 
         void MapViewBase::selectionDidChange(const Selection&) {
-            updateActionStates();
+            updateActionStatesDelayed();
         }
 
         void MapViewBase::textureCollectionsDidChange() {
@@ -269,12 +271,15 @@ namespace TrenchBroom {
             }
         }
 
-
         void MapViewBase::updateActionStates() {
             ActionExecutionContext context(findMapFrame(this), this);
             for (auto& [shortcut, action] : m_shortcuts) {
                 shortcut->setEnabled(hasFocus() && action->enabled(context));
             }
+        }
+
+        void MapViewBase::updateActionStatesDelayed() {
+            m_updateActionStatesSignalDelayer->queueSignal();
         }
 
         void MapViewBase::triggerAction(const Action& action) {

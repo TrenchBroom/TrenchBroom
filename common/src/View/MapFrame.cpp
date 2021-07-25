@@ -64,6 +64,7 @@
 #include "View/PasteType.h"
 #include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
+#include "View/SignalDelayer.h"
 #include "View/Splitter.h"
 #include "View/SwitchableMapViewContainer.h"
 #include "View/VertexTool.h"
@@ -126,7 +127,10 @@ namespace TrenchBroom {
         m_compilationDialog(nullptr),
         m_recentDocumentsMenu(nullptr),
         m_undoAction(nullptr),
-        m_redoAction(nullptr) {
+        m_redoAction(nullptr),
+        m_updateTitleSignalDelayer{new SignalDelayer{this}},
+        m_updateActionStateSignalDelayer{new SignalDelayer{this}},
+        m_updateStatusBarSignalDelayer{new SignalDelayer{this}} {
             ensure(m_frameManager != nullptr, "frameManager is null");
             ensure(m_document != nullptr, "document is null");
 
@@ -229,6 +233,10 @@ namespace TrenchBroom {
             setWindowFilePath(IO::pathAsQString(m_document->path()));
         }
 
+        void MapFrame::updateTitleDelayed() {
+            m_updateTitleSignalDelayer->queueSignal();
+        }
+
         void MapFrame::createMenus() {
             MainMenuBuilder menuBuilder(*menuBar(), m_actionMap, [this](const Action& action) {
                 ActionExecutionContext context(this, currentMapViewBase());
@@ -263,6 +271,10 @@ namespace TrenchBroom {
                     qAction->setChecked(tAction->checked(context));
                 }
             }
+        }
+
+        void MapFrame::updateActionStateDelayed() {
+            m_updateActionStateSignalDelayer->queueSignal();
         }
 
         void MapFrame::updateUndoRedoActions() {
@@ -638,6 +650,10 @@ namespace TrenchBroom {
             m_statusBarLabel->setText(QString(describeSelection(m_document.get())));
         }
 
+        void MapFrame::updateStatusBarDelayed() {
+            m_updateStatusBarSignalDelayer->queueSignal();
+        }
+
         void MapFrame::connectObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(this, &MapFrame::preferenceDidChange);
@@ -676,7 +692,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::documentModificationStateDidChange() {
-            updateTitle();
+            updateTitleDelayed();
         }
 
         void MapFrame::transactionDone(const std::string& /* name */) {
@@ -707,46 +723,46 @@ namespace TrenchBroom {
         }
 
         void MapFrame::gridDidChange() {
-            updateActionState();
+            updateActionStateDelayed();
             updateToolBarWidgets();
         }
 
         void MapFrame::toolActivated(Tool&) {
-            updateActionState();
+            updateActionStateDelayed();
         }
 
         void MapFrame::toolDeactivated(Tool&) {
-            updateActionState();
+            updateActionStateDelayed();
         }
 
         void MapFrame::toolHandleSelectionChanged(Tool&) {
-            updateActionState();
+            updateActionStateDelayed();
         }
 
         void MapFrame::selectionDidChange(const Selection&) {
-            updateActionState();
-            updateStatusBar();
+            updateActionStateDelayed();
+            updateStatusBarDelayed();
         }
 
         void MapFrame::currentLayerDidChange(const TrenchBroom::Model::LayerNode*) {
-            updateStatusBar();
+            updateStatusBarDelayed();
         }
 
         void MapFrame::groupWasOpened(Model::GroupNode*) {
-            updateStatusBar();
+            updateStatusBarDelayed();
         }
 
         void MapFrame::groupWasClosed(Model::GroupNode*) {
-            updateStatusBar();
+            updateStatusBarDelayed();
         }
 
         void MapFrame::nodeVisibilityDidChange(const std::vector<Model::Node*>&) {
-            updateStatusBar();
+            updateStatusBarDelayed();
         }
 
         void MapFrame::editorContextDidChange() {
             // e.g. changing the view filters may cause the number of hidden brushes/entities to change
-            updateStatusBar();
+            updateStatusBarDelayed();
         }
 
         void MapFrame::bindEvents() {
@@ -761,6 +777,10 @@ namespace TrenchBroom {
                 // update the "Toggle Toolbar" menu item
                 this->updateActionState();
             });
+
+            connect(m_updateTitleSignalDelayer, &SignalDelayer::processSignal, this, &MapFrame::updateTitle);
+            connect(m_updateActionStateSignalDelayer, &SignalDelayer::processSignal, this, &MapFrame::updateActionState);
+            connect(m_updateStatusBarSignalDelayer, &SignalDelayer::processSignal, this, &MapFrame::updateStatusBar);
         }
 
         bool MapFrame::newDocument(std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat) {
