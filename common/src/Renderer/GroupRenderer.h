@@ -23,6 +23,8 @@
 #include "Color.h"
 #include "Renderer/EdgeRenderer.h"
 
+#include <kdl/vector_set.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -40,7 +42,7 @@ namespace TrenchBroom {
             class GroupNameAnchor;
 
             const Model::EditorContext& m_editorContext;
-            std::vector<Model::GroupNode*> m_groups;
+            kdl::vector_set<Model::GroupNode*> m_groups;
 
             DirectEdgeRenderer m_boundsRenderer;
             bool m_boundsValid;
@@ -56,11 +58,26 @@ namespace TrenchBroom {
         public:
             GroupRenderer(const Model::EditorContext& editorContext);
 
+            /**
+             * Equivalent to invalidateGroup() on all added groups.
+             */
             void invalidate();
+            /**
+             * Equivalent to removeGroup() on all added groups.
+             */
             void clear();
 
+            /**
+             * Adds a group. Calling with an already-added group is allowed, but ignored (not guaranteed to invalidate it).
+             */
             void addGroup(Model::GroupNode* group);
+            /**
+             * Removes a group. Calling with an unknown group is allowed, but ignored.
+             */
             void removeGroup(Model::GroupNode* group);
+            /**
+             * Causes cached renderer data to be rebuilt for the given group (on the next render() call).
+             */
             void invalidateGroup(Model::GroupNode* group);
 
             template <typename Iter>
