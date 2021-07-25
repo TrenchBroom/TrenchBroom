@@ -72,6 +72,7 @@ namespace TrenchBroom {
                 Renderer_Default            = 1,
                 Renderer_Selection          = 2,
                 Renderer_Locked             = 4,
+                Renderer_All                = Renderer_Default | Renderer_Selection | Renderer_Locked
             } Renderer;
 
             std::unordered_map<Model::Node*, Renderer> m_trackedNodes;
