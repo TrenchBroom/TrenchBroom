@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "NotifierConnection.h"
 
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <vector>
 
@@ -60,8 +60,6 @@ namespace TrenchBroom {
             class LockedBrushRendererFilter;
             class UnselectedBrushRendererFilter;
 
-            using RendererMap = std::map<Model::LayerNode*, ObjectRenderer*>;
-
             std::weak_ptr<View::MapDocument> m_document;
 
             std::unique_ptr<ObjectRenderer> m_defaultRenderer;
@@ -74,9 +72,6 @@ namespace TrenchBroom {
                 Renderer_Default            = 1,
                 Renderer_Selection          = 2,
                 Renderer_Locked             = 4,
-                Renderer_Default_Selection  = Renderer_Default | Renderer_Selection,
-                Renderer_Default_Locked     = Renderer_Default | Renderer_Locked,
-                Renderer_All                = Renderer_Default | Renderer_Selection | Renderer_Locked
             } Renderer;
 
             std::unordered_map<Model::Node*, Renderer> m_trackedNodes;
