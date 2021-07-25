@@ -378,6 +378,12 @@ namespace TrenchBroom {
             return static_cast<Renderer>(result);
         }
         
+        /**
+         * - Determine which renderers the given node should be in
+         * - Remove from any renderers the node shouldn't be in
+         * - Add to new renderers, if not already present
+         * - Invalidate, for any renderers it was already present in
+         */
         void MapRenderer::updateAndInvalidateNode(Model::Node* node) {
             const Renderer desiredRenderers = determineRenderers(node);
             Renderer currentRenderers;
@@ -483,6 +489,10 @@ namespace TrenchBroom {
             updateAndInvalidateNodeRecursive(document->world());
         }
 
+        /**
+         * Marks the nodes that are already tracked in the given renderers as invalid, i.e.
+         * needing to be re-rendered.
+         */
         void MapRenderer::invalidateRenderers(Renderer renderers) {
             if ((renderers & Renderer_Default) != 0)
                 m_defaultRenderer->invalidate();

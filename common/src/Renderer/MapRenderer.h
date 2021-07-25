@@ -111,21 +111,12 @@ namespace TrenchBroom {
             void setupLockedRenderer(ObjectRenderer& renderer);
 
             Renderer determineRenderers(Model::Node* node);
-            /**
-             * - Determine which renderers the given node should be in
-             * - Remove from any renderers the node shouldn't be in
-             * - Add to new renderers, if not already present
-             * - Invalidate, for any renderers it was already present in
-             */
             void updateAndInvalidateNode(Model::Node* node);
             void updateAndInvalidateNodeRecursive(Model::Node* node);
             void removeNode(Model::Node* node);
             void removeNodeRecursive(Model::Node* node);
             void updateAllNodes();
-            /**
-             * Marks the nodes that are already tracked in the given renderers as invalid, i.e.
-             * needing to be re-rendered.
-             */
+
             void invalidateRenderers(Renderer renderers);
             void invalidateEntityLinkRenderer();
             void invalidateGroupLinkRenderer();
