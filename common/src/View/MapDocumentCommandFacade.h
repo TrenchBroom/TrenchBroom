@@ -117,6 +117,7 @@ namespace TrenchBroom {
             void doUndoCommand() override;
             void doRedoCommand() override;
 
+            void doClearCommandProcessor() override;
             void doStartTransaction(const std::string& name) override;
             void doCommitTransaction() override;
             void doRollbackTransaction() override;

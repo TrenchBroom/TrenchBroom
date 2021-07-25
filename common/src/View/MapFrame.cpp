@@ -667,11 +667,13 @@ namespace TrenchBroom {
         void MapFrame::documentWasCleared(View::MapDocument*) {
             updateTitle();
             updateActionState();
+            updateUndoRedoActions();
         }
 
         void MapFrame::documentDidChange(View::MapDocument*) {
             updateTitle();
             updateActionState();
+            updateUndoRedoActions();
             updateRecentDocumentsMenu();
         }
 

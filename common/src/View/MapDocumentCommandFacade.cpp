@@ -481,16 +481,6 @@ namespace TrenchBroom {
             m_notifierConnection += m_commandProcessor->commandUndoFailedNotifier.connect(commandUndoFailedNotifier);
             m_notifierConnection += m_commandProcessor->transactionDoneNotifier.connect(transactionDoneNotifier);
             m_notifierConnection += m_commandProcessor->transactionUndoneNotifier.connect(transactionUndoneNotifier);
-            m_notifierConnection += documentWasNewedNotifier.connect(this, &MapDocumentCommandFacade::documentWasNewed);
-            m_notifierConnection += documentWasLoadedNotifier.connect(this, &MapDocumentCommandFacade::documentWasLoaded);
-        }
-
-        void MapDocumentCommandFacade::documentWasNewed(MapDocument*) {
-            m_commandProcessor->clear();
-        }
-
-        void MapDocumentCommandFacade::documentWasLoaded(MapDocument*) {
-            m_commandProcessor->clear();
         }
 
         bool MapDocumentCommandFacade::doCanUndoCommand() const {
@@ -515,6 +505,10 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::doRedoCommand() {
             m_commandProcessor->redo();
+        }
+
+        void MapDocumentCommandFacade::doClearCommandProcessor() {
+            m_commandProcessor->clear();
         }
 
         void MapDocumentCommandFacade::doStartTransaction(const std::string& name) {
