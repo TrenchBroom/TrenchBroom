@@ -330,7 +330,7 @@ namespace TrenchBroom {
             return node->selected() || node->descendantSelected() || node->parentSelected();
         }
 
-        MapRenderer::Renderer MapRenderer::determineRenderers(Model::Node* node) {
+        MapRenderer::Renderer MapRenderer::determineDesiredRenderers(Model::Node* node) {
             int result = 0;
 
             node->accept(kdl::overload(
@@ -381,11 +381,11 @@ namespace TrenchBroom {
         /**
          * - Determine which renderers the given node should be in
          * - Remove from any renderers the node shouldn't be in
-         * - Add to new renderers, if not already present
+         * - Add to desired renderers, if not already present
          * - Invalidate, for any renderers it was already present in
          */
         void MapRenderer::updateAndInvalidateNode(Model::Node* node) {
-            const Renderer desiredRenderers = determineRenderers(node);
+            const Renderer desiredRenderers = determineDesiredRenderers(node);
             Renderer currentRenderers;
 
             if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end()) {
@@ -456,8 +456,6 @@ namespace TrenchBroom {
                 // or their underlying node-type specific renderers, have a reference 
                 // to `node` anymore, and they won't render it.
             }
-
-            assert(m_trackedNodes.find(node) == std::end(m_trackedNodes));
         }
 
         void MapRenderer::removeNodeRecursive(Model::Node* node) {
@@ -553,7 +551,7 @@ namespace TrenchBroom {
 
         void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes) {
             for (auto* node : nodes) {
-                // FIXME: Recursive?
+                // The nodes passed in don't include recursive children, so we need to visit them ourselves.
                 updateAndInvalidateNodeRecursive(node);
             }
             invalidateGroupLinkRenderer();
@@ -562,8 +560,8 @@ namespace TrenchBroom {
 
         void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes) {
             for (auto* node : nodes) {
-                // The node list passed in doesn't include recursive children, so we need to visit the children
-                // ourselves. Otherwise deleting a group doesn't delete the brushes within.
+                // The nodes passed in don't include recursive children, so we need to visit them ourselves.
+                // Otherwise deleting a group doesn't delete the brushes within.
                 removeNodeRecursive(node);
             }
             invalidateGroupLinkRenderer();

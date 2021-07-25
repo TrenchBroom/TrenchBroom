@@ -110,7 +110,7 @@ namespace TrenchBroom {
             void setupSelectionRenderer(ObjectRenderer& renderer);
             void setupLockedRenderer(ObjectRenderer& renderer);
 
-            Renderer determineRenderers(Model::Node* node);
+            static Renderer determineDesiredRenderers(Model::Node* node);
             void updateAndInvalidateNode(Model::Node* node);
             void updateAndInvalidateNodeRecursive(Model::Node* node);
             void removeNode(Model::Node* node);
