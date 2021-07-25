@@ -24,6 +24,8 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/TexturedIndexArrayRenderer.h"
 
+#include <kdl/vector_set.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,7 +41,7 @@ namespace TrenchBroom {
         class PatchRenderer : public IndexedRenderable {
         private:
             bool m_valid = true;
-            std::vector<Model::PatchNode*> m_patchNodes;
+            kdl::vector_set<Model::PatchNode*> m_patchNodes;
 
             TexturedIndexArrayRenderer m_patchMeshRenderer;
             DirectEdgeRenderer m_edgeRenderer;
@@ -83,11 +85,26 @@ namespace TrenchBroom {
              */
             void setOccludedEdgeColor(const Color& occludedEdgeColor);
 
+            /**
+             * Equivalent to invalidatePatch() on all added patches.
+             */
             void invalidate();
+            /**
+             * Equivalent to removePatch() on all added patches.
+             */
             void clear();
 
+            /**
+             * Adds a patch. Calling with an already-added patch is allowed, but ignored (not guaranteed to invalidate it).
+             */
             void addPatch(Model::PatchNode* patchNode);
+            /**
+             * Removes a patch. Calling with an unknown patch is allowed, but ignored.
+             */
             void removePatch(Model::PatchNode* patchNode);
+            /**
+             * Causes cached renderer data to be rebuilt for the given patch (on the next render() call).
+             */
             void invalidatePatch(Model::PatchNode* patchNode);
 
             void render(RenderContext& renderContext, RenderBatch& renderBatch);

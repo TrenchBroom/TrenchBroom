@@ -95,15 +95,16 @@ namespace TrenchBroom {
         }
 
         void PatchRenderer::addPatch(Model::PatchNode* patchNode) {
-            m_patchNodes.push_back(patchNode);
-            invalidate();
+            if (m_patchNodes.insert(patchNode).second) {
+                invalidate();
+            }
         }
 
         void PatchRenderer::removePatch(Model::PatchNode* patchNode) {
-            auto it = std::find(std::begin(m_patchNodes), std::end(m_patchNodes), patchNode);
-            assert(it != std::end(m_patchNodes));
-            m_patchNodes.erase(it);
-            invalidate();
+            if (auto it = m_patchNodes.find(patchNode); it != std::end(m_patchNodes)) {
+                m_patchNodes.erase(it);
+                invalidate();
+            }
         }
 
         void PatchRenderer::invalidatePatch(Model::PatchNode*) {
@@ -232,8 +233,8 @@ namespace TrenchBroom {
 
         void PatchRenderer::validate() {
             if (!m_valid) {
-                m_patchMeshRenderer = buildMeshRenderer(m_patchNodes);
-                m_edgeRenderer = buildEdgeRenderer(m_patchNodes);
+                m_patchMeshRenderer = buildMeshRenderer(m_patchNodes.get_data());
+                m_edgeRenderer = buildEdgeRenderer(m_patchNodes.get_data());
 
                 m_valid = true;
             }
