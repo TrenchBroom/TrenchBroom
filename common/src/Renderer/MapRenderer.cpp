@@ -434,6 +434,13 @@ namespace TrenchBroom {
                     updateAndInvalidateNode(patchNode);
                 }
             ));
+
+            // Due to the definition of `selected()` above, we also need to update the parent.
+            // (not recursively, though, so this has little performance impact.) 
+            // This handles clicking on a brush in a brush entity -> the entity label needs to render as selected.
+            if (node->parent()) {
+                updateAndInvalidateNode(node->parent());
+            }
         }
 
         void MapRenderer::removeNode(Model::Node* node) {
