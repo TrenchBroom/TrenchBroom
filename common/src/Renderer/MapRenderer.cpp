@@ -172,6 +172,7 @@ namespace TrenchBroom {
             m_lockedRenderer->clear();
             m_entityLinkRenderer->invalidate();
             m_groupLinkRenderer->invalidate();
+            m_trackedNodes.clear();
         }
 
         void MapRenderer::overrideSelectionColors(const Color& color, const float mix) {
