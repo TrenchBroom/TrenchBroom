@@ -479,6 +479,7 @@ namespace TrenchBroom {
             info("Creating new document");
 
             clearRepeatableCommands();
+            doClearCommandProcessor();
             clearDocument();
             createWorld(mapFormat, worldBounds, game);
 
@@ -496,6 +497,7 @@ namespace TrenchBroom {
             info("Loading document from " + path.asString());
 
             clearRepeatableCommands();
+            doClearCommandProcessor();
             clearDocument();
             loadWorld(mapFormat, worldBounds, game, path);
 

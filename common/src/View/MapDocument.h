@@ -503,6 +503,7 @@ namespace TrenchBroom {
             virtual void doUndoCommand() = 0;
             virtual void doRedoCommand() = 0;
 
+            virtual void doClearCommandProcessor() = 0;
             virtual void doStartTransaction(const std::string& name) = 0;
             virtual void doCommitTransaction() = 0;
             virtual void doRollbackTransaction() = 0;
