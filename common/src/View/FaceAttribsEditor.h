@@ -41,6 +41,7 @@ namespace TrenchBroom {
         class GLContextManager;
         class MapDocument;
         class Selection;
+        class SignalDelayer;
         class SpinControl;
         class UVEditor;
 
@@ -67,6 +68,8 @@ namespace TrenchBroom {
 
             QLabel* m_colorLabel;
             QLineEdit* m_colorEditor;
+
+            SignalDelayer* m_updateControlsSignalDelayer;
 
             NotifierConnection m_notifierConnection;
         public:
@@ -98,6 +101,7 @@ namespace TrenchBroom {
             void textureCollectionsDidChange();
 
             void updateControls();
+            void updateControlsDelayed();
 
             bool hasSurfaceFlags() const;
             bool hasContentFlags() const;

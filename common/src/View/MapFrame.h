@@ -72,6 +72,7 @@ namespace TrenchBroom {
         class MapDocument;
         class MapViewBase;
         enum class PasteType;
+        class SignalDelayer;
         class SwitchableMapViewContainer;
         class Tool;
 
@@ -113,6 +114,10 @@ namespace TrenchBroom {
             QMenu* m_recentDocumentsMenu;
             QAction* m_undoAction;
             QAction* m_redoAction;
+        private:
+            SignalDelayer* m_updateTitleSignalDelayer;
+            SignalDelayer* m_updateActionStateSignalDelayer;
+            SignalDelayer* m_updateStatusBarSignalDelayer;
         public:
             MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document);
             ~MapFrame() override;
@@ -124,10 +129,12 @@ namespace TrenchBroom {
             QAction* findAction(const IO::Path& path);
         private: // title bar contents
             void updateTitle();
+            void updateTitleDelayed();
         private: // menu bar
             void createMenus();
             void updateShortcuts();
             void updateActionState();
+            void updateActionStateDelayed();
             void updateUndoRedoActions();
 
             void addRecentDocumentsMenu();
@@ -140,6 +147,7 @@ namespace TrenchBroom {
         private: // status bar
             void createStatusBar();
             void updateStatusBar();
+            void updateStatusBarDelayed();
         private: // gui creation
             void createGui();
         private: // notification handlers

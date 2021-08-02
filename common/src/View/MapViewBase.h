@@ -73,6 +73,7 @@ namespace TrenchBroom {
         class MapDocument;
         class MapViewToolBox;
         class Selection;
+        class SignalDelayer;
         class Tool;
         class UndoableCommand;
 
@@ -97,6 +98,8 @@ namespace TrenchBroom {
              * MapViewActivationTracker instance.
              */
             bool m_isCurrent;
+
+            SignalDelayer* m_updateActionStatesSignalDelayer;
 
             NotifierConnection m_notifierConnection;
         private: // shortcuts
@@ -144,6 +147,7 @@ namespace TrenchBroom {
             void createActions();
             void updateActionBindings();
             void updateActionStates();
+            void updateActionStatesDelayed();
         public:
             void triggerAction(const Action& action);
             void triggerAmbiguousAction(const QString& label);

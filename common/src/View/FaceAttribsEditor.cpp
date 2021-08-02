@@ -33,6 +33,7 @@
 #include "View/Grid.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/SignalDelayer.h"
 #include "View/SpinControl.h"
 #include "View/UVEditor.h"
 #include "View/ViewUtils.h"
@@ -73,7 +74,8 @@ namespace TrenchBroom {
         m_contentFlagsLabel(nullptr),
         m_contentFlagsEditor(nullptr),
         m_colorLabel(nullptr),
-        m_colorEditor(nullptr) {
+        m_colorEditor(nullptr),
+        m_updateControlsSignalDelayer{new SignalDelayer{this}} {
             createGui(contextManager);
             bindEvents();
             connectObservers();
@@ -374,6 +376,7 @@ namespace TrenchBroom {
             connect(m_surfaceFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::surfaceFlagChanged);
             connect(m_contentFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::contentFlagChanged);
             connect(m_colorEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::colorValueChanged);
+            connect(m_updateControlsSignalDelayer, &SignalDelayer::processSignal, this, &FaceAttribsEditor::updateControls);
         }
 
         void FaceAttribsEditor::connectObservers() {
@@ -396,15 +399,15 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::nodesDidChange(const std::vector<Model::Node*>&) {
-            updateControls();
+            updateControlsDelayed();
         }
 
         void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
-            updateControls();
+            updateControlsDelayed();
         }
 
         void FaceAttribsEditor::selectionDidChange(const Selection&) {
-            updateControls();
+            updateControlsDelayed();
         }
 
         void FaceAttribsEditor::textureCollectionsDidChange() {
@@ -578,6 +581,10 @@ namespace TrenchBroom {
                 m_colorEditor->setPlaceholderText("n/a");
                 m_colorEditor->setEnabled(false);
             }
+        }
+
+        void FaceAttribsEditor::updateControlsDelayed() {
+            m_updateControlsSignalDelayer->queueSignal();
         }
 
         bool FaceAttribsEditor::hasSurfaceFlags() const {
