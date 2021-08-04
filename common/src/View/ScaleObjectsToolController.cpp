@@ -28,6 +28,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/Camera.h"
+#include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/ScaleObjectsTool.h"
@@ -168,10 +169,11 @@ namespace TrenchBroom {
             };
         }
 
-        static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndOffset(const vm::bbox3& bboxAtDragStart, const Model::Hit& dragStartHit) {
+        static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndOffset(const Grid& grid, const vm::bbox3& bboxAtDragStart, const Model::Hit& dragStartHit) {
             const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
-            const auto handlePosition = handleLine.get_origin();
+            const auto handlePosition = grid.snap(handleLine.get_origin(), handleLine);
             const auto handleOffset = handlePosition - dragStartHit.hitPoint();
+
             return {handlePosition, handleOffset};
         }
 
@@ -197,7 +199,7 @@ namespace TrenchBroom {
 
             m_tool.startScaleWithHit(hit);
 
-            const auto [handlePosition, handleOffset] = getInitialHandlePositionAndOffset(m_tool.bounds(), hit);
+            const auto [handlePosition, handleOffset] = getInitialHandlePositionAndOffset(m_tool.grid(), m_tool.bounds(), hit);
             return createHandleDragTracker(ScaleObjectsDragDelegate{m_tool}, inputState, handlePosition, handleOffset);
         }
 
