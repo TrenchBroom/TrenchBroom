@@ -414,7 +414,7 @@ namespace TrenchBroom {
             if (hit.type() == ScaleObjectsTool::ScaleToolSideHitType) {
                 const auto draggingSide = hit.target<BBoxSide>();
 
-                handleLine = vm::line3(centerForBBoxSide(bboxAtDragStart, draggingSide), draggingSide.normal);
+                handleLine = vm::line3{centerForBBoxSide(bboxAtDragStart, draggingSide), draggingSide.normal};
             } else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHitType) {
                 const auto endEdge = hit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
