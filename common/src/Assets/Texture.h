@@ -29,6 +29,7 @@
 #include <atomic>
 #include <set>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -72,6 +73,16 @@ namespace TrenchBroom {
             GLenum destFactor;
         };
 
+        struct Q2Data {
+            int flags;
+            int contents;
+            int value;
+
+            bool operator==(const Q2Data& other) const;
+        };
+
+        using GameData = std::variant<std::monostate, Q2Data>;
+
         class Texture {
         private:
             using Buffer = TextureBuffer;
@@ -102,10 +113,12 @@ namespace TrenchBroom {
 
             mutable GLuint m_textureId;
             mutable BufferList m_buffers;
+
+            GameData m_gameData;
         public:
-            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, Buffer&& buffer, GLenum format, TextureType type);
-            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, BufferList&& buffers, GLenum format, TextureType type);
-            Texture(const std::string& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, Buffer&& buffer, GLenum format, TextureType type, GameData gameData = std::monostate{});
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, BufferList&& buffers, GLenum format, TextureType type, GameData gameData = std::monostate{});
+            Texture(const std::string& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque, GameData gameData = std::monostate{});
 
             Texture(const Texture&) = delete;
             Texture& operator=(const Texture&) = delete;
@@ -150,6 +163,8 @@ namespace TrenchBroom {
 
             void setBlendFunc(GLenum srcFactor, GLenum destFactor);
             void disableBlend();
+
+            const GameData& gameData() const;
 
             size_t usageCount() const;
             void incUsageCount();

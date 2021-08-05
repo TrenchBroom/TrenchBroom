@@ -63,6 +63,8 @@ namespace TrenchBroom {
             static Assets::TextureBufferList buffers(MaxMipLevels);
             static size_t offsets[MaxMipLevels];
 
+            // https://github.com/id-Software/Quake-2-Tools/blob/master/qe4/qfiles.h#L142
+
             const std::string name = reader.readString(WalLayout::TextureNameLength);
             const size_t width = reader.readSize<uint32_t>();
             const size_t height = reader.readSize<uint32_t>();
@@ -76,9 +78,15 @@ namespace TrenchBroom {
             }
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
+
+            /* const std::string animname = */ reader.readString(WalLayout::TextureNameLength);
+            const auto flags = reader.readInt<int32_t>();
+            const auto contents = reader.readInt<int32_t>();
+            const auto value = reader.readInt<int32_t>();
+
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
             readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor, Assets::PaletteTransparency::Opaque);
-            return Assets::Texture(textureName(name, path), width, height, averageColor, std::move(buffers), GL_RGBA, Assets::TextureType::Opaque);
+            return Assets::Texture{textureName(name, path), width, height, averageColor, std::move(buffers), GL_RGBA, Assets::TextureType::Opaque, Assets::Q2Data{flags, contents, value}};
         }
 
         Assets::Texture WalTextureReader::readDkWal(BufferedReader& reader, const Path& path) const {
