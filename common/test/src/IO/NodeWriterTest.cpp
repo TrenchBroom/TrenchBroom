@@ -185,6 +185,9 @@ R"(// entity 0
                 auto& face = brush1.face(*index);
                 auto attribs = face.attributes();
                 attribs.setTextureName("e1u1/brwater");
+                attribs.setSurfaceContents(8);
+                attribs.setSurfaceFlags(9);
+                attribs.setSurfaceValue(700.0f);
                 face.setAttributes(attribs);
             }
             // set -Z to e1u1/brlava
@@ -195,6 +198,11 @@ R"(// entity 0
                 auto& face = brush1.face(*index);
                 auto attribs = face.attributes();
                 attribs.setTextureName("e1u1/brlava");
+                CHECK(!attribs.hasSurfaceAttributes());
+                attribs.setSurfaceContents(0);
+                attribs.setSurfaceFlags(0);
+                attribs.setSurfaceValue(0);
+                CHECK(attribs.hasSurfaceAttributes());
                 face.setAttributes(attribs);
             }
             
@@ -214,8 +222,8 @@ R"(// entity 0
 {
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) e1u1/alarm0 [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 ( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) e1u1/alarm0 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
-( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) e1u1/brlava [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) e1u1/brwater [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) e1u1/brlava [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 8 9 700
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) e1u1/brwater [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 0
 ( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) e1u1/alarm0 [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) e1u1/alarm0 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 }
