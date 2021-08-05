@@ -175,11 +175,27 @@ R"(// entity 0
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Quake2_Valve);
 
             Model::BrushBuilder builder(map.mapFormat(), worldBounds);
-            Model::Brush brush1 = builder.createCube(64.0, "none").value();
-            for (Model::BrushFace& face : brush1.faces()) {
-                Model::BrushFaceAttributes attributes = face.attributes();
-                attributes.setSurfaceValue(32.0f);
-                face.setAttributes(attributes);
+            Model::Brush brush1 = builder.createCube(64.0, "e1u1/alarm0").value();
+
+            // set +Z to e1u1/brwater
+            {
+                auto index = brush1.findFace(vm::vec3::pos_z());
+                REQUIRE(index);
+
+                auto& face = brush1.face(*index);
+                auto attribs = face.attributes();
+                attribs.setTextureName("e1u1/brwater");
+                face.setAttributes(attribs);
+            }
+            // set -Z to e1u1/brlava
+            {
+                auto index = brush1.findFace(vm::vec3::neg_z());
+                REQUIRE(index);
+
+                auto& face = brush1.face(*index);
+                auto attribs = face.attributes();
+                attribs.setTextureName("e1u1/brlava");
+                face.setAttributes(attribs);
             }
             
             Model::BrushNode* brushNode1 = new Model::BrushNode(std::move(brush1));
@@ -196,12 +212,12 @@ R"(// entity 0
 "classname" "worldspawn"
 // brush 0
 {
-( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 32
-( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 32
-( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 32
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 32
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 32
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 32
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) e1u1/alarm0 [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) e1u1/alarm0 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) e1u1/brlava [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 0
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) e1u1/brwater [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 0
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) e1u1/alarm0 [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) e1u1/alarm0 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
 }
 }
 )";
