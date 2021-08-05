@@ -127,9 +127,9 @@ namespace TrenchBroom {
                 writeFacePoints(stream, face);
                 writeTextureInfo(stream, face);
 
-                // Neverball's "mapc" doesn't like it if surface attributes aren't present.
-                // This suggests the Radiants always output these, so it's probably a compatibility danger.
-                writeSurfaceAttributes(stream, face);
+                if (face.attributes().hasSurfaceAttributes()) {
+                    writeSurfaceAttributes(stream, face);
+                }
 
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
             }
@@ -150,7 +150,10 @@ namespace TrenchBroom {
             void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override {
                 writeFacePoints(stream, face);
                 writeValveTextureInfo(stream, face);
-                writeSurfaceAttributes(stream, face);
+
+                if (face.attributes().hasSurfaceAttributes()) {
+                    writeSurfaceAttributes(stream, face);
+                }
 
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
             }
