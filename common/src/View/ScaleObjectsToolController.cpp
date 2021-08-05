@@ -168,32 +168,11 @@ namespace TrenchBroom {
             };
         }
 
-        static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndOffset(const vm::bbox3& bounds, const Model::Hit& hit) {
-            assert(hit.isMatch());
-            assert(hit.hasType(
-                ScaleObjectsTool::ScaleToolSideHitType
-                | ScaleObjectsTool::ScaleToolEdgeHitType
-                | ScaleObjectsTool::ScaleToolCornerHitType));
+        static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndOffset(const vm::bbox3& bboxAtDragStart, const Model::Hit& dragStartHit) {
+            const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
+            const auto handlePosition = handleLine.get_origin();
+            const auto handleOffset = handlePosition - dragStartHit.hitPoint();
 
-            const auto& hitPoint = hit.hitPoint();
-            if (hit.hasType(ScaleObjectsTool::ScaleToolCornerHitType)) {
-                const auto corner = hit.target<BBoxCorner>();
-                const auto handlePosition = pointForBBoxCorner(bounds, corner);
-                const auto handleOffset = handlePosition - hitPoint;
-                return {handlePosition, handleOffset};
-            }
-            
-            if (hit.hasType(ScaleObjectsTool::ScaleToolEdgeHitType)) {
-                const auto edge = hit.target<BBoxEdge>();
-                const auto handle = pointsForBBoxEdge(bounds, edge);
-                const auto handlePosition = handle.center();
-                const auto handleOffset = handlePosition - hitPoint;
-                return {handlePosition, handleOffset};
-            }
-
-            const auto side = hit.target<BBoxSide>();
-            const auto handlePosition = centerForBBoxSide(bounds, side);
-            const auto handleOffset = handlePosition - hitPoint;
             return {handlePosition, handleOffset};
         }
 
