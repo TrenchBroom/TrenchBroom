@@ -1377,11 +1377,13 @@ The preferences dialog allows you to set the game configurations, to change the 
 
 ## Game Configuration {#game_configuration}
 
-![Game Configuration Dialog (Ubuntu Linux)](images/GamePreferences.png)
+![Game Configuration Dialog (Mac OS X)](images/GamePreferences.png)
 
 The game configuration preference pane is where you set up the paths to the games that TrenchBroom supports. For each game, you can set the game path by clicking on the "..." button and selecting the folder in which the game is stored on your hard drive. Alternatively, you can enter a path manually in the text box, but you have to hit #key(Return) to apply the change.
 
 Additionally, you can configure the game engines for the selected game by clicking on the 'Configure engines...' button.
+
+Clicking the folder icon below the game list opens the folder that contains custom game configurations in a file browser.
 
 ![Game Engine Configuration Dialog (Mac OS X)](images/GameEngineDialog.png)
 
@@ -1397,6 +1399,8 @@ The benefits of specifying your tool paths here (if the game configuration allow
 - If your tool paths need to be changed, you only have to change them here.
 
 So in the example above, if you wanted to try a later version of ericw-tools that are located in a different folder like `C:\mapping\ericw-tools-v0.19-win64\bin`, then you would only need to change the paths in this dialog. You wouldn't need to edit all of your compilation profiles.
+
+You can also add [custom game configurations](#game_configuration_files) to suit a particular setup (such as an engine supporting formats that TrenchBroom supports, but does not expect with that game).
 
 ## View Layout and Rendering {#view_layout_and_rendering}
 
@@ -2347,6 +2351,8 @@ macOS			`~/Library/Application Support/TrenchBroom`
 Linux 			`~/.TrenchBroom`
 
 To add a new game configuration to TrenchBroom, place it into a folder under `<UserDataPath>/games` -- note that you might need to create that folder if it does not exist. You will need to write your own `GameConfig.cfg` file, or you can copy one of the builtin files and base your game configuration on that. Additionally, you can place additional resources in the folder you created. As an example, suppose you want to add a game configuration for a game called "Example". For this, you would create a new folder `<UserDataPath>/games/Example`, and within that folder, you would create a game configuration file called `GameConfig.cfg`. If you need additional resource such as an icon or entity definition files, you would place those files into this newly created folder as well.
+
+You can also access this directory using the folder icon button below the game list in the [game configuration dialog](#game_configuration).
 
 To override a builtin game configuration file, copy the folder containing the builtin file and place it in `<UserDataPath>/games`. TrenchBroom will prioritize your custom game configurations over the builtin files, but you can still access the resources in the game's resource sub folder without problems. If you wish, you can also override some of these resources by placing a file of the same name in your game resource sub directory.
 
