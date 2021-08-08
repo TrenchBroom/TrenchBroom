@@ -19,6 +19,7 @@
 
 #include "GamesPreferencePane.h"
 
+#include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
@@ -41,8 +42,11 @@
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QWidget>
+#include <QDesktopServices>
 
 #include "IO/ResourceUtils.h"
+#include "IO/DiskIO.h"
+#include "FileLogger.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -68,12 +72,25 @@ namespace TrenchBroom {
             m_stackedWidget = new QStackedWidget();
             m_stackedWidget->addWidget(m_defaultPage);
 
+            auto* glbShowUserConfigDirButton = new QPushButton(tr("Show user configurations..."));
+            connect(glbShowUserConfigDirButton, &QPushButton::clicked, this, &GamesPreferencePane::showUserConfigDirClicked);
+
+            auto* glbLayout = new QVBoxLayout();
+            glbLayout->addWidget(m_gameListBox);
+            glbLayout->addSpacing(LayoutConstants::MediumHMargin);
+            glbLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+            glbLayout->addSpacing(LayoutConstants::MediumHMargin);
+            glbLayout->addWidget(glbShowUserConfigDirButton);
+
+            auto* glbHolder = new QWidget();
+            glbHolder->setLayout(glbLayout);
+
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(QMargins());
             layout->setSpacing(0);
             setLayout(layout);
 
-            layout->addWidget(m_gameListBox);
+            layout->addWidget(glbHolder);
             layout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             layout->addSpacing(LayoutConstants::MediumVMargin);
             layout->addWidget(m_stackedWidget, 1, Qt::AlignTop);
@@ -83,6 +100,26 @@ namespace TrenchBroom {
             connect(m_gameListBox, &GameListBox::currentGameChanged, this, [&]() {
                 updateControls();
             });
+        }
+
+        void GamesPreferencePane::showUserConfigDirClicked() {
+            auto& gameFactory = Model::GameFactory::instance();
+            auto path = gameFactory.userGameConfigsPath().makeCanonical();
+            
+            try {
+                if (!IO::Disk::directoryExists(path)) {
+                    IO::Disk::createDirectory(path);
+                }
+            } catch (const Exception& e) {
+                // Log the error and continue.
+                // OS will show an error dialog anyway.
+                // No reason to crash over this...
+                FileLogger::instance().log(LogLevel::Error, std::string{e.what()});
+                throw;
+            }
+            auto manualPathString = path.asString();
+            auto url = QUrl::fromLocalFile(QString::fromStdString(manualPathString));
+            QDesktopServices::openUrl(url);
         }
 
         bool GamesPreferencePane::doCanResetToDefaults() {

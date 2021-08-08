@@ -116,6 +116,13 @@ namespace TrenchBroom {
              * format.
              */
             std::pair<std::string, MapFormat> detectGame(const IO::Path& path) const;
+
+            /**
+             * Returns the directory for user game configurations.
+             * Solely for showing these to the user.
+             */
+            IO::Path userGameConfigsPath() const;
+
         private:
             GameFactory();
             void initializeFileSystem();

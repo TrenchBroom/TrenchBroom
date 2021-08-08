@@ -170,12 +170,16 @@ namespace TrenchBroom {
             return std::make_pair(gameName, format);
         }
 
+        IO::Path GameFactory::userGameConfigsPath() const {
+            return IO::SystemPaths::userDataDirectory() + IO::Path("games");
+        }
+
         GameFactory::GameFactory() = default;
 
         void GameFactory::initializeFileSystem() {
             // Gather the search paths we're going to use.
             // The rest of this function will be chaining together TB filesystem objects for these search paths.
-            const IO::Path userGameDir = IO::SystemPaths::userDataDirectory() + IO::Path("games");
+            const IO::Path userGameDir = userGameConfigsPath();
             const std::vector<IO::Path> gameConfigSearchDirs = IO::SystemPaths::findResourceDirectories(IO::Path("games"));
 
             // All of the current search paths from highest to lowest priority
