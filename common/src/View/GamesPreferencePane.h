@@ -46,7 +46,6 @@ namespace TrenchBroom {
             void createGui();
         private:
             void showUserConfigDirClicked();
-            void showAppConfigDirClicked();
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
             void doUpdateControls() override;

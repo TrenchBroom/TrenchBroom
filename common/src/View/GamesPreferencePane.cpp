@@ -20,6 +20,7 @@
 #include "GamesPreferencePane.h"
 
 #include "Exceptions.h"
+#include "FileLogger.h"
 #include "PreferenceManager.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
@@ -46,7 +47,6 @@
 
 #include "IO/ResourceUtils.h"
 #include "IO/DiskIO.h"
-#include "FileLogger.h"
 
 namespace TrenchBroom {
     namespace View {
