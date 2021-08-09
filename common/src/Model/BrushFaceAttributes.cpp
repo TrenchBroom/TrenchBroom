@@ -32,6 +32,10 @@ namespace TrenchBroom {
                 && surfaceValue == other.surfaceValue;
         }
 
+        SurfaceAttributes SurfaceAttributes::makeContentsFlagsValue(const int i_surfaceContents, const int i_surfaceFlags, const float i_surfaceValue) {
+            return {i_surfaceContents, i_surfaceFlags, i_surfaceValue};
+        }
+
         const std::string BrushFaceAttributes::NoTextureName = "__TB_empty";
 
         BrushFaceAttributes::BrushFaceAttributes(std::string_view textureName) :

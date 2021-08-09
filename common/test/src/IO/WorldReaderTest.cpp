@@ -367,9 +367,7 @@ namespace TrenchBroom {
                 auto& face = brush->brush().face(*faceIndex);
                 
                 CHECK(face.attributes().hasSurfaceAttributes());
-                CHECK(face.attributes().surfaceContents() == 8);
-                CHECK(face.attributes().surfaceFlags() == 9);
-                CHECK(face.attributes().surfaceValue() == 700.0f);
+                CHECK(face.attributes().surfaceAttributes() == Model::SurfaceAttributes::makeContentsFlagsValue(8, 9, 700.0f));
             }
 
             SECTION("attributes for face attribsOmitted") {
@@ -379,9 +377,6 @@ namespace TrenchBroom {
                 auto& face = brush->brush().face(*faceIndex);
                 
                 CHECK(!face.attributes().hasSurfaceAttributes());
-                CHECK(face.attributes().surfaceContents() == 0);
-                CHECK(face.attributes().surfaceFlags() == 0);
-                CHECK(face.attributes().surfaceValue() == 0.0f);
             }
 
             SECTION("attributes for face attribsExplicitlyZero") {
@@ -391,9 +386,7 @@ namespace TrenchBroom {
                 auto& face = brush->brush().face(*faceIndex);
                 
                 CHECK(face.attributes().hasSurfaceAttributes());
-                CHECK(face.attributes().surfaceContents() == 0);
-                CHECK(face.attributes().surfaceFlags() == 0);
-                CHECK(face.attributes().surfaceValue() == 0.0f);
+                CHECK(face.attributes().surfaceAttributes() == Model::SurfaceAttributes::makeContentsFlagsValue(0, 0, 0.0f));
             }
         }
 
@@ -493,9 +486,7 @@ namespace TrenchBroom {
             REQUIRE(c_mf_v3cww_index);
             
             CHECK(vm::is_equal(Color(5, 6, 7), brush.face(*c_mf_v3cw_index).attributes().color(), 0.1f));
-            CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceContents() == 1);
-            CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceFlags() == 2);
-            CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceValue() == 3.0);
+            CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceAttributes() == Model::SurfaceAttributes::makeContentsFlagsValue(1, 2, 3.0));
             CHECK(vm::is_equal(Color(8, 9, 10), brush.face(*b_rc_v16w_index).attributes().color(), 0.1f));
             CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
         }

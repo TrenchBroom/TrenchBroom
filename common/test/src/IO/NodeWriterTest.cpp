@@ -177,7 +177,7 @@ R"(// entity 0
             Model::BrushBuilder builder(map.mapFormat(), worldBounds);
             Model::Brush brush1 = builder.createCube(64.0, "e1u1/alarm0").value();
 
-            // set +Z to e1u1/brwater
+            // set +Z face to e1u1/brwater with contents 0, flags 0, value 0
             {
                 auto index = brush1.findFace(vm::vec3::pos_z());
                 REQUIRE(index);
@@ -185,12 +185,10 @@ R"(// entity 0
                 auto& face = brush1.face(*index);
                 auto attribs = face.attributes();
                 attribs.setTextureName("e1u1/brwater");
-                attribs.setSurfaceContents(8);
-                attribs.setSurfaceFlags(9);
-                attribs.setSurfaceValue(700.0f);
+                attribs.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(0, 0, 0.0f));
                 face.setAttributes(attribs);
             }
-            // set -Z to e1u1/brlava
+            // set -Z to e1u1/brlava with contents 8, flags 9, value 700
             {
                 auto index = brush1.findFace(vm::vec3::neg_z());
                 REQUIRE(index);
@@ -199,9 +197,7 @@ R"(// entity 0
                 auto attribs = face.attributes();
                 attribs.setTextureName("e1u1/brlava");
                 CHECK(!attribs.hasSurfaceAttributes());
-                attribs.setSurfaceContents(0);
-                attribs.setSurfaceFlags(0);
-                attribs.setSurfaceValue(0);
+                attribs.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(8, 9, 700.0f));
                 CHECK(attribs.hasSurfaceAttributes());
                 face.setAttributes(attribs);
             }
@@ -253,12 +249,12 @@ R"(// entity 0
 "classname" "worldspawn"
 // brush 0
 {
-( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
-( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
-( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 0
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 0
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 }
 }
 )";
@@ -1094,7 +1090,7 @@ R"(// entity 0
             faceAttributes.setRotation(0.003f);
             faceAttributes.setXScale(0.004f);
             faceAttributes.setYScale(0.005f);
-            faceAttributes.setSurfaceValue(0.006f);
+            faceAttributes.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(0, 0, 0.006f));
             face.setAttributes(std::move(faceAttributes));
 
             auto* brushNode = new Model::BrushNode(std::move(brush));
@@ -1112,11 +1108,11 @@ R"(// entity 0
 // brush 0
 {
 ( -21.849932013225562 44.73955142106092 24.350626473659066 ) ( -21.833750423753578 45.66659406103575 23.976019880243154 ) ( -21.5848373706685 45.09682147885355 25.24621730450337 ) defaultTexture 1e-05 2e-06 0.003 0.004 0.005 0 0 0.006
-( 21.849932013225562 -44.73955142106092 -24.350626473659066 ) ( 21.866113602697553 -43.81250878108611 -24.725233067074978 ) ( 20.885845405783215 -44.62575313692022 -24.110653633785617 ) defaultTexture 0 0 0 1 1 0 0 0
-( 21.849932013225562 -44.73955142106092 -24.350626473659066 ) ( 20.885845405783215 -44.62575313692022 -24.110653633785617 ) ( 22.11502665578263 -44.3822813632683 -23.45503564281476 ) defaultTexture 0 0 0 1 1 0 0 0
-( -21.849932013225562 44.73955142106092 24.350626473659066 ) ( -21.5848373706685 45.09682147885355 25.24621730450337 ) ( -22.814018620667916 44.85334970520164 24.59059931353252 ) defaultTexture 0 0 0 1 1 0 0 0
-( -21.849932013225562 44.73955142106092 24.350626473659066 ) ( -22.814018620667916 44.85334970520164 24.59059931353252 ) ( -21.833750423753578 45.66659406103575 23.976019880243154 ) defaultTexture 0 0 0 1 1 0 0 0
-( 21.849932013225562 -44.73955142106092 -24.350626473659066 ) ( 22.11502665578263 -44.3822813632683 -23.45503564281476 ) ( 21.866113602697553 -43.81250878108611 -24.725233067074978 ) defaultTexture 0 0 0 1 1 0 0 0
+( 21.849932013225562 -44.73955142106092 -24.350626473659066 ) ( 21.866113602697553 -43.81250878108611 -24.725233067074978 ) ( 20.885845405783215 -44.62575313692022 -24.110653633785617 ) defaultTexture 0 0 0 1 1
+( 21.849932013225562 -44.73955142106092 -24.350626473659066 ) ( 20.885845405783215 -44.62575313692022 -24.110653633785617 ) ( 22.11502665578263 -44.3822813632683 -23.45503564281476 ) defaultTexture 0 0 0 1 1
+( -21.849932013225562 44.73955142106092 24.350626473659066 ) ( -21.5848373706685 45.09682147885355 25.24621730450337 ) ( -22.814018620667916 44.85334970520164 24.59059931353252 ) defaultTexture 0 0 0 1 1
+( -21.849932013225562 44.73955142106092 24.350626473659066 ) ( -22.814018620667916 44.85334970520164 24.59059931353252 ) ( -21.833750423753578 45.66659406103575 23.976019880243154 ) defaultTexture 0 0 0 1 1
+( 21.849932013225562 -44.73955142106092 -24.350626473659066 ) ( 22.11502665578263 -44.3822813632683 -23.45503564281476 ) ( 21.866113602697553 -43.81250878108611 -24.725233067074978 ) defaultTexture 0 0 0 1 1
 }
 }
 )";

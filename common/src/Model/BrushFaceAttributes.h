@@ -39,6 +39,7 @@ namespace TrenchBroom {
             float surfaceValue = 0.0f;
 
             bool operator==(const SurfaceAttributes& other) const;
+            static SurfaceAttributes makeContentsFlagsValue(int i_surfaceContents, int i_surfaceFlags, float i_surfaceValue);
         };
 
         class BrushFaceAttributes {

@@ -136,12 +136,16 @@ namespace TrenchBroom {
             }
         protected:
             void writeSurfaceAttributes(std::ostream& stream, const Model::BrushFace& face) const {
-                assert(face.attributes().surfaceAttributes());
+                Model::SurfaceAttributes surfaceAttributes;
+
+                if (face.attributes().hasSurfaceAttributes()) {
+                    surfaceAttributes = *face.attributes().surfaceAttributes();
+                }
 
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {}",
-                               face.attributes().surfaceAttributes()->surfaceContents,
-                               face.attributes().surfaceAttributes()->surfaceFlags,
-                               face.attributes().surfaceAttributes()->surfaceValue);
+                               surfaceAttributes.surfaceContents,
+                               surfaceAttributes.surfaceFlags,
+                               surfaceAttributes.surfaceValue);
             }
         };
 

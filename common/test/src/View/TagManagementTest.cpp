@@ -253,14 +253,14 @@ namespace TrenchBroom {
             auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
                     auto attributes = face.attributes();
-                    attributes.setSurfaceContents(1);
+                    attributes.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(1, 0, 0.0f));
                     face.setAttributes(attributes);
                 }
             }));
             auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
                     auto attributes = face.attributes();
-                    attributes.setSurfaceContents(2);
+                    attributes.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(2, 0, 0.0f));
                     face.setAttributes(attributes);
                 }
             }));
@@ -296,7 +296,7 @@ namespace TrenchBroom {
             auto* matchingBrushNode = createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
                     auto attributes = face.attributes();
-                    attributes.setSurfaceContents(1);
+                    attributes.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(1, 0, 0.0f));
                     face.setAttributes(attributes);
                 }
             });
@@ -321,14 +321,14 @@ namespace TrenchBroom {
             auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
                     auto attributes = face.attributes();
-                    attributes.setSurfaceFlags(1);
+                    attributes.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(0, 1, 0.0f));
                     face.setAttributes(attributes);
                 }
             }));
             auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
                     auto attributes = face.attributes();
-                    attributes.setSurfaceFlags(2);
+                    attributes.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(0, 2, 0.0f));
                     face.setAttributes(attributes);
                 }
             }));
@@ -364,7 +364,7 @@ namespace TrenchBroom {
             auto* matchingBrushNode = createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
                     auto attributes = face.attributes();
-                    attributes.setSurfaceFlags(1);
+                    attributes.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(0, 1, 0.0f));
                     face.setAttributes(attributes);
                 }
             });
