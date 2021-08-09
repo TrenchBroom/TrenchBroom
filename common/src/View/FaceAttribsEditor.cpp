@@ -486,11 +486,11 @@ namespace TrenchBroom {
                 const float rotation = firstFace.attributes().rotation();
                 const float xScale = firstFace.attributes().xScale();
                 const float yScale = firstFace.attributes().yScale();
-                int setSurfaceFlags = firstFace.attributes().surfaceFlags();
-                int setSurfaceContents = firstFace.attributes().surfaceContents();
+                int setSurfaceFlags = firstFace.surfaceFlags();
+                int setSurfaceContents = firstFace.surfaceContents();
                 int mixedSurfaceFlags = 0;
                 int mixedSurfaceContents = 0;
-                const float surfaceValue = firstFace.attributes().surfaceValue();
+                const float surfaceValue = firstFace.surfaceValue();
                 bool hasColorValue = firstFace.attributes().hasColor();
                 const Color colorValue = firstFace.attributes().color();
 
@@ -503,12 +503,12 @@ namespace TrenchBroom {
                     rotationMulti           |= (rotation        != face.attributes().rotation());
                     xScaleMulti             |= (xScale          != face.attributes().xScale());
                     yScaleMulti             |= (yScale          != face.attributes().yScale());
-                    surfaceValueMulti       |= (surfaceValue    != face.attributes().surfaceValue());
+                    surfaceValueMulti       |= (surfaceValue    != face.surfaceValue());
                     colorValueMulti         |= (colorValue      != face.attributes().color());
                     hasColorValue           |= face.attributes().hasColor();
 
-                    combineFlags(sizeof(int)*8, face.attributes().surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
-                    combineFlags(sizeof(int)*8, face.attributes().surfaceContents(), setSurfaceContents, mixedSurfaceContents);
+                    combineFlags(sizeof(int)*8, face.surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
+                    combineFlags(sizeof(int)*8, face.surfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
 
                 m_xOffsetEditor->setEnabled(true);

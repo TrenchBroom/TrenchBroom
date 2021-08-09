@@ -39,6 +39,7 @@
 
 #include <fmt/format.h>
 
+#include <cassert>
 #include <iterator> // for std::ostreambuf_iterator
 #include <memory>
 #include <sstream>
@@ -135,10 +136,12 @@ namespace TrenchBroom {
             }
         protected:
             void writeSurfaceAttributes(std::ostream& stream, const Model::BrushFace& face) const {
+                assert(face.attributes().surfaceAttributes());
+
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {}",
-                               face.attributes().surfaceContents(),
-                               face.attributes().surfaceFlags(),
-                               face.attributes().surfaceValue());
+                               face.attributes().surfaceAttributes()->surfaceContents,
+                               face.attributes().surfaceAttributes()->surfaceFlags,
+                               face.attributes().surfaceAttributes()->surfaceValue);
             }
         };
 

@@ -34,6 +34,8 @@ namespace TrenchBroom {
         template <typename T>
         static T evaluateValueOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::ValueOp op) {
             switch (op) {
+                case ChangeBrushFaceAttributesRequest::ValueOp_Inherit:
+                    // If we get here it means we're emulating Inherit by setting the value that was being inherited.
                 case ChangeBrushFaceAttributesRequest::ValueOp_Set:
                     return newValue;
                 case ChangeBrushFaceAttributesRequest::ValueOp_Add:
@@ -49,6 +51,8 @@ namespace TrenchBroom {
         template <typename T>
         static T evaluateFlagOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::FlagOp op) {
             switch (op) {
+                case ChangeBrushFaceAttributesRequest::FlagOp_Inherit:
+                    // If we get here it means we're emulating Inherit by setting the value that was being inherited.
                 case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
                     return newValue;
                 case ChangeBrushFaceAttributesRequest::FlagOp_Set:
@@ -57,142 +61,6 @@ namespace TrenchBroom {
                     return oldValue & ~newValue;
                 case ChangeBrushFaceAttributesRequest::FlagOp_None:
                     return oldValue;
-                    switchDefault()
-            }
-        }
-
-        static bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, std::string& myTextureName, const ChangeBrushFaceAttributesRequest::TextureOp theirOp, const std::string& theirTextureName) {
-            if (theirOp != ChangeBrushFaceAttributesRequest::TextureOp_None) {
-                myOp = theirOp;
-                myTextureName = theirTextureName;
-            }
-            return true;
-        }
-
-        static bool collateAxisOp(ChangeBrushFaceAttributesRequest::AxisOp& myOp, const ChangeBrushFaceAttributesRequest::AxisOp theirOp) {
-            switch (myOp) {
-                case ChangeBrushFaceAttributesRequest::AxisOp_None:
-                    myOp = theirOp;
-                    return true;
-                case ChangeBrushFaceAttributesRequest::AxisOp_Reset:
-                case ChangeBrushFaceAttributesRequest::AxisOp_ToParaxial:
-                case ChangeBrushFaceAttributesRequest::AxisOp_ToParallel:
-                    switch (theirOp) {
-                        case ChangeBrushFaceAttributesRequest::AxisOp_None:
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::AxisOp_Reset:
-                        case ChangeBrushFaceAttributesRequest::AxisOp_ToParallel:
-                        case ChangeBrushFaceAttributesRequest::AxisOp_ToParaxial:
-                            myOp = theirOp;
-                            return true;
-                        switchDefault()
-                    }
-                switchDefault()
-            }
-        }
-
-        template <typename T>
-        static bool collateValueOp(ChangeBrushFaceAttributesRequest::ValueOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::ValueOp theirOp, const T theirValue) {
-            switch (myOp) {
-                case ChangeBrushFaceAttributesRequest::ValueOp_None:
-                    myOp = theirOp;
-                    myValue = theirValue;
-                    return true;
-                case ChangeBrushFaceAttributesRequest::ValueOp_Set:
-                    switch (theirOp) {
-                        case ChangeBrushFaceAttributesRequest::ValueOp_None:
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::ValueOp_Set:
-                            myValue = theirValue;
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::ValueOp_Add:
-                        case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
-                            return false;
-                        switchDefault()
-                    }
-                case ChangeBrushFaceAttributesRequest::ValueOp_Add:
-                    switch (theirOp) {
-                        case ChangeBrushFaceAttributesRequest::ValueOp_None:
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::ValueOp_Set:
-                            myOp = theirOp;
-                            myValue = theirValue;
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::ValueOp_Add:
-                            myValue = myValue + theirValue;
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
-                            return false;
-                            switchDefault()
-                    }
-                case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
-                    switch (theirOp) {
-                        case ChangeBrushFaceAttributesRequest::ValueOp_None:
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::ValueOp_Set:
-                            myOp = theirOp;
-                            myValue = theirValue;
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::ValueOp_Add:
-                            return false;
-                        case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
-                            myValue = myValue * theirValue;
-                            return true;
-                            switchDefault()
-                    }
-                    switchDefault()
-            }
-        }
-
-        template <typename T>
-        static bool collateFlagOp(ChangeBrushFaceAttributesRequest::FlagOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::FlagOp theirOp, const T theirValue) {
-            switch (myOp) {
-                case ChangeBrushFaceAttributesRequest::FlagOp_None:
-                    myOp = theirOp;
-                    myValue = theirValue;
-                    return true;
-                case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
-                    switch (theirOp) {
-                        case ChangeBrushFaceAttributesRequest::FlagOp_None:
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
-                            myValue = theirValue;
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::FlagOp_Set:
-                        case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
-                            return false;
-                            switchDefault()
-                    }
-                case ChangeBrushFaceAttributesRequest::FlagOp_Set:
-                    switch (theirOp) {
-                        case ChangeBrushFaceAttributesRequest::FlagOp_None:
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
-                            myOp = theirOp;
-                            myValue = theirValue;
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::FlagOp_Set:
-                            myValue |= theirValue;
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
-                            return false;
-                            switchDefault()
-                    }
-                case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
-                    switch (theirOp) {
-                        case ChangeBrushFaceAttributesRequest::FlagOp_None:
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
-                            myOp = theirOp;
-                            myValue = theirValue;
-                            return true;
-                        case ChangeBrushFaceAttributesRequest::FlagOp_Set:
-                            return false;
-                        case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
-                            myValue |= theirValue;
-                            return true;
-                            switchDefault()
-                    }
                     switchDefault()
             }
         }
@@ -239,17 +107,22 @@ namespace TrenchBroom {
             return "Change Face Attributes";
         }
 
-        bool ChangeBrushFaceAttributesRequest::evaluate(const std::vector<BrushFaceHandle>& faceHandles) const {
-            auto result = false;
-            for (const BrushFaceHandle& faceHandle : faceHandles) {
-                BrushNode* node  = faceHandle.node();
-                Brush brush = node->brush();
-                BrushFace& face = brush.face(faceHandle.faceIndex());
-
-                result |= evaluate(face);
-                node->setBrush(std::move(brush));
+        /**
+         * Returns the SurfaceAttributes that we should set on `brushFace` in order to apply this request.
+         */
+        std::optional<SurfaceAttributes> ChangeBrushFaceAttributesRequest::evaluateSurfaceAttributes(const BrushFace& brushFace) const {
+            // We can only support "Inherit" on all 3 (flags, contents, value) together
+            if (m_surfaceFlagsOp == FlagOp_Inherit
+                && m_contentFlagsOp == FlagOp_Inherit
+                && m_surfaceValueOp == ValueOp_Inherit) {
+                return std::nullopt;
             }
-            return result;
+
+            SurfaceAttributes surfAttribs;
+            surfAttribs.surfaceFlags = evaluateFlagOp(brushFace.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp);
+            surfAttribs.surfaceContents = evaluateFlagOp(brushFace.surfaceContents(), m_contentFlags, m_contentFlagsOp);
+            surfAttribs.surfaceValue = evaluateValueOp(brushFace.surfaceValue(), m_surfaceValue, m_surfaceValueOp);
+            return { surfAttribs };
         }
 
         bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const {
@@ -271,9 +144,7 @@ namespace TrenchBroom {
             result |= attributes.setRotation(evaluateValueOp(attributes.rotation(), m_rotation, m_rotationOp));
             result |= attributes.setXScale(evaluateValueOp(attributes.xScale(), m_xScale, m_xScaleOp));
             result |= attributes.setYScale(evaluateValueOp(attributes.yScale(), m_yScale, m_yScaleOp));
-            result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
-            result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), m_contentFlags, m_contentFlagsOp));
-            result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), m_surfaceValue, m_surfaceValueOp));
+            result |= attributes.setSurfaceAttributes(evaluateSurfaceAttributes(brushFace));
             result |= attributes.setColor(evaluateValueOp(attributes.color(), m_colorValue, m_colorValueOp));
 
             brushFace.setAttributes(attributes);
@@ -443,6 +314,11 @@ namespace TrenchBroom {
             m_surfaceFlagsOp = FlagOp_Unset;
         }
 
+        void ChangeBrushFaceAttributesRequest::inheirtSurfaceFlags(const int surfaceFlags) {
+            m_surfaceFlags = surfaceFlags;
+            m_surfaceFlagsOp = FlagOp_Inherit;
+        }
+
         void ChangeBrushFaceAttributesRequest::replaceSurfaceFlags(const int surfaceFlags) {
             m_surfaceFlags = surfaceFlags;
             m_surfaceFlagsOp = FlagOp_Replace;
@@ -463,6 +339,11 @@ namespace TrenchBroom {
             m_contentFlagsOp = FlagOp_Replace;
         }
 
+        void ChangeBrushFaceAttributesRequest::inheritContentFlags(const int contentFlags) {
+            m_contentFlags = contentFlags;
+            m_contentFlagsOp = FlagOp_Inherit;
+        }
+
         void ChangeBrushFaceAttributesRequest::setSurfaceValue(const float surfaceValue) {
             m_surfaceValue = surfaceValue;
             m_surfaceValueOp = ValueOp_Set;
@@ -478,92 +359,44 @@ namespace TrenchBroom {
             m_surfaceValueOp = ValueOp_Mul;
         }
 
+        void ChangeBrushFaceAttributesRequest::inheritSurfaceValue(const float surfaceValue) {
+            m_surfaceValue = surfaceValue;
+            m_surfaceValueOp = ValueOp_Inherit;
+        }
+
         void ChangeBrushFaceAttributesRequest::setColor(const Color& colorValue) {
             m_colorValue = colorValue;
             m_colorValueOp = ValueOp_Set;
         }
 
         void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFace& face) {
-            setAll(face.attributes());
+            const Model::BrushFaceAttributes& attributes = face.attributes();
+            setAllExceptContentFlags(face);
+
+            if (attributes.hasSurfaceAttributes()) {
+                replaceContentFlags(attributes.surfaceAttributes()->surfaceContents);
+            } else {
+                inheritContentFlags(face.surfaceContents());
+            }
         }
 
         void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(const Model::BrushFace& face) {
-            setAllExceptContentFlags(face.attributes());
-        }
+            const Model::BrushFaceAttributes& attributes = face.attributes();
 
-        void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFaceAttributes& attributes) {
-            setAllExceptContentFlags(attributes);
-            replaceContentFlags(attributes.surfaceContents());
-        }
-
-        void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes) {
             setTextureName(attributes.textureName());
             setXOffset(attributes.xOffset());
             setYOffset(attributes.yOffset());
             setRotation(attributes.rotation());
             setXScale(attributes.xScale());
             setYScale(attributes.yScale());
-            replaceSurfaceFlags(attributes.surfaceFlags());
-            setSurfaceValue(attributes.surfaceValue());
+            if (attributes.hasSurfaceAttributes()) {
+                replaceSurfaceFlags(attributes.surfaceAttributes()->surfaceFlags);
+                setSurfaceValue(attributes.surfaceAttributes()->surfaceValue);
+            } else {
+                inheirtSurfaceFlags(face.surfaceFlags());
+                inheritSurfaceValue(face.surfaceValue());
+            }
             setColor(attributes.color());
-        }
-
-        bool ChangeBrushFaceAttributesRequest::collateWith(ChangeBrushFaceAttributesRequest& other) {
-            std::string newTextureName = m_textureName; TextureOp newTextureOp = m_textureOp;
-            AxisOp newAxisOp = m_axisOp;
-
-            float newXOffset = m_xOffset;   ValueOp newXOffsetOp = m_xOffsetOp;
-            float newYOffset = m_yOffset;   ValueOp newYOffsetOp = m_yOffsetOp;
-            float newRotation = m_rotation; ValueOp newRotationOp = m_rotationOp;
-            float newXScale = m_xScale;     ValueOp newXScaleOp = m_xScaleOp;
-            float newYScale = m_yScale;     ValueOp newYScaleOp = m_yScaleOp;
-
-            int newSurfaceFlags = m_surfaceFlags; FlagOp newSurfaceFlagsOp = m_surfaceFlagsOp;
-            int newContentFlags = m_contentFlags; FlagOp newContentFlagsOp = m_contentFlagsOp;
-            float newSurfaceValue = m_surfaceValue; ValueOp newSurfaceValueOp = m_surfaceValueOp;
-
-            Color newColorValue = m_colorValue; ValueOp newColorValueOp = m_colorValueOp;
-
-            if (!collateAxisOp(newAxisOp, other.m_axisOp))
-                return false;
-            if (!collateTextureOp(newTextureOp, newTextureName, other.m_textureOp, other.m_textureName))
-                return false;
-            if (!collateValueOp(newXOffsetOp, newXOffset, other.m_xOffsetOp, other.m_xOffset))
-                return false;
-            if (!collateValueOp(newYOffsetOp, newYOffset, other.m_yOffsetOp, other.m_yOffset))
-                return false;
-            if (!collateValueOp(newRotationOp, newRotation, other.m_rotationOp, other.m_rotation))
-                return false;
-            if (!collateValueOp(newXScaleOp, newXScale, other.m_xScaleOp, other.m_xScale))
-                return false;
-            if (!collateValueOp(newYScaleOp, newYScale, other.m_yScaleOp, other.m_yScale))
-                return false;
-
-            if (!collateFlagOp(newSurfaceFlagsOp, newSurfaceFlags, other.m_surfaceFlagsOp, other.m_surfaceFlags))
-                return false;
-            if (!collateFlagOp(newContentFlagsOp, newContentFlags, other.m_contentFlagsOp, other.m_contentFlags))
-                return false;
-            if (!collateValueOp(newSurfaceValueOp, newSurfaceValue, other.m_surfaceValueOp, other.m_surfaceValue))
-                return false;
-
-            if (!collateValueOp(newColorValueOp, newColorValue, other.m_colorValueOp, other.m_colorValue))
-                return false;
-            
-            m_textureName = newTextureName; m_textureOp = newTextureOp;
-            m_axisOp = newAxisOp;
-            m_xOffset = newXOffset; m_xOffsetOp = newXOffsetOp;
-            m_yOffset = newYOffset; m_yOffsetOp = newYOffsetOp;
-            m_rotation = newRotation; m_rotationOp = newRotationOp;
-            m_xScale = newXScale; m_xScaleOp = newXScaleOp;
-            m_yScale = newYScale; m_yScaleOp = newYScaleOp;
-
-            m_surfaceFlags = newSurfaceFlags; m_surfaceFlagsOp = newSurfaceFlagsOp;
-            m_contentFlags = newContentFlags; m_contentFlagsOp = newContentFlagsOp;
-            m_surfaceValue = newSurfaceValue; m_surfaceValueOp = newSurfaceValueOp;
-
-            m_colorValue = newColorValue; m_colorValueOp = newColorValueOp;
-
-            return true;
         }
     }
 }

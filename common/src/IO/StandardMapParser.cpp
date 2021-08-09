@@ -400,9 +400,11 @@ namespace TrenchBroom {
 
             // Quake 2 extra info is optional
             if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
-                attribs.setSurfaceContents(parseInteger());
-                attribs.setSurfaceFlags(parseInteger());
-                attribs.setSurfaceValue(parseFloat());
+                Model::SurfaceAttributes surfAttribs;
+                surfAttribs.surfaceContents = parseInteger();
+                surfAttribs.surfaceFlags = parseInteger();
+                surfAttribs.surfaceValue = parseFloat();
+                attribs.setSurfaceAttributes(surfAttribs);
             }
 
             onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
@@ -425,9 +427,11 @@ namespace TrenchBroom {
 
             // Quake 2 extra info is optional
             if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
-                attribs.setSurfaceContents(parseInteger());
-                attribs.setSurfaceFlags(parseInteger());
-                attribs.setSurfaceValue(parseFloat());
+                Model::SurfaceAttributes surfAttribs;
+                surfAttribs.surfaceContents = parseInteger();
+                surfAttribs.surfaceFlags = parseInteger();
+                surfAttribs.surfaceValue = parseFloat();
+                attribs.setSurfaceAttributes(surfAttribs);
             }
 
             onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
@@ -469,9 +473,11 @@ namespace TrenchBroom {
 
             // Daikatana extra info is optional
             if (check(QuakeMapToken::Integer, m_tokenizer.peekToken())) {
-                attribs.setSurfaceContents(parseInteger());
-                attribs.setSurfaceFlags(parseInteger());
-                attribs.setSurfaceValue(parseFloat());
+                Model::SurfaceAttributes surfAttribs;
+                surfAttribs.surfaceContents = parseInteger();
+                surfAttribs.surfaceFlags = parseInteger();
+                surfAttribs.surfaceValue = parseFloat();
+                attribs.setSurfaceAttributes(surfAttribs);
 
                 // Daikatana color triple is optional
                 if (check(QuakeMapToken::Integer, m_tokenizer.peekToken())) {
@@ -519,9 +525,11 @@ namespace TrenchBroom {
 
             // Quake 2 extra info is optional
             if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
-                attribs.setSurfaceContents(parseInteger());
-                attribs.setSurfaceFlags(parseInteger());
-                attribs.setSurfaceValue(parseFloat());
+                Model::SurfaceAttributes surfAttribs;
+                surfAttribs.surfaceContents = parseInteger();
+                surfAttribs.surfaceFlags = parseInteger();
+                surfAttribs.surfaceValue = parseFloat();
+                attribs.setSurfaceAttributes(surfAttribs);
             }
 
             // TODO 2427: create a brush face

@@ -701,7 +701,7 @@ namespace TrenchBroom {
 
         bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces) {
             assert(!faces.empty());
-            return setFaceAttributesExceptContentFlags(faces.back().attributes());
+            return setFaceAttributesExceptContentFlags(faces.back());
         }
 
         void MapDocument::loadPointFile(const IO::Path path) {
@@ -2556,15 +2556,15 @@ namespace TrenchBroom {
             ));
         }
 
-        bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes) {
+        bool MapDocument::setFaceAttributes(const Model::BrushFace& face) {
             Model::ChangeBrushFaceAttributesRequest request;
-            request.setAll(attributes);
+            request.setAll(face);
             return setFaceAttributes(request);
         }
 
-        bool MapDocument::setFaceAttributesExceptContentFlags(const Model::BrushFaceAttributes& attributes) {
+        bool MapDocument::setFaceAttributesExceptContentFlags(const Model::BrushFace& face) {
             Model::ChangeBrushFaceAttributesRequest request;
-            request.setAllExceptContentFlags(attributes);
+            request.setAllExceptContentFlags(face);
             return setFaceAttributes(request);
         }
 

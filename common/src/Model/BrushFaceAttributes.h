@@ -23,6 +23,7 @@
 
 #include <vecmath/forward.h>
 
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -32,6 +33,14 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        struct SurfaceAttributes {
+            int surfaceContents = 0;
+            int surfaceFlags = 0;
+            float surfaceValue = 0.0f;
+
+            bool operator==(const SurfaceAttributes& other) const;
+        };
+
         class BrushFaceAttributes {
         public:
             static const std::string NoTextureName;
@@ -42,9 +51,7 @@ namespace TrenchBroom {
             vm::vec2f m_scale;
             float m_rotation;
 
-            int m_surfaceContents;
-            int m_surfaceFlags;
-            float m_surfaceValue;
+            std::optional<SurfaceAttributes> m_surfaceAttributes;
 
             Color m_color;
         public:
@@ -71,9 +78,7 @@ namespace TrenchBroom {
             float rotation() const;
 
             bool hasSurfaceAttributes() const;
-            int surfaceContents() const;
-            int surfaceFlags() const;
-            float surfaceValue() const;
+            const std::optional<SurfaceAttributes>& surfaceAttributes() const;
 
             bool hasColor() const;
             const Color& color() const;
@@ -88,9 +93,7 @@ namespace TrenchBroom {
             bool setXScale(float xScale);
             bool setYScale(float yScale);
             bool setRotation(float rotation);
-            bool setSurfaceContents(int surfaceContents);
-            bool setSurfaceFlags(int surfaceFlags);
-            bool setSurfaceValue(float surfaceValue);
+            bool setSurfaceAttributes(const std::optional<SurfaceAttributes>& surfaceAttributes);
             bool setColor(const Color& color);
         };
     }

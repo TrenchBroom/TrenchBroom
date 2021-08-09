@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Color.h"
+#include "Model/BrushFaceAttributes.h"
 
 #include <vecmath/forward.h>
 
@@ -47,15 +48,17 @@ namespace TrenchBroom {
                 ValueOp_None,
                 ValueOp_Set,
                 ValueOp_Add,
-                ValueOp_Mul
+                ValueOp_Mul,
+                ValueOp_Inherit
             } ValueOp;
 
             // TODO: replace with class based enum
             typedef enum {
                 FlagOp_None,
                 FlagOp_Replace,
-                FlagOp_Set,
-                FlagOp_Unset
+                FlagOp_Set, // TODO: rename to SetBits
+                FlagOp_Unset, // TODO: rename to UnsetBits or ClearBits
+                FlagOp_Inherit
             } FlagOp;
 
             // TODO: replace with class based enum
@@ -92,7 +95,9 @@ namespace TrenchBroom {
             void clear();
 
             const std::string name() const;
-            bool evaluate(const std::vector<BrushFaceHandle>& faceHandles) const;
+        private:
+            std::optional<SurfaceAttributes> evaluateSurfaceAttributes(const BrushFace& brushFace) const;
+        public:
             bool evaluate(BrushFace& brushFace) const;
 
             void resetAll(const BrushFaceAttributes& defaultFaceAttributes);
@@ -135,23 +140,22 @@ namespace TrenchBroom {
             void setSurfaceFlags(int surfaceFlags);
             void unsetSurfaceFlags(int surfaceFlags);
             void replaceSurfaceFlags(int surfaceFlags);
+            void inheirtSurfaceFlags(int surfaceFlags);
 
             void setContentFlags(int contentFlags);
             void unsetContentFlags(int contentFlags);
             void replaceContentFlags(int contentFlags);
+            void inheritContentFlags(int contentFlags);
 
             void setSurfaceValue(float surfaceValue);
             void addSurfaceValue(float surfaceValue);
             void mulSurfaceValue(float surfaceValue);
+            void inheritSurfaceValue(float surfaceValue);
 
             void setColor(const Color& colorValue);
 
             void setAll(const Model::BrushFace& face);
             void setAllExceptContentFlags(const Model::BrushFace& face);
-            void setAll(const Model::BrushFaceAttributes& attributes);
-            void setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes);
-
-            bool collateWith(ChangeBrushFaceAttributesRequest& other);
         };
     }
 }

@@ -343,10 +343,47 @@ namespace TrenchBroom {
             result |= m_attributes.setRotation(other.attributes().rotation());
             result |= m_attributes.setXScale(other.attributes().xScale());
             result |= m_attributes.setYScale(other.attributes().yScale());
-            result |= m_attributes.setSurfaceContents(other.attributes().surfaceContents());
-            result |= m_attributes.setSurfaceFlags(other.attributes().surfaceFlags());
-            result |= m_attributes.setSurfaceValue(other.attributes().surfaceValue());
+            result |= m_attributes.setSurfaceAttributes(other.attributes().surfaceAttributes());
             return result;
+        }
+
+        int BrushFace::surfaceContents() const {
+            if (m_attributes.surfaceAttributes()) {
+                return m_attributes.surfaceAttributes()->surfaceContents;
+            }
+            if (texture()) {
+                auto& gameData = texture()->gameData();
+                if (std::holds_alternative<Assets::Q2Data>(gameData)) {
+                    return std::get<Assets::Q2Data>(gameData).contents;
+                }
+            }
+            return 0;
+        }
+
+        int BrushFace::surfaceFlags() const {
+            if (m_attributes.surfaceAttributes()) {
+                return m_attributes.surfaceAttributes()->surfaceFlags;
+            }
+            if (texture()) {
+                auto& gameData = texture()->gameData();
+                if (std::holds_alternative<Assets::Q2Data>(gameData)) {
+                    return std::get<Assets::Q2Data>(gameData).flags;
+                }
+            }
+            return 0;
+        }
+
+        float BrushFace::surfaceValue() const {
+            if (m_attributes.surfaceAttributes()) {
+                return m_attributes.surfaceAttributes()->surfaceValue;
+            }
+            if (texture()) {
+                auto& gameData = texture()->gameData();
+                if (std::holds_alternative<Assets::Q2Data>(gameData)) {
+                    return static_cast<float>(std::get<Assets::Q2Data>(gameData).value);
+                }
+            }
+            return 0.0f;
         }
 
         void BrushFace::resetTexCoordSystemCache() {
