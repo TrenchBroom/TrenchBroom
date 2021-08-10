@@ -39,7 +39,6 @@
 
 #include <fmt/format.h>
 
-#include <cassert>
 #include <iterator> // for std::ostreambuf_iterator
 #include <memory>
 #include <sstream>

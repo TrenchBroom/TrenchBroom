@@ -45,7 +45,7 @@ namespace TrenchBroom {
         m_type(type),
         m_culling(TextureCulling::CullDefault),
         m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
-        m_textureId(0),
+        m_textureId{0},
         m_gameData{std::move(gameData)} {
             assert(m_width > 0);
             assert(m_height > 0);
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         m_type(type),
         m_culling(TextureCulling::CullDefault),
         m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
-        m_textureId(0),
+        m_textureId{0},
         m_gameData{std::move(gameData)} {}
 
         Texture::~Texture() = default;
