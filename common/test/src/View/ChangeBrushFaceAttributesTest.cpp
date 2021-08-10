@@ -238,5 +238,36 @@ namespace TrenchBroom {
             CHECK(brushNode->brush().face(0).attributes().textureName() == "something_else");
             CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
         }
+
+        TEST_CASE("ChangeBrushFaceAttributesTest.setFaceAttributesExceptContentFlags") {
+            const int WaterFlag = 32;
+            const int LavaFlag = 8;
+
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/ChangeBrushFaceAttributesTest/lavaAndWater.map"), "Quake2", Model::MapFormat::Unknown);
+            REQUIRE(document->currentLayer() != nullptr);
+
+            auto* lavabrush = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(0));
+            REQUIRE(lavabrush);
+            CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
+            CHECK(lavabrush->brush().face(0).surfaceContents() == LavaFlag); // comes from the .wal texture
+
+            auto* waterbrush = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(1));
+            REQUIRE(waterbrush);
+            CHECK(!waterbrush->brush().face(0).attributes().hasSurfaceAttributes());
+            CHECK(waterbrush->brush().face(0).surfaceContents() == WaterFlag); // comes from the .wal texture
+
+            SECTION("transfer face attributes except content flags from waterbrush to lavabrush") {
+                document->select(lavabrush);
+                CHECK(document->setFaceAttributesExceptContentFlags(waterbrush->brush().face(0)));
+
+                SECTION("check lavabrush is now inheriting the water content flags") {
+                    // Note: the contents flag wasn't transferred, but because lavabrushes's 
+                    // content flag was "Inherit", it stays "Inherit" and now inherits the water contents
+                    CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
+                    CHECK(lavabrush->brush().face(0).surfaceContents() == WaterFlag);
+                    CHECK(lavabrush->brush().face(0).attributes().textureName() == "watertest");
+                }
+            }
+        }
     }
 }

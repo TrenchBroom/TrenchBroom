@@ -73,20 +73,21 @@ namespace TrenchBroom {
                 return Assets::Texture(textureName(path), 16, 16);
             }
 
-            if (!m_palette.initialized()) {
-                return Assets::Texture(textureName(name, path), width, height);
-            }
-
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
 
             /* const std::string animname = */ reader.readString(WalLayout::TextureNameLength);
             const auto flags = reader.readInt<int32_t>();
             const auto contents = reader.readInt<int32_t>();
             const auto value = reader.readInt<int32_t>();
+            const auto gameData = Assets::Q2Data{flags, contents, value};
+
+            if (!m_palette.initialized()) {
+                return Assets::Texture(textureName(name, path), width, height, GL_RGB, Assets::TextureType::Opaque, gameData);
+            }
 
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
             readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor, Assets::PaletteTransparency::Opaque);
-            return Assets::Texture{textureName(name, path), width, height, averageColor, std::move(buffers), GL_RGBA, Assets::TextureType::Opaque, Assets::Q2Data{flags, contents, value}};
+            return Assets::Texture{textureName(name, path), width, height, averageColor, std::move(buffers), GL_RGBA, Assets::TextureType::Opaque, gameData};
         }
 
         Assets::Texture WalTextureReader::readDkWal(BufferedReader& reader, const Path& path) const {

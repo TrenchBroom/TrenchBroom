@@ -50,6 +50,7 @@ namespace TrenchBroom {
                 { Path("rtz/b_rc_v28.wal"),   128,  64, Assets::Q2Data{0, 0, 0} },
                 { Path("rtz/b_rc_v4.wal"),    128, 128, Assets::Q2Data{0, 0, 0} },
                 { Path("lavatest.wal"),       64,   64, Assets::Q2Data{9, 8, 700} },
+                { Path("watertest.wal"),      64,   64, Assets::Q2Data{9, 32, 120} },
             }));
 
             INFO(path);
