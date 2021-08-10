@@ -137,9 +137,37 @@ namespace TrenchBroom {
             void addYScale(float yScale);
             void mulYScale(float yScale);
 
+            /**
+             * When evaluated, the flags in `surfaceFlags` are set on the target face's surface flags
+             * (leaving other surface flags on the target face as-is).
+             */
             void setSurfaceFlags(int surfaceFlags);
+            /**
+             * When evaluated, the flags in `surfaceFlags` are cleared on the target face's surface flags
+             * (leaving other surface flags on the target face as-is).
+             */
             void unsetSurfaceFlags(int surfaceFlags);
+            /**
+             * When evaluated, replace the target face's surface flags with `surfaceFlags`.
+             */
             void replaceSurfaceFlags(int surfaceFlags);
+            /**
+             * When evaluated, we will attempt to configure the target face to inherit surface flags
+             * from its texture.
+             * 
+             * If this isn't possible (it's only possible if all of surface flags, content flags, and surface value
+             * request to be inherited), the explicitly set the target face's surface flags to `surfaceFlags`.
+             * 
+             * This is intended for use when:
+             * 
+             * - transferring flags from face A to face B
+             * - and also transferring the texture
+             * - and face A is inheriting its surface flags
+             * 
+             * Caller should pass what face A is inheriting from its texture in the `surfaceFlags` argument.
+             * This way, if it's impossible to configure face B to inherit from its texture, at least
+             * face B will still get face A's flags value.
+             */
             void inheritSurfaceFlags(int surfaceFlags);
 
             void setContentFlags(int contentFlags);
@@ -154,7 +182,14 @@ namespace TrenchBroom {
 
             void setColor(const Color& colorValue);
 
+            /**
+            * Configures `this` so, when evaluated, it transfers all attributes from the given 
+            * face to the evaluation target.
+            */
             void setAll(const Model::BrushFace& face);
+            /**
+             * Same as setAll(), but doesn't transfer content flags.
+             */
             void setAllExceptContentFlags(const Model::BrushFace& face);
         };
     }
