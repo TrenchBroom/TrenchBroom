@@ -223,5 +223,20 @@ namespace TrenchBroom {
                 CHECK(newThirdAttrs.color() == firstAttrs.color());
             }
         }
+
+        TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setTextureKeepsSurfaceFlagsUnset") {
+            Model::BrushNode* brushNode = createBrushNode();
+            addNode(*document, document->parentForNodes(), brushNode);
+
+            document->select(brushNode);
+            CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
+
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setTextureName("something_else");
+            document->setFaceAttributes(request);
+
+            CHECK(brushNode->brush().face(0).attributes().textureName() == "something_else");
+            CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
+        }
     }
 }

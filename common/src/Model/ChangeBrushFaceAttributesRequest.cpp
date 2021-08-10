@@ -118,6 +118,13 @@ namespace TrenchBroom {
                 return std::nullopt;
             }
 
+            // None, None, None: pass through the old optional (whether it had a value or not)
+            if (m_surfaceFlagsOp == FlagOp_None
+                && m_contentFlagsOp == FlagOp_None
+                && m_surfaceValueOp == FlagOp_None) {
+                return brushFace.attributes().surfaceAttributes();
+            }
+
             SurfaceAttributes surfAttribs;
             surfAttribs.surfaceFlags = evaluateFlagOp(brushFace.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp);
             surfAttribs.surfaceContents = evaluateFlagOp(brushFace.surfaceContents(), m_contentFlags, m_contentFlagsOp);
