@@ -314,7 +314,7 @@ namespace TrenchBroom {
             m_surfaceFlagsOp = FlagOp_Unset;
         }
 
-        void ChangeBrushFaceAttributesRequest::inheirtSurfaceFlags(const int surfaceFlags) {
+        void ChangeBrushFaceAttributesRequest::inheritSurfaceFlags(const int surfaceFlags) {
             m_surfaceFlags = surfaceFlags;
             m_surfaceFlagsOp = FlagOp_Inherit;
         }
