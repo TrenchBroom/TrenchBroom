@@ -393,7 +393,7 @@ namespace TrenchBroom {
                 replaceSurfaceFlags(attributes.surfaceAttributes()->surfaceFlags);
                 setSurfaceValue(attributes.surfaceAttributes()->surfaceValue);
             } else {
-                inheirtSurfaceFlags(face.surfaceFlags());
+                inheritSurfaceFlags(face.surfaceFlags());
                 inheritSurfaceValue(face.surfaceValue());
             }
             setColor(attributes.color());

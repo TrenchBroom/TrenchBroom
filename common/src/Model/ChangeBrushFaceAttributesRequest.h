@@ -140,7 +140,7 @@ namespace TrenchBroom {
             void setSurfaceFlags(int surfaceFlags);
             void unsetSurfaceFlags(int surfaceFlags);
             void replaceSurfaceFlags(int surfaceFlags);
-            void inheirtSurfaceFlags(int surfaceFlags);
+            void inheritSurfaceFlags(int surfaceFlags);
 
             void setContentFlags(int contentFlags);
             void unsetContentFlags(int contentFlags);
