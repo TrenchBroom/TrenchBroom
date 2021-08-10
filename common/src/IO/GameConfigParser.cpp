@@ -297,37 +297,24 @@ namespace TrenchBroom {
             if (!value["rotation"].null()) {
                 defaults.setRotation(static_cast<float>(value["rotation"].numberValue()));
             }
-            if (!value["surfaceContents"].null()
-                || !value["surfaceFlags"].null()
-                || !value["surfaceValue"].null()) {
-                // These three are grouped together inside BrushFaceAttributes in an optional Model::SurfaceAttributes struct.
-                // By default, the optional is empty, which means the face will be serialized to .map with the contents/flags/value omitted.
-                //
-                // If a game config gives a default value for any of these, it's effectively setting a default for all 3,
-                // and new brushes will be serialized to .map with explicit contents, flags, and value.
-                Model::SurfaceAttributes surfAttribs;
-
-                if (!value["surfaceContents"].null()) {
-                    int defaultSurfaceContents = 0;
-                    for (size_t i = 0; i < value["surfaceContents"].length(); ++i) {
-                        auto name = value["surfaceContents"][i].stringValue();
-                        defaultSurfaceContents |= contentFlags.flagValue(name);
-                    }
-                    surfAttribs.surfaceContents = defaultSurfaceContents;
+            if (!value["surfaceContents"].null()) {
+                int defaultSurfaceContents = 0;
+                for (size_t i = 0; i < value["surfaceContents"].length(); ++i) {
+                    auto name = value["surfaceContents"][i].stringValue();
+                    defaultSurfaceContents |= contentFlags.flagValue(name);
                 }
-                if (!value["surfaceFlags"].null()) {
-                    int defaultSurfaceFlags = 0;
-                    for (size_t i = 0; i < value["surfaceFlags"].length(); ++i) {
-                        auto name = value["surfaceFlags"][i].stringValue();
-                        defaultSurfaceFlags |= surfaceFlags.flagValue(name);
-                    }
-                    surfAttribs.surfaceFlags = defaultSurfaceFlags;
+                defaults.setSurfaceContents(defaultSurfaceContents);
+            }
+            if (!value["surfaceFlags"].null()) {
+                int defaultSurfaceFlags = 0;
+                for (size_t i = 0; i < value["surfaceFlags"].length(); ++i) {
+                    auto name = value["surfaceFlags"][i].stringValue();
+                    defaultSurfaceFlags |= surfaceFlags.flagValue(name);
                 }
-                if (!value["surfaceValue"].null()) {
-                    surfAttribs.surfaceValue = static_cast<float>(value["surfaceValue"].numberValue());
-                }
-
-                defaults.setSurfaceAttributes(surfAttribs);
+                defaults.setSurfaceFlags(defaultSurfaceFlags);
+            }
+            if (!value["surfaceValue"].null()) {
+                defaults.setSurfaceValue(static_cast<float>(value["surfaceValue"].numberValue()));
             }
             if (!value["color"].null()) {
                 defaults.setColor(Color::parse(value["color"].stringValue()).value_or(Color()));

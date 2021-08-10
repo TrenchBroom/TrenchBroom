@@ -343,13 +343,15 @@ namespace TrenchBroom {
             result |= m_attributes.setRotation(other.attributes().rotation());
             result |= m_attributes.setXScale(other.attributes().xScale());
             result |= m_attributes.setYScale(other.attributes().yScale());
-            result |= m_attributes.setSurfaceAttributes(other.attributes().surfaceAttributes());
+            result |= m_attributes.setSurfaceContents(other.attributes().surfaceContents());
+            result |= m_attributes.setSurfaceFlags(other.attributes().surfaceFlags());
+            result |= m_attributes.setSurfaceValue(other.attributes().surfaceValue());
             return result;
         }
 
         int BrushFace::surfaceContents() const {
-            if (m_attributes.surfaceAttributes()) {
-                return m_attributes.surfaceAttributes()->surfaceContents;
+            if (m_attributes.surfaceContents()) {
+                return *m_attributes.surfaceContents();
             }
             if (texture()) {
                 auto& gameData = texture()->gameData();
@@ -361,8 +363,8 @@ namespace TrenchBroom {
         }
 
         int BrushFace::surfaceFlags() const {
-            if (m_attributes.surfaceAttributes()) {
-                return m_attributes.surfaceAttributes()->surfaceFlags;
+            if (m_attributes.surfaceFlags()) {
+                return *m_attributes.surfaceFlags();
             }
             if (texture()) {
                 auto& gameData = texture()->gameData();
@@ -374,8 +376,8 @@ namespace TrenchBroom {
         }
 
         float BrushFace::surfaceValue() const {
-            if (m_attributes.surfaceAttributes()) {
-                return m_attributes.surfaceAttributes()->surfaceValue;
+            if (m_attributes.surfaceValue()) {
+                return *m_attributes.surfaceValue();
             }
             if (texture()) {
                 auto& gameData = texture()->gameData();

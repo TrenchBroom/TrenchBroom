@@ -143,7 +143,9 @@ namespace TrenchBroom {
                 CHECK(firstAttrs.rotation() == 90.0f);
                 CHECK(firstAttrs.xScale() == 2.0f);
                 CHECK(firstAttrs.yScale() == 4.0f);
-                CHECK(firstAttrs.surfaceAttributes() == Model::SurfaceAttributes::makeContentsFlagsValue(12, 63, 3.14f));
+                CHECK(firstAttrs.surfaceFlags() == 63u);
+                CHECK(firstAttrs.surfaceContents() == 12u);
+                CHECK(firstAttrs.surfaceValue() == 3.14f);
                 CHECK(firstAttrs.color() == firstColor);
             }
 
@@ -171,7 +173,9 @@ namespace TrenchBroom {
                 CHECK(secondAttrs.rotation() == 45.0f);
                 CHECK(secondAttrs.xScale() == 1.0f);
                 CHECK(secondAttrs.yScale() == 1.0f);
-                CHECK(secondAttrs.surfaceAttributes() == Model::SurfaceAttributes::makeContentsFlagsValue(2048, 18, 1.0f));
+                CHECK(secondAttrs.surfaceFlags() == 18u);
+                CHECK(secondAttrs.surfaceContents() == 2048u);
+                CHECK(secondAttrs.surfaceValue() == 1.0f);
                 CHECK(secondAttrs.color() == secondColor);
             }
 
@@ -187,7 +191,7 @@ namespace TrenchBroom {
                 CHECK(thirdAttrs == secondAttrs);
             }
 
-            auto thirdFaceContentsFlags = brushNode->brush().face(thirdFaceIndex).attributes().surfaceAttributes()->surfaceContents;
+            auto thirdFaceContentsFlags = brushNode->brush().face(thirdFaceIndex).attributes().surfaceContents();
 
             document->deselectAll();
             document->select(Model::BrushFaceHandle(brushNode, secondFaceIndex));
@@ -216,10 +220,9 @@ namespace TrenchBroom {
                 CHECK(newThirdAttrs.rotation() == firstAttrs.rotation());
                 CHECK(newThirdAttrs.xScale() == firstAttrs.xScale());
                 CHECK(newThirdAttrs.yScale() == firstAttrs.yScale());
-                CHECK(newThirdAttrs.surfaceAttributes() ==
-                    Model::SurfaceAttributes::makeContentsFlagsValue(thirdFaceContentsFlags,
-                                                                     firstAttrs.surfaceAttributes()->surfaceFlags,
-                                                                     firstAttrs.surfaceAttributes()->surfaceValue));
+                CHECK(newThirdAttrs.surfaceFlags() == firstAttrs.surfaceFlags());
+                CHECK(newThirdAttrs.surfaceContents() == thirdFaceContentsFlags);
+                CHECK(newThirdAttrs.surfaceValue() == firstAttrs.surfaceValue());
                 CHECK(newThirdAttrs.color() == firstAttrs.color());
             }
         }
@@ -258,7 +261,7 @@ namespace TrenchBroom {
 
             SECTION("transfer face attributes except content flags from waterbrush to lavabrush") {
                 document->select(lavabrush);
-                CHECK(document->setFaceAttributesExceptContentFlags(waterbrush->brush().face(0)));
+                CHECK(document->setFaceAttributesExceptContentFlags(waterbrush->brush().face(0).attributes()));
 
                 SECTION("check lavabrush is now inheriting the water content flags") {
                     // Note: the contents flag wasn't transferred, but because lavabrushes's 

@@ -54,7 +54,9 @@ namespace TrenchBroom {
             defaultAttribs.setOffset(vm::vec2f(0.5f, 0.5f));
             defaultAttribs.setScale(vm::vec2f(0.5f, 0.5f));
             defaultAttribs.setRotation(45.0f);
-            defaultAttribs.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(1, 2, 0.1f));
+            defaultAttribs.setSurfaceContents(1);
+            defaultAttribs.setSurfaceFlags(2);
+            defaultAttribs.setSurfaceValue(0.1f);
             defaultAttribs.setColor(Color(255, 255, 255, 255));
 
             BrushBuilder builder(MapFormat::Standard, worldBounds, defaultAttribs);
@@ -70,7 +72,9 @@ namespace TrenchBroom {
                 CHECK(faces[i].attributes().offset() == vm::vec2f(0.5f, 0.5f));
                 CHECK(faces[i].attributes().scale() == vm::vec2f(0.5f, 0.5f));
                 CHECK(faces[i].attributes().rotation() == 45.0f);
-                CHECK(faces[i].attributes().surfaceAttributes() == Model::SurfaceAttributes::makeContentsFlagsValue(1, 2, 0.1f));
+                CHECK(faces[i].attributes().surfaceContents() == 1);
+                CHECK(faces[i].attributes().surfaceFlags() == 2);
+                CHECK(faces[i].attributes().surfaceValue() == 0.1f);
                 CHECK(faces[i].attributes().color() == Color(255, 255, 255, 255));
             }
         }

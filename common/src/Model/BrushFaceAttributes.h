@@ -33,15 +33,6 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        struct SurfaceAttributes {
-            int surfaceContents = 0;
-            int surfaceFlags = 0;
-            float surfaceValue = 0.0f;
-
-            bool operator==(const SurfaceAttributes& other) const;
-            static SurfaceAttributes makeContentsFlagsValue(int i_surfaceContents, int i_surfaceFlags, float i_surfaceValue);
-        };
-
         class BrushFaceAttributes {
         public:
             static const std::string NoTextureName;
@@ -52,7 +43,9 @@ namespace TrenchBroom {
             vm::vec2f m_scale;
             float m_rotation;
 
-            std::optional<SurfaceAttributes> m_surfaceAttributes;
+            std::optional<int> m_surfaceContents;
+            std::optional<int> m_surfaceFlags;
+            std::optional<float> m_surfaceValue;
 
             Color m_color;
         public:
@@ -79,7 +72,9 @@ namespace TrenchBroom {
             float rotation() const;
 
             bool hasSurfaceAttributes() const;
-            const std::optional<SurfaceAttributes>& surfaceAttributes() const;
+            const std::optional<int>& surfaceContents() const;
+            const std::optional<int>& surfaceFlags() const;
+            const std::optional<float>& surfaceValue() const;
 
             bool hasColor() const;
             const Color& color() const;
@@ -94,7 +89,9 @@ namespace TrenchBroom {
             bool setXScale(float xScale);
             bool setYScale(float yScale);
             bool setRotation(float rotation);
-            bool setSurfaceAttributes(const std::optional<SurfaceAttributes>& surfaceAttributes);
+            bool setSurfaceContents(const std::optional<int>& surfaceContents);
+            bool setSurfaceFlags(const std::optional<int>& surfaceFlags);
+            bool setSurfaceValue(const std::optional<float>& surfaceValue);
             bool setColor(const Color& color);
         };
     }

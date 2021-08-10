@@ -659,7 +659,9 @@ namespace TrenchBroom {
             expectedBrushFaceAttributes.setOffset(vm::vec2f(0.0f, 0.0f));
             expectedBrushFaceAttributes.setScale(vm::vec2f(0.5f, 0.5f));
             expectedBrushFaceAttributes.setRotation(0.0f);
-            expectedBrushFaceAttributes.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(1 << 0, 1 << 1, 0.0f));
+            expectedBrushFaceAttributes.setSurfaceContents(1 << 0);
+            expectedBrushFaceAttributes.setSurfaceFlags(1 << 1);
+            expectedBrushFaceAttributes.setSurfaceValue(0.0f);
             expectedBrushFaceAttributes.setColor(Color(255, 255, 255, 255));
 
             CHECK(GameConfigParser(config).parse() == Model::GameConfig(

@@ -124,7 +124,7 @@ namespace TrenchBroom {
                 document.setFaceAttributes(request);
             } else {
                 auto snapshot = sourceFaceHandle.face().takeTexCoordSystemSnapshot();
-                document.setFaceAttributesExceptContentFlags(sourceFaceHandle.face());
+                document.setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
                 if (snapshot != nullptr) {
                     document.copyTexCoordSystemFromFace(*snapshot, sourceFaceHandle.face().attributes(), sourceFaceHandle.face().boundary(), style);
                 }

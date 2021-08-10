@@ -185,7 +185,9 @@ R"(// entity 0
                 auto& face = brush1.face(*index);
                 auto attribs = face.attributes();
                 attribs.setTextureName("e1u1/brwater");
-                attribs.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(0, 0, 0.0f));
+                attribs.setSurfaceContents(0);
+                attribs.setSurfaceFlags(0);
+                attribs.setSurfaceValue(0.0f);
                 face.setAttributes(attribs);
             }
             // set -Z face to e1u1/brlava with contents 8, flags 9, value 700
@@ -196,7 +198,9 @@ R"(// entity 0
                 auto& face = brush1.face(*index);
                 auto attribs = face.attributes();
                 attribs.setTextureName("e1u1/brlava");
-                attribs.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(8, 9, 700.0f));
+                attribs.setSurfaceContents(8);
+                attribs.setSurfaceFlags(9);
+                attribs.setSurfaceValue(700.0f);
                 face.setAttributes(attribs);
             }
             // other faces are e1u1/alarm0 with unset contents/flags/value
@@ -1089,7 +1093,7 @@ R"(// entity 0
             faceAttributes.setRotation(0.003f);
             faceAttributes.setXScale(0.004f);
             faceAttributes.setYScale(0.005f);
-            faceAttributes.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(0, 0, 0.006f));
+            faceAttributes.setSurfaceValue(0.006f);
             face.setAttributes(std::move(faceAttributes));
 
             auto* brushNode = new Model::BrushNode(std::move(brush));

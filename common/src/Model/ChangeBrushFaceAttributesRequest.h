@@ -25,6 +25,7 @@
 #include <vecmath/forward.h>
 
 #include <string>
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {
@@ -48,8 +49,7 @@ namespace TrenchBroom {
                 ValueOp_None,
                 ValueOp_Set,
                 ValueOp_Add,
-                ValueOp_Mul,
-                ValueOp_Inherit
+                ValueOp_Mul
             } ValueOp;
 
             // TODO: replace with class based enum
@@ -58,7 +58,6 @@ namespace TrenchBroom {
                 FlagOp_Replace,
                 FlagOp_Set, // TODO: rename to SetBits
                 FlagOp_Unset, // TODO: rename to UnsetBits or ClearBits
-                FlagOp_Inherit
             } FlagOp;
 
             // TODO: replace with class based enum
@@ -73,9 +72,9 @@ namespace TrenchBroom {
             float m_rotation;
             float m_xScale;
             float m_yScale;
-            int m_surfaceFlags;
-            int m_contentFlags;
-            float m_surfaceValue;
+            std::optional<int> m_surfaceFlags;
+            std::optional<int> m_contentFlags;
+            std::optional<float> m_surfaceValue;
             Color m_colorValue;
 
             TextureOp m_textureOp;
@@ -95,9 +94,6 @@ namespace TrenchBroom {
             void clear();
 
             const std::string name() const;
-        private:
-            std::optional<SurfaceAttributes> evaluateSurfaceAttributes(const BrushFace& brushFace) const;
-        public:
             bool evaluate(BrushFace& brushFace) const;
 
             void resetAll(const BrushFaceAttributes& defaultFaceAttributes);
@@ -150,35 +146,15 @@ namespace TrenchBroom {
             /**
              * When evaluated, replace the target face's surface flags with `surfaceFlags`.
              */
-            void replaceSurfaceFlags(int surfaceFlags);
-            /**
-             * When evaluated, we will attempt to configure the target face to inherit surface flags
-             * from its texture.
-             * 
-             * If this isn't possible (it's only possible if all of surface flags, content flags, and surface value
-             * request to be inherited), then explicitly set the target face's surface flags to `surfaceFlags`.
-             * 
-             * This is intended for use when:
-             * 
-             * - transferring flags from face A to face B
-             * - and also transferring the texture
-             * - and face A is inheriting its surface flags
-             * 
-             * Caller should pass what face A is inheriting from its texture in the `surfaceFlags` argument.
-             * This way, if it's impossible to configure face B to inherit from its texture, at least
-             * face B will still get face A's flags value.
-             */
-            void inheritSurfaceFlags(int surfaceFlags);
+            void replaceSurfaceFlags(const std::optional<int>& surfaceFlags);
 
             void setContentFlags(int contentFlags);
             void unsetContentFlags(int contentFlags);
-            void replaceContentFlags(int contentFlags);
-            void inheritContentFlags(int contentFlags);
+            void replaceContentFlags(const std::optional<int>& contentFlags);
 
-            void setSurfaceValue(float surfaceValue);
+            void setSurfaceValue(const std::optional<float>& surfaceValue);
             void addSurfaceValue(float surfaceValue);
             void mulSurfaceValue(float surfaceValue);
-            void inheritSurfaceValue(float surfaceValue);
 
             void setColor(const Color& colorValue);
 
@@ -191,6 +167,8 @@ namespace TrenchBroom {
              * Same as setAll(), but doesn't transfer content flags.
              */
             void setAllExceptContentFlags(const Model::BrushFace& face);
+            void setAll(const Model::BrushFaceAttributes& attributes);
+            void setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes);
         };
     }
 }
