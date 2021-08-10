@@ -36,14 +36,15 @@
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QWidget>
-#include <QDesktopServices>
 
 #include "IO/ResourceUtils.h"
 #include "IO/DiskIO.h"
@@ -72,25 +73,22 @@ namespace TrenchBroom {
             m_stackedWidget = new QStackedWidget();
             m_stackedWidget->addWidget(m_defaultPage);
 
-            auto* glbShowUserConfigDirButton = new QPushButton(tr("Show user configurations..."));
-            connect(glbShowUserConfigDirButton, &QPushButton::clicked, this, &GamesPreferencePane::showUserConfigDirClicked);
+            auto* glbShowUserConfigDirButton = createBitmapButton("GeneralPreferences.svg", tr("Configuration list options menu"));
+            connect(glbShowUserConfigDirButton, &QAbstractButton::clicked, this, &GamesPreferencePane::configOptMenuClicked);
+
+            auto* buttonLayout = createMiniToolBarLayoutRightAligned(glbShowUserConfigDirButton);
 
             auto* glbLayout = new QVBoxLayout();
             glbLayout->addWidget(m_gameListBox);
-            glbLayout->addSpacing(LayoutConstants::MediumHMargin);
             glbLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
-            glbLayout->addSpacing(LayoutConstants::MediumHMargin);
-            glbLayout->addWidget(glbShowUserConfigDirButton);
-
-            auto* glbHolder = new QWidget();
-            glbHolder->setLayout(glbLayout);
+            glbLayout->addLayout(buttonLayout);
 
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(QMargins());
             layout->setSpacing(0);
             setLayout(layout);
 
-            layout->addWidget(glbHolder);
+            layout->addLayout(glbLayout);
             layout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             layout->addSpacing(LayoutConstants::MediumVMargin);
             layout->addWidget(m_stackedWidget, 1, Qt::AlignTop);
@@ -100,6 +98,12 @@ namespace TrenchBroom {
             connect(m_gameListBox, &GameListBox::currentGameChanged, this, [&]() {
                 updateControls();
             });
+        }
+
+        void GamesPreferencePane::configOptMenuClicked() {
+            auto* menu = new QMenu(this);
+            menu->addAction(tr("Show user profile directory"), this, &GamesPreferencePane::showUserConfigDirClicked);
+            menu->popup(QCursor::pos());
         }
 
         void GamesPreferencePane::showUserConfigDirClicked() {

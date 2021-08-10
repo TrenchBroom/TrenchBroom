@@ -166,6 +166,16 @@ namespace TrenchBroom {
             return layout;
         }
 
+        template <typename... Rest>
+        QLayout* createMiniToolBarLayoutRightAligned(QWidget* first, Rest... rest) {
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
+            layout->setSpacing(LayoutConstants::NarrowHMargin);
+            layout->addStretch(1);
+            addToMiniToolBarLayout(layout, first, rest...);
+            return layout;
+        }
+
         void setHint(QLineEdit* ctrl, const char* hint);
         void centerOnScreen(QWidget* window);
 
