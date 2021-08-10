@@ -70,10 +70,7 @@ namespace TrenchBroom {
                 CHECK(faces[i].attributes().offset() == vm::vec2f(0.5f, 0.5f));
                 CHECK(faces[i].attributes().scale() == vm::vec2f(0.5f, 0.5f));
                 CHECK(faces[i].attributes().rotation() == 45.0f);
-                REQUIRE(faces[i].attributes().hasSurfaceAttributes());
-                CHECK(faces[i].attributes().surfaceAttributes()->surfaceContents == 1);
-                CHECK(faces[i].attributes().surfaceAttributes()->surfaceFlags == 2);
-                CHECK(faces[i].attributes().surfaceAttributes()->surfaceValue == 0.1f);
+                CHECK(faces[i].attributes().surfaceAttributes() == Model::SurfaceAttributes::makeContentsFlagsValue(1, 2, 0.1f));
                 CHECK(faces[i].attributes().color() == Color(255, 255, 255, 255));
             }
         }

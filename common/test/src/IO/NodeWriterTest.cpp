@@ -188,7 +188,7 @@ R"(// entity 0
                 attribs.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(0, 0, 0.0f));
                 face.setAttributes(attribs);
             }
-            // set -Z to e1u1/brlava with contents 8, flags 9, value 700
+            // set -Z face to e1u1/brlava with contents 8, flags 9, value 700
             {
                 auto index = brush1.findFace(vm::vec3::neg_z());
                 REQUIRE(index);
@@ -196,11 +196,10 @@ R"(// entity 0
                 auto& face = brush1.face(*index);
                 auto attribs = face.attributes();
                 attribs.setTextureName("e1u1/brlava");
-                CHECK(!attribs.hasSurfaceAttributes());
                 attribs.setSurfaceAttributes(Model::SurfaceAttributes::makeContentsFlagsValue(8, 9, 700.0f));
-                CHECK(attribs.hasSurfaceAttributes());
                 face.setAttributes(attribs);
             }
+            // other faces are e1u1/alarm0 with unset contents/flags/value
             
             Model::BrushNode* brushNode1 = new Model::BrushNode(std::move(brush1));
             map.defaultLayer()->addChild(brushNode1);

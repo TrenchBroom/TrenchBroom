@@ -339,7 +339,7 @@ namespace TrenchBroom {
 {
 "classname" "worldspawn"
 {
-( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) lavaExplicit 56 -32 0 1 1 8 9 700 // contents flag value
+( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) attribsExplicit 56 -32 0 1 1 8 9 700
 ( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) attribsOmitted 32 32 0 1 1
 ( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) attribsExplicitlyZero 16 96 0 1 1 0 0 0
 ( -920 1088 -448 ) ( -920 1088 -416 ) ( -680 1088 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0
@@ -360,8 +360,8 @@ namespace TrenchBroom {
             Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
 
-            SECTION("attributes for face lavaExplicit") {
-                auto faceIndex = brush->brush().findFace("lavaExplicit");
+            SECTION("surface attributes for face attribsExplicit") {
+                auto faceIndex = brush->brush().findFace("attribsExplicit");
                 REQUIRE(faceIndex);
 
                 auto& face = brush->brush().face(*faceIndex);
@@ -370,7 +370,7 @@ namespace TrenchBroom {
                 CHECK(face.attributes().surfaceAttributes() == Model::SurfaceAttributes::makeContentsFlagsValue(8, 9, 700.0f));
             }
 
-            SECTION("attributes for face attribsOmitted") {
+            SECTION("surface attributes for face attribsOmitted") {
                 auto faceIndex = brush->brush().findFace("attribsOmitted");
                 REQUIRE(faceIndex);
 
@@ -379,7 +379,7 @@ namespace TrenchBroom {
                 CHECK(!face.attributes().hasSurfaceAttributes());
             }
 
-            SECTION("attributes for face attribsExplicitlyZero") {
+            SECTION("surface attributes for face attribsExplicitlyZero") {
                 auto faceIndex = brush->brush().findFace("attribsExplicitlyZero");
                 REQUIRE(faceIndex);
 
