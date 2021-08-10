@@ -156,7 +156,7 @@ namespace TrenchBroom {
              * from its texture.
              * 
              * If this isn't possible (it's only possible if all of surface flags, content flags, and surface value
-             * request to be inherited), the explicitly set the target face's surface flags to `surfaceFlags`.
+             * request to be inherited), then explicitly set the target face's surface flags to `surfaceFlags`.
              * 
              * This is intended for use when:
              * 
