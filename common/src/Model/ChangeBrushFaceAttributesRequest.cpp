@@ -111,18 +111,12 @@ namespace TrenchBroom {
          * Returns the SurfaceAttributes that we should set on `brushFace` in order to apply this request.
          */
         std::optional<SurfaceAttributes> ChangeBrushFaceAttributesRequest::evaluateSurfaceAttributes(const BrushFace& brushFace) const {
-            // We can only support "Inherit" on all 3 (flags, contents, value) together
-            if (m_surfaceFlagsOp == FlagOp_Inherit
-                && m_contentFlagsOp == FlagOp_Inherit
-                && m_surfaceValueOp == ValueOp_Inherit) {
-                return std::nullopt;
-            }
+            const bool faceHasSurfaceAttributes = brushFace.attributes().hasSurfaceAttributes();
 
-            // None, None, None: pass through the old optional (whether it had a value or not)
-            if (m_surfaceFlagsOp == FlagOp_None
-                && m_contentFlagsOp == FlagOp_None
-                && m_surfaceValueOp == FlagOp_None) {
-                return brushFace.attributes().surfaceAttributes();
+            if ((m_surfaceFlagsOp == FlagOp_Inherit || (m_surfaceFlagsOp == FlagOp_None && !faceHasSurfaceAttributes))
+             && (m_contentFlagsOp == FlagOp_Inherit || (m_contentFlagsOp == FlagOp_None && !faceHasSurfaceAttributes))
+             && (m_surfaceValueOp == ValueOp_Inherit || (m_surfaceValueOp == ValueOp_None && !faceHasSurfaceAttributes))) {
+                return std::nullopt;
             }
 
             SurfaceAttributes surfAttribs;
