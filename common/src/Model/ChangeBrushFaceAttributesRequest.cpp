@@ -47,22 +47,14 @@ namespace TrenchBroom {
         }
 
         template <typename T>
-        static T valueOrZero(const std::optional<T>& option) {
-            if (option) {
-                return *option;
-            }
-            return T{};
-        }
-
-        template <typename T>
-        static std::optional<T> evaluateValueOp(const std::optional<T>& oldValue, const std::optional<T>& newValue, const ChangeBrushFaceAttributesRequest::ValueOp op) {
+        static std::optional<T> evaluateValueOp(const std::optional<T>& oldValue, const T oldValueFallback, const std::optional<T>& newValue, const ChangeBrushFaceAttributesRequest::ValueOp op) {
             switch (op) {
                 case ChangeBrushFaceAttributesRequest::ValueOp_Set:
                     return newValue;
                 case ChangeBrushFaceAttributesRequest::ValueOp_Add:
-                    return valueOrZero(oldValue) + valueOrZero(newValue);
+                    return oldValue.value_or(oldValueFallback) + newValue.value_or(T{});
                 case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
-                    return valueOrZero(oldValue) * valueOrZero(newValue);
+                    return oldValue.value_or(oldValueFallback) * newValue.value_or(T{});
                 case ChangeBrushFaceAttributesRequest::ValueOp_None:
                     return oldValue;
                     switchDefault()
@@ -85,14 +77,14 @@ namespace TrenchBroom {
         }
 
         template <typename T>
-        static std::optional<T> evaluateFlagOp(const std::optional<T>& oldValue, const std::optional<T>& newValue, const ChangeBrushFaceAttributesRequest::FlagOp op) {
+        static std::optional<T> evaluateFlagOp(const std::optional<T>& oldValue, const T oldValueFallback, const std::optional<T>& newValue, const ChangeBrushFaceAttributesRequest::FlagOp op) {
             switch (op) {
                 case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
                     return newValue;
                 case ChangeBrushFaceAttributesRequest::FlagOp_Set:
-                    return valueOrZero(oldValue) | valueOrZero(newValue);
+                    return oldValue.value_or(oldValueFallback) | newValue.value_or(T{});
                 case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
-                    return valueOrZero(oldValue) & ~valueOrZero(newValue);
+                    return oldValue.value_or(oldValueFallback) & ~newValue.value_or(T{});
                 case ChangeBrushFaceAttributesRequest::FlagOp_None:
                     return oldValue;
                     switchDefault()
@@ -160,10 +152,10 @@ namespace TrenchBroom {
             result |= attributes.setRotation(evaluateValueOp(attributes.rotation(), m_rotation, m_rotationOp));
             result |= attributes.setXScale(evaluateValueOp(attributes.xScale(), m_xScale, m_xScaleOp));
             result |= attributes.setYScale(evaluateValueOp(attributes.yScale(), m_yScale, m_yScaleOp));
-            result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
-            result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), m_contentFlags, m_contentFlagsOp));
-            result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), m_surfaceValue, m_surfaceValueOp));
-            result |= attributes.setColor(evaluateValueOp(attributes.color(), m_colorValue, m_colorValueOp));
+            result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), brushFace.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
+            result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), brushFace.surfaceContents(), m_contentFlags, m_contentFlagsOp));
+            result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), brushFace.surfaceValue(), m_surfaceValue, m_surfaceValueOp));
+            result |= attributes.setColor(evaluateValueOp(attributes.color(), Color{}, m_colorValue, m_colorValueOp));
 
             brushFace.setAttributes(attributes);
             
