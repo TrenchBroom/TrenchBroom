@@ -385,6 +385,10 @@ namespace TrenchBroom {
             return 0.0f;
         }
 
+        Color BrushFace::color() const {
+            return m_attributes.color().value_or(Color{});
+        }
+
         void BrushFace::resetTexCoordSystemCache() {
             if (m_texCoordSystem != nullptr) {
                 m_texCoordSystem->resetCache(m_points[0], m_points[1], m_points[2], m_attributes);

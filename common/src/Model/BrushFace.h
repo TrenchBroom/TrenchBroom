@@ -164,6 +164,7 @@ namespace TrenchBroom {
             int surfaceContents() const;
             int surfaceFlags() const;
             float surfaceValue() const;
+            Color color() const;
 
             void resetTexCoordSystemCache();
             const TexCoordSystem& texCoordSystem() const;
