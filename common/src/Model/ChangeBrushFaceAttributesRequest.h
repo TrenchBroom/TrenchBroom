@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Color.h"
-#include "Model/BrushFaceAttributes.h"
 
 #include <vecmath/forward.h>
 

@@ -155,7 +155,7 @@ namespace TrenchBroom {
             result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), brushFace.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
             result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), brushFace.surfaceContents(), m_contentFlags, m_contentFlagsOp));
             result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), brushFace.surfaceValue(), m_surfaceValue, m_surfaceValueOp));
-            result |= attributes.setColor(evaluateValueOp(attributes.color(), Color{}, m_colorValue, m_colorValueOp));
+            result |= attributes.setColor(evaluateValueOp(attributes.color(), brushFace.color(), m_colorValue, m_colorValueOp));
 
             brushFace.setAttributes(attributes);
             
