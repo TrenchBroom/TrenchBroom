@@ -242,7 +242,7 @@ namespace TrenchBroom {
             CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
         }
 
-        TEST_CASE("ChangeBrushFaceAttributesTest.setFaceAttributesExceptContentFlags") {
+        TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest") {
             const int WaterFlag = 32;
             const int LavaFlag = 8;
 
@@ -270,6 +270,17 @@ namespace TrenchBroom {
                     CHECK(lavabrush->brush().face(0).surfaceContents() == WaterFlag);
                     CHECK(lavabrush->brush().face(0).attributes().textureName() == "watertest");
                 }
+            }
+
+            SECTION("setting a content flag when the existing one is inherited keeps the existing one") {
+                document->select(lavabrush);
+
+                Model::ChangeBrushFaceAttributesRequest request;
+                request.setContentFlags(WaterFlag);
+                CHECK(document->setFaceAttributes(request));
+
+                CHECK(lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
+                CHECK(lavabrush->brush().face(0).surfaceContents() == (WaterFlag | LavaFlag));
             }
         }
     }
