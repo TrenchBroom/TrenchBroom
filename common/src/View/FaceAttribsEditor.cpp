@@ -50,6 +50,7 @@
 #include <string>
 
 #include <QtGlobal>
+#include <QAbstractButton>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
