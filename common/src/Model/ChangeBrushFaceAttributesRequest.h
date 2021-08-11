@@ -75,7 +75,7 @@ namespace TrenchBroom {
             std::optional<int> m_surfaceFlags;
             std::optional<int> m_contentFlags;
             std::optional<float> m_surfaceValue;
-            Color m_colorValue;
+            std::optional<Color> m_colorValue;
 
             TextureOp m_textureOp;
             AxisOp m_axisOp;
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             void addSurfaceValue(float surfaceValue);
             void mulSurfaceValue(float surfaceValue);
 
-            void setColor(const Color& colorValue);
+            void setColor(const std::optional<Color>& colorValue);
 
             /**
             * Configures `this` so, when evaluated, it transfers all attributes from the given 

@@ -51,7 +51,7 @@ namespace TrenchBroom {
             if (option) {
                 return *option;
             }
-            return static_cast<T>(0);
+            return T{};
         }
 
         template <typename T>
@@ -367,7 +367,7 @@ namespace TrenchBroom {
             m_surfaceValueOp = ValueOp_Mul;
         }
 
-        void ChangeBrushFaceAttributesRequest::setColor(const Color& colorValue) {
+        void ChangeBrushFaceAttributesRequest::setColor(const std::optional<Color>& colorValue) {
             m_colorValue = colorValue;
             m_colorValueOp = ValueOp_Set;
         }

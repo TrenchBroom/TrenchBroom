@@ -492,7 +492,7 @@ namespace TrenchBroom {
                 int mixedSurfaceContents = 0;
                 const float surfaceValue = firstFace.surfaceValue();
                 bool hasColorValue = firstFace.attributes().hasColor();
-                const Color colorValue = firstFace.attributes().color();
+                const std::optional<Color> colorValue = firstFace.attributes().color();
 
 
                 for (size_t i = 1; i < faceHandles.size(); i++) {
@@ -558,7 +558,7 @@ namespace TrenchBroom {
                         m_colorEditor->setText("");
                     } else {
                         m_colorEditor->setPlaceholderText("");
-                        m_colorEditor->setText(QString::fromStdString(kdl::str_to_string(colorValue)));
+                        m_colorEditor->setText(QString::fromStdString(kdl::str_to_string(*colorValue)));
                     }
                 } else {
                     m_colorEditor->setPlaceholderText("");

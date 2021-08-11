@@ -136,10 +136,10 @@ namespace TrenchBroom {
         }
 
         bool BrushFaceAttributes::hasColor() const {
-            return m_color.a() > 0.0f;
+            return m_color.has_value();
         }
         
-        const Color& BrushFaceAttributes::color() const {
+        const std::optional<Color>& BrushFaceAttributes::color() const {
             return m_color;
         }
 
@@ -246,7 +246,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool BrushFaceAttributes::setColor(const Color& color) {
+        bool BrushFaceAttributes::setColor(const std::optional<Color>& color) {
             if (color == m_color) {
                 return false;
             } else {

@@ -47,7 +47,7 @@ namespace TrenchBroom {
             std::optional<int> m_surfaceFlags;
             std::optional<float> m_surfaceValue;
 
-            Color m_color;
+            std::optional<Color> m_color;
         public:
             explicit BrushFaceAttributes(std::string_view textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             const std::optional<float>& surfaceValue() const;
 
             bool hasColor() const;
-            const Color& color() const;
+            const std::optional<Color>& color() const;
 
             bool valid() const;
 
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             bool setSurfaceContents(const std::optional<int>& surfaceContents);
             bool setSurfaceFlags(const std::optional<int>& surfaceFlags);
             bool setSurfaceValue(const std::optional<float>& surfaceValue);
-            bool setColor(const Color& color);
+            bool setColor(const std::optional<Color>& color);
         };
     }
 }
