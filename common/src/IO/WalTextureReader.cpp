@@ -96,6 +96,8 @@ namespace TrenchBroom {
             static Assets::TextureBufferList buffers(MaxMipLevels);
             static size_t offsets[MaxMipLevels];
 
+            // https://gist.github.com/DanielGibson/a53c74b10ddd0a1f3d6ab42909d5b7e1
+
             const char version = reader.readChar<char>();
             ensure(version == 3, "Unknown WAL texture version");
 
@@ -112,12 +114,18 @@ namespace TrenchBroom {
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
             Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
-            reader.seekForward(32 + 2 * sizeof(uint32_t)); // animation name, flags, contents
+            /* const std::string animname = */ reader.readString(WalLayout::TextureNameLength);
+            const auto flags = reader.readInt<int32_t>();
+            const auto contents = reader.readInt<int32_t>();
 
             auto paletteReader = reader.subReaderFromCurrent(3 * 256);
+            reader.seekForward(3 * 256); // seek past palette
+            const auto value = reader.readInt<int32_t>();
+            const auto gameData = Assets::Q2Data{flags, contents, value};
+
             const auto embeddedPalette = Assets::Palette::fromRaw(paletteReader);
             const auto hasTransparency = readMips(embeddedPalette, mipLevels, offsets, width, height, reader, buffers, averageColor, Assets::PaletteTransparency::Index255Transparent);
-            return Assets::Texture(textureName(name, path), width, height, averageColor, std::move(buffers), GL_RGBA, hasTransparency ? Assets::TextureType::Masked : Assets::TextureType::Opaque);
+            return Assets::Texture{textureName(name, path), width, height, averageColor, std::move(buffers), GL_RGBA, hasTransparency ? Assets::TextureType::Masked : Assets::TextureType::Opaque, gameData};
         }
 
         size_t WalTextureReader::readMipOffsets(const size_t maxMipLevels, size_t offsets[], const size_t width, const size_t height, Reader& reader) const {
