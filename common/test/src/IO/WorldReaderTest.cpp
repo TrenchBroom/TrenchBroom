@@ -492,11 +492,11 @@ namespace TrenchBroom {
             REQUIRE(b_rc_v16w_index);
             REQUIRE(c_mf_v3cww_index);
             
-            CHECK(vm::is_equal(Color(5, 6, 7), brush.face(*c_mf_v3cw_index).attributes().color(), 0.1f));
+            CHECK(vm::is_equal(Color(5, 6, 7), *brush.face(*c_mf_v3cw_index).attributes().color(), 0.1f));
             CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceContents() == 1);
             CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceFlags() == 2);
             CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceValue() == 3.0);
-            CHECK(vm::is_equal(Color(8, 9, 10), brush.face(*b_rc_v16w_index).attributes().color(), 0.1f));
+            CHECK(vm::is_equal(Color(8, 9, 10), *brush.face(*b_rc_v16w_index).attributes().color(), 0.1f));
             CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
         }
 
