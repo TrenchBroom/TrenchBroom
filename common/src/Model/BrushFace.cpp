@@ -354,9 +354,8 @@ namespace TrenchBroom {
                 return *m_attributes.surfaceContents();
             }
             if (texture()) {
-                auto& gameData = texture()->gameData();
-                if (std::holds_alternative<Assets::Q2Data>(gameData)) {
-                    return std::get<Assets::Q2Data>(gameData).contents;
+                if (auto q2data = std::get_if<Assets::Q2Data>(&texture()->gameData())) {
+                    return q2data->contents;
                 }
             }
             return 0;
@@ -367,9 +366,8 @@ namespace TrenchBroom {
                 return *m_attributes.surfaceFlags();
             }
             if (texture()) {
-                auto& gameData = texture()->gameData();
-                if (std::holds_alternative<Assets::Q2Data>(gameData)) {
-                    return std::get<Assets::Q2Data>(gameData).flags;
+                if (auto q2data = std::get_if<Assets::Q2Data>(&texture()->gameData())) {
+                    return q2data->flags;
                 }
             }
             return 0;
@@ -380,9 +378,8 @@ namespace TrenchBroom {
                 return *m_attributes.surfaceValue();
             }
             if (texture()) {
-                auto& gameData = texture()->gameData();
-                if (std::holds_alternative<Assets::Q2Data>(gameData)) {
-                    return static_cast<float>(std::get<Assets::Q2Data>(gameData).value);
+                if (auto q2data = std::get_if<Assets::Q2Data>(&texture()->gameData())) {
+                    return static_cast<float>(q2data->value);
                 }
             }
             return 0.0f;
