@@ -125,6 +125,7 @@ namespace TrenchBroom {
         public:
             void setIsCurrent(bool isCurrent);
         private:
+            void bindEvents();
             void connectObservers();
 
             void createActionsAndUpdatePicking();

@@ -100,6 +100,7 @@ namespace TrenchBroom {
         m_isCurrent(false),
         m_updateActionStatesSignalDelayer{new SignalDelayer{this}} {
             setToolBox(toolBox);
+            bindEvents();
             connectObservers();
 
             setAcceptDrops(true);
@@ -121,6 +122,10 @@ namespace TrenchBroom {
 
         void MapViewBase::setIsCurrent(const bool isCurrent) {
             m_isCurrent = isCurrent;
+        }
+
+        void MapViewBase::bindEvents() {
+            connect(m_updateActionStatesSignalDelayer, &SignalDelayer::processSignal, this, &MapViewBase::updateActionStates);
         }
 
         void MapViewBase::connectObservers() {
