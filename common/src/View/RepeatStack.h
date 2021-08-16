@@ -87,6 +87,7 @@ namespace TrenchBroom {
 
             /**
              * Clears all repeatable actions on this stack.
+             * Discards any open transactions without committing them.
              * 
              * The stack must not be repeating actions when this function is called.
              */ 
@@ -106,18 +107,24 @@ namespace TrenchBroom {
              * 
              * The main use of transactions is you can call rollbackTransaction() 
              * to clear all repeatable actions/transactions in the currently open transaction.
+             * 
+             * Has no effect if we are currently repeating actions.
              */
             void startTransaction();
             /**
              * Closes the currently open transaction. If there is a parent transaction,
              * pushes it to the end of that transaction, which becomes the new currently open transaction,
              * otherwise pushes it to the end of the main action stack.
+             * 
+             * Has no effect if we are currently repeating actions.
              */
             void commitTransaction();
             /**
              * Clear all repeatable actions/transactions in the currently open transaction.
              * The transaction remains open, i.e. you still need to call commitTransaction()
              * or can push more actions.
+             * 
+             * Has no effect if we are currently repeating actions.
              */
             void rollbackTransaction();
         };

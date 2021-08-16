@@ -19,6 +19,8 @@
 
 #include "RepeatStack.h"
 
+#include "Ensure.h"
+
 #include <kdl/overload.h>
 #include <kdl/set_temp.h>
 
@@ -74,6 +76,7 @@ namespace TrenchBroom {
         void RepeatStack::clear() {
             assert(!m_repeating);
             m_stack.clear();
+            m_openTransactionsStack.clear();
         }
 
         void RepeatStack::clearOnNextPush() {
@@ -91,11 +94,12 @@ namespace TrenchBroom {
             if (m_repeating) {
                 return;
             }
-            assert(!m_openTransactionsStack.empty());
+            ensure(!m_openTransactionsStack.empty(), "a transaction is open");
 
             auto transaction = std::move(m_openTransactionsStack.back());
             m_openTransactionsStack.pop_back();
 
+            // discard empty transactions
             if (transaction->actions.empty()) {
                 return;
             }
@@ -114,7 +118,7 @@ namespace TrenchBroom {
             if (m_repeating) {
                 return;
             }
-            assert(!m_openTransactionsStack.empty());
+            ensure(!m_openTransactionsStack.empty(), "a transaction is open");
 
             auto& openTransaction = m_openTransactionsStack.back();
             openTransaction->actions.clear();
