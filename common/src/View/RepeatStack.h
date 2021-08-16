@@ -20,6 +20,8 @@
 #pragma once
 
 #include <functional>
+#include <memory>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -37,8 +39,17 @@ namespace TrenchBroom {
         class RepeatStack {
         public:
             using RepeatableAction = std::function<void()>;
+            struct Transaction;
+            using CompositeAction = std::variant<RepeatableAction, std::unique_ptr<Transaction>>;
+            struct Transaction {
+                std::vector<CompositeAction> actions;
+            };
         private:
-            std::vector<RepeatableAction> m_stack;
+            std::vector<CompositeAction> m_stack;
+            /**
+             * If nonempty, the last element is the currently open transaction.
+             */
+            std::vector<std::unique_ptr<Transaction>> m_openTransactionsStack;
             bool m_clearOnNextPush;
             mutable bool m_repeating;
         public:
@@ -49,11 +60,14 @@ namespace TrenchBroom {
 
             /**
              * Returns the number of repeatable actions on this repeat stack.
+             * Doesn't count open transactions.
              */
             size_t size() const;
 
             /**
              * Adds the given repeatable action to this repeat stack.
+             * 
+             * If a transaction is open, the action is added to the transaction.
              * 
              * If this stack is currently repeating actions, the given action is not added.
              * If clearOnNextPush() was called, the repeat stack will be cleared before the given action
@@ -86,6 +100,26 @@ namespace TrenchBroom {
              * is cleared.
              */
             void clearOnNextPush();
+        public: // transactions
+            /**
+             * Start a transaction (pushes an open transaction onto the transactions stack.)
+             * 
+             * The main use of transactions is you can call rollbackTransaction() 
+             * to clear all repeatable actions/transactions in the currently open transaction.
+             */
+            void startTransaction();
+            /**
+             * Closes the currently open transaction. If there is a parent transaction,
+             * pushes it to the end of that transaction, which becomes the new currently open transaction,
+             * otherwise pushes it to the end of the main action stack.
+             */
+            void commitTransaction();
+            /**
+             * Clear all repeatable actions/transactions in the currently open transaction.
+             * The transaction remains open, i.e. you still need to call commitTransaction()
+             * or can push more actions.
+             */
+            void rollbackTransaction();
         };
     }
 }

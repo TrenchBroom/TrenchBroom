@@ -19,6 +19,7 @@
 
 #include "RepeatStack.h"
 
+#include <kdl/overload.h>
 #include <kdl/set_temp.h>
 
 #include <cassert>
@@ -39,14 +40,34 @@ namespace TrenchBroom {
                     m_clearOnNextPush = false;
                     clear();
                 }
-                m_stack.push_back(std::move(repeatableAction));
+
+                if (m_openTransactionsStack.empty()) {
+                    m_stack.push_back(std::move(repeatableAction));
+                } else {
+                    auto& openTransaction = m_openTransactionsStack.back();
+                    openTransaction->actions.push_back(std::move(repeatableAction));
+                }
             }
         }
 
         void RepeatStack::repeat() const {
             const kdl::set_temp repeating(m_repeating);
+
+            const std::function<void(const CompositeAction&)> performComposite = [&](const CompositeAction& c) {
+                std::visit(kdl::overload(
+                    [](const RepeatableAction& r) {
+                        r();
+                    },
+                    [&](const std::unique_ptr<Transaction>& t) {
+                        for (const auto& transactionAction : t->actions) {
+                            performComposite(transactionAction);
+                        }
+                    }
+                ), c);
+            };
+
             for (const auto& repeatable : m_stack) {
-                repeatable();
+                performComposite(repeatable);
             }
         }
 
@@ -57,6 +78,46 @@ namespace TrenchBroom {
 
         void RepeatStack::clearOnNextPush() {
             m_clearOnNextPush = true;
+        }
+
+        void RepeatStack::startTransaction() {
+            if (m_repeating) {
+                return;
+            }
+            m_openTransactionsStack.push_back(std::make_unique<Transaction>());
+        }
+
+        void RepeatStack::commitTransaction() {
+            if (m_repeating) {
+                return;
+            }
+            assert(!m_openTransactionsStack.empty());
+
+            auto transaction = std::move(m_openTransactionsStack.back());
+            m_openTransactionsStack.pop_back();
+
+            if (transaction->actions.empty()) {
+                return;
+            }
+
+            if (m_openTransactionsStack.empty()) {
+                // commit the transaction to the main stack
+                m_stack.push_back(std::move(transaction));
+            } else {
+                // commit to the end of the parent transaction
+                auto& openTransaction = m_openTransactionsStack.back();
+                openTransaction->actions.push_back(std::move(transaction));
+            }
+        }
+
+        void RepeatStack::rollbackTransaction() {
+            if (m_repeating) {
+                return;
+            }
+            assert(!m_openTransactionsStack.empty());
+
+            auto& openTransaction = m_openTransactionsStack.back();
+            openTransaction->actions.clear();
         }
     }
 }

@@ -205,5 +205,61 @@ namespace TrenchBroom {
             document->select(entityNode1);
             CHECK(document->canRepeatCommands());
         }
+
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction") {
+            auto* entityNode1 = new Model::EntityNode();
+            addNode(*document, document->parentForNodes(), entityNode1);
+
+            document->select(entityNode1);
+            CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
+
+            document->startTransaction();
+            document->translateObjects(vm::vec3(0, 0, 10));
+            document->rollbackTransaction();
+            document->translateObjects(vm::vec3(10, 0, 0));
+            document->commitTransaction();
+            // overall result: x += 10
+
+            CHECK(entityNode1->entity().origin() == vm::vec3(10, 0, 0));
+
+            // now repeat the transaction on a second entity
+
+            auto* entityNode2 = new Model::EntityNode();
+            addNode(*document, document->parentForNodes(), entityNode2);
+
+            document->deselectAll();
+            document->select(entityNode2);
+            CHECK(entityNode2->entity().origin() == vm::vec3(0, 0, 0));
+
+            CHECK(document->canRepeatCommands());
+            document->repeatCommands();
+            CHECK(entityNode2->entity().origin() == vm::vec3(10, 0, 0));
+
+            document->repeatCommands();
+            CHECK(entityNode2->entity().origin() == vm::vec3(20, 0, 0));
+
+            // ensure entityNode1 was unmodified 
+
+            CHECK(entityNode1->entity().origin() == vm::vec3(10, 0, 0));
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatUndo") {
+            auto* entityNode1 = new Model::EntityNode();
+            addNode(*document, document->parentForNodes(), entityNode1);
+
+            document->select(entityNode1);
+            CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
+
+            document->translateObjects(vm::vec3(0, 0, 10));
+            CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 10));
+            CHECK(document->canRepeatCommands());
+
+            document->undoCommand();
+            CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
+
+            // For now, we won't support repeating a sequence of commands
+            // containing undo/redo (it just clears the repeat stack)
+            CHECK(!document->canRepeatCommands());
+        }
     }
 }
