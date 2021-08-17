@@ -206,41 +206,49 @@ namespace TrenchBroom {
             CHECK(document->canRepeatCommands());
         }
 
-        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction") {
+        TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTranslate") {
             auto* entityNode1 = new Model::EntityNode();
             addNode(*document, document->parentForNodes(), entityNode1);
 
             document->select(entityNode1);
             CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
 
-            document->startTransaction();
-            document->translateObjects(vm::vec3(0, 0, 10));
-            document->rollbackTransaction();
-            document->translateObjects(vm::vec3(10, 0, 0));
-            document->commitTransaction();
-            // overall result: x += 10
+            document->duplicateObjects();
 
-            CHECK(entityNode1->entity().origin() == vm::vec3(10, 0, 0));
+            SECTION("one transaction containing a rollback") {
+                document->startTransaction();
+                document->translateObjects(vm::vec3(0, 0, 10));
+                document->rollbackTransaction();
+                document->translateObjects(vm::vec3(10, 0, 0));
+                document->commitTransaction();
+            }
+            SECTION("commands that get coalesced") {
+                document->translateObjects(vm::vec3(5, 0, 0));
+                document->translateObjects(vm::vec3(5, 0, 0));
+            }
+            
+            // repeatable actions:
+            //  - duplicate
+            //  - translate by x = +10
+            
+            REQUIRE(document->allSelectedEntityNodes().size() == 1);
 
-            // now repeat the transaction on a second entity
+            auto* entityNode2 = document->allSelectedEntityNodes().at(0);
+            CHECK(entityNode2 != entityNode1);
 
-            auto* entityNode2 = new Model::EntityNode();
-            addNode(*document, document->parentForNodes(), entityNode2);
-
-            document->deselectAll();
-            document->select(entityNode2);
-            CHECK(entityNode2->entity().origin() == vm::vec3(0, 0, 0));
-
-            CHECK(document->canRepeatCommands());
-            document->repeatCommands();
+            CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
             CHECK(entityNode2->entity().origin() == vm::vec3(10, 0, 0));
 
             document->repeatCommands();
-            CHECK(entityNode2->entity().origin() == vm::vec3(20, 0, 0));
 
-            // ensure entityNode1 was unmodified 
+            REQUIRE(document->allSelectedEntityNodes().size() == 1);
 
-            CHECK(entityNode1->entity().origin() == vm::vec3(10, 0, 0));
+            auto* entityNode3 = document->allSelectedEntityNodes().at(0);
+            CHECK(entityNode3 != entityNode2);
+
+            CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
+            CHECK(entityNode2->entity().origin() == vm::vec3(10, 0, 0));
+            CHECK(entityNode3->entity().origin() == vm::vec3(20, 0, 0));
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatUndo") {

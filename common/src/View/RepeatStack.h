@@ -90,11 +90,13 @@ namespace TrenchBroom {
              * Discards any open transactions without committing them.
              * 
              * The stack must not be repeating actions when this function is called.
+             * There also must not be any open transaction.
              */ 
             void clear();
 
             /**
-             * Prime the stack so that it is cleared when the next action is pushed.
+             * Prime the stack so that it is cleared when the next action is pushed
+             * (to the main stack, not to an open transaction).
              * 
              * The effect is that the action currently on the stack can still be repeated
              * (even multiple times). But when the next action is pushed onto the stack, it

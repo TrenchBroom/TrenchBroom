@@ -38,7 +38,7 @@ namespace TrenchBroom {
 
         void RepeatStack::push(RepeatableAction repeatableAction) {
             if (!m_repeating) {
-                if (m_clearOnNextPush) {
+                if (m_clearOnNextPush && m_openTransactionsStack.empty()) {
                     m_clearOnNextPush = false;
                     clear();
                 }
@@ -74,9 +74,9 @@ namespace TrenchBroom {
         }
 
         void RepeatStack::clear() {
-            assert(!m_repeating);
+            ensure(!m_repeating, "The stack must not be repeating actions when this function is called");
+            ensure(m_openTransactionsStack.empty(), "must not be called with open transactions");
             m_stack.clear();
-            m_openTransactionsStack.clear();
         }
 
         void RepeatStack::clearOnNextPush() {
