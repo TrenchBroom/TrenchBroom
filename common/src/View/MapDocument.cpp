@@ -1329,11 +1329,13 @@ namespace TrenchBroom {
 
                 nodesToSelect.push_back(clone);
             }
-
-            Transaction transaction(this, "Duplicate Objects");
-            deselectAll();
-            addNodes(nodesToAdd);
-            select(nodesToSelect);
+            
+            {
+                Transaction transaction(this, "Duplicate Objects");
+                deselectAll();
+                addNodes(nodesToAdd);
+                select(nodesToSelect);
+            }
 
             if (m_viewEffectsService) {
                 m_viewEffectsService->flashSelection();
