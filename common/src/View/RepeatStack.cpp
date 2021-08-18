@@ -36,14 +36,14 @@ namespace TrenchBroom {
             return m_stack.size();
         }
 
-        void RepeatStack::push(RepeatableAction repeatableAction) {
+        void RepeatStack::push(CompositeAction repeatableAction) {
             if (!m_repeating) {
-                if (m_clearOnNextPush && m_openTransactionsStack.empty()) {
-                    m_clearOnNextPush = false;
-                    clear();
-                }
-
                 if (m_openTransactionsStack.empty()) {
+                    if (m_clearOnNextPush) {
+                        m_clearOnNextPush = false;
+                        clear();
+                    }
+
                     m_stack.push_back(std::move(repeatableAction));
                 } else {
                     auto& openTransaction = m_openTransactionsStack.back();
@@ -53,6 +53,8 @@ namespace TrenchBroom {
         }
 
         void RepeatStack::repeat() const {
+            ensure(m_openTransactionsStack.empty(), "must not be called with open transactions");
+
             const kdl::set_temp repeating(m_repeating);
 
             const std::function<void(const CompositeAction&)> performComposite = [&](const CompositeAction& c) {
@@ -80,6 +82,9 @@ namespace TrenchBroom {
         }
 
         void RepeatStack::clearOnNextPush() {
+            if (!m_openTransactionsStack.empty()) {
+                return;
+            }
             m_clearOnNextPush = true;
         }
 
@@ -104,14 +109,8 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (m_openTransactionsStack.empty()) {
-                // commit the transaction to the main stack
-                m_stack.push_back(std::move(transaction));
-            } else {
-                // commit to the end of the parent transaction
-                auto& openTransaction = m_openTransactionsStack.back();
-                openTransaction->actions.push_back(std::move(transaction));
-            }
+            // push it onto the next open transaction (or the main stack)
+            push(std::move(transaction));
         }
 
         void RepeatStack::rollbackTransaction() {

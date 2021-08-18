@@ -248,20 +248,33 @@ namespace TrenchBroom {
             addNode(*document, document->parentForNodes(), entityNode1);
 
             document->select(entityNode1);
-            CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
+            CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));            
 
-            document->duplicateObjects();
+            SECTION("transaction containing a rollback") {
+                document->duplicateObjects();
 
-            SECTION("one transaction containing a rollback") {
                 document->startTransaction();
                 document->translateObjects(vm::vec3(0, 0, 10));
                 document->rollbackTransaction();
                 document->translateObjects(vm::vec3(10, 0, 0));
                 document->commitTransaction();
             }
-            SECTION("commands that get coalesced") {
+            SECTION("translations that get coalesced") {
+                document->duplicateObjects();
+
                 document->translateObjects(vm::vec3(5, 0, 0));
                 document->translateObjects(vm::vec3(5, 0, 0));
+            }
+            SECTION("duplicate inside transaction, then standalone movements") {
+                document->startTransaction();
+                document->duplicateObjects();
+                document->translateObjects(vm::vec3(2, 0, 0));
+                document->translateObjects(vm::vec3(2, 0, 0));
+                document->commitTransaction();
+
+                document->translateObjects(vm::vec3(2, 0, 0));
+                document->translateObjects(vm::vec3(2, 0, 0));
+                document->translateObjects(vm::vec3(2, 0, 0));
             }
             
             // repeatable actions:

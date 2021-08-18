@@ -75,7 +75,7 @@ namespace TrenchBroom {
              * 
              * @param repeatableAction the action to add
              */
-            void push(RepeatableAction repeatableAction);
+            void push(CompositeAction repeatableAction);
 
             /**
              * Repeats the actions on this stack in the order in which they were added.
