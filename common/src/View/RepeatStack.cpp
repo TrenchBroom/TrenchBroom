@@ -76,8 +76,10 @@ namespace TrenchBroom {
         }
 
         void RepeatStack::clear() {
-            ensure(!m_repeating, "The stack must not be repeating actions when this function is called");
-            ensure(m_openTransactionsStack.empty(), "must not be called with open transactions");
+            if (!m_openTransactionsStack.empty()) {
+                return;
+            }
+            assert(!m_repeating);
             m_stack.clear();
         }
 

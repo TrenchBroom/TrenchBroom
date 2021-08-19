@@ -87,10 +87,10 @@ namespace TrenchBroom {
 
             /**
              * Clears all repeatable actions on this stack.
-             * Discards any open transactions without committing them.
              * 
              * The stack must not be repeating actions when this function is called.
-             * There also must not be any open transaction.
+             * 
+             * Has no effect if any transaction is currently open.
              */ 
             void clear();
 
@@ -101,6 +101,8 @@ namespace TrenchBroom {
              * The effect is that the action currently on the stack can still be repeated
              * (even multiple times). But when the next action is pushed onto the stack, it
              * is cleared.
+             * 
+             * Has no effect if any transaction is currently open.
              */
             void clearOnNextPush();
         public: // transactions
