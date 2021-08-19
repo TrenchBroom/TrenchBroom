@@ -82,6 +82,8 @@ namespace TrenchBroom {
              *
              * No new actions will be added to the stack while it is repeating, so the list of
              * actions on the stack will be the same when this function finishes.
+             * 
+             * Has no effect if any transaction is currently open.
              */
             void repeat() const;
 

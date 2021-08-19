@@ -53,7 +53,9 @@ namespace TrenchBroom {
         }
 
         void RepeatStack::repeat() const {
-            ensure(m_openTransactionsStack.empty(), "must not be called with open transactions");
+            if (!m_openTransactionsStack.empty()) {
+                return;
+            }
 
             const kdl::set_temp repeating(m_repeating);
 
