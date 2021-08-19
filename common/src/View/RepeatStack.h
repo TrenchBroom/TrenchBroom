@@ -70,8 +70,8 @@ namespace TrenchBroom {
              * If a transaction is open, the action is added to the transaction.
              * 
              * If this stack is currently repeating actions, the given action is not added.
-             * If clearOnNextPush() was called, the repeat stack will be cleared before the given action
-             * is added.
+             * If clearOnNextPush() was called, and no transactions are open, 
+             * the repeat stack will be cleared before the given action is added.
              * 
              * @param repeatableAction the action to add
              */
