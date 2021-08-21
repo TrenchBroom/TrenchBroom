@@ -252,12 +252,12 @@ namespace TrenchBroom {
             auto* lavabrush = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(0));
             REQUIRE(lavabrush);
             CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
-            CHECK(lavabrush->brush().face(0).surfaceContents() == LavaFlag); // comes from the .wal texture
+            CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == LavaFlag); // comes from the .wal texture
 
             auto* waterbrush = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(1));
             REQUIRE(waterbrush);
             CHECK(!waterbrush->brush().face(0).attributes().hasSurfaceAttributes());
-            CHECK(waterbrush->brush().face(0).surfaceContents() == WaterFlag); // comes from the .wal texture
+            CHECK(waterbrush->brush().face(0).resolvedSurfaceContents() == WaterFlag); // comes from the .wal texture
 
             SECTION("transfer face attributes except content flags from waterbrush to lavabrush") {
                 document->select(lavabrush);
@@ -267,7 +267,7 @@ namespace TrenchBroom {
                     // Note: the contents flag wasn't transferred, but because lavabrushes's 
                     // content flag was "Inherit", it stays "Inherit" and now inherits the water contents
                     CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
-                    CHECK(lavabrush->brush().face(0).surfaceContents() == WaterFlag);
+                    CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == WaterFlag);
                     CHECK(lavabrush->brush().face(0).attributes().textureName() == "watertest");
                 }
             }
@@ -280,7 +280,7 @@ namespace TrenchBroom {
                 CHECK(document->setFaceAttributes(request));
 
                 CHECK(lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
-                CHECK(lavabrush->brush().face(0).surfaceContents() == (WaterFlag | LavaFlag));
+                CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == (WaterFlag | LavaFlag));
             }
         }
     }
