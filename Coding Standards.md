@@ -45,6 +45,7 @@
   ```
   
   Also OK: `auto textureCount = static_cast<int>(textures.size());`
+- Don't let `auto` infer pointers. Instead use `const auto*` or `auto*`.
 - Don't do:  `auto mods = document->mods();`
   
   Instead, do: `StringList mods = document->mods();`
