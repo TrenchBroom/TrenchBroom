@@ -152,10 +152,10 @@ namespace TrenchBroom {
             result |= attributes.setRotation(evaluateValueOp(attributes.rotation(), m_rotation, m_rotationOp));
             result |= attributes.setXScale(evaluateValueOp(attributes.xScale(), m_xScale, m_xScaleOp));
             result |= attributes.setYScale(evaluateValueOp(attributes.yScale(), m_yScale, m_yScaleOp));
-            result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), brushFace.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
-            result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), brushFace.surfaceContents(), m_contentFlags, m_contentFlagsOp));
-            result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), brushFace.surfaceValue(), m_surfaceValue, m_surfaceValueOp));
-            result |= attributes.setColor(evaluateValueOp(attributes.color(), brushFace.color(), m_colorValue, m_colorValueOp));
+            result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), brushFace.resolvedSurfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
+            result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), brushFace.resolvedSurfaceContents(), m_contentFlags, m_contentFlagsOp));
+            result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), brushFace.resolvedSurfaceValue(), m_surfaceValue, m_surfaceValueOp));
+            result |= attributes.setColor(evaluateValueOp(attributes.color(), brushFace.resolvedColor(), m_colorValue, m_colorValueOp));
 
             brushFace.setAttributes(attributes);
             

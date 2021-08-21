@@ -136,9 +136,9 @@ namespace TrenchBroom {
         protected:
             void writeSurfaceAttributes(std::ostream& stream, const Model::BrushFace& face) const {
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {}",
-                               face.surfaceContents(),
-                               face.surfaceFlags(),
-                               face.surfaceValue());
+                               face.resolvedSurfaceContents(),
+                               face.resolvedSurfaceFlags(),
+                               face.resolvedSurfaceValue());
             }
         };
 
@@ -183,9 +183,9 @@ namespace TrenchBroom {
         protected:
             void writeSurfaceColor(std::ostream& stream, const Model::BrushFace& face) const {
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {}",
-                               static_cast<int>(face.color().r()),
-                               static_cast<int>(face.color().g()),
-                               static_cast<int>(face.color().b()));
+                               static_cast<int>(face.resolvedColor().r()),
+                               static_cast<int>(face.resolvedColor().g()),
+                               static_cast<int>(face.resolvedColor().b()));
             }
         };
 

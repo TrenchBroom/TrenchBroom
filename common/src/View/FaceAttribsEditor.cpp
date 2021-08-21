@@ -570,11 +570,11 @@ namespace TrenchBroom {
                 const float rotation = firstFace.attributes().rotation();
                 const float xScale = firstFace.attributes().xScale();
                 const float yScale = firstFace.attributes().yScale();
-                int setSurfaceFlags = firstFace.surfaceFlags();
-                int setSurfaceContents = firstFace.surfaceContents();
+                int setSurfaceFlags = firstFace.resolvedSurfaceFlags();
+                int setSurfaceContents = firstFace.resolvedSurfaceContents();
                 int mixedSurfaceFlags = 0;
                 int mixedSurfaceContents = 0;
-                const float surfaceValue = firstFace.surfaceValue();                
+                const float surfaceValue = firstFace.resolvedSurfaceValue();
                 const std::optional<Color> colorValue = firstFace.attributes().color();
                 bool hasSurfaceValue = firstFace.attributes().surfaceValue().has_value();
                 bool hasSurfaceFlags = firstFace.attributes().surfaceFlags().has_value();
@@ -589,15 +589,15 @@ namespace TrenchBroom {
                     rotationMulti           |= (rotation        != face.attributes().rotation());
                     xScaleMulti             |= (xScale          != face.attributes().xScale());
                     yScaleMulti             |= (yScale          != face.attributes().yScale());
-                    surfaceValueMulti       |= (surfaceValue    != face.surfaceValue());
+                    surfaceValueMulti       |= (surfaceValue    != face.resolvedSurfaceValue());
                     colorValueMulti         |= (colorValue      != face.attributes().color());
                     hasSurfaceValue         |= face.attributes().surfaceValue().has_value();
                     hasSurfaceFlags         |= face.attributes().surfaceFlags().has_value();
                     hasSurfaceContents      |= face.attributes().surfaceContents().has_value();
                     hasColorValue           |= face.attributes().hasColor();
 
-                    combineFlags(sizeof(int)*8, face.surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
-                    combineFlags(sizeof(int)*8, face.surfaceContents(), setSurfaceContents, mixedSurfaceContents);
+                    combineFlags(sizeof(int)*8, face.resolvedSurfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
+                    combineFlags(sizeof(int)*8, face.resolvedSurfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
 
                 m_xOffsetEditor->setEnabled(true);

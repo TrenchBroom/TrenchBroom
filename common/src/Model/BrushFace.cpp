@@ -349,7 +349,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        int BrushFace::surfaceContents() const {
+        int BrushFace::resolvedSurfaceContents() const {
             if (m_attributes.surfaceContents()) {
                 return *m_attributes.surfaceContents();
             }
@@ -361,7 +361,7 @@ namespace TrenchBroom {
             return 0;
         }
 
-        int BrushFace::surfaceFlags() const {
+        int BrushFace::resolvedSurfaceFlags() const {
             if (m_attributes.surfaceFlags()) {
                 return *m_attributes.surfaceFlags();
             }
@@ -373,7 +373,7 @@ namespace TrenchBroom {
             return 0;
         }
 
-        float BrushFace::surfaceValue() const {
+        float BrushFace::resolvedSurfaceValue() const {
             if (m_attributes.surfaceValue()) {
                 return *m_attributes.surfaceValue();
             }
@@ -385,7 +385,7 @@ namespace TrenchBroom {
             return 0.0f;
         }
 
-        Color BrushFace::color() const {
+        Color BrushFace::resolvedColor() const {
             return m_attributes.color().value_or(Color{});
         }
 
