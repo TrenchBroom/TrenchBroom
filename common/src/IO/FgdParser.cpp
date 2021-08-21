@@ -357,7 +357,7 @@ namespace TrenchBroom {
             const auto column = m_tokenizer.column();
 
             try {
-                ELParser parser(ELParser::Mode::Lenient, m_tokenizer.remainder());
+                ELParser parser(ELParser::Mode::Lenient, m_tokenizer.remainder(), line, column);
                 auto expression = parser.parse();
 
                 // advance our tokenizer by the amount that `parser` parsed
@@ -370,7 +370,7 @@ namespace TrenchBroom {
                 try {
                     m_tokenizer.restore(snapshot);
 
-                    LegacyModelDefinitionParser parser(m_tokenizer.remainder());
+                    LegacyModelDefinitionParser parser(m_tokenizer.remainder(), line, column);
                     auto expression = parser.parse(status);
 
                     // advance our tokenizer by the amount that `parser` parsed
