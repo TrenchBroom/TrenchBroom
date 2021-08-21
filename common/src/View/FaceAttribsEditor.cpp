@@ -355,25 +355,25 @@ namespace TrenchBroom {
             m_surfaceValueEditor->setRange(min, max);
             m_surfaceValueEditor->setIncrements(1.0, 10.0, 100.0);
             m_surfaceValueEditor->setDigits(0, 6);
-            m_surfaceValueUnsetButton = createBitmapButton("Unset.svg", tr("Unset surface value"));
+            m_surfaceValueUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset surface value"));
             m_surfaceValueEditorLayout = createUnsetButtonLayout(m_surfaceValueEditor, m_surfaceValueUnsetButton);
 
             m_surfaceFlagsLabel = new QLabel("Surface");
             makeEmphasized(m_surfaceFlagsLabel);
             m_surfaceFlagsEditor = new FlagsPopupEditor(2, this);
-            m_surfaceFlagsUnsetButton = createBitmapButton("Unset.svg", tr("Unset surface flags"));
+            m_surfaceFlagsUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset surface flags"));
             m_surfaceFlagsEditorLayout = createUnsetButtonLayout(m_surfaceFlagsEditor, m_surfaceFlagsUnsetButton);
 
             m_contentFlagsLabel = new QLabel("Content");
             makeEmphasized(m_contentFlagsLabel);
             m_contentFlagsEditor = new FlagsPopupEditor(2, this);
-            m_contentFlagsUnsetButton = createBitmapButton("Unset.svg", tr("Unset content flags"));
+            m_contentFlagsUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset content flags"));
             m_contentFlagsEditorLayout = createUnsetButtonLayout(m_contentFlagsEditor, m_contentFlagsUnsetButton);
 
             m_colorLabel = new QLabel("Color");
             makeEmphasized(m_colorLabel);
             m_colorEditor = new QLineEdit();
-            m_colorUnsetButton = createBitmapButton("Unset.svg", tr("Unset color"));
+            m_colorUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset color"));
             m_colorEditorLayout = createUnsetButtonLayout(m_colorEditor, m_colorUnsetButton);
 
             const Qt::Alignment LabelFlags   = Qt::AlignVCenter | Qt::AlignRight;
