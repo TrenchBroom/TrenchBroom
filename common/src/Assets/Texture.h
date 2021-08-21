@@ -102,6 +102,7 @@ namespace TrenchBroom {
             GLenum m_format;
             TextureType m_type;
 
+            // TODO: move these to a Q3Data variant case of m_gameData if possible
             // Quake 3 surface parameters; move these to materials when we add proper support for those.
             std::set<std::string> m_surfaceParms;
 
