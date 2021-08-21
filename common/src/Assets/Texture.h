@@ -27,6 +27,7 @@
 #include <vecmath/forward.h>
 
 #include <atomic>
+#include <iosfwd>
 #include <set>
 #include <string>
 #include <variant>
@@ -79,7 +80,9 @@ namespace TrenchBroom {
             int value;
 
             bool operator==(const Q2Data& other) const;
+            bool operator!=(const Q2Data& other) const;
         };
+        std::ostream& operator<<(std::ostream& str, const Q2Data& data);
 
         using GameData = std::variant<std::monostate, Q2Data>;
 
