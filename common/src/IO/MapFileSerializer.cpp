@@ -127,18 +127,18 @@ namespace TrenchBroom {
                 writeFacePoints(stream, face);
                 writeTextureInfo(stream, face);
 
-                // Neverball's "mapc" doesn't like it if surface attributes aren't present.
-                // This suggests the Radiants always output these, so it's probably a compatibility danger.
-                writeSurfaceAttributes(stream, face);
+                if (face.attributes().hasSurfaceAttributes()) {
+                    writeSurfaceAttributes(stream, face);
+                }
 
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
             }
         protected:
             void writeSurfaceAttributes(std::ostream& stream, const Model::BrushFace& face) const {
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {}",
-                               face.attributes().surfaceContents(),
-                               face.attributes().surfaceFlags(),
-                               face.attributes().surfaceValue());
+                               face.resolvedSurfaceContents(),
+                               face.resolvedSurfaceFlags(),
+                               face.resolvedSurfaceValue());
             }
         };
 
@@ -150,7 +150,10 @@ namespace TrenchBroom {
             void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override {
                 writeFacePoints(stream, face);
                 writeValveTextureInfo(stream, face);
-                writeSurfaceAttributes(stream, face);
+
+                if (face.attributes().hasSurfaceAttributes()) {
+                    writeSurfaceAttributes(stream, face);
+                }
 
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
             }
@@ -180,9 +183,9 @@ namespace TrenchBroom {
         protected:
             void writeSurfaceColor(std::ostream& stream, const Model::BrushFace& face) const {
                 fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {}",
-                               static_cast<int>(face.attributes().color().r()),
-                               static_cast<int>(face.attributes().color().g()),
-                               static_cast<int>(face.attributes().color().b()));
+                               static_cast<int>(face.resolvedColor().r()),
+                               static_cast<int>(face.resolvedColor().g()),
+                               static_cast<int>(face.resolvedColor().b()));
             }
         };
 

@@ -161,6 +161,11 @@ namespace TrenchBroom {
             void setAttributes(const BrushFaceAttributes& attributes);
             bool setAttributes(const BrushFace& other);
 
+            int resolvedSurfaceContents() const;
+            int resolvedSurfaceFlags() const;
+            float resolvedSurfaceValue() const;
+            Color resolvedColor() const;
+
             void resetTexCoordSystemCache();
             const TexCoordSystem& texCoordSystem() const;
 

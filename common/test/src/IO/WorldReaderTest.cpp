@@ -339,9 +339,9 @@ namespace TrenchBroom {
 {
 "classname" "worldspawn"
 {
-( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) rtz/c_mf_v3c 56 -32 0 1 1 0 0 0
-( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) rtz/b_rc_v16w 32 32 0 1 1
-( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) rtz/c_mf_v3c 16 96 0 1 1
+( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) attribsExplicit 56 -32 0 1 1 8 9 700
+( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) attribsOmitted 32 32 0 1 1
+( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) attribsExplicitlyZero 16 96 0 1 1 0 0 0
 ( -920 1088 -448 ) ( -920 1088 -416 ) ( -680 1088 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0
 ( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
@@ -359,6 +359,42 @@ namespace TrenchBroom {
             CHECK(defaultLayer->childCount() == 1u);
             Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
+
+            SECTION("surface attributes for face attribsExplicit") {
+                auto faceIndex = brush->brush().findFace("attribsExplicit");
+                REQUIRE(faceIndex);
+
+                auto& face = brush->brush().face(*faceIndex);
+                
+                CHECK(face.attributes().hasSurfaceAttributes());
+                CHECK(face.attributes().surfaceContents() == 8);
+                CHECK(face.attributes().surfaceFlags() == 9);
+                CHECK(face.attributes().surfaceValue() == 700.0f);
+            }
+
+            SECTION("surface attributes for face attribsOmitted") {
+                auto faceIndex = brush->brush().findFace("attribsOmitted");
+                REQUIRE(faceIndex);
+
+                auto& face = brush->brush().face(*faceIndex);
+                
+                CHECK(!face.attributes().hasSurfaceAttributes());
+                CHECK(!face.attributes().surfaceContents());
+                CHECK(!face.attributes().surfaceFlags());
+                CHECK(!face.attributes().surfaceValue());
+            }
+
+            SECTION("surface attributes for face attribsExplicitlyZero") {
+                auto faceIndex = brush->brush().findFace("attribsExplicitlyZero");
+                REQUIRE(faceIndex);
+
+                auto& face = brush->brush().face(*faceIndex);
+                
+                CHECK(face.attributes().hasSurfaceAttributes());
+                CHECK(face.attributes().surfaceContents() == 0);
+                CHECK(face.attributes().surfaceFlags() == 0);
+                CHECK(face.attributes().surfaceValue() == 0.0f);
+            }
         }
 
         TEST_CASE("WorldReaderTest.parseQuake2ValveBrush", "[WorldReaderTest]") {
@@ -456,11 +492,11 @@ namespace TrenchBroom {
             REQUIRE(b_rc_v16w_index);
             REQUIRE(c_mf_v3cww_index);
             
-            CHECK(vm::is_equal(Color(5, 6, 7), brush.face(*c_mf_v3cw_index).attributes().color(), 0.1f));
+            CHECK(vm::is_equal(Color(5, 6, 7), *brush.face(*c_mf_v3cw_index).attributes().color(), 0.1f));
             CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceContents() == 1);
             CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceFlags() == 2);
             CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceValue() == 3.0);
-            CHECK(vm::is_equal(Color(8, 9, 10), brush.face(*b_rc_v16w_index).attributes().color(), 0.1f));
+            CHECK(vm::is_equal(Color(8, 9, 10), *brush.face(*b_rc_v16w_index).attributes().color(), 0.1f));
             CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
         }
 

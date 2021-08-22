@@ -226,5 +226,62 @@ namespace TrenchBroom {
                 CHECK(newThirdAttrs.color() == firstAttrs.color());
             }
         }
+
+        TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setTextureKeepsSurfaceFlagsUnset") {
+            Model::BrushNode* brushNode = createBrushNode();
+            addNode(*document, document->parentForNodes(), brushNode);
+
+            document->select(brushNode);
+            CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
+
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setTextureName("something_else");
+            document->setFaceAttributes(request);
+
+            CHECK(brushNode->brush().face(0).attributes().textureName() == "something_else");
+            CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
+        }
+
+        TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest") {
+            const int WaterFlag = 32;
+            const int LavaFlag = 8;
+
+            auto [document, game, gameConfig] = View::loadMapDocument(IO::Path("fixture/test/View/ChangeBrushFaceAttributesTest/lavaAndWater.map"), "Quake2", Model::MapFormat::Unknown);
+            REQUIRE(document->currentLayer() != nullptr);
+
+            auto* lavabrush = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(0));
+            REQUIRE(lavabrush);
+            CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
+            CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == LavaFlag); // comes from the .wal texture
+
+            auto* waterbrush = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(1));
+            REQUIRE(waterbrush);
+            CHECK(!waterbrush->brush().face(0).attributes().hasSurfaceAttributes());
+            CHECK(waterbrush->brush().face(0).resolvedSurfaceContents() == WaterFlag); // comes from the .wal texture
+
+            SECTION("transfer face attributes except content flags from waterbrush to lavabrush") {
+                document->select(lavabrush);
+                CHECK(document->setFaceAttributesExceptContentFlags(waterbrush->brush().face(0).attributes()));
+
+                SECTION("check lavabrush is now inheriting the water content flags") {
+                    // Note: the contents flag wasn't transferred, but because lavabrushes's 
+                    // content flag was "Inherit", it stays "Inherit" and now inherits the water contents
+                    CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
+                    CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == WaterFlag);
+                    CHECK(lavabrush->brush().face(0).attributes().textureName() == "watertest");
+                }
+            }
+
+            SECTION("setting a content flag when the existing one is inherited keeps the existing one") {
+                document->select(lavabrush);
+
+                Model::ChangeBrushFaceAttributesRequest request;
+                request.setContentFlags(WaterFlag);
+                CHECK(document->setFaceAttributes(request));
+
+                CHECK(lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
+                CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == (WaterFlag | LavaFlag));
+            }
+        }
     }
 }

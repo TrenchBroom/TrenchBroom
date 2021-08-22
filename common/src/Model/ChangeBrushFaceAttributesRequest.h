@@ -24,6 +24,7 @@
 #include <vecmath/forward.h>
 
 #include <string>
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {
@@ -54,8 +55,8 @@ namespace TrenchBroom {
             typedef enum {
                 FlagOp_None,
                 FlagOp_Replace,
-                FlagOp_Set,
-                FlagOp_Unset
+                FlagOp_Set, // TODO: rename to SetBits
+                FlagOp_Unset, // TODO: rename to UnsetBits or ClearBits
             } FlagOp;
 
             // TODO: replace with class based enum
@@ -70,10 +71,10 @@ namespace TrenchBroom {
             float m_rotation;
             float m_xScale;
             float m_yScale;
-            int m_surfaceFlags;
-            int m_contentFlags;
-            float m_surfaceValue;
-            Color m_colorValue;
+            std::optional<int> m_surfaceFlags;
+            std::optional<int> m_contentFlags;
+            std::optional<float> m_surfaceValue;
+            std::optional<Color> m_colorValue;
 
             TextureOp m_textureOp;
             AxisOp m_axisOp;
@@ -92,7 +93,6 @@ namespace TrenchBroom {
             void clear();
 
             const std::string name() const;
-            bool evaluate(const std::vector<BrushFaceHandle>& faceHandles) const;
             bool evaluate(BrushFace& brushFace) const;
 
             void resetAll(const BrushFaceAttributes& defaultFaceAttributes);
@@ -132,26 +132,42 @@ namespace TrenchBroom {
             void addYScale(float yScale);
             void mulYScale(float yScale);
 
+            /**
+             * When evaluated, the flags in `surfaceFlags` are set on the target face's surface flags
+             * (leaving other surface flags on the target face as-is).
+             */
             void setSurfaceFlags(int surfaceFlags);
+            /**
+             * When evaluated, the flags in `surfaceFlags` are cleared on the target face's surface flags
+             * (leaving other surface flags on the target face as-is).
+             */
             void unsetSurfaceFlags(int surfaceFlags);
-            void replaceSurfaceFlags(int surfaceFlags);
+            /**
+             * When evaluated, replace the target face's surface flags with `surfaceFlags`.
+             */
+            void replaceSurfaceFlags(const std::optional<int>& surfaceFlags);
 
             void setContentFlags(int contentFlags);
             void unsetContentFlags(int contentFlags);
-            void replaceContentFlags(int contentFlags);
+            void replaceContentFlags(const std::optional<int>& contentFlags);
 
-            void setSurfaceValue(float surfaceValue);
+            void setSurfaceValue(const std::optional<float>& surfaceValue);
             void addSurfaceValue(float surfaceValue);
             void mulSurfaceValue(float surfaceValue);
 
-            void setColor(const Color& colorValue);
+            void setColor(const std::optional<Color>& colorValue);
 
+            /**
+            * Configures `this` so, when evaluated, it transfers all attributes from the given 
+            * face to the evaluation target.
+            */
             void setAll(const Model::BrushFace& face);
+            /**
+             * Same as setAll(), but doesn't transfer content flags.
+             */
             void setAllExceptContentFlags(const Model::BrushFace& face);
             void setAll(const Model::BrushFaceAttributes& attributes);
             void setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes);
-
-            bool collateWith(ChangeBrushFaceAttributesRequest& other);
         };
     }
 }

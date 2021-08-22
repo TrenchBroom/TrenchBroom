@@ -50,6 +50,7 @@
 #include <string>
 
 #include <QtGlobal>
+#include <QAbstractButton>
 #include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -68,13 +69,21 @@ namespace TrenchBroom {
         m_yScaleEditor(nullptr),
         m_rotationEditor(nullptr),
         m_surfaceValueLabel(nullptr),
+        m_surfaceValueEditorLayout(nullptr),        
         m_surfaceValueEditor(nullptr),
+        m_surfaceValueUnsetButton(nullptr),
         m_surfaceFlagsLabel(nullptr),
+        m_surfaceFlagsEditorLayout(nullptr),
         m_surfaceFlagsEditor(nullptr),
+        m_surfaceFlagsUnsetButton(nullptr),
         m_contentFlagsLabel(nullptr),
+        m_contentFlagsEditorLayout(nullptr),
         m_contentFlagsEditor(nullptr),
+        m_contentFlagsUnsetButton(nullptr),
         m_colorLabel(nullptr),
+        m_colorEditorLayout(nullptr),
         m_colorEditor(nullptr),
+        m_colorUnsetButton(nullptr),
         m_updateControlsSignalDelayer{new SignalDelayer{this}} {
             createGui(contextManager);
             bindEvents();
@@ -222,6 +231,58 @@ namespace TrenchBroom {
             }
         }
 
+        void FaceAttribsEditor::surfaceFlagsUnset() {
+            auto document = kdl::mem_lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
+                return;
+            }
+
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.replaceSurfaceFlags(std::nullopt);
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
+
+        void FaceAttribsEditor::contentFlagsUnset() {
+            auto document = kdl::mem_lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
+                return;
+            }
+
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.replaceContentFlags(std::nullopt);
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
+
+        void FaceAttribsEditor::surfaceValueUnset() {
+            auto document = kdl::mem_lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
+                return;
+            }
+
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setSurfaceValue(std::nullopt);
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
+
+        void FaceAttribsEditor::colorValueUnset() {
+            auto document = kdl::mem_lock(m_document);
+            if (!document->hasAnySelectedBrushFaces()) {
+                return;
+            }
+
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setColor(std::nullopt);
+            if (!document->setFaceAttributes(request)) {
+                updateControls();
+            }
+        }
+
         void FaceAttribsEditor::updateIncrements() {
             auto document = kdl::mem_lock(m_document);
             Grid& grid = document->grid();
@@ -229,6 +290,17 @@ namespace TrenchBroom {
             m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
             m_yOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
             m_rotationEditor->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
+        }
+
+        static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button) {
+            auto* wrapper = new QWidget();
+            auto* rowLayout = new QHBoxLayout();
+            rowLayout->setContentsMargins(0, 0, 0, 0);
+            rowLayout->setSpacing(LayoutConstants::NarrowHMargin);
+            rowLayout->addWidget(expandWidget, 1);
+            rowLayout->addWidget(button);
+            wrapper->setLayout(rowLayout);
+            return wrapper;
         }
 
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
@@ -283,18 +355,26 @@ namespace TrenchBroom {
             m_surfaceValueEditor->setRange(min, max);
             m_surfaceValueEditor->setIncrements(1.0, 10.0, 100.0);
             m_surfaceValueEditor->setDigits(0, 6);
+            m_surfaceValueUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset surface value"));
+            m_surfaceValueEditorLayout = createUnsetButtonLayout(m_surfaceValueEditor, m_surfaceValueUnsetButton);
 
             m_surfaceFlagsLabel = new QLabel("Surface");
             makeEmphasized(m_surfaceFlagsLabel);
             m_surfaceFlagsEditor = new FlagsPopupEditor(2, this);
+            m_surfaceFlagsUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset surface flags"));
+            m_surfaceFlagsEditorLayout = createUnsetButtonLayout(m_surfaceFlagsEditor, m_surfaceFlagsUnsetButton);
 
             m_contentFlagsLabel = new QLabel("Content");
             makeEmphasized(m_contentFlagsLabel);
             m_contentFlagsEditor = new FlagsPopupEditor(2, this);
+            m_contentFlagsUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset content flags"));
+            m_contentFlagsEditorLayout = createUnsetButtonLayout(m_contentFlagsEditor, m_contentFlagsUnsetButton);
 
             m_colorLabel = new QLabel("Color");
             makeEmphasized(m_colorLabel);
             m_colorEditor = new QLineEdit();
+            m_colorUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset color"));
+            m_colorEditorLayout = createUnsetButtonLayout(m_colorEditor, m_colorUnsetButton);
 
             const Qt::Alignment LabelFlags   = Qt::AlignVCenter | Qt::AlignRight;
             const Qt::Alignment ValueFlags   = Qt::AlignVCenter;
@@ -332,19 +412,19 @@ namespace TrenchBroom {
             faceAttribsLayout->addWidget(rotationLabel,        r,c++, LabelFlags);
             faceAttribsLayout->addWidget(m_rotationEditor,     r,c++);
             faceAttribsLayout->addWidget(m_surfaceValueLabel,  r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_surfaceValueEditor, r,c++);
+            faceAttribsLayout->addWidget(m_surfaceValueEditorLayout, r,c++);
             ++r; c = 0;
 
             faceAttribsLayout->addWidget(m_surfaceFlagsLabel,  r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_surfaceFlagsEditor, r,c++, 1,3);
+            faceAttribsLayout->addWidget(m_surfaceFlagsEditorLayout, r,c++, 1,3);
             ++r; c = 0;
 
             faceAttribsLayout->addWidget(m_contentFlagsLabel,  r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_contentFlagsEditor, r,c++, 1,3);
+            faceAttribsLayout->addWidget(m_contentFlagsEditorLayout, r,c++, 1,3);
             ++r; c = 0;
 
             faceAttribsLayout->addWidget(m_colorLabel,         r,c++, LabelFlags);
-            faceAttribsLayout->addWidget(m_colorEditor,        r,c++, 1,3);
+            faceAttribsLayout->addWidget(m_colorEditorLayout,  r,c++, 1,3);
             ++r; c = 0;
 
             faceAttribsLayout->setColumnStretch(1, 1);
@@ -376,6 +456,10 @@ namespace TrenchBroom {
             connect(m_surfaceFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::surfaceFlagChanged);
             connect(m_contentFlagsEditor, &FlagsPopupEditor::flagChanged, this, &FaceAttribsEditor::contentFlagChanged);
             connect(m_colorEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::colorValueChanged);
+            connect(m_surfaceValueUnsetButton, &QAbstractButton::clicked, this, &FaceAttribsEditor::surfaceValueUnset);
+            connect(m_surfaceFlagsUnsetButton, &QAbstractButton::clicked, this, &FaceAttribsEditor::surfaceFlagsUnset);
+            connect(m_contentFlagsUnsetButton, &QAbstractButton::clicked, this, &FaceAttribsEditor::contentFlagsUnset);
+            connect(m_colorUnsetButton, &QAbstractButton::clicked, this, &FaceAttribsEditor::colorValueUnset);
             connect(m_updateControlsSignalDelayer, &SignalDelayer::processSignal, this, &FaceAttribsEditor::updateControls);
         }
 
@@ -486,14 +570,16 @@ namespace TrenchBroom {
                 const float rotation = firstFace.attributes().rotation();
                 const float xScale = firstFace.attributes().xScale();
                 const float yScale = firstFace.attributes().yScale();
-                int setSurfaceFlags = firstFace.attributes().surfaceFlags();
-                int setSurfaceContents = firstFace.attributes().surfaceContents();
+                int setSurfaceFlags = firstFace.resolvedSurfaceFlags();
+                int setSurfaceContents = firstFace.resolvedSurfaceContents();
                 int mixedSurfaceFlags = 0;
                 int mixedSurfaceContents = 0;
-                const float surfaceValue = firstFace.attributes().surfaceValue();
+                const float surfaceValue = firstFace.resolvedSurfaceValue();
+                const std::optional<Color> colorValue = firstFace.attributes().color();
+                bool hasSurfaceValue = firstFace.attributes().surfaceValue().has_value();
+                bool hasSurfaceFlags = firstFace.attributes().surfaceFlags().has_value();
+                bool hasSurfaceContents = firstFace.attributes().surfaceContents().has_value();
                 bool hasColorValue = firstFace.attributes().hasColor();
-                const Color colorValue = firstFace.attributes().color();
-
 
                 for (size_t i = 1; i < faceHandles.size(); i++) {
                     const Model::BrushFace& face = faceHandles[i].face();
@@ -503,12 +589,15 @@ namespace TrenchBroom {
                     rotationMulti           |= (rotation        != face.attributes().rotation());
                     xScaleMulti             |= (xScale          != face.attributes().xScale());
                     yScaleMulti             |= (yScale          != face.attributes().yScale());
-                    surfaceValueMulti       |= (surfaceValue    != face.attributes().surfaceValue());
+                    surfaceValueMulti       |= (surfaceValue    != face.resolvedSurfaceValue());
                     colorValueMulti         |= (colorValue      != face.attributes().color());
+                    hasSurfaceValue         |= face.attributes().surfaceValue().has_value();
+                    hasSurfaceFlags         |= face.attributes().surfaceFlags().has_value();
+                    hasSurfaceContents      |= face.attributes().surfaceContents().has_value();
                     hasColorValue           |= face.attributes().hasColor();
 
-                    combineFlags(sizeof(int)*8, face.attributes().surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
-                    combineFlags(sizeof(int)*8, face.attributes().surfaceContents(), setSurfaceContents, mixedSurfaceContents);
+                    combineFlags(sizeof(int)*8, face.resolvedSurfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
+                    combineFlags(sizeof(int)*8, face.resolvedSurfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
 
                 m_xOffsetEditor->setEnabled(true);
@@ -558,7 +647,7 @@ namespace TrenchBroom {
                         m_colorEditor->setText("");
                     } else {
                         m_colorEditor->setPlaceholderText("");
-                        m_colorEditor->setText(QString::fromStdString(kdl::str_to_string(colorValue)));
+                        m_colorEditor->setText(QString::fromStdString(kdl::str_to_string(*colorValue)));
                     }
                 } else {
                     m_colorEditor->setPlaceholderText("");
@@ -566,6 +655,11 @@ namespace TrenchBroom {
                 }
                 m_surfaceFlagsEditor->setFlagValue(setSurfaceFlags, mixedSurfaceFlags);
                 m_contentFlagsEditor->setFlagValue(setSurfaceContents, mixedSurfaceContents);
+
+                m_surfaceValueUnsetButton->setEnabled(hasSurfaceValue);
+                m_surfaceFlagsUnsetButton->setEnabled(hasSurfaceFlags);
+                m_contentFlagsUnsetButton->setEnabled(hasSurfaceContents);
+                m_colorUnsetButton->setEnabled(hasColorValue);
             } else {
                 disableAndSetPlaceholder(m_xOffsetEditor, "n/a");
                 disableAndSetPlaceholder(m_yOffsetEditor, "n/a");
@@ -580,6 +674,11 @@ namespace TrenchBroom {
                 m_colorEditor->setText("");
                 m_colorEditor->setPlaceholderText("n/a");
                 m_colorEditor->setEnabled(false);
+
+                m_surfaceValueUnsetButton->setEnabled(false);
+                m_surfaceFlagsUnsetButton->setEnabled(false);
+                m_contentFlagsUnsetButton->setEnabled(false);
+                m_colorUnsetButton->setEnabled(false);
             }
         }
 
@@ -601,26 +700,26 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::showSurfaceFlagsEditor() {
             m_surfaceValueLabel->show();
-            m_surfaceValueEditor->show();
+            m_surfaceValueEditorLayout->show();
             m_surfaceFlagsLabel->show();
-            m_surfaceFlagsEditor->show();
+            m_surfaceFlagsEditorLayout->show();
         }
 
         void FaceAttribsEditor::showContentFlagsEditor() {
             m_contentFlagsLabel->show();
-            m_contentFlagsEditor->show();
+            m_contentFlagsEditorLayout->show();
         }
 
         void FaceAttribsEditor::hideSurfaceFlagsEditor() {
             m_surfaceValueLabel->hide();
-            m_surfaceValueEditor->hide();
+            m_surfaceValueEditorLayout->hide();
             m_surfaceFlagsLabel->hide();
-            m_surfaceFlagsEditor->hide();
+            m_surfaceFlagsEditorLayout->hide();
         }
 
         void FaceAttribsEditor::hideContentFlagsEditor() {
             m_contentFlagsLabel->hide();
-            m_contentFlagsEditor->hide();
+            m_contentFlagsEditorLayout->hide();
         }
 
         bool FaceAttribsEditor::hasColorAttribs() const {
@@ -630,12 +729,12 @@ namespace TrenchBroom {
 
         void FaceAttribsEditor::showColorAttribEditor() {
             m_colorLabel->show();
-            m_colorEditor->show();
+            m_colorEditorLayout->show();
         }
 
         void FaceAttribsEditor::hideColorAttribEditor() {
             m_colorLabel->hide();
-            m_colorEditor->hide();
+            m_colorEditorLayout->hide();
         }
 
         void getFlags(const std::vector<Model::FlagConfig>& flags, QList<int>& values, QStringList& names, QStringList& descriptions);

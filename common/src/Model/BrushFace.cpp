@@ -349,6 +349,46 @@ namespace TrenchBroom {
             return result;
         }
 
+        int BrushFace::resolvedSurfaceContents() const {
+            if (m_attributes.surfaceContents()) {
+                return *m_attributes.surfaceContents();
+            }
+            if (texture()) {
+                if (const auto* q2data = std::get_if<Assets::Q2Data>(&texture()->gameData())) {
+                    return q2data->contents;
+                }
+            }
+            return 0;
+        }
+
+        int BrushFace::resolvedSurfaceFlags() const {
+            if (m_attributes.surfaceFlags()) {
+                return *m_attributes.surfaceFlags();
+            }
+            if (texture()) {
+                if (const auto* q2data = std::get_if<Assets::Q2Data>(&texture()->gameData())) {
+                    return q2data->flags;
+                }
+            }
+            return 0;
+        }
+
+        float BrushFace::resolvedSurfaceValue() const {
+            if (m_attributes.surfaceValue()) {
+                return *m_attributes.surfaceValue();
+            }
+            if (texture()) {
+                if (const auto* q2data = std::get_if<Assets::Q2Data>(&texture()->gameData())) {
+                    return static_cast<float>(q2data->value);
+                }
+            }
+            return 0.0f;
+        }
+
+        Color BrushFace::resolvedColor() const {
+            return m_attributes.color().value_or(Color{});
+        }
+
         void BrushFace::resetTexCoordSystemCache() {
             if (m_texCoordSystem != nullptr) {
                 m_texCoordSystem->resetCache(m_points[0], m_points[1], m_points[2], m_attributes);

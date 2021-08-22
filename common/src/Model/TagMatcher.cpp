@@ -253,7 +253,7 @@ namespace TrenchBroom {
 
         ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int i_flags) :
         FlagsTagMatcher(i_flags,
-            [](const BrushFace& face) { return face.attributes().surfaceContents(); },
+            [](const BrushFace& face) { return face.resolvedSurfaceContents(); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.setContentFlags(flags); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.unsetContentFlags(flags); },
             [](const Game& game, const int flags) { return game.contentFlags().flagNames(flags); }
@@ -265,7 +265,7 @@ namespace TrenchBroom {
 
         SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int i_flags) :
         FlagsTagMatcher(i_flags,
-            [](const BrushFace& face) { return face.attributes().surfaceFlags(); },
+            [](const BrushFace& face) { return face.resolvedSurfaceFlags(); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.setSurfaceFlags(flags); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.unsetSurfaceFlags(flags); },
             [](const Game& game, const int flags) { return game.surfaceFlags().flagNames(flags); }

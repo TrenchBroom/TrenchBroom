@@ -23,6 +23,7 @@
 
 #include <vecmath/forward.h>
 
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -42,11 +43,11 @@ namespace TrenchBroom {
             vm::vec2f m_scale;
             float m_rotation;
 
-            int m_surfaceContents;
-            int m_surfaceFlags;
-            float m_surfaceValue;
+            std::optional<int> m_surfaceContents;
+            std::optional<int> m_surfaceFlags;
+            std::optional<float> m_surfaceValue;
 
-            Color m_color;
+            std::optional<Color> m_color;
         public:
             explicit BrushFaceAttributes(std::string_view textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
@@ -71,12 +72,12 @@ namespace TrenchBroom {
             float rotation() const;
 
             bool hasSurfaceAttributes() const;
-            int surfaceContents() const;
-            int surfaceFlags() const;
-            float surfaceValue() const;
+            const std::optional<int>& surfaceContents() const;
+            const std::optional<int>& surfaceFlags() const;
+            const std::optional<float>& surfaceValue() const;
 
             bool hasColor() const;
-            const Color& color() const;
+            const std::optional<Color>& color() const;
 
             bool valid() const;
 
@@ -88,10 +89,10 @@ namespace TrenchBroom {
             bool setXScale(float xScale);
             bool setYScale(float yScale);
             bool setRotation(float rotation);
-            bool setSurfaceContents(int surfaceContents);
-            bool setSurfaceFlags(int surfaceFlags);
-            bool setSurfaceValue(float surfaceValue);
-            bool setColor(const Color& color);
+            bool setSurfaceContents(const std::optional<int>& surfaceContents);
+            bool setSurfaceFlags(const std::optional<int>& surfaceFlags);
+            bool setSurfaceValue(const std::optional<float>& surfaceValue);
+            bool setColor(const std::optional<Color>& color);
         };
     }
 }
