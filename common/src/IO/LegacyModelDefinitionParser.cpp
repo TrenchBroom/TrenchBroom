@@ -30,8 +30,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(std::string_view str) :
-        Tokenizer(std::move(str), "", 0) {}
+        LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(std::string_view str, const size_t line, const size_t column) :
+        Tokenizer{std::move(str), "", 0, line, column} {}
 
         const std::string LegacyModelDefinitionTokenizer::WordDelims = " \t\n\r()[]{};,=";
 
@@ -74,8 +74,8 @@ namespace TrenchBroom {
             return Token(MdlToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        LegacyModelDefinitionParser::LegacyModelDefinitionParser(std::string_view str) :
-        m_tokenizer(std::move(str)) {}
+        LegacyModelDefinitionParser::LegacyModelDefinitionParser(std::string_view str, const size_t line, const size_t column) :
+        m_tokenizer{std::move(str), line, column} {}
 
         TokenizerState LegacyModelDefinitionParser::tokenizerState() const {
             return m_tokenizer.snapshot();

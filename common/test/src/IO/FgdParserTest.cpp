@@ -834,6 +834,38 @@ decor_goddess_statue : "Goddess Statue" [])";
             kdl::vec_clear_and_delete(definitions);
         }
 
+        TEST_CASE("FgdParserTest.parseInvalidModel", "[FgdParserTest]") {
+            const std::string file = R"(@PointClass
+size(-16 -16 -24, 16 16 40)
+model({1}) =
+decor_goddess_statue : "Goddess Statue" [])";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file, defaultColor);
+
+            CHECK_THROWS_WITH([&]() {
+                TestParserStatus status;
+                auto definitions = parser.parseDefinitions(status);
+                kdl::vec_clear_and_delete(definitions);
+            }(), Catch::Matchers::StartsWith("At line 3, column 8:"));
+        }
+
+        TEST_CASE("FgdParserTest.parseErrorAfterModel", "[FgdParserTest]") {
+            const std::string file = R"(@PointClass
+size(-16 -16 -24, 16 16 40)
+model({"path"
+       : ":progs/goddess-statue.mdl" }) = decor_goddess_statue ; "Goddess Statue" [])";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file, defaultColor);
+
+            CHECK_THROWS_WITH([&]() {
+                TestParserStatus status;
+                auto definitions = parser.parseDefinitions(status);
+                kdl::vec_clear_and_delete(definitions);
+            }(), Catch::Matchers::StartsWith("At line 4, column 64:"));
+        }
+
         TEST_CASE("FgdParserTest.parseInclude", "[FgdParserTest]") {
             const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseInclude/host.fgd");
             auto file = Disk::openFile(path);

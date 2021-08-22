@@ -41,8 +41,8 @@ namespace TrenchBroom {
             return Delim;
         }
 
-        ELTokenizer::ELTokenizer(std::string_view str) :
-        Tokenizer(std::move(str), "\"", '\\') {}
+        ELTokenizer::ELTokenizer(std::string_view str, const size_t line, const size_t column) :
+        Tokenizer{std::move(str), "\"", '\\', line, column} {}
 
         void ELTokenizer::appendUntil(const std::string& pattern, std::stringstream& str) {
             const char* begin = curPos();
@@ -226,9 +226,9 @@ namespace TrenchBroom {
             return Token(ELToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        ELParser::ELParser(const ELParser::Mode mode, std::string_view str) :
+        ELParser::ELParser(const ELParser::Mode mode, std::string_view str, const size_t line, const size_t column) :
         m_mode(mode),
-        m_tokenizer(std::move(str)) {}
+        m_tokenizer{std::move(str), line, column} {}
 
         TokenizerState ELParser::tokenizerState() const {
             return m_tokenizer.snapshot();

@@ -85,7 +85,7 @@ namespace TrenchBroom {
             const std::string& NumberDelim() const;
             const std::string& IntegerDelim() const;
         public:
-            explicit ELTokenizer(std::string_view str);
+            ELTokenizer(std::string_view str, size_t line, size_t column);
         public:
             void appendUntil(const std::string& pattern, std::stringstream& str);
         private:
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             ELTokenizer m_tokenizer;
             using Token = ELTokenizer::Token;
         public:
-            ELParser(ELParser::Mode mode, std::string_view str);
+            ELParser(ELParser::Mode mode, std::string_view str, size_t line = 1, size_t column = 1);
             TokenizerState tokenizerState() const;
 
             static EL::Expression parseStrict(const std::string& str);
