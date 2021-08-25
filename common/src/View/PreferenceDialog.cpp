@@ -92,7 +92,7 @@ namespace TrenchBroom {
             }
 
             m_stackedWidget = new QStackedWidget();
-            m_stackedWidget->addWidget(new GamesPreferencePane());
+            m_stackedWidget->addWidget(new GamesPreferencePane(m_document.get()));
             m_stackedWidget->addWidget(new ViewPreferencePane());
             m_stackedWidget->addWidget(new ColorsPreferencePane());
             m_stackedWidget->addWidget(new MousePreferencePane());
