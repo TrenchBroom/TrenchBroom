@@ -223,7 +223,7 @@ namespace TrenchBroom {
                         throw FileSystemException("Cannot open file: " + mtlPath.asString());
                     }
 
-                    IO::NodeWriter writer(world, std::make_unique<IO::ObjSerializer>(objFile, mtlFile, mtlPath.filename()));
+                    IO::NodeWriter writer(world, std::make_unique<IO::ObjSerializer>(objFile, mtlFile, mtlPath));
                     writer.setExporting(true);
                     writer.writeMap();
                     break;

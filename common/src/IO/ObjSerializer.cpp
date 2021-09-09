@@ -78,17 +78,17 @@ namespace TrenchBroom {
             return str;
         }
 
-        ObjSerializer::ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, std::string mtlFilename) :
+        ObjSerializer::ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, const Path& mtlPath) :
         m_objStream{objStream},
         m_mtlStream{mtlStream},
-        m_mtlFilename{std::move(mtlFilename)} {
+        m_mtlPath{std::move(mtlPath)} {
             ensure(m_objStream.good(), "obj stream is good");
             ensure(m_mtlStream.good(), "mtl stream is good");
         }
 
         void ObjSerializer::doBeginFile(const std::vector<const Model::Node*>& /* rootNodes */) {}
 
-        static void writeMtlFile(std::ostream& str, const std::vector<ObjSerializer::Object>& objects) {
+        static void writeMtlFile(std::ostream& str, const std::vector<ObjSerializer::Object>& objects, const Path& mtlPath) {
             auto usedTextures = std::map<std::string, const Assets::Texture*>{};
 
             for (const auto& object : objects) {
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             for (const auto& [textureName, texture] : usedTextures) {
                 str << "newmtl " << textureName << "\n";
                 if (texture != nullptr && !texture->relativePath().isEmpty()) {
-                    str << "map_Kd " << texture->relativePath().asString() << "\n\n";
+                    str << "map_Kd " << mtlPath.deleteLastComponent().makeRelative(texture->absolutePath()).asString() << "\n\n";
                 }
             }
         }
@@ -157,8 +157,8 @@ namespace TrenchBroom {
         }
 
         void ObjSerializer::doEndFile() {
-            writeMtlFile(m_mtlStream, m_objects);
-            writeObjFile(m_objStream, m_mtlFilename, m_vertices.list(), m_texCoords.list(), m_normals.list(), m_objects);
+            writeMtlFile(m_mtlStream, m_objects, m_mtlPath);
+            writeObjFile(m_objStream, m_mtlPath.filename(), m_vertices.list(), m_texCoords.list(), m_normals.list(), m_objects);
         }
 
         void ObjSerializer::doBeginEntity(const Model::Node* /* node */) {}
