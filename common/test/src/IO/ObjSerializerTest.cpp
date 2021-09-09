@@ -50,9 +50,9 @@ namespace TrenchBroom {
 
             auto objStream = std::ostringstream{};
             auto mtlStream = std::ostringstream{};
-            const auto mtlFilename = "some_file_name.mtl";
+            const auto mtlPath = Path("some_file_name.mtl");
 
-            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename)};
+            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlPath)};
             writer.writeMap();
 
             CHECK(objStream.str() == R"(mtllib some_file_name.mtl
@@ -114,9 +114,9 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
 
             auto objStream = std::ostringstream{};
             auto mtlStream = std::ostringstream{};
-            const auto mtlFilename = "some_file_name.mtl";
+            const auto mtlPath = Path("some_file_name.mtl");
 
-            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename)};
+            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlPath)};
             writer.writeMap();
 
             CHECK(objStream.str() == R"(mtllib some_file_name.mtl
