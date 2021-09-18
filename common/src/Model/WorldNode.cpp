@@ -44,18 +44,22 @@
 
 namespace TrenchBroom {
     namespace Model {
-        WorldNode::WorldNode(Entity entity, const MapFormat mapFormat) :
+        WorldNode::WorldNode(EntityPropertyConfig entityPropertyConfig, Entity entity, const MapFormat mapFormat) :
+        m_entityPropertyConfig{std::move(entityPropertyConfig)},
         m_mapFormat(mapFormat),
         m_defaultLayer(nullptr),
         m_entityNodeIndex(std::make_unique<EntityNodeIndex>()),
         m_issueGeneratorRegistry(std::make_unique<IssueGeneratorRegistry>()),
         m_nodeTree(std::make_unique<NodeTree>()),
         m_updateNodeTree(true) {
-            entity.addOrUpdateProperty(EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname);
-            entity.setPointEntity(false);
+            entity.addOrUpdateProperty(m_entityPropertyConfig, EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname);
+            entity.setPointEntity(m_entityPropertyConfig, false);
             setEntity(std::move(entity));
             createDefaultLayer();
         }
+
+        WorldNode::WorldNode(EntityPropertyConfig entityPropertyConfig, std::initializer_list<EntityProperty> properties, const MapFormat mapFormat) :
+        WorldNode{entityPropertyConfig, Entity{entityPropertyConfig, std::move(properties)}, mapFormat} {}
 
         WorldNode::~WorldNode() = default;
 
@@ -214,7 +218,7 @@ namespace TrenchBroom {
         }
 
         Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const {
-            WorldNode* worldNode = new WorldNode(entity(), mapFormat());
+            WorldNode* worldNode = new WorldNode(entityPropertyConfig(), entity(), mapFormat());
             cloneAttributes(worldNode);
             return worldNode;
         }
@@ -360,6 +364,10 @@ namespace TrenchBroom {
 
         void WorldNode::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
+        }
+
+        const EntityPropertyConfig& WorldNode::doGetEntityPropertyConfig() const {
+            return m_entityPropertyConfig;
         }
 
         void WorldNode::doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<Model::EntityNodeBase*>& result) const {

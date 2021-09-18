@@ -29,6 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        struct EntityPropertyConfig;
         class WorldNode;
     }
 
@@ -47,7 +48,7 @@ namespace TrenchBroom {
         class WorldReader : public MapReader {
             std::unique_ptr<Model::WorldNode> m_world;
         public:
-            explicit WorldReader(std::string_view str, Model::MapFormat sourceAndTargetMapFormat);
+            WorldReader(std::string_view str, Model::MapFormat sourceAndTargetMapFormat, const Model::EntityPropertyConfig& entityPropertyConfig);
 
             std::unique_ptr<Model::WorldNode> read(const vm::bbox3& worldBounds, ParserStatus& status);
 
@@ -62,7 +63,7 @@ namespace TrenchBroom {
              * @return the world node
              * @throws WorldReaderException if `str` can't be parsed by any of the given formats
              */
-            static std::unique_ptr<Model::WorldNode> tryRead(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status);
+            static std::unique_ptr<Model::WorldNode> tryRead(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, const Model::EntityPropertyConfig& entityPropertyConfig, ParserStatus& status);
         private:            
             void sanitizeLayerSortIndicies(ParserStatus& status);            
         private: // implement MapReader interface

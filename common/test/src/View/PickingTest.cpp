@@ -75,7 +75,7 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            Model::EntityNode* ent1 = new Model::EntityNode();
+            Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), ent1);
 
             const auto origin = ent1->entity().origin();

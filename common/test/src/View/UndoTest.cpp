@@ -96,9 +96,9 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation", "[UndoTest]") {
-            auto* entityNode = new Model::EntityNode({
+            auto* entityNode = new Model::EntityNode{{}, {
                 {Model::EntityPropertyKeys::Classname, "test"}
-            });
+            }};
 
             addNode(*document, document->parentForNodes(), entityNode);            
             CHECK(!entityNode->entity().hasProperty("angle"));

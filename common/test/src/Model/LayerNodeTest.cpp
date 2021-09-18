@@ -42,7 +42,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};

@@ -22,6 +22,7 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/EntityNodeBase.h"
+#include "Model/EntityProperties.h"
 #include "Model/IdType.h"
 #include "Model/MapFormat.h"
 #include "Model/Node.h"
@@ -46,6 +47,7 @@ namespace TrenchBroom {
 
         class WorldNode : public EntityNodeBase {
         private:
+            EntityPropertyConfig m_entityPropertyConfig;
             MapFormat m_mapFormat;
             LayerNode* m_defaultLayer;
             std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
@@ -57,7 +59,8 @@ namespace TrenchBroom {
 
             IdType m_nextPersistentId = 1;
         public:
-            WorldNode(Entity entity, MapFormat mapFormat);
+            WorldNode(EntityPropertyConfig entityPropertyConfig, Entity entity, MapFormat mapFormat);
+            WorldNode(EntityPropertyConfig entityPropertyConfig, std::initializer_list<EntityProperty> properties, MapFormat mapFormat);
             ~WorldNode() override;
 
             MapFormat mapFormat() const;
@@ -144,6 +147,7 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
+            const EntityPropertyConfig& doGetEntityPropertyConfig() const override;
             void doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
             void doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
             void doAddToIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;

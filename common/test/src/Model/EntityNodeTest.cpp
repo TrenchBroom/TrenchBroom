@@ -55,7 +55,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            const auto worldNode = WorldNode{Entity{}, mapFormat};
+            const auto worldNode = WorldNode{{}, {}, mapFormat};
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
@@ -117,7 +117,7 @@ namespace TrenchBroom {
         
         TEST_CASE("EntityNodeTest.area") {
             auto definition = Assets::PointEntityDefinition("some_name", Color(), vm::bbox3(vm::vec3::zero(), vm::vec3(1.0, 2.0, 3.0)), "", {}, {});
-            auto entityNode = EntityNode{};
+            auto entityNode = EntityNode{Entity{}};
             entityNode.setDefinition(&definition);
 
             CHECK(entityNode.projectedArea(vm::axis::x) == 6.0);
@@ -135,10 +135,10 @@ namespace TrenchBroom {
 
             EntityNodeTest() {
                 m_worldBounds = vm::bbox3d(8192.0);
-                m_entity = new EntityNode({
+                m_entity = new EntityNode({}, {
                     { EntityPropertyKeys::Classname, TestClassname}
                 });
-                m_world = new WorldNode(Model::Entity(), MapFormat::Standard);
+                m_world = new WorldNode({}, {}, MapFormat::Standard);
             }
 
             virtual ~EntityNodeTest() {
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-            m_entity->setEntity(Entity({ EntityProperty("origin", "10 20 30")}));
+            m_entity->setEntity(Entity({}, {{"origin", "10 20 30"}}));
             CHECK(m_entity->entity().origin() == newOrigin);
             CHECK(m_entity->logicalBounds() == newBounds);
         }
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-            m_entity->setEntity(Entity({{"origin", "10 20 30"}}));
+            m_entity->setEntity(Entity({}, {{"origin", "10 20 30"}}));
             CHECK(m_entity->entity().origin() == newOrigin);
             CHECK(m_entity->logicalBounds() == newBounds);
         }
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-            m_entity->setEntity(Entity({{"origin", "10 20 30"}}));
+            m_entity->setEntity(Entity({}, {{"origin", "10 20 30"}}));
             CHECK(m_entity->entity().origin() == newOrigin);
             CHECK(m_entity->logicalBounds() == newBounds);
         }

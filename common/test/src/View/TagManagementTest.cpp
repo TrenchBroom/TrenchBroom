@@ -389,14 +389,14 @@ namespace TrenchBroom {
             auto* matchingBrushNode = createBrushNode("asdf");
             auto* nonMatchingBrushNode = createBrushNode("asdf");
 
-            auto matchingEntity = std::make_unique<Model::EntityNode>(Model::Entity({
+            auto matchingEntity = std::make_unique<Model::EntityNode>(Model::Entity{{}, {
                 {"classname", "brush_entity"}
-            }));
+            }});
             matchingEntity->addChild(matchingBrushNode);
 
-            auto nonMatchingEntity = std::make_unique<Model::EntityNode>(Model::Entity({
+            auto nonMatchingEntity = std::make_unique<Model::EntityNode>(Model::Entity{{}, {
                 {"classname", "something"}
-            }));
+            }});
             nonMatchingEntity->addChild(nonMatchingBrushNode);
 
             const auto& tag = document->smartTag("entity");
@@ -423,10 +423,10 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTagRetainsAttributes") {
             auto* brushNode = createBrushNode("asdf");
 
-            auto* oldEntity = new Model::EntityNode({
+            auto* oldEntity = new Model::EntityNode{{}, {
                 {"classname", "something"},
                 {"some_attr", "some_value"}
-            });
+            }};
 
             addNode(*document, document->parentForNodes(), oldEntity);
             addNode(*document, oldEntity, brushNode);
@@ -449,9 +449,9 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag") {
             auto* brushNode = createBrushNode("asdf");
 
-            auto* oldEntity = new Model::EntityNode({
+            auto* oldEntity = new Model::EntityNode{{}, {
                 {"classname", "brush_entity"}
-            });
+            }};
 
             addNode(*document, document->parentForNodes(), oldEntity);
             addNode(*document, oldEntity, brushNode);
@@ -469,9 +469,9 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushTags") {
-            auto* entityNode = new Model::EntityNode({
+            auto* entityNode = new Model::EntityNode{{}, {
                 {"classname", "brush_entity"}
-            });
+            }};
             addNode(*document, document->parentForNodes(), entityNode);
 
             auto* brush = createBrushNode("some_texture");
@@ -482,9 +482,9 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushTags") {
-            auto* entityNode = new Model::EntityNode({
+            auto* entityNode = new Model::EntityNode{{}, {
                 {"classname", "brush_entity"}
-            });
+            }};
             addNode(*document, document->parentForNodes(), entityNode);
 
             auto* brush = createBrushNode("some_texture");
@@ -500,9 +500,9 @@ namespace TrenchBroom {
             auto* brushNode = createBrushNode("some_texture");
             addNode(*document, document->parentForNodes(), brushNode);
 
-            auto* entityNode = new Model::EntityNode({
+            auto* entityNode = new Model::EntityNode{{}, {
                 {"classname", "brush_entity"}
-            });
+            }};
             addNode(*document, document->parentForNodes(), entityNode);
 
             const auto& tag = document->smartTag("entity");
@@ -513,14 +513,14 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterReparenting") {
-            auto* lightEntityNode = new Model::EntityNode({
+            auto* lightEntityNode = new Model::EntityNode{{}, {
                 {"classname", "brush_entity"}
-            });
+            }};
             addNode(*document, document->parentForNodes(), lightEntityNode);
 
-            auto* otherEntityNode = new Model::EntityNode({
+            auto* otherEntityNode = new Model::EntityNode{{}, {
                 {"classname", "other"}
-            });
+            }};
             addNode(*document, document->parentForNodes(), otherEntityNode);
 
             auto* brushNode = createBrushNode("some_texture");
@@ -534,9 +534,9 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterChangingClassname") {
-            auto* lightEntityNode = new Model::EntityNode({
+            auto* lightEntityNode = new Model::EntityNode{{}, {
                 {"classname", "asdf"}
-            });
+            }};
             addNode(*document, document->parentForNodes(), lightEntityNode);
 
             auto* brushNode = createBrushNode("some_texture");

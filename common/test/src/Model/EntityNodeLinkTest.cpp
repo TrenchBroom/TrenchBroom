@@ -33,17 +33,17 @@
 namespace TrenchBroom {
     namespace Model {
         TEST_CASE("EntityNodeLinkTest.testCreateLink", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
+            WorldNode world({}, {}, MapFormat::Standard);
             EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
             EntityNode* targetNode = new Model::EntityNode(Model::Entity());
             world.defaultLayer()->addChild(sourceNode);
             world.defaultLayer()->addChild(targetNode);
 
-            sourceNode->setEntity(Entity({
+            sourceNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Target, "target_name"}
             }));
 
-            targetNode->setEntity(Entity({
+            targetNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
+            WorldNode world({}, {}, MapFormat::Standard);
             EntityNode* sourceNode1 = new Model::EntityNode(Model::Entity());
             EntityNode* sourceNode2 = new Model::EntityNode(Model::Entity());
             EntityNode* targetNode = new Model::EntityNode(Model::Entity());
@@ -65,15 +65,15 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(sourceNode2);
             world.defaultLayer()->addChild(targetNode);
 
-            sourceNode1->setEntity(Entity({
+            sourceNode1->setEntity(Entity({}, {
                 { EntityPropertyKeys::Target, "target_name"}
             }));
 
-            sourceNode2->setEntity(Entity({
+            sourceNode2->setEntity(Entity({}, {
                 { EntityPropertyKeys::Target, "target_name"}
             }));
 
-            targetNode->setEntity(Entity({
+            targetNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
@@ -93,7 +93,7 @@ namespace TrenchBroom {
 
 
         TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
+            WorldNode world({}, {}, MapFormat::Standard);
             EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
             EntityNode* targetNode1 = new Model::EntityNode(Model::Entity());
             EntityNode* targetNode2 = new Model::EntityNode(Model::Entity());
@@ -101,18 +101,18 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(targetNode1);
             world.defaultLayer()->addChild(targetNode2);
 
-            sourceNode->setEntity(Entity({
+            sourceNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Target + "1", "target_name1"},
                 { EntityPropertyKeys::Target + "2", "target_name2"}
             }));
 
             // here we need to query for all entities having a numbered "target" property,
             // not just those having a "target" property
-            targetNode1->setEntity(Entity({
+            targetNode1->setEntity(Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name1"}
             }));
 
-            targetNode2->setEntity(Entity({
+            targetNode2->setEntity(Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name2"}
             }));
 
@@ -131,11 +131,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testLoadLink", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Target, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
@@ -152,18 +152,18 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Target, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(sourceNode);
             world.defaultLayer()->addChild(targetNode);
 
-            sourceNode->setEntity(Entity({
+            sourceNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Target, "other_name"}
             }));
 
@@ -175,18 +175,18 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Target, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(sourceNode);
             world.defaultLayer()->addChild(targetNode);
 
-            targetNode->setEntity(Entity({
+            targetNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Targetname, "other_name"}
             }));
 
@@ -198,11 +198,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Target, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
@@ -221,11 +221,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Target, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
@@ -244,17 +244,17 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testCreateKillLink", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
+            WorldNode world({}, {}, MapFormat::Standard);
             EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
             EntityNode* targetNode = new Model::EntityNode(Model::Entity());
             world.defaultLayer()->addChild(sourceNode);
             world.defaultLayer()->addChild(targetNode);
 
-            sourceNode->setEntity(Entity({
+            sourceNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Killtarget, "target_name"}
             }));
 
-            targetNode->setEntity(Entity({
+            targetNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
@@ -268,11 +268,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testLoadKillLink", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Killtarget, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
@@ -289,18 +289,18 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Killtarget, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(sourceNode);
             world.defaultLayer()->addChild(targetNode);
 
-            sourceNode->setEntity(Entity({
+            sourceNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Killtarget, "other_name"}
             }));
 
@@ -312,18 +312,18 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Killtarget, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(sourceNode);
             world.defaultLayer()->addChild(targetNode);
 
-            targetNode->setEntity(Entity({
+            targetNode->setEntity(Entity({}, {
                 { EntityPropertyKeys::Targetname, "other_name"}
             }));
 
@@ -335,11 +335,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Killtarget, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 
@@ -358,11 +358,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget", "[EntityNodeLinkTest]") {
-            WorldNode world(Model::Entity(), MapFormat::Standard);
-            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({
+            WorldNode world({}, {}, MapFormat::Standard);
+            EntityNode* sourceNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Killtarget, "target_name"}
             }));
-            EntityNode* targetNode = new Model::EntityNode(Model::Entity({
+            EntityNode* targetNode = new Model::EntityNode(Model::Entity({}, {
                 { EntityPropertyKeys::Targetname, "target_name"}
             }));
 

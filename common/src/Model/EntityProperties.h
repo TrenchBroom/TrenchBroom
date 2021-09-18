@@ -80,6 +80,11 @@ namespace TrenchBroom {
             std::optional<EL::Expression> defaultModelScaleExpression;
         };
 
+        bool operator==(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs);
+        bool operator!=(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs);
+
+        std::ostream& operator<<(std::ostream& lhs, const EntityPropertyConfig& rhs);
+
         bool isNumberedProperty(std::string_view prefix, std::string_view key);
 
         class EntityProperty {

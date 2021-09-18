@@ -82,32 +82,33 @@ namespace TrenchBroom {
             // Transfer the color, locked state, and hidden state from the default layer Layer object to worldspawn
             const Model::LayerNode* defaultLayerNode = world.defaultLayer();
             const Model::Layer& defaultLayer = defaultLayerNode->layer();
+            const auto& entityPropertyConfig = world.entityPropertyConfig();
             if (defaultLayer.color()) {
-                worldEntity.addOrUpdateProperty(Model::EntityPropertyKeys::LayerColor,
+                worldEntity.addOrUpdateProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerColor,
                     kdl::str_to_string(*defaultLayer.color()));
             } else {
-                worldEntity.removeProperty(Model::EntityPropertyKeys::LayerColor);
+                worldEntity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerColor);
             }
 
             if (defaultLayerNode->lockState() == Model::LockState::Locked) {
-                worldEntity.addOrUpdateProperty(Model::EntityPropertyKeys::LayerLocked,
+                worldEntity.addOrUpdateProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerLocked,
                     Model::EntityPropertyValues::LayerLockedValue);
             } else {
-                worldEntity.removeProperty(Model::EntityPropertyKeys::LayerLocked);
+                worldEntity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerLocked);
             }
 
             if (defaultLayerNode->hidden()) {
-                worldEntity.addOrUpdateProperty(Model::EntityPropertyKeys::LayerHidden,
+                worldEntity.addOrUpdateProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerHidden,
                     Model::EntityPropertyValues::LayerHiddenValue);
             } else {
-                worldEntity.removeProperty(Model::EntityPropertyKeys::LayerHidden);
+                worldEntity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerHidden);
             }
 
             if (defaultLayer.omitFromExport()) {
-                worldEntity.addOrUpdateProperty(Model::EntityPropertyKeys::LayerOmitFromExport,
+                worldEntity.addOrUpdateProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport,
                     Model::EntityPropertyValues::LayerOmitFromExportValue);
             } else {
-                worldEntity.removeProperty(Model::EntityPropertyKeys::LayerOmitFromExport);
+                worldEntity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
             }
 
             if (m_exporting && defaultLayer.omitFromExport()) {

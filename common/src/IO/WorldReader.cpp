@@ -54,13 +54,13 @@ namespace TrenchBroom {
 
         // WorldReader
 
-        WorldReader::WorldReader(std::string_view str, const Model::MapFormat sourceAndTargetMapFormat) :
-        MapReader(std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat),
-        m_world(std::make_unique<Model::WorldNode>(Model::Entity(), sourceAndTargetMapFormat)) {
+        WorldReader::WorldReader(std::string_view str, const Model::MapFormat sourceAndTargetMapFormat, const Model::EntityPropertyConfig& entityPropertyConfig) :
+        MapReader(std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat, entityPropertyConfig),
+        m_world(std::make_unique<Model::WorldNode>(entityPropertyConfig, Model::Entity{}, sourceAndTargetMapFormat)) {
             m_world->disableNodeTreeUpdates();
         }
 
-        std::unique_ptr<Model::WorldNode> WorldReader::tryRead(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::unique_ptr<Model::WorldNode> WorldReader::tryRead(std::string_view str, const std::vector<Model::MapFormat>& mapFormatsToTry, const vm::bbox3& worldBounds, const Model::EntityPropertyConfig& entityPropertyConfig, ParserStatus& status) {
             std::vector<std::tuple<Model::MapFormat, std::string>> parserExceptions;
 
             for (const auto mapFormat : mapFormatsToTry) {
@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 }
 
                 try {
-                    WorldReader reader{str, mapFormat};
+                    WorldReader reader{str, mapFormat, entityPropertyConfig};
                     return reader.read(worldBounds, status);
                 } catch (const ParserException& e) {
                     parserExceptions.emplace_back(mapFormat, std::string{e.what()});

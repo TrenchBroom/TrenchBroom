@@ -23,6 +23,7 @@
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/BrushNode.h"
+#include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
@@ -39,7 +40,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status).empty());
+            CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
         }
 
 
@@ -65,7 +66,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
             auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
             REQUIRE(brushNode != nullptr);
 
@@ -97,7 +98,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
 
             auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
             REQUIRE(groupNode != nullptr);

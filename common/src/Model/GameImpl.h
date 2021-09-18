@@ -37,6 +37,8 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        struct EntityPropertyConfig;
+
         class GameImpl : public Game {
         private:
             GameConfig& m_config;
@@ -107,6 +109,8 @@ namespace TrenchBroom {
             const BrushFaceAttributes& doDefaultFaceAttribs() const override;
             const std::vector<CompilationTool>& doCompilationTools() const override;
         private:
+            EntityPropertyConfig entityPropertyConfig() const;
+
             void writeLongAttribute(EntityNodeBase& node, const std::string& baseName, const std::string& value, size_t maxLength) const;
             std::string readLongAttribute(const EntityNodeBase& node, const std::string& baseName) const;
         };

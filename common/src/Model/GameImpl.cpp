@@ -153,12 +153,13 @@ namespace TrenchBroom {
             if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {
                 return doLoadMap(format, worldBounds, initialMapFilePath, logger);
             } else {
-                auto worldEntity = Model::Entity();
+                auto propertyConfig = entityPropertyConfig();
+                auto worldEntity = Model::Entity{};
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
-                    worldEntity.addOrUpdateProperty(EntityPropertyKeys::ValveVersion, "220");
+                    worldEntity.addOrUpdateProperty(entityPropertyConfig(), EntityPropertyKeys::ValveVersion, "220");
                 }
 
-                auto worldNode = std::make_unique<WorldNode>(std::move(worldEntity), format);
+                auto worldNode = std::make_unique<WorldNode>(std::move(propertyConfig), std::move(worldEntity), format);
 
                 const Model::BrushBuilder builder(worldNode->mapFormat(), worldBounds, defaultFaceAttribs());
                 builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).
@@ -176,6 +177,7 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<WorldNode> GameImpl::doLoadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
+            const auto entityPropertyConfig = Model::EntityPropertyConfig{m_config.entityConfig.scaleExpression};
             IO::SimpleParserStatus parserStatus(logger);
             auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
             auto fileReader = file->reader().buffer();
@@ -184,9 +186,9 @@ namespace TrenchBroom {
                 const auto possibleFormats = kdl::vec_transform(m_config.fileFormats, [](const MapFormatConfig& config) {
                     return Model::formatFromName(config.format);
                 });
-                return IO::WorldReader::tryRead(fileReader.stringView(), possibleFormats, worldBounds, parserStatus);
+                return IO::WorldReader::tryRead(fileReader.stringView(), possibleFormats, worldBounds, entityPropertyConfig, parserStatus);
             } else {
-                IO::WorldReader worldReader(fileReader.stringView(), format);
+                IO::WorldReader worldReader(fileReader.stringView(), format, entityPropertyConfig);
                 return worldReader.read(worldBounds, parserStatus);
             }
         }
@@ -236,7 +238,7 @@ namespace TrenchBroom {
 
         std::vector<Node*> GameImpl::doParseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
-            return IO::NodeReader::read(str, mapFormat, worldBounds, parserStatus);
+            return IO::NodeReader::read(str, mapFormat, worldBounds, entityPropertyConfig(), parserStatus);
         }
 
         std::vector<BrushFace> GameImpl::doParseBrushFaces(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const {
@@ -345,7 +347,7 @@ namespace TrenchBroom {
             }
 
             const auto value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
-            entity.addOrUpdateProperty(attribute, value);
+            entity.addOrUpdateProperty(entityPropertyConfig(), attribute, value);
         }
 
         void GameImpl::doReloadShaders() {
@@ -604,15 +606,19 @@ namespace TrenchBroom {
             return m_config.compilationTools;
         }
 
+        EntityPropertyConfig GameImpl::entityPropertyConfig() const {
+            return EntityPropertyConfig{m_config.entityConfig.scaleExpression};
+        }
+
         void GameImpl::writeLongAttribute(EntityNodeBase& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {
             auto entity = node.entity();
-            entity.removeNumberedProperty(baseName);
+            entity.removeNumberedProperty(entityPropertyConfig(), baseName);
 
             std::stringstream nameStr;
             for (size_t i = 0; i <= value.size() / maxLength; ++i) {
                 nameStr.str("");
                 nameStr << baseName << i+1;
-                entity.addOrUpdateProperty(nameStr.str(), value.substr(i * maxLength, maxLength));
+                entity.addOrUpdateProperty(entityPropertyConfig(), nameStr.str(), value.substr(i * maxLength, maxLength));
             }
 
             node.setEntity(std::move(entity));

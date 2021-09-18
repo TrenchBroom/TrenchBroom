@@ -121,7 +121,7 @@ namespace TrenchBroom {
             }
 
             const NotifyPropertyChange notifyChange(this);
-            m_entity.setDefinition(definition);
+            m_entity.setDefinition(entityPropertyConfig(), definition);
         }
 
         EntityNodeBase::NotifyPropertyChange::NotifyPropertyChange(EntityNodeBase* node) :

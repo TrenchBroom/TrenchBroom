@@ -38,7 +38,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeBrushes") {
             const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
-            auto* entity = new Model::EntityNode();
+            auto* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture").value());
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeFaces") {
             const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
-            auto* entity = new Model::EntityNode();
+            auto* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
 
             auto* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture").value());
@@ -98,7 +98,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTexturing") {
             const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
 
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
@@ -132,7 +132,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturing") {
             const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
 
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
@@ -169,7 +169,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes") {
             const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
-            auto* entity = new Model::EntityNode();
+            auto* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
 
             Model::BrushNode* minuend = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
@@ -203,7 +203,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection") {
             const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
-            auto* entity = new Model::EntityNode();
+            auto* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
 
             Model::BrushNode* subtrahend1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());

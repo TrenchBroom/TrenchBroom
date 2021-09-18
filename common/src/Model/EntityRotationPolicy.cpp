@@ -105,7 +105,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityRotationPolicy::applyRotation(Entity& entity, const vm::mat4x4& transformation) {
+        void EntityRotationPolicy::applyRotation(Entity& entity, const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation) {
             const auto info = rotationInfo(entity);
 
             if (info.usage == RotationUsage::BlockRotation) {
@@ -117,36 +117,36 @@ namespace TrenchBroom {
             switch (info.type) {
                 case RotationType::Angle: {
                     const auto direction = normalize(transformation * rotation * vm::vec3::pos_x());
-                    setAngle(entity, info.propertyKey, direction);
+                    setAngle(entity, propertyConfig, info.propertyKey, direction);
                     break;
                 }
                 case RotationType::AngleUpDown: {
                     const auto direction = normalize(transformation * rotation * vm::vec3::pos_x());
                     if (direction.z() > 0.9) {
-                        entity.addOrUpdateProperty(info.propertyKey, "1.0");
+                        entity.addOrUpdateProperty(propertyConfig, info.propertyKey, "1.0");
                     } else if (direction.z() < -0.9) {
-                        entity.addOrUpdateProperty(info.propertyKey, "-1.0");
+                        entity.addOrUpdateProperty(propertyConfig, info.propertyKey, "-1.0");
                     } else {
-                        setAngle(entity, info.propertyKey, direction);
+                        setAngle(entity, propertyConfig, info.propertyKey, direction);
                     }
                     break;
                 }
                 case RotationType::Euler: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity.addOrUpdateProperty(info.propertyKey, kdl::str_to_string(vm::round(nPitchYawRoll)));
+                    entity.addOrUpdateProperty(propertyConfig, info.propertyKey, kdl::str_to_string(vm::round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType::Euler_PositivePitchDown: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto nPitchYawRoll = vm::vec3(yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity.addOrUpdateProperty(info.propertyKey, kdl::str_to_string(vm::round(nPitchYawRoll)));
+                    entity.addOrUpdateProperty(propertyConfig, info.propertyKey, kdl::str_to_string(vm::round(nPitchYawRoll)));
                     break;
                 }
                 case RotationType::Mangle: {
                     const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const auto yawNPitchRoll = vm::vec3(yawPitchRoll.x(), -yawPitchRoll.y(), yawPitchRoll.z());
-                    entity.addOrUpdateProperty(info.propertyKey, kdl::str_to_string(vm::round(yawNPitchRoll)));
+                    entity.addOrUpdateProperty(propertyConfig, info.propertyKey, kdl::str_to_string(vm::round(yawNPitchRoll)));
                     break;
                 }
                 case RotationType::None:
@@ -232,9 +232,9 @@ namespace TrenchBroom {
             return RotationInfo{ type, propertyKey, usage};
         }
 
-        void EntityRotationPolicy::setAngle(Entity& entity, const std::string& propertyKey, const vm::vec3& direction) {
+        void EntityRotationPolicy::setAngle(Entity& entity, const EntityPropertyConfig& propertyConfig, const std::string& propertyKey, const vm::vec3& direction) {
             const auto angle = getAngle(direction);
-            entity.addOrUpdateProperty(propertyKey, kdl::str_to_string(vm::round(angle)));
+            entity.addOrUpdateProperty(propertyConfig, propertyKey, kdl::str_to_string(vm::round(angle)));
         }
         
         FloatType EntityRotationPolicy::getAngle(vm::vec3 direction) {

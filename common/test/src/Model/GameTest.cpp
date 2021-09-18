@@ -110,7 +110,7 @@ namespace TrenchBroom {
                 IO::Path("textures/test"),
             }));
 
-            auto worldspawn = Entity({
+            auto worldspawn = Entity({}, {
                 {"_tb_textures", "textures/test;textures/skies/hub1"}
             });
 

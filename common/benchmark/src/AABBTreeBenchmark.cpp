@@ -27,6 +27,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
@@ -49,7 +50,7 @@ namespace TrenchBroom {
         auto fileReader = file->reader().buffer();
 
         IO::TestParserStatus status;
-        IO::WorldReader worldReader(fileReader.stringView(), Model::MapFormat::Standard);
+        IO::WorldReader worldReader(fileReader.stringView(), Model::MapFormat::Standard, {});
 
         const vm::bbox3 worldBounds(8192.0);
         auto world = worldReader.read(worldBounds, status);

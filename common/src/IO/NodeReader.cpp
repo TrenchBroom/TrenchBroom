@@ -35,13 +35,13 @@
 
 namespace TrenchBroom {
     namespace IO {
-        NodeReader::NodeReader(std::string_view str, const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat) :
-        MapReader(str, sourceMapFormat, targetMapFormat) {}
+        NodeReader::NodeReader(std::string_view str, const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat, const Model::EntityPropertyConfig& entityPropertyConfig) :
+        MapReader(str, sourceMapFormat, targetMapFormat, entityPropertyConfig) {}
 
-        std::vector<Model::Node*> NodeReader::read(const std::string& str, const Model::MapFormat preferredMapFormat, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::Node*> NodeReader::read(const std::string& str, const Model::MapFormat preferredMapFormat, const vm::bbox3& worldBounds, const Model::EntityPropertyConfig& entityPropertyConfig, ParserStatus& status) {
             // Try preferred format first
             for (const auto compatibleMapFormat : Model::compatibleFormats(preferredMapFormat)) {
-                if (auto result = readAsFormat(compatibleMapFormat, preferredMapFormat, str, worldBounds, status); !result.empty()) {
+                if (auto result = readAsFormat(compatibleMapFormat, preferredMapFormat, str, worldBounds, entityPropertyConfig, status); !result.empty()) {
                     return result;
                 }
             }
@@ -58,9 +58,9 @@ namespace TrenchBroom {
          *
          * @returns the parsed nodes; caller is responsible for freeing them.
          */
-        std::vector<Model::Node*> NodeReader::readAsFormat(const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat, const std::string& str, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::Node*> NodeReader::readAsFormat(const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat, const std::string& str, const vm::bbox3& worldBounds, const Model::EntityPropertyConfig& entityPropertyConfig, ParserStatus& status) {
             {
-                NodeReader reader(str, sourceMapFormat, targetMapFormat);
+                NodeReader reader(str, sourceMapFormat, targetMapFormat, entityPropertyConfig);
                 try {
                     reader.readEntities(worldBounds, status);
                     status.info("Parsed successfully as " + Model::formatName(sourceMapFormat) + " entities");
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             }
 
             {
-                NodeReader reader(str, sourceMapFormat, targetMapFormat);
+                NodeReader reader(str, sourceMapFormat, targetMapFormat, entityPropertyConfig);
                 try {
                     reader.readBrushes(worldBounds, status);
                     status.info("Parsed successfully as " + Model::formatName(sourceMapFormat) + " brushes");

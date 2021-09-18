@@ -73,7 +73,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
             CHECK(nodes.size() == 1u);
         }
 
@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
             CHECK(nodes.size() == 1u);
         }
 
@@ -201,7 +201,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
             CHECK(nodes.size() == 1u);
         }
 
@@ -222,7 +222,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
             CHECK(nodes.empty());
         }
 
@@ -252,7 +252,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
         }
 
@@ -301,7 +301,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
         }
 
@@ -326,7 +326,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
         }
 
@@ -415,7 +415,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
         }
 
         TEST_CASE("BrushNodeTest.buildBrush_2491", "[BrushNodeTest]") {
@@ -436,7 +436,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
         }
 
         TEST_CASE("BrushNodeTest.buildBrush_2686", "[BrushNodeTest]") {
@@ -475,7 +475,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status));
+            CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/1893
@@ -524,7 +524,7 @@ namespace TrenchBroom {
 
             IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
             CHECK(nodes.size() == 1u);
             CHECK(nodes.at(0)->hasChildren());
             CHECK(nodes.at(0)->children().size() == 2u);

@@ -48,7 +48,7 @@ namespace TrenchBroom {
             Model::LayerNode* newParent = new Model::LayerNode(Model::Layer("Layer 2"));
             addNode(*document, document->world(), newParent);
 
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, oldParent, entity);
 
             assert(entity->parent() == oldParent);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             addNode(*document, document->parentForNodes(), group);
 
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, group, entity);
 
             CHECK(reparentNodes(*document, document->parentForNodes(), { entity }));
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
             addNode(*document, outer, inner);
 
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, inner, entity);
 
             CHECK(reparentNodes(*document, document->parentForNodes(), { entity }));
@@ -114,7 +114,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyEntity") {
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
 
             Model::BrushNode* brush = createBrushNode();
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
             addNode(*document, document->parentForNodes(), group);
 
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, group, entity);
 
             Model::BrushNode* brush = createBrushNode();

@@ -54,7 +54,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* groupNode = new GroupNode{Group{"group"}};
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* outerGroupNode = new GroupNode{Group{"outer"}};
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* outerGroupNode = new GroupNode{Group{"outer"}};
@@ -166,7 +166,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* outerGroupNode = new GroupNode{Group{"outer"}};
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* outerGroupNode = new GroupNode{Group{"outer"}};
@@ -239,7 +239,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"outer"}};
@@ -312,7 +312,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"outer"}};
@@ -384,7 +384,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* outerGroupNode = new GroupNode{Group{"outer"}};
@@ -446,7 +446,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* outerGroupNode = new GroupNode{Group{"outer"}};
@@ -490,7 +490,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* outerGroupNode = new GroupNode{Group{"outer"}};
@@ -521,7 +521,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* outerGroupNode = new GroupNode{Group{"outer"}};
@@ -552,7 +552,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"outer"}};

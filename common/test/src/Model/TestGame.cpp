@@ -96,12 +96,12 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<WorldNode> TestGame::doNewMap(const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const {
-            return std::make_unique<WorldNode>(Entity(), format);
+            return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
         }
 
         std::unique_ptr<WorldNode> TestGame::doLoadMap(const MapFormat format, const vm::bbox3& /* worldBounds */, const IO::Path& /* path */, Logger& /* logger */) const {
             if (!m_worldNodeToLoad) {
-                return std::make_unique<WorldNode>(Entity(), format);
+                return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
             } else {
                 return std::move(m_worldNodeToLoad);
             }
@@ -124,7 +124,7 @@ namespace TrenchBroom {
 
         std::vector<Node*> TestGame::doParseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
-            return IO::NodeReader::read(str, mapFormat, worldBounds, status);
+            return IO::NodeReader::read(str, mapFormat, worldBounds, {}, status);
         }
 
         std::vector<BrushFace> TestGame::doParseBrushFaces(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& /* logger */) const {
@@ -192,7 +192,7 @@ namespace TrenchBroom {
         void TestGame::doUpdateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const {
             const std::string value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
 
-            entity.addOrUpdateProperty("wad", value);
+            entity.addOrUpdateProperty({}, "wad", value);
         }
 
         void TestGame::doReloadShaders() {}

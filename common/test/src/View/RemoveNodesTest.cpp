@@ -81,7 +81,7 @@ namespace TrenchBroom {
             Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
             addNode(*document, document->world(), layer);
 
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, layer, entity);
 
             Model::BrushNode* brush = createBrushNode();
@@ -144,7 +144,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.unlinkSingletonLinkedGroups") {
-            auto* entityNode = new Model::EntityNode{};
+            auto* entityNode = new Model::EntityNode{Model::Entity{}};
             document->addNodes({{document->parentForNodes(), {entityNode}}});
 
             document->select(entityNode);
