@@ -19,6 +19,8 @@
 
 #include "GamesPreferencePane.h"
 
+#include "Exceptions.h"
+#include "FileLogger.h"
 #include "PreferenceManager.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
@@ -29,11 +31,13 @@
 #include "View/FormWithSectionsLayout.h"
 #include "View/GameEngineDialog.h"
 #include "View/GameListBox.h"
+#include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
 #include <QAction>
 #include <QBoxLayout>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
 #include <QFormLayout>
@@ -43,11 +47,13 @@
 #include <QWidget>
 
 #include "IO/ResourceUtils.h"
+#include "IO/DiskIO.h"
 
 namespace TrenchBroom {
     namespace View {
-        GamesPreferencePane::GamesPreferencePane(QWidget* parent) :
+        GamesPreferencePane::GamesPreferencePane(MapDocument* document, QWidget* parent) :
         PreferencePane(parent),
+        m_document{document},
         m_gameListBox(nullptr),
         m_stackedWidget(nullptr),
         m_defaultPage(nullptr),
@@ -68,12 +74,22 @@ namespace TrenchBroom {
             m_stackedWidget = new QStackedWidget();
             m_stackedWidget->addWidget(m_defaultPage);
 
+            auto* showUserConfigDirButton = createBitmapButton("Folder.svg", tr("Open custom game configurations folder"));
+            connect(showUserConfigDirButton, &QAbstractButton::clicked, this, &GamesPreferencePane::showUserConfigDirClicked);
+
+            auto* buttonLayout = createMiniToolBarLayoutRightAligned(showUserConfigDirButton);
+
+            auto* glbLayout = new QVBoxLayout();
+            glbLayout->addWidget(m_gameListBox);
+            glbLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+            glbLayout->addLayout(buttonLayout);
+
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(QMargins());
             layout->setSpacing(0);
             setLayout(layout);
 
-            layout->addWidget(m_gameListBox);
+            layout->addLayout(glbLayout);
             layout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
             layout->addSpacing(LayoutConstants::MediumVMargin);
             layout->addWidget(m_stackedWidget, 1, Qt::AlignTop);
@@ -83,6 +99,25 @@ namespace TrenchBroom {
             connect(m_gameListBox, &GameListBox::currentGameChanged, this, [&]() {
                 updateControls();
             });
+        }
+
+        void GamesPreferencePane::showUserConfigDirClicked() {
+            auto& gameFactory = Model::GameFactory::instance();
+            auto path = gameFactory.userGameConfigsPath().makeCanonical();
+            
+            try {
+                if (!IO::Disk::directoryExists(path)) {
+                    IO::Disk::createDirectory(path);
+                }
+                const auto url = QUrl::fromLocalFile(IO::pathAsQString(path));
+                QDesktopServices::openUrl(url);
+            } catch (const Exception& e) {
+                if (m_document) {
+                     m_document->error() << e.what();
+                } else {
+                    FileLogger::instance().error() << e.what();
+                }
+            }
         }
 
         bool GamesPreferencePane::doCanResetToDefaults() {

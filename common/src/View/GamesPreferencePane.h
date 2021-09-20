@@ -29,6 +29,7 @@ namespace TrenchBroom {
     namespace View {
         class GameListBox;
         class GamePreferencePane;
+        class MapDocument;
 
         /**
          * List of all games with the ability to edit game path, compile tools for each game
@@ -36,15 +37,17 @@ namespace TrenchBroom {
         class GamesPreferencePane : public PreferencePane {
             Q_OBJECT
         private:
+            MapDocument* m_document;
             GameListBox* m_gameListBox;
             QStackedWidget* m_stackedWidget;
             QWidget* m_defaultPage;
             GamePreferencePane* m_currentGamePage;
         public:
-            explicit GamesPreferencePane(QWidget* parent = nullptr);
+            explicit GamesPreferencePane(MapDocument* document, QWidget* parent = nullptr);
         private:
             void createGui();
         private:
+            void showUserConfigDirClicked();
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
             void doUpdateControls() override;
