@@ -51,6 +51,7 @@ namespace TrenchBroom {
 
     namespace IO {
         class Path;
+        class ExportOptions;
     }
 
     namespace Model {
@@ -105,6 +106,7 @@ namespace TrenchBroom {
             QLabel* m_statusBarLabel;
 
             QPointer<QDialog> m_compilationDialog;
+            QPointer<QDialog> m_objExportDialog;
 
             NotifierConnection m_notifierConnection;
         private: // shortcuts
@@ -181,7 +183,7 @@ namespace TrenchBroom {
             bool revertDocument();
             bool exportDocumentAsObj();
             bool exportDocumentAsMap();
-            bool exportDocument(Model::ExportFormat format, const IO::Path& path);
+            bool exportDocument(Model::ExportFormat format, const std::shared_ptr<IO::ExportOptions>& options);
         private:
             bool confirmOrDiscardChanges();
             bool confirmRevertDocument();

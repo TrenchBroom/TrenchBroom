@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
+#include "IO/ExportOptions.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
@@ -82,8 +83,11 @@ namespace TrenchBroom {
                             IO::Disk::createDirectory(directoryPath);
                         }
 
+                        std::shared_ptr<IO::MapExportOptions> options = std::make_shared<IO::MapExportOptions>();
+                        options->exportPath = targetPath;
+
                         const auto document = m_context.document();
-                        document->exportDocumentAs(Model::ExportFormat::Map, targetPath);
+                        document->exportDocumentAs(Model::ExportFormat::Map, options);
                     }
                     emit end();
                 } catch (const Exception& e) {

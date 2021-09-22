@@ -86,8 +86,8 @@ namespace TrenchBroom {
             doWriteMap(world, path);
         }
 
-        void Game::exportMap(WorldNode& world, const Model::ExportFormat format, const IO::Path& path) const {
-            doExportMap(world, format, path);
+        void Game::exportMap(WorldNode& world, const Model::ExportFormat format, const std::shared_ptr<IO::ExportOptions>& options) const {
+            doExportMap(world, format, options);
         }
 
         std::vector<Node*> Game::parseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const {

@@ -120,7 +120,7 @@ namespace TrenchBroom {
             writer.writeMap();
         }
 
-        void TestGame::doExportMap(WorldNode& /* world */, const Model::ExportFormat /* format */, const IO::Path& /* path */) const {}
+        void TestGame::doExportMap(WorldNode& /* world */, const Model::ExportFormat /* format */, const std::shared_ptr<IO::ExportOptions>& /* options */) const {}
 
         std::vector<Node*> TestGame::doParseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
