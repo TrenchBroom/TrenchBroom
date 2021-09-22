@@ -374,6 +374,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
         ${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.cpp
         ${COMMON_SOURCE_DIR}/View/MultiMapView.cpp
+        ${COMMON_SOURCE_DIR}/View/ObjExportDialog.cpp
         ${COMMON_SOURCE_DIR}/View/OnePaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/PickRequest.cpp
         ${COMMON_SOURCE_DIR}/View/PopupButton.cpp

@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "Assets/Texture.h"
+#include "IO/ExportOptions.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -32,6 +33,7 @@
 #include <fmt/format.h>
 
 #include <iostream>
+#include <utility>
 
 namespace TrenchBroom {
     namespace IO {
@@ -78,17 +80,18 @@ namespace TrenchBroom {
             return str;
         }
 
-        ObjSerializer::ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, const Path& mtlPath) :
+        ObjSerializer::ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, const Path& mtlPath, std::shared_ptr<IO::ObjExportOptions>  options) :
         m_objStream{objStream},
         m_mtlStream{mtlStream},
-        m_mtlPath{std::move(mtlPath)} {
+        m_mtlPath{std::move(mtlPath)},
+        m_options{std::move(options)} {
             ensure(m_objStream.good(), "obj stream is good");
             ensure(m_mtlStream.good(), "mtl stream is good");
         }
 
         void ObjSerializer::doBeginFile(const std::vector<const Model::Node*>& /* rootNodes */) {}
 
-        static void writeMtlFile(std::ostream& str, const std::vector<ObjSerializer::Object>& objects, const Path& mtlPath) {
+        static void writeMtlFile(std::ostream& str, const std::vector<ObjSerializer::Object>& objects, const Path& mtlPath, const std::shared_ptr<IO::ObjExportOptions>& options) {
             auto usedTextures = std::map<std::string, const Assets::Texture*>{};
 
             for (const auto& object : objects) {
@@ -107,7 +110,14 @@ namespace TrenchBroom {
             for (const auto& [textureName, texture] : usedTextures) {
                 str << "newmtl " << textureName << "\n";
                 if (texture != nullptr && !texture->relativePath().isEmpty()) {
-                    str << "map_Kd " << mtlPath.deleteLastComponent().makeRelative(texture->absolutePath()).asString() << "\n\n";
+                    std::string path;
+                    if (options->gameDirRelativePaths) {
+                        path = mtlPath.deleteLastComponent().makeRelative(texture->absolutePath()).asString();
+                    }
+                    else {
+                        path = texture->relativePath().asString();
+                    }
+                    str << "map_Kd " << path << "\n\n";
                 }
             }
         }
@@ -157,7 +167,7 @@ namespace TrenchBroom {
         }
 
         void ObjSerializer::doEndFile() {
-            writeMtlFile(m_mtlStream, m_objects, m_mtlPath);
+            writeMtlFile(m_mtlStream, m_objects, m_mtlPath, m_options);
             writeObjFile(m_objStream, m_mtlPath.filename(), m_vertices.list(), m_texCoords.list(), m_normals.list(), m_objects);
         }
 

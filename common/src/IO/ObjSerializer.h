@@ -46,6 +46,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class ObjExportOptions;
+
         class ObjSerializer : public NodeSerializer {
         public:
             template <typename V>
@@ -118,6 +120,7 @@ namespace TrenchBroom {
             std::ostream& m_objStream;
             std::ostream& m_mtlStream;
             Path m_mtlPath;
+            std::shared_ptr<IO::ObjExportOptions> m_options;
 
             IndexMap<vm::vec3> m_vertices;
             IndexMap<vm::vec2f> m_texCoords;
@@ -126,7 +129,7 @@ namespace TrenchBroom {
             std::optional<BrushObject> m_currentBrush;
             std::vector<Object> m_objects;
         public:
-            explicit ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, const Path& mtlPath);
+            explicit ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, const Path& mtlPath, std::shared_ptr<IO::ObjExportOptions>  options);
         private:
             void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
             void doEndFile() override;

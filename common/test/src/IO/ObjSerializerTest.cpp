@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "IO/ExportOptions.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
 #include "Model/BezierPatch.h"
@@ -52,7 +53,10 @@ namespace TrenchBroom {
             auto mtlStream = std::ostringstream{};
             const auto mtlPath = Path("some_file_name.mtl");
 
-            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlPath)};
+            std::shared_ptr<IO::ObjExportOptions> objOptions = std::make_shared<IO::ObjExportOptions>();
+            objOptions->gameDirRelativePaths = false;
+
+            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlPath, objOptions)};
             writer.writeMap();
 
             CHECK(objStream.str() == R"(mtllib some_file_name.mtl
@@ -116,7 +120,10 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
             auto mtlStream = std::ostringstream{};
             const auto mtlPath = Path("some_file_name.mtl");
 
-            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlPath)};
+            std::shared_ptr<IO::ObjExportOptions> objOptions = std::make_shared<IO::ObjExportOptions>();
+            objOptions->gameDirRelativePaths = false;
+
+            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlPath, objOptions)};
             writer.writeMap();
 
             CHECK(objStream.str() == R"(mtllib some_file_name.mtl

@@ -34,6 +34,7 @@
 #include "IO/DkmParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/EntParser.h"
+#include "IO/ExportOptions.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
@@ -209,27 +210,30 @@ namespace TrenchBroom {
             doWriteMap(world, path, false);
         }
 
-        void GameImpl::doExportMap(WorldNode& world, const Model::ExportFormat format, const IO::Path& path) const {
+        void GameImpl::doExportMap(WorldNode& world, const Model::ExportFormat format, const std::shared_ptr<IO::ExportOptions>& options) const {
             switch (format) {
                 case Model::ExportFormat::WavefrontObj: {
-                    std::ofstream objFile = openPathAsOutputStream(path);
+                    std::shared_ptr<IO::ObjExportOptions> objOptions = std::static_pointer_cast<IO::ObjExportOptions>(options);
+
+                    std::ofstream objFile = openPathAsOutputStream(objOptions->exportPath);
                     if (!objFile) {
-                        throw FileSystemException("Cannot open file: " + path.asString());
+                        throw FileSystemException("Cannot open file: " + objOptions->exportPath.asString());
                     }
 
-                    const auto mtlPath = path.replaceExtension("mtl");
+                    const auto mtlPath = objOptions->exportPath.replaceExtension("mtl");
                     std::ofstream mtlFile = openPathAsOutputStream(mtlPath);
                     if (!mtlFile) {
                         throw FileSystemException("Cannot open file: " + mtlPath.asString());
                     }
 
-                    IO::NodeWriter writer(world, std::make_unique<IO::ObjSerializer>(objFile, mtlFile, mtlPath));
+                    IO::NodeWriter writer(world, std::make_unique<IO::ObjSerializer>(objFile, mtlFile, mtlPath, objOptions));
                     writer.setExporting(true);
                     writer.writeMap();
                     break;
                 }
                 case Model::ExportFormat::Map:
-                    doWriteMap(world, path, true);
+                    std::shared_ptr<IO::MapExportOptions> mapOptions = std::static_pointer_cast<IO::MapExportOptions>(options);
+                    doWriteMap(world, mapOptions->exportPath, true);
                     break;
             }
         }

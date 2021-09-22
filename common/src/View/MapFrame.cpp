@@ -25,6 +25,7 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
+#include "IO/ExportOptions.h"
 #include "IO/PathQt.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
@@ -61,6 +62,7 @@
 #include "View/LaunchGameEngineDialog.h"
 #include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
+#include "View/ObjExportDialog.h"
 #include "View/PasteType.h"
 #include "View/RenderView.h"
 #include "View/ReplaceTextureDialog.h"
@@ -877,14 +879,11 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::exportDocumentAsObj() {
-            const IO::Path& originalPath = m_document->path();
-            const IO::Path objPath = originalPath.replaceExtension("obj");
-
-            const QString newFileName = QFileDialog::getSaveFileName(this, tr("Export Wavefront OBJ file"), IO::pathAsQString(objPath), "Wavefront OBJ files (*.obj)");
-            if (newFileName.isEmpty())
-                return false;
-
-            return exportDocument(Model::ExportFormat::WavefrontObj, IO::pathFromQString(newFileName));
+            if (m_objExportDialog == nullptr) {
+                m_objExportDialog = new ObjExportDialog(this);
+            }
+            showModelessDialog(m_objExportDialog);
+            return true;
         }
 
         bool MapFrame::exportDocumentAsMap() {
@@ -895,23 +894,26 @@ namespace TrenchBroom {
                 return false;
             }
 
-            return exportDocument(Model::ExportFormat::Map, IO::pathFromQString(newFileName));
+            std::shared_ptr<IO::MapExportOptions> options = std::make_shared<IO::MapExportOptions>();
+            options->exportPath = IO::pathFromQString(newFileName);
+
+            return exportDocument(Model::ExportFormat::Map, options);
         }
 
-        bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
-            if (path == m_document->path()) {
+        bool MapFrame::exportDocument(const Model::ExportFormat format, const std::shared_ptr<IO::ExportOptions>& options) {
+            if (options->exportPath == m_document->path()) {
                 QMessageBox::critical(this, "", tr("You can't overwrite the current document.\nPlease choose a different file name to export to."));
                 return false;
             }
             try {
-                m_document->exportDocumentAs(format, path);
-                logger().info() << "Exported " << path;
+                m_document->exportDocumentAs(format, options);
+                logger().info() << "Exported " << options->exportPath;
                 return true;
             } catch (const FileSystemException& e) {
                 QMessageBox::critical(this, "", e.what());
                 return false;
             } catch (...) {
-                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while exporting " + path.asString()), QMessageBox::Ok);
+                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while exporting " + options->exportPath.asString()), QMessageBox::Ok);
                 return false;
             }
         }
