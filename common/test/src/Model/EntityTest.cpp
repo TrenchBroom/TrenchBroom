@@ -279,67 +279,65 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE("EntityTest.requiresClassnameForRotation") {
+        TEST_CASE("EntityTest.transform") {
             Entity entity;
             REQUIRE(entity.rotation() == vm::mat4x4::identity());
 
-            const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-            entity.transform(rotation);
+            SECTION("Requires classname for rotation") {
+                const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
+                entity.transform(rotation);
 
-            // rotation had no effect
-            CHECK(entity.rotation() == vm::mat4x4::identity());
-        }
+                // rotation had no effect
+                CHECK(entity.rotation() == vm::mat4x4::identity());
+            }
 
-        TEST_CASE("EntityTest.requiresPointEntityForRotation") {
-            Entity entity;
-            entity.setClassname("some_class");
-            entity.setPointEntity(false);
-            REQUIRE(entity.rotation() == vm::mat4x4::identity());
+            SECTION("Requires point entity for rotation") {
+                entity.setClassname("some_class");
+                entity.setPointEntity(false);
+                REQUIRE(entity.rotation() == vm::mat4x4::identity());
 
-            const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-            entity.transform(rotation);
+                const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
+                entity.transform(rotation);
 
-            // rotation had no effect
-            CHECK(entity.rotation() == vm::mat4x4::identity());
-        }
+                // rotation had no effect
+                CHECK(entity.rotation() == vm::mat4x4::identity());
+            }
 
-        TEST_CASE("EntityTest.rotateWithoutOffset") {
-            Entity entity;
-            entity.setClassname("some_class");
-            entity.setOrigin(vm::vec3(10, 20, 30));
+            SECTION("Rotate - without offset") {
+                entity.setClassname("some_class");
+                entity.setOrigin(vm::vec3(10, 20, 30));
 
-            const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-            entity.transform(rotation);
+                const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
+                entity.transform(rotation);
 
-            CHECK(entity.rotation() == rotation);
-            CHECK(entity.origin() == vm::vec3(-20, 10, 30));
-        }
+                CHECK(entity.rotation() == rotation);
+                CHECK(entity.origin() == vm::vec3(-20, 10, 30));
+            }
 
-        TEST_CASE("EntityTest.rotateWithOffset") {
-            auto definition = Assets::PointEntityDefinition("some_name", Color(), vm::bbox3(16.0).translate(vm::vec3(16, 16, 0)), "", {}, {});
+            SECTION("Rotate - with offset") {
+                entity.setClassname("some_class");
+                entity.setOrigin(vm::vec3(32, 32, 0));
 
-            Entity entity;
-            entity.setClassname("some_class");
-            entity.setOrigin(vm::vec3(32, 32, 0));
-            entity.setDefinition(&definition);
+                auto definition = Assets::PointEntityDefinition("some_name", Color(), vm::bbox3(16.0).translate(vm::vec3(16, 16, 0)), "", {}, {});
+                entity.setDefinition(&definition);
 
-            const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-            entity.transform(rotation);
+                const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
+                entity.transform(rotation);
 
-            CHECK(entity.rotation() == vm::mat4x4::identity());
-            CHECK(entity.origin() == vm::vec3(-64, 32, 0));
-        }
+                CHECK(entity.rotation() == vm::mat4x4::identity());
+                CHECK(entity.origin() == vm::vec3(-64, 32, 0));
+            }
 
-        TEST_CASE("EntityTest.translateAfterRotation") {
-            Entity entity;
-            entity.setClassname("some_class");
+            SECTION("Rotate - with subsequent translation") {
+                entity.setClassname("some_class");
 
-            const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-            entity.transform(rotation);
-            REQUIRE(entity.rotation() == rotation);
+                const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
+                entity.transform(rotation);
+                REQUIRE(entity.rotation() == rotation);
 
-            entity.transform(vm::translation_matrix(vm::vec3(100, 0, 0)));
-            CHECK(entity.rotation() == rotation);
+                entity.transform(vm::translation_matrix(vm::vec3(100, 0, 0)));
+                CHECK(entity.rotation() == rotation);
+            }
         }
     }
 }
