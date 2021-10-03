@@ -125,10 +125,6 @@ namespace TrenchBroom {
             ), texturePackageConfig);
         }
 
-        bool operator!=(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs) {
-            return !(lhs == rhs);
-        }
-
         bool operator==(const TextureConfig& lhs, const TextureConfig& rhs) {
             return lhs.package == rhs.package &&
                    lhs.format == rhs.format &&
