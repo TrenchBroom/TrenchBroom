@@ -60,12 +60,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityCellData::EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds) :
-        entityDefinition(i_entityDefinition),
-        modelRenderer(i_modelRenderer),
-        fontDescriptor(i_fontDescriptor),
-        bounds(i_bounds) {}
-
         EntityBrowserView::EntityBrowserView(QScrollBar* scrollBar,
                                              GLContextManager& contextManager,
                                              Assets::EntityDefinitionManager& entityDefinitionManager,

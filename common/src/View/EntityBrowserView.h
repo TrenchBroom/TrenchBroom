@@ -50,16 +50,12 @@ namespace TrenchBroom {
     namespace View {
         using EntityGroupData = std::string;
 
-        class EntityCellData {
-        private:
+        struct EntityCellData {
             using EntityRenderer = Renderer::TexturedRenderer;
-        public:
             const Assets::PointEntityDefinition* entityDefinition;
             EntityRenderer* modelRenderer;
             Renderer::FontDescriptor fontDescriptor;
             vm::bbox3f bounds;
-
-            EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
         class EntityBrowserView : public CellView {
