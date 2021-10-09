@@ -57,10 +57,6 @@ namespace TrenchBroom {
             LayoutBounds m_cellBounds;
             LayoutBounds m_itemBounds;
             LayoutBounds m_titleBounds;
-
-            void doLayout(float maxUpScale,
-                          float minWidth, float maxWidth,
-                          float minHeight, float maxHeight);
         public:
             LayoutCell(QVariant item,
                        float x, float y,
@@ -71,7 +67,8 @@ namespace TrenchBroom {
                        float minWidth, float maxWidth,
                        float minHeight, float maxHeight);
 
-            bool hitTest(float x, float y) const;
+            const QVariant& item() const;
+
             float scale() const;
 
             const LayoutBounds& bounds() const;
@@ -79,11 +76,15 @@ namespace TrenchBroom {
             const LayoutBounds& titleBounds() const;
             const LayoutBounds& itemBounds() const;
 
+            bool hitTest(float x, float y) const;
+
             void updateLayout(float maxUpScale,
                               float minWidth, float maxWidth,
                               float minHeight, float maxHeight);
-
-            const QVariant& item() const;
+        private:
+            void doLayout(float maxUpScale,
+                          float minWidth, float maxWidth,
+                          float minHeight, float maxHeight);
         };
 
         class LayoutRow {
@@ -100,8 +101,6 @@ namespace TrenchBroom {
             LayoutBounds m_bounds;
 
             std::vector<LayoutCell> m_cells;
-
-            void readjustItems();
         public:
             LayoutRow(float x, float y,
                       float cellMargin,
@@ -112,17 +111,18 @@ namespace TrenchBroom {
                       float minCellWidth, float maxCellWidth,
                       float minCellHeight, float maxCellHeight);
 
-            bool addItem(QVariant item,
-                         float itemWidth, float itemHeight,
-                         float titleWidth, float titleHeight);
-
+            const LayoutBounds& bounds() const;
 
             const std::vector<LayoutCell>& cells() const;
             const LayoutCell* cellAt(float x, float y) const;
 
-            const LayoutBounds& bounds() const;
-
             bool intersectsY(float y, float height) const;
+
+            bool addItem(QVariant item,
+                         float itemWidth, float itemHeight,
+                         float titleWidth, float titleHeight);
+        private:
+            void readjustItems();
         };
 
         class LayoutGroup {
@@ -163,24 +163,23 @@ namespace TrenchBroom {
                         float minCellWidth, float maxCellWidth,
                         float minCellHeight, float maxCellHeight);
 
-            void addItem(CellType item,
-                         float itemWidth, float itemHeight,
-                         float titleWidth, float titleHeight);
-
-            const std::vector<LayoutRow>& rows() const;
-            size_t indexOfRowAt(float y) const;
-            const LayoutCell* cellAt(float x, float y) const;
-
-            bool hitTest(float x, float y) const;
+            const GroupType& item() const;
 
             const LayoutBounds& titleBounds() const;
             LayoutBounds titleBoundsForVisibleRect(float y, float height, float groupMargin) const;
             const LayoutBounds& contentBounds() const;
             LayoutBounds bounds() const;
 
+            const std::vector<LayoutRow>& rows() const;
+            size_t indexOfRowAt(float y) const;
+            const LayoutCell* cellAt(float x, float y) const;
+
+            bool hitTest(float x, float y) const;
             bool intersectsY(float y, float height) const;
 
-            const GroupType& item() const;
+            void addItem(CellType item,
+                         float itemWidth, float itemHeight,
+                         float titleWidth, float titleHeight);
         };
 
         class CellLayout {
@@ -204,35 +203,23 @@ namespace TrenchBroom {
             std::vector<LayoutGroup> m_groups;
             bool m_valid;
             float m_height;
-
-            void validate();
         public:
             CellLayout(size_t maxCellsPerRow = 0);
 
-            void setCellMargin(float cellMargin);
+            float titleMargin() const;
             void setTitleMargin(float titleMargin);
+
+            float cellMargin() const;
+            void setCellMargin(float cellMargin);
+
+            float rowMargin() const;
             void setRowMargin(float rowMargin);
+
+            float groupMargin() const;
             void setGroupMargin(float groupMargin);
+
+            float outerMargin() const;
             void setOuterMargin(float outerMargin);
-
-            void addGroup(GroupType groupItem, float titleHeight);
-            void addItem(CellType item,
-                         float itemWidth, float itemHeight,
-                         float titleWidth, float titleHeight);
-
-            void clear();
-
-            const std::vector<LayoutGroup>& groups();
-
-            const LayoutCell* cellAt(float x, float y);
-
-            LayoutBounds titleBoundsForVisibleRect(const LayoutGroup& group, float y, float height) const;
-
-            float rowPosition(float y, int offset);
-
-            void invalidate();
-
-            void setWidth(float width);
 
             float minCellWidth() const;
             float maxCellWidth() const;
@@ -242,15 +229,30 @@ namespace TrenchBroom {
             float maxCellHeight() const;
             void setCellHeight(float minCellHeight, float maxCellHeight);
 
+            float maxUpScale() const;
             void setMaxUpScale(float maxUpScale);
 
             float width() const;
             float height();
 
-            float outerMargin() const;
-            float groupMargin() const;
-            float rowMargin() const;
-            float cellMargin() const;
+            LayoutBounds titleBoundsForVisibleRect(const LayoutGroup& group, float y, float height) const;
+            float rowPosition(float y, int offset);
+
+            void invalidate();
+
+            void setWidth(float width);
+
+            const std::vector<LayoutGroup>& groups();
+            const LayoutCell* cellAt(float x, float y);
+
+            void addGroup(GroupType groupItem, float titleHeight);
+            void addItem(CellType item,
+                         float itemWidth, float itemHeight,
+                         float titleWidth, float titleHeight);
+
+            void clear();
+        private:
+            void validate();
         };
     }
 }
