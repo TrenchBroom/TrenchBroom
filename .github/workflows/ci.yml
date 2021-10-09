@@ -19,19 +19,19 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [ubuntu-16.04, macos-10.15, windows-2019]
+        os: [ubuntu-18.04, macos-10.15, windows-2019]
         tb-build-type: [release]
         gcc-package: [default-compiler]
         tb-arch: [default-arch]
         exclude:
-          - os: ubuntu-16.04
+          - os: ubuntu-18.04
             gcc-package: default-compiler
           - os: windows-2019
             tb-arch: default-arch
         include:
-          - os: ubuntu-16.04
+          - os: ubuntu-18.04
             gcc-package: g++-7
-          - os: ubuntu-16.04
+          - os: ubuntu-18.04
             gcc-package: g++-8
           - os: macos-10.15
             tb-build-type: asan
@@ -52,12 +52,12 @@ jobs:
       # Dependencies
 
       - name: Install Linux dependencies
-        if: ${{ matrix.os == 'ubuntu-16.04' }}
+        if: ${{ matrix.os == 'ubuntu-18.04' }}
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-          sudo add-apt-repository ppa:beineri/opt-qt595-xenial
+          sudo add-apt-repository ppa:beineri/opt-qt-5.11.3-bionic
           sudo apt update
-          sudo apt install ${{ matrix.gcc-package }} qt59base qt59svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+          sudo apt install ${{ matrix.gcc-package }} qt511base qt511svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
 
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
@@ -89,13 +89,13 @@ jobs:
       # Run build script
 
       - name: Linux build (GCC8)
-        if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-8' }}
+        if: ${{ matrix.os == 'ubuntu-18.04' && matrix.gcc-package == 'g++-8' }}
         run: ./CI-linux.sh
         env:
           TB_GCC8: 'true'
 
       - name: Linux build (GCC7)
-        if: ${{ matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-7' }}
+        if: ${{ matrix.os == 'ubuntu-18.04' && matrix.gcc-package == 'g++-7' }}
         run: ./CI-linux.sh
 
       - name: macOS build
@@ -148,7 +148,7 @@ jobs:
       # Linux
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v2
-        if: ${{ false && matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-7' }}
+        if: ${{ false && matrix.os == 'ubuntu-18.04' && matrix.gcc-package == 'g++-7' }}
         with:
           name: linux
           path: |
@@ -187,7 +187,7 @@ jobs:
 
       - name: Upload compiled manual
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-16.04' && matrix.gcc-package == 'g++-8' }}
+        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-18.04' && matrix.gcc-package == 'g++-8' }}
         with:
           # I've created a SSH key pair following https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-create-ssh-deploy-key
           # The TrenchBroom/TrenchBroom repo has a repository secret ACTIONS_DEPLOY_KEY set to the SSH private key
