@@ -393,7 +393,7 @@ namespace TrenchBroom {
                     const auto& title = group.item();
                     if (!title.empty()) {
                         const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        const auto offset = vm::vec2f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
+                        const auto offset = vm::vec2f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height);
 
                         auto& font = fontManager().font(defaultDescriptor);
                         const auto quads = font.quads(title, false, offset);
@@ -412,7 +412,7 @@ namespace TrenchBroom {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const auto& cell = row[k];
                                 const auto titleBounds = cell.titleBounds();
-                                const auto offset = vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
+                                const auto offset = vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height);
 
                                 Renderer::TextureFont& font = fontManager().font(cellData(cell).fontDescriptor);
                                 const auto quads = font.quads(cellData(cell).entityDefinition->name(), false, offset);

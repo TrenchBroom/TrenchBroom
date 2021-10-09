@@ -454,7 +454,7 @@ namespace TrenchBroom {
                     const auto& title = group.item();
                     if (!title.empty()) {
                         const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        const auto offset = vm::vec2f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
+                        const auto offset = vm::vec2f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height);
 
                         auto& font = fontManager().font(defaultDescriptor);
                         const auto quads = font.quads(title, false, offset);
