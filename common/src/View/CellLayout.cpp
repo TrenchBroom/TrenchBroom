@@ -70,6 +70,10 @@ namespace TrenchBroom {
             doLayout(maxUpScale, minWidth, maxWidth, minHeight, maxHeight);
         }
 
+        QVariant& LayoutCell::item() {
+            return m_item;
+        }
+
         const QVariant& LayoutCell::item() const {
             return m_item;
         }
@@ -221,7 +225,7 @@ namespace TrenchBroom {
             }
         }
 
-        LayoutGroup::LayoutGroup(const GroupType& item,
+        LayoutGroup::LayoutGroup(std::string item,
                     const float x, const float y,
                     const float cellMargin, const float titleMargin, const float rowMargin,
                     const float titleHeight,
@@ -230,7 +234,7 @@ namespace TrenchBroom {
                     const float maxUpScale,
                     const float minCellWidth, const float maxCellWidth,
                     const float minCellHeight, const float maxCellHeight) :
-        m_item{item},
+        m_item{std::move(item)},
         m_cellMargin{cellMargin},
         m_titleMargin{titleMargin},
         m_rowMargin{rowMargin},
@@ -264,7 +268,7 @@ namespace TrenchBroom {
         m_contentBounds{x, y, width, 0.0f},
         m_rows{} {}
 
-        const LayoutGroup::GroupType& LayoutGroup::item() const {
+        const std::string& LayoutGroup::item() const {
             return m_item;
         }
 
@@ -331,7 +335,7 @@ namespace TrenchBroom {
             return bounds().intersectsY(y, height);
         }
 
-        void LayoutGroup::addItem(CellType item,
+        void LayoutGroup::addItem(QVariant item,
                         const float itemWidth, const float itemHeight,
                         const float titleWidth, const float titleHeight) {
             if (m_rows.empty()) {
@@ -341,11 +345,11 @@ namespace TrenchBroom {
 
             const LayoutBounds oldBounds = m_rows.back().bounds();
             const float oldRowHeight = m_rows.back().bounds().height;
-            if (!m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight)) {
+            if (!m_rows.back().addItem(std::move(item), itemWidth, itemHeight, titleWidth, titleHeight)) {
                 const float y = oldBounds.bottom() + m_rowMargin;
                 m_rows.emplace_back(m_contentBounds.left(), y, m_cellMargin, m_titleMargin, m_contentBounds.width, m_maxCellsPerRow, m_maxUpScale, m_minCellWidth, m_maxCellWidth, m_minCellHeight, m_maxCellHeight);
 
-                const bool added = (m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
+                const bool added = (m_rows.back().addItem(std::move(item), itemWidth, itemHeight, titleWidth, titleHeight));
                 assert(added);
                 unused(added);
 
@@ -584,7 +588,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void CellLayout::addGroup(GroupType groupItem, const float titleHeight) {
+        void CellLayout::addGroup(std::string groupItem, const float titleHeight) {
             if (!m_valid) {
                 validate();
             }
@@ -599,7 +603,7 @@ namespace TrenchBroom {
             m_height += m_groups.back().bounds().height;
         }
 
-        void CellLayout::addItem(CellType item,
+        void CellLayout::addItem(QVariant item,
                         const float itemWidth, const float itemHeight,
                         const float titleWidth, const float titleHeight) {
             if (!m_valid) {
@@ -615,7 +619,7 @@ namespace TrenchBroom {
             }
 
             const float oldGroupHeight = m_groups.back().bounds().height;
-            m_groups.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight);
+            m_groups.back().addItem(std::move(item), itemWidth, itemHeight, titleWidth, titleHeight);
             const float newGroupHeight = m_groups.back().bounds().height;
 
             m_height += (newGroupHeight - oldGroupHeight);
@@ -634,10 +638,10 @@ namespace TrenchBroom {
             m_height = 2.0f * m_outerMargin;
             m_valid = true;
             if (!m_groups.empty()) {
-                const auto copy = m_groups;
+                auto copy = m_groups;
                 m_groups.clear();
 
-                for (const LayoutGroup& group : copy) {
+                for (LayoutGroup& group : copy) {
                     addGroup(group.item(), group.titleBounds().height);
                     for (const LayoutRow& row : group.rows()) {
                         for (const LayoutCell& cell : row.cells()) {
@@ -646,7 +650,7 @@ namespace TrenchBroom {
                             float scale = cell.scale();
                             float itemWidth = itemBounds.width / scale;
                             float itemHeight = itemBounds.height / scale;
-                            addItem(cell.item(), itemWidth, itemHeight, titleBounds.width, titleBounds.height);
+                            addItem(std::move(cell.item()), itemWidth, itemHeight, titleBounds.width, titleBounds.height);
                         }
                     }
                 }
