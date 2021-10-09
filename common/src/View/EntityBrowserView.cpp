@@ -58,9 +58,6 @@
 #include <string>
 #include <vector>
 
-// allow storing std::shared_ptr in QVariant
-Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::EntityCellData>)
-
 namespace TrenchBroom {
     namespace View {
         EntityCellData::EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds) :
@@ -205,7 +202,7 @@ namespace TrenchBroom {
                 }
 
                 const auto boundsSize = rotatedBounds.size();
-                layout.addItem(QVariant::fromValue(std::make_shared<EntityCellData>(definition, modelRenderer, actualFont, rotatedBounds)),
+                layout.addItem(EntityCellData{definition, modelRenderer, actualFont, rotatedBounds},
                                boundsSize.y(),
                                boundsSize.z(),
                                actualSize.x(),
@@ -444,9 +441,7 @@ namespace TrenchBroom {
         }
 
         const EntityCellData& EntityBrowserView::cellData(const Cell& cell) const {
-            QVariant any = cell.item();
-            auto ptr = any.value<std::shared_ptr<EntityCellData>>();
-            return *ptr;
+            return cell.itemAs<EntityCellData>();
         }
     }
 }

@@ -50,9 +50,6 @@
 #include <QTextStream>
 #include <QMenu>
 
-// allow storing std::shared_ptr in QVariant
-Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::TextureCellData>)
-
 namespace TrenchBroom {
     namespace View {
         TextureBrowserView::TextureBrowserView(QScrollBar* scrollBar,
@@ -181,7 +178,7 @@ namespace TrenchBroom {
             const float scaledTextureWidth = vm::round(scaleFactor * static_cast<float>(texture->width()));
             const float scaledTextureHeight = vm::round(scaleFactor * static_cast<float>(texture->height()));
 
-            auto cellData = std::shared_ptr<TextureCellData>(new TextureCellData{
+            auto cellData = TextureCellData{
                 texture,
                 textureName,
                 groupName,
@@ -189,13 +186,13 @@ namespace TrenchBroom {
                 vm::vec2f((maxCellWidth - groupNameSize.x()) / 2.0f, 1.0f),
                 textureFont,
                 groupFont
-            });
+            };
 
-            layout.addItem(QVariant::fromValue(cellData),
-            scaledTextureWidth,
-            scaledTextureHeight,
-            maxCellWidth,
-            totalSize.y());
+            layout.addItem(std::move(cellData),
+                scaledTextureWidth,
+                scaledTextureHeight,
+                maxCellWidth,
+                totalSize.y());
         }
 
         struct TextureBrowserView::CompareByUsageCount {
@@ -544,9 +541,7 @@ namespace TrenchBroom {
         }
 
         const TextureCellData& TextureBrowserView::cellData(const Cell& cell) const {
-            QVariant any = cell.item();
-            auto ptr = any.value<std::shared_ptr<TextureCellData>>();
-            return *ptr;
+            return cell.itemAs<TextureCellData>();
         }
     }
 }

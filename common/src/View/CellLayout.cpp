@@ -51,15 +51,13 @@ namespace TrenchBroom {
             return bottom() >= rangeY && top() <= rangeY + rangeHeight ;
         }
 
-        LayoutCell::LayoutCell(QVariant item,
-                    const float x, const float y,
+        LayoutCell::LayoutCell(const float x, const float y,
                     const float itemWidth, const float itemHeight,
                     const float titleWidth, const float titleHeight,
                     const float titleMargin,
                     const float maxUpScale,
                     const float minWidth, const float maxWidth,
                     const float minHeight, const float maxHeight) :
-        m_item{std::move(item)},
         m_x{x},
         m_y{y},
         m_itemWidth{itemWidth},
@@ -70,12 +68,16 @@ namespace TrenchBroom {
             doLayout(maxUpScale, minWidth, maxWidth, minHeight, maxHeight);
         }
 
-        QVariant& LayoutCell::item() {
+        std::any& LayoutCell::item() {
             return m_item;
         }
 
-        const QVariant& LayoutCell::item() const {
+        const std::any& LayoutCell::item() const {
             return m_item;
+        }
+
+        void LayoutCell::setItem(std::any item) {
+            m_item = std::move(item);
         }
 
         float LayoutCell::scale() const {
@@ -185,7 +187,30 @@ namespace TrenchBroom {
             return m_bounds.intersectsY(y, height);
         }
 
-        bool LayoutRow::addItem(QVariant item,
+        bool LayoutRow::canAddItem(const float itemWidth, const float itemHeight,
+                                   const float titleWidth, const float titleHeight) const {
+
+            float x = m_bounds.right();
+            float width = m_bounds.width;
+            if (!m_cells.empty()) {
+                x += m_cellMargin;
+                width += m_cellMargin;
+            }
+
+            auto cell = LayoutCell{x, m_bounds.top(), itemWidth, itemHeight, titleWidth, titleHeight, m_titleMargin, m_maxUpScale, m_minCellWidth, m_maxCellWidth, m_minCellHeight, m_maxCellHeight};
+            width += cell.cellBounds().width;
+
+            if (m_maxCells == 0 && width > m_maxWidth && !m_cells.empty()) {
+                return false;
+            }
+            if (m_maxCells > 0 && m_cells.size() >= m_maxCells - 1) {
+                return false;
+            }
+
+            return true;
+        }
+
+        void LayoutRow::addItem(std::any item,
                         const float itemWidth, const float itemHeight,
                         const float titleWidth, const float titleHeight) {
             float x = m_bounds.right();
@@ -195,15 +220,8 @@ namespace TrenchBroom {
                 width += m_cellMargin;
             }
 
-            auto cell = LayoutCell{item, x, m_bounds.top(), itemWidth, itemHeight, titleWidth, titleHeight, m_titleMargin, m_maxUpScale, m_minCellWidth, m_maxCellWidth, m_minCellHeight, m_maxCellHeight};
+            auto cell = LayoutCell{x, m_bounds.top(), itemWidth, itemHeight, titleWidth, titleHeight, m_titleMargin, m_maxUpScale, m_minCellWidth, m_maxCellWidth, m_minCellHeight, m_maxCellHeight};
             width += cell.cellBounds().width;
-
-            if (m_maxCells == 0 && width > m_maxWidth && !m_cells.empty()) {
-                return false;
-            }
-            if (m_maxCells > 0 && m_cells.size() >= m_maxCells - 1) {
-                return false;
-            }
 
             const float newItemRowHeight = cell.cellBounds().height - cell.titleBounds().height - m_titleMargin;
             bool readjust = newItemRowHeight > m_minCellHeight;
@@ -215,8 +233,8 @@ namespace TrenchBroom {
 
             m_bounds = LayoutBounds{m_bounds.left(), m_bounds.top(), width, std::max(m_bounds.height, cell.cellBounds().height)};
 
+            cell.setItem(std::move(item));
             m_cells.push_back(std::move(cell));
-            return true;
         }
 
         void LayoutRow::readjustItems() {
@@ -335,7 +353,7 @@ namespace TrenchBroom {
             return bounds().intersectsY(y, height);
         }
 
-        void LayoutGroup::addItem(QVariant item,
+        void LayoutGroup::addItem(std::any item,
                         const float itemWidth, const float itemHeight,
                         const float titleWidth, const float titleHeight) {
             if (m_rows.empty()) {
@@ -343,22 +361,23 @@ namespace TrenchBroom {
                 m_rows.emplace_back(m_contentBounds.left(), y, m_cellMargin, m_titleMargin, m_contentBounds.width, m_maxCellsPerRow, m_maxUpScale, m_minCellWidth, m_maxCellWidth, m_minCellHeight, m_maxCellHeight);
             }
 
-            const LayoutBounds oldBounds = m_rows.back().bounds();
-            const float oldRowHeight = m_rows.back().bounds().height;
-            if (!m_rows.back().addItem(std::move(item), itemWidth, itemHeight, titleWidth, titleHeight)) {
+            if (!m_rows.back().canAddItem(itemWidth, itemHeight, titleWidth, titleHeight)) {
+                const LayoutBounds oldBounds = m_rows.back().bounds();
                 const float y = oldBounds.bottom() + m_rowMargin;
                 m_rows.emplace_back(m_contentBounds.left(), y, m_cellMargin, m_titleMargin, m_contentBounds.width, m_maxCellsPerRow, m_maxUpScale, m_minCellWidth, m_maxCellWidth, m_minCellHeight, m_maxCellHeight);
 
-                const bool added = (m_rows.back().addItem(std::move(item), itemWidth, itemHeight, titleWidth, titleHeight));
-                assert(added);
-                unused(added);
-
                 const float newRowHeight = m_rows.back().bounds().height;
                 m_contentBounds = LayoutBounds{m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width, m_contentBounds.height + newRowHeight + m_rowMargin};
-            } else {
-                const float newRowHeight = m_rows.back().bounds().height;
-                m_contentBounds = LayoutBounds{m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width, m_contentBounds.height + (newRowHeight - oldRowHeight)};
             }
+
+            const float oldRowHeight = m_rows.back().bounds().height;
+
+            assert(m_rows.back().canAddItem(itemWidth, itemHeight, titleWidth, titleHeight));
+            m_rows.back().addItem(std::move(item), itemWidth, itemHeight, titleWidth, titleHeight);
+
+            const float newRowHeight = m_rows.back().bounds().height;
+            m_contentBounds = LayoutBounds{m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width, m_contentBounds.height + (newRowHeight - oldRowHeight)};
+
         }
 
         CellLayout::CellLayout(const size_t maxCellsPerRow) :
@@ -603,7 +622,7 @@ namespace TrenchBroom {
             m_height += m_groups.back().bounds().height;
         }
 
-        void CellLayout::addItem(QVariant item,
+        void CellLayout::addItem(std::any item,
                         const float itemWidth, const float itemHeight,
                         const float titleWidth, const float titleHeight) {
             if (!m_valid) {

@@ -22,9 +22,9 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <any>
+#include <string>
 #include <vector>
-
-#include <QVariant>
 
 namespace TrenchBroom {
     namespace View {
@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
         class LayoutCell {
         private:
-            QVariant m_item;
+            std::any m_item;
             float m_x;
             float m_y;
             float m_itemWidth;
@@ -58,8 +58,7 @@ namespace TrenchBroom {
             LayoutBounds m_itemBounds;
             LayoutBounds m_titleBounds;
         public:
-            LayoutCell(QVariant item,
-                       float x, float y,
+            LayoutCell(float x, float y,
                        float itemWidth, float itemHeight,
                        float titleWidth, float titleHeight,
                        float titleMargin,
@@ -67,8 +66,18 @@ namespace TrenchBroom {
                        float minWidth, float maxWidth,
                        float minHeight, float maxHeight);
 
-            QVariant& item();
-            const QVariant& item() const;
+            std::any& item();
+            const std::any& item() const;
+            void setItem(std::any item);
+
+            template <typename T>
+            const T& itemAs() const {
+                const T* result = std::any_cast<T>(&m_item);
+                if (!result) {
+                    throw std::bad_any_cast{};
+                }
+                return *result;
+            }
 
             float scale() const;
 
@@ -119,7 +128,9 @@ namespace TrenchBroom {
 
             bool intersectsY(float y, float height) const;
 
-            bool addItem(QVariant item,
+            bool canAddItem(float itemWidth, float itemHeight,
+                         float titleWidth, float titleHeight) const;
+            void addItem(std::any item,
                          float itemWidth, float itemHeight,
                          float titleWidth, float titleHeight);
         private:
@@ -175,7 +186,7 @@ namespace TrenchBroom {
             bool hitTest(float x, float y) const;
             bool intersectsY(float y, float height) const;
 
-            void addItem(QVariant item,
+            void addItem(std::any item,
                          float itemWidth, float itemHeight,
                          float titleWidth, float titleHeight);
         };
@@ -241,7 +252,7 @@ namespace TrenchBroom {
             const LayoutCell* cellAt(float x, float y);
 
             void addGroup(std::string groupItem, float titleHeight);
-            void addItem(QVariant item,
+            void addItem(std::any item,
                          float itemWidth, float itemHeight,
                          float titleWidth, float titleHeight);
 
