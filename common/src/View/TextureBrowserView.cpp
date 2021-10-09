@@ -515,10 +515,9 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::doLeftClick(Layout& layout, const float x, const float y) {
-            const Cell* result = nullptr;
-            if (layout.cellAt(x, y, &result)) {
-                if (!cellData(*result).texture->overridden()) {
-                    auto* texture = cellData(*result).texture;
+            if (const Cell* cell = layout.cellAt(x, y)) {
+                if (!cellData(*cell).texture->overridden()) {
+                    auto* texture = cellData(*cell).texture;
 
                     // NOTE: wx had the ability for the textureSelected event to veto the selection, but it
                     // wasn't used.
@@ -540,10 +539,9 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) {
-            const Cell* result = nullptr;
-            if (layout.cellAt(x, y, &result)) {
-                if (!cellData(*result).texture->overridden()) {
-                    auto* texture = cellData(*result).texture;
+            if (const Cell* cell = layout.cellAt(x, y)) {
+                if (!cellData(*cell).texture->overridden()) {
+                    auto* texture = cellData(*cell).texture;
 
                     QMenu menu(this);
                     menu.addAction(tr("Select Faces"), this, [=]() {

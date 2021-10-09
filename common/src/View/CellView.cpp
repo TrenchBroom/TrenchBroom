@@ -217,8 +217,7 @@ namespace TrenchBroom {
                 int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
                 float x = static_cast<float>(event->localPos().x());
                 float y = static_cast<float>(event->localPos().y() + top);
-                const Cell* cell = nullptr;
-                if (m_layout.cellAt(x, y, &cell)) {
+                if (const Cell* cell = m_layout.cellAt(x, y)) {
                     /*
                      wxImage* feedbackImage = dndImage(*cell);
                      int xOffset = event.GetX() - static_cast<int>(cell->itemBounds().left());
@@ -259,10 +258,9 @@ namespace TrenchBroom {
             int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
             float x = static_cast<float>(event->pos().x());
             float y = static_cast<float>(event->pos().y() + top);
-            const LayoutCell* cell = nullptr;
 
             // see: https://doc.qt.io/qt-5/qtwidgets-widgets-tooltips-example.html
-            if (m_layout.cellAt(x, y, &cell)) {
+            if (const LayoutCell* cell = m_layout.cellAt(x, y)) {
                 QToolTip::showText(event->globalPos(), tooltip(*cell));
             } else {
                 QToolTip::hideText();

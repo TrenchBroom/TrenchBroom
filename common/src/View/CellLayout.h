@@ -246,7 +246,7 @@ namespace TrenchBroom {
                 return m_cells;
             }
 
-            bool cellAt(const float x, const float y, const LayoutCell** result) const {
+            const LayoutCell* cellAt(const float x, const float y) const {
                 for (size_t i = 0; i < m_cells.size(); ++i) {
                     const LayoutCell& cell = m_cells[i];
                     const LayoutBounds& cellBounds = cell.cellBounds();
@@ -256,11 +256,10 @@ namespace TrenchBroom {
                         break;
                     }
                     if (cell.hitTest(x, y)) {
-                        *result = &cell;
-                        return true;
+                        return &cell;
                     }
                 }
-                return false;
+                return nullptr;
             }
 
             const LayoutBounds& bounds() const {
@@ -382,17 +381,16 @@ namespace TrenchBroom {
                 return m_rows.size();
             }
 
-            bool rowAt(const float y, const LayoutRow** result) const {
-                size_t index = indexOfRowAt(y);
+            const LayoutRow* rowAt(const float y) const {
+                const size_t index = indexOfRowAt(y);
                 if (index == m_rows.size()) {
-                    return false;
+                    return nullptr;
                 }
 
-                *result = &m_rows[index];
-                return true;
+                return &m_rows[index];
             }
 
-            bool cellAt(const float x, const float y, const LayoutCell** result) const {
+            const LayoutCell* cellAt(const float x, const float y) const {
                 for (size_t i = 0; i < m_rows.size(); ++i) {
                     const LayoutRow& row = m_rows[i];
                     const LayoutBounds& rowBounds = row.bounds();
@@ -401,12 +399,12 @@ namespace TrenchBroom {
                     } else if (y < rowBounds.top()) {
                         break;
                     }
-                    if (row.cellAt(x, y, result)) {
-                        return true;
+                    if (const LayoutCell* cell = row.cellAt(x, y)) {
+                        return cell;
                     }
                 }
 
-                return false;
+                return nullptr;
             }
 
             bool hitTest(const float x, const float y) const {
@@ -603,7 +601,7 @@ namespace TrenchBroom {
                 invalidate();
             }
 
-            bool cellAt(const float x, const float y, const LayoutCell** result) {
+            const LayoutCell* cellAt(const float x, const float y) {
                 if (!m_valid) {
                     validate();
                 }
@@ -616,34 +614,33 @@ namespace TrenchBroom {
                     } else if (y < groupBounds.top()) {
                         break;
                     }
-                    if (group.cellAt(x, y, result)) {
-                        return true;
+                    if (const LayoutCell* cell = group.cellAt(x, y)) {
+                        return cell;
                     }
                 }
 
-                return false;
+                return nullptr;
             }
 
-            bool groupAt(const float x, const float y, LayoutGroup*& result) {
+            const LayoutGroup* groupAt(const float x, const float y) {
                 if (!m_valid) {
                     validate();
                 }
 
                 for (size_t i = 0; i < m_groups.size(); ++i) {
-                    LayoutGroup* group = &m_groups[i];
-                    const LayoutBounds groupBounds = group->bounds();
+                    LayoutGroup& group = m_groups[i];
+                    const LayoutBounds groupBounds = group.bounds();
                     if (y > groupBounds.bottom()) {
                         continue;
                     } else if (y < groupBounds.top()) {
                         break;
                     }
-                    if (group->hitTest(x, y)) {
-                        result = group;
-                        return true;
+                    if (group.hitTest(x, y)) {
+                        return &group;
                     }
                 }
 
-                return false;
+                return nullptr;
             }
 
             const LayoutBounds titleBoundsForVisibleRect(const LayoutGroup& group, const float y, const float height) const {
