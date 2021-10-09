@@ -311,14 +311,11 @@ namespace TrenchBroom {
             using BoundsVertex = Renderer::GLVertexTypes::P2C4::Vertex;
             std::vector<BoundsVertex> vertices;
 
-            for (size_t i = 0; i < layout.size(); ++i) {
-                const Group& group = layout[i];
+            for (const auto& group : layout.groups()) {
                 if (group.intersectsY(y, height)) {
-                    for (size_t j = 0; j < group.size(); ++j) {
-                        const Row& row = group[j];
+                    for (const auto& row : group.rows()) {
                         if (row.intersectsY(y, height)) {
-                            for (size_t k = 0; k < row.size(); ++k) {
-                                const Cell& cell = row[k];
+                            for (const auto& cell : row.cells()) {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cellData(cell).texture;
                                 const Color& color = textureColor(*texture);
@@ -357,14 +354,11 @@ namespace TrenchBroom {
 
             size_t num = 0;
 
-            for (size_t i = 0; i < layout.size(); ++i) {
-                const Group& group = layout[i];
+            for (const auto& group : layout.groups()) {
                 if (group.intersectsY(y, height)) {
-                    for (size_t j = 0; j < group.size(); ++j) {
-                        const Row& row = group[j];
+                    for (const auto& row : group.rows()) {
                         if (row.intersectsY(y, height)) {
-                            for (size_t k = 0; k < row.size(); ++k) {
-                                const Cell& cell = row[k];
+                            for (const auto& cell : row.cells()) {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cellData(cell).texture;
 
@@ -400,8 +394,7 @@ namespace TrenchBroom {
             using Vertex = Renderer::GLVertexTypes::P2::Vertex;
             std::vector<Vertex> vertices;
 
-            for (size_t i = 0; i < layout.size(); ++i) {
-                const Group& group = layout[i];
+            for (const auto& group : layout.groups()) {
                 if (group.intersectsY(y, height)) {
                     const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                     vertices.push_back(Vertex(vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y))));
@@ -448,8 +441,7 @@ namespace TrenchBroom {
             const std::vector<Color> subTextColor{ pref(Preferences::BrowserSubTextColor) };
 
             StringMap stringVertices;
-            for (size_t i = 0; i < layout.size(); ++i) {
-                const auto& group = layout[i];
+            for (const auto& group : layout.groups()) {
                 if (group.intersectsY(y, height)) {
                     const auto& title = group.item();
                     if (!title.empty()) {
@@ -467,11 +459,9 @@ namespace TrenchBroom {
                         vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                     }
 
-                    for (size_t j = 0; j < group.size(); ++j) {
-                        const auto& row = group[j];
+                    for (const auto& row : group.rows()) {
                         if (row.intersectsY(y, height)) {
-                            for (unsigned int k = 0; k < row.size(); k++) {
-                                const auto& cell = row[k];
+                            for (const auto& cell : row.cells()) {
                                 const auto titleBounds = cell.titleBounds();
                                 const auto& textureFont = fontManager().font(cellData(cell).mainTitleFont);
                                 const auto& groupFont   = fontManager().font(cellData(cell).subTitleFont);

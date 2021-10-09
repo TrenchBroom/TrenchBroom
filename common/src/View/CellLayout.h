@@ -112,8 +112,6 @@ namespace TrenchBroom {
                       float minCellWidth, float maxCellWidth,
                       float minCellHeight, float maxCellHeight);
 
-            const LayoutCell& operator[] (size_t index) const;
-
             bool addItem(QVariant item,
                          float itemWidth, float itemHeight,
                          float titleWidth, float titleHeight);
@@ -125,8 +123,6 @@ namespace TrenchBroom {
             const LayoutBounds& bounds() const;
 
             bool intersectsY(float y, float height) const;
-
-            size_t size() const;
         };
 
         class LayoutGroup {
@@ -149,8 +145,6 @@ namespace TrenchBroom {
 
             std::vector<LayoutRow> m_rows;
         public:
-            const LayoutRow& operator[] (size_t index) const;
-
             LayoutGroup(const GroupType& item,
                         float x, float y,
                         float cellMargin, float titleMargin, float rowMargin,
@@ -173,8 +167,8 @@ namespace TrenchBroom {
                          float itemWidth, float itemHeight,
                          float titleWidth, float titleHeight);
 
+            const std::vector<LayoutRow>& rows() const;
             size_t indexOfRowAt(float y) const;
-            const LayoutRow* rowAt(float y) const;
             const LayoutCell* cellAt(float x, float y) const;
 
             bool hitTest(float x, float y) const;
@@ -187,8 +181,6 @@ namespace TrenchBroom {
             bool intersectsY(float y, float height) const;
 
             const GroupType& item() const;
-
-            size_t size() const;
         };
 
         class CellLayout {
@@ -215,8 +207,6 @@ namespace TrenchBroom {
 
             void validate();
         public:
-            const LayoutGroup& operator[] (size_t index);
-
             CellLayout(size_t maxCellsPerRow = 0);
 
             void setCellMargin(float cellMargin);
@@ -232,14 +222,13 @@ namespace TrenchBroom {
 
             void clear();
 
+            const std::vector<LayoutGroup>& groups();
+
             const LayoutCell* cellAt(float x, float y);
-            const LayoutGroup* groupAt(float x, float y);
 
             LayoutBounds titleBoundsForVisibleRect(const LayoutGroup& group, float y, float height) const;
 
             float rowPosition(float y, int offset);
-
-            size_t size();
 
             void invalidate();
 

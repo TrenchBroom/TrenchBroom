@@ -158,11 +158,6 @@ namespace TrenchBroom {
         m_maxCellHeight{maxCellHeight},
         m_bounds{x, y, 0.0f, 0.0f} {}
 
-        const LayoutCell& LayoutRow::operator[] (const size_t index) const {
-            ensure(index < m_cells.size(), "index out of range");
-            return m_cells[index];
-        }
-
         bool LayoutRow::addItem(QVariant item,
                         const float itemWidth, const float itemHeight,
                         const float titleWidth, const float titleHeight) {
@@ -224,15 +219,6 @@ namespace TrenchBroom {
 
         bool LayoutRow::intersectsY(const float y, const float height) const {
             return m_bounds.intersectsY(y, height);
-        }
-
-        size_t LayoutRow::size() const {
-            return m_cells.size();
-        }
-
-        const LayoutRow& LayoutGroup::operator[] (const size_t index) const {
-            ensure(index < m_rows.size(), "index out of range");
-            return m_rows[index];
         }
 
         LayoutGroup::LayoutGroup(const GroupType& item,
@@ -304,6 +290,10 @@ namespace TrenchBroom {
             }
         }
 
+        const std::vector<LayoutRow>& LayoutGroup::rows() const {
+            return m_rows;
+        }
+
         size_t LayoutGroup::indexOfRowAt(const float y) const {
             for (size_t i = 0; i < m_rows.size(); ++i) {
                 const LayoutRow& row = m_rows[i];
@@ -314,15 +304,6 @@ namespace TrenchBroom {
             }
 
             return m_rows.size();
-        }
-
-        const LayoutRow* LayoutGroup::rowAt(const float y) const {
-            const size_t index = indexOfRowAt(y);
-            if (index == m_rows.size()) {
-                return nullptr;
-            }
-
-            return &m_rows[index];
         }
 
         const LayoutCell* LayoutGroup::cellAt(const float x, const float y) const {
@@ -376,10 +357,6 @@ namespace TrenchBroom {
             return m_item;
         }
 
-        size_t LayoutGroup::size() const {
-            return m_rows.size();
-        }
-
         void CellLayout::validate() {
             if (m_width <= 0.0f) {
                 return;
@@ -388,16 +365,13 @@ namespace TrenchBroom {
             m_height = 2.0f * m_outerMargin;
             m_valid = true;
             if (!m_groups.empty()) {
-                auto copy = m_groups;
+                const auto copy = m_groups;
                 m_groups.clear();
 
-                for (size_t i = 0; i < copy.size(); ++i) {
-                    LayoutGroup& group = copy[i];
+                for (const LayoutGroup& group : copy) {
                     addGroup(group.item(), group.titleBounds().height);
-                    for (size_t j = 0; j < group.size(); ++j) {
-                        const LayoutRow& row = group[j];
-                        for (size_t k = 0; k < row.size(); k++) {
-                            const LayoutCell& cell = row[k];
+                    for (const LayoutRow& row : group.rows()) {
+                        for (const LayoutCell& cell : row.cells()) {
                             const LayoutBounds& itemBounds = cell.itemBounds();
                             const LayoutBounds& titleBounds = cell.titleBounds();
                             float scale = cell.scale();
@@ -408,14 +382,6 @@ namespace TrenchBroom {
                     }
                 }
             }
-        }
-
-        const LayoutGroup& CellLayout::operator[] (const size_t index) {
-            ensure(index < m_groups.size(), "index out of range");
-            if (!m_valid) {
-                validate();
-            }
-            return m_groups[index];
         }
 
         CellLayout::CellLayout(const size_t maxCellsPerRow) :
@@ -514,6 +480,14 @@ namespace TrenchBroom {
             invalidate();
         }
 
+        const std::vector<LayoutGroup>& CellLayout::groups() {
+            if (!m_valid) {
+                validate();
+            }
+
+            return m_groups;
+        }
+
         const LayoutCell* CellLayout::cellAt(const float x, const float y) {
             if (!m_valid) {
                 validate();
@@ -529,27 +503,6 @@ namespace TrenchBroom {
                 }
                 if (const LayoutCell* cell = group.cellAt(x, y)) {
                     return cell;
-                }
-            }
-
-            return nullptr;
-        }
-
-        const LayoutGroup* CellLayout::groupAt(const float x, const float y) {
-            if (!m_valid) {
-                validate();
-            }
-
-            for (size_t i = 0; i < m_groups.size(); ++i) {
-                const LayoutGroup& group = m_groups[i];
-                const LayoutBounds groupBounds = group.bounds();
-                if (y > groupBounds.bottom()) {
-                    continue;
-                } else if (y < groupBounds.top()) {
-                    break;
-                }
-                if (group.hitTest(x, y)) {
-                    return &group;
                 }
             }
 
@@ -588,32 +541,25 @@ namespace TrenchBroom {
             int newIndex = static_cast<int>(rowIndex) + offset;
             if (newIndex < 0) {
                 while (newIndex < 0 && groupIndex > 0) {
-                    newIndex += static_cast<int>(m_groups[--groupIndex].size());
+                    newIndex += static_cast<int>(m_groups[--groupIndex].rows().size());
                 }
-            } else if (newIndex >= static_cast<int>(m_groups[groupIndex].size())) {
-                while (groupIndex < m_groups.size() - 1 && newIndex >= static_cast<int>(m_groups[groupIndex].size())) {
-                    newIndex -= static_cast<int>(m_groups[groupIndex++].size());
+            } else if (newIndex >= static_cast<int>(m_groups[groupIndex].rows().size())) {
+                while (groupIndex < m_groups.size() - 1 && newIndex >= static_cast<int>(m_groups[groupIndex].rows().size())) {
+                    newIndex -= static_cast<int>(m_groups[groupIndex++].rows().size());
                 }
             }
 
             if (groupIndex < m_groups.size()) {
                 if (newIndex >= 0) {
                     rowIndex = static_cast<size_t>(newIndex);
-                    if (rowIndex < m_groups[groupIndex].size()) {
-                        return m_groups[groupIndex][rowIndex].bounds().top();
+                    if (rowIndex < m_groups[groupIndex].rows().size()) {
+                        return m_groups[groupIndex].rows()[rowIndex].bounds().top();
                     }
                 }
             }
 
 
             return y;
-        }
-
-        size_t CellLayout::size() {
-            if (!m_valid) {
-                validate();
-            }
-            return m_groups.size();
         }
 
         void CellLayout::invalidate() {
