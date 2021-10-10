@@ -1579,7 +1579,7 @@ Variable 		Description
 `GAME_DIR_PATH`	The full path to the current game as specified in the game preferences.
 `MODS` 			An array containing all enabled mods for the current map.
 
-The `MODS` variable is useful to pass a parameter to the engine to choose a mod. Usually, this will be the last mod in the mods for the current map. Since the `MODS` variable is an array that contains all mods for the map, its individual entries are accessed using teh subscript operator (see below). To access the last entry in the array, you can use the expression `$MODS[-1]`.
+The `MODS` variable is useful to pass a parameter to the engine to choose a mod. Usually, this will be the last mod in the mods for the current map. Since the `MODS` variable is an array that contains all mods for the map, its individual entries are accessed using the subscript operator (see below). To access the last entry in the array, you can use the expression `$MODS[-1]`.
 
 Note that the parameters are stored with the game engine profile.
 
