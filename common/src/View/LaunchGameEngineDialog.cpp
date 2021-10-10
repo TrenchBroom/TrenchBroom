@@ -91,6 +91,7 @@ namespace TrenchBroom {
             makeEmphasized(parameterLabel);
 
             m_parameterText = new MultiCompletionLineEdit();
+            m_parameterText->setFont(Fonts::fixedWidthFont());
             m_parameterText->setMultiCompleter(new QCompleter(new VariableStoreModel(variables())));
             m_parameterText->setWordDelimiters(QRegularExpression("\\$"), QRegularExpression("\\}"));
 

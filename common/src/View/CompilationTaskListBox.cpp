@@ -124,6 +124,7 @@ namespace TrenchBroom {
             addMainLayout(formLayout);
 
             m_targetEditor = new MultiCompletionLineEdit();
+            m_targetEditor->setFont(Fonts::fixedWidthFont());
             setupCompleter(m_targetEditor);
             formLayout->addRow("Target", m_targetEditor);
 
@@ -163,10 +164,12 @@ namespace TrenchBroom {
             addMainLayout(formLayout);
 
             m_sourceEditor = new MultiCompletionLineEdit();
+            m_sourceEditor->setFont(Fonts::fixedWidthFont());
             setupCompleter(m_sourceEditor);
             formLayout->addRow("Source", m_sourceEditor);
 
             m_targetEditor = new MultiCompletionLineEdit();
+            m_targetEditor->setFont(Fonts::fixedWidthFont());
             setupCompleter(m_targetEditor);
             formLayout->addRow("Target", m_targetEditor);
 
@@ -221,6 +224,7 @@ namespace TrenchBroom {
             addMainLayout(formLayout);
 
             m_toolEditor = new MultiCompletionLineEdit();
+            m_toolEditor->setFont(Fonts::fixedWidthFont());
             setupCompleter(m_toolEditor);
 
             auto* browseToolButton = new QPushButton("...");
@@ -235,6 +239,8 @@ namespace TrenchBroom {
             formLayout->addRow("Tool", toolLayout);
 
             m_parametersEditor = new MultiCompletionLineEdit();
+            m_parametersEditor->setFont(Fonts::fixedWidthFont());
+
             setupCompleter(m_parametersEditor);
             formLayout->addRow("Parameters", m_parametersEditor);
 

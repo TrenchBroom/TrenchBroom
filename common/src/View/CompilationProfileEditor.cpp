@@ -79,6 +79,7 @@ namespace TrenchBroom {
 
             m_workDirTxt->setMultiCompleter(completer);
             m_workDirTxt->setWordDelimiters(QRegularExpression("\\$"), QRegularExpression("\\}"));
+            m_workDirTxt->setFont(Fonts::fixedWidthFont());
 
             auto* upperLayout = new QFormLayout();
             upperLayout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin, LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin);
