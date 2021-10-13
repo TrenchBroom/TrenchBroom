@@ -92,7 +92,7 @@ namespace kdl {
                     return false;
                 } else {
                     const V& lhs_value = lhs.second;
-                    const V& rhs_value = lhs.second;
+                    const V& rhs_value = rhs.second;
                     return value_cmp(lhs_value, rhs_value);
                 }
             });
