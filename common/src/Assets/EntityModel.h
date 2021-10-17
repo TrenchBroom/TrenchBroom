@@ -71,6 +71,7 @@ namespace TrenchBroom {
         class EntityModelFrame {
         private:
             size_t m_index;
+            size_t m_skinOffset;
         public:
             /**
              * Creates a new frame with the given index.
@@ -94,6 +95,16 @@ namespace TrenchBroom {
              * @return the index
              */
             size_t index() const;
+
+            /**
+             * Returns the skin offset of this frame.
+             */
+            size_t skinOffset() const;
+            
+            /**
+             * Sets the skin offset of this frame
+             */
+            void setSkinOffset(size_t skinOffset);
 
             /**
              * Returns this frame's name.

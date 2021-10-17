@@ -39,12 +39,21 @@ namespace TrenchBroom {
         // EntityModelFrame
 
         EntityModelFrame::EntityModelFrame(const size_t index) :
-        m_index{index} {}
+        m_index{index},
+        m_skinOffset{0} {}
 
         EntityModelFrame::~EntityModelFrame() = default;
 
         size_t EntityModelFrame::index() const {
             return m_index;
+        }
+
+        size_t EntityModelFrame::skinOffset() const {
+            return m_skinOffset;
+        }
+
+        void EntityModelFrame::setSkinOffset(const size_t skinOffset) {
+            m_skinOffset = skinOffset;
         }
 
         // EntityModel::LoadedFrame
@@ -367,7 +376,10 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModelSurface::buildRenderer(const size_t skinIndex, const size_t frameIndex) {
-            if (skinIndex >= skinCount() || frameIndex >= frameCount() || m_meshes[frameIndex] == nullptr) {
+            assert(frameIndex < frameCount());
+            assert(skinIndex < skinCount());
+
+            if (m_meshes[frameIndex] == nullptr) {
                 return nullptr;
             } else {
                 const auto* skin = this->skin(skinIndex);
@@ -385,9 +397,17 @@ namespace TrenchBroom {
 
         std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             std::vector<std::unique_ptr<Renderer::TexturedIndexRangeRenderer>> renderers;
+            if (frameIndex >= frameCount()) {
+                return nullptr;
+            }
+
+            const auto& frame = this->frame(frameIndex);
+            const auto actualSkinIndex = skinIndex + frame->skinOffset();
             for (const auto& surface : m_surfaces) {
-                if (auto renderer = surface->buildRenderer(skinIndex, frameIndex)) {
-                    renderers.push_back(std::move(renderer));
+                if (actualSkinIndex < surface->skinCount()) {
+                    if (auto renderer = surface->buildRenderer(actualSkinIndex, frameIndex)) {
+                        renderers.push_back(std::move(renderer));
+                    }
                 }
             }
             if (renderers.empty()) {
