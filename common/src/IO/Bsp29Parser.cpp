@@ -96,7 +96,9 @@ namespace TrenchBroom {
             auto textures = parseTextures(reader.subReaderFromBegin(textureOffset), logger);
 
             auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-            model->addFrames(frameCount);
+            for (size_t i = 0; i < frameCount; ++i) {
+                model->addFrame();
+            }
 
             auto& surface = model->addSurface(m_name);
             surface.setSkins(std::move(textures));

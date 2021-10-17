@@ -465,7 +465,7 @@ namespace TrenchBroom {
             using Vertex = Assets::EntityModelVertex;
 
             auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-            model->addFrames(1);
+            model->addFrame();
             auto& surface = model->addSurface(m_name);
 
             // Load the textures

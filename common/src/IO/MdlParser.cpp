@@ -250,7 +250,10 @@ namespace TrenchBroom {
             const auto flags = reader.readInt<int32_t>();
 
             auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::MdlInverted, Assets::Orientation::Oriented);
-            model->addFrames(frameCount);
+            for (size_t i = 0; i < frameCount; ++i) {
+                model->addFrame();
+            }
+
             auto& surface = model->addSurface(m_name);
 
             reader.seekFromBegin(MdlLayout::Skins);

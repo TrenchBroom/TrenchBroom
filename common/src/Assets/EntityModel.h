@@ -350,11 +350,9 @@ namespace TrenchBroom {
             void setTextureMode(int minFilter, int magFilter);
 
             /**
-             * Adds the given number of frames to this model.
-             *
-             * @param frameCount the number of frames to add
+             * Add a frame to this model.
              */
-            void addFrames(size_t frameCount = 1);
+            EntityModelFrame& addFrame();
 
             /**
              * Adds a frame with the given name and bounds.

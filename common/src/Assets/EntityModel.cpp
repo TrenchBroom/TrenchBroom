@@ -424,10 +424,9 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityModel::addFrames(const size_t count) {
-            for (size_t i = 0; i < count; ++i) {
-                m_frames.push_back(std::make_unique<EntityModelUnloadedFrame>(frameCount()));
-            }
+        EntityModelFrame& EntityModel::addFrame() {
+            m_frames.push_back(std::make_unique<EntityModelUnloadedFrame>(frameCount()));
+            return *m_frames.back();
         }
 
         EntityModelLoadedFrame& EntityModel::loadFrame(const size_t frameIndex, const std::string& name, const vm::bbox3f& bounds) {
