@@ -364,7 +364,7 @@ You can learn more about these tools in later sections. But before you can learn
 
 ### Cancelling Operations and Tools {#cancelling}
 
-To cancel a mouse drag by hitting #action(Controls/Map view/Cancel). The operation will be undone immediately. The same keyboard shortcut can be used to cancel all kinds of things in the editor. The following table lists the effects of cancelling depending on the current state of the editor.
+To cancel a mouse drag, hit #action(Controls/Map view/Cancel). The operation will be undone immediately. The same keyboard shortcut can be used to cancel all kinds of things in the editor. The following table lists the effects of cancelling depending on the current state of the editor.
 
 State                 Effect
 -----                 ------
