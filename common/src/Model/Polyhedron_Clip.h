@@ -109,27 +109,14 @@ namespace TrenchBroom {
 
                 /*
                  We assume that the plane doesn't intersect the polyhedron. The result may either be
-                 that the polyhedron remains unchanged or that it becomes empty. We need to look at
-                 the vertices to find out exactly.
-                 For this, we first find the vertex that is furthest from the given plane, and then
-                 examine its point status.
+                 that the polyhedron remains unchanged or that it becomes empty.
+                 However, we decide to just indicate that the plane is superfluous and let the caller
+                 sort it out. This way, we can load some brushes where we cannot clearly detect such planes
+                 due to floating point inaccuracies.
+                
+                 See also https://github.com/TrenchBroom/TrenchBroom/issues/3898
                  */
-
-                auto it = std::max_element(std::begin(m_vertices), std::end(m_vertices),
-                    [&plane](const Vertex* lhs, const Vertex* rhs) {
-                        const T lhsDist = vm::abs(plane.point_distance(lhs->position()));
-                        const T rhsDist = vm::abs(plane.point_distance(rhs->position()));
-                        return lhsDist < rhsDist;
-                    });
-
-                assert(it != std::end(m_vertices));
-                if (plane.point_status((*it)->position(), vm::constants<T>::point_status_epsilon()) == vm::plane_status::below) {
-                    // The furthest point is below the plane.
-                    return ClipResult(ClipResult::FailureReason::Unchanged);
-                } else {
-                    // The furthest point is above or inside the plane.
-                    return ClipResult(ClipResult::FailureReason::Empty);
-                }
+                return ClipResult(ClipResult::FailureReason::Unchanged);
             }
         }
 
@@ -186,7 +173,11 @@ namespace TrenchBroom {
 
             // First, we find a half edge that is intersected by the given plane.
             HalfEdge* initialEdge = findInitialIntersectingEdge(plane);
-            ensure(initialEdge != nullptr, "initialEdge is null");
+            if (initialEdge == nullptr) {
+                // No initial edge to split could be found. The brush is likely invalid, but wasn't recognized as such
+                // due to floating point inaccuracies.
+                throw NoSeamException({});
+            }
 
             HalfEdge* currentEdge;
             bool faceWasSplit;
