@@ -207,7 +207,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction") {
-            auto* entityNode1 = new Model::EntityNode();
+            auto* entityNode1 = new Model::EntityNode({});
             addNode(*document, document->parentForNodes(), entityNode1);
 
             document->select(entityNode1);
@@ -224,7 +224,7 @@ namespace TrenchBroom {
 
             // now repeat the transaction on a second entity
 
-            auto* entityNode2 = new Model::EntityNode();
+            auto* entityNode2 = new Model::EntityNode({});
             addNode(*document, document->parentForNodes(), entityNode2);
 
             document->deselectAll();
@@ -244,7 +244,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTranslate") {
-            auto* entityNode1 = new Model::EntityNode();
+            auto* entityNode1 = new Model::EntityNode({});
             addNode(*document, document->parentForNodes(), entityNode1);
 
             document->select(entityNode1);
@@ -302,7 +302,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatUndo") {
-            auto* entityNode1 = new Model::EntityNode();
+            auto* entityNode1 = new Model::EntityNode({});
             addNode(*document, document->parentForNodes(), entityNode1);
 
             document->select(entityNode1);

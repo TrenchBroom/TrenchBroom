@@ -1485,7 +1485,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            const std::vector<Node*> nodes = IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
             CHECK(nodes.size() == 1u);
 
             const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
