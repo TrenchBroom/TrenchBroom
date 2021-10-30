@@ -26,8 +26,8 @@
 namespace TrenchBroom {
     namespace View {
         RepeatStack::RepeatStack() :
-        m_clearOnNextPush(false),
-        m_repeating(false) {}
+        m_clearOnNextPush{false},
+        m_repeating{false} {}
 
         size_t RepeatStack::size() const {
             return m_stack.size();
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         }
 
         void RepeatStack::repeat() const {
-            const kdl::set_temp repeating(m_repeating);
+            const auto repeating = kdl::set_temp{m_repeating};
             for (const auto& repeatable : m_stack) {
                 repeatable();
             }
