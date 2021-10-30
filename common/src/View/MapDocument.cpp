@@ -1329,11 +1329,13 @@ namespace TrenchBroom {
 
                 nodesToSelect.push_back(clone);
             }
-
-            Transaction transaction(this, "Duplicate Objects");
-            deselectAll();
-            addNodes(nodesToAdd);
-            select(nodesToSelect);
+            
+            {
+                Transaction transaction(this, "Duplicate Objects");
+                deselectAll();
+                addNodes(nodesToAdd);
+                select(nodesToSelect);
+            }
 
             if (m_viewEffectsService) {
                 m_viewEffectsService->flashSelection();
@@ -2897,10 +2899,13 @@ namespace TrenchBroom {
 
         void MapDocument::undoCommand() {
             doUndoCommand();
+            // Undo/redo in the repeat system is not supported for now, so just clear the repeat stack
+            m_repeatStack->clear();
         }
 
         void MapDocument::redoCommand() {
             doRedoCommand();
+            m_repeatStack->clear();
         }
 
         bool MapDocument::canRepeatCommands() const {
@@ -2918,22 +2923,27 @@ namespace TrenchBroom {
         void MapDocument::startTransaction(const std::string& name) {
             debug("Starting transaction '" + name + "'");
             doStartTransaction(name);
+            m_repeatStack->startTransaction();
         }
 
         void MapDocument::rollbackTransaction() {
             debug("Rolling back transaction");
             doRollbackTransaction();
+            m_repeatStack->rollbackTransaction();
         }
 
         void MapDocument::commitTransaction() {
             debug("Committing transaction");
             doCommitTransaction();
+            m_repeatStack->commitTransaction();
         }
 
         void MapDocument::cancelTransaction() {
             debug("Cancelling transaction");
             doRollbackTransaction();
+            m_repeatStack->rollbackTransaction();
             doCommitTransaction();
+            m_repeatStack->commitTransaction();
         }
 
         std::unique_ptr<CommandResult> MapDocument::execute(std::unique_ptr<Command>&& command) {
