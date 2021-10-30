@@ -47,8 +47,8 @@ namespace TrenchBroom {
             // for now, only merge spawnflags
             if (superClassAttribute.type() == Assets::PropertyDefinitionType::FlagsProperty &&
                 inheritingClassAttribute.type() == Assets::PropertyDefinitionType::FlagsProperty &&
-                superClassAttribute.key() == Model::PropertyKeys::Spawnflags &&
-                inheritingClassAttribute.key() == Model::PropertyKeys::Spawnflags) {
+                superClassAttribute.key() == Model::EntityPropertyKeys::Spawnflags &&
+                inheritingClassAttribute.key() == Model::EntityPropertyKeys::Spawnflags) {
 
                 const auto& name = inheritingClassAttribute.key();
                 auto result = std::make_shared<Assets::FlagsPropertyDefinition>(name);

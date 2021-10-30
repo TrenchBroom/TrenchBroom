@@ -58,9 +58,10 @@ namespace TrenchBroom {
             if (definition->type() != Assets::EntityDefinitionType::PointEntity)
                 return false;
 
-            m_entity = new Model::EntityNode(Model::Entity({
-                {Model::PropertyKeys::Classname, definition->name()}
-            }));
+            m_entity = new Model::EntityNode{Model::Entity{
+                document->world()->entityPropertyConfig(),
+                {{Model::EntityPropertyKeys::Classname, definition->name()}}
+            }};
 
             m_referenceBounds = document->referenceBounds();
 

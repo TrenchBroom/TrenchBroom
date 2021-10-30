@@ -21,7 +21,11 @@
 #include "Assets/Texture.h"
 
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
+#include <kdl/opt_utils.h>
+
+#include <ostream>
 #include <string>
 
 namespace TrenchBroom {
@@ -69,6 +73,23 @@ namespace TrenchBroom {
                     lhs.m_surfaceFlags == rhs.m_surfaceFlags &&
                     lhs.m_surfaceValue == rhs.m_surfaceValue &&
                     lhs.m_color == rhs.m_color);
+        }
+
+        bool operator!=(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs) {
+            return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const BrushFaceAttributes& attrs) {
+            str << "BrushFaceAttributes{"
+                << "textureName: " << attrs.m_textureName << ", "
+                << "offset: " << attrs.m_offset << ", "
+                << "scale: " << attrs.m_scale << ", "
+                << "rotation: " << attrs.m_rotation << ", "
+                << "surfaceContents: " << kdl::opt_to_string(attrs.m_surfaceContents) << ", "
+                << "surfaceFlags: " << kdl::opt_to_string(attrs.m_surfaceFlags) << ", "
+                << "surfaceValue: " << kdl::opt_to_string(attrs.m_surfaceValue) << ", "
+                << "color: " << kdl::opt_to_string(attrs.m_color) << "}";
+            return str;
         }
 
         void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs) {

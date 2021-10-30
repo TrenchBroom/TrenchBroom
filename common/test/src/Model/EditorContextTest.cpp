@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
             EditorContextTest() :
             worldBounds{8192.0},
-            worldNode{Entity{}, MapFormat::Quake3} {}
+            worldNode{{}, {}, MapFormat::Quake3} {}
         public:
             GroupNode* createTopLevelGroup() {
                 GroupNode* group;

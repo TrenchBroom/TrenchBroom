@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace IO {
         BrushFaceReader::BrushFaceReader(const std::string& str, const Model::MapFormat sourceAndTargetMapFormat) :
-        MapReader(str, sourceAndTargetMapFormat, sourceAndTargetMapFormat) {}
+        MapReader(str, sourceAndTargetMapFormat, sourceAndTargetMapFormat, {}) {}
 
         std::vector<Model::BrushFace> BrushFaceReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             try {

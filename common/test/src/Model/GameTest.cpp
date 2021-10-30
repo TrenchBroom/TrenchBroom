@@ -36,30 +36,30 @@
 namespace TrenchBroom {
     namespace Model {
         TEST_CASE("GameTest.findTextureCollections", "[GameTest]") {
-            auto config = GameConfig(
+            auto config = GameConfig{
                 "Quake2",
-                IO::Path(),
-                IO::Path(),
+                IO::Path{},
+                IO::Path{},
                 false,
-                std::vector<MapFormatConfig>(),
-                FileSystemConfig(
-                    IO::Path("baseq2"),
-                    PackageFormatConfig()
-                ),
-                TextureConfig(
-                    TexturePackageConfig(IO::Path("textures")),
-                    PackageFormatConfig("wal", "wal"),
-                    IO::Path("pics/colormap.pcx"),
+                {},
+                FileSystemConfig{
+                    IO::Path{"baseq2"},
+                    PackageFormatConfig{}
+                },
+                TextureConfig{
+                    TextureDirectoryPackageConfig{IO::Path{"textures"}},
+                    PackageFormatConfig{{"wal"}, "wal"},
+                    IO::Path{"pics/colormap.pcx"},
                     "_tb_textures",
-                    IO::Path(),
-                    std::vector<std::string>()
-                ),
-                EntityConfig(),
-                FaceAttribsConfig(),
-                std::vector<SmartTag>(),
+                    IO::Path{},
+                    std::vector<std::string>{}
+                },
+                EntityConfig{},
+                FaceAttribsConfig{},
+                std::vector<SmartTag>{},
                 std::nullopt, // soft map bounds
                 {} // compilation tools
-            );
+            };
             const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/Quake2");
             auto logger = NullLogger();
             GameImpl game(config, gamePath, logger);
@@ -110,7 +110,7 @@ namespace TrenchBroom {
                 IO::Path("textures/test"),
             }));
 
-            auto worldspawn = Entity({
+            auto worldspawn = Entity({}, {
                 {"_tb_textures", "textures/test;textures/skies/hub1"}
             });
 

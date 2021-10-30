@@ -18,6 +18,9 @@
  */
 
 #include "Exceptions.h"
+#include "EL/Value.h"
+#include "EL/Expression.h"
+#include "EL/Expressions.h"
 #include "IO/NodeWriter.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
@@ -562,10 +565,10 @@ namespace TrenchBroom {
         TEST_CASE("NodeTest.accept", "[NodeTest]") {
             const auto worldBounds = vm::bbox3(8192.0);
 
-            WorldNode world(Entity(), MapFormat::Standard);
+            WorldNode world({}, {}, MapFormat::Standard);
             LayerNode layer(Layer("name"));
             GroupNode group(Group("name"));
-            EntityNode entity;
+            EntityNode entity{{}};
             BrushNode brush(BrushBuilder(world.mapFormat(), worldBounds).createCube(32.0, "texture").value());
             PatchNode patch(BezierPatch(3, 3, { 
                 BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
@@ -603,7 +606,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("NodeTest.acceptAndVisitChildren", "[NodeTest]") {
-            WorldNode world(Entity(), MapFormat::Standard);
+            WorldNode world({}, {}, MapFormat::Standard);
             auto* layer = world.defaultLayer();
 
             auto* entityNode1 = new EntityNode(Entity());
@@ -635,7 +638,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("NodeTest.visitParent", "[NodeTest]") {
-            WorldNode world(Entity(), MapFormat::Standard);
+            WorldNode world({}, {}, MapFormat::Standard);
             auto* layer = world.defaultLayer();
 
             CHECK(world.visitParent(nodeTestVisitor) == std::nullopt);
@@ -644,8 +647,8 @@ namespace TrenchBroom {
             CHECK(layer->visitParent(nodeTestVisitor) == Visited::World);
             CHECK(layer->visitParent(constNodeTestVisitor) == Visited::World);
 
-            CHECK(EntityNode().visitParent(nodeTestVisitor) == std::nullopt);
-            CHECK(EntityNode().visitParent(constNodeTestVisitor) == std::nullopt);
+            CHECK(EntityNode{Entity{}}.visitParent(nodeTestVisitor) == std::nullopt);
+            CHECK(EntityNode{Entity{}}.visitParent(constNodeTestVisitor) == std::nullopt);
         }
 
         static auto makeCollectVisitedNodesVisitor(std::vector<Node*>& visited) {
@@ -660,10 +663,10 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("NodeTest.visitAll", "[NodeTest]") {
-            WorldNode world(Entity(), MapFormat::Standard);
+            WorldNode world({}, {}, MapFormat::Standard);
             LayerNode layer(Layer("name"));
             GroupNode group(Group("name"));
-            EntityNode entity;
+            EntityNode entity{Entity{}};
 
             const auto toVisit = std::vector<Node*>{&world, &layer, &group, &entity};
             auto visited = std::vector<Node*>{};
@@ -673,7 +676,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("NodeTest.visitChildren", "[NodeTest]") {
-            WorldNode world(Entity(), MapFormat::Standard);
+            WorldNode world({}, {}, MapFormat::Standard);
             auto* layer = world.defaultLayer();
             
             auto* entityNode1 = new EntityNode(Entity());
@@ -736,6 +739,32 @@ namespace TrenchBroom {
             CHECK(child1.resolvePath(NodePath{{0, 0}}) == &child1_1_1);
             CHECK(child1_1.resolvePath(NodePath{{0}}) == &child1_1_1);
             CHECK(child1_1_1.resolvePath(NodePath{{}}) == &child1_1_1);
+        }
+
+        TEST_CASE("NodeTest.entityPropertyConfig") {
+            class RootNode : public TestNode {
+            private:
+                EntityPropertyConfig m_entityPropertyConfig;
+            public:
+                explicit RootNode(EntityPropertyConfig entityPropertyConfig) :
+                m_entityPropertyConfig{std::move(entityPropertyConfig)} {}
+            private:
+                const EntityPropertyConfig& doGetEntityPropertyConfig() const override {
+                    return m_entityPropertyConfig;
+                }
+            };
+
+            const auto config = EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
+            auto root = std::make_unique<RootNode>(config);
+            REQUIRE(root->entityPropertyConfig() == config);
+
+            auto node = std::make_unique<TestNode>();
+            CHECK(node->entityPropertyConfig() == EntityPropertyConfig{});
+
+            root->addChild(node.release());
+
+            auto nodePtr = root->children().front();
+            CHECK(nodePtr->entityPropertyConfig() == config);
         }
     }
 }

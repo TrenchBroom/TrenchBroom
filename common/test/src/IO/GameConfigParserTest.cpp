@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "EL/Expression.h"
+#include "EL/Expressions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
@@ -121,37 +123,39 @@ namespace TrenchBroom {
 }
 )");
 
-            CHECK(GameConfigParser(config).parse() == Model::GameConfig("Quake",
-                Path(),
-                Path("Icon.png"),
+            CHECK(GameConfigParser(config).parse() == Model::GameConfig{
+                "Quake",
+                Path{},
+                Path{"Icon.png"},
                 false,
                 { // map formats
-                    Model::MapFormatConfig("Standard", Path()),
-                    Model::MapFormatConfig("Valve", Path())
+                    Model::MapFormatConfig{"Standard", Path{}},
+                    Model::MapFormatConfig{"Valve", Path{}}
                 },
-                Model::FileSystemConfig(Path("id1"), Model::PackageFormatConfig("pak", "idpak")),
-                Model::TextureConfig(
-                    Model::TexturePackageConfig(Model::PackageFormatConfig("wad", "wad2")),
-                    Model::PackageFormatConfig("D", "idmip"),
-                    Path("gfx/palette.lmp"),
+                Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+                Model::TextureConfig{
+                    Model::TextureFilePackageConfig{Model::PackageFormatConfig{{"wad"}, "wad2"}},
+                    Model::PackageFormatConfig{{"D"}, "idmip"},
+                    Path{"gfx/palette.lmp"},
                     "wad",
-                    Path(),
-                    {}),
-                Model::EntityConfig(
-                    { Path("Quake.fgd"), Path("Quoth2.fgd"), Path("Rubicon2.def"), Path("Teamfortress.fgd") },
+                    Path{},
+                    {}},
+                Model::EntityConfig{
+                    { Path{"Quake.fgd"}, Path{"Quoth2.fgd"}, Path{"Rubicon2.def"}, Path{"Teamfortress.fgd"} },
                     { "bsp", "mdl" },
-                    Color(0.6f, 0.6f, 0.6f, 1.0f)),
-                Model::FaceAttribsConfig(),
+                    Color{0.6f, 0.6f, 0.6f, 1.0f},
+                    {}},
+                Model::FaceAttribsConfig{},
                 {
-                  Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "")),
-                  Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
-                  Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
-                  Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
-                  Model::SmartTag("Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")),
+                  Model::SmartTag{"Trigger", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "")},
+                  Model::SmartTag{"Clip", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::TextureNameTagMatcher>("clip")},
+                  Model::SmartTag{"Skip", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::TextureNameTagMatcher>("skip")},
+                  Model::SmartTag{"Hint", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::TextureNameTagMatcher>("hint*")},
+                  Model::SmartTag{"Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")},
                 }, // smart tags
                 std::nullopt, // soft map bounds
                 {} // compilation tools
-            ));
+            });
         }
 
         TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
@@ -365,28 +369,29 @@ namespace TrenchBroom {
 }
 )%");
 
-            CHECK(GameConfigParser(config).parse() == Model::GameConfig(
+            CHECK(GameConfigParser(config).parse() == Model::GameConfig{
                 "Quake 2",
-                Path(),
-                Path("Icon.png"),
+                Path{},
+                Path{"Icon.png"},
                 false,
-                std::vector<Model::MapFormatConfig>({
-                    Model::MapFormatConfig("Quake2", Path())
-                }),
-                Model::FileSystemConfig(Path("baseq2"), Model::PackageFormatConfig("pak", "idpak")),
-                Model::TextureConfig(
-                    Model::TexturePackageConfig(Path("textures")),
-                    Model::PackageFormatConfig("wal", "wal"),
-                    Path("pics/colormap.pcx"),
+                {
+                    Model::MapFormatConfig{"Quake2", Path{}}
+                },
+                Model::FileSystemConfig{Path{"baseq2"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+                Model::TextureConfig{
+                    Model::TextureDirectoryPackageConfig{Path{"textures"}},
+                    Model::PackageFormatConfig{{"wal"}, "wal"},
+                    Path{"pics/colormap.pcx"},
                     "_tb_textures",
-                    Path(),
-                    {}),
-                Model::EntityConfig(
-                    { Path("Quake2.fgd") },
+                    Path{},
+                    {}},
+                Model::EntityConfig{
+                    { Path{"Quake2.fgd"} },
                     { "md2" },
-                    Color(0.6f, 0.6f, 0.6f, 1.0f)),
-                Model::FaceAttribsConfig(
-                    {
+                    Color{0.6f, 0.6f, 0.6f, 1.0f},
+                    {}},
+                Model::FaceAttribsConfig{
+                    {{
                         { "light", "Emit light from the surface, brightness is specified in the 'value' field", 1<<0 },
                         { "slick", "The surface is slippery", 1<<1 },
                         { "sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead", 1<<2 },
@@ -397,8 +402,8 @@ namespace TrenchBroom {
                         { "nodraw", "Used for non-fixed-size brush triggers and clip brushes", 1<<7 },
                         { "hint", "Make a primary bsp splitter", 1<<8 },
                         { "skip", "Completely ignore, allowing non-closed brushes", 1<<9 }
-                    },
-                    {
+                    }},
+                    {{
                         { "solid", "Default for all brushes", 1<<0 },
                         { "window", "Brush is a window (not really used)", 1<<1 },
                         { "aux", "Unused by the engine", 1<<2 },
@@ -420,20 +425,20 @@ namespace TrenchBroom {
                         { "detail", "Detail brush", 1<<27 },
                         { "translucent", "Use for opaque water that does not block vis", 1<<28 },
                         { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface", 1<<29 }
-                    },
-                    Model::BrushFaceAttributes(Model::BrushFaceAttributes::NoTextureName)),
+                    }},
+                    Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName}},
                 {
-                    Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "trigger")),
-                    Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
-                    Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
-                    Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
-                    Model::SmartTag("Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)),
-                    Model::SmartTag("Liquid", {}, std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))),
-                    Model::SmartTag("trans", {}, std::make_unique<Model::SurfaceFlagsTagMatcher>((1 << 4) | (1 << 5))),
+                    Model::SmartTag{"Trigger", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "trigger")},
+                    Model::SmartTag{"Clip", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::TextureNameTagMatcher>("clip")},
+                    Model::SmartTag{"Skip", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::TextureNameTagMatcher>("skip")},
+                    Model::SmartTag{"Hint", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::TextureNameTagMatcher>("hint*")},
+                    Model::SmartTag{"Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
+                    Model::SmartTag{"Liquid", {}, std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))},
+                    Model::SmartTag{"trans", {}, std::make_unique<Model::SurfaceFlagsTagMatcher>((1 << 4) | (1 << 5))},
                 }, // smart tags
                 std::nullopt, // soft map bounds
                 {} // compilation tools
-            ));
+            });
         }
 
         TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
@@ -459,7 +464,8 @@ namespace TrenchBroom {
     "entities": {
         "definitions": [ "Extras.ent" ],
         "defaultcolor": "0.6 0.6 0.6 1.0",
-        "modelformats": [ "md3" ]
+        "modelformats": [ "md3" ],
+        "scale": [ modelscale, modelscale_vec ]
     },
     "tags": {
         "brush": [
@@ -664,31 +670,36 @@ namespace TrenchBroom {
             expectedBrushFaceAttributes.setSurfaceValue(0.0f);
             expectedBrushFaceAttributes.setColor(Color(255, 255, 255, 255));
 
-            CHECK(GameConfigParser(config).parse() == Model::GameConfig(
+            CHECK(GameConfigParser(config).parse() == Model::GameConfig{
                 "Extras",
-                Path(),
-                Path(),
+                Path{},
+                Path{},
                 false,
-                std::vector<Model::MapFormatConfig>({
-                    Model::MapFormatConfig("Quake3", Path())
-                    }),
-                Model::FileSystemConfig(Path("baseq3"), Model::PackageFormatConfig("pk3", "zip")),
-                Model::TextureConfig(
-                    Model::TexturePackageConfig(Path("textures")),
-                    Model::PackageFormatConfig("", "q3shader"),
-                    Path(),
+                {
+                    Model::MapFormatConfig{"Quake3", Path{}}
+                },
+                Model::FileSystemConfig{Path{"baseq3"}, Model::PackageFormatConfig{{"pk3"}, "zip"}},
+                Model::TextureConfig{
+                    Model::TextureDirectoryPackageConfig{Path{"textures"}},
+                    Model::PackageFormatConfig{{""}, "q3shader"},
+                    Path{},
                     "_tb_textures",
-                    Path("scripts"),
+                    Path{"scripts"},
                     {
                         "*_norm",
                         "*_gloss"
-                    }),
-                Model::EntityConfig(
-                    { Path("Extras.ent") },
+                    }},
+                Model::EntityConfig{
+                    { Path{"Extras.ent"} },
                     { "md3" },
-                    Color(0.6f, 0.6f, 0.6f, 1.0f)),
-                Model::FaceAttribsConfig(
-                    {
+                    Color{0.6f, 0.6f, 0.6f, 1.0f},
+                    EL::Expression{EL::ArrayExpression{{ // the line numbers are not checked
+                        EL::Expression{EL::VariableExpression{"modelscale"}, 0, 0},
+                        EL::Expression{EL::VariableExpression{"modelscale_vec"}, 0, 0},
+                    }}, 0, 0}
+                },
+                Model::FaceAttribsConfig{
+                    {{
                         { "light", "Emit light from the surface, brightness is specified in the 'value' field", 1<<0 },
                         { "slick", "The surface is slippery", 1<<1 },
                         { "sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead", 1<<2 },
@@ -699,8 +710,8 @@ namespace TrenchBroom {
                         { "nodraw", "Used for non-fixed-size brush triggers and clip brushes", 1<<7 },
                         { "hint", "Make a primary bsp splitter", 1<<8 },
                         { "skip", "Completely ignore, allowing non-closed brushes", 1<<9 }
-                    },
-                    {
+                    }},
+                    {{
                         { "solid", "Default for all brushes", 1<<0 },
                         { "window", "Brush is a window (not really used)", 1<<1 },
                         { "aux", "Unused by the engine", 1<<2 },
@@ -722,19 +733,19 @@ namespace TrenchBroom {
                         { "detail", "Detail brush", 1<<27 },
                         { "translucent", "Use for opaque water that does not block vis", 1<<28 },
                         { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface", 1<<29 }
-                    },
-                    expectedBrushFaceAttributes),
+                    }},
+                    expectedBrushFaceAttributes},
                 {
-                    Model::SmartTag("Trigger", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "trigger")),
-                    Model::SmartTag("Clip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("clip")),
-                    Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
-                    Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
-                    Model::SmartTag("Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)),
-                    Model::SmartTag("Liquid", {}, std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))),
+                    Model::SmartTag{"Trigger", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "trigger")},
+                    Model::SmartTag{"Clip", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::TextureNameTagMatcher>("clip")},
+                    Model::SmartTag{"Skip", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::TextureNameTagMatcher>("skip")},
+                    Model::SmartTag{"Hint", { Model::TagAttribute{1u, "transparent"} }, std::make_unique<Model::TextureNameTagMatcher>("hint*")},
+                    Model::SmartTag{"Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
+                    Model::SmartTag{"Liquid", {}, std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))},
                 }, // smart tags
                 std::nullopt, // soft map bounds
                 {} // compilation tools
-            ));
+            });
         }
 
         TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]") {

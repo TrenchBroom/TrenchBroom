@@ -19,6 +19,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/EL/EvaluationContext.cpp
         ${COMMON_SOURCE_DIR}/EL/Expression.cpp
+        ${COMMON_SOURCE_DIR}/EL/Expressions.cpp
         ${COMMON_SOURCE_DIR}/EL/Interpolator.cpp
         ${COMMON_SOURCE_DIR}/EL/Types.cpp
         ${COMMON_SOURCE_DIR}/EL/Value.cpp
@@ -497,6 +498,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
         ${COMMON_SOURCE_DIR}/EL/EvaluationContext.h
         ${COMMON_SOURCE_DIR}/EL/Expression.h
+        ${COMMON_SOURCE_DIR}/EL/Expressions.h
         ${COMMON_SOURCE_DIR}/EL/Interpolator.h
         ${COMMON_SOURCE_DIR}/EL/Types.h
         ${COMMON_SOURCE_DIR}/EL/Value.h

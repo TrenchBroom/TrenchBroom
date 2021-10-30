@@ -48,7 +48,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            const auto worldNode = WorldNode{Entity{}, mapFormat};
+            const auto worldNode = WorldNode{{}, {}, mapFormat};
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            const auto worldNode = WorldNode{Entity{}, mapFormat};
+            const auto worldNode = WorldNode{{}, {}, mapFormat};
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* groupNode = new GroupNode{Group{"group"}};
             auto* entityNode = new EntityNode{Entity{}};
@@ -216,7 +216,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* groupNode = new GroupNode{Group{"group"}};
             auto* entityNode = new EntityNode{Entity{}};
@@ -252,7 +252,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             auto* layerNode = new LayerNode{Layer{"layer"}};
             auto* groupNode = new GroupNode{Group{"group"}};
             auto* entityNode = new EntityNode{Entity{}};
@@ -281,12 +281,12 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("WorldNodeTest.persistentIdOfDefaultLayer", "[WorldNodeTest]") {
-            auto worldNode = WorldNode{Entity{}, MapFormat::Standard};
+            auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
             CHECK(worldNode.defaultLayer()->persistentId() == std::nullopt);
         }
 
         TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingLayer", "[WorldNodeTest]") {
-            auto worldNode = WorldNode{Entity{}, MapFormat::Standard};
+            auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
             auto* initialLayerNode = new LayerNode{Layer{ "name"}};
 
             REQUIRE(initialLayerNode->persistentId() == std::nullopt);
@@ -327,7 +327,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingGroup", "[WorldNodeTest]") {
-            auto worldNode = WorldNode{Entity{}, MapFormat::Standard};
+            auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
             auto* initialGroupNode = new GroupNode{Group{ "name"}};
 
             REQUIRE(initialGroupNode->persistentId() == std::nullopt);
@@ -368,7 +368,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("WorldNodeTest.setPersistentIdsWhenAddingLayersAndGroups", "[WorldNodeTest]") {
-            auto worldNode = WorldNode{Entity{}, MapFormat::Standard};
+            auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
             auto* layerNode = new LayerNode{Layer{"name"}};
             worldNode.addChild(layerNode);

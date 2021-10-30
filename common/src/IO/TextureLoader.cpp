@@ -35,6 +35,8 @@
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
 
+#include <kdl/overload.h>
+
 #include <string>
 #include <vector>
 
@@ -55,7 +57,7 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<TextureReader> TextureLoader::createTextureReader(const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger) {
-            const auto prefixLength = textureConfig.package.rootDirectory.length();
+            const auto prefixLength = getRootDirectory(textureConfig.package).length();
             const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
             
             if (textureConfig.format.format == "idmip") {
@@ -92,15 +94,14 @@ namespace TrenchBroom {
 
         std::unique_ptr<TextureCollectionLoader> TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const std::vector<IO::Path>& fileSearchPaths, const Model::TextureConfig& textureConfig, Logger& logger) {
             using Model::GameConfig;
-            switch (textureConfig.package.type) {
-                case Model::TexturePackageConfig::PT_File:
+            return std::visit(kdl::overload(
+                [&](const Model::TextureFilePackageConfig&) -> std::unique_ptr<TextureCollectionLoader> {
                     return std::make_unique<FileTextureCollectionLoader>(logger, fileSearchPaths, textureConfig.excludes);
-                case Model::TexturePackageConfig::PT_Directory:
+                },
+                [&](const Model::TextureDirectoryPackageConfig&) -> std::unique_ptr<TextureCollectionLoader> {
                     return std::make_unique<DirectoryTextureCollectionLoader>(logger, gameFS, textureConfig.excludes);
-                case Model::TexturePackageConfig::PT_Unset:
-                    throw GameException("Texture package format is not set");
-                switchDefault()
-            }
+                }
+            ), textureConfig.package);
         }
 
         Assets::TextureCollection TextureLoader::loadTextureCollection(const Path& path) {

@@ -409,7 +409,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds") {
-            auto* entityNode = new Model::EntityNode({
+            auto* entityNode = new Model::EntityNode({}, {
                 {"classname", "point_entity"}
             });
             addNode(*document, document->parentForNodes(), entityNode);

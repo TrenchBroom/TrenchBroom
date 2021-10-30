@@ -107,7 +107,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            auto worldNode = WorldNode{Entity{}, mapFormat};
+            auto worldNode = WorldNode{{}, {}, mapFormat};
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             constexpr auto worldBounds = vm::bbox3d{8192.0};
             constexpr auto mapFormat = MapFormat::Quake3;
 
-            const auto worldNode = WorldNode{Entity{}, mapFormat};
+            const auto worldNode = WorldNode{{}, {}, mapFormat};
             auto layerNode = LayerNode{Layer{"layer"}};
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             const auto worldBounds = vm::bbox3(8192.0);
             
             auto groupNode = GroupNode{Group{"name"}};
-            auto* entityNode = new EntityNode{};
+            auto* entityNode = new EntityNode{Entity{}};
             groupNode.addChild(entityNode);
 
             transformNode(groupNode, vm::translation_matrix(vm::vec3(1.0, 0.0, 0.0)), worldBounds);
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             outerGroupNode.addChild(innerGroupNode);
 
-            auto* innerGroupEntityNode = new EntityNode();
+            auto* innerGroupEntityNode = new EntityNode{Entity{}};
             innerGroupNode->addChild(innerGroupEntityNode);
 
             auto innerGroupNodeClone = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(innerGroupNode->cloneRecursively(worldBounds))};
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             +- innerGroupNode
             */
 
-            auto* innerGroupEntityNode = new EntityNode{};
+            auto* innerGroupEntityNode = new EntityNode{Entity{}};
             innerGroupNode->addChild(innerGroupEntityNode);
 
             /*
@@ -366,7 +366,7 @@ namespace TrenchBroom {
             const auto worldBounds = vm::bbox3(8192.0);
             
             auto groupNode = GroupNode{Group{"name"}};
-            auto* entityNode = new EntityNode{};
+            auto* entityNode = new EntityNode{Entity{}};
             groupNode.addChild(entityNode);
 
 
@@ -446,7 +446,7 @@ namespace TrenchBroom {
             const auto worldBounds = vm::bbox3(8192.0);
 
             auto sourceGroupNode = GroupNode{Group{"name"}};
-            auto* sourceEntityNode = new EntityNode{};
+            auto* sourceEntityNode = new EntityNode{Entity{}};
             sourceGroupNode.addChild(sourceEntityNode);
 
             auto targetGroupNode = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(sourceGroupNode.cloneRecursively(worldBounds))};
@@ -533,14 +533,14 @@ namespace TrenchBroom {
 
             {
                 auto entity = sourceEntityNode->entity();
-                entity.setProperties(sourceProperties);
+                entity.setProperties({}, sourceProperties);
                 entity.setProtectedProperties(srcProtProperties);
                 sourceEntityNode->setEntity(std::move(entity));
             }
 
             {
                 auto entity = targetEntityNode->entity();
-                entity.setProperties(targetProperties);
+                entity.setProperties({}, targetProperties);
                 entity.setProtectedProperties(trgtProtProperties);
                 targetEntityNode->setEntity(std::move(entity));
             }

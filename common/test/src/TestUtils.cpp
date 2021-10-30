@@ -210,7 +210,7 @@ namespace TrenchBroom {
                 },
                 [&](auto&& thisLambda, EntityNode* entityNode) {
                     auto entity = entityNode->entity();
-                    entity.transform(transformation);
+                    entity.transform(entityNode->entityPropertyConfig(), transformation);
                     entityNode->setEntity(std::move(entity));
 
                     entityNode->visitChildren(thisLambda);

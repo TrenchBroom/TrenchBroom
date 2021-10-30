@@ -2162,16 +2162,18 @@ Thereby, the ellipsis contains the actual information about the model to display
     {
     	"path" : MODEL,
     	"skin" : SKIN,
-    	"frame": FRAME
+    	"frame": FRAME,
+        "scale": SCALE_EXPRESSION
     }
 
-The placeholders `MODEL`, `SKIN`, and `FRAME` have the following meaning
+The placeholders `MODEL`, `SKIN`, `FRAME` and `SCALE_EXPRESSION` have the following meaning
 
 Placeholder 		Description
 -----------     	-----------
 `MODEL` 			The path to the model file relative to the game path, with an optional colon at the beginning. Mandatory.
 `SKIN` 				The 0-based index of the skin to display. Optional, defaults to 0.
 `FRAME` 			The 0-based index of the frame to display. Optional, defaults to 0.
+`SCALE_EXPRESSION`  An expression that is evaluated against an entities' properties to determine the model scale.
 
 If the expression evaluates to a value of type string, then that is interpreted as a map containing only a `path` key with the string as its value. In other words, if the expression evaluates to a string, then that value is interpreted as the path to a model. Think of such expressions as shorthands that allow you to define a simple model like so:
 
@@ -2180,6 +2182,8 @@ If the expression evaluates to a value of type string, then that is interpreted 
 instead of having to write
 
     model({ "path": "path/to/model" })
+
+If the model expression has a scale expression, then its result is used as the scale value for the model. If the expression cannot be evaluated, or if no such expression is given, then the default scale expression from the game configuration is evaluated instead. Refer to [this section](#game_configuration_files_entities) for more information about `SCALE_EXPRESSION` and the default scale expression.
 
 #### Basic Examples
 
@@ -2199,6 +2203,12 @@ So a valid model definitions might look like this:
     	"path" : "progs/armor",
     	"skin" : 1,
     	"frame": 3
+    })
+
+	// set a fixed uniform model scale factor 2
+    model({
+    	"path" : "progs/armor",
+    	"scale" : 2
     })
 
 Sometimes, the actual model that is displayed in game depends on the value of an entity property. TrenchBroom allows you to mimick this behavior by using conditional expressions using the switch and case operators and by referring to the entity properties as variables in the expressions. Let's look at an example where we combine several model definitions using a literal value.
@@ -2375,6 +2385,7 @@ Game configuration files need to specify the following information.
 	* The builtin **entity definition files**
 	* The **default color** to use in the UI
 	* The supported **model formats**, e.g. mdl
+    * A default **model scale expression**
 * **Tags** to attach additional information to faces or brushes in the editor, e.g. whether a face is detail or hint. (optional)
 * **Face attributes** to specify which additional attributes to allow on brush faces (optional)
 * **Map bounds** to be displayed in the 2D viewports (optional)
@@ -2403,7 +2414,8 @@ The game configuration is an [expression language](#expression_language) map wit
         "entities": { // the builtin entity definition files for this game
             "definitions": [ "Quake2.fgd" ],
             "defaultcolor": "0.6 0.6 0.6 1.0",
-            "modelformats": [ "md2" ]
+            "modelformats": [ "md2" ],
+            "scale": [ modelscale, modelscale_vec ]
         },
         "tags": { // "smart tags" select or modify a brush/face based on its characteristics
             "brush": [
@@ -2612,14 +2624,15 @@ The optional `excludes` key specifies a list of patterns matched against texture
         "excludes": [ "*_norm", "*_gloss" ]
     },
 
-#### Entity Configuration
+#### Entity Configuration {#game_configuration_files_entities}
 
-In the entity configuration section, you can specify which entity definition files come with your game configuration, which model formats are supported for rendering the entity models in the editor, and a default color for entities.
+In the entity configuration section, you can specify which entity definition files come with your game configuration, which model formats are supported for rendering the entity models in the editor, a default color for entities and an expression that yields a default scale when evaluated against an entities' properties.
 
   	"entities": { // the builtin entity definition files for this game
 		"definitions": [ "Quake2/Quake2.fgd" ],
     	"defaultcolor": "0.6 0.6 0.6 1.0",
-		"modelformats": [ "md2" ]
+		"modelformats": [ "md2" ],
+        "scale": [ modelscale, modelscale_vec ]
     },
 
 The `definitions` key provides a list of entity definition files. These files are specified by a path that is relative to the `games` directory where TrenchBroom searches for the game configurations.
@@ -2633,6 +2646,18 @@ md2          Quake 2 model format
 md3          Quake 3 model format
 bsp        	 Compiled brush model, used by Quake and Hexen 2
 dkm          Daikatana model format
+
+
+The `scale` key has an expression that is evaluated against an entities' properties to determine the model scale. This expression can refer to any of the entities' properties, or it can provide fixed values.
+
+Example                                   Description
+-------                                   -----------
+`"scale": 2`                              A fixed uniform scale factor of `2`.
+`"scale": "1 2 3"`                        A fixed non-uniform scale factor scaling X by 1, Y by 2 and Z by 3.
+`"scale": modelscale`                     Use the value of the entities' `modelscale` property.
+`"scale": [ modelscale, modelscale_vec ]` Try the individual values in the array until we find one that doesn't evaluate to `Undefined` or `Null`.
+
+Of course, you could use the switch and case operators for more complicated cases.
 
 #### Tags {#game_configuration_files_tags}
 

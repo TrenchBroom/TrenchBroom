@@ -40,10 +40,10 @@ namespace TrenchBroom {
     namespace View {
         TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.lockStateChanges") {
             auto* brushNode = createBrushNode();
-            auto* entityNode = new Model::EntityNode{};
+            auto* entityNode = new Model::EntityNode{Model::Entity{}};
             auto* patchNode = createPatchNode();
 
-            auto* entityNodeInGroup = new Model::EntityNode{};
+            auto* entityNodeInGroup = new Model::EntityNode{Model::Entity{}};
 
             document->addNodes({{document->parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
             document->deselectAll();
@@ -83,10 +83,10 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.modificationCount") {
             auto* brushNode = createBrushNode();
-            auto* entityNode = new Model::EntityNode{};
+            auto* entityNode = new Model::EntityNode{Model::Entity{}};
             auto* patchNode = createPatchNode();
 
-            auto* entityNodeInGroup = new Model::EntityNode{};
+            auto* entityNodeInGroup = new Model::EntityNode{Model::Entity{}};
 
             document->addNodes({{document->parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
             document->deselectAll();

@@ -41,11 +41,11 @@ namespace TrenchBroom {
         TEST_CASE("EntityNodeIndexTest.addEntityNode", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode({
+            EntityNode* entity1 = new EntityNode({}, {
                 {"test", "somevalue"}
             });
 
-            EntityNode* entity2 = new EntityNode({
+            EntityNode* entity2 = new EntityNode({}, {
                 {"test", "somevalue"},
                 {"other", "someothervalue"}
             });
@@ -71,11 +71,11 @@ namespace TrenchBroom {
         TEST_CASE("EntityNodeIndexTest.removeEntityNode", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode({
+            EntityNode* entity1 = new EntityNode({}, {
                 {"test", "somevalue"}
             });
 
-            EntityNode* entity2 = new EntityNode({
+            EntityNode* entity2 = new EntityNode({}, {
                 {"test", "somevalue"},
                 {"other", "someothervalue"}
             });
@@ -96,18 +96,18 @@ namespace TrenchBroom {
         TEST_CASE("EntityNodeIndexTest.addProperty", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode({
+            EntityNode* entity1 = new EntityNode({}, {
                 {"test", "somevalue"}
             });
 
-            EntityNode* entity2 = new EntityNode({
+            EntityNode* entity2 = new EntityNode({}, {
                 {"test", "somevalue"},
             });
 
             index.addEntityNode(entity1);
             index.addEntityNode(entity2);
 
-            entity2->setEntity(Entity({
+            entity2->setEntity(Entity({}, {
                 {"test", "somevalue"},
                 {"other", "someothervalue"},
             }));
@@ -131,11 +131,11 @@ namespace TrenchBroom {
         TEST_CASE("EntityNodeIndexTest.removeProperty", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode({
+            EntityNode* entity1 = new EntityNode({}, {
                 {"test", "somevalue"}
             });
 
-            EntityNode* entity2 = new EntityNode({
+            EntityNode* entity2 = new EntityNode({}, {
                 {"test", "somevalue"},
                 {"other", "someothervalue"}
             });
@@ -159,7 +159,7 @@ namespace TrenchBroom {
         TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode({
+            EntityNode* entity1 = new EntityNode({}, {
                 {"test1", "somevalue"},
                 {"test2", "somevalue"}
             });
@@ -179,7 +179,7 @@ namespace TrenchBroom {
         TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode({
+            EntityNode* entity1 = new EntityNode({}, {
                 {"delay", "3.5"}
             });
 
@@ -197,11 +197,11 @@ namespace TrenchBroom {
         TEST_CASE("EntityNodeIndexTest.allKeys", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode({
+            EntityNode* entity1 = new EntityNode({}, {
                 {"test", "somevalue"}
             });
 
-            EntityNode* entity2 = new EntityNode({
+            EntityNode* entity2 = new EntityNode({}, {
                 {"test", "somevalue"},
                 {"other", "someothervalue"}
             });
@@ -215,11 +215,11 @@ namespace TrenchBroom {
         TEST_CASE("EntityNodeIndexTest.allValuesForKeys", "[EntityNodeIndexTest]") {
             EntityNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode({
+            EntityNode* entity1 = new EntityNode({}, {
                 {"test", "somevalue"}
             });
 
-            EntityNode* entity2 = new EntityNode({
+            EntityNode* entity2 = new EntityNode({}, {
                 {"test", "somevalue2"},
                 {"other", "someothervalue"}
             });

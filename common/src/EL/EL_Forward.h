@@ -24,7 +24,6 @@ namespace TrenchBroom {
         class Value;
         enum class ValueType;
 
-        class ExpressionBase;
         class Expression;
 
         class EvaluationContext;

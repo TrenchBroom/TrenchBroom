@@ -43,7 +43,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat") {
             CHECK_FALSE(document->canRepeatCommands());
 
-            auto* entityNode = new Model::EntityNode();
+            auto* entityNode = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entityNode);
             CHECK_FALSE(document->canRepeatCommands());
 
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTranslate") {
-            auto* entityNode = new Model::EntityNode();
+            auto* entityNode = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entityNode);
             document->select(entityNode);
 
@@ -73,7 +73,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatRotate") {
             auto entity = Model::Entity();
-            entity.transform(vm::translation_matrix(vm::vec3(1, 2, 3)));
+            entity.transform({}, vm::translation_matrix(vm::vec3(1, 2, 3)));
 
             auto* entityNode = new Model::EntityNode(std::move(entity));
 
@@ -171,10 +171,10 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.selectionClears") {
-            auto* entityNode1 = new Model::EntityNode();
+            auto* entityNode1 = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entityNode1);
 
-            auto* entityNode2 = new Model::EntityNode();
+            auto* entityNode2 = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entityNode2);
 
             document->select(entityNode1);

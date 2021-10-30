@@ -105,6 +105,13 @@ namespace kdl {
             { 2, 3 },
             { 3, 4 },
         });
+        test_map_lexicographical_compare<int, int>(-1, {
+            { 1, 2 },
+            { 2, 3 }
+        }, {
+            { 1, 2 },
+            { 2, 4 }
+        });
     }
 
     template<typename K, typename V>

@@ -42,7 +42,7 @@ namespace TrenchBroom {
         TEST_CASE("ObjSerializer.writeBrush") {
             const auto worldBounds = vm::bbox3{8192.0};
 
-            auto map = Model::WorldNode{Model::Entity{}, Model::MapFormat::Quake3};
+            auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
             auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
             auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
@@ -103,7 +103,7 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
         TEST_CASE("ObjSerializer.writePatch") {
             const auto worldBounds = vm::bbox3{8192.0};
 
-            auto map = Model::WorldNode{Model::Entity{}, Model::MapFormat::Quake3};
+            auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
             auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
             auto* patchNode = new Model::PatchNode{Model::BezierPatch{3,  3, { 

@@ -53,8 +53,9 @@
 
 namespace TrenchBroom {
     namespace IO {
-        MapReader::MapReader(std::string_view str, const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat) :
-        StandardMapParser(std::move(str), sourceMapFormat, targetMapFormat) {}
+        MapReader::MapReader(std::string_view str, const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat, const Model::EntityPropertyConfig& entityPropertyConfig) :
+        StandardMapParser(std::move(str), sourceMapFormat, targetMapFormat),
+        m_entityPropertyConfig{entityPropertyConfig} {}
 
         void MapReader::readEntities(const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
@@ -189,7 +190,7 @@ namespace TrenchBroom {
          * added to the given vector of node issues and an empty optional is returned.
          */
         static std::optional<ContainerInfo> extractContainerInfo(const std::vector<Model::EntityProperty>& properties, std::vector<NodeIssue>& nodeIssues) {
-            const std::string& parentLayerIdStr = findProperty(properties, Model::PropertyKeys::Layer);
+            const std::string& parentLayerIdStr = findProperty(properties, Model::EntityPropertyKeys::Layer);
             if (!kdl::str_is_blank(parentLayerIdStr)) {
                 const auto rawParentLayerId = kdl::str_to_long(parentLayerIdStr);
                 if (rawParentLayerId && *rawParentLayerId >= 0) {
@@ -201,7 +202,7 @@ namespace TrenchBroom {
                 return std::nullopt;
             }
 
-            const std::string& parentGroupIdStr = findProperty(properties, Model::PropertyKeys::Group);
+            const std::string& parentGroupIdStr = findProperty(properties, Model::EntityPropertyKeys::Group);
             if (!kdl::str_is_blank(parentGroupIdStr)) {
                 const auto rawParentGroupId = kdl::str_to_long(parentGroupIdStr);
                 if (rawParentGroupId && *rawParentGroupId >= 0) {
@@ -219,39 +220,39 @@ namespace TrenchBroom {
         /**
          * Creates a world node for the given entity info and configures its default layer according to the information in the entity attributes.
          */
-        static CreateNodeResult createWorldNode(MapReader::EntityInfo entityInfo, const Model::MapFormat mapFormat) {
-            auto entity = Model::Entity{std::move(entityInfo.properties)};
-            auto worldNode = std::make_unique<Model::WorldNode>(Model::Entity{}, mapFormat);
+        static CreateNodeResult createWorldNode(MapReader::EntityInfo entityInfo, const Model::EntityPropertyConfig& entityPropertyConfig, const Model::MapFormat mapFormat) {
+            auto entity = Model::Entity{entityPropertyConfig, std::move(entityInfo.properties)};
+            auto worldNode = std::make_unique<Model::WorldNode>(entityPropertyConfig, Model::Entity{}, mapFormat);
             worldNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
 
             // handle default layer attributes, which are stored in worldspawn
             auto* defaultLayerNode = worldNode->defaultLayer();
             auto defaultLayer = defaultLayerNode->layer();
-            if (const auto* colorStr = entity.property(Model::PropertyKeys::LayerColor)) {
+            if (const auto* colorStr = entity.property(Model::EntityPropertyKeys::LayerColor)) {
                 if (const auto color = Color::parse(*colorStr)) {
                     defaultLayer.setColor(*color);
                 }
-                entity.removeProperty(Model::PropertyKeys::LayerColor);
+                entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerColor);
             }
-            if (const auto* omitFromExportStr = entity.property(Model::PropertyKeys::LayerOmitFromExport)) {
-                if (*omitFromExportStr == Model::PropertyValues::LayerOmitFromExportValue) {
+            if (const auto* omitFromExportStr = entity.property(Model::EntityPropertyKeys::LayerOmitFromExport)) {
+                if (*omitFromExportStr == Model::EntityPropertyValues::LayerOmitFromExportValue) {
                     defaultLayer.setOmitFromExport(true);
                 }
-                entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
+                entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
             }
             defaultLayerNode->setLayer(std::move(defaultLayer));
 
-            if (const auto* lockedStr = entity.property(Model::PropertyKeys::LayerLocked)) {
-                if (*lockedStr == Model::PropertyValues::LayerLockedValue) {
+            if (const auto* lockedStr = entity.property(Model::EntityPropertyKeys::LayerLocked)) {
+                if (*lockedStr == Model::EntityPropertyValues::LayerLockedValue) {
                     defaultLayerNode->setLockState(Model::LockState::Locked);
                 }
-                entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
+                entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
             }
-            if (const auto* hiddenStr = entity.property(Model::PropertyKeys::LayerHidden)) {
-                if (*hiddenStr == Model::PropertyValues::LayerHiddenValue) {
+            if (const auto* hiddenStr = entity.property(Model::EntityPropertyKeys::LayerHidden)) {
+                if (*hiddenStr == Model::EntityPropertyValues::LayerHiddenValue) {
                     defaultLayerNode->setVisibilityState(Model::VisibilityState::Hidden);
                 }
-                entity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
+                entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
             }
 
             worldNode->setEntity(std::move(entity));
@@ -269,12 +270,12 @@ namespace TrenchBroom {
         static CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo) {
             const auto& properties = entityInfo.properties;
 
-            const std::string& name = findProperty(properties, Model::PropertyKeys::LayerName);
+            const std::string& name = findProperty(properties, Model::EntityPropertyKeys::LayerName);
             if (kdl::str_is_blank(name)) {
                 return NodeError{entityInfo.startLine, "Skipping layer entity: missing name"};
             }
 
-            const std::string& idStr = findProperty(properties, Model::PropertyKeys::LayerId);
+            const std::string& idStr = findProperty(properties, Model::EntityPropertyKeys::LayerId);
             if (kdl::str_is_blank(idStr)) {
                 return NodeError{entityInfo.startLine, "Skipping layer entity: missing id"};
             }
@@ -287,11 +288,11 @@ namespace TrenchBroom {
 
             Model::Layer layer = Model::Layer(name);
             // This is optional (not present on maps saved in TB 2020.1 and earlier)
-            if (const auto layerSortIndex = kdl::str_to_int(findProperty(properties, Model::PropertyKeys::LayerSortIndex))) {
+            if (const auto layerSortIndex = kdl::str_to_int(findProperty(properties, Model::EntityPropertyKeys::LayerSortIndex))) {
                 layer.setSortIndex(*layerSortIndex);
             }
 
-            if (findProperty(properties, Model::PropertyKeys::LayerOmitFromExport) == Model::PropertyValues::LayerOmitFromExportValue) {
+            if (findProperty(properties, Model::EntityPropertyKeys::LayerOmitFromExport) == Model::EntityPropertyValues::LayerOmitFromExportValue) {
                 layer.setOmitFromExport(true);
             }
 
@@ -301,10 +302,10 @@ namespace TrenchBroom {
             const Model::IdType layerId = static_cast<Model::IdType>(*rawId);
             layerNode->setPersistentId(layerId);
 
-            if (findProperty(properties, Model::PropertyKeys::LayerLocked) == Model::PropertyValues::LayerLockedValue) {
+            if (findProperty(properties, Model::EntityPropertyKeys::LayerLocked) == Model::EntityPropertyValues::LayerLockedValue) {
                 layerNode->setLockState(Model::LockState::Locked);
             }
-            if (findProperty(properties, Model::PropertyKeys::LayerHidden) == Model::PropertyValues::LayerHiddenValue) {
+            if (findProperty(properties, Model::EntityPropertyKeys::LayerHidden) == Model::EntityPropertyValues::LayerHiddenValue) {
                 layerNode->setVisibilityState(Model::VisibilityState::Hidden);
             }
 
@@ -319,12 +320,12 @@ namespace TrenchBroom {
          * Creates a group node for the given entity info. Returns an error if the entity attributes contain missing or invalid information.
          */
         static CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo) {
-            const std::string& name = findProperty(entityInfo.properties, Model::PropertyKeys::GroupName);
+            const std::string& name = findProperty(entityInfo.properties, Model::EntityPropertyKeys::GroupName);
             if (kdl::str_is_blank(name)) {
                 return NodeError{entityInfo.startLine, "Skipping group entity: missing name"};
             }
 
-            const std::string& idStr = findProperty(entityInfo.properties, Model::PropertyKeys::GroupId);
+            const std::string& idStr = findProperty(entityInfo.properties, Model::EntityPropertyKeys::GroupId);
             if (kdl::str_is_blank(idStr)) {
                 return NodeError{entityInfo.startLine, "Skipping group entity: missing id"};
             }
@@ -337,9 +338,9 @@ namespace TrenchBroom {
             auto group = Model::Group{name};
             auto nodeIssues = std::vector<NodeIssue>{};
 
-            const std::string& linkedGroupId = findProperty(entityInfo.properties, Model::PropertyKeys::LinkedGroupId);
+            const std::string& linkedGroupId = findProperty(entityInfo.properties, Model::EntityPropertyKeys::LinkedGroupId);
             if (!linkedGroupId.empty()) {
-                const std::string& transformationStr = findProperty(entityInfo.properties, Model::PropertyKeys::GroupTransformation);
+                const std::string& transformationStr = findProperty(entityInfo.properties, Model::EntityPropertyKeys::GroupTransformation);
                 if (const auto transformation = vm::parse<FloatType, 4u, 4u>(transformationStr)) {
                     group.setLinkedGroupId(linkedGroupId);
                     group.setTransformation(*transformation);
@@ -366,20 +367,20 @@ namespace TrenchBroom {
         /**
          * Creates an entity node for the given entity info.
          */
-        static CreateNodeResult createEntityNode(MapReader::EntityInfo entityInfo) {
-            auto entity = Model::Entity{std::move(entityInfo.properties)};
-            if (const auto* protectedPropertiesStr = entity.property(Model::PropertyKeys::ProtectedEntityProperties)) {
+        static CreateNodeResult createEntityNode(const Model::EntityPropertyConfig& entityPropertyConfig, MapReader::EntityInfo entityInfo) {
+            auto entity = Model::Entity{entityPropertyConfig, std::move(entityInfo.properties)};
+            if (const auto* protectedPropertiesStr = entity.property(Model::EntityPropertyKeys::ProtectedEntityProperties)) {
                 auto protectedProperties = kdl::str_split(*protectedPropertiesStr, ";");
                 entity.setProtectedProperties(std::move(protectedProperties));
-                entity.removeProperty(Model::PropertyKeys::ProtectedEntityProperties);
+                entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::ProtectedEntityProperties);
             }
 
             auto nodeIssues = std::vector<NodeIssue>{};
             auto containerInfo = extractContainerInfo(entity.properties(), nodeIssues);
 
             // strip container properties
-            entity.removeProperty(Model::PropertyKeys::Layer);
-            entity.removeProperty(Model::PropertyKeys::Group);
+            entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::Layer);
+            entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::Group);
 
             auto entityNode = std::make_unique<Model::EntityNode>(std::move(entity));
             entityNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
@@ -396,16 +397,16 @@ namespace TrenchBroom {
          *
          * Returns an error if the node could not be created.
          */
-        static CreateNodeResult createNodeFromEntityInfo(MapReader::EntityInfo entityInfo, const Model::MapFormat mapFormat) {
-            const auto& classname = findProperty(entityInfo.properties, Model::PropertyKeys::Classname);
+        static CreateNodeResult createNodeFromEntityInfo(const Model::EntityPropertyConfig& entityPropertyConfig, MapReader::EntityInfo entityInfo, const Model::MapFormat mapFormat) {
+            const auto& classname = findProperty(entityInfo.properties, Model::EntityPropertyKeys::Classname);
             if (isWorldspawn(classname, entityInfo.properties)) {
-                return createWorldNode(std::move(entityInfo), mapFormat);
+                return createWorldNode(std::move(entityInfo), entityPropertyConfig, mapFormat);
             } else if (isLayer(classname, entityInfo.properties)) {
                 return createLayerNode(entityInfo);
             } else if (isGroup(classname, entityInfo.properties)) {
                 return createGroupNode(entityInfo);
             } else {
-                return createEntityNode(std::move(entityInfo));
+                return createEntityNode(entityPropertyConfig, std::move(entityInfo));
             }
         }
 
@@ -450,13 +451,13 @@ namespace TrenchBroom {
         * it contains empty optionals in place of nodes that we failed to create. We need the indices to remain
         * correct because we use them to refer to parent nodes later.
         */
-        static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(std::vector<MapReader::ObjectInfo> objectInfos, const vm::bbox3& worldBounds, const Model::MapFormat mapFormat, ParserStatus& status) {
+        static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(const Model::EntityPropertyConfig& entityPropertyConfig, std::vector<MapReader::ObjectInfo> objectInfos, const vm::bbox3& worldBounds, const Model::MapFormat mapFormat, ParserStatus& status) {
             // create nodes in parallel, moving data out of objectInfos
             // we store optionals in the result vector to make the elements default constructible, which is a requirement for parallel transform
             std::vector<CreateNodeResult> createNodeResults = kdl::vec_parallel_transform(std::move(objectInfos), [&](auto&& objectInfo) -> CreateNodeResult {
                 return std::visit(kdl::overload(
                     [&](MapReader::EntityInfo&& entityInfo) {
-                        return createNodeFromEntityInfo(std::move(entityInfo), mapFormat);
+                        return createNodeFromEntityInfo(entityPropertyConfig, std::move(entityInfo), mapFormat);
                     },
                     [&](MapReader::BrushInfo&& brushInfo) {
                         return createBrushNode(std::move(brushInfo), worldBounds);
@@ -629,7 +630,7 @@ namespace TrenchBroom {
          */
         void MapReader::createNodes(ParserStatus& status) {
             // create nodes from the recorded object infos
-            auto nodeInfos = createNodesFromObjectInfos(std::move(m_objectInfos), m_worldBounds, m_targetMapFormat, status);
+            auto nodeInfos = createNodesFromObjectInfos(m_entityPropertyConfig, std::move(m_objectInfos), m_worldBounds, m_targetMapFormat, status);
 
             // call onWorldNode for the first world node, remember the default parent and clear out all other world nodes
             // the brushes belonging to redundant world nodes will be added to the default parent

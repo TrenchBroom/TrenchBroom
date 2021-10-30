@@ -84,13 +84,14 @@ namespace TrenchBroom {
                 std::string classname;
                 vm::vec3 origin;
                 vm::mat4x4 rotation;
+                vm::mat4x4 modelTransformation;
             };
 
-            mutable std::optional<CachedProperties> m_cachedProperties;
+            CachedProperties m_cachedProperties;
         public:
             Entity();
-            explicit Entity(std::vector<EntityProperty> properties);
-            explicit Entity(std::initializer_list<EntityProperty> properties);
+            Entity(const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties);
+            Entity(const EntityPropertyConfig& propertyConfig, std::initializer_list<EntityProperty> properties);
 
             Entity(const Entity& other);
             Entity(Entity&& other);
@@ -101,7 +102,7 @@ namespace TrenchBroom {
             ~Entity();
 
             const std::vector<EntityProperty>& properties() const;
-            void setProperties(std::vector<EntityProperty> properties);
+            void setProperties(const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties);
 
             /**
              * Sets the protected property keys of this entity.
@@ -113,23 +114,25 @@ namespace TrenchBroom {
             void setProtectedProperties(std::vector<std::string> protectedProperties);
 
             bool pointEntity() const;
-            void setPointEntity(bool pointEntity);
+            void setPointEntity(const EntityPropertyConfig& propertyConfig, bool pointEntity);
 
             Assets::EntityDefinition* definition();
             const Assets::EntityDefinition* definition() const;
             const vm::bbox3& definitionBounds() const;
-            void setDefinition(Assets::EntityDefinition* definition);
+            void setDefinition(const EntityPropertyConfig& propertyConfig, Assets::EntityDefinition* definition);
 
             const Assets::EntityModelFrame* model() const;
-            void setModel(const Assets::EntityModelFrame* model);
+            void setModel(const EntityPropertyConfig& propertyConfig, const Assets::EntityModelFrame* model);
 
             Assets::ModelSpecification modelSpecification() const;
-            const vm::mat4x4 modelTransformation() const;
+            const vm::mat4x4& modelTransformation() const;
 
-            void addOrUpdateProperty(std::string key, std::string value, bool defaultToProtected = false);
-            void renameProperty(const std::string& oldKey, std::string newKey);
-            void removeProperty(const std::string& key);
-            void removeNumberedProperty(const std::string& prefix);
+            void unsetEntityDefinitionAndModel();
+
+            void addOrUpdateProperty(const EntityPropertyConfig& propertyConfig, std::string key, std::string value, bool defaultToProtected = false);
+            void renameProperty(const EntityPropertyConfig& propertyConfig, const std::string& oldKey, std::string newKey);
+            void removeProperty(const EntityPropertyConfig& propertyConfig, const std::string& key);
+            void removeNumberedProperty(const EntityPropertyConfig& propertyConfig, const std::string& prefix);
 
             bool hasProperty(const std::string& key) const;
             bool hasProperty(const std::string& key, const std::string& value) const;
@@ -141,10 +144,10 @@ namespace TrenchBroom {
             std::vector<std::string> propertyKeys() const;
 
             const std::string& classname() const;
-            void setClassname(const std::string& classname);
+            void setClassname(const EntityPropertyConfig& propertyConfig, const std::string& classname);
 
             const vm::vec3& origin() const;
-            void setOrigin(const vm::vec3& origin);
+            void setOrigin(const EntityPropertyConfig& propertyConfig, const vm::vec3& origin);
 
             const vm::mat4x4& rotation() const;
 
@@ -152,12 +155,11 @@ namespace TrenchBroom {
             std::vector<EntityProperty> propertiesWithPrefix(const std::string& property) const;
             std::vector<EntityProperty> numberedProperties(const std::string& property) const;
 
-            void transform(const vm::mat4x4& transformation);
+            void transform(const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation);
         private:
-            void applyRotation(const vm::mat4x4& rotation);
+            void applyRotation(const EntityPropertyConfig& propertyConfig, const vm::mat4x4& rotation);
             
-            void invalidateCachedProperties();
-            void validateCachedProperties() const;
+            void updateCachedProperties(const EntityPropertyConfig& propertyConfig);
 
             std::vector<EntityProperty>::const_iterator findProperty(const std::string& property) const;
             std::vector<EntityProperty>::iterator findProperty(const std::string& property);

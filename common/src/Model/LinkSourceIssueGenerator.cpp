@@ -63,7 +63,7 @@ namespace TrenchBroom {
 
                 facade->deselectAll();
                 facade->select(issue->node());
-                facade->removeProperty(PropertyKeys::Targetname);
+                facade->removeProperty(EntityPropertyKeys::Targetname);
             }
         };
 

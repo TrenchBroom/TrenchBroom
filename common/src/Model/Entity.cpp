@@ -39,21 +39,31 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const vm::bbox3 Entity::DefaultBounds = vm::bbox3(8.0);
+        const vm::bbox3 Entity::DefaultBounds = vm::bbox3{8.0};
 
         Entity::Entity() :
-        m_pointEntity(true),
-        m_model(nullptr) {}
+        m_pointEntity{true},
+        m_model{nullptr},
+        m_cachedProperties{
+            EntityPropertyValues::NoClassname,
+            vm::vec3{},
+            vm::mat4x4{},
+            vm::mat4x4{}
+        } {}
 
-        Entity::Entity(std::vector<EntityProperty> properties) :
-        m_properties(std::move(properties)),
-        m_pointEntity(true),
-        m_model(nullptr) {}
+        Entity::Entity(const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties) :
+        m_properties{std::move(properties)},
+        m_pointEntity{true},
+        m_model{nullptr} {
+            updateCachedProperties(propertyConfig);
+        }
 
-        Entity::Entity(std::initializer_list<EntityProperty> properties) :
-        m_properties(properties),
-        m_pointEntity(true),
-        m_model(nullptr) {}
+        Entity::Entity(const EntityPropertyConfig& propertyConfig, std::initializer_list<EntityProperty> properties) :
+        m_properties{std::move(properties)},
+        m_pointEntity{true},
+        m_model{nullptr} {
+            updateCachedProperties(propertyConfig);
+        }
 
         const std::vector<EntityProperty>& Entity::properties() const {
             return m_properties;
@@ -67,9 +77,9 @@ namespace TrenchBroom {
 
         Entity::~Entity() = default;
 
-        void Entity::setProperties(std::vector<EntityProperty> properties) {
+        void Entity::setProperties(const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties) {
             m_properties = std::move(properties);
-            invalidateCachedProperties();
+            updateCachedProperties(propertyConfig);
         }
 
         const std::vector<std::string>& Entity::protectedProperties() const {
@@ -84,13 +94,13 @@ namespace TrenchBroom {
             return m_pointEntity;
         }
 
-        void Entity::setPointEntity(const bool pointEntity) {
+        void Entity::setPointEntity(const EntityPropertyConfig& propertyConfig, const bool pointEntity) {
             if (m_pointEntity == pointEntity) {
                 return;
             }
 
             m_pointEntity = pointEntity;
-            invalidateCachedProperties();
+            updateCachedProperties(propertyConfig);
         }
 
         Assets::EntityDefinition* Entity::definition() {
@@ -107,56 +117,67 @@ namespace TrenchBroom {
                 : DefaultBounds;
         }
 
-        void Entity::setDefinition(Assets::EntityDefinition* definition) {
+        void Entity::setDefinition(const EntityPropertyConfig& propertyConfig, Assets::EntityDefinition* definition) {
             if (m_definition.get() == definition) {
                 return;
             }
 
-            m_definition = Assets::AssetReference(definition);
-            invalidateCachedProperties();
+            m_definition = Assets::AssetReference{definition};
+            updateCachedProperties(propertyConfig);
         }
 
         const Assets::EntityModelFrame* Entity::model() const {
             return m_model;
         }
 
-        void Entity::setModel(const Assets::EntityModelFrame* model) {
+        void Entity::setModel(const EntityPropertyConfig& propertyConfig, const Assets::EntityModelFrame* model) {
             if (m_model == model) {
                 return;
             }
 
             m_model = model;
-            invalidateCachedProperties();
+            updateCachedProperties(propertyConfig);
         }
 
         Assets::ModelSpecification Entity::modelSpecification() const {
             if (const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get())) {
-                const auto variableStore = EntityPropertiesVariableStore(*this);
-                return pointDefinition->model(variableStore);
+                const auto variableStore = EntityPropertiesVariableStore{*this};
+                return pointDefinition->modelDefinition().modelSpecification(variableStore);
             } else {
-                return Assets::ModelSpecification();
+                return Assets::ModelSpecification{};
             }
         }
 
-        const vm::mat4x4 Entity::modelTransformation() const {
-            return vm::translation_matrix(origin()) * rotation();
+        const vm::mat4x4& Entity::modelTransformation() const {
+            return m_cachedProperties.modelTransformation;
         }
 
-        void Entity::addOrUpdateProperty(std::string key, std::string value, const bool defaultToProtected) {
+        void Entity::unsetEntityDefinitionAndModel() {
+            if (m_definition.get() == nullptr && m_model == nullptr) {
+                return;
+            }
+
+            m_definition = Assets::AssetReference<Assets::EntityDefinition>{};
+            m_model = nullptr;
+            m_cachedProperties.rotation = EntityRotationPolicy::getRotation(*this);
+            m_cachedProperties.modelTransformation = vm::mat4x4::identity();
+        }
+
+        void Entity::addOrUpdateProperty(const EntityPropertyConfig& propertyConfig, std::string key, std::string value, const bool defaultToProtected) {
             auto it = findProperty(key);
             if (it != std::end(m_properties)) {
-                it->setValue(value);
+                it->setValue(std::move(value));
             } else {
-                m_properties.emplace_back(key, value);
+                m_properties.emplace_back(key, std::move(value));
 
                 if (defaultToProtected && !kdl::vec_contains(m_protectedProperties, key)) {
-                    m_protectedProperties.push_back(key);
+                    m_protectedProperties.push_back(std::move(key));
                 }
             }
-            invalidateCachedProperties();
+            updateCachedProperties(propertyConfig);
         }
 
-        void Entity::renameProperty(const std::string& oldKey, std::string newKey) {
+        void Entity::renameProperty(const EntityPropertyConfig& propertyConfig, const std::string& oldKey, std::string newKey) {
             if (oldKey == newKey) {
                 return;
             }
@@ -174,19 +195,19 @@ namespace TrenchBroom {
                 }
 
                 oldIt->setKey(std::move(newKey));
-                invalidateCachedProperties();
+                updateCachedProperties(propertyConfig);
             }
         }
 
-        void Entity::removeProperty(const std::string& key) {
+        void Entity::removeProperty(const EntityPropertyConfig& propertyConfig, const std::string& key) {
             const auto it = findProperty(key);
             if (it != std::end(m_properties)) {
                 m_properties.erase(it);
-                invalidateCachedProperties();
+                updateCachedProperties(propertyConfig);
             }
         }
 
-        void Entity::removeNumberedProperty(const std::string& prefix) {
+        void Entity::removeNumberedProperty(const EntityPropertyConfig& propertyConfig, const std::string& prefix) {
             auto it = std::begin(m_properties);
             while (it != std::end(m_properties)) {
                 if (it->hasNumberedPrefix(prefix)) {
@@ -195,7 +216,7 @@ namespace TrenchBroom {
                     ++it;
                 }
             }
-            invalidateCachedProperties();
+            updateCachedProperties(propertyConfig);
         }
 
         bool Entity::hasProperty(const std::string& key) const {
@@ -208,21 +229,15 @@ namespace TrenchBroom {
         }
 
         bool Entity::hasPropertyWithPrefix(const std::string& prefix, const std::string& value) const {
-            for (const auto& property : m_properties) {
-                if (property.hasPrefixAndValue(prefix, value)) {
-                    return true;
-                }
-            }
-            return false;
+            return std::any_of(std::begin(m_properties), std::end(m_properties), [&](const auto& property) {
+                return property.hasPrefixAndValue(prefix, value);
+            });
         }
 
         bool Entity::hasNumberedProperty(const std::string& prefix, const std::string& value) const {
-            for (const auto& property : m_properties) {
-                if (property.hasNumberedPrefixAndValue(prefix, value)) {
-                    return true;
-                }
-            }
-            return false;
+            return std::any_of(std::begin(m_properties), std::end(m_properties), [&](const auto& property) {
+                return property.hasNumberedPrefixAndValue(prefix, value);
+            });
         }
 
         const std::string* Entity::property(const std::string& key) const {
@@ -236,26 +251,23 @@ namespace TrenchBroom {
 
 
         const std::string& Entity::classname() const {
-            validateCachedProperties();
-            return m_cachedProperties->classname;
+            return m_cachedProperties.classname;
         }
 
-        void Entity::setClassname(const std::string& classname) {
-            addOrUpdateProperty(PropertyKeys::Classname, classname);
+        void Entity::setClassname(const EntityPropertyConfig& propertyConfig, const std::string& classname) {
+            addOrUpdateProperty(propertyConfig, EntityPropertyKeys::Classname, classname);
         }
 
         const vm::vec3& Entity::origin() const {
-            validateCachedProperties();
-            return m_cachedProperties->origin;
+            return m_cachedProperties.origin;
         }
 
-        void Entity::setOrigin(const vm::vec3& origin) {
-            addOrUpdateProperty(PropertyKeys::Origin, kdl::str_to_string(vm::correct(origin)));
+        void Entity::setOrigin(const EntityPropertyConfig& propertyConfig, const vm::vec3& origin) {
+            addOrUpdateProperty(propertyConfig, EntityPropertyKeys::Origin, kdl::str_to_string(vm::correct(origin)));
         }
 
         const vm::mat4x4& Entity::rotation() const {
-            validateCachedProperties();
-            return m_cachedProperties->rotation;
+            return m_cachedProperties.rotation;
         }
 
         std::vector<EntityProperty> Entity::propertiesWithKey(const std::string& key) const {
@@ -270,14 +282,14 @@ namespace TrenchBroom {
             return kdl::vec_filter(m_properties, [&](const auto& property) { return property.hasNumberedPrefix(prefix); });
         }
 
-        void Entity::transform(const vm::mat4x4& transformation) {
+        void Entity::transform(const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation) {
             if (m_pointEntity) {
                 const auto offset = definitionBounds().center();
                 const auto center = origin() + offset;
                 const auto transformedCenter = transformation * center;
                 const auto newOrigin = transformedCenter - offset;
                 if (origin() != newOrigin) {
-                    setOrigin(transformedCenter - offset);
+                    setOrigin(propertyConfig, transformedCenter - offset);
                 }
 
                 // applying rotation has side effects (e.g. normalizing "angles")
@@ -285,29 +297,30 @@ namespace TrenchBroom {
                 const auto rotation = vm::strip_translation(transformation);
                 if (rotation != vm::mat4x4::identity()) {
                     // applyRotation does not read the origin, so it's ok that it's already updated now
-                    applyRotation(rotation);
+                    applyRotation(propertyConfig, rotation);
                 }
             }
         }
 
-        void Entity::applyRotation(const vm::mat4x4& rotation) {
-            EntityRotationPolicy::applyRotation(*this, rotation);
+        void Entity::applyRotation(const EntityPropertyConfig& propertyConfig, const vm::mat4x4& rotation) {
+            EntityRotationPolicy::applyRotation(*this, propertyConfig, rotation);
         }
 
-        void Entity::invalidateCachedProperties() {
-            m_cachedProperties = std::nullopt;
-        }
-        
-        void Entity::validateCachedProperties() const {
-            if (!m_cachedProperties.has_value()) {
-                const auto* classnameValue = property(PropertyKeys::Classname);
-                const auto* originValue = property(PropertyKeys::Origin);
+        void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig) {
+            const auto* classnameValue = property(EntityPropertyKeys::Classname);
+            const auto* originValue = property(EntityPropertyKeys::Origin);
 
-                // order is important here because EntityRotationPolicy::getRotation accesses classname
-                m_cachedProperties = CachedProperties{};
-                m_cachedProperties->classname = classnameValue ? *classnameValue : PropertyValues::NoClassname;
-                m_cachedProperties->origin = originValue ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
-                m_cachedProperties->rotation = EntityRotationPolicy::getRotation(*this);
+            // order is important here because EntityRotationPolicy::getRotation accesses classname
+            m_cachedProperties.classname = classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
+            m_cachedProperties.origin = originValue ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero()) : vm::vec3::zero();
+            m_cachedProperties.rotation = EntityRotationPolicy::getRotation(*this);
+
+            if (const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get())) {
+                const auto variableStore = EntityPropertiesVariableStore{*this};
+                const auto scale = pointDefinition->modelDefinition().scale(variableStore, propertyConfig.defaultModelScaleExpression);
+                m_cachedProperties.modelTransformation = vm::translation_matrix(origin()) * rotation() * vm::scaling_matrix(scale);
+            } else {
+                m_cachedProperties.modelTransformation = vm::mat4x4::identity();
             }
         }
 

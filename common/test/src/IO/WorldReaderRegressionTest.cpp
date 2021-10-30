@@ -59,7 +59,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, Model::MapFormat::Standard);
+            WorldReader reader(data, Model::MapFormat::Standard, {});
 
             auto world = reader.read(worldBounds, status);
             CHECK(world != nullptr);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, Model::MapFormat::Standard);
+            WorldReader reader(data, Model::MapFormat::Standard, {});
 
             auto world = reader.read(worldBounds, status);
 
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, Model::MapFormat::Standard);
+            WorldReader reader(data, Model::MapFormat::Standard, {});
 
             auto world = reader.read(worldBounds, status);
 
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
 
             IO::TestParserStatus status;
-            WorldReader reader(data, Model::MapFormat::Standard);
+            WorldReader reader(data, Model::MapFormat::Standard, {});
 
             auto world = reader.read(worldBounds, status);
 

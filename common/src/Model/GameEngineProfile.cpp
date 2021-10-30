@@ -19,6 +19,7 @@
 
 #include "GameEngineProfile.h"
 
+#include <ostream>
 #include <memory>
 #include <string>
 
@@ -65,6 +66,14 @@ namespace TrenchBroom {
 
         bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const GameEngineProfile& profile) {
+            str << "GameEngineProfile{"
+                << "name: " << profile.m_name << ", "
+                << "path: " << profile.m_path << ", "
+                << "parameterSpec: " << profile.m_parameterSpec << "}";
+            return str;
         }
     }
 }

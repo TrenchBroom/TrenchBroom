@@ -54,7 +54,7 @@ namespace TrenchBroom {
             using namespace CompilationVariableNames;
             declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));
             declare(GAME_DIR_PATH, EL::Value(gamePath.asString()));
-            declare(MODS, EL::Value(mods));
+            declare(MODS, EL::Value{kdl::vec_transform(mods, [](const auto& mod) { return EL::Value{mod}; })});
 
             const auto& factory = Model::GameFactory::instance();
             for (const Model::CompilationTool& tool : document->game()->compilationTools()) {

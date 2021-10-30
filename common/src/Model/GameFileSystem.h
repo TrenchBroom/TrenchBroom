@@ -33,7 +33,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class GameConfig;
+        struct GameConfig;
 
         class GameFileSystem : public IO::FileSystem {
         private:

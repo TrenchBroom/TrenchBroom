@@ -24,6 +24,7 @@
 
 #include <kdl/vector_set.h>
 
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>
@@ -64,7 +65,9 @@ namespace TrenchBroom {
             const std::string& name() const;
 
             friend bool operator==(const TagAttribute& lhs, const TagAttribute& rhs);
+            friend bool operator!=(const TagAttribute& lhs, const TagAttribute& rhs);
             friend bool operator<(const TagAttribute& lhs, const TagAttribute& rhs);
+            friend std::ostream& operator<<(std::ostream& str, const TagAttribute& attr);
         };
 
         /**
@@ -132,8 +135,13 @@ namespace TrenchBroom {
             const std::vector<TagAttribute>& attributes() const;
 
             friend bool operator==(const Tag& lhs, const Tag& rhs);
+            friend bool operator!=(const Tag& lhs, const Tag& rhs);
             friend bool operator<(const Tag& lhs, const Tag& rhs);
+
+            virtual void appendToStream(std::ostream& str) const;
         };
+
+        std::ostream& operator<<(std::ostream& str, const Tag& tag);
 
         /**
          * Tag references are used to store the tags attached to an object implementing the Taggable interface.
@@ -157,6 +165,7 @@ namespace TrenchBroom {
             const Tag& tag() const;
 
             friend bool operator==(const TagReference& lhs, const TagReference& rhs);
+            friend bool operator!=(const TagReference& lhs, const TagReference& rhs);
             friend bool operator<(const TagReference& lhs, const TagReference& rhs);
         };
 
@@ -332,7 +341,11 @@ namespace TrenchBroom {
              * Returns a new copy of this tag matcher.
              */
             virtual std::unique_ptr<TagMatcher> clone() const = 0;
+
+            virtual void appendToStream(std::ostream& str) const = 0;
         };
+
+        std::ostream& operator<<(std::ostream& str, const TagMatcher& matcher);
 
         /**
          * A smart tag is applied to any object that satisfies a matcher automatically.
@@ -400,6 +413,8 @@ namespace TrenchBroom {
              * @return true if this tag can modify the selection appropriately and false otherwise
              */
             bool canDisable() const;
+
+            void appendToStream(std::ostream& str) const override;
         };
     }
 }

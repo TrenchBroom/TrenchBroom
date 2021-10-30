@@ -22,6 +22,7 @@
 #include "Macros.h"
 #include "IO/Path.h"
 
+#include <iosfwd>
 #include <memory>
 #include <string>
 
@@ -47,6 +48,7 @@ namespace TrenchBroom {
 
             friend bool operator==(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
             friend bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
+            friend std::ostream& operator<<(std::ostream& str, const GameEngineProfile& profile);
 
             deleteCopyAndMove(GameEngineProfile)
         };

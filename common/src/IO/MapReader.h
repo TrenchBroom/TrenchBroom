@@ -24,6 +24,7 @@
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/EntityProperties.h"
 #include "Model/IdType.h"
 
 #include <kdl/result.h>
@@ -38,9 +39,9 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushNode;
         class EntityNode;
         class EntityNodeBase;
-        class BrushNode;
         class EntityProperty;
         class GroupNode;
         class LayerNode;
@@ -95,6 +96,7 @@ namespace TrenchBroom {
 
             using ObjectInfo = std::variant<EntityInfo, BrushInfo, PatchInfo>;
         private:
+            Model::EntityPropertyConfig m_entityPropertyConfig;
             vm::bbox3 m_worldBounds;
         private: // data populated in response to MapParser callbacks
             std::vector<ObjectInfo> m_objectInfos;
@@ -107,8 +109,9 @@ namespace TrenchBroom {
              * @param str the string to parse
              * @param sourceMapFormat the expected format of the given string
              * @param targetMapFormat the format to convert the created objects to
+             * @param entityPropertyConfig the entity property config to use
              */
-            MapReader(std::string_view str, Model::MapFormat sourceMapFormat, Model::MapFormat targetMapFormat);
+            MapReader(std::string_view str, Model::MapFormat sourceMapFormat, Model::MapFormat targetMapFormat, const Model::EntityPropertyConfig& entityPropertyConfig);
 
             /**
              * Attempts to parse as one or more entities.

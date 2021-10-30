@@ -62,7 +62,7 @@ namespace TrenchBroom {
                         const auto& protectedProperties = entityNode->entity().protectedProperties();
                         if (!protectedProperties.empty()) {
                             const auto escapedProperties = kdl::vec_transform(protectedProperties, [](const auto& key) { return kdl::str_escape(key, ";"); });
-                            extraProperties.emplace_back(Model::PropertyKeys::ProtectedEntityProperties, kdl::str_join(escapedProperties, ";"));
+                            extraProperties.emplace_back(Model::EntityPropertyKeys::ProtectedEntityProperties, kdl::str_join(escapedProperties, ";"));
                         }
                         serializer.entity(entityNode, entityNode->entity().properties(), extraProperties, entityNode);
                     },

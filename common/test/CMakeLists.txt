@@ -19,6 +19,7 @@ set(COMMON_TEST_UTILS_SOURCE
 
 set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Assets/AssetUtilsTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Assets/ModelDefinitionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/ELTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/ExpressionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/InterpolatorTest.cpp"

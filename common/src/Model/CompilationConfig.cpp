@@ -22,7 +22,11 @@
 #include "Ensure.h"
 #include "Model/CompilationProfile.h"
 
+#include <kdl/deref_iterator.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
+
+#include <ostream>
 
 namespace TrenchBroom {
     namespace Model {
@@ -52,20 +56,26 @@ namespace TrenchBroom {
             swap(lhs.m_profiles, rhs.m_profiles);
         }
 
-        bool CompilationConfig::operator==(const CompilationConfig& other) const {
-            if (m_profiles.size() != other.m_profiles.size()) {
+        bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs) {
+            if (lhs.m_profiles.size() != rhs.m_profiles.size()) {
                 return false;
             }
-            for (size_t i = 0; i < m_profiles.size(); ++i) {
-                if (*m_profiles[i] != *other.m_profiles[i]) {
+            for (size_t i = 0; i < lhs.m_profiles.size(); ++i) {
+                if (*lhs.m_profiles[i] != *rhs.m_profiles[i]) {
                     return false;
                 }
             }
             return true;
         }
 
-        bool CompilationConfig::operator!=(const CompilationConfig& other) const {
-            return !(*this == other);
+        bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs) {
+            return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const CompilationConfig& config) {
+            str << "CompilationConfig{"
+                << "profiles: [" << kdl::str_join(kdl::const_deref_range{config.m_profiles}) << "]}";
+            return str;
         }
 
         size_t CompilationConfig::profileCount() const {

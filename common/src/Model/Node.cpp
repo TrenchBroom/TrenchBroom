@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "Macros.h"
+#include "Model/EntityProperties.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 #include "Model/LockState.h"
@@ -709,6 +710,10 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_issues);
         }
 
+        const EntityPropertyConfig& Node::entityPropertyConfig() const {
+            return doGetEntityPropertyConfig();
+        }
+
         void Node::findEntityNodesWithProperty(const std::string& key, const std::string& value, std::vector<EntityNodeBase*>& result) const {
             return doFindEntityNodesWithProperty(key, value, result);
         }
@@ -754,6 +759,15 @@ namespace TrenchBroom {
         void Node::doChildDidChange(Node* /* node */) {}
         void Node::doDescendantWillChange(Node* /* node */) {}
         void Node::doDescendantDidChange(Node* /* node */)  {}
+
+        const EntityPropertyConfig& Node::doGetEntityPropertyConfig() const {
+            if (m_parent != nullptr) {
+                return m_parent->entityPropertyConfig();
+            }
+
+            static const auto defaultConfig = EntityPropertyConfig{};
+            return defaultConfig;
+        }
 
         void Node::doFindEntityNodesWithProperty(const std::string& key, const std::string& value, std::vector<EntityNodeBase*>& result) const {
             if (m_parent != nullptr)

@@ -21,6 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 
+#include <kdl/opt_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_set.h>
 
@@ -30,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        namespace PropertyKeys {
+        namespace EntityPropertyKeys {
             const std::string Classname                 = "classname";
             const std::string Origin                    = "origin";
             const std::string Wad                       = "wad";
@@ -64,7 +65,7 @@ namespace TrenchBroom {
             const std::string SoftMapBounds             = "_tb_soft_map_bounds";
         }
 
-        namespace PropertyValues {
+        namespace EntityPropertyValues {
             const std::string WorldspawnClassname = "worldspawn";
             const std::string NoClassname         = "undefined";
             const std::string LayerClassname      = "func_group";
@@ -76,6 +77,21 @@ namespace TrenchBroom {
             const std::string LayerLockedValue    = "1";
             const std::string LayerHiddenValue    = "1";
             const std::string LayerOmitFromExportValue = "1";
+        }
+
+        bool operator==(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs) {
+            return lhs.defaultModelScaleExpression == rhs.defaultModelScaleExpression;
+        }
+
+        bool operator!=(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs) {
+            return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& lhs, const EntityPropertyConfig& rhs) {
+            lhs << "EntityPropertyConfig{";
+            lhs << "defaultModelScaleExpression=" << kdl::opt_to_string(rhs.defaultModelScaleExpression);
+            lhs << "}";
+            return lhs;
         }
 
         bool isNumberedProperty(std::string_view prefix, std::string_view key) {
@@ -171,25 +187,25 @@ namespace TrenchBroom {
         }
 
         bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties) {
-            if (classname != PropertyValues::LayerClassname) {
+            if (classname != EntityPropertyValues::LayerClassname) {
                 return false;
             } else {
-                const std::string& groupType = findProperty(properties, PropertyKeys::GroupType);
-                return groupType == PropertyValues::GroupTypeLayer;
+                const std::string& groupType = findProperty(properties, EntityPropertyKeys::GroupType);
+                return groupType == EntityPropertyValues::GroupTypeLayer;
             }
         }
 
         bool isGroup(const std::string& classname, const std::vector<EntityProperty>& properties) {
-            if (classname != PropertyValues::GroupClassname) {
+            if (classname != EntityPropertyValues::GroupClassname) {
                 return false;
             } else {
-                const std::string& groupType = findProperty(properties, PropertyKeys::GroupType);
-                return groupType == PropertyValues::GroupTypeGroup;
+                const std::string& groupType = findProperty(properties, EntityPropertyKeys::GroupType);
+                return groupType == EntityPropertyValues::GroupTypeGroup;
             }
         }
 
         bool isWorldspawn(const std::string& classname, const std::vector<EntityProperty>& /* properties */) {
-            return classname == PropertyValues::WorldspawnClassname;
+            return classname == EntityPropertyValues::WorldspawnClassname;
         }
 
         const std::string& findProperty(const std::vector<EntityProperty>& properties, const std::string& key, const std::string& defaultValue) {

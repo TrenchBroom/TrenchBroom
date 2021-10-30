@@ -744,10 +744,10 @@ namespace TrenchBroom {
         TEST_CASE("FgdParserTest.parseLegacyStaticModelDefinition", "[FgdParserTest]") {
             static const std::string ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
 
-            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
                                              ModelDefinition,
                                              FgdModelDefinitionTemplate);
-            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
                                              ModelDefinition,
                                              FgdModelDefinitionTemplate,
                                              "{ 'spawnflags': 1 }");
@@ -756,7 +756,7 @@ namespace TrenchBroom {
         TEST_CASE("FgdParserTest.parseLegacyDynamicModelDefinition", "[FgdParserTest]") {
             static const std::string ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
 
-            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
                                              ModelDefinition,
                                              FgdModelDefinitionTemplate,
                                              "{ 'model': 'maps/b_shell1.bsp' }");
@@ -766,33 +766,12 @@ namespace TrenchBroom {
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
-        TEST_CASE("FgdParserTest.parseELStaticModelDefinition", "[FgdParserTest]") {
+        TEST_CASE("FgdParserTest.parseELModelDefinition", "[FgdParserTest]") {
             static const std::string ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
 
-            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
+            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
                                              ModelDefinition,
                                              FgdModelDefinitionTemplate);
-            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
-                                             ModelDefinition,
-                                             FgdModelDefinitionTemplate,
-                                             "{ 'spawnflags': 1 }");
-            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
-                                             ModelDefinition,
-                                             FgdModelDefinitionTemplate,
-                                             "{ 'spawnflags': 2 }");
-        }
-
-        TEST_CASE("FgdParserTest.parseELDynamicModelDefinition", "[FgdParserTest]") {
-            static const std::string ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
-
-            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
-                                             ModelDefinition,
-                                             FgdModelDefinitionTemplate,
-                                             "{ 'model': 'maps/b_shell1.bsp' }");
-            assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
-                                             ModelDefinition,
-                                             FgdModelDefinitionTemplate,
-                                             "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
         TEST_CASE("FgdParserTest.parseLegacyModelWithParseError", "[FgdParserTest]") {

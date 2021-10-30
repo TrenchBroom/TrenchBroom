@@ -43,6 +43,8 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        struct EntityPropertyConfig;
+
         class EntityNode : public EntityNodeBase, public Object {
         public:
             static const HitType::Type EntityHitType;
@@ -55,9 +57,8 @@ namespace TrenchBroom {
             };
             mutable std::optional<CachedBounds> m_cachedBounds;
         public:
-            EntityNode();
             explicit EntityNode(Entity entity);
-            explicit EntityNode(std::initializer_list<EntityProperty> properties);
+            EntityNode(const Model::EntityPropertyConfig& entityPropertyConfig, std::initializer_list<EntityProperty> properties);
         public: // entity model
             const vm::bbox3& modelBounds() const;
             void setModelFrame(const Assets::EntityModelFrame* modelFrame);

@@ -94,7 +94,7 @@ namespace TrenchBroom {
                     },
                     [&](const EntityNode* entityNode) -> TransformResult {
                         auto entity = entityNode->entity();
-                        entity.transform(transformation);
+                        entity.transform(entityNode->entityPropertyConfig(), transformation);
                         return std::make_pair(nodeToTransform, NodeContents{std::move(entity)});
                     },
                     [&](const BrushNode* brushNode) -> TransformResult {
@@ -231,11 +231,12 @@ namespace TrenchBroom {
 
             clonedEntity.setProtectedProperties(correspondingEntity.protectedProperties());
 
+            const auto entityPropertyConfig = clonedEntityNode.entityPropertyConfig();
             for (const auto& propertyKey : allProtectedProperties) {
                 // this can change the order of properties
-                clonedEntity.removeProperty(propertyKey);
+                clonedEntity.removeProperty(entityPropertyConfig, propertyKey);
                 if (const auto* propertyValue = correspondingEntity.property(propertyKey)) {
-                    clonedEntity.addOrUpdateProperty(propertyKey, *propertyValue);
+                    clonedEntity.addOrUpdateProperty(entityPropertyConfig, propertyKey, *propertyValue);
                 }
             }
 

@@ -32,6 +32,7 @@ namespace TrenchBroom {
 
     namespace Model {
         class Entity;
+        struct EntityPropertyConfig;
 
         class EntityRotationPolicy {
         private:
@@ -55,11 +56,11 @@ namespace TrenchBroom {
             };
         public:
             static vm::mat4x4 getRotation(const Entity& entity);
-            static void applyRotation(Entity& entity, const vm::mat4x4& transformation);
+            static void applyRotation(Entity& entity, const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation);
             static std::string getPropertyKey(const Entity& entity);
         private:
             static RotationInfo rotationInfo(const Entity& entity);
-            static void setAngle(Entity& entity, const std::string& propertyKey, const vm::vec3& direction);
+            static void setAngle(Entity& entity, const EntityPropertyConfig& propertyConfig, const std::string& propertyKey, const vm::vec3& direction);
 
             static FloatType getAngle(vm::vec3 direction);
         public:

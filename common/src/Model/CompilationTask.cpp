@@ -19,6 +19,7 @@
 
 #include "CompilationTask.h"
 
+#include <ostream>
 #include <string>
 
 namespace TrenchBroom {
@@ -40,6 +41,11 @@ namespace TrenchBroom {
 
         bool CompilationTask::operator!=(const CompilationTask& other) const {
             return !(*this == other);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const CompilationTask& task) {
+            task.appendToStream(str);
+            return str;
         }
 
         // CompilationExportMap
@@ -88,6 +94,12 @@ namespace TrenchBroom {
                 return false;
             }
             return true;
+        }
+
+        void CompilationExportMap::appendToStream(std::ostream& str) const {
+            str << "CompilationExportMap{"
+                << "enabled: " << m_enabled << ", "
+                << "targetSpec: " << m_targetSpec << "}";
         }
 
         // CompilationCopyFiles
@@ -150,6 +162,13 @@ namespace TrenchBroom {
             return true;
         }
 
+        void CompilationCopyFiles::appendToStream(std::ostream& str) const {
+            str << "CompilationCopyFiles{"
+                << "enabled: " << m_enabled << ", "
+                << "sourceSpec: " << m_sourceSpec << ", "
+                << "targetSpec: " << m_targetSpec << "}";
+        }
+
         // CompilationRunTool
 
         CompilationRunTool::CompilationRunTool(const bool enabled, const std::string& toolSpec, const std::string& parameterSpec) :
@@ -208,6 +227,13 @@ namespace TrenchBroom {
                 return false;
             }
             return true;
+        }
+
+        void CompilationRunTool::appendToStream(std::ostream& str) const {
+            str << "CompilationRunTool{"
+                << "enabled: " << m_enabled << ", "
+                << "toolSpec: " << m_toolSpec << ", "
+                << "parameterSpec: << " << m_parameterSpec << "}";
         }
 
         CompilationTaskVisitor::~CompilationTaskVisitor() = default;

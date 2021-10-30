@@ -58,7 +58,7 @@ namespace TrenchBroom {
             Table m_variables;
         public:
             VariableTable();
-            explicit VariableTable(const Table& variables);
+            explicit VariableTable(Table variables);
         private:
             VariableStore* doClone() const override;
             size_t doGetSize() const override;

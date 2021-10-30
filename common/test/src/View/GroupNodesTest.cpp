@@ -74,7 +74,7 @@ namespace TrenchBroom {
             Model::PatchNode* child2 = createPatchNode();
             addNode(*document, document->parentForNodes(), child2);
 
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
             reparentNodes(*document, entity, { child1, child2 });
 
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             Model::PatchNode* child2 = createPatchNode();
             addNode(*document, document->parentForNodes(), child2);
 
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
             reparentNodes(*document, entity, { child1, child2 });
 
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             Model::BrushNode* brush1 = createBrushNode();
             addNode(*document, document->parentForNodes(), brush1);
 
-            Model::EntityNode* entityNode = new Model::EntityNode();
+            Model::EntityNode* entityNode = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entityNode);
             reparentNodes(*document, entityNode, { brush1 });
 
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             Model::BrushNode* brush1 = createBrushNode();
             addNode(*document, document->parentForNodes(), brush1);
 
-            Model::EntityNode* entityNode = new Model::EntityNode();
+            Model::EntityNode* entityNode = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entityNode);
             reparentNodes(*document, entityNode, { brush1 });
 
@@ -224,10 +224,10 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupInnerGroup") {
             // see https://github.com/TrenchBroom/TrenchBroom/issues/2050
-            Model::EntityNode* outerEnt1 = new Model::EntityNode();
-            Model::EntityNode* outerEnt2 = new Model::EntityNode();
-            Model::EntityNode* innerEnt1 = new Model::EntityNode();
-            Model::EntityNode* innerEnt2 = new Model::EntityNode();
+            Model::EntityNode* outerEnt1 = new Model::EntityNode{Model::Entity{}};
+            Model::EntityNode* outerEnt2 = new Model::EntityNode{Model::Entity{}};
+            Model::EntityNode* innerEnt1 = new Model::EntityNode{Model::Entity{}};
+            Model::EntityNode* innerEnt2 = new Model::EntityNode{Model::Entity{}};
 
             addNode(*document, document->parentForNodes(), innerEnt1);
             addNode(*document, document->parentForNodes(), innerEnt2);
@@ -277,7 +277,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesPointEntitySelected") {
-            Model::EntityNode* ent1 = new Model::EntityNode();
+            Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
 
             addNode(*document, document->parentForNodes(), ent1);
             document->select(std::vector<Model::Node*> {ent1});
@@ -292,7 +292,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelected") {
             const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
-            Model::EntityNode* ent1 = new Model::EntityNode();
+            Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), ent1);
 
             Model::BrushNode* brushNode1 = new Model::BrushNode(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
@@ -318,8 +318,8 @@ namespace TrenchBroom {
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/3824
         TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity") {
-            auto* ent1 = new Model::EntityNode{};
-            auto* ent2 = new Model::EntityNode{};
+            auto* ent1 = new Model::EntityNode{Model::Entity{}};
+            auto* ent2 = new Model::EntityNode{Model::Entity{}};
 
             addNode(*document, document->parentForNodes(), ent1);
             addNode(*document, document->parentForNodes(), ent2);
@@ -337,13 +337,13 @@ namespace TrenchBroom {
             document->selectAllNodes();
             document->deleteObjects();
 
-            Model::EntityNode* ent1 = new Model::EntityNode();
+            Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), ent1);
             document->deselectAll();
             document->select(std::vector<Model::Node*> {ent1});
             Model::GroupNode* group1 = document->groupSelection("group1");
 
-            Model::EntityNode* ent2 = new Model::EntityNode();
+            Model::EntityNode* ent2 = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), ent2);
             document->deselectAll();
             document->select(std::vector<Model::Node*> {ent2});
@@ -452,7 +452,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNodesTest]") {
-            auto* entityNode = new Model::EntityNode{};
+            auto* entityNode = new Model::EntityNode{Model::Entity{}};
             auto* brushNode = createBrushNode();
             document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
             document->select(brushNode);
@@ -584,7 +584,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.newWithGroupOpen") {
-            Model::EntityNode* entity = new Model::EntityNode();
+            Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
             addNode(*document, document->parentForNodes(), entity);
             document->select(entity);
             Model::GroupNode* group = document->groupSelection("my group");

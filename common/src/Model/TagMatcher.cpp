@@ -35,8 +35,10 @@
 #include "Model/WorldNode.h"
 
 #include <kdl/string_compare.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <ostream>
 #include <vector>
 
 namespace TrenchBroom {
@@ -103,6 +105,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        void TextureTagMatcher::appendToStream(std::ostream& str) const {
+            str << "TextureTagMatcher{}";
+        }
+
         TextureNameTagMatcher::TextureNameTagMatcher(const std::string& pattern) :
         m_pattern(pattern) {}
 
@@ -117,6 +123,10 @@ namespace TrenchBroom {
 
             taggable.accept(visitor);
             return visitor.matches();
+        }
+
+        void TextureNameTagMatcher::appendToStream(std::ostream& str) const {
+            str << "TextureNameTagMatcher{pattern: " << m_pattern << "}";
         }
 
         bool TextureNameTagMatcher::matchesTexture(const Assets::Texture* texture) const {
@@ -156,6 +166,10 @@ namespace TrenchBroom {
 
             taggable.accept(visitor);
             return visitor.matches();
+        }
+
+        void SurfaceParmTagMatcher::appendToStream(std::ostream& str) const {
+            str << "SurfaceParmTagMatcher{parameters: [" << kdl::str_join(m_parameters) << "]}";
         }
 
         bool SurfaceParmTagMatcher::matchesTexture(const Assets::Texture* texture) const {
@@ -249,6 +263,10 @@ namespace TrenchBroom {
 
         bool FlagsTagMatcher::canDisable() const {
             return true;
+        }
+
+        void FlagsTagMatcher::appendToStream(std::ostream& str) const {
+            str << "FlagsTagMatcher{flags: " << m_flags << "}";
         }
 
         ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int i_flags) :
@@ -366,6 +384,12 @@ namespace TrenchBroom {
 
         bool EntityClassNameTagMatcher::canDisable() const {
             return true;
+        }
+
+        void EntityClassNameTagMatcher::appendToStream(std::ostream& str) const {
+            str << "EntityClassNameMatcher{"
+                << "pattern: " << m_pattern << ", "
+                << "texture: " << m_texture << "}";
         }
 
         bool EntityClassNameTagMatcher::matchesClassname(const std::string& classname) const {

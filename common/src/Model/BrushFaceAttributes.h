@@ -23,6 +23,7 @@
 
 #include <vecmath/forward.h>
 
+#include <iosfwd>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -56,6 +57,8 @@ namespace TrenchBroom {
             BrushFaceAttributes& operator=(BrushFaceAttributes other);
             
             friend bool operator==(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs);
+            friend bool operator!=(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs);
+            friend std::ostream& operator<<(std::ostream& str, const BrushFaceAttributes& attrs);
             friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
 
             const std::string& textureName() const;

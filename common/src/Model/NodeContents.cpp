@@ -31,8 +31,7 @@ namespace TrenchBroom {
                 [](Layer&) {},
                 [](Group&) {},
                 [](Entity& entity) {
-                    entity.setDefinition(nullptr);
-                    entity.setModel(nullptr);
+                    entity.unsetEntityDefinitionAndModel();
                 },
                 [](Brush& brush) {
                     for (auto& face : brush.faces()) {

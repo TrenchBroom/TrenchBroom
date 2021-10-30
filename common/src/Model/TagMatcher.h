@@ -25,6 +25,7 @@
 
 #include <kdl/vector_set.h>
 
+#include <iosfwd>
 #include <functional>
 #include <memory>
 #include <string>
@@ -74,6 +75,7 @@ namespace TrenchBroom {
         public:
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;
+            void appendToStream(std::ostream& str) const override;
         private:
             virtual bool matchesTexture(const Assets::Texture* texture) const = 0;
         };
@@ -85,6 +87,7 @@ namespace TrenchBroom {
             explicit TextureNameTagMatcher(const std::string& pattern);
             std::unique_ptr<TagMatcher> clone() const override;
             bool matches(const Taggable& taggable) const override;
+            void appendToStream(std::ostream& str) const override;
         private:
             bool matchesTexture(const Assets::Texture* texture) const override;
             bool matchesTextureName(std::string_view textureName) const;
@@ -98,6 +101,7 @@ namespace TrenchBroom {
             explicit SurfaceParmTagMatcher(const kdl::vector_set<std::string>& parameters);
             std::unique_ptr<TagMatcher> clone() const override;
             bool matches(const Taggable& taggable) const override;
+            void appendToStream(std::ostream& str) const override;
         private:
             bool matchesTexture(const Assets::Texture* texture) const override;
         };
@@ -121,6 +125,7 @@ namespace TrenchBroom {
             void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;
             bool canDisable() const override;
+            void appendToStream(std::ostream& str) const override;
         };
 
         class ContentFlagsTagMatcher : public FlagsTagMatcher {
@@ -151,6 +156,7 @@ namespace TrenchBroom {
             void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;
             bool canDisable() const override;
+            void appendToStream(std::ostream& str) const override;
         private:
             bool matchesClassname(const std::string& classname) const;
         };

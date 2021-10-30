@@ -37,6 +37,7 @@ namespace TrenchBroom {
     namespace Model {
         class EditorContext;
         class EntityNodeBase;
+        struct EntityPropertyConfig;
         class ConstNodeVisitor;
         class Issue;
         class IssueGenerator;
@@ -439,6 +440,8 @@ namespace TrenchBroom {
             void visitChildren(const L& lambda) const {
                 visitAll(m_children, lambda);
             }
+        public: // entity property configuration access
+            const EntityPropertyConfig& entityPropertyConfig() const;
         protected: // index management
             void findEntityNodesWithProperty(const std::string& key, const std::string& value, std::vector<EntityNodeBase*>& result) const;
             void findEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const;
@@ -494,6 +497,8 @@ namespace TrenchBroom {
 
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
+
+            virtual const EntityPropertyConfig& doGetEntityPropertyConfig() const;
 
             virtual void doFindEntityNodesWithProperty(const std::string& key, const std::string& value, std::vector<EntityNodeBase*>& result) const;
             virtual void doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const;

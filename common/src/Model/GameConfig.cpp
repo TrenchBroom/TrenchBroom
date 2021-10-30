@@ -22,20 +22,20 @@
 #include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 
+#include <kdl/opt_utils.h>
+#include <kdl/overload.h>
 #include <kdl/string_utils.h>
 
+#include <vecmath/bbox_io.h>
+#include <vecmath/vec_io.h>
+
 #include <cassert>
+#include <ostream>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        MapFormatConfig::MapFormatConfig(const std::string& i_format, const IO::Path& i_initialMap) :
-        format(i_format),
-        initialMap(i_initialMap) {}
-
-        MapFormatConfig::MapFormatConfig() = default;
-
         bool operator==(const MapFormatConfig& lhs, const MapFormatConfig& rhs) {
             return lhs.format == rhs.format && lhs.initialMap == rhs.initialMap;
         }
@@ -44,15 +44,12 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        PackageFormatConfig::PackageFormatConfig(const std::string& i_extension, const std::string& i_format) :
-        extensions(1, i_extension),
-        format(i_format) {}
-
-        PackageFormatConfig::PackageFormatConfig(const std::vector<std::string>& i_extensions, const std::string& i_format) :
-        extensions(i_extensions),
-        format(i_format) {}
-
-        PackageFormatConfig::PackageFormatConfig() = default;
+        std::ostream& operator<<(std::ostream& str, const MapFormatConfig& config) {
+            str << "MapFormatConfig{"
+                << "format: " << config.format << ", "
+                << "initialMap: " << config.initialMap << "}";
+            return str;
+        }
 
         bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs) {
             return lhs.extensions == rhs.extensions && lhs.format == rhs.format;
@@ -62,11 +59,12 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :
-        searchPath(i_searchPath),
-        packageFormat(i_packageFormat) {}
-
-        FileSystemConfig::FileSystemConfig() = default;
+        std::ostream& operator<<(std::ostream& str, const PackageFormatConfig& config) {
+            str << "PackageFormatConfig{"
+                << "extensions: [" << kdl::str_join(config.extensions) << "], "
+                << "format: " << config.format << "}";
+            return str;
+        }
 
         bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs) {
             return lhs.searchPath == rhs.searchPath && lhs.packageFormat == rhs.packageFormat;
@@ -76,36 +74,56 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        TexturePackageConfig::TexturePackageConfig(const PackageFormatConfig& i_fileFormat) :
-        type(PT_File),
-        fileFormat(i_fileFormat) {}
-
-        TexturePackageConfig::TexturePackageConfig(const IO::Path& i_rootDirectory) :
-        type(PT_Directory),
-        rootDirectory(i_rootDirectory) {}
-
-        TexturePackageConfig::TexturePackageConfig() :
-        type(PT_Unset) {}
-
-        bool operator==(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs) {
-            return lhs.type == rhs.type &&
-                   lhs.fileFormat == rhs.fileFormat &&
-                   lhs.rootDirectory == rhs.rootDirectory;
+        std::ostream& operator<<(std::ostream& str, const FileSystemConfig& config) {
+            str << "FileSystemConfig{"
+                << "searchPath: " << config.searchPath << ", "
+                << "packageFormat: " << config.packageFormat << "}";
+            return str;
+        }
+        
+        bool operator==(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs) {
+            return lhs.fileFormat == rhs.fileFormat;
         }
 
-        bool operator!=(const TexturePackageConfig& lhs, const TexturePackageConfig& rhs) {
+        bool operator!=(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs) {
             return !(lhs == rhs);
         }
 
-        TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const std::string& i_property, const IO::Path& i_shaderSearchPath, const std::vector<std::string>& i_excludes) :
-            package(i_package),
-            format(i_format),
-            palette(i_palette),
-            property(i_property),
-            shaderSearchPath(i_shaderSearchPath),
-            excludes(i_excludes) {}
+        std::ostream& operator<<(std::ostream& str, const TextureFilePackageConfig& config) {
+            str << "TextureFilePackageConfig{"
+                << "fileFormat: " << config.fileFormat << "}";
+            return str;
+        }
 
-        TextureConfig::TextureConfig() = default;
+        bool operator==(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs) {
+            return lhs.rootDirectory == rhs.rootDirectory;
+        }
+
+        bool operator!=(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs) {
+            return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const TextureDirectoryPackageConfig& config) {
+            str << "TextureDirectoryPackageConfig{"
+                << "rootDirectory: " << config.rootDirectory << "}";
+            return str;
+        }
+
+        std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config) {
+            std::visit([&](const auto& c) { str << c; }, config);
+            return str;
+        }
+
+        IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig) {
+            return std::visit(kdl::overload(
+                [](const TextureFilePackageConfig&) {
+                    return IO::Path{};
+                },
+                [](const TextureDirectoryPackageConfig& directoryConfig) {
+                    return directoryConfig.rootDirectory;
+                }
+            ), texturePackageConfig);
+        }
 
         bool operator==(const TextureConfig& lhs, const TextureConfig& rhs) {
             return lhs.package == rhs.package &&
@@ -120,35 +138,36 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
-        modelFormats(i_modelFormats),
-        defaultColor(i_defaultColor) {
-            defFilePaths.push_back(i_defFilePath);
+        std::ostream& operator<<(std::ostream& str, const TextureConfig& config) {
+            str << "TextureConfig{"
+                << "package: " << config.package << ", "
+                << "format: " << config.format << ", "
+                << "palette: " << config.palette << ", "
+                << "property: " << config.property << ", "
+                << "shaderSearchPath: " << config.shaderSearchPath << ", "
+                << "excludes: [" << kdl::str_join(config.excludes) << "]}";
+            return str;
         }
-
-        EntityConfig::EntityConfig(const std::vector<IO::Path>& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
-        defFilePaths(i_defFilePaths),
-        modelFormats(i_modelFormats),
-        defaultColor(i_defaultColor) {}
-
-        EntityConfig::EntityConfig() = default;
 
         bool operator==(const EntityConfig& lhs, const EntityConfig& rhs) {
             return lhs.defFilePaths == rhs.defFilePaths &&
                    lhs.modelFormats == rhs.modelFormats &&
-                   lhs.defaultColor == rhs.defaultColor;
+                   lhs.defaultColor == rhs.defaultColor &&
+                   lhs.scaleExpression == rhs.scaleExpression;
         }
 
         bool operator!=(const EntityConfig& lhs, const EntityConfig& rhs) {
             return !(lhs == rhs);
         }
 
-        FlagConfig::FlagConfig(const std::string& i_name, const std::string& i_description, const int i_value) :
-        name(i_name),
-        description(i_description),
-        value(i_value) {}
-
-        FlagConfig::FlagConfig() = default;
+        std::ostream& operator<<(std::ostream& str, const EntityConfig& config) {
+            str << "EntityConfig{"
+                << "defFilePaths: [" << kdl::str_join(config.defFilePaths) << "], "
+                << "modelFormats: [" << kdl::str_join(config.modelFormats) << "], "
+                << "defaultColor: " << config.defaultColor << ", "
+                << "scaleExpression: " << kdl::opt_to_string(config.scaleExpression) << "}";
+            return str;
+        }
 
         bool operator==(const FlagConfig& lhs, const FlagConfig& rhs) {
             return lhs.name == rhs.name &&
@@ -160,10 +179,13 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        FlagsConfig::FlagsConfig() = default;
-
-        FlagsConfig::FlagsConfig(const std::vector<FlagConfig>& i_flags) :
-        flags(i_flags) {}
+        std::ostream& operator<<(std::ostream& str, const FlagConfig& config) {
+            str << "FlagConfig{"
+                << "name: " << config.name << ", "
+                << "description: " << config.description << ", "
+                << "value: " << config.value << "}";
+            return str;
+        }
 
         int FlagsConfig::flagValue(const std::string& flagName) const {
             for (size_t i = 0; i < flags.size(); ++i) {
@@ -201,18 +223,11 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        FaceAttribsConfig::FaceAttribsConfig() :
-        defaults(BrushFaceAttributes::NoTextureName) {}
-
-        FaceAttribsConfig::FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags, const BrushFaceAttributes& i_defaults) :
-        surfaceFlags(i_surfaceFlags),
-        contentFlags(i_contentFlags),
-        defaults(i_defaults) {}
-
-        FaceAttribsConfig::FaceAttribsConfig(const FlagsConfig& i_surfaceFlags, const FlagsConfig& i_contentFlags, const BrushFaceAttributes& i_defaults) :
-        surfaceFlags(i_surfaceFlags),
-        contentFlags(i_contentFlags),
-        defaults(i_defaults) {}
+        std::ostream& operator<<(std::ostream& str, const FlagsConfig& config) {
+            str << "FlagsConfig{"
+                << "flags: [" << kdl::str_join(config.flags) << "]}";
+            return str;
+        }
 
         bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs) {
             return lhs.surfaceFlags == rhs.surfaceFlags &&
@@ -224,6 +239,14 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
+        std::ostream& operator<<(std::ostream& str, const FaceAttribsConfig& config) {
+            str << "FaceAttribsConfig{"
+                << "surfaceFlags: " << config.surfaceFlags << ", "
+                << "contentFlags: " << config.contentFlags << ", "
+                << "defaults: " << config.defaults << "}";
+            return str;
+        }
+
         bool operator==(const CompilationTool& lhs, const CompilationTool& rhs) {
             return lhs.name == rhs.name && 
                    lhs.description == rhs.description;
@@ -233,129 +256,15 @@ namespace TrenchBroom {
             return !(lhs == rhs);
         }
 
-        GameConfig::GameConfig() :
-        m_experimental(false),
-        m_maxPropertyLength(1023),
-        m_compilationConfigParseFailed(false),
-        m_gameEngineConfigParseFailed(false) {}
-
-        GameConfig::GameConfig(std::string name,
-                               IO::Path path,
-                               IO::Path icon,
-                               const bool experimental,
-                               std::vector<MapFormatConfig> fileFormats,
-                               FileSystemConfig fileSystemConfig,
-                               TextureConfig textureConfig,
-                               EntityConfig entityConfig,
-                               FaceAttribsConfig faceAttribsConfig,
-                               std::vector<SmartTag> smartTags,
-                               std::optional<vm::bbox3> softMapBounds,
-                               std::vector<CompilationTool> compilationTools) :
-        m_name(std::move(name)),
-        m_path(std::move(path)),
-        m_icon(std::move(icon)),
-        m_experimental(experimental),
-        m_fileFormats(std::move(fileFormats)),
-        m_fileSystemConfig(std::move(fileSystemConfig)),
-        m_textureConfig(std::move(textureConfig)),
-        m_entityConfig(std::move(entityConfig)),
-        m_faceAttribsConfig(std::move(faceAttribsConfig)),
-        m_smartTags(std::move(smartTags)),
-        m_maxPropertyLength(1023),
-        m_softMapBounds(std::move(softMapBounds)),
-        m_compilationConfigParseFailed(false),
-        m_gameEngineConfigParseFailed(false),
-        m_compilationTools(std::move(compilationTools)) {
-            assert(!kdl::str_trim(m_name).empty());
-            assert(m_path.isEmpty() || m_path.isAbsolute());
-        }
-
-        const std::string& GameConfig::name() const {
-            return m_name;
-        }
-
-        const IO::Path& GameConfig::path() const {
-            return m_path;
-        }
-
-        const IO::Path& GameConfig::icon() const {
-            return m_icon;
-        }
-
-        bool GameConfig::experimental() const {
-            return m_experimental;
-        }
-
-        const std::vector<MapFormatConfig>& GameConfig::fileFormats() const {
-            return m_fileFormats;
-        }
-
-        const FileSystemConfig& GameConfig::fileSystemConfig() const {
-            return m_fileSystemConfig;
-        }
-
-        const TextureConfig& GameConfig::textureConfig() const {
-            return m_textureConfig;
-        }
-
-        const EntityConfig& GameConfig::entityConfig() const {
-            return m_entityConfig;
-        }
-
-        const FaceAttribsConfig& GameConfig::faceAttribsConfig() const {
-            return m_faceAttribsConfig;
-        }
-
-        const std::vector<SmartTag>& GameConfig::smartTags() const {
-            return m_smartTags;
-        }
-
-        const std::optional<vm::bbox3>& GameConfig::softMapBounds() const {
-            return m_softMapBounds;
-        }
-
-        const std::vector<CompilationTool>& GameConfig::compilationTools() const {
-            return m_compilationTools;
-        }
-
-        const CompilationConfig& GameConfig::compilationConfig() const {
-            return m_compilationConfig;
-        }
-
-        void GameConfig::setCompilationConfig(const CompilationConfig& compilationConfig) {
-            m_compilationConfig = compilationConfig;
-        }
-
-        bool GameConfig::compilationConfigParseFailed() const {
-            return m_compilationConfigParseFailed;
-        }
-
-        void GameConfig::setCompilationConfigParseFailed(const bool failed) const {
-            m_compilationConfigParseFailed = failed;
-        }
-
-        const GameEngineConfig& GameConfig::gameEngineConfig() const {
-            return m_gameEngineConfig;
-        }
-
-        void GameConfig::setGameEngineConfig(const GameEngineConfig& gameEngineConfig) {
-            m_gameEngineConfig = gameEngineConfig;
-        }
-
-        bool GameConfig::gameEngineConfigParseFailed() const {
-            return m_gameEngineConfigParseFailed;
-        }
-
-        void GameConfig::setGameEngineConfigParseFailed(const bool failed) const {
-            m_gameEngineConfigParseFailed = failed;
-        }
-
-        size_t GameConfig::maxPropertyLength() const {
-            return m_maxPropertyLength;
+        std::ostream& operator<<(std::ostream& str, const CompilationTool& tool) {
+            str << "CompilationTool{"
+                << "name: " << tool.name << ", "
+                << "description: " << tool.description.value_or("") << "}";
+            return str;
         }
 
         IO::Path GameConfig::findInitialMap(const std::string& formatName) const {
-            for (const auto& format : m_fileFormats) {
+            for (const auto& format : fileFormats) {
                 if (format.format == formatName) {
                     if (!format.initialMap.isEmpty()) {
                         return findConfigFile(format.initialMap);
@@ -368,31 +277,51 @@ namespace TrenchBroom {
         }
 
         IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {
-            return path().deleteLastComponent() + filePath;
+            return path.deleteLastComponent() + filePath;
         }
 
         bool operator==(const GameConfig& lhs, const GameConfig& rhs) {
-            return lhs.m_name == rhs.m_name &&
-                   lhs.m_path == rhs.m_path &&
-                   lhs.m_icon == rhs.m_icon &&
-                   lhs.m_experimental == rhs.m_experimental &&
-                   lhs.m_fileFormats == rhs.m_fileFormats &&
-                   lhs.m_fileSystemConfig == rhs.m_fileSystemConfig &&
-                   lhs.m_textureConfig == rhs.m_textureConfig &&
-                   lhs.m_entityConfig == rhs.m_entityConfig &&
-                   lhs.m_faceAttribsConfig == rhs.m_faceAttribsConfig &&
-                   lhs.m_smartTags == rhs.m_smartTags &&
-                   lhs.m_compilationConfig == rhs.m_compilationConfig &&
-                   lhs.m_gameEngineConfig == rhs.m_gameEngineConfig &&
-                   lhs.m_maxPropertyLength == rhs.m_maxPropertyLength &&
-                   lhs.m_softMapBounds == rhs.m_softMapBounds &&
-                   lhs.m_compilationConfigParseFailed == rhs.m_compilationConfigParseFailed &&
-                   lhs.m_gameEngineConfigParseFailed == rhs.m_gameEngineConfigParseFailed &&
-                   lhs.m_compilationTools == rhs.m_compilationTools;
+            return lhs.name == rhs.name &&
+                   lhs.path == rhs.path &&
+                   lhs.icon == rhs.icon &&
+                   lhs.experimental == rhs.experimental &&
+                   lhs.fileFormats == rhs.fileFormats &&
+                   lhs.fileSystemConfig == rhs.fileSystemConfig &&
+                   lhs.textureConfig == rhs.textureConfig &&
+                   lhs.entityConfig == rhs.entityConfig &&
+                   lhs.faceAttribsConfig == rhs.faceAttribsConfig &&
+                   lhs.smartTags == rhs.smartTags &&
+                   lhs.compilationConfig == rhs.compilationConfig &&
+                   lhs.gameEngineConfig == rhs.gameEngineConfig &&
+                   lhs.maxPropertyLength == rhs.maxPropertyLength &&
+                   lhs.softMapBounds == rhs.softMapBounds &&
+                   lhs.compilationConfigParseFailed == rhs.compilationConfigParseFailed &&
+                   lhs.gameEngineConfigParseFailed == rhs.gameEngineConfigParseFailed &&
+                   lhs.compilationTools == rhs.compilationTools;
         }
 
         bool operator!=(const GameConfig& lhs, const GameConfig& rhs) {
             return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const GameConfig& config) {
+            str << "GameConfig{\n"
+                << "  name: " << config.name << ",\n"
+                << "  path: " << config.path << ",\n"
+                << "  icon: " << config.icon << ",\n"
+                << "  experimental: " << config.experimental << ",\n"
+                << "  fileFormats: [" << kdl::str_join(config.fileFormats) << "],\n"
+                << "  fileSystemConfig: " << config.fileSystemConfig << ",\n"
+                << "  textureConfig: " << config.textureConfig << ",\n"
+                << "  entityConfig: " << config.entityConfig << ",\n"
+                << "  faceAttribsConfig: " << config.faceAttribsConfig << ",\n"
+                << "  smartTags: [" << kdl::str_join(config.smartTags) << "],\n"
+                << "  compilationConfig: " << config.compilationConfig << ",\n"
+                << "  gameEngineConfig: " << config.gameEngineConfig << ",\n"
+                << "  maxPropertyLength: " << config.maxPropertyLength << ",\n"
+                << "  softMapBounds: " << kdl::opt_to_string(config.softMapBounds) << ",\n"
+                << "  compilationTools: [" << kdl::str_join(config.compilationTools) << "]}\n";
+            return str;
         }
     }
 }

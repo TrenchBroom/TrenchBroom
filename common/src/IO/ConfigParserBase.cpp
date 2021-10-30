@@ -58,8 +58,10 @@ namespace TrenchBroom {
             // Are all mandatory keys present?
             for (const auto& key : mandatory.keys()) {
                 const auto typeName = mandatory[key].stringValue();
-                const auto type = EL::typeForName(typeName);
-                expectMapEntry(value, key, type);
+                if (typeName != "*") {
+                    const auto type = EL::typeForName(typeName);
+                    expectMapEntry(value, key, type);
+                }
             }
         }
 

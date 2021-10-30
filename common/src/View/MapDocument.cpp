@@ -1346,9 +1346,10 @@ namespace TrenchBroom {
         Model::EntityNode* MapDocument::createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) {
             ensure(definition != nullptr, "definition is null");
 
-            auto* entityNode = new Model::EntityNode(Model::Entity({
-                {Model::PropertyKeys::Classname, definition->name()}
-            }));
+            auto* entityNode = new Model::EntityNode{Model::Entity{
+                m_world->entityPropertyConfig(),
+                {{Model::EntityPropertyKeys::Classname, definition->name()}}
+            }};
 
             std::stringstream name;
             name << "Create " << definition->name();
@@ -1368,7 +1369,7 @@ namespace TrenchBroom {
             const auto brushes = selectedNodes().brushes();
             assert(!brushes.empty());
 
-            auto entity = Model::Entity();
+            auto entity = Model::Entity{};
 
             // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
             auto* entityTemplate = brushes.front()->entity();
@@ -1385,7 +1386,7 @@ namespace TrenchBroom {
                 }
             }
 
-            entity.addOrUpdateProperty(Model::PropertyKeys::Classname, definition->name());
+            entity.addOrUpdateProperty(m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Classname, definition->name());
             auto* entityNode = new Model::EntityNode(std::move(entity));
 
             std::stringstream name;
@@ -2057,7 +2058,7 @@ namespace TrenchBroom {
                     },
                     [&](Model::EntityNode* entityNode) -> TransformResult {
                         auto entity = entityNode->entity();
-                        entity.transform(transformation);
+                        entity.transform(m_world->entityPropertyConfig(), transformation);
                         return std::make_pair(entityNode, Model::NodeContents{std::move(entity)});
                     },
                     [&](Model::BrushNode* brushNode) -> TransformResult {
@@ -2362,7 +2363,7 @@ namespace TrenchBroom {
             return applyAndSwap(*this, "Set Property", entityNodes, findContainingLinkedGroupsToUpdate(*m_world, entityNodes), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.addOrUpdateProperty(key, value, defaultToProtected); return true; },
+                [&](Model::Entity& entity) { entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, value, defaultToProtected); return true; },
                 [] (Model::Brush&)         { return true; },
                 [] (Model::BezierPatch&)   { return true; }
             ));
@@ -2373,7 +2374,7 @@ namespace TrenchBroom {
             return applyAndSwap(*this, "Rename Property", entityNodes, findContainingLinkedGroupsToUpdate(*m_world, entityNodes), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.renameProperty(oldKey, newKey); return true; },
+                [&](Model::Entity& entity) { entity.renameProperty(m_world->entityPropertyConfig(), oldKey, newKey); return true; },
                 [] (Model::Brush&)         { return true; },
                 [] (Model::BezierPatch&)   { return true; }
             ));
@@ -2384,7 +2385,7 @@ namespace TrenchBroom {
             return applyAndSwap(*this, "Remove Property", entityNodes, findContainingLinkedGroupsToUpdate(*m_world, entityNodes), kdl::overload(
                 [] (Model::Layer&)         { return true; },
                 [] (Model::Group&)         { return true; },
-                [&](Model::Entity& entity) { entity.removeProperty(key); return true; },
+                [&](Model::Entity& entity) { entity.removeProperty(m_world->entityPropertyConfig(), key); return true; },
                 [] (Model::Brush&)         { return true; },
                 [] (Model::BezierPatch&)   { return true; }
             ));
@@ -2397,7 +2398,7 @@ namespace TrenchBroom {
                 [] (Model::Group&) { return true; },
                 [&](Model::Entity& entity) {
                     if (const auto* oldValue = entity.property(key)) {
-                        entity.addOrUpdateProperty(key, Model::convertEntityColor(*oldValue, range));
+                        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, Model::convertEntityColor(*oldValue, range));
                     }
                     return true;
                 },
@@ -2417,7 +2418,7 @@ namespace TrenchBroom {
                     const int flagValue = (1 << flagIndex);
 
                     intValue = setFlag ? intValue | flagValue : intValue & ~flagValue;
-                    entity.addOrUpdateProperty(key, kdl::str_to_string(intValue));
+                    entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, kdl::str_to_string(intValue));
                     
                     return true;
                 },
@@ -2472,7 +2473,7 @@ namespace TrenchBroom {
                     protectedProperties.push_back(key);
                 } else if (!value && kdl::vec_contains(protectedProperties, key)) {
                     if (const auto newValue = findUnprotectedPropertyValue(key, *entityNode, *m_world.get())) {
-                        entity.addOrUpdateProperty(key, *newValue);
+                        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, *newValue);
                     }
 
                     protectedProperties = kdl::vec_erase(std::move(protectedProperties), key);
@@ -2509,7 +2510,7 @@ namespace TrenchBroom {
                 auto entity = entityNode->entity();
                 for (const auto& key : entity.protectedProperties()) {
                     if (const auto newValue = findUnprotectedPropertyValue(key, pathFromContainingLinkedGroup, linkedGroups)) {
-                        entity.addOrUpdateProperty(key, *newValue);
+                        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, *newValue);
                     }
                 }
 
@@ -3013,7 +3014,7 @@ namespace TrenchBroom {
             const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
             auto entity = m_world->entity();
-            entity.addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, formatted);
+            entity.addOrUpdateProperty(m_world->entityPropertyConfig(), Model::EntityPropertyKeys::EntityDefinitions, formatted);
             swapNodeContents("Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}}, {});
         }
 
@@ -3319,10 +3320,10 @@ namespace TrenchBroom {
         void MapDocument::setMods(const std::vector<std::string>& mods) {
             auto entity = m_world->entity();
             if (mods.empty()) {
-                entity.removeProperty(Model::PropertyKeys::Mods);
+                entity.removeProperty(m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Mods);
             } else {
                 const std::string newValue = kdl::str_join(mods, ";");
-                entity.addOrUpdateProperty(Model::PropertyKeys::Mods, newValue);
+                entity.addOrUpdateProperty(m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Mods, newValue);
             }
             swapNodeContents("Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}}, {});
         }
@@ -3339,16 +3340,16 @@ namespace TrenchBroom {
             switch (bounds.source) {
                 case Model::Game::SoftMapBoundsType::Map:
                     if (!bounds.bounds.has_value()) {
-                        // Set the worldspawn key PropertyKeys::SoftMaxMapSize's value to the empty string
+                        // Set the worldspawn key EntityPropertyKeys::SoftMaxMapSize's value to the empty string
                         // to indicate that we are overriding the Game's bounds with unlimited.
-                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds, Model::PropertyValues::NoSoftMapBounds);
+                        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds, Model::EntityPropertyValues::NoSoftMapBounds);
                     } else {
-                        entity.addOrUpdateProperty(Model::PropertyKeys::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
+                        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
                     }
                     break;
                 case Model::Game::SoftMapBoundsType::Game:
                     // Unset the map's setting
-                    entity.removeProperty(Model::PropertyKeys::SoftMapBounds);
+                    entity.removeProperty(m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds);
                     break;
                 switchDefault()
             }

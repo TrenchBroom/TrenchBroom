@@ -18,6 +18,7 @@
  */
 
 #include "Assets/PropertyDefinition.h"
+#include "EL/Expressions.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
@@ -155,11 +156,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("resolveInheritance.mergeSpawnflagsSimpleInheritance", "[resolveInheritance]") {
-            auto a1 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::PropertyKeys::Spawnflags);
+            auto a1 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::EntityPropertyKeys::Spawnflags);
             a1->addOption(1 << 1, "a1_1", "", true);
             a1->addOption(1 << 2, "a1_2", "", false);
             
-            auto a2 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::PropertyKeys::Spawnflags);
+            auto a2 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::EntityPropertyKeys::Spawnflags);
             a2->addOption(1 << 2, "a2_2", "", true);
             a2->addOption(1 << 4, "a2_4", "", false);
         
@@ -182,7 +183,7 @@ namespace TrenchBroom {
             CHECK(propertyDefinition->type() == Assets::PropertyDefinitionType::FlagsProperty);
             
             const auto& flagsPropertyDefinition = static_cast<const Assets::FlagsPropertyDefinition&>(*propertyDefinition.get());
-            CHECK(flagsPropertyDefinition.key() == Model::PropertyKeys::Spawnflags);
+            CHECK(flagsPropertyDefinition.key() == Model::EntityPropertyKeys::Spawnflags);
             
             const auto& options = flagsPropertyDefinition.options();
             CHECK_THAT(options, Catch::Equals(std::vector<Assets::FlagsPropertyOption>({

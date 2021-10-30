@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Assets::PointEntityDefinition* largeEntityDef = new Assets::PointEntityDefinition("large_entity", Color(), vm::bbox3(64.0), "this is a point entity", {}, {});
             document->setEntityDefinitions(std::vector<Assets::EntityDefinition*>{ m_pointEntityDef, largeEntityDef });
 
-            Model::EntityNode* entityNode = new Model::EntityNode({
+            Model::EntityNode* entityNode = new Model::EntityNode({}, {
                 {"classname", "large_entity"}
             });
             
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProperty") {
-            auto* entityNode = new Model::EntityNode{};
+            auto* entityNode = new Model::EntityNode{Model::Entity{}};
             document->addNodes({{document->parentForNodes(), {entityNode}}});
 
             document->select(entityNode);
@@ -110,9 +110,9 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedPropertyRestoresValue") {
-            auto* entityNode = new Model::EntityNode{
+            auto* entityNode = new Model::EntityNode{{}, {
                 {"some_key", "some_value"}
-            };
+            }};
             document->addNodes({{document->parentForNodes(), {entityNode}}});
 
             document->select(entityNode);
@@ -229,10 +229,10 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedProperties") {
-            auto* entityNode = new Model::EntityNode{
+            auto* entityNode = new Model::EntityNode{{}, {
                 {"some_key", "some_value"},
                 {"another_key", "another_value"}
-            };
+            }};
             document->addNodes({{document->parentForNodes(), {entityNode}}});
 
             CHECK_FALSE(document->canClearProtectedProperties());

@@ -86,7 +86,7 @@ namespace TrenchBroom {
             if (iconPath.isEmpty()) {
                 iconPath = IO::Path("DefaultGameIcon.svg");
             }
-            const auto experimental = gameFactory.gameConfig(gameName).experimental();
+            const auto experimental = gameFactory.gameConfig(gameName).experimental;
 
             return Info {
                 gameName,

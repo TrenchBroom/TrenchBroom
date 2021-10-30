@@ -21,7 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
-#include "EL/Expression.h"
+#include "EL/Expressions.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
 #include "IO/ELParser.h"
@@ -150,7 +150,7 @@ namespace TrenchBroom {
         void EntParser::parseSpawnflags(const tinyxml2::XMLElement& element, PropertyDefinitionList& propertyDefinitions, ParserStatus& status) {
             const auto* flagElement = element.FirstChildElement("flag");
             if (flagElement != nullptr) {
-                auto result = std::make_shared<Assets::FlagsPropertyDefinition>(Model::PropertyKeys::Spawnflags);
+                auto result = std::make_shared<Assets::FlagsPropertyDefinition>(Model::EntityPropertyKeys::Spawnflags);
                 do {
                     const auto bit = parseSize(*flagElement, "bit", status);
                     if (!bit.has_value()) {

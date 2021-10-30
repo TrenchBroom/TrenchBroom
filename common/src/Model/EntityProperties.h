@@ -19,13 +19,16 @@
 
 #pragma once
 
+#include "EL/Expression.h"
+
 #include <iosfwd>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        namespace PropertyKeys {
+        namespace EntityPropertyKeys {
             extern const std::string Classname;
             extern const std::string Origin;
             extern const std::string Wad;
@@ -59,7 +62,7 @@ namespace TrenchBroom {
             extern const std::string SoftMapBounds;
         }
 
-        namespace PropertyValues {
+        namespace EntityPropertyValues {
             extern const std::string WorldspawnClassname;
             extern const std::string NoClassname;
             extern const std::string LayerClassname;
@@ -72,6 +75,15 @@ namespace TrenchBroom {
             extern const std::string LayerHiddenValue;
             extern const std::string LayerOmitFromExportValue;
         }
+
+        struct EntityPropertyConfig {
+            std::optional<EL::Expression> defaultModelScaleExpression;
+        };
+
+        bool operator==(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs);
+        bool operator!=(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs);
+
+        std::ostream& operator<<(std::ostream& lhs, const EntityPropertyConfig& rhs);
 
         bool isNumberedProperty(std::string_view prefix, std::string_view key);
 
@@ -111,7 +123,7 @@ namespace TrenchBroom {
         bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties);
         bool isGroup(const std::string& classname, const std::vector<EntityProperty>& properties);
         bool isWorldspawn(const std::string& classname, const std::vector<EntityProperty>& properties);
-        const std::string& findProperty(const std::vector<EntityProperty>& properties, const std::string& key, const std::string& defaultValue = PropertyValues::DefaultValue);
+        const std::string& findProperty(const std::vector<EntityProperty>& properties, const std::string& key, const std::string& defaultValue = EntityPropertyValues::DefaultValue);
 
         class EntityProperties {
         private:

@@ -82,32 +82,33 @@ namespace TrenchBroom {
             // Transfer the color, locked state, and hidden state from the default layer Layer object to worldspawn
             const Model::LayerNode* defaultLayerNode = world.defaultLayer();
             const Model::Layer& defaultLayer = defaultLayerNode->layer();
+            const auto& entityPropertyConfig = world.entityPropertyConfig();
             if (defaultLayer.color()) {
-                worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerColor,
+                worldEntity.addOrUpdateProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerColor,
                     kdl::str_to_string(*defaultLayer.color()));
             } else {
-                worldEntity.removeProperty(Model::PropertyKeys::LayerColor);
+                worldEntity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerColor);
             }
 
             if (defaultLayerNode->lockState() == Model::LockState::Locked) {
-                worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerLocked,
-                    Model::PropertyValues::LayerLockedValue);
+                worldEntity.addOrUpdateProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerLocked,
+                    Model::EntityPropertyValues::LayerLockedValue);
             } else {
-                worldEntity.removeProperty(Model::PropertyKeys::LayerLocked);
+                worldEntity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerLocked);
             }
 
             if (defaultLayerNode->hidden()) {
-                worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerHidden,
-                    Model::PropertyValues::LayerHiddenValue);
+                worldEntity.addOrUpdateProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerHidden,
+                    Model::EntityPropertyValues::LayerHiddenValue);
             } else {
-                worldEntity.removeProperty(Model::PropertyKeys::LayerHidden);
+                worldEntity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerHidden);
             }
 
             if (defaultLayer.omitFromExport()) {
-                worldEntity.addOrUpdateProperty(Model::PropertyKeys::LayerOmitFromExport,
-                    Model::PropertyValues::LayerOmitFromExportValue);
+                worldEntity.addOrUpdateProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport,
+                    Model::EntityPropertyValues::LayerOmitFromExportValue);
             } else {
-                worldEntity.removeProperty(Model::PropertyKeys::LayerOmitFromExport);
+                worldEntity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
             }
 
             if (m_exporting && defaultLayer.omitFromExport()) {
@@ -213,8 +214,8 @@ namespace TrenchBroom {
             auto properties = std::vector<Model::EntityProperty>{};
             node->accept(kdl::overload(
                 [](const Model::WorldNode*) {},
-                [&](const Model::LayerNode* layerNode) { properties.push_back(Model::EntityProperty(Model::PropertyKeys::Layer, kdl::str_to_string(*layerNode->persistentId()))); },
-                [&](const Model::GroupNode* groupNode) { properties.push_back(Model::EntityProperty(Model::PropertyKeys::Group, kdl::str_to_string(*groupNode->persistentId()))); },
+                [&](const Model::LayerNode* layerNode) { properties.push_back(Model::EntityProperty(Model::EntityPropertyKeys::Layer, kdl::str_to_string(*layerNode->persistentId()))); },
+                [&](const Model::GroupNode* groupNode) { properties.push_back(Model::EntityProperty(Model::EntityPropertyKeys::Group, kdl::str_to_string(*groupNode->persistentId()))); },
                 [](const Model::EntityNode*) {},
                 [](const Model::BrushNode*) {},
                 [](const Model::PatchNode*) {}
@@ -225,38 +226,38 @@ namespace TrenchBroom {
 
         std::vector<Model::EntityProperty> NodeSerializer::layerProperties(const Model::LayerNode* layerNode) {
             std::vector<Model::EntityProperty> result = {
-                Model::EntityProperty(Model::PropertyKeys::Classname, Model::PropertyValues::LayerClassname),
-                Model::EntityProperty(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeLayer),
-                Model::EntityProperty(Model::PropertyKeys::LayerName, layerNode->name()),
-                Model::EntityProperty(Model::PropertyKeys::LayerId, kdl::str_to_string(*layerNode->persistentId())),
+                Model::EntityProperty(Model::EntityPropertyKeys::Classname, Model::EntityPropertyValues::LayerClassname),
+                Model::EntityProperty(Model::EntityPropertyKeys::GroupType, Model::EntityPropertyValues::GroupTypeLayer),
+                Model::EntityProperty(Model::EntityPropertyKeys::LayerName, layerNode->name()),
+                Model::EntityProperty(Model::EntityPropertyKeys::LayerId, kdl::str_to_string(*layerNode->persistentId())),
             };
 
             const auto& layer = layerNode->layer();
             if (layer.hasSortIndex()) {
-                result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
+                result.push_back(Model::EntityProperty(Model::EntityPropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
             }
             if (layerNode->lockState() == Model::LockState::Locked) {
-                result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue));
+                result.push_back(Model::EntityProperty(Model::EntityPropertyKeys::LayerLocked, Model::EntityPropertyValues::LayerLockedValue));
             }
             if (layerNode->hidden()) {
-                result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerHidden, Model::PropertyValues::LayerHiddenValue));
+                result.push_back(Model::EntityProperty(Model::EntityPropertyKeys::LayerHidden, Model::EntityPropertyValues::LayerHiddenValue));
             }
             if (layer.omitFromExport()) {
-                result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue));
+                result.push_back(Model::EntityProperty(Model::EntityPropertyKeys::LayerOmitFromExport, Model::EntityPropertyValues::LayerOmitFromExportValue));
             }
             return result;
         }
 
         std::vector<Model::EntityProperty> NodeSerializer::groupProperties(const Model::GroupNode* groupNode) {
             auto result = std::vector<Model::EntityProperty>{
-                Model::EntityProperty(Model::PropertyKeys::Classname, Model::PropertyValues::GroupClassname),
-                Model::EntityProperty(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeGroup),
-                Model::EntityProperty(Model::PropertyKeys::GroupName, groupNode->name()),
-                Model::EntityProperty(Model::PropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())),
+                Model::EntityProperty(Model::EntityPropertyKeys::Classname, Model::EntityPropertyValues::GroupClassname),
+                Model::EntityProperty(Model::EntityPropertyKeys::GroupType, Model::EntityPropertyValues::GroupTypeGroup),
+                Model::EntityProperty(Model::EntityPropertyKeys::GroupName, groupNode->name()),
+                Model::EntityProperty(Model::EntityPropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())),
             };
 
             if (const auto linkedGroupId = groupNode->group().linkedGroupId()) {
-                result.emplace_back(Model::PropertyKeys::LinkedGroupId, kdl::str_to_string(*linkedGroupId));
+                result.emplace_back(Model::EntityPropertyKeys::LinkedGroupId, kdl::str_to_string(*linkedGroupId));
 
                 // write transformation matrix in column major format
                 const auto& transformation = groupNode->group().transformation();
@@ -265,7 +266,7 @@ namespace TrenchBroom {
                     transformation[0][1], transformation[1][1], transformation[2][1], transformation[3][1],  // row 1
                     transformation[0][2], transformation[1][2], transformation[2][2], transformation[3][2],  // row 2
                     transformation[0][3], transformation[1][3], transformation[2][3], transformation[3][3]); // row 3
-                result.emplace_back(Model::PropertyKeys::GroupTransformation, transformationStr);
+                result.emplace_back(Model::EntityPropertyKeys::GroupTransformation, transformationStr);
             }
 
             return result;

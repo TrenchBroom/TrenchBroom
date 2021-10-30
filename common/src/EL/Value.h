@@ -19,12 +19,15 @@
 
 #pragma once
 
+#include "EL/Expression.h"
 #include "EL/Types.h"
 
 // FIXME: try to remove some of these headers
 #include <iosfwd>
-#include <variant>
+#include <memory>
+#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -45,56 +48,36 @@ namespace TrenchBroom {
         
         class Value {
         private:
-            std::variant<BooleanType, StringType, NumberType, ArrayType, MapType, RangeType, NullType, UndefinedType> m_value;
-            size_t m_line;
-            size_t m_column;
-        private:
-            template <typename T>
-            static ArrayType makeArray(const std::vector<T>& values, const size_t line, const size_t column) {
-                ArrayType result;
-                result.reserve(values.size());
-                for (const auto& value : values) {
-                    result.emplace_back(value, line, column);
-                }
-                return result;
-            }
+            using VariantType = std::variant<BooleanType, StringType, NumberType, ArrayType, MapType, RangeType, NullType, UndefinedType>;
+            std::shared_ptr<VariantType> m_value;
+            std::optional<Expression> m_expression;
         public:
             static const Value Null;
             static const Value Undefined;
             
             Value();
         
-            explicit Value(BooleanType value, size_t line = 0u, size_t column = 0u);
-            explicit Value(StringType value, size_t line = 0u, size_t column = 0u);
-            explicit Value(const char* value, size_t line = 0u, size_t column = 0u);
-            explicit Value(NumberType value, size_t line = 0u, size_t column = 0u);
-            explicit Value(int value, size_t line = 0u, size_t column = 0u);
-            explicit Value(long value, size_t line = 0u, size_t column = 0u);
-            explicit Value(size_t value, size_t line = 0u, size_t column = 0u);
-            explicit Value(ArrayType value, size_t line = 0u, size_t column = 0u);
-            explicit Value(MapType value, size_t line = 0u, size_t column = 0u);
-            explicit Value(RangeType value, size_t line = 0u, size_t column = 0u);
-            explicit Value(NullType value, size_t line = 0u, size_t column = 0u);
-            explicit Value(UndefinedType value, size_t line = 0u, size_t column = 0u);
+            explicit Value(BooleanType value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(StringType value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(const char* value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(NumberType value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(int value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(long value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(size_t value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(ArrayType value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(MapType value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(RangeType value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(NullType value, std::optional<Expression> expression = std::nullopt);
+            explicit Value(UndefinedType value, std::optional<Expression> expression = std::nullopt);
         
-            template <typename T>
-            explicit Value(const std::vector<T>& value, const size_t line = 0u, const size_t column = 0u) :
-            m_value(makeArray(value, line, column)),
-            m_line(line),
-            m_column(column) {}
-            
-            Value(Value value, size_t line, size_t column);
+            Value(Value value, std::optional<Expression> expression);
 
-            Value(const Value&) = default;
-            Value(Value&&) = default;
-            
-            Value& operator=(const Value&) = default;
-            Value& operator=(Value&&) = default;
-        
             ValueType type() const;
             std::string typeName() const;
             std::string describe() const;
             
+            const std::optional<Expression>& expression() const;
+
             size_t line() const;
             size_t column() const;
 
@@ -106,9 +89,6 @@ namespace TrenchBroom {
             const MapType& mapValue() const;
             const RangeType& rangeValue() const;
 
-            bool null() const;
-            bool undefined() const;
-            
             const std::vector<std::string> asStringList() const;
             const std::vector<std::string> asStringSet() const;
 
@@ -130,39 +110,10 @@ namespace TrenchBroom {
             Value operator[](const std::string& key) const;
             Value operator[](const char* key) const;
 
-            operator bool() const;
+            friend bool operator==(const Value& lhs, const Value& rhs);
+            friend bool operator!=(const Value& lhs, const Value& rhs);
+
+            friend std::ostream& operator<<(std::ostream& lhs, const Value& rhs);
         };
-        
-        std::ostream& operator<<(std::ostream& stream, const Value& value);
-
-        Value operator+(const Value& v);
-        Value operator-(const Value& v);
-
-        Value operator+(const Value& lhs, const Value& rhs);
-        Value operator-(const Value& lhs, const Value& rhs);
-        Value operator*(const Value& lhs, const Value& rhs);
-        Value operator/(const Value& lhs, const Value& rhs);
-        Value operator%(const Value& lhs, const Value& rhs);
-
-        Value operator!(const Value& v);
-
-        bool operator==(const Value& lhs, const Value& rhs);
-        bool operator!=(const Value& lhs, const Value& rhs);
-        bool operator<(const Value& lhs, const Value& rhs);
-        bool operator<=(const Value& lhs, const Value& rhs);
-        bool operator>(const Value& lhs, const Value& rhs);
-        bool operator>=(const Value& lhs, const Value& rhs);
-
-        int compare(const Value& lhs, const Value& rhs);
-        int compareAsBooleans(const Value& lhs, const Value& rhs);
-        int compareAsNumbers(const Value& lhs, const Value& rhs);
-
-        Value operator~(const Value& v);
-
-        Value operator&(const Value& lhs, const Value& rhs);
-        Value operator|(const Value& lhs, const Value& rhs);
-        Value operator^(const Value& lhs, const Value& rhs);
-        Value operator<<(const Value& lhs, const Value& rhs);
-        Value operator>>(const Value& lhs, const Value& rhs);
     }
 }
