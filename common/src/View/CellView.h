@@ -66,11 +66,10 @@ namespace TrenchBroom {
              */
             template <class L>
             void scrollToCell(L&& visitor) {
-                for (size_t i = 0; i < m_layout.size(); ++i) {
-                    const Group& group = m_layout[i];
-                    for (size_t j = 0; j < group.size(); ++j) {
-                        const Row& row = group[j];
-                        for (const Cell& cell : row.cells()) {
+
+                for (const LayoutGroup& group : m_layout.groups()) {
+                    for (const LayoutRow& row : group.rows()) {
+                        for (const LayoutCell& cell : row.cells()) {
                             const bool foundCell = visitor(cell);
                             if (foundCell) {
                                 scrollToCellInternal(cell);

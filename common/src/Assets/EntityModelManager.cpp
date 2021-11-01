@@ -82,7 +82,7 @@ namespace TrenchBroom {
 
             auto renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
             if (renderer != nullptr) {
-                const auto [pos, success] = m_renderers.insert({ spec, std::move(renderer) });
+                const auto [pos, success] = m_renderers.emplace(spec, std::move(renderer));
                 assert(success); unused(success);
 
                 auto* result = pos->second.get();
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             }
 
             try {
-                const auto [pos, success] = m_models.insert({ path, loadModel(path) });
+                const auto [pos, success] = m_models.emplace(path, loadModel(path));
                 assert(success); unused(success);
 
                 auto* model = pos->second.get();

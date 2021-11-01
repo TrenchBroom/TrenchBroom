@@ -22,7 +22,7 @@
 #include "Color.h"
 #include "Renderer/Renderable.h"
 
-#include <map>
+#include <unordered_map>
 
 namespace TrenchBroom {
     class Logger;
@@ -38,18 +38,17 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class RenderBatch;
+        class ShaderConfig;
         class TexturedRenderer;
 
         class EntityModelRenderer : public DirectRenderable {
         private:
-            using EntityMap = std::map<Model::EntityNode*, TexturedRenderer*>;
-
             Logger& m_logger;
 
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
 
-            EntityMap m_entities;
+            std::unordered_map<const Model::EntityNode*, TexturedRenderer*> m_entities;
 
             bool m_applyTinting;
             Color m_tintColor;
@@ -81,8 +80,8 @@ namespace TrenchBroom {
                 }
             }
 
-            void addEntity(Model::EntityNode* entityNode);
-            void updateEntity(Model::EntityNode* entityNode);
+            void addEntity(const Model::EntityNode* entityNode);
+            void updateEntity(const Model::EntityNode* entityNode);
             void clear();
 
             bool applyTinting() const;

@@ -36,6 +36,10 @@ namespace TrenchBroom {
             Transformation(const vm::mat4x4f& projection, const vm::mat4x4f& view, const vm::mat4x4f& model = vm::mat4x4f::identity());
             ~Transformation();
 
+            const vm::mat4x4f& projectionMatrix() const;
+            const vm::mat4x4f& viewMatrix() const;
+            const vm::mat4x4f& modelMatrix() const;
+
             Transformation slice() const;
 
             void pushTransformation(const vm::mat4x4f& projection, const vm::mat4x4f& view, const vm::mat4x4f& model = vm::mat4x4f::identity());

@@ -39,6 +39,7 @@
 #include "IO/FileMatcher.h"
 #include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
+#include "IO/ImageSpriteParser.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
 #include "IO/Md3Parser.h"
@@ -49,6 +50,7 @@
 #include "IO/ObjSerializer.h"
 #include "IO/WorldReader.h"
 #include "IO/SimpleParserStatus.h"
+#include "IO/SprParser.h"
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
 #include "Model/BrushBuilder.h"
@@ -440,6 +442,10 @@ namespace TrenchBroom {
             }
         }
 
+        static bool isModelFormat(const std::string& candidate, const std::string& extension, const std::vector<std::string>& supported) {
+            return candidate == extension && kdl::vec_contains(supported, candidate);
+        }
+
         std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(const IO::Path& path, Logger& logger) const {
             try {
                 auto file = m_fs.openFile(path);
@@ -449,41 +455,49 @@ namespace TrenchBroom {
                 const auto extension = kdl::str_to_lower(path.extension());
                 const auto supported = m_config.entityConfig.modelFormats;
 
-                if (extension == "mdl" && kdl::vec_contains(supported, "mdl")) {
+                if (isModelFormat("mdl", extension, supported)) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::MdlParser parser(modelName, std::begin(reader), std::end(reader), palette);
                     return parser.initializeModel(logger);
-                } else if (extension == "md2" && kdl::vec_contains(supported, "md2")) {
+                } else if (isModelFormat("md2", extension, supported)) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::Md2Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     return parser.initializeModel(logger);
-                } else if (extension == "md3" && kdl::vec_contains(supported, "md3")) {
+                } else if (isModelFormat("md3", extension, supported)) {
                     auto reader = file->reader().buffer();
                     IO::Md3Parser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
-                } else if (extension == "mdx" && kdl::vec_contains(supported, "mdx")) {
+                } else if (isModelFormat("mdx", extension, supported)) {
                     auto reader = file->reader().buffer();
                     IO::MdxParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
-                } else if (extension == "bsp" && kdl::vec_contains(supported, "bsp")) {
+                } else if (isModelFormat("bsp", extension, supported)) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     return parser.initializeModel(logger);
-                } else if (extension == "dkm" && kdl::vec_contains(supported, "dkm")) {
+                } else if (isModelFormat("dkm", extension, supported)) {
                     auto reader = file->reader().buffer();
                     IO::DkmParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     return parser.initializeModel(logger);
-                } else if (extension == "ase" && kdl::vec_contains(supported, "ase")) {
+                } else if (isModelFormat("ase", extension, supported)) {
                     auto reader = file->reader().buffer();
                     IO::AseParser parser(modelName, reader.stringView(), m_fs);
                     return parser.initializeModel(logger);
-                } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
+                } else if (isModelFormat("obj", extension, supported)) {
                     auto reader = file->reader().buffer();
                     // has to be the whole path for implicit textures!
                     IO::NvObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
+                    return parser.initializeModel(logger);
+                } else if (isModelFormat("png", extension, supported)) {
+                    IO::ImageSpriteParser parser{modelName, file, m_fs};
+                    return parser.initializeModel(logger);
+                } else if (isModelFormat("spr", extension, supported)) {
+                    const auto palette = loadTexturePalette();
+                    auto reader = file->reader().buffer();
+                    IO::SprParser parser{modelName, std::begin(reader), std::end(reader), palette};
                     return parser.initializeModel(logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
@@ -509,41 +523,44 @@ namespace TrenchBroom {
                 const auto extension = kdl::str_to_lower(path.extension());
                 const auto supported = m_config.entityConfig.modelFormats;
 
-                if (extension == "mdl" && kdl::vec_contains(supported, "mdl")) {
+                if (isModelFormat("mdl", extension, supported)) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::MdlParser parser(modelName, std::begin(reader), std::end(reader), palette);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "md2" && kdl::vec_contains(supported, "md2")) {
+                } else if (isModelFormat("md2", extension, supported)) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::Md2Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "md3" && kdl::vec_contains(supported, "md3")) {
+                } else if (isModelFormat("md3", extension, supported)) {
                     auto reader = file->reader().buffer();
                     IO::Md3Parser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "mdx" && kdl::vec_contains(supported, "mdx")) {
+                } else if (isModelFormat("mdx", extension, supported)) {
                     auto reader = file->reader().buffer();
                     IO::MdxParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "bsp" && kdl::vec_contains(supported, "bsp")) {
+                } else if (isModelFormat("bsp", extension, supported)) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
                     IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "dkm" && kdl::vec_contains(supported, "dkm")) {
+                } else if (isModelFormat("dkm", extension, supported)) {
                     auto reader = file->reader().buffer();
                     IO::DkmParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "ase" && kdl::vec_contains(supported, "ase")) {
+                } else if (isModelFormat("ase", extension, supported)) {
                     auto reader = file->reader().buffer();
                     IO::AseParser parser(modelName, reader.stringView(), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
-                } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
+                } else if (isModelFormat("obj", extension, supported)) {
                     auto reader = file->reader().buffer();
                     // has to be the whole path for implicit textures!
                     IO::NvObjParser parser(path, std::begin(reader), std::end(reader), m_fs);
+                    parser.loadFrame(frameIndex, model, logger);
+                } else if (isModelFormat("png", extension, supported)) {
+                    IO::ImageSpriteParser parser{modelName, file, m_fs};
                     parser.loadFrame(frameIndex, model, logger);
                 } else {
                     throw GameException("Unsupported model format '" + path.asString() + "'");

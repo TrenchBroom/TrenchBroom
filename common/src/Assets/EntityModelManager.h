@@ -47,6 +47,7 @@ namespace TrenchBroom {
         class EntityModel;
         class EntityModelFrame;
         struct ModelSpecification;
+        enum class Orientation;
 
         class EntityModelManager {
         private:

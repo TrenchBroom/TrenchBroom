@@ -258,8 +258,10 @@ namespace TrenchBroom {
 
             const Md2SkinList skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
-            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal);
-            model->addFrames(frameCount);
+            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
+            for (size_t i = 0; i < frameCount; ++i) {
+                model->addFrame();
+            }
 
             auto& surface = model->addSurface(m_name);
             loadSkins(surface, skins, logger);
@@ -387,7 +389,7 @@ namespace TrenchBroom {
             }
 
             auto& modelFrame = model.loadFrame(frameIndex, frame.name, bounds.bounds());
-            surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
+            surface.addIndexedMesh(modelFrame, std::move(builder.vertices()), std::move(builder.indices()));
         }
 
         std::vector<Assets::EntityModelVertex> Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {

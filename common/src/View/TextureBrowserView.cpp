@@ -50,9 +50,6 @@
 #include <QTextStream>
 #include <QMenu>
 
-// allow storing std::shared_ptr in QVariant
-Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::TextureCellData>)
-
 namespace TrenchBroom {
     namespace View {
         TextureBrowserView::TextureBrowserView(QScrollBar* scrollBar,
@@ -181,7 +178,7 @@ namespace TrenchBroom {
             const float scaledTextureWidth = vm::round(scaleFactor * static_cast<float>(texture->width()));
             const float scaledTextureHeight = vm::round(scaleFactor * static_cast<float>(texture->height()));
 
-            auto cellData = std::shared_ptr<TextureCellData>(new TextureCellData{
+            auto cellData = TextureCellData{
                 texture,
                 textureName,
                 groupName,
@@ -189,13 +186,13 @@ namespace TrenchBroom {
                 vm::vec2f((maxCellWidth - groupNameSize.x()) / 2.0f, 1.0f),
                 textureFont,
                 groupFont
-            });
+            };
 
-            layout.addItem(QVariant::fromValue(cellData),
-            scaledTextureWidth,
-            scaledTextureHeight,
-            maxCellWidth,
-            totalSize.y());
+            layout.addItem(std::move(cellData),
+                scaledTextureWidth,
+                scaledTextureHeight,
+                maxCellWidth,
+                totalSize.y());
         }
 
         struct TextureBrowserView::CompareByUsageCount {
@@ -311,14 +308,11 @@ namespace TrenchBroom {
             using BoundsVertex = Renderer::GLVertexTypes::P2C4::Vertex;
             std::vector<BoundsVertex> vertices;
 
-            for (size_t i = 0; i < layout.size(); ++i) {
-                const Group& group = layout[i];
+            for (const auto& group : layout.groups()) {
                 if (group.intersectsY(y, height)) {
-                    for (size_t j = 0; j < group.size(); ++j) {
-                        const Row& row = group[j];
+                    for (const auto& row : group.rows()) {
                         if (row.intersectsY(y, height)) {
-                            for (size_t k = 0; k < row.size(); ++k) {
-                                const Cell& cell = row[k];
+                            for (const auto& cell : row.cells()) {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cellData(cell).texture;
                                 const Color& color = textureColor(*texture);
@@ -357,14 +351,11 @@ namespace TrenchBroom {
 
             size_t num = 0;
 
-            for (size_t i = 0; i < layout.size(); ++i) {
-                const Group& group = layout[i];
+            for (const auto& group : layout.groups()) {
                 if (group.intersectsY(y, height)) {
-                    for (size_t j = 0; j < group.size(); ++j) {
-                        const Row& row = group[j];
+                    for (const auto& row : group.rows()) {
                         if (row.intersectsY(y, height)) {
-                            for (size_t k = 0; k < row.size(); ++k) {
-                                const Cell& cell = row[k];
+                            for (const auto& cell : row.cells()) {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cellData(cell).texture;
 
@@ -400,8 +391,7 @@ namespace TrenchBroom {
             using Vertex = Renderer::GLVertexTypes::P2::Vertex;
             std::vector<Vertex> vertices;
 
-            for (size_t i = 0; i < layout.size(); ++i) {
-                const Group& group = layout[i];
+            for (const auto& group : layout.groups()) {
                 if (group.intersectsY(y, height)) {
                     const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                     vertices.push_back(Vertex(vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y))));
@@ -448,13 +438,12 @@ namespace TrenchBroom {
             const std::vector<Color> subTextColor{ pref(Preferences::BrowserSubTextColor) };
 
             StringMap stringVertices;
-            for (size_t i = 0; i < layout.size(); ++i) {
-                const auto& group = layout[i];
+            for (const auto& group : layout.groups()) {
                 if (group.intersectsY(y, height)) {
                     const auto& title = group.item();
                     if (!title.empty()) {
                         const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        const auto offset = vm::vec2f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
+                        const auto offset = vm::vec2f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height);
 
                         auto& font = fontManager().font(defaultDescriptor);
                         const auto quads = font.quads(title, false, offset);
@@ -467,11 +456,9 @@ namespace TrenchBroom {
                         vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                     }
 
-                    for (size_t j = 0; j < group.size(); ++j) {
-                        const auto& row = group[j];
+                    for (const auto& row : group.rows()) {
                         if (row.intersectsY(y, height)) {
-                            for (unsigned int k = 0; k < row.size(); k++) {
-                                const auto& cell = row[k];
+                            for (const auto& cell : row.cells()) {
                                 const auto titleBounds = cell.titleBounds();
                                 const auto& textureFont = fontManager().font(cellData(cell).mainTitleFont);
                                 const auto& groupFont   = fontManager().font(cellData(cell).subTitleFont);
@@ -515,10 +502,9 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::doLeftClick(Layout& layout, const float x, const float y) {
-            const Cell* result = nullptr;
-            if (layout.cellAt(x, y, &result)) {
-                if (!cellData(*result).texture->overridden()) {
-                    auto* texture = cellData(*result).texture;
+            if (const Cell* cell = layout.cellAt(x, y)) {
+                if (!cellData(*cell).texture->overridden()) {
+                    auto* texture = cellData(*cell).texture;
 
                     // NOTE: wx had the ability for the textureSelected event to veto the selection, but it
                     // wasn't used.
@@ -540,10 +526,9 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) {
-            const Cell* result = nullptr;
-            if (layout.cellAt(x, y, &result)) {
-                if (!cellData(*result).texture->overridden()) {
-                    auto* texture = cellData(*result).texture;
+            if (const Cell* cell = layout.cellAt(x, y)) {
+                if (!cellData(*cell).texture->overridden()) {
+                    auto* texture = cellData(*cell).texture;
 
                     QMenu menu(this);
                     menu.addAction(tr("Select Faces"), this, [=]() {
@@ -556,9 +541,7 @@ namespace TrenchBroom {
         }
 
         const TextureCellData& TextureBrowserView::cellData(const Cell& cell) const {
-            QVariant any = cell.item();
-            auto ptr = any.value<std::shared_ptr<TextureCellData>>();
-            return *ptr;
+            return cell.itemAs<TextureCellData>();
         }
     }
 }

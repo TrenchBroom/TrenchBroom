@@ -20,6 +20,7 @@
 #pragma once
 
 #include "NotifierConnection.h"
+#include "EL/Expression.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
@@ -28,6 +29,7 @@
 #include <vecmath/quat.h>
 #include <vecmath/bbox.h>
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -38,6 +40,7 @@ namespace TrenchBroom {
         class EntityDefinitionManager;
         enum class EntityDefinitionSortOrder;
         class EntityModelManager;
+        enum class Orientation;
         class PointEntityDefinition;
     }
 
@@ -50,16 +53,14 @@ namespace TrenchBroom {
     namespace View {
         using EntityGroupData = std::string;
 
-        class EntityCellData {
-        private:
+        struct EntityCellData {
             using EntityRenderer = Renderer::TexturedRenderer;
-        public:
             const Assets::PointEntityDefinition* entityDefinition;
             EntityRenderer* modelRenderer;
+            Assets::Orientation modelOrientation;
             Renderer::FontDescriptor fontDescriptor;
             vm::bbox3f bounds;
-
-            EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
+            vm::vec3f modelScale;
         };
 
         class EntityBrowserView : public CellView {
@@ -70,8 +71,13 @@ namespace TrenchBroom {
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
             using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
+            static constexpr auto CameraPosition = vm::vec3f{256.0f, 0.0f, 0.0f};
+            static constexpr auto CameraDirection = vm::vec3f::neg_x();
+            static constexpr auto CameraUp = vm::vec3f::pos_z();
+
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
+            std::optional<EL::Expression> m_defaultScaleModelExpression;
             Logger& m_logger;
             vm::quatf m_rotation;
 
@@ -89,6 +95,8 @@ namespace TrenchBroom {
                               Logger& logger);
             ~EntityBrowserView() override;
         public:
+            void setDefaultModelScaleExpression(std::optional<EL::Expression> defaultModelScaleExpression);
+
             void setSortOrder(Assets::EntityDefinitionSortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);

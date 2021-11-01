@@ -287,7 +287,7 @@
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-8 -8 -8, 8 8 8) base(Appearflags, Light, Target, Targetname) =
+@PointClass size(-8 -8 -8, 8 8 8) base(Appearflags, Light, Target, Targetname) model({ "path": "progs/s_light.spr" }) =
 	light_globe : "Globe light"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
@@ -316,7 +316,7 @@
 
 @SolidClass base(Appearflags) = func_illusionary : "Static nonsolid model"  []
 
-@PointClass base(Appearflags) color(0 150 220) = air_bubbles : "Air bubbles" []
+@PointClass base(Appearflags) color(0 150 220) model({ "path": ":progs/s_bubble.spr" }) = air_bubbles : "Air bubbles" []
 @PointClass base(Appearflags, Targetname) =
 	event_lightning : "Chthon's lightning" []
 @PointClass base(Appearflags) model({ "path": ":progs/lavaball.mdl" }) = misc_fireball : "Small fireball"
