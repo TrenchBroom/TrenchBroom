@@ -242,9 +242,9 @@ namespace TrenchBroom {
         protected: // notification for parents
             class NotifyNodeChange {
             private:
-                Node* m_node;
+                Node& m_node;
             public:
-                explicit NotifyNodeChange(Node* node);
+                explicit NotifyNodeChange(Node& node);
                 ~NotifyNodeChange();
             };
 
@@ -255,9 +255,9 @@ namespace TrenchBroom {
             friend class NotifyPhysicalBoundsChange;
             class NotifyPhysicalBoundsChange {
             private:
-                Node* m_node;
+                Node& m_node;
             public:
-                explicit NotifyPhysicalBoundsChange(Node* node);
+                explicit NotifyPhysicalBoundsChange(Node& node);
                 ~NotifyPhysicalBoundsChange();
             };
             void nodePhysicalBoundsDidChange();

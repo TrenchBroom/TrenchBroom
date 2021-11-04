@@ -435,23 +435,20 @@ namespace TrenchBroom {
             invalidateIssues();
         }
 
-        Node::NotifyNodeChange::NotifyNodeChange(Node* node) :
+        Node::NotifyNodeChange::NotifyNodeChange(Node& node) :
         m_node{node} {
-            ensure(m_node != nullptr, "node is null");
-            m_node->nodeWillChange();
+            m_node.nodeWillChange();
         }
 
         Node::NotifyNodeChange::~NotifyNodeChange() {
-            m_node->nodeDidChange();
+            m_node.nodeDidChange();
         }
 
-        Node::NotifyPhysicalBoundsChange::NotifyPhysicalBoundsChange(Node* node) :
-        m_node{node} {
-            ensure(m_node != nullptr, "node is null");
-        }
+        Node::NotifyPhysicalBoundsChange::NotifyPhysicalBoundsChange(Node& node) :
+        m_node{node} {}
         
         Node::NotifyPhysicalBoundsChange::~NotifyPhysicalBoundsChange() {
-            m_node->nodePhysicalBoundsDidChange();
+            m_node.nodePhysicalBoundsDidChange();
         }
 
         void Node::nodePhysicalBoundsDidChange() {
