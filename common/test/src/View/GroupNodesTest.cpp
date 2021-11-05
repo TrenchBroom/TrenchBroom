@@ -21,7 +21,10 @@
 #include "TestUtils.h"
 
 #include "Model/BrushBuilder.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -32,6 +35,8 @@
 #include "View/PasteType.h"
 
 #include <kdl/result.h>
+
+#include <vecmath/mat_ext.h>
 
 #include <functional>
 #include <set>
@@ -595,6 +600,100 @@ namespace TrenchBroom {
             document->newDocument(Model::MapFormat::Valve, MapDocument::DefaultWorldBounds, document->game());
 
             CHECK(document->currentGroup() == nullptr);
+        }
+
+        // https://github.com/TrenchBroom/TrenchBroom/issues/3768
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLinkSet", "[GroupNodesTest]") {
+            auto* brushNode = createBrushNode();
+            document->addNodes({{document->parentForNodes(), {brushNode}}});
+            document->select(brushNode);
+
+            auto* groupNode = document->groupSelection("test");
+            REQUIRE(groupNode != nullptr);
+
+            auto* linkedGroupNode = document->createLinkedDuplicate();
+            REQUIRE(linkedGroupNode != nullptr);
+            
+            document->deselectAll();
+
+            SECTION("Face selection locks other groups in link set") {
+                CHECK(!linkedGroupNode->locked());
+
+                document->select({Model::BrushFaceHandle{brushNode, 0}});
+                CHECK(linkedGroupNode->locked());
+
+                document->deselectAll();
+                CHECK(!linkedGroupNode->locked());
+            }
+
+            SECTION("Can select two linked groups and apply a texture") {
+                document->select(std::vector<Model::Node*>{groupNode, linkedGroupNode});
+
+                auto setTexture = Model::ChangeBrushFaceAttributesRequest{};
+                setTexture.setTextureName("abc");
+                CHECK(document->setFaceAttributes(setTexture));
+
+                // check that the brushes in both linked groups were textured
+                for (auto* g : std::vector<Model::GroupNode*>{groupNode, linkedGroupNode}) {
+                    auto* brush = dynamic_cast<Model::BrushNode*>(g->children().at(0));
+                    REQUIRE(brush != nullptr);
+                    
+                    auto attrs = brush->brush().face(0).attributes();
+                    CHECK(attrs.textureName() == "abc");
+                }
+            }
+
+            SECTION("Can't snap to grid with both groups selected") {
+                document->select(std::vector<Model::Node*>{groupNode, linkedGroupNode});
+
+                CHECK(document->transformObjects("", vm::translation_matrix(vm::vec3{0.5, 0.5, 0.0})));
+
+                // This could generate conflicts, because what snaps one group could misalign another
+                // group in the link set. So, just reject the change.
+                CHECK(!document->snapVertices(16.0));
+            }
+        }
+
+        // https://github.com/TrenchBroom/TrenchBroom/issues/3768
+        TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLinkSetWithPointEntities", "[GroupNodesTest]") {
+            {
+                auto* entityNode = new Model::EntityNode{Model::Entity{}};
+                document->addNodes({{document->parentForNodes(), {entityNode}}});
+                document->select(entityNode);
+            }
+
+            auto* groupNode = document->groupSelection("test");
+            auto* linkedGroupNode1 = document->createLinkedDuplicate();
+            auto* linkedGroupNode2 = document->createLinkedDuplicate();
+
+            REQUIRE(groupNode != nullptr);
+            REQUIRE(linkedGroupNode1 != nullptr);
+            REQUIRE(linkedGroupNode2 != nullptr);
+                        
+            document->deselectAll();
+
+            SECTION("Attempt to set a property with 2 out of 3 groups selected") {
+                document->select(std::vector<Model::Node*>{groupNode, linkedGroupNode1});
+
+                // Current design is to reject this because it's modifying entities from multiple groups in a link set.
+                // While in this case the change isn't conflicting, some entity changes are,
+                // e.g. unprotecting a property with 2 linked groups selected, where entities have different values
+                // for that protected property.
+                //
+                // Additionally, the use case for editing entity properties with the entire map selected seems unlikely.
+                CHECK(!document->setProperty("key", "value"));
+
+                auto* groupNodeEntity = dynamic_cast<Model::EntityNode*>(groupNode->children().at(0));
+                auto* linkedEntityNode1 = dynamic_cast<Model::EntityNode*>(linkedGroupNode1->children().at(0));
+                auto* linkedEntityNode2 = dynamic_cast<Model::EntityNode*>(linkedGroupNode2->children().at(0));
+                REQUIRE(groupNodeEntity != nullptr);
+                REQUIRE(linkedEntityNode1 != nullptr);
+                REQUIRE(linkedEntityNode2 != nullptr);
+
+                CHECK(!groupNodeEntity->entity().hasProperty("key"));
+                CHECK(!linkedEntityNode1->entity().hasProperty("key"));
+                CHECK(!linkedEntityNode2->entity().hasProperty("key"));
+            }
         }
     }
 }

@@ -103,10 +103,17 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::performSelect(const std::vector<Model::BrushFaceHandle>& faces) {
             selectionWillChangeNotifier();
 
-            std::vector<Model::BrushFaceHandle> selected;
-            selected.reserve(faces.size());
+            const auto constrained = Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces);
 
-            for (const auto& handle : faces) {
+            for (Model::GroupNode* node : constrained.groupsToLock) {
+                node->setLockedByOtherSelection(true);
+            }
+            nodeLockingDidChangeNotifier(kdl::vec_element_cast<Model::Node*>(constrained.groupsToLock));
+
+            std::vector<Model::BrushFaceHandle> selected;
+            selected.reserve(constrained.facesToSelect.size());
+
+            for (const auto& handle : constrained.facesToSelect) {
                 Model::BrushNode* node = handle.node();
                 const Model::BrushFace& face = handle.face();
                 if (!face.selected() && m_editorContext->selectable(node, face)) {
@@ -165,6 +172,8 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performDeselect(const std::vector<Model::BrushFaceHandle>& faces) {
+            const auto implicitlyLockedGroups = kdl::vector_set<Model::GroupNode*>{kdl::vec_filter(Model::findAllLinkedGroups(*m_world.get()), [](const auto* group) { return group->lockedByOtherSelection(); })};
+
             selectionWillChangeNotifier();
 
             std::vector<Model::BrushFaceHandle> deselected;
@@ -185,6 +194,20 @@ namespace TrenchBroom {
             selection.addDeselectedBrushFaces(deselected);
 
             selectionDidChangeNotifier(selection);
+
+            // Selection change is done. Next, update implicit locking of linked groups.
+            // The strategy is to figure out what needs to be locked given m_selectedBrushFaces, and then un-implicitly-lock all other linked groups.
+            const auto groupsToLock = kdl::vector_set<Model::GroupNode*>{Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), m_selectedBrushFaces).groupsToLock};
+            for (Model::GroupNode* node : groupsToLock) {
+                node->setLockedByOtherSelection(true);
+            }
+            nodeLockingDidChangeNotifier(kdl::vec_element_cast<Model::Node*>(groupsToLock.get_data()));
+
+            const auto groupsToUnlock = kdl::set_difference(implicitlyLockedGroups, groupsToLock);
+            for (Model::GroupNode* node : groupsToUnlock) {
+                node->setLockedByOtherSelection(false);
+            }
+            nodeLockingDidChangeNotifier(kdl::vec_element_cast<Model::Node*>(groupsToUnlock));
         }
 
         void MapDocumentCommandFacade::performDeselectAll() {

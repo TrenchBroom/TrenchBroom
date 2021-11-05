@@ -884,7 +884,9 @@ namespace TrenchBroom {
         std::vector<Model::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const {
             if (hasSelectedBrushFaces())
                 return selectedBrushFaces();
-            return Model::collectBrushFaces(m_selectedNodes.nodes());
+
+            const auto faces = Model::collectBrushFaces(m_selectedNodes.nodes());
+            return Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces).facesToSelect;
         }
 
         std::vector<Model::BrushFaceHandle> MapDocument::selectedBrushFaces() const {
