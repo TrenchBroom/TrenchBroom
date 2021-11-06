@@ -51,7 +51,7 @@ namespace TrenchBroom {
 
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
-            kdl::vector_set<Model::EntityNode*> m_entities;
+            kdl::vector_set<const Model::EntityNode*> m_entities;
 
             DirectEdgeRenderer m_pointEntityWireframeBoundsRenderer;
             DirectEdgeRenderer m_brushEntityWireframeBoundsRenderer;
@@ -89,15 +89,15 @@ namespace TrenchBroom {
             /**
              * Adds an entity. Calling with an already-added entity is allowed, but ignored (not guaranteed to invalidate it).
              */
-            void addEntity(Model::EntityNode* entity);
+            void addEntity(const Model::EntityNode* entity);
             /**
              * Removes an entity. Calling with an unknown entity is allowed, but ignored.
              */
-            void removeEntity(Model::EntityNode* entity);
+            void removeEntity(const Model::EntityNode* entity);
             /**
              * Causes cached renderer data to be rebuilt for the given entity (on the next render() call).
              */
-            void invalidateEntity(Model::EntityNode* entity);
+            void invalidateEntity(const Model::EntityNode* entity);
 
             void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);

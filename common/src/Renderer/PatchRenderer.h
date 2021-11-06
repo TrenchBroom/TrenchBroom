@@ -41,7 +41,7 @@ namespace TrenchBroom {
         class PatchRenderer : public IndexedRenderable {
         private:
             bool m_valid = true;
-            kdl::vector_set<Model::PatchNode*> m_patchNodes;
+            kdl::vector_set<const Model::PatchNode*> m_patchNodes;
 
             TexturedIndexArrayRenderer m_patchMeshRenderer;
             DirectEdgeRenderer m_edgeRenderer;
@@ -97,15 +97,15 @@ namespace TrenchBroom {
             /**
              * Adds a patch. Calling with an already-added patch is allowed, but ignored (not guaranteed to invalidate it).
              */
-            void addPatch(Model::PatchNode* patchNode);
+            void addPatch(const Model::PatchNode* patchNode);
             /**
              * Removes a patch. Calling with an unknown patch is allowed, but ignored.
              */
-            void removePatch(Model::PatchNode* patchNode);
+            void removePatch(const Model::PatchNode* patchNode);
             /**
              * Causes cached renderer data to be rebuilt for the given patch (on the next render() call).
              */
-            void invalidatePatch(Model::PatchNode* patchNode);
+            void invalidatePatch(const Model::PatchNode* patchNode);
 
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:

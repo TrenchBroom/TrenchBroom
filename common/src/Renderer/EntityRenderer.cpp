@@ -95,14 +95,14 @@ namespace TrenchBroom {
             m_modelRenderer.updateEntities(std::begin(m_entities), std::end(m_entities));
         }
 
-        void EntityRenderer::addEntity(Model::EntityNode* entity) {
+        void EntityRenderer::addEntity(const Model::EntityNode* entity) {
             if (m_entities.insert(entity).second) {
                 m_modelRenderer.addEntity(entity);
                 invalidateBounds();
             }
         }
 
-        void EntityRenderer::removeEntity(Model::EntityNode* entity) {
+        void EntityRenderer::removeEntity(const Model::EntityNode* entity) {
             if (auto it = m_entities.find(entity); it != std::end(m_entities)) {
                 m_entities.erase(it);
                 m_modelRenderer.removeEntity(entity);
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityRenderer::invalidateEntity(Model::EntityNode* entity) {
+        void EntityRenderer::invalidateEntity(const Model::EntityNode* entity) {
             m_modelRenderer.updateEntity(entity);
             invalidateBounds();
         }

@@ -70,20 +70,20 @@ namespace TrenchBroom {
             m_boundsRenderer = DirectEdgeRenderer();
         }
 
-        void GroupRenderer::addGroup(Model::GroupNode* group) {
+        void GroupRenderer::addGroup(const Model::GroupNode* group) {
             if (m_groups.insert(group).second) {
                 invalidate();
             }
         }
 
-        void GroupRenderer::removeGroup(Model::GroupNode* group) {
+        void GroupRenderer::removeGroup(const Model::GroupNode* group) {
             if (auto it = m_groups.find(group); it != std::end(m_groups)) {
                 m_groups.erase(it);
                 invalidate();
             }
         }
 
-        void GroupRenderer::invalidateGroup(Model::GroupNode*) {
+        void GroupRenderer::invalidateGroup(const Model::GroupNode*) {
             invalidate();
         }
 

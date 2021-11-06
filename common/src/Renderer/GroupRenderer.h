@@ -42,7 +42,7 @@ namespace TrenchBroom {
             class GroupNameAnchor;
 
             const Model::EditorContext& m_editorContext;
-            kdl::vector_set<Model::GroupNode*> m_groups;
+            kdl::vector_set<const Model::GroupNode*> m_groups;
 
             DirectEdgeRenderer m_boundsRenderer;
             bool m_boundsValid;
@@ -70,15 +70,15 @@ namespace TrenchBroom {
             /**
              * Adds a group. Calling with an already-added group is allowed, but ignored (not guaranteed to invalidate it).
              */
-            void addGroup(Model::GroupNode* group);
+            void addGroup(const Model::GroupNode* group);
             /**
              * Removes a group. Calling with an unknown group is allowed, but ignored.
              */
-            void removeGroup(Model::GroupNode* group);
+            void removeGroup(const Model::GroupNode* group);
             /**
              * Causes cached renderer data to be rebuilt for the given group (on the next render() call).
              */
-            void invalidateGroup(Model::GroupNode* group);
+            void invalidateGroup(const Model::GroupNode* group);
 
             template <typename Iter>
             void addGroups(Iter cur, const Iter end) {
