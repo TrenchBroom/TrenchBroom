@@ -256,7 +256,8 @@ namespace TrenchBroom {
                 if (m_configFS->fileExists(path)) {
                     const auto profilesFile = m_configFS->openFile(path);
                     auto reader = profilesFile->reader().buffer();
-                    const auto parser = IO::CompilationConfigParser{reader.stringView(), m_configFS->makeAbsolute(path)};
+                    auto parser = IO::CompilationConfigParser{reader.stringView(), m_configFS->makeAbsolute(path)};
+                    gameConfig.compilationConfig = parser.parse();
                     gameConfig.compilationConfigParseFailed = false;
                 }
             } catch (const Exception& e) {

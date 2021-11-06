@@ -104,10 +104,7 @@ namespace TrenchBroom {
 
             const auto& gameConfig = gameFactory.gameConfig("Quake");
             CHECK(gameConfig.name == "Quake");
-            /* EXPECTED:
             CHECK(gameConfig.compilationConfig.profileCount() == 1);
-            ACTUAL: */
-            CHECK(gameConfig.compilationConfig.profileCount() == 0);
             CHECK(gameConfig.gameEngineConfig.profileCount() == 1);
         }
     }
