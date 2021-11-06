@@ -33,7 +33,6 @@
 #include "IO/GameEngineConfigParser.h"
 #include "IO/GameEngineConfigWriter.h"
 #include "IO/IOUtils.h"
-#include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
@@ -57,8 +56,8 @@ namespace TrenchBroom {
             return instance;
         }
 
-        void GameFactory::initialize() {
-            initializeFileSystem();
+        void GameFactory::initialize(const GamePathConfig& gamePathConfig) {
+            initializeFileSystem(gamePathConfig);
             loadGameConfigs();
         }
 
@@ -167,17 +166,17 @@ namespace TrenchBroom {
             return {gameName, format};
         }
 
-        IO::Path GameFactory::userGameConfigsPath() const {
-            return IO::SystemPaths::userDataDirectory() + IO::Path{"games"};
+        const IO::Path& GameFactory::userGameConfigsPath() const {
+            return m_userGameDir;
         }
 
         GameFactory::GameFactory() = default;
 
-        void GameFactory::initializeFileSystem() {
+        void GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig) {
             // Gather the search paths we're going to use.
             // The rest of this function will be chaining together TB filesystem objects for these search paths.
-            const auto userGameDir = userGameConfigsPath();
-            const auto gameConfigSearchDirs = IO::SystemPaths::findResourceDirectories(IO::Path("games"));
+            const auto& userGameDir = gamePathConfig.userGameDir;
+            const auto& gameConfigSearchDirs = gamePathConfig.gameConfigSearchDirs;
 
             // All of the current search paths from highest to lowest priority
             auto chain = std::unique_ptr<IO::DiskFileSystem>{};
@@ -197,6 +196,8 @@ namespace TrenchBroom {
             } else {
                 m_configFS = std::make_unique<IO::WritableDiskFileSystem>(userGameDir, true);
             }
+
+            m_userGameDir = userGameDir;
         }
 
         void GameFactory::loadGameConfigs() {
