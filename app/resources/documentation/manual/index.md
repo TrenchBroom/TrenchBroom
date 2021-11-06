@@ -252,7 +252,7 @@ In a 2D viewport, you can also left click an object to select it. But unlike in 
 
 You may also think of left click selection like this: In both the 3D viewport or a 2D viewport, TrenchBroom first compiles a set of candidate objects. These are all objects under the mouse. Then, it must choose an object to be selected from these candidates. In the 3D viewport, the frontmost object always wins (unless you're using the scroll wheel to drill the selection), and in a 2D view, the object with the smallest visible area wins. Other than that, selection behaves exactly the same in both viewports, that is, you can hold #key(Ctrl) to select multiple objects and so on.
 
-Sometimes, selecting objects manually is too tedious. To select all currently editable objects, you can choose #menu(Menu/Edit/Select All) from the menu. Note that hidden and locked objects are excluded, so this command is particularly useful in conjunction with those features. Another option to select multiple objects at once is to use _selection brushes_. Just create one or more new brushes that enclose or touch all the objects you wish to select. These brushes are called a selection brushes. Select all of these newly created selection brushes, and choose #menu(Menu/Edit/Select Touching) to select every object touched by the selection brushes, or choose #menu(Menu/Edit/Select Inside) to select every object enclosed inside them.
+Sometimes, selecting objects manually is too tedious. To select all currently editable objects, you can choose #menu(Menu/Edit/Select All) from the menu. Note that hidden and locked objects are excluded, so this command is particularly useful in conjunction with those features. Another option to select multiple objects at once is to use _selection brushes_. Just create one or more new brushes that enclose or touch all the objects you wish to select. These brushes are called selection brushes. Select all of these newly created selection brushes, and choose #menu(Menu/Edit/Select Touching) to select every object touched by the selection brushes, or choose #menu(Menu/Edit/Select Inside) to select every object enclosed inside them.
 
 ![Using a selection brush](images/SelectTouching.gif)
 
@@ -326,7 +326,7 @@ Generic   `<MOD>/textures`  `<GamePath>/textures`
 
 ## Interacting With the Editor
 
-Before we delve into specific editing operations such as creating new objects, you should learn some basics about how to interact with the editor itself. In particular, it is import to understand the concept of tools in TrenchBroom and how mouse input is mapped to 3D coordinates.
+Before we delve into specific editing operations such as creating new objects, you should learn some basics about how to interact with the editor itself. In particular, it is important to understand the concept of tools in TrenchBroom and how mouse input is mapped to 3D coordinates.
 
 ### Working with Tools
 
@@ -360,7 +360,7 @@ Vertex Tool           #menu(Menu/Edit/Tools/Vertex Tool)
 
 ![Tool buttons](images/ToolbarTools.png) Additionally, tools can be toggled by using the buttons on the left of the toolbar. In the image, the first button is active, however, this particular button does not represent any of the modal tools listed in the table above. Rather, it indicates that no modal tool is currently active, and therefore all permanent tools are available. The buttons icon indicates that objects can be moved, which is only possible if no modal tool is active. The second button represents the convex brush tool, the third button toggles the clip tool, the fourth button is used to toggle the vertex tool and the fifth button toggles the rotate tool.
 
-You can learn more about these tools in later sections. But before you can learn about the tools in detail, you should undertand how TrenchBroom processes mouse input, which is what the following two sections will explain.
+You can learn more about these tools in later sections. But before you can learn about the tools in detail, you should understand how TrenchBroom processes mouse input, which is what the following two sections will explain.
 
 ### Cancelling Operations and Tools {#cancelling}
 
