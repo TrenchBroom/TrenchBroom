@@ -34,10 +34,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TestEnvironment::TestEnvironment(const std::string& dir) :
+        TestEnvironment::TestEnvironment(const std::string& dir, const SetupFunction& setup) :
         m_sandboxPath{pathFromQString(QDir::current().path()) + Path{generateUuid()}},
         m_dir{m_sandboxPath + Path{dir}} {
-            createTestEnvironment();
+            createTestEnvironment(setup);
         }
 
         TestEnvironment::~TestEnvironment() {
@@ -48,10 +48,10 @@ namespace TrenchBroom {
             return m_dir;
         }
 
-        void TestEnvironment::createTestEnvironment() {
+        void TestEnvironment::createTestEnvironment(const SetupFunction& setup) {
             deleteTestEnvironment();
             createDirectory(Path{});
-            doCreateTestEnvironment();
+            setup(*this);
         }
 
         void TestEnvironment::createDirectory(const Path& path) {
@@ -93,8 +93,6 @@ namespace TrenchBroom {
 
             return file.exists() && file.isFile();
         }
-
-        void TestEnvironment::doCreateTestEnvironment() {}
     }
 }
 
