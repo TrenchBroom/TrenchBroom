@@ -69,7 +69,7 @@ namespace TrenchBroom {
             assert(stream.status() == QTextStream::Ok);
         }
 
-        bool TestEnvironment::deleteDirectoryAbsolute(const Path& absolutePath) {
+        static bool deleteDirectoryAbsolute(const Path& absolutePath) {
             auto dir = QDir(IO::pathAsQString(absolutePath));
             if (!dir.exists()) {
                 return true;
