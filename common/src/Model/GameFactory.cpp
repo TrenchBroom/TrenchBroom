@@ -274,6 +274,7 @@ namespace TrenchBroom {
                     auto reader = profilesFile->reader().buffer();
                     auto parser = IO::GameEngineConfigParser{reader.stringView(), m_configFS->makeAbsolute(path)};
                     gameConfig.gameEngineConfig = parser.parse();
+                    gameConfig.gameEngineConfigParseFailed = false;
                 }
             } catch (const Exception& e) {
                 std::cerr << "Could not load game engine configuration '" << path << "': " << e.what() << "\n";
