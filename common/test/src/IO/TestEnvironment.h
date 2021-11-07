@@ -33,6 +33,7 @@ namespace TrenchBroom {
             Path m_dir;
         public:
             explicit TestEnvironment(const std::string& dir, const SetupFunction& setup = [](TestEnvironment&) {});
+            explicit TestEnvironment(const SetupFunction& setup = [](TestEnvironment&) {});
             ~TestEnvironment();
 
             const Path& dir() const;

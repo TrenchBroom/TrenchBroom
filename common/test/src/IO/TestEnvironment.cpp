@@ -40,6 +40,9 @@ namespace TrenchBroom {
             createTestEnvironment(setup);
         }
 
+        TestEnvironment::TestEnvironment(const SetupFunction& setup) :
+        TestEnvironment{Catch::getResultCapture().getCurrentTestName(), setup} {}
+
         TestEnvironment::~TestEnvironment() {
             assertResult(deleteTestEnvironment());
         }
