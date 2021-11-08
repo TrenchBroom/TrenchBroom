@@ -162,14 +162,17 @@ namespace TrenchBroom {
             SECTION("allSelectedBrushNodes") {
                 using T = std::vector<Model::NodePath>;
 
-                const auto paths = GENERATE_COPY(values<T>({
-                    {},
-                    {getPath(brushNodeInDefaultLayer)},
-                    {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer)},
-                    {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer), getPath(brushNodeInEntity)},
-                    {getPath(brushNodeInGroup)},
-                    {getPath(brushNodeInGroup), getPath(brushNodeInNestedGroup)},
+                // clang-format off
+                const auto 
+                paths = GENERATE_COPY(values<T>({
+                {},
+                {getPath(brushNodeInDefaultLayer)},
+                {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer)},
+                {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer), getPath(brushNodeInEntity)},
+                {getPath(brushNodeInGroup)},
+                {getPath(brushNodeInGroup), getPath(brushNodeInNestedGroup)},
                 }));
+                // clang-format on
 
                 const auto nodes = resolvePaths(paths);
                 const auto brushNodes = kdl::vec_element_cast<Model::BrushNode*>(nodes);
@@ -182,18 +185,20 @@ namespace TrenchBroom {
             SECTION("hasAnySelectedBrushNodes") {
                 using T = std::tuple<std::vector<Model::NodePath>, bool>;
 
+                // clang-format off
                 const auto 
-                    [pathsToSelect, expectedResult] = GENERATE_COPY(values<T>({
-                    {std::vector<Model::NodePath>{}, false},
-                    {{getPath(pointEntityNode)}, false},
-                    {{getPath(brushEntityNode)}, true},
-                    {{getPath(outerGroupNode)}, true},
-                    {{getPath(brushNodeInDefaultLayer)}, true},
-                    {{getPath(brushNodeInCustomLayer)}, true},
-                    {{getPath(brushNodeInEntity)}, true},
-                    {{getPath(brushNodeInGroup)}, true},
-                    {{getPath(brushNodeInNestedGroup)}, true},
+                [pathsToSelect,                      expectedResult] = GENERATE_COPY(values<T>({
+                {std::vector<Model::NodePath>{},     false},
+                {{getPath(pointEntityNode)},         false},
+                {{getPath(brushEntityNode)},         true},
+                {{getPath(outerGroupNode)},          true},
+                {{getPath(brushNodeInDefaultLayer)}, true},
+                {{getPath(brushNodeInCustomLayer)},  true},
+                {{getPath(brushNodeInEntity)},       true},
+                {{getPath(brushNodeInGroup)},        true},
+                {{getPath(brushNodeInNestedGroup)},  true},
                 }));
+                // clang-format on
 
                 CAPTURE(pathsToSelect);
 

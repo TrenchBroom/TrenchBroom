@@ -39,10 +39,12 @@ namespace TrenchBroom {
         TEST_CASE("HlMipTextureReaderTest.testLoadWad", "[HlMipTextureReaderTest]") {
             using TexInfo = std::tuple<std::string, size_t, size_t>;
 
+            // clang-format off
             const auto [textureName, width, height] = GENERATE(values<TexInfo>({
-                { "bongs2",            128, 128 },
-                { "blowjob_machine",   128, 128 },
+            { "bongs2",            128, 128 },
+            { "blowjob_machine",   128, 128 },
             }));
+            // clang-format on
 
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
 

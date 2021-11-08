@@ -46,6 +46,7 @@ namespace TrenchBroom {
         TEST_CASE("ModelDefinitionTest.modelSpecification") {
             using T = std::tuple<std::string, std::map<std::string, EL::Value>, ModelSpecification>;
 
+            // clang-format off
             const auto 
             [expression,                                            variables, expectedModelSpecification] = GENERATE(values<T>({
             {R"("maps/b_shell0.bsp")",                              {},        {IO::Path{"maps/b_shell0.bsp"}, 0, 0}},
@@ -69,6 +70,7 @@ namespace TrenchBroom {
                                                                                {IO::Path{"maps/b_shell0.bsp"}, 1, 2}},
             
             }));
+            // clang-format on
 
             CAPTURE(expression, variables);
 
@@ -79,6 +81,7 @@ namespace TrenchBroom {
         TEST_CASE("ModelDefinitionTest.defaultModelSpecification") {
             using T = std::tuple<std::string, ModelSpecification>;
 
+            // clang-format off
             const auto 
             [expression,                                            expectedModelSpecification] = GENERATE(values<T>({
             {R"("maps/b_shell0.bsp")",                              {IO::Path{"maps/b_shell0.bsp"}, 0, 0}},
@@ -92,6 +95,7 @@ namespace TrenchBroom {
             {R"({path: model, skin: skin, frame: frame})",          {}},
             
             }));
+            // clang-format on
 
             CAPTURE(expression);
 
@@ -102,6 +106,7 @@ namespace TrenchBroom {
         TEST_CASE("ModelDefinitionTest.scale") {
             using T = std::tuple<std::string, std::optional<std::string>, vm::vec3>;
 
+            // clang-format off
             const auto
             [expression,                                                                                 globalScaleExpressionStr, expectedScale] = GENERATE(values<T>({
             {R"("maps/b_shell0.bsp")",                                                                   std::nullopt,             vm::vec3{1, 1, 1}},
@@ -115,6 +120,7 @@ namespace TrenchBroom {
             {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: [modelscale, modelscale_vec] })", std::nullopt,             vm::vec3{4, 4, 4}},
             {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: [modelscale_vec, modelscale] })", std::nullopt,             vm::vec3{5, 6, 7}},
             }));
+            // clang-format on
 
             CAPTURE(expression, globalScaleExpressionStr);
 

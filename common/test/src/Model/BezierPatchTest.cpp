@@ -35,8 +35,10 @@ namespace TrenchBroom {
         TEST_CASE("BezierPatch.evaluate") {
             using T = std::tuple<size_t, size_t, std::vector<BezierPatch::Point>, size_t, std::vector<BezierPatch::Point>>;
 
-            const auto [  w,  h, controlPoints,                          subdiv, expectedGrid ] = GENERATE(values<T>({
-                       {  3,  3, { {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+            // clang-format off
+            const auto
+            [w, h, controlPoints,                                     subdiv, expectedGrid ] = GENERATE(values<T>({
+            {3, 3, { {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                                    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                                    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, 2,      { {0, 0,   0},     {0.5, 0,   0.375}, {1, 0,   0.5},   {1.5, 0,   0.375}, {2, 0,   0}, 
                                                                                 {0, 0.5, 0.375}, {0.5, 0.5, 0.75},  {1, 0.5, 0.875}, {1.5, 0.5, 0.75},  {2, 0.5, 0.375}, 
@@ -44,6 +46,7 @@ namespace TrenchBroom {
                                                                                 {0, 1.5, 0.375}, {0.5, 1.5, 0.75},  {1, 1.5, 0.875}, {1.5, 1.5, 0.75},  {2, 1.5, 0.375}, 
                                                                                 {0, 2,   0},     {0.5, 2,   0.375}, {1, 2,   0.5},   {1.5, 2,   0.375}, {2, 2,   0} } }
             }));
+            // clang-format on
 
             const auto patch = BezierPatch{w, h, controlPoints, ""};
             CHECK(patch.evaluate(subdiv) == expectedGrid);
