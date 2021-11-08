@@ -60,10 +60,13 @@ namespace TrenchBroom {
             auto* groupNode = new GroupNode{Group{"group"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
             
             groupNode->addChildren({entityNode, brushNode});
             layerNode->addChildren({groupNode, patchNode});
@@ -88,10 +91,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
             
             innerGroupNode->addChildren({entityNode, brushNode});
             outerGroupNode->addChildren({innerGroupNode, patchNode});
@@ -117,10 +123,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
             
             innerGroupNode->addChildren({entityNode, brushNode});
             outerGroupNode->addChildren({innerGroupNode, patchNode});
@@ -246,10 +255,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
             
             innerGroupNode->addChildren({entityNode, brushNode});
             outerGroupNode->addChildren({innerGroupNode, patchNode});
@@ -277,10 +289,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
             
             innerGroupNode->addChildren({entityNode, brushNode});
             outerGroupNode->addChildren({innerGroupNode, patchNode});
@@ -464,10 +479,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
             
             innerGroupNode->addChildren({entityNode, brushNode});
             outerGroupNode->addChildren({innerGroupNode, patchNode});
@@ -526,10 +544,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
             
             innerGroupNode->addChildren({entityNode, brushNode});
             outerGroupNode->addChildren({innerGroupNode, patchNode});
@@ -570,10 +591,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
             
             innerGroupNode->addChildren({entityNode, brushNode});
             outerGroupNode->addChildren({innerGroupNode, patchNode});
@@ -601,10 +625,13 @@ namespace TrenchBroom {
             auto* innerGroupNode = new GroupNode{Group{"inner"}};
             auto* entityNode = new EntityNode{Entity{}};
             auto* brushNode = new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
             
             innerGroupNode->addChildren({entityNode, brushNode});
             outerGroupNode->addChildren({innerGroupNode, patchNode});

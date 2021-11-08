@@ -60,10 +60,13 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto patchNode = PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
 
             CHECK_FALSE(entityNode.canAddChild(&worldNode));
             CHECK_FALSE(entityNode.canAddChild(&layerNode));
@@ -82,10 +85,13 @@ namespace TrenchBroom {
             auto groupNode = GroupNode{Group{"group"}};
             auto entityNode = EntityNode{Entity{}};
             auto brushNode = BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+            // clang-format off
             auto patchNode = PatchNode{BezierPatch{3, 3, {
                 {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                 {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                 {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+            // clang-format on
 
             CHECK(entityNode.canRemoveChild(&worldNode));
             CHECK(worldNode.canRemoveChild(&layerNode));

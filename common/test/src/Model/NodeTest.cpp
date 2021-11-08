@@ -570,11 +570,14 @@ namespace TrenchBroom {
             GroupNode group(Group("name"));
             EntityNode entity{{}};
             BrushNode brush(BrushBuilder(world.mapFormat(), worldBounds).createCube(32.0, "texture").value());
+
+            // clang-format off
             PatchNode patch(BezierPatch(3, 3, { 
                 BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
                 BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
                 BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
             }, "texture"));
+            // clang-format on
 
             SECTION("Non const nodes accept non const visitor") {
                 CHECK(world.accept(nodeTestVisitor) == Visited::World);

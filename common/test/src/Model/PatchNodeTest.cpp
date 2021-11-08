@@ -150,6 +150,8 @@ namespace TrenchBroom {
 
         TEST_CASE("PatchNode.pickFlatPatch") {
             using P = BezierPatch::Point;
+
+            // clang-format off
             auto patchNode = PatchNode{BezierPatch{5, 5, {
                 P{0.0, 4.0, 0.0}, P{1.0, 4.0, 0.0}, P{2.0, 4.0, 0.0}, P{3.0, 4.0, 0.0}, P{4.0, 4.0, 0.0},
                 P{0.0, 3.0, 0.0}, P{1.0, 3.0, 0.0}, P{2.0, 3.0, 0.0}, P{3.0, 3.0, 0.0}, P{4.0, 3.0, 0.0},
@@ -157,6 +159,7 @@ namespace TrenchBroom {
                 P{0.0, 1.0, 0.0}, P{1.0, 1.0, 0.0}, P{2.0, 1.0, 0.0}, P{3.0, 1.0, 0.0}, P{4.0, 1.0, 0.0},
                 P{0.0, 0.0, 0.0}, P{1.0, 0.0, 0.0}, P{2.0, 0.0, 0.0}, P{3.0, 0.0, 0.0}, P{4.0, 0.0, 0.0},
             }, "texture"}};
+            // clang-format on
 
             using T = std::tuple<vm::ray3, std::optional<vm::vec3>>;
 

@@ -79,10 +79,13 @@ namespace TrenchBroom {
             }
 
             std::tuple<EntityNode*, PatchNode*> createTopLevelPatchEntity() {
+                // clang-format off
                 auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                     {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+                // clang-format on
+
                 auto* entityNode = new EntityNode{Entity{}};
                 entityNode->addChild(patchNode);
                 worldNode.defaultLayer()->addChild(entityNode);
@@ -97,10 +100,13 @@ namespace TrenchBroom {
             }
 
             PatchNode* createTopLevelPatch() {
+                // clang-format off
                 auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                     {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+                // clang-format on
+
                 worldNode.defaultLayer()->addChild(patchNode);
                 return patchNode;
             }
@@ -135,10 +141,13 @@ namespace TrenchBroom {
             }
 
             std::tuple<GroupNode*, PatchNode*> createGroupedPatch() {
+                // clang-format off
                 auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                     {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+                // clang-format on
+
                 auto* groupNode = new GroupNode{Group{"somegroup"}};
 
                 groupNode->addChild(patchNode);
@@ -161,10 +170,13 @@ namespace TrenchBroom {
             }
 
             std::tuple<GroupNode*, EntityNode*, PatchNode*> createGroupedPatchEntity() {
+                // clang-format off
                 auto* patchNode = new PatchNode{BezierPatch{3, 3, {
                     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
                     {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+                // clang-format on
+
                 auto* entityNode = new EntityNode{Entity{}};
                 auto* groupNode = new GroupNode{Group{"somegroup"}};
 
