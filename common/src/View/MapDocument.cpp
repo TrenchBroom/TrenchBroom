@@ -833,6 +833,50 @@ namespace TrenchBroom {
             return kdl::vec_sort_and_remove_duplicates(std::move(nodes));
         }
 
+        std::vector<Model::BrushNode*> MapDocument::allSelectedBrushNodes() const {
+            auto brushes = std::vector<Model::BrushNode*>{};
+            for (auto* node : m_selectedNodes.nodes()) {
+                node->accept(kdl::overload(
+                    [] (auto&& thisLambda, Model::WorldNode* world)   { world->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, Model::GroupNode* group)   { group->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, Model::EntityNode* entity) { entity->visitChildren(thisLambda); },
+                    [&](Model::BrushNode* brush)                      { brushes.push_back(brush); },
+                    [&](Model::PatchNode*)                            {}
+                ));
+            }
+            return brushes;
+        }
+
+        bool MapDocument::hasAnySelectedBrushNodes() const {
+            // This is just an optimization of `!allSelectedBrushNodes().empty()`
+            // that stops after finding the first brush
+            const auto visitChildrenAndExitEarly = [](auto&& thisLambda, const auto* node) {
+                for (const auto* child : node->children()) {
+                    if (child->accept(thisLambda)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            for (const auto* node : m_selectedNodes.nodes()) {
+                const auto hasBrush = node->accept(kdl::overload(
+                    [&](auto&& thisLambda, const Model::WorldNode* world)   -> bool { return visitChildrenAndExitEarly(thisLambda, world); },
+                    [&](auto&& thisLambda, const Model::LayerNode* layer)   -> bool { return visitChildrenAndExitEarly(thisLambda, layer); },
+                    [&](auto&& thisLambda, const Model::GroupNode* group)   -> bool { return visitChildrenAndExitEarly(thisLambda, group); },
+                    [&](auto&& thisLambda, const Model::EntityNode* entity) -> bool { return visitChildrenAndExitEarly(thisLambda, entity); },
+                    [] (const Model::BrushNode*)                            -> bool { return true; },
+                    [] (const Model::PatchNode*)                            -> bool { return false; }
+                ));
+                if (hasBrush) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         const Model::NodeCollection& MapDocument::selectedNodes() const {
             return m_selectedNodes;
         }
@@ -840,7 +884,9 @@ namespace TrenchBroom {
         std::vector<Model::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const {
             if (hasSelectedBrushFaces())
                 return selectedBrushFaces();
-            return Model::collectBrushFaces(m_selectedNodes.nodes());
+
+            const auto faces = Model::collectBrushFaces(m_selectedNodes.nodes());
+            return Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces).facesToSelect;
         }
 
         std::vector<Model::BrushFaceHandle> MapDocument::selectedBrushFaces() const {
@@ -2618,8 +2664,8 @@ namespace TrenchBroom {
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
 
-            const auto allSelectedBrushes = m_selectedNodes.brushesRecursively();
-            applyAndSwap(*this, "Snap Brush Vertices", allSelectedBrushes, findContainingLinkedGroupsToUpdate(*m_world, allSelectedBrushes), kdl::overload(
+            const auto allSelectedBrushes = allSelectedBrushNodes();
+            const bool applyAndSwapSuccess = applyAndSwap(*this, "Snap Brush Vertices", allSelectedBrushes, findContainingLinkedGroupsToUpdate(*m_world, allSelectedBrushes), kdl::overload(
                 [] (Model::Layer&)  { return true; },
                 [] (Model::Group&)  { return true; },
                 [] (Model::Entity&) { return true; },
@@ -2640,6 +2686,9 @@ namespace TrenchBroom {
                 [] (Model::BezierPatch&) { return true; }
             ));
 
+            if (!applyAndSwapSuccess) {
+                return false;
+            }
             if (succeededBrushCount > 0) {
                 info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
             }

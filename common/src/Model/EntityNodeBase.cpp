@@ -107,7 +107,7 @@ namespace TrenchBroom {
         }
 
         Entity EntityNodeBase::setEntity(Entity entity) {
-            const NotifyPropertyChange notifyChange(this);
+            const auto notifyChange = NotifyPropertyChange{*this};
             updateIndexAndLinks(entity.properties());
 
             using std::swap;
@@ -120,20 +120,19 @@ namespace TrenchBroom {
                 return;
             }
 
-            const NotifyPropertyChange notifyChange(this);
+            const auto notifyChange = NotifyPropertyChange{*this};
             m_entity.setDefinition(entityPropertyConfig(), definition);
         }
 
-        EntityNodeBase::NotifyPropertyChange::NotifyPropertyChange(EntityNodeBase* node) :
-        m_nodeChange(node),
-        m_node(node),
-        m_oldPhysicalBounds(node->physicalBounds()) {
-            ensure(m_node != nullptr, "node is null");
-            m_node->propertiesWillChange();
+        EntityNodeBase::NotifyPropertyChange::NotifyPropertyChange(EntityNodeBase& node) :
+        m_nodeChange{node},
+        m_node{node},
+        m_oldPhysicalBounds{node.physicalBounds()} {
+            m_node.propertiesWillChange();
         }
 
         EntityNodeBase::NotifyPropertyChange::~NotifyPropertyChange() {
-            m_node->propertiesDidChange(m_oldPhysicalBounds);
+            m_node.propertiesDidChange(m_oldPhysicalBounds);
         }
 
         void EntityNodeBase::propertiesWillChange() {}

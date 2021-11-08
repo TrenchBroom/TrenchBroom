@@ -55,7 +55,6 @@ namespace TrenchBroom {
             bool hasOnlyEntities() const;
             bool hasBrushes() const;
             bool hasOnlyBrushes() const;
-            bool hasBrushesRecursively() const;
             bool hasPatches() const;
             bool hasOnlyPatches() const;
 
@@ -69,7 +68,6 @@ namespace TrenchBroom {
             const std::vector<GroupNode*>& groups() const;
             const std::vector<EntityNode*>& entities() const;
             const std::vector<BrushNode*>& brushes() const;
-            std::vector<BrushNode*> brushesRecursively() const;
             const std::vector<PatchNode*>& patches() const;
 
             void addNodes(const std::vector<Node*>& nodes);

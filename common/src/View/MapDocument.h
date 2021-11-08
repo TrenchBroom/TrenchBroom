@@ -296,8 +296,40 @@ namespace TrenchBroom {
             bool hasSelectedBrushFaces() const override;
             bool hasAnySelectedBrushFaces() const override;
 
+            /**
+             * For commands that modify entities, this returns all entities that should be acted on, based on the current selection.
+             * 
+             * - selected brushes/patches act on their parent entities
+             * - selected groups implicitly act on any contained entities
+             *
+             * If multiple linked groups are selected, returns entities from all of them, so attempting to perform commands
+             * on all of them will be blocked as a conflict.
+             */
             std::vector<Model::EntityNodeBase*> allSelectedEntityNodes() const override;
+
+            /**
+             * For commands that modify brushes, this returns all brushes that should be acted on, based on the current selection.
+             *
+             * - selected groups implicitly act on any contained brushes
+             *
+             * If multiple linked groups are selected, returns brushes from all of them, so attempting to perform commands
+             * on all of them will be blocked as a conflict.
+             */
+            std::vector<Model::BrushNode*> allSelectedBrushNodes() const;
+            bool hasAnySelectedBrushNodes() const;
             const Model::NodeCollection& selectedNodes() const override;
+
+            /**
+             * For commands that modify brush faces, this returns all that should be acted on, based on the current selection.
+             * 
+             * - if brush faces are explicitly selected (hasSelectedBrushFaces()), use those
+             * - selected groups implicitly act on any contained brushes
+             * - selected brushes implicitly act on their faces
+             *
+             * Unlike allSelectedBrushNodes()/allSelectedEntityNodes(), if multiple groups in a link set are selected,
+             * only return one representative face per brush, so that user actions can be performed without generating conflicts.
+             * (e.g. this allows selecting 2 closed linked groups in a link set and applying textures.)
+             */
             std::vector<Model::BrushFaceHandle> allSelectedBrushFaces() const override;
             std::vector<Model::BrushFaceHandle> selectedBrushFaces() const override;
 

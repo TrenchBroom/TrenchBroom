@@ -66,6 +66,7 @@ namespace TrenchBroom {
 
             VisibilityState m_visibilityState;
             LockState m_lockState;
+            bool m_lockedByOtherSelection;
 
             mutable size_t m_lineNumber;
             mutable size_t m_lineCount;
@@ -242,9 +243,9 @@ namespace TrenchBroom {
         protected: // notification for parents
             class NotifyNodeChange {
             private:
-                Node* m_node;
+                Node& m_node;
             public:
-                explicit NotifyNodeChange(Node* node);
+                explicit NotifyNodeChange(Node& node);
                 ~NotifyNodeChange();
             };
 
@@ -255,9 +256,9 @@ namespace TrenchBroom {
             friend class NotifyPhysicalBoundsChange;
             class NotifyPhysicalBoundsChange {
             private:
-                Node* m_node;
+                Node& m_node;
             public:
-                explicit NotifyPhysicalBoundsChange(Node* node);
+                explicit NotifyPhysicalBoundsChange(Node& node);
                 ~NotifyPhysicalBoundsChange();
             };
             void nodePhysicalBoundsDidChange();
@@ -320,6 +321,8 @@ namespace TrenchBroom {
             bool locked() const;
             LockState lockState() const;
             bool setLockState(LockState lockState);
+            bool lockedByOtherSelection() const;
+            void setLockedByOtherSelection(bool lockedByOtherSelection);
         public: // picking
             void pick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& result);
             void findNodesContaining(const vm::vec3& point, std::vector<Node*>& result);

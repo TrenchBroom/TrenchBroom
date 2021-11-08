@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/HitType.h"
 #include "Model/Node.h"
 
@@ -55,6 +56,7 @@ namespace TrenchBroom {
         GroupNode* findOutermostClosedGroup(Node* node);
 
         std::vector<Model::GroupNode*> findLinkedGroups(Model::WorldNode& worldNode, const std::string& linkedGroupId);
+        std::vector<Model::GroupNode*> findAllLinkedGroups(Model::WorldNode& worldNode);
 
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
@@ -82,6 +84,39 @@ namespace TrenchBroom {
 
         std::vector<BrushNode*> filterBrushNodes(const std::vector<Node*>& nodes);
         std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes);
+
+        struct SelectionResult {
+            std::vector<Model::Node*> nodesToSelect;
+            std::vector<Model::GroupNode*> groupsToLock;
+        };
+
+        /**
+         * Given a list of `nodes` the user wants to select, returns the subset that we should allow selection of,
+         * as well as a list of linked groups to lock.
+         *
+         * - Attempting to select nodes inside a linked group will propose locking all other groups in that link set.
+         *  This is intended to prevent users from making conflicting commands as well as communicate which
+         *  specific linked group they are modifying.
+         *
+         * - If `nodes` contains members of different groups in the same link set,
+         *  only those in the first group will be allowed to be selected ("first" in the order of `nodes`).
+         *
+         * Note: no changes are made, just the proposed selection and locking is returned.
+         */
+        SelectionResult nodeSelectionWithLinkedGroupConstraints(Model::WorldNode& world, const std::vector<Model::Node*>& nodes);
+
+        struct FaceSelectionResult {
+            std::vector<Model::BrushFaceHandle> facesToSelect;
+            std::vector<Model::GroupNode*> groupsToLock;
+        };
+
+        /**
+         * Given a list of `faces` the user wants to select, returns the subset that we should allow selection of,
+         * as well as a list of linked groups to lock.
+         *
+         * @see nodeSelectionWithLinkedGroupConstraints()
+         */
+        FaceSelectionResult faceSelectionWithLinkedGroupConstraints(Model::WorldNode& world, const std::vector<Model::BrushFaceHandle>& faces);
     }
 }
 

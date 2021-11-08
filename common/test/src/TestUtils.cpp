@@ -270,6 +270,11 @@ namespace TrenchBroom {
             checkFaceTexCoordSystem(faces[5], expectParallel);
         }
 
+        void setLinkedGroupId(GroupNode& groupNode, std::string linkedGroupId) {
+            auto group = groupNode.group();
+            group.setLinkedGroupId(std::move(linkedGroupId));
+            groupNode.setGroup(std::move(group));
+        }
     }
 
     namespace View {
