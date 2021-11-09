@@ -36,36 +36,27 @@
 
 namespace TrenchBroom {
     namespace IO {
-        static std::string testDirNameUTF8() {
+        static TestEnvironment makeTestEnvironment() {
             // have a non-ASCII character in the directory name to help catch
             // filename encoding bugs
             const auto hiraganaLetterSmallA = QString(static_cast<QChar>(0x3041));
+            const auto dir = (QString::fromStdString(Catch::getResultCapture().getCurrentTestName()) + hiraganaLetterSmallA).toStdString();
 
-            return (QString::fromLatin1("fstest") + hiraganaLetterSmallA).toStdString();
+            return TestEnvironment{dir, [](TestEnvironment& env) {
+                env.createDirectory(Path("dir1"));
+                env.createDirectory(Path("dir2"));
+                env.createDirectory(Path("anotherDir"));
+                env.createDirectory(Path("anotherDir/subDirTest"));
+
+                env.createFile(Path("test.txt"), "some content");
+                env.createFile(Path("test2.map"), "//test file\n{}");
+                env.createFile(Path("anotherDir/subDirTest/test2.map"), "//sub dir test file\n{}");
+                env.createFile(Path("anotherDir/test3.map"), "//yet another test file\n{}");
+            }};
         }
 
-        class FSTestEnvironment : public TestEnvironment {
-        public:
-            explicit FSTestEnvironment() :
-            TestEnvironment(testDirNameUTF8()) {
-                createTestEnvironment();
-            }
-        private:
-            void doCreateTestEnvironment() override {
-                createDirectory(Path("dir1"));
-                createDirectory(Path("dir2"));
-                createDirectory(Path("anotherDir"));
-                createDirectory(Path("anotherDir/subDirTest"));
-
-                createFile(Path("test.txt"), "some content");
-                createFile(Path("test2.map"), "//test file\n{}");
-                createFile(Path("anotherDir/subDirTest/test2.map"), "//sub dir test file\n{}");
-                createFile(Path("anotherDir/test3.map"), "//yet another test file\n{}");
-            }
-        };
-
         TEST_CASE("FileSystemTest.makeAbsolute", "[FileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
 
             auto fs = std::make_shared<DiskFileSystem>(env.dir() + Path("anotherDir"));
                  fs = std::make_shared<DiskFileSystem>(fs, env.dir() + Path("dir1"));
@@ -80,7 +71,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskTest.fixPath", "[DiskTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
 
             CHECK_THROWS_AS(Disk::fixPath(Path("asdf/blah")), FileSystemException);
             CHECK_THROWS_AS(Disk::fixPath(Path("/../../test")), FileSystemException);
@@ -99,7 +90,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskTest.directoryExists", "[DiskTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
 
             CHECK_THROWS_AS(Disk::directoryExists(Path("asdf/bleh")), FileSystemException);
             if (Disk::isCaseSensitive()) {
@@ -115,7 +106,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskTest.fileExists", "[DiskTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
 
             CHECK_THROWS_AS(Disk::fileExists(Path("asdf/bleh")), FileSystemException);
 
@@ -124,7 +115,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskTest.getDirectoryContents", "[DiskTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
 
             CHECK_THROWS_AS(Disk::getDirectoryContents(Path("asdf/bleh")), FileSystemException);
             CHECK_THROWS_AS(Disk::getDirectoryContents(env.dir() + Path("does/not/exist")), FileSystemException);
@@ -139,7 +130,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskTest.openFile", "[DiskTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
 
             CHECK_THROWS_AS(Disk::openFile(Path("asdf/bleh")), FileSystemException);
             CHECK_THROWS_AS(Disk::openFile(env.dir() + Path("does/not/exist")), FileNotFoundException);
@@ -150,7 +141,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskTest.resolvePath", "[DiskTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
 
             std::vector<Path> rootPaths;
             rootPaths.push_back(env.dir());
@@ -171,7 +162,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskFileSystemTest.createDiskFileSystem", "[DiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
 
             CHECK_THROWS_AS(DiskFileSystem(env.dir() + Path("asdf"), true), FileSystemException);
             CHECK_NOTHROW(DiskFileSystem(env.dir() + Path("asdf"), false));
@@ -185,7 +176,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskFileSystemTest.directoryExists", "[DiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
@@ -205,7 +196,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskFileSystemTest.fileExists", "[DiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
@@ -225,7 +216,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskFileSystemTest.getDirectoryContents", "[DiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             const DiskFileSystem fs(env.dir());
 
             CHECK_THROWS_AS(fs.getDirectoryContents(Path("asdf/bleh")), FileSystemException);
@@ -237,7 +228,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskFileSystemTest.findItems", "[DiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
@@ -266,7 +257,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("DiskFileSystemTest.findItemsRecursively", "[DiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
@@ -303,7 +294,7 @@ namespace TrenchBroom {
         // getDirectoryContents gets tested thoroughly by the tests for the find* methods
 
         TEST_CASE("DiskFileSystemTest.openFile", "[DiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
@@ -327,7 +318,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("WritableDiskFileSystemTest.createWritableDiskFileSystem", "[WritableDiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
 
             CHECK_THROWS_AS(WritableDiskFileSystem(env.dir() + Path("asdf"), false), FileSystemException);
             CHECK_NOTHROW(WritableDiskFileSystem(env.dir() + Path("asdf"), true));
@@ -341,7 +332,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("WritableDiskFileSystemTest.createDirectory", "[WritableDiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32
@@ -366,7 +357,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("WritableDiskFileSystemTest.deleteFile", "[WritableDiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32
@@ -392,7 +383,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("WritableDiskFileSystemTest.moveFile", "[WritableDiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32
@@ -432,7 +423,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("WritableDiskFileSystemTest.copyFile", "[WritableDiskFileSystemTest]") {
-            FSTestEnvironment env;
+            const auto env = makeTestEnvironment();
             WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32

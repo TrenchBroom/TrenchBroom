@@ -61,10 +61,10 @@ namespace TrenchBroom {
             class NotifyPropertyChange {
             private:
                 NotifyNodeChange m_nodeChange;
-                EntityNodeBase* m_node;
+                EntityNodeBase& m_node;
                 vm::bbox3 m_oldPhysicalBounds;
             public:
-                NotifyPropertyChange(EntityNodeBase* node);
+                NotifyPropertyChange(EntityNodeBase& node);
                 ~NotifyPropertyChange();
             };
 

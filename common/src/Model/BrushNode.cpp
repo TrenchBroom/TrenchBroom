@@ -98,8 +98,8 @@ namespace TrenchBroom {
         }
         
         Brush BrushNode::setBrush(Brush brush) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
+            const auto nodeChange = NotifyNodeChange{*this};
+            const auto boundsChange = NotifyPhysicalBoundsChange{*this};
 
             using std::swap;
             swap(m_brush, brush);

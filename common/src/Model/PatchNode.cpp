@@ -277,8 +277,8 @@ namespace TrenchBroom {
         }
 
         BezierPatch PatchNode::setPatch(BezierPatch patch) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
+            const auto nodeChange = NotifyNodeChange{*this};
+            const auto boundsChange = NotifyPhysicalBoundsChange{*this};
 
             auto previousPatch = std::exchange(m_patch, std::move(patch));
             m_grid = makePatchGrid(m_patch, DefaultSubdivisionsPerSurface);
