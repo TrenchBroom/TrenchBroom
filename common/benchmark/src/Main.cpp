@@ -18,5 +18,7 @@
  */
 
 // Hack to reuse the same main() function as the test suite
+// clang-format off
 #include "../../test/src/TestPreferenceManager.cpp"
 #include "../../test/src/RunAllTests.cpp"
+// clang-format on
