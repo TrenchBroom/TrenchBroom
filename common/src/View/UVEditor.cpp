@@ -90,11 +90,11 @@ namespace TrenchBroom {
 
             auto* gridLabel = new QLabel("Grid ");
             makeEmphasized(gridLabel);
-            m_xSubDivisionEditor = new QSpinBox(); //(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
+            m_xSubDivisionEditor = new QSpinBox();
             m_xSubDivisionEditor->setRange(1, 16);
             m_xSubDivisionEditor->setValue(1);
 
-            m_ySubDivisionEditor = new QSpinBox(); //(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
+            m_ySubDivisionEditor = new QSpinBox();
             m_ySubDivisionEditor->setRange(1, 16);
             m_ySubDivisionEditor->setValue(1);
 
