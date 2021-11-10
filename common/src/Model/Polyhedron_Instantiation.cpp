@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// clang-format off
+// order of includes is important
 #include "FloatType.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Misc.h"
@@ -32,6 +34,7 @@
 
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
+// clang-format on
 
 namespace TrenchBroom {
     namespace Model {
