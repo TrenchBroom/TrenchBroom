@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return str;
         }
 
-        ObjSerializer::ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, const Path& mtlPath, std::shared_ptr<IO::ObjExportOptions>  options) :
+        ObjSerializer::ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, Path mtlPath, IO::ObjExportOptions options) :
         m_objStream{objStream},
         m_mtlStream{mtlStream},
         m_mtlPath{std::move(mtlPath)},
@@ -91,7 +91,7 @@ namespace TrenchBroom {
 
         void ObjSerializer::doBeginFile(const std::vector<const Model::Node*>& /* rootNodes */) {}
 
-        static void writeMtlFile(std::ostream& str, const std::vector<ObjSerializer::Object>& objects, const Path& mtlPath, const std::shared_ptr<IO::ObjExportOptions>& options) {
+        static void writeMtlFile(std::ostream& str, const std::vector<ObjSerializer::Object>& objects, const Path& mtlPath, const IO::ObjExportOptions& options) {
             auto usedTextures = std::map<std::string, const Assets::Texture*>{};
 
             for (const auto& object : objects) {
@@ -107,17 +107,18 @@ namespace TrenchBroom {
                 ), object);
             }
 
+            const Path basePath = mtlPath.deleteLastComponent();
             for (const auto& [textureName, texture] : usedTextures) {
                 str << "newmtl " << textureName << "\n";
                 if (texture != nullptr && !texture->relativePath().isEmpty()) {
-                    std::string path;
-                    if (options->gameDirRelativePaths) {
-                        path = mtlPath.deleteLastComponent().makeRelative(texture->absolutePath()).asString();
+                    Path texturePath;
+                    if (!options.gameDirRelativePaths) {
+                        texturePath = basePath.makeRelative(texture->absolutePath());
                     }
                     else {
-                        path = texture->relativePath().asString();
+                        texturePath = texture->relativePath();
                     }
-                    str << "map_Kd " << path << "\n\n";
+                    str << "map_Kd " << texturePath << "\n\n";
                 }
             }
         }

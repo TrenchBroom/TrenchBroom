@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2021 Amara M. Kilic
 
  This file is part of TrenchBroom.
 
@@ -34,12 +34,12 @@
 namespace TrenchBroom {
     namespace View {
         ObjExportDialog::ObjExportDialog(MapFrame* mapFrame) :
-        m_mapFrame(mapFrame),
-        m_exportButton(nullptr),
-        m_closeButton(nullptr),
-        m_relativeCheckBox(nullptr),
-        m_pathEdit(nullptr),
-        m_browseButton(nullptr) {
+        m_mapFrame{mapFrame},
+        m_exportButton{nullptr},
+        m_closeButton{nullptr},
+        m_relativeCheckBox{nullptr},
+        m_pathEdit{nullptr},
+        m_browseButton{nullptr} {
             createGui();
             resize(600, 0);
         }
@@ -96,10 +96,10 @@ namespace TrenchBroom {
                 }
             });
             connect(m_exportButton, &QPushButton::clicked, this, [&]() {
-                std::shared_ptr<IO::ObjExportOptions> options = std::make_shared<IO::ObjExportOptions>();
-                options->exportPath = IO::pathFromQString(m_pathEdit->text());
-                options->gameDirRelativePaths = m_relativeCheckBox->isChecked();
-                m_mapFrame->exportDocument(Model::ExportFormat::WavefrontObj, options);
+                IO::ObjExportOptions options;
+                options.exportPath = IO::pathFromQString(m_pathEdit->text());
+                options.gameDirRelativePaths = m_relativeCheckBox->isChecked();
+                m_mapFrame->exportDocument(options);
                 close();
             });
         }

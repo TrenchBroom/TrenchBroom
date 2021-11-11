@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2021 Amara M. Kilic
 
  This file is part of TrenchBroom.
 
@@ -23,17 +23,12 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ExportOptions {
-        public:
+        struct MapExportOptions {
             Path exportPath;
         };
 
-        class MapExportOptions : public ExportOptions {
-
-        };
-
-        class ObjExportOptions : public ExportOptions {
-        public:
+        struct ObjExportOptions {
+            Path exportPath;
             bool gameDirRelativePaths = false;
         };
     }

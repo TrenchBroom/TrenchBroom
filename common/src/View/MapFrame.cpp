@@ -86,6 +86,7 @@
 #include <iterator>
 #include <string>
 #include <vector>
+#include <variant>
 
 #include <QtGlobal>
 #include <QTimer>
@@ -876,7 +877,7 @@ namespace TrenchBroom {
 
         bool MapFrame::exportDocumentAsObj() {
             if (m_objExportDialog == nullptr) {
-                m_objExportDialog = new ObjExportDialog(this);
+                m_objExportDialog = new ObjExportDialog{this};
             }
             showModelessDialog(m_objExportDialog);
             return true;
@@ -890,26 +891,30 @@ namespace TrenchBroom {
                 return false;
             }
 
-            std::shared_ptr<IO::MapExportOptions> options = std::make_shared<IO::MapExportOptions>();
-            options->exportPath = IO::pathFromQString(newFileName);
+            IO::MapExportOptions options;
+            options.exportPath = IO::pathFromQString(newFileName);
 
-            return exportDocument(Model::ExportFormat::Map, options);
+            return exportDocument(options);
         }
 
-        bool MapFrame::exportDocument(const Model::ExportFormat format, const std::shared_ptr<IO::ExportOptions>& options) {
-            if (options->exportPath == m_document->path()) {
+        bool MapFrame::exportDocument(IO::ExportOptions options) {
+            IO::Path exportPath = std::visit(kdl::overload(
+                    [](const IO::MapExportOptions& option) { return option.exportPath; },
+                    [](const IO::ObjExportOptions& option) { return option.exportPath; }
+                    ), options);
+            if (exportPath == m_document->path()) {
                 QMessageBox::critical(this, "", tr("You can't overwrite the current document.\nPlease choose a different file name to export to."));
                 return false;
             }
             try {
-                m_document->exportDocumentAs(format, options);
-                logger().info() << "Exported " << options->exportPath;
+                m_document->exportDocumentAs(options);
+                logger().info() << "Exported " << exportPath;
                 return true;
             } catch (const FileSystemException& e) {
                 QMessageBox::critical(this, "", e.what());
                 return false;
             } catch (...) {
-                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while exporting " + options->exportPath.asString()), QMessageBox::Ok);
+                QMessageBox::critical(this, "", QString::fromStdString("Unknown error while exporting " + exportPath.asString()), QMessageBox::Ok);
                 return false;
             }
         }

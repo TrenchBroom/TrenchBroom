@@ -83,11 +83,11 @@ namespace TrenchBroom {
                             IO::Disk::createDirectory(directoryPath);
                         }
 
-                        std::shared_ptr<IO::MapExportOptions> options = std::make_shared<IO::MapExportOptions>();
-                        options->exportPath = targetPath;
+                        IO::MapExportOptions options;
+                        options.exportPath = targetPath;
 
                         const auto document = m_context.document();
-                        document->exportDocumentAs(Model::ExportFormat::Map, options);
+                        document->exportDocumentAs(options);
                     }
                     emit end();
                 } catch (const Exception& e) {

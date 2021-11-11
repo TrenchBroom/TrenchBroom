@@ -51,12 +51,12 @@ namespace TrenchBroom {
 
             auto objStream = std::ostringstream{};
             auto mtlStream = std::ostringstream{};
-            const auto mtlPath = Path("some_file_name.mtl");
+            const Path mtlPath{"some_file_name.mtl"};
 
-            std::shared_ptr<IO::ObjExportOptions> objOptions = std::make_shared<IO::ObjExportOptions>();
+            IO::ObjExportOptions objOptions;
             objOptions->gameDirRelativePaths = false;
 
-            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlPath, objOptions)};
+            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, std::move(mtlPath), objOptions)};
             writer.writeMap();
 
             CHECK(objStream.str() == R"(mtllib some_file_name.mtl
@@ -118,12 +118,12 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
 
             auto objStream = std::ostringstream{};
             auto mtlStream = std::ostringstream{};
-            const auto mtlPath = Path("some_file_name.mtl");
+            const Path mtlPath{"some_file_name.mtl"};
 
-            std::shared_ptr<IO::ObjExportOptions> objOptions = std::make_shared<IO::ObjExportOptions>();
+            IO::ObjExportOptions objOptions;
             objOptions->gameDirRelativePaths = false;
 
-            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlPath, objOptions)};
+            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, std::move(mtlPath), objOptions)};
             writer.writeMap();
 
             CHECK(objStream.str() == R"(mtllib some_file_name.mtl

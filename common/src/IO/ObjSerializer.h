@@ -20,8 +20,9 @@
 #pragma once
 
 #include "FloatType.h"
+#include "IO/ExportOptions.h"
 #include "IO/NodeSerializer.h"
-#include "Path.h"
+#include "IO/Path.h"
 
 #include <vecmath/forward.h>
 
@@ -120,7 +121,7 @@ namespace TrenchBroom {
             std::ostream& m_objStream;
             std::ostream& m_mtlStream;
             Path m_mtlPath;
-            std::shared_ptr<IO::ObjExportOptions> m_options;
+            IO::ObjExportOptions m_options;
 
             IndexMap<vm::vec3> m_vertices;
             IndexMap<vm::vec2f> m_texCoords;
@@ -129,7 +130,7 @@ namespace TrenchBroom {
             std::optional<BrushObject> m_currentBrush;
             std::vector<Object> m_objects;
         public:
-            explicit ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, const Path& mtlPath, std::shared_ptr<IO::ObjExportOptions>  options);
+            ObjSerializer(std::ostream& objStream, std::ostream& mtlStream, Path mtlPath, IO::ObjExportOptions options);
         private:
             void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
             void doEndFile() override;

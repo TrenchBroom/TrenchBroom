@@ -23,6 +23,7 @@
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/ExportOptions.h"
 #include "IO/IOUtils.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
@@ -120,7 +121,7 @@ namespace TrenchBroom {
             writer.writeMap();
         }
 
-        void TestGame::doExportMap(WorldNode& /* world */, const Model::ExportFormat /* format */, const std::shared_ptr<IO::ExportOptions>& /* options */) const {}
+        void TestGame::doExportMap(WorldNode& /* world */, IO::ExportOptions /* options */) const {}
 
         std::vector<Node*> TestGame::doParseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;

@@ -52,10 +52,6 @@ namespace TrenchBroom {
         class TextureManager;
     }
 
-    namespace IO {
-        class ExportOptions;
-    }
-
     namespace Model {
         class Brush;
         class BrushFace;
@@ -268,7 +264,7 @@ namespace TrenchBroom {
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
-            void exportDocumentAs(const Model::ExportFormat format, const std::shared_ptr<IO::ExportOptions>& options);
+            void exportDocumentAs(IO::ExportOptions options);
         private:
             void doSaveDocument(const IO::Path& path);
             void clearDocument();

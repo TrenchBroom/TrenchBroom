@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2021 Amara M. Kilic
 
  This file is part of TrenchBroom.
 
@@ -20,6 +20,11 @@
 #pragma once
 
 #include <QDialog>
+
+class QPushButton;
+class QCheckBox;
+class QLineEdit;
+class QPushButton;
 
 namespace TrenchBroom {
     namespace View {

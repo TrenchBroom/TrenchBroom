@@ -51,7 +51,9 @@ namespace TrenchBroom {
 
     namespace IO {
         class Path;
-        class ExportOptions;
+        class MapExportOptions;
+        class ObjExportOptions;
+        using ExportOptions = std::variant<MapExportOptions, ObjExportOptions>;
     }
 
     namespace Model {
@@ -183,7 +185,7 @@ namespace TrenchBroom {
             bool revertDocument();
             bool exportDocumentAsObj();
             bool exportDocumentAsMap();
-            bool exportDocument(Model::ExportFormat format, const std::shared_ptr<IO::ExportOptions>& options);
+            bool exportDocument(IO::ExportOptions options);
         private:
             bool confirmOrDiscardChanges();
             bool confirmRevertDocument();
