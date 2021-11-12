@@ -42,6 +42,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/EntityModelLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/EntityModelParser.cpp
         ${COMMON_SOURCE_DIR}/IO/EntParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
         ${COMMON_SOURCE_DIR}/IO/File.cpp
         ${COMMON_SOURCE_DIR}/IO/FileMatcher.cpp
@@ -525,6 +526,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/EntityModelLoader.h
         ${COMMON_SOURCE_DIR}/IO/EntityModelParser.h
         ${COMMON_SOURCE_DIR}/IO/EntParser.h
+        ${COMMON_SOURCE_DIR}/IO/ExportOptions.h
         ${COMMON_SOURCE_DIR}/IO/FgdParser.h
         ${COMMON_SOURCE_DIR}/IO/File.h
         ${COMMON_SOURCE_DIR}/IO/FileMatcher.h
