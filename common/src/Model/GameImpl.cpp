@@ -34,6 +34,7 @@
 #include "IO/DkmParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/EntParser.h"
+#include "IO/ExportOptions.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
@@ -227,7 +228,9 @@ namespace TrenchBroom {
                         throw FileSystemException("Cannot open file: " + mtlPath.asString());
                     }
 
-                    IO::NodeWriter writer(world, std::make_unique<IO::ObjSerializer>(objFile, mtlFile, mtlPath.filename()));
+                    const auto objOptions = IO::ObjExportOptions{path, IO::ObjMtlPathMode::RelativeToGamePath};
+
+                    IO::NodeWriter writer(world, std::make_unique<IO::ObjSerializer>(objFile, mtlFile, mtlPath.filename(), objOptions));
                     writer.setExporting(true);
                     writer.writeMap();
                     break;
