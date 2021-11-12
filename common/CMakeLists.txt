@@ -612,7 +612,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EntityProperties.h
         ${COMMON_SOURCE_DIR}/Model/EntityPropertiesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
-        ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
         ${COMMON_SOURCE_DIR}/Model/Game.h
         ${COMMON_SOURCE_DIR}/Model/GameConfig.h
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.h
