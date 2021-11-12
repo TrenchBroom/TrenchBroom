@@ -33,6 +33,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "EL/ELExceptions.h"
+#include "IO/ExportOptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
@@ -523,8 +524,8 @@ namespace TrenchBroom {
             m_game->writeMap(*m_world, path);
         }
 
-        void MapDocument::exportDocumentAs(const Model::ExportFormat format, const IO::Path& path) {
-            m_game->exportMap(*m_world, format, path);
+        void MapDocument::exportDocumentAs(const IO::ExportOptions& options) {
+            m_game->exportMap(*m_world, options);
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {

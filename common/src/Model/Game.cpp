@@ -20,6 +20,7 @@
 #include "Game.h"
 
 #include "Assets/EntityDefinitionFileSpec.h"
+#include "IO/ExportOptions.h"
 #include "Model/BrushFace.h"
 #include "Model/GameFactory.h"
 #include "Model/WorldNode.h"
@@ -86,8 +87,8 @@ namespace TrenchBroom {
             doWriteMap(world, path);
         }
 
-        void Game::exportMap(WorldNode& world, const Model::ExportFormat format, const IO::Path& path) const {
-            doExportMap(world, format, path);
+        void Game::exportMap(WorldNode& world, const IO::ExportOptions& options) const {
+            doExportMap(world, options);
         }
 
         std::vector<Node*> Game::parseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const {
