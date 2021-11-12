@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        void FormWithSectionsLayout::addSection(const QString& title) {
+        void FormWithSectionsLayout::addSection(const QString& title, const QString& info) {
             if (rowCount() > 0) {
                 auto* lineLayout = new QVBoxLayout();
                 lineLayout->setContentsMargins(0, 2 * LayoutConstants::MediumVMargin, 0, 0);
@@ -36,9 +36,21 @@ namespace TrenchBroom {
                 QFormLayout::addRow(lineLayout);
             }
 
-            auto* titleLayout = new QHBoxLayout();
+            auto* titleLayout = new QVBoxLayout();
             titleLayout->setContentsMargins(LayoutConstants::WideHMargin, 0, LayoutConstants::WideHMargin, 0);
+            titleLayout->setSpacing(0);
             titleLayout->addWidget(makeEmphasized(new QLabel(title)));
+
+            if (!info.isEmpty()) {
+                auto* infoLabel = new QLabel{info};
+                infoLabel->setWordWrap(true);
+                makeInfo(infoLabel);
+                
+                titleLayout->addSpacing(LayoutConstants::NarrowVMargin);
+                titleLayout->addWidget(infoLabel);
+            }
+
+            titleLayout->addSpacing(LayoutConstants::MediumVMargin);
 
             QFormLayout::addRow(titleLayout);
         }
@@ -57,6 +69,14 @@ namespace TrenchBroom {
 
         void FormWithSectionsLayout::addRow(const QString& labelText, QLayout* field) {
             insertRow(rowCount(), labelText, field);
+        }
+
+        void FormWithSectionsLayout::addRow(QWidget* field) {
+            insertRow(rowCount(), field);
+        }
+
+        void FormWithSectionsLayout::addRow(QLayout* field) {
+            insertRow(rowCount(), field);
         }
 
         void FormWithSectionsLayout::insertRow(const int row, QWidget* label, QWidget* field) {
@@ -91,6 +111,20 @@ namespace TrenchBroom {
 
         void FormWithSectionsLayout::insertRow(const int row, const QString& labelText, QLayout* field) {
             insertRow(row, new QLabel(labelText), field);
+        }
+
+        void FormWithSectionsLayout::insertRow(int row, QWidget* field) {
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(LayoutConstants::WideHMargin, 0, LayoutConstants::WideHMargin, 0);
+            layout->addWidget(field);
+            QFormLayout::insertRow(row, layout);
+        }
+
+        void FormWithSectionsLayout::insertRow(int row, QLayout* field) {
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(LayoutConstants::WideHMargin, 0, LayoutConstants::WideHMargin, 0);
+            layout->addLayout(field);
+            QFormLayout::insertRow(row, layout);
         }
     }
 }
