@@ -80,29 +80,6 @@ namespace TrenchBroom {
              */
             void invalidateGroup(const Model::GroupNode* group);
 
-            template <typename Iter>
-            void addGroups(Iter cur, const Iter end) {
-                while (cur != end) {
-                    addGroup(*cur);
-                    ++cur;
-                }
-            }
-            template <typename Iter>
-            void updateGroups(Iter cur, const Iter end) {
-                while (cur != end) {
-                    updateGroup(*cur);
-                    ++cur;
-                }
-            }
-
-            template <typename Iter>
-            void removeGroups(Iter cur, const Iter end) {
-                while (cur != end) {
-                    removeGroup(*cur);
-                    ++cur;
-                }
-            }
-
             void setOverrideColors(bool overrideColors);
 
             void setShowOverlays(bool showOverlays);
