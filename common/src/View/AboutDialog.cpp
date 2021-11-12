@@ -63,6 +63,7 @@ namespace TrenchBroom {
                                              "<b>Contributors</b>\n"
                                              "20kdc, "
                                              "aapokaapo, "
+                                             "Amara M. Kilic, "
                                              "Ari Vuollet, "
                                              "bazhenovc, "
                                              "chronicol, "
