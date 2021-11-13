@@ -137,32 +137,6 @@ namespace TrenchBroom {
             clear();
         }
 
-        void BrushRenderer::addBrushes(const std::vector<Model::BrushNode*>& brushes) {
-            for (auto* brush : brushes) {
-                addBrush(brush);
-            }
-        }
-
-        void BrushRenderer::setBrushes(const std::vector<Model::BrushNode*>& brushes) {
-            // start with adding nothing, and removing everything
-            std::unordered_set<const Model::BrushNode*> toAdd;
-            std::unordered_set<const Model::BrushNode*> toRemove = m_allBrushes;
-
-            // update toAdd and toRemove using the input list
-            for (const auto* brush : brushes) {
-                if (toRemove.erase(brush) == 0u) {
-                    toAdd.insert(brush);
-                }
-            }
-
-            for (auto brush : toRemove) {
-                removeBrush(brush);
-            }
-            for (auto brush : toAdd) {
-                addBrush(brush);
-            }
-        }
-
         void BrushRenderer::invalidate() {
             for (auto& brush : m_allBrushes) {
                 // this will also invalidate already invalid brushes, which
@@ -176,18 +150,16 @@ namespace TrenchBroom {
             assert(m_opaqueFaces->empty());
         }
 
-        void BrushRenderer::invalidateBrushes(const std::vector<Model::BrushNode*>& brushes) {
-            for (auto& brush : brushes) {
-                // skip brushes that are not in the renderer
-                if (m_allBrushes.find(brush) == std::end(m_allBrushes)) {
-                    assert(m_brushInfo.find(brush) == std::end(m_brushInfo));
-                    assert(m_invalidBrushes.find(brush) == std::end(m_invalidBrushes));
-                    continue;
-                }
-                // if it's not in the invalid set, put it in
-                if (m_invalidBrushes.insert(brush).second) {
-                    removeBrushFromVbo(brush);
-                }
+        void BrushRenderer::invalidateBrush(const Model::BrushNode* brush) {
+            // skip brushes that are not in the renderer
+            if (m_allBrushes.find(brush) == std::end(m_allBrushes)) {
+                assert(m_brushInfo.find(brush) == std::end(m_brushInfo));
+                assert(m_invalidBrushes.find(brush) == std::end(m_invalidBrushes));
+                return;
+            }
+            // if it's not in the invalid set, put it in
+            if (m_invalidBrushes.insert(brush).second) {
+                removeBrushFromVbo(brush);
             }
         }
 
@@ -580,7 +552,7 @@ namespace TrenchBroom {
 
         void BrushRenderer::removeBrush(const Model::BrushNode* brush) {
             // update m_brushValid
-            assertResult(m_allBrushes.erase(brush) > 0u);
+            m_allBrushes.erase(brush);
 
             if (m_invalidBrushes.erase(brush) > 0u) {
                 // invalid brushes are not in the VBO, so we can return  now.

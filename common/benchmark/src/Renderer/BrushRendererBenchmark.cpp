@@ -75,7 +75,9 @@ namespace TrenchBroom {
             // want it mixed into the timing
 
             BrushRenderer tempRenderer;
-            tempRenderer.addBrushes(result);
+            for (auto* brushNode : result) {
+                tempRenderer.addBrush(brushNode);
+            }
             tempRenderer.validate();
             tempRenderer.clear();
 
@@ -89,7 +91,11 @@ namespace TrenchBroom {
 
             BrushRenderer r;
 
-            timeLambda([&](){ r.addBrushes(brushes); }, "add " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
+            timeLambda([&](){ 
+                for (auto* brush : brushes) {
+                    r.addBrush(brush);
+                }
+            }, "add " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
             timeLambda([&](){
                 if (!r.valid()) {
                     r.validate();
@@ -97,11 +103,7 @@ namespace TrenchBroom {
             }, "validate after adding " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
 
             // Tiny change: remove the last brush
-            std::vector<Model::BrushNode*> brushesMinusOne = brushes;
-            assert(!brushesMinusOne.empty());
-            brushesMinusOne.pop_back();
-
-            timeLambda([&](){ r.setBrushes(brushesMinusOne); }, "setBrushes to " + std::to_string(brushesMinusOne.size()) + " (removing one)");
+            timeLambda([&](){ r.removeBrush(brushes.back()); }, "call removeBrush once");
             timeLambda([&](){
                 if (!r.valid()) {
                     r.validate();
@@ -109,22 +111,19 @@ namespace TrenchBroom {
             }, "validate after removing one brush");
 
             // Large change: keep every second brush
-            std::vector<Model::BrushNode*> brushesToKeep;
-            for (size_t i = 0; i < brushes.size(); ++i) {
-                if ((i % 2) == 0) {
-                    brushesToKeep.push_back(brushes.at(i));
+            timeLambda([&](){
+                for (size_t i = 0; i < brushes.size(); ++i) {
+                    if ((i % 2) == 0) {
+                        r.removeBrush(brushes[i]);
+                    }
                 }
-            }
-
-            timeLambda([&](){ r.setBrushes(brushesToKeep); },
-                       "set brushes from " + std::to_string(brushes.size()) +
-                       " to " + std::to_string(brushesToKeep.size()));
+            }, "remove every second brush");
 
             timeLambda([&](){
                            if (!r.valid()) {
                                r.validate();
                            }
-                       }, "validate with " + std::to_string(brushesToKeep.size()) + " brushes");
+                       }, "validate remaining brushes");
 
             kdl::vec_clear_and_delete(brushes);
             kdl::vec_clear_and_delete(textures);

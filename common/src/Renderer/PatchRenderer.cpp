@@ -85,17 +85,29 @@ namespace TrenchBroom {
             m_occludedEdgeColor = occludedEdgeColor;
         }
 
-        void PatchRenderer::setPatches(std::vector<Model::PatchNode*> patchNodes) {
-            m_patchNodes = std::move(patchNodes);
-            invalidate();
-        }
-
         void PatchRenderer::invalidate() {
             m_valid = false;
         }
 
         void PatchRenderer::clear() {
             m_patchNodes.clear();
+            invalidate();
+        }
+
+        void PatchRenderer::addPatch(const Model::PatchNode* patchNode) {
+            if (m_patchNodes.insert(patchNode).second) {
+                invalidate();
+            }
+        }
+
+        void PatchRenderer::removePatch(const Model::PatchNode* patchNode) {
+            if (auto it = m_patchNodes.find(patchNode); it != std::end(m_patchNodes)) {
+                m_patchNodes.erase(it);
+                invalidate();
+            }
+        }
+
+        void PatchRenderer::invalidatePatch(const Model::PatchNode*) {
             invalidate();
         }
 
@@ -116,7 +128,7 @@ namespace TrenchBroom {
             }
         }
 
-        static TexturedIndexArrayRenderer buildMeshRenderer(const std::vector<Model::PatchNode*>& patchNodes) {
+        static TexturedIndexArrayRenderer buildMeshRenderer(const std::vector<const Model::PatchNode*>& patchNodes) {
                 size_t vertexCount = 0u;
                 auto indexArrayMapSize = TexturedIndexArrayMap::Size{};
                 
@@ -163,7 +175,7 @@ namespace TrenchBroom {
                 return TexturedIndexArrayRenderer{std::move(vertexArray), std::move(indexArray), std::move(indexArrayMapBuilder.ranges())};
         }
 
-        static DirectEdgeRenderer buildEdgeRenderer(const std::vector<Model::PatchNode*>& patchNodes) {
+        static DirectEdgeRenderer buildEdgeRenderer(const std::vector<const Model::PatchNode*>& patchNodes) {
                 size_t vertexCount = 0u;
                 auto indexRangeMapSize = IndexRangeMap::Size{};
 
@@ -221,8 +233,8 @@ namespace TrenchBroom {
 
         void PatchRenderer::validate() {
             if (!m_valid) {
-                m_patchMeshRenderer = buildMeshRenderer(m_patchNodes);
-                m_edgeRenderer = buildEdgeRenderer(m_patchNodes);
+                m_patchMeshRenderer = buildMeshRenderer(m_patchNodes.get_data());
+                m_edgeRenderer = buildEdgeRenderer(m_patchNodes.get_data());
 
                 m_valid = true;
             }

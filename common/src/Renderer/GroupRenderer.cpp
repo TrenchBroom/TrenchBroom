@@ -32,8 +32,6 @@
 
 #include <vector>
 
-#include <vector>
-
 namespace TrenchBroom {
     namespace Renderer {
         class GroupRenderer::GroupNameAnchor : public TextAnchor3D {
@@ -63,11 +61,6 @@ namespace TrenchBroom {
         m_showOccludedOverlays(false),
         m_showOccludedBounds(false) {}
 
-        void GroupRenderer::setGroups(const std::vector<Model::GroupNode*>& groups) {
-            m_groups = groups;
-            invalidate();
-        }
-
         void GroupRenderer::invalidate() {
             invalidateBounds();
         }
@@ -75,6 +68,23 @@ namespace TrenchBroom {
         void GroupRenderer::clear() {
             m_groups.clear();
             m_boundsRenderer = DirectEdgeRenderer();
+        }
+
+        void GroupRenderer::addGroup(const Model::GroupNode* group) {
+            if (m_groups.insert(group).second) {
+                invalidate();
+            }
+        }
+
+        void GroupRenderer::removeGroup(const Model::GroupNode* group) {
+            if (auto it = m_groups.find(group); it != std::end(m_groups)) {
+                m_groups.erase(it);
+                invalidate();
+            }
+        }
+
+        void GroupRenderer::invalidateGroup(const Model::GroupNode*) {
+            invalidate();
         }
 
         void GroupRenderer::setOverrideColors(const bool overrideColors) {

@@ -78,12 +78,6 @@ namespace TrenchBroom {
         m_showAngles(false),
         m_showHiddenEntities(false) {}
 
-        void EntityRenderer::setEntities(const std::vector<Model::EntityNode*>& entities) {
-            m_entities = entities;
-            m_modelRenderer.setEntities(std::begin(m_entities), std::end(m_entities));
-            invalidate();
-        }
-
         void EntityRenderer::invalidate() {
             invalidateBounds();
             reloadModels();
@@ -99,6 +93,26 @@ namespace TrenchBroom {
 
         void EntityRenderer::reloadModels() {
             m_modelRenderer.updateEntities(std::begin(m_entities), std::end(m_entities));
+        }
+
+        void EntityRenderer::addEntity(const Model::EntityNode* entity) {
+            if (m_entities.insert(entity).second) {
+                m_modelRenderer.addEntity(entity);
+                invalidateBounds();
+            }
+        }
+
+        void EntityRenderer::removeEntity(const Model::EntityNode* entity) {
+            if (auto it = m_entities.find(entity); it != std::end(m_entities)) {
+                m_entities.erase(it);
+                m_modelRenderer.removeEntity(entity);
+                invalidateBounds();
+            }
+        }
+
+        void EntityRenderer::invalidateEntity(const Model::EntityNode* entity) {
+            m_modelRenderer.updateEntity(entity);
+            invalidateBounds();
         }
 
         void EntityRenderer::setShowOverlays(const bool showOverlays) {

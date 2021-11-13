@@ -25,6 +25,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/TriangleRenderer.h"
 
+#include <kdl/vector_set.h>
 #include <vecmath/forward.h>
 
 #include <vector>
@@ -50,7 +51,7 @@ namespace TrenchBroom {
 
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
-            std::vector<Model::EntityNode*> m_entities;
+            kdl::vector_set<const Model::EntityNode*> m_entities;
 
             DirectEdgeRenderer m_pointEntityWireframeBoundsRenderer;
             DirectEdgeRenderer m_brushEntityWireframeBoundsRenderer;
@@ -75,10 +76,28 @@ namespace TrenchBroom {
         public:
             EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 
-            void setEntities(const std::vector<Model::EntityNode*>& entities);
+            /**
+             * Equivalent to invalidateEntity() on all added entities.
+             */
             void invalidate();
+            /**
+             * Equivalent to removeEntity() on all added entities.
+             */
             void clear();
             void reloadModels();
+
+            /**
+             * Adds an entity. Calling with an already-added entity is allowed, but ignored (not guaranteed to invalidate it).
+             */
+            void addEntity(const Model::EntityNode* entity);
+            /**
+             * Removes an entity. Calling with an unknown entity is allowed, but ignored.
+             */
+            void removeEntity(const Model::EntityNode* entity);
+            /**
+             * Causes cached renderer data to be rebuilt for the given entity (on the next render() call).
+             */
+            void invalidateEntity(const Model::EntityNode* entity);
 
             void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);

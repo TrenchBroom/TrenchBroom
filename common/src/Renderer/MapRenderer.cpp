@@ -172,6 +172,7 @@ namespace TrenchBroom {
             m_lockedRenderer->clear();
             m_entityLinkRenderer->invalidate();
             m_groupLinkRenderer->invalidate();
+            m_trackedNodes.clear();
         }
 
         void MapRenderer::overrideSelectionColors(const Color& color, const float mix) {
@@ -326,93 +327,178 @@ namespace TrenchBroom {
             renderer.setBrushEdgeColor(pref(Preferences::LockedEdgeColor));
         }
 
-        void MapRenderer::updateRenderers(const Renderer renderers) {
-            const auto renderDefault   = (renderers & Renderer_Default) != 0;
-            const auto renderSelection = (renderers & Renderer_Selection) != 0;
-            const auto renderLocked    = (renderers & Renderer_Locked) != 0;
+        static bool selected(const Model::Node* node) {
+            return node->selected() || node->descendantSelected() || node->parentSelected();
+        }
 
-            struct RenderableNodes {
-                std::vector<Model::GroupNode*> groups;
-                std::vector<Model::EntityNode*> entities;
-                std::vector<Model::BrushNode*> brushes;
-                std::vector<Model::PatchNode*> patches;
-            };
+        MapRenderer::Renderer MapRenderer::determineDesiredRenderers(Model::Node* node) {
+            int result = 0;
 
-            RenderableNodes defaultNodes;
-            RenderableNodes selectedNodes;
-            RenderableNodes lockedNodes;
-
-            const auto selected = [](const auto* node) {
-                return node->selected() || node->descendantSelected() || node->parentSelected();
-            };
-
-            auto document = kdl::mem_lock(m_document);
-            document->world()->accept(kdl::overload(
-                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
-                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-                [&](auto&& thisLambda, Model::GroupNode* group) {
+            node->accept(kdl::overload(
+                [](Model::WorldNode*) {},
+                [](Model::LayerNode*) {},
+                [&](Model::GroupNode* group) {
                     if (group->locked()) {
-                        if (renderLocked) lockedNodes.groups.push_back(group);
+                        result = Renderer_Locked;
                     } else if (selected(group) || group->opened()) {
-                        if (renderSelection) selectedNodes.groups.push_back(group);
+                        result = Renderer_Selection;
                     } else {
-                        if (renderDefault) defaultNodes.groups.push_back(group);
+                        result = Renderer_Default;
                     }
-                    group->visitChildren(thisLambda);
                 },
-                [&](auto&& thisLambda, Model::EntityNode* entity) {
+                [&](Model::EntityNode* entity) {
                     if (entity->locked()) {
-                        if (renderLocked) lockedNodes.entities.push_back(entity);
+                        result = Renderer_Locked;
                     } else if (selected(entity)) {
-                        if (renderSelection) selectedNodes.entities.push_back(entity);
+                        result = Renderer_Selection;
                     } else {
-                        if (renderDefault) defaultNodes.entities.push_back(entity);
+                        result = Renderer_Default;
                     }
-                    entity->visitChildren(thisLambda);
                 },
                 [&](Model::BrushNode* brush) {
                     if (brush->locked()) {
-                        if (renderLocked) lockedNodes.brushes.push_back(brush);
+                        result = Renderer_Locked;
                     } else if (selected(brush) || brush->hasSelectedFaces()) {
-                        if (renderSelection) selectedNodes.brushes.push_back(brush);
+                        result = Renderer_Selection;
                     }
                     if (!brush->selected() && !brush->parentSelected() && !brush->locked()) {
-                        if (renderDefault) defaultNodes.brushes.push_back(brush);
+                        result |= Renderer_Default;
                     }
                 },
                 [&](Model::PatchNode* patchNode) {
                     if (patchNode->locked()) {
-                        if (renderLocked) lockedNodes.patches.push_back(patchNode);
+                        result = Renderer_Locked;
                     } else if (selected(patchNode)) {
-                        if (renderSelection) selectedNodes.patches.push_back(patchNode);
+                        result = Renderer_Selection;
                     }
                     if (!patchNode->selected() && !patchNode->parentSelected() && !patchNode->locked()) {
-                        if (renderDefault) defaultNodes.patches.push_back(patchNode);
+                        result |= Renderer_Default;
                     }
                 }
             ));
+            return static_cast<Renderer>(result);
+        }
+        
+        /**
+         * - Determine which renderers the given node should be in
+         * - Remove from any renderers the node shouldn't be in
+         * - Add to desired renderers, if not already present
+         * - Invalidate, for any renderers it was already present in
+         */
+        void MapRenderer::updateAndInvalidateNode(Model::Node* node) {
+            const Renderer desiredRenderers = determineDesiredRenderers(node);
+            Renderer currentRenderers;
 
-            if (renderDefault) {
-                m_defaultRenderer->setObjects(defaultNodes.groups,
-                                              defaultNodes.entities,
-                                              defaultNodes.brushes,
-                                              defaultNodes.patches);
+            if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end()) {
+                currentRenderers = it->second;
+            } else {
+                currentRenderers = static_cast<Renderer>(0);
             }
-            if (renderSelection) {
-                m_selectionRenderer->setObjects(selectedNodes.groups,
-                                                selectedNodes.entities,
-                                                selectedNodes.brushes,
-                                                selectedNodes.patches);
-            }
-            if (renderLocked) {
-                m_lockedRenderer->setObjects(lockedNodes.groups,
-                                             lockedNodes.entities,
-                                             lockedNodes.brushes,
-                                             lockedNodes.patches);
-            }
-            invalidateEntityLinkRenderer();
+
+            auto updateForRenderer = [&](const Renderer r, ObjectRenderer* o) {
+                const bool isRDesired = (desiredRenderers & r) != 0;
+                const bool isRCurrent = (currentRenderers & r) != 0;
+
+                if (isRCurrent && !isRDesired) {
+                    o->removeNode(node);
+                } else if (!isRCurrent && isRDesired) {
+                    o->addNode(node);
+                } else if (isRCurrent && isRDesired) {
+                    o->invalidateNode(node);
+                }
+            };
+
+            updateForRenderer(Renderer_Default, m_defaultRenderer.get());
+            updateForRenderer(Renderer_Selection, m_selectionRenderer.get());
+            updateForRenderer(Renderer_Locked, m_lockedRenderer.get());
+
+            // Update the metadata to reflect the changes that we made above
+            m_trackedNodes[node] = desiredRenderers;
         }
 
+        void MapRenderer::updateAndInvalidateNodeRecursive(Model::Node* node) {
+            node->accept(kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* group) {
+                    updateAndInvalidateNode(group);
+                    group->visitChildren(thisLambda);
+                },
+                [&](auto&& thisLambda, Model::EntityNode* entity) {
+                    updateAndInvalidateNode(entity);
+                    entity->visitChildren(thisLambda);
+                },
+                [&](Model::BrushNode* brush) {
+                    updateAndInvalidateNode(brush);
+                },
+                [&](Model::PatchNode* patchNode) {
+                    updateAndInvalidateNode(patchNode);
+                }
+            ));
+
+            // Due to the definition of `selected()` above, we also need to update the parent.
+            // (not recursively, though, so this has little performance impact.) 
+            // This handles clicking on a brush in a brush entity -> the entity label needs to render as selected.
+            if (node->parent()) {
+                updateAndInvalidateNode(node->parent());
+            }
+        }
+
+        void MapRenderer::removeNode(Model::Node* node) {
+            if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end()) {
+                const Renderer renderers = it->second;
+
+                if (renderers & Renderer_Default) {
+                    m_defaultRenderer->removeNode(node);
+                }
+                if (renderers & Renderer_Selection) {
+                    m_selectionRenderer->removeNode(node);
+                }
+                if (renderers & Renderer_Locked) {
+                    m_lockedRenderer->removeNode(node);
+                }
+
+                m_trackedNodes.erase(it);
+
+                // At this point, none of the default/selection/locked renderers,
+                // or their underlying node-type specific renderers, have a reference 
+                // to `node` anymore, and they won't render it.
+            }
+        }
+
+        void MapRenderer::removeNodeRecursive(Model::Node* node) {
+            node->accept(kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* group) {
+                    removeNode(group);
+                    group->visitChildren(thisLambda);
+                },
+                [&](auto&& thisLambda, Model::EntityNode* entity) {
+                    removeNode(entity);
+                    entity->visitChildren(thisLambda);
+                },
+                [&](Model::BrushNode* brush) {
+                    removeNode(brush);
+                },
+                [&](Model::PatchNode* patchNode) {
+                    removeNode(patchNode);
+                }
+            ));
+        }
+
+        /**
+         * Calls updateAndInvalidateNode() on every node in the world.
+         */
+        void MapRenderer::updateAllNodes() {
+            auto document = kdl::mem_lock(m_document);
+            updateAndInvalidateNodeRecursive(document->world());
+        }
+
+        /**
+         * Marks the nodes that are already tracked in the given renderers as invalid, i.e.
+         * needing to be re-rendered.
+         */
         void MapRenderer::invalidateRenderers(Renderer renderers) {
             if ((renderers & Renderer_Default) != 0)
                 m_defaultRenderer->invalidate();
@@ -420,18 +506,6 @@ namespace TrenchBroom {
                 m_selectionRenderer->invalidate();
             if ((renderers& Renderer_Locked) != 0)
                 m_lockedRenderer->invalidate();
-        }
-
-        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes) {
-            if ((renderers & Renderer_Default) != 0) {
-                m_defaultRenderer->invalidateBrushes(brushes);
-            }
-            if ((renderers & Renderer_Selection) != 0) {
-                m_selectionRenderer->invalidateBrushes(brushes);
-            }
-            if ((renderers& Renderer_Locked) != 0) {
-                m_lockedRenderer->invalidateBrushes(brushes);
-            }
         }
 
         void MapRenderer::invalidateEntityLinkRenderer() {
@@ -479,61 +553,86 @@ namespace TrenchBroom {
 
         void MapRenderer::documentWasNewedOrLoaded(View::MapDocument*) {
             clear();
-            updateRenderers(Renderer_All);
+            updateAllNodes();
+            invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>&) {
-            updateRenderers(Renderer_All);
+        void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                // The nodes passed in don't include recursive children, so we need to visit them ourselves.
+                updateAndInvalidateNodeRecursive(node);
+            }
             invalidateGroupLinkRenderer();
+            invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>&) {
-            updateRenderers(Renderer_All);
+        void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                // The nodes passed in don't include recursive children, so we need to visit them ourselves.
+                // Otherwise deleting a group doesn't delete the brushes within.
+                removeNodeRecursive(node);
+            }
             invalidateGroupLinkRenderer();
+            invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodesDidChange(const std::vector<Model::Node*>&) {
-            invalidateRenderers(Renderer_Selection);
+        void MapRenderer::nodesDidChange(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                // nodesDidChange() will report ancestors changing, e.g. the world and layer are reported as 
+                // changing when a brush is dragged. So, don't update recursively here as it would cause 
+                // the entire map to be invalidated on every change.
+                updateAndInvalidateNode(node);
+            }
             invalidateEntityLinkRenderer();
             invalidateGroupLinkRenderer();
         }
 
-        void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>&) {
-            invalidateRenderers(Renderer_All);
+        void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                updateAndInvalidateNodeRecursive(node);
+            }
+            invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>&) {
-            updateRenderers(Renderer_Default_Locked);
+        void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>& nodes) {
+            for (auto* node : nodes) {
+                updateAndInvalidateNodeRecursive(node);
+            }
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::groupWasOpened(Model::GroupNode*) {
-            updateRenderers(Renderer_Default_Selection);
             invalidateGroupLinkRenderer();
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::groupWasClosed(Model::GroupNode*) {
-            updateRenderers(Renderer_Default_Selection);
             invalidateGroupLinkRenderer();
+            invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
-            invalidateRenderers(Renderer_Selection);
+        void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces) {
+            for (const auto& face : faces) {
+                updateAndInvalidateNode(face.node());
+            }
         }
 
         void MapRenderer::selectionDidChange(const View::Selection& selection) {
-            updateRenderers(Renderer_All); // need to update locked objects also because a selected object may have been reparented into a locked layer before deselection
-
-            // selecting faces needs to invalidate the brushes
-            if (!selection.selectedBrushFaces().empty()
-                || !selection.deselectedBrushFaces().empty()) {
-
-                
-                const auto toBrush = [](const auto& handle) { return handle.node(); };
-                auto brushes = kdl::vec_concat(kdl::vec_transform(selection.selectedBrushFaces(), toBrush), kdl::vec_transform(selection.deselectedBrushFaces(), toBrush));
-                brushes = kdl::vec_sort_and_remove_duplicates(std::move(brushes));
-                invalidateBrushesInRenderers(Renderer_All, brushes);
+            for (const auto& face : selection.deselectedBrushFaces()) {
+                updateAndInvalidateNode(face.node());
+            }
+            for (const auto& face : selection.selectedBrushFaces()) {
+                updateAndInvalidateNode(face.node());
+            }
+            // These need to be recursive otherwise selecting a Group doesn't render the contents selected
+            for (auto* node : selection.deselectedNodes()) {
+                updateAndInvalidateNodeRecursive(node);
+            }
+            for (auto* node : selection.selectedNodes()) {
+                updateAndInvalidateNodeRecursive(node);
             }
 
+            invalidateEntityLinkRenderer();
             invalidateGroupLinkRenderer();
         }
 

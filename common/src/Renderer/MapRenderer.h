@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "NotifierConnection.h"
 
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <vector>
 
@@ -60,8 +60,6 @@ namespace TrenchBroom {
             class LockedBrushRendererFilter;
             class UnselectedBrushRendererFilter;
 
-            using RendererMap = std::map<Model::LayerNode*, ObjectRenderer*>;
-
             std::weak_ptr<View::MapDocument> m_document;
 
             std::unique_ptr<ObjectRenderer> m_defaultRenderer;
@@ -69,6 +67,15 @@ namespace TrenchBroom {
             std::unique_ptr<ObjectRenderer> m_lockedRenderer;
             std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
             std::unique_ptr<GroupLinkRenderer> m_groupLinkRenderer;
+
+            typedef enum {
+                Renderer_Default            = 1,
+                Renderer_Selection          = 2,
+                Renderer_Locked             = 4,
+                Renderer_All                = Renderer_Default | Renderer_Selection | Renderer_Locked
+            } Renderer;
+
+            std::unordered_map<Model::Node*, Renderer> m_trackedNodes;
 
             NotifierConnection m_notifierConnection;
         public:
@@ -103,24 +110,14 @@ namespace TrenchBroom {
             void setupSelectionRenderer(ObjectRenderer& renderer);
             void setupLockedRenderer(ObjectRenderer& renderer);
 
-            typedef enum {
-                Renderer_Default            = 1,
-                Renderer_Selection          = 2,
-                Renderer_Locked             = 4,
-                Renderer_Default_Selection  = Renderer_Default | Renderer_Selection,
-                Renderer_Default_Locked     = Renderer_Default | Renderer_Locked,
-                Renderer_All                = Renderer_Default | Renderer_Selection | Renderer_Locked
-            } Renderer;
+            static Renderer determineDesiredRenderers(Model::Node* node);
+            void updateAndInvalidateNode(Model::Node* node);
+            void updateAndInvalidateNodeRecursive(Model::Node* node);
+            void removeNode(Model::Node* node);
+            void removeNodeRecursive(Model::Node* node);
+            void updateAllNodes();
 
-            /**
-             * This moves nodes between default / selection / locked renderers as needed,
-             * but doesn't otherwise invalidate them.
-             * (in particular, brushes are not updated unless they move between renderers.)
-             * If brushes are modified, you need to call invalidateRenderers() or invalidateObjectsInRenderers()
-             */
-            void updateRenderers(Renderer renderers);
             void invalidateRenderers(Renderer renderers);
-            void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes);
             void invalidateEntityLinkRenderer();
             void invalidateGroupLinkRenderer();
             void reloadEntityModels();
