@@ -1,5 +1,6 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2021 Amara M. Kilic
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,16 +20,33 @@
 
 #pragma once
 
-#include "View/DialogHeader.h"
+#include <QDialog>
 
-#include <string>
+class QLineEdit;
+class QPushButton;
+class QRadioButton;
 
 namespace TrenchBroom {
     namespace View {
-        class CurrentGameIndicator : public DialogHeader {
+        class MapFrame;
+
+        class ObjExportDialog : public QDialog {
             Q_OBJECT
+        private:
+            MapFrame* m_mapFrame;
+
+            QLineEdit* m_exportPathEdit;
+            QPushButton* m_browseExportPathButton;
+            QRadioButton* m_relativeToGamePathRadioButton;
+            QRadioButton* m_relativeToExportPathRadioButton;
+            QPushButton* m_exportButton;
+            QPushButton* m_closeButton;
         public:
-            explicit CurrentGameIndicator(const std::string& gameName, QWidget* parent = nullptr);
+            explicit ObjExportDialog(MapFrame* mapFrame);
+
+            void updateExportPath();
+        private:
+            void createGui();
         };
     }
 }

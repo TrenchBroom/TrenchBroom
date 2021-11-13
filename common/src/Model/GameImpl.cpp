@@ -34,6 +34,7 @@
 #include "IO/DkmParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/EntParser.h"
+#include "IO/ExportOptions.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
@@ -58,7 +59,6 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
-#include "Model/ExportFormat.h"
 #include "Model/GameConfig.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -213,29 +213,27 @@ namespace TrenchBroom {
             doWriteMap(world, path, false);
         }
 
-        void GameImpl::doExportMap(WorldNode& world, const Model::ExportFormat format, const IO::Path& path) const {
-            switch (format) {
-                case Model::ExportFormat::WavefrontObj: {
-                    std::ofstream objFile = openPathAsOutputStream(path);
-                    if (!objFile) {
-                        throw FileSystemException("Cannot open file: " + path.asString());
-                    }
+        void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) const {
+            std::visit(kdl::overload(
+                    [&](const IO::ObjExportOptions& objOptions) {
+                        auto objFile = openPathAsOutputStream(objOptions.exportPath);
+                        if (!objFile) {
+                            throw FileSystemException{"Cannot open file: " + objOptions.exportPath.asString()};
+                        }
 
-                    const auto mtlPath = path.replaceExtension("mtl");
-                    std::ofstream mtlFile = openPathAsOutputStream(mtlPath);
-                    if (!mtlFile) {
-                        throw FileSystemException("Cannot open file: " + mtlPath.asString());
-                    }
+                        auto mtlPath = objOptions.exportPath.replaceExtension("mtl");
+                        auto mtlFile = openPathAsOutputStream(mtlPath);
+                        if (!mtlFile) {
+                            throw FileSystemException{"Cannot open file: " + mtlPath.asString()};
+                        }
 
-                    IO::NodeWriter writer(world, std::make_unique<IO::ObjSerializer>(objFile, mtlFile, mtlPath.filename()));
-                    writer.setExporting(true);
-                    writer.writeMap();
-                    break;
-                }
-                case Model::ExportFormat::Map:
-                    doWriteMap(world, path, true);
-                    break;
-            }
+                        auto writer = IO::NodeWriter{world, std::make_unique<IO::ObjSerializer>(objFile, mtlFile, mtlPath.filename(), objOptions)};
+                        writer.setExporting(true);
+                        writer.writeMap();
+                    },
+                    [&](const IO::MapExportOptions& mapOptions) {
+                        doWriteMap(world, mapOptions.exportPath, true);
+                    }), options);
         }
 
         std::vector<Node*> GameImpl::doParseNodes(const std::string& str, const MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const {

@@ -22,6 +22,7 @@
 #include "FloatType.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
+#include "IO/ExportOptions.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 
@@ -49,7 +50,6 @@ namespace TrenchBroom {
         class BrushFaceAttributes;
         class CompilationConfig;
         class Entity;
-        enum class ExportFormat;
         struct FlagsConfig;
         class Node;
         class SmartTag;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             std::unique_ptr<WorldNode> newMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
             std::unique_ptr<WorldNode> loadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const;
             void writeMap(WorldNode& world, const IO::Path& path) const;
-            void exportMap(WorldNode& world, Model::ExportFormat format, const IO::Path& path) const;
+            void exportMap(WorldNode& world, const IO::ExportOptions& options) const;
         public: // parsing and serializing objects
             std::vector<Node*> parseNodes(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const;
             std::vector<BrushFace> parseBrushFaces(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const;
@@ -147,7 +147,7 @@ namespace TrenchBroom {
             virtual std::unique_ptr<WorldNode> doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const = 0;
             virtual std::unique_ptr<WorldNode> doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const = 0;
             virtual void doWriteMap(WorldNode& world, const IO::Path& path) const = 0;
-            virtual void doExportMap(WorldNode& world, Model::ExportFormat format, const IO::Path& path) const = 0;
+            virtual void doExportMap(WorldNode& world, const IO::ExportOptions& options) const = 0;
 
             virtual std::vector<Node*> doParseNodes(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const = 0;
             virtual std::vector<BrushFace> doParseBrushFaces(const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds, Logger& logger) const = 0;

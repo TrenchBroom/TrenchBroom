@@ -42,6 +42,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/EntityModelLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/EntityModelParser.cpp
         ${COMMON_SOURCE_DIR}/IO/EntParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
         ${COMMON_SOURCE_DIR}/IO/File.cpp
         ${COMMON_SOURCE_DIR}/IO/FileMatcher.cpp
@@ -304,6 +305,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
+        ${COMMON_SOURCE_DIR}/View/DialogHeader.cpp
         ${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
         ${COMMON_SOURCE_DIR}/View/DragTracker.cpp
         ${COMMON_SOURCE_DIR}/View/DropTracker.cpp
@@ -381,6 +383,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
         ${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.cpp
         ${COMMON_SOURCE_DIR}/View/MultiMapView.cpp
+        ${COMMON_SOURCE_DIR}/View/ObjExportDialog.cpp
         ${COMMON_SOURCE_DIR}/View/OnePaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/PickRequest.cpp
         ${COMMON_SOURCE_DIR}/View/PopupButton.cpp
@@ -524,6 +527,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/EntityModelLoader.h
         ${COMMON_SOURCE_DIR}/IO/EntityModelParser.h
         ${COMMON_SOURCE_DIR}/IO/EntParser.h
+        ${COMMON_SOURCE_DIR}/IO/ExportOptions.h
         ${COMMON_SOURCE_DIR}/IO/FgdParser.h
         ${COMMON_SOURCE_DIR}/IO/File.h
         ${COMMON_SOURCE_DIR}/IO/FileMatcher.h
@@ -608,7 +612,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EntityProperties.h
         ${COMMON_SOURCE_DIR}/Model/EntityPropertiesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
-        ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
         ${COMMON_SOURCE_DIR}/Model/Game.h
         ${COMMON_SOURCE_DIR}/Model/GameConfig.h
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.h
@@ -821,6 +824,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.h
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.h
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.h
+        ${COMMON_SOURCE_DIR}/View/DialogHeader.h
         ${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.h
         ${COMMON_SOURCE_DIR}/View/DragTracker.h
         ${COMMON_SOURCE_DIR}/View/DropTracker.h
@@ -899,6 +903,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.h
         ${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.h
         ${COMMON_SOURCE_DIR}/View/MultiMapView.h
+        ${COMMON_SOURCE_DIR}/View/ObjExportDialog.h
         ${COMMON_SOURCE_DIR}/View/OnePaneMapView.h
         ${COMMON_SOURCE_DIR}/View/PasteType.h
         ${COMMON_SOURCE_DIR}/View/PickRequest.h
