@@ -19,32 +19,36 @@
 
 #pragma once
 
-#include <Qt>
 #include <QString>
+#include <Qt>
 
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        class KeyStrings {
-        private:
-            /**
-             * Maps Qt portable key name to Qt native key name
-             */
-            using KeyMap = std::vector<std::pair<QString, QString>>;
-        public:
-            using const_iterator = typename KeyMap::const_iterator;
-        private:
-            KeyMap m_keys;
-        public:
-            KeyStrings();
+namespace View {
+class KeyStrings {
+private:
+  /**
+   * Maps Qt portable key name to Qt native key name
+   */
+  using KeyMap = std::vector<std::pair<QString, QString>>;
 
-            const_iterator begin() const;
-            const_iterator end() const;
-        private:
-            void putKey(Qt::Key key);
-            void putModifier(int key);
-        };
-    }
-}
+public:
+  using const_iterator = typename KeyMap::const_iterator;
+
+private:
+  KeyMap m_keys;
+
+public:
+  KeyStrings();
+
+  const_iterator begin() const;
+  const_iterator end() const;
+
+private:
+  void putKey(Qt::Key key);
+  void putModifier(int key);
+};
+} // namespace View
+} // namespace TrenchBroom
