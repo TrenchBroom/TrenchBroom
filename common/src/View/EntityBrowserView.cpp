@@ -184,7 +184,7 @@ namespace TrenchBroom {
                 });
 
                 const auto* frame = m_entityModelManager.frame(spec);
-                const auto modelScale = vm::vec3f{definition->modelDefinition().scale(EL::NullVariableStore{}, m_defaultScaleModelExpression)};
+                const auto modelScale = vm::vec3f{Assets::safeGetModelScale(definition->modelDefinition(), EL::NullVariableStore{}, m_defaultScaleModelExpression)};
 
                 Renderer::TexturedRenderer* modelRenderer = nullptr;
                 vm::bbox3f rotatedBounds;

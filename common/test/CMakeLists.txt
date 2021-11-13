@@ -138,6 +138,7 @@ set(COMMON_REGRESSION_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/Quake3ShaderParserRegressionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushNodeRegressionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushRegressionTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/EntityRegressionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/PolyhedronRegressionTest.cpp"
 )
 
