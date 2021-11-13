@@ -34,8 +34,10 @@
 #include "Preferences.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityLinkRenderer.h"
+#include "Renderer/EntityRenderer.h"
 #include "Renderer/GroupLinkRenderer.h"
-#include "Renderer/ObjectRenderer.h"
+#include "Renderer/GroupRenderer.h"
+#include "Renderer/PatchRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
@@ -49,91 +51,19 @@
 #include <set>
 #include <vector>
 
+#include <QDebug>
+
 namespace TrenchBroom {
 namespace Renderer {
-class MapRenderer::SelectedBrushRendererFilter : public BrushRenderer::DefaultFilter {
-public:
-  SelectedBrushRendererFilter(const Model::EditorContext& context)
-    : DefaultFilter(context) {}
-
-  RenderSettings markFaces(const Model::BrushNode* brushNode) const override {
-    if (!(visible(brushNode) && editable(brushNode))) {
-      return renderNothing();
-    }
-
-    const bool brushSelected = selected(brushNode);
-    const Model::Brush& brush = brushNode->brush();
-    for (const Model::BrushFace& face : brush.faces()) {
-      face.setMarked(brushSelected || selected(brushNode, face));
-    }
-    return std::make_tuple(
-      FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked);
-  }
-};
-
-class MapRenderer::LockedBrushRendererFilter : public BrushRenderer::DefaultFilter {
-public:
-  LockedBrushRendererFilter(const Model::EditorContext& context)
-    : DefaultFilter(context) {}
-
-  RenderSettings markFaces(const Model::BrushNode* brushNode) const override {
-    if (!visible(brushNode)) {
-      return renderNothing();
-    }
-
-    const Model::Brush& brush = brushNode->brush();
-    for (const Model::BrushFace& face : brush.faces()) {
-      face.setMarked(true);
-    }
-
-    return std::make_tuple(FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderAll);
-  }
-};
-
-class MapRenderer::UnselectedBrushRendererFilter : public BrushRenderer::DefaultFilter {
-public:
-  UnselectedBrushRendererFilter(const Model::EditorContext& context)
-    : DefaultFilter(context) {}
-
-  RenderSettings markFaces(const Model::BrushNode* brushNode) const override {
-    const bool brushVisible = visible(brushNode);
-    const bool brushEditable = editable(brushNode);
-
-    const bool renderFaces = (brushVisible && brushEditable);
-    bool renderEdges = (brushVisible && !selected(brushNode));
-
-    if (!renderFaces && !renderEdges) {
-      return renderNothing();
-    }
-
-    const Model::Brush& brush = brushNode->brush();
-
-    bool anyFaceVisible = false;
-    for (const Model::BrushFace& face : brush.faces()) {
-      const bool faceVisible = !selected(brushNode, face) && visible(brushNode, face);
-      face.setMarked(faceVisible);
-      anyFaceVisible |= faceVisible;
-    }
-
-    if (!anyFaceVisible) {
-      return renderNothing();
-    }
-
-    // Render all edges if only one face is visible.
-    renderEdges |= anyFaceVisible;
-
-    return std::make_tuple(
-      renderFaces ? FaceRenderPolicy::RenderMarked : FaceRenderPolicy::RenderNone,
-      renderEdges ? EdgeRenderPolicy::RenderAll : EdgeRenderPolicy::RenderNone);
-  }
-};
-
 MapRenderer::MapRenderer(std::weak_ptr<View::MapDocument> document)
   : m_document(document)
-  , m_defaultRenderer(createDefaultRenderer(m_document))
-  , m_selectionRenderer(createSelectionRenderer(m_document))
-  , m_lockedRenderer(createLockRenderer(m_document))
+  , m_groupRenderer(std::make_unique<GroupRenderer>(kdl::mem_lock(document)->editorContext()))
+  , m_entityRenderer(std::make_unique<EntityRenderer>(
+      *kdl::mem_lock(document), kdl::mem_lock(document)->entityModelManager(),
+      kdl::mem_lock(document)->editorContext()))
   , m_entityLinkRenderer(std::make_unique<EntityLinkRenderer>(m_document))
+  , m_brushRenderer(std::make_unique<BrushRenderer>(kdl::mem_lock(document)->editorContext()))
+  , m_patchRenderer(std::make_unique<PatchRenderer>())
   , m_groupLinkRenderer(std::make_unique<GroupLinkRenderer>(m_document)) {
   connectObservers();
   setupRenderers();
@@ -143,64 +73,40 @@ MapRenderer::~MapRenderer() {
   clear();
 }
 
-std::unique_ptr<ObjectRenderer> MapRenderer::createDefaultRenderer(
-  std::weak_ptr<View::MapDocument> document) {
-  return std::make_unique<ObjectRenderer>(
-    *kdl::mem_lock(document), kdl::mem_lock(document)->entityModelManager(),
-    kdl::mem_lock(document)->editorContext(),
-    UnselectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
-}
-
-std::unique_ptr<ObjectRenderer> MapRenderer::createSelectionRenderer(
-  std::weak_ptr<View::MapDocument> document) {
-  return std::make_unique<ObjectRenderer>(
-    *kdl::mem_lock(document), kdl::mem_lock(document)->entityModelManager(),
-    kdl::mem_lock(document)->editorContext(),
-    SelectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
-}
-
-std::unique_ptr<ObjectRenderer> MapRenderer::createLockRenderer(
-  std::weak_ptr<View::MapDocument> document) {
-  return std::make_unique<ObjectRenderer>(
-    *kdl::mem_lock(document), kdl::mem_lock(document)->entityModelManager(),
-    kdl::mem_lock(document)->editorContext(),
-    LockedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
-}
-
 void MapRenderer::clear() {
-  m_defaultRenderer->clear();
-  m_selectionRenderer->clear();
-  m_lockedRenderer->clear();
+  m_groupRenderer->clear();
+  m_entityRenderer->clear();
+  m_brushRenderer->clear();
+  m_patchRenderer->clear();
   m_entityLinkRenderer->invalidate();
   m_groupLinkRenderer->invalidate();
   m_trackedNodes.clear();
 }
 
+/**
+ * Used to flash the selection color e.g. when duplicating
+ */
 void MapRenderer::overrideSelectionColors(const Color& color, const float mix) {
   const Color edgeColor = pref(Preferences::SelectedEdgeColor).mixed(color, mix);
   const Color occludedEdgeColor = pref(Preferences::SelectedFaceColor).mixed(color, mix);
   const Color tintColor = pref(Preferences::SelectedFaceColor).mixed(color, mix);
 
-  m_selectionRenderer->setEntityBoundsColor(edgeColor);
-  m_selectionRenderer->setBrushEdgeColor(edgeColor);
-  m_selectionRenderer->setOccludedEdgeColor(occludedEdgeColor);
-  m_selectionRenderer->setTintColor(tintColor);
+  // m_selectionRenderer->setEntityBoundsColor(edgeColor);
+  // m_selectionRenderer->setBrushEdgeColor(edgeColor);
+  //  m_selectionRenderer->setOccludedEdgeColor(occludedEdgeColor);
+  //  m_selectionRenderer->setTintColor(tintColor);
 }
 
 void MapRenderer::restoreSelectionColors() {
-  setupSelectionRenderer(*m_selectionRenderer);
+  // setupSelectionRenderer(*m_selectionRenderer);
 }
 
 void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
   commitPendingChanges();
   setupGL(renderBatch);
-  renderDefaultOpaque(renderContext, renderBatch);
-  renderLockedOpaque(renderContext, renderBatch);
-  renderSelectionOpaque(renderContext, renderBatch);
+  renderOpaque(renderContext, renderBatch);
 
-  renderDefaultTransparent(renderContext, renderBatch);
-  renderLockedTransparent(renderContext, renderBatch);
-  renderSelectionTransparent(renderContext, renderBatch);
+  renderTransparent(renderContext, renderBatch);
 
   renderEntityLinks(renderContext, renderBatch);
   renderGroupLinks(renderContext, renderBatch);
@@ -226,37 +132,22 @@ void MapRenderer::setupGL(RenderBatch& renderBatch) {
   renderBatch.addOneShot(new SetupGL());
 }
 
-void MapRenderer::renderDefaultOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
-  m_defaultRenderer->setShowOverlays(renderContext.render3D());
-  m_defaultRenderer->renderOpaque(renderContext, renderBatch);
+void MapRenderer::renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
+  m_brushRenderer->renderOpaque(renderContext, renderBatch);
+
+  m_entityRenderer->setShowOverlays(renderContext.render3D());
+  m_entityRenderer->render(renderContext, renderBatch);
+
+  m_groupRenderer->setShowOverlays(renderContext.render3D());
+  m_groupRenderer->render(renderContext, renderBatch);
+
+  m_patchRenderer->render(renderContext, renderBatch);
+
+  // FIXME: make sure selection doesn't render if !renderContext.hideSelection()
 }
 
-void MapRenderer::renderDefaultTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
-  m_defaultRenderer->setShowOverlays(renderContext.render3D());
-  m_defaultRenderer->renderTransparent(renderContext, renderBatch);
-}
-
-void MapRenderer::renderSelectionOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
-  if (!renderContext.hideSelection()) {
-    m_selectionRenderer->renderOpaque(renderContext, renderBatch);
-  }
-}
-
-void MapRenderer::renderSelectionTransparent(
-  RenderContext& renderContext, RenderBatch& renderBatch) {
-  if (!renderContext.hideSelection()) {
-    m_selectionRenderer->renderTransparent(renderContext, renderBatch);
-  }
-}
-
-void MapRenderer::renderLockedOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
-  m_lockedRenderer->setShowOverlays(renderContext.render3D());
-  m_lockedRenderer->renderOpaque(renderContext, renderBatch);
-}
-
-void MapRenderer::renderLockedTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
-  m_lockedRenderer->setShowOverlays(renderContext.render3D());
-  m_lockedRenderer->renderTransparent(renderContext, renderBatch);
+void MapRenderer::renderTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
+  m_brushRenderer->renderTransparent(renderContext, renderBatch);
 }
 
 void MapRenderer::renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -268,117 +159,96 @@ void MapRenderer::renderGroupLinks(RenderContext& renderContext, RenderBatch& re
 }
 
 void MapRenderer::setupRenderers() {
-  setupDefaultRenderer(*m_defaultRenderer);
-  setupSelectionRenderer(*m_selectionRenderer);
-  setupLockedRenderer(*m_lockedRenderer);
+  setupDefaultRenderer();
+  setupSelectionRenderer();
+  setupLockedRenderer();
+  setupEntityLinkRenderer();
 }
 
-void MapRenderer::setupDefaultRenderer(ObjectRenderer& renderer) {
-  renderer.setEntityOverlayTextColor(pref(Preferences::InfoOverlayTextColor));
-  renderer.setGroupOverlayTextColor(pref(Preferences::GroupInfoOverlayTextColor));
-  renderer.setOverlayBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
-  renderer.setTint(false);
-  renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
+void MapRenderer::setupEntityLinkRenderer() {}
 
-  renderer.setGroupBoundsColor(pref(Preferences::DefaultGroupColor));
-  renderer.setEntityBoundsColor(pref(Preferences::UndefinedEntityColor));
+void MapRenderer::setupDefaultRenderer() {
+  m_entityRenderer->setOverlayTextColor(
+    RenderType::Default, pref(Preferences::InfoOverlayTextColor));
+  m_groupRenderer->setOverlayTextColor(
+    RenderType::Default, pref(Preferences::GroupInfoOverlayTextColor));
+  m_entityRenderer->setOverlayBackgroundColor(
+    RenderType::Default, pref(Preferences::InfoOverlayBackgroundColor));
+  m_groupRenderer->setOverlayBackgroundColor(
+    RenderType::Default, pref(Preferences::InfoOverlayBackgroundColor));
+#if 0            
+            renderer.setTint(false);
+            renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
 
-  renderer.setBrushFaceColor(pref(Preferences::FaceColor));
-  renderer.setBrushEdgeColor(pref(Preferences::EdgeColor));
+            renderer.setGroupBoundsColor(pref(Preferences::DefaultGroupColor));
+            renderer.setEntityBoundsColor(pref(Preferences::UndefinedEntityColor));
+#endif
+  m_brushRenderer->setFaceColor(
+    pref(Preferences::FaceColor)); // Selected/Locked also use this color
+  m_patchRenderer->setDefaultColor(
+    pref(Preferences::FaceColor)); // Selected/Locked also use this color
+  m_brushRenderer->setEdgeColor(RenderType::Default, pref(Preferences::EdgeColor));
+  m_patchRenderer->setEdgeColor(RenderType::Default, pref(Preferences::EdgeColor));
 }
 
-void MapRenderer::setupSelectionRenderer(ObjectRenderer& renderer) {
-  renderer.setEntityOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
-  renderer.setGroupOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
-  renderer.setOverlayBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-  renderer.setShowBrushEdges(true);
-  renderer.setShowOccludedObjects(true);
-  renderer.setOccludedEdgeColor(
-    Color(pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
-  renderer.setTint(true);
-  renderer.setTintColor(pref(Preferences::SelectedFaceColor));
+void MapRenderer::setupSelectionRenderer() {
+  m_entityRenderer->setOverlayTextColor(
+    RenderType::Selected, pref(Preferences::SelectedInfoOverlayTextColor));
+  m_groupRenderer->setOverlayTextColor(
+    RenderType::Selected, pref(Preferences::SelectedInfoOverlayTextColor));
+  m_entityRenderer->setOverlayBackgroundColor(
+    RenderType::Selected, pref(Preferences::SelectedInfoOverlayBackgroundColor));
+  m_groupRenderer->setOverlayBackgroundColor(
+    RenderType::Selected, pref(Preferences::SelectedInfoOverlayBackgroundColor));
+#if 0                        
+            renderer.setShowBrushEdges(true);
+            renderer.setShowOccludedObjects(true);
+            renderer.setOccludedEdgeColor(Color(pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
+            renderer.setTint(true);
+            renderer.setTintColor(pref(Preferences::SelectedFaceColor));
 
-  renderer.setOverrideGroupColors(true);
-  renderer.setGroupBoundsColor(pref(Preferences::SelectedEdgeColor));
+            renderer.setOverrideGroupColors(true);
+            renderer.setGroupBoundsColor(pref(Preferences::SelectedEdgeColor));
 
-  renderer.setOverrideEntityBoundsColor(true);
-  renderer.setEntityBoundsColor(pref(Preferences::SelectedEdgeColor));
-  renderer.setShowEntityAngles(true);
-  renderer.setEntityAngleColor(pref(Preferences::AngleIndicatorColor));
-
-  renderer.setBrushFaceColor(pref(Preferences::FaceColor));
-  renderer.setBrushEdgeColor(pref(Preferences::SelectedEdgeColor));
+            renderer.setOverrideEntityBoundsColor(true);
+            renderer.setEntityBoundsColor(pref(Preferences::SelectedEdgeColor));
+            renderer.setShowEntityAngles(true);
+            renderer.setEntityAngleColor(pref(Preferences::AngleIndicatorColor));
+#endif
+  m_brushRenderer->setEdgeColor(RenderType::Selected, pref(Preferences::SelectedEdgeColor));
+  m_patchRenderer->setEdgeColor(RenderType::Selected, pref(Preferences::SelectedEdgeColor));
 }
 
-void MapRenderer::setupLockedRenderer(ObjectRenderer& renderer) {
-  renderer.setEntityOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
-  renderer.setGroupOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
-  renderer.setOverlayBackgroundColor(pref(Preferences::LockedInfoOverlayBackgroundColor));
-  renderer.setShowOccludedObjects(false);
-  renderer.setTint(true);
-  renderer.setTintColor(pref(Preferences::LockedFaceColor));
-  renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
+void MapRenderer::setupLockedRenderer() {
+  m_entityRenderer->setOverlayTextColor(
+    RenderType::Locked, pref(Preferences::LockedInfoOverlayTextColor));
+  m_groupRenderer->setOverlayTextColor(
+    RenderType::Locked, pref(Preferences::LockedInfoOverlayTextColor));
+  m_entityRenderer->setOverlayBackgroundColor(
+    RenderType::Locked, pref(Preferences::LockedInfoOverlayBackgroundColor));
+  m_groupRenderer->setOverlayBackgroundColor(
+    RenderType::Locked, pref(Preferences::LockedInfoOverlayBackgroundColor));
+#if 0                        
+            renderer.setShowOccludedObjects(false);
+            renderer.setTint(true);
+            renderer.setTintColor(pref(Preferences::LockedFaceColor));
+            renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
 
-  renderer.setOverrideGroupColors(true);
-  renderer.setGroupBoundsColor(pref(Preferences::LockedEdgeColor));
+            renderer.setOverrideGroupColors(true);
+            renderer.setGroupBoundsColor(pref(Preferences::LockedEdgeColor));
 
-  renderer.setOverrideEntityBoundsColor(true);
-  renderer.setEntityBoundsColor(pref(Preferences::LockedEdgeColor));
-  renderer.setShowEntityAngles(false);
-
-  renderer.setBrushFaceColor(pref(Preferences::FaceColor));
-  renderer.setBrushEdgeColor(pref(Preferences::LockedEdgeColor));
+            renderer.setOverrideEntityBoundsColor(true);
+            renderer.setEntityBoundsColor(pref(Preferences::LockedEdgeColor));
+            renderer.setShowEntityAngles(false);
+#endif
+  m_brushRenderer->setEdgeColor(RenderType::Locked, pref(Preferences::LockedEdgeColor));
+  m_patchRenderer->setEdgeColor(RenderType::Locked, pref(Preferences::LockedEdgeColor));
 }
 
-static bool selected(const Model::Node* node) {
-  return node->selected() || node->descendantSelected() || node->parentSelected();
-}
-
-MapRenderer::Renderer MapRenderer::determineDesiredRenderers(Model::Node* node) {
-  int result = 0;
-
-  node->accept(kdl::overload(
-    [](Model::WorldNode*) {}, [](Model::LayerNode*) {},
-    [&](Model::GroupNode* group) {
-      if (group->locked()) {
-        result = Renderer_Locked;
-      } else if (selected(group) || group->opened()) {
-        result = Renderer_Selection;
-      } else {
-        result = Renderer_Default;
-      }
-    },
-    [&](Model::EntityNode* entity) {
-      if (entity->locked()) {
-        result = Renderer_Locked;
-      } else if (selected(entity)) {
-        result = Renderer_Selection;
-      } else {
-        result = Renderer_Default;
-      }
-    },
-    [&](Model::BrushNode* brush) {
-      if (brush->locked()) {
-        result = Renderer_Locked;
-      } else if (selected(brush) || brush->hasSelectedFaces()) {
-        result = Renderer_Selection;
-      }
-      if (!brush->selected() && !brush->parentSelected() && !brush->locked()) {
-        result |= Renderer_Default;
-      }
-    },
-    [&](Model::PatchNode* patchNode) {
-      if (patchNode->locked()) {
-        result = Renderer_Locked;
-      } else if (selected(patchNode)) {
-        result = Renderer_Selection;
-      }
-      if (!patchNode->selected() && !patchNode->parentSelected() && !patchNode->locked()) {
-        result |= Renderer_Default;
-      }
-    }));
-  return static_cast<Renderer>(result);
-}
+// FIXME: make sure BrushRenderer etc. are using this predicate (moved to RenderUtils)
+// static bool selected(const Model::Node* node) {
+//    return node->selected() || node->descendantSelected() || node->parentSelected();
+//}
 
 /**
  * - Determine which renderers the given node should be in
@@ -387,34 +257,43 @@ MapRenderer::Renderer MapRenderer::determineDesiredRenderers(Model::Node* node) 
  * - Invalidate, for any renderers it was already present in
  */
 void MapRenderer::updateAndInvalidateNode(Model::Node* node) {
-  const Renderer desiredRenderers = determineDesiredRenderers(node);
-  Renderer currentRenderers;
+  bool adding = false;
 
-  if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end()) {
-    currentRenderers = it->second;
-  } else {
-    currentRenderers = static_cast<Renderer>(0);
+  if (auto it = m_trackedNodes.find(node); it == m_trackedNodes.end()) {
+    adding = true;
+    m_trackedNodes.insert(node);
   }
 
-  auto updateForRenderer = [&](const Renderer r, ObjectRenderer* o) {
-    const bool isRDesired = (desiredRenderers & r) != 0;
-    const bool isRCurrent = (currentRenderers & r) != 0;
-
-    if (isRCurrent && !isRDesired) {
-      o->removeNode(node);
-    } else if (!isRCurrent && isRDesired) {
-      o->addNode(node);
-    } else if (isRCurrent && isRDesired) {
-      o->invalidateNode(node);
-    }
-  };
-
-  updateForRenderer(Renderer_Default, m_defaultRenderer.get());
-  updateForRenderer(Renderer_Selection, m_selectionRenderer.get());
-  updateForRenderer(Renderer_Locked, m_lockedRenderer.get());
-
-  // Update the metadata to reflect the changes that we made above
-  m_trackedNodes[node] = desiredRenderers;
+  node->accept(kdl::overload(
+    [](Model::WorldNode*) {}, [](Model::LayerNode*) {},
+    [&](Model::GroupNode* group) {
+      if (adding) {
+        m_groupRenderer->addGroup(group);
+      } else {
+        m_groupRenderer->invalidateGroup(group);
+      }
+    },
+    [&](Model::EntityNode* entity) {
+      if (adding) {
+        m_entityRenderer->addEntity(entity);
+      } else {
+        m_entityRenderer->invalidateEntity(entity);
+      }
+    },
+    [&](Model::BrushNode* brush) {
+      if (adding) {
+        m_brushRenderer->addBrush(brush);
+      } else {
+        m_brushRenderer->invalidateBrush(brush);
+      }
+    },
+    [&](Model::PatchNode* patchNode) {
+      if (adding) {
+        m_patchRenderer->addPatch(patchNode);
+      } else {
+        m_patchRenderer->invalidatePatch(patchNode);
+      }
+    }));
 }
 
 void MapRenderer::updateAndInvalidateNodeRecursive(Model::Node* node) {
@@ -450,25 +329,25 @@ void MapRenderer::updateAndInvalidateNodeRecursive(Model::Node* node) {
 }
 
 void MapRenderer::removeNode(Model::Node* node) {
-  if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end()) {
-    const Renderer renderers = it->second;
+  node->accept(kdl::overload(
+    [](Model::WorldNode*) {}, [](Model::LayerNode*) {},
+    [&](Model::GroupNode* group) {
+      m_groupRenderer->removeGroup(group);
+    },
+    [&](Model::EntityNode* entity) {
+      m_entityRenderer->removeEntity(entity);
+    },
+    [&](Model::BrushNode* brush) {
+      m_brushRenderer->removeBrush(brush);
+    },
+    [&](Model::PatchNode* patchNode) {
+      m_patchRenderer->removePatch(patchNode);
+    }));
 
-    if (renderers & Renderer_Default) {
-      m_defaultRenderer->removeNode(node);
-    }
-    if (renderers & Renderer_Selection) {
-      m_selectionRenderer->removeNode(node);
-    }
-    if (renderers & Renderer_Locked) {
-      m_lockedRenderer->removeNode(node);
-    }
+  m_trackedNodes.erase(node);
 
-    m_trackedNodes.erase(it);
-
-    // At this point, none of the default/selection/locked renderers,
-    // or their underlying node-type specific renderers, have a reference
-    // to `node` anymore, and they won't render it.
-  }
+  // At this point, none of the node-type specific renderers have a reference
+  // to `node` anymore, and they won't render it.
 }
 
 void MapRenderer::removeNodeRecursive(Model::Node* node) {
@@ -504,16 +383,14 @@ void MapRenderer::updateAllNodes() {
 }
 
 /**
- * Marks the nodes that are already tracked in the given renderers as invalid, i.e.
+ * Marks the nodes that are already tracked as invalid, i.e.
  * needing to be re-rendered.
  */
-void MapRenderer::invalidateRenderers(Renderer renderers) {
-  if ((renderers & Renderer_Default) != 0)
-    m_defaultRenderer->invalidate();
-  if ((renderers & Renderer_Selection) != 0)
-    m_selectionRenderer->invalidate();
-  if ((renderers & Renderer_Locked) != 0)
-    m_lockedRenderer->invalidate();
+void MapRenderer::invalidateRenderers() {
+  m_groupRenderer->invalidate();
+  m_entityRenderer->invalidate();
+  m_brushRenderer->invalidate();
+  m_patchRenderer->invalidate();
 }
 
 void MapRenderer::invalidateEntityLinkRenderer() {
@@ -525,9 +402,7 @@ void MapRenderer::invalidateGroupLinkRenderer() {
 }
 
 void MapRenderer::reloadEntityModels() {
-  m_defaultRenderer->reloadModels();
-  m_selectionRenderer->reloadModels();
-  m_lockedRenderer->reloadModels();
+  m_entityRenderer->reloadModels();
 }
 
 void MapRenderer::connectObservers() {
@@ -572,17 +447,46 @@ void MapRenderer::connectObservers() {
     prefs.preferenceDidChangeNotifier.connect(this, &MapRenderer::preferenceDidChange);
 }
 
+static void debugLog(const char* functionName) {
+  qDebug() << functionName;
+}
+
+static void debugLog(const char* functionName, const std::vector<Model::Node*>& nodes) {
+  qDebug() << functionName << nodes.size() << "nodes";
+}
+
+static void debugLog(const char* functionName, const Model::Node*) {
+  qDebug() << functionName << "1 node";
+}
+
+static void debugLog(const char* functionName, const std::vector<Model::BrushFaceHandle>& faces) {
+  qDebug() << functionName << faces.size() << "face handles";
+}
+
+static void debugLog(const char* functionName, const View::Selection& selection) {
+  qDebug() << functionName
+           << QString::fromLatin1(
+                "%1/%2 nodes selected/deselected, %3/%4 faces selected/deselected")
+                .arg(selection.selectedNodes().size())
+                .arg(selection.deselectedNodes().size())
+                .arg(selection.selectedBrushFaces().size())
+                .arg(selection.deselectedBrushFaces().size());
+}
+
 void MapRenderer::documentWasCleared(View::MapDocument*) {
+  debugLog(__func__);
   clear();
 }
 
 void MapRenderer::documentWasNewedOrLoaded(View::MapDocument*) {
+  debugLog(__func__);
   clear();
   updateAllNodes();
   invalidateEntityLinkRenderer();
 }
 
 void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes) {
+  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     // The nodes passed in don't include recursive children, so we need to visit them ourselves.
     updateAndInvalidateNodeRecursive(node);
@@ -592,6 +496,7 @@ void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes) {
 }
 
 void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes) {
+  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     // The nodes passed in don't include recursive children, so we need to visit them ourselves.
     // Otherwise deleting a group doesn't delete the brushes within.
@@ -602,6 +507,7 @@ void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes) {
 }
 
 void MapRenderer::nodesDidChange(const std::vector<Model::Node*>& nodes) {
+  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     // nodesDidChange() will report ancestors changing, e.g. the world and layer are reported as
     // changing when a brush is dragged. So, don't update recursively here as it would cause
@@ -613,6 +519,7 @@ void MapRenderer::nodesDidChange(const std::vector<Model::Node*>& nodes) {
 }
 
 void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes) {
+  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     updateAndInvalidateNodeRecursive(node);
   }
@@ -620,29 +527,35 @@ void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes
 }
 
 void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>& nodes) {
+  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     updateAndInvalidateNodeRecursive(node);
   }
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasOpened(Model::GroupNode*) {
+void MapRenderer::groupWasOpened(Model::GroupNode* group) {
+  debugLog(__func__, group);
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasClosed(Model::GroupNode*) {
+void MapRenderer::groupWasClosed(Model::GroupNode* group) {
+  debugLog(__func__, group);
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
 }
 
 void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces) {
+  debugLog(__func__, faces);
   for (const auto& face : faces) {
     updateAndInvalidateNode(face.node());
   }
 }
 
 void MapRenderer::selectionDidChange(const View::Selection& selection) {
+  debugLog(__func__, selection);
+
   for (const auto& face : selection.deselectedBrushFaces()) {
     updateAndInvalidateNode(face.node());
   }
@@ -662,23 +575,24 @@ void MapRenderer::selectionDidChange(const View::Selection& selection) {
 }
 
 void MapRenderer::textureCollectionsWillChange() {
-  invalidateRenderers(Renderer_All);
+  debugLog(__func__);
+  invalidateRenderers();
 }
 
 void MapRenderer::entityDefinitionsDidChange() {
   reloadEntityModels();
-  invalidateRenderers(Renderer_All);
+  invalidateRenderers();
   invalidateEntityLinkRenderer();
 }
 
 void MapRenderer::modsDidChange() {
   reloadEntityModels();
-  invalidateRenderers(Renderer_All);
+  invalidateRenderers();
   invalidateEntityLinkRenderer();
 }
 
 void MapRenderer::editorContextDidChange() {
-  invalidateRenderers(Renderer_All);
+  invalidateRenderers();
   invalidateEntityLinkRenderer();
   invalidateGroupLinkRenderer();
 }
@@ -689,13 +603,13 @@ void MapRenderer::preferenceDidChange(const IO::Path& path) {
   auto document = kdl::mem_lock(m_document);
   if (document->isGamePathPreference(path)) {
     reloadEntityModels();
-    invalidateRenderers(Renderer_All);
+    invalidateRenderers();
     invalidateEntityLinkRenderer();
     invalidateGroupLinkRenderer();
   }
 
   if (path.hasPrefix(IO::Path("Map view"), true)) {
-    invalidateRenderers(Renderer_All);
+    invalidateRenderers();
     invalidateEntityLinkRenderer();
     invalidateGroupLinkRenderer();
   }

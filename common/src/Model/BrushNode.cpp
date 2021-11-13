@@ -40,7 +40,6 @@
 #include "Model/WorldNode.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
-#include "Renderer/BrushRendererBrushCache.h"
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
@@ -67,12 +66,9 @@ namespace Model {
 const HitType::Type BrushNode::BrushHitType = HitType::freeType();
 
 BrushNode::BrushNode(Brush brush)
-  : m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>())
-  , m_brush(std::move(brush)) {
+  : m_brush(std::move(brush)) {
   clearSelectedFaces();
 }
-
-BrushNode::~BrushNode() = default;
 
 BrushNode* BrushNode::clone(const vm::bbox3& worldBounds) const {
   return static_cast<BrushNode*>(Node::clone(worldBounds));
@@ -118,7 +114,6 @@ Brush BrushNode::setBrush(Brush brush) {
 
   updateSelectedFaceCount();
   invalidateIssues();
-  invalidateVertexCache();
 
   return brush;
 }
@@ -145,7 +140,6 @@ void BrushNode::setFaceTexture(const size_t faceIndex, Assets::Texture* texture)
   m_brush.face(faceIndex).setTexture(texture);
 
   invalidateIssues();
-  invalidateVertexCache();
 }
 
 static bool containsPatch(const Brush& brush, const PatchGrid& grid) {
@@ -379,14 +373,6 @@ LayerNode* BrushNode::doGetContainingLayer() {
 
 GroupNode* BrushNode::doGetContainingGroup() {
   return findContainingGroup(this);
-}
-
-void BrushNode::invalidateVertexCache() {
-  m_brushRendererBrushCache->invalidateVertexCache();
-}
-
-Renderer::BrushRendererBrushCache& BrushNode::brushRendererBrushCache() const {
-  return *m_brushRendererBrushCache;
 }
 
 void BrushNode::initializeTags(TagManager& tagManager) {

@@ -29,6 +29,9 @@ namespace TrenchBroom {
 namespace Assets {
 class Texture;
 }
+namespace Model {
+class Node;
+}
 
 namespace Renderer {
 vm::vec3f gridColorForTexture(const Assets::Texture* texture);
@@ -77,5 +80,7 @@ std::vector<vm::vec3f> sphere3D(float radius, size_t iterations);
 VertsAndNormals circle3D(float radius, size_t segments);
 VertsAndNormals cylinder3D(float radius, float length, size_t segments);
 VertsAndNormals cone3D(float radius, float length, size_t segments);
+
+bool selected(const Model::Node* node);
 } // namespace Renderer
 } // namespace TrenchBroom

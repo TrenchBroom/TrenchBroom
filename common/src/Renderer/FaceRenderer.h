@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Color.h"
+#include "Renderer/BrushRendererArrays.h"
 #include "Renderer/Renderable.h"
 
 #include <vecmath/forward.h>
@@ -34,8 +35,6 @@ class Texture;
 }
 
 namespace Renderer {
-class BrushIndexArray;
-class BrushVertexArray;
 class RenderBatch;
 
 class FaceRenderer : public IndexedRenderable {

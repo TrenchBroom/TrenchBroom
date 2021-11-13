@@ -32,6 +32,8 @@
 
 namespace TrenchBroom {
 namespace Renderer {
+// EdgeRenderer
+
 EdgeRenderer::Params::Params(const float i_width, const double i_offset, const bool i_onTop)
   : width(i_width)
   , offset(i_offset)
@@ -134,6 +136,8 @@ void EdgeRenderer::render(
   doRender(renderBatch, Params(width, offset, onTop, useColor, color));
 }
 
+// DirectEdgeRenderer
+
 DirectEdgeRenderer::Render::Render(
   const EdgeRenderer::Params& params, VertexArray& vertexArray, IndexRangeMap& indexRanges)
   : RenderBase(params)
@@ -185,10 +189,163 @@ void DirectEdgeRenderer::doRender(RenderBatch& renderBatch, const EdgeRenderer::
   renderBatch.addOneShot(new Render(params, m_vertexArray, m_indexRanges));
 }
 
+// BrushEdgeRenderer
+
+BrushEdgeRenderer::Params::Params(const float i_width, const double i_offset, const bool i_onTop)
+  : width(i_width)
+  , offset(i_offset)
+  , onTop(i_onTop)
+  , useColor(false) {}
+
+BrushEdgeRenderer::Params::Params(
+  const float i_width, const double i_offset, const bool i_onTop, const Color& i_color)
+  : width(i_width)
+  , offset(i_offset)
+  , onTop(i_onTop)
+  , useColor(true)
+  , color(i_color) {}
+
+BrushEdgeRenderer::Params::Params(
+  const float i_width, const double i_offset, const bool i_onTop, const bool i_useColor,
+  const Color& i_color)
+  : width(i_width)
+  , offset(i_offset)
+  , onTop(i_onTop)
+  , useColor(i_useColor)
+  , color(i_color) {}
+
+BrushEdgeRenderer::RenderBase::RenderBase(const Params& params)
+  : m_params(params) {}
+
+BrushEdgeRenderer::RenderBase::~RenderBase() {}
+
+void BrushEdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext) {
+  if (m_params.offset != 0.0)
+    glSetEdgeOffset(m_params.offset);
+
+  if (m_params.width != 1.0f)
+    glAssert(glLineWidth(m_params.width))
+
+      if (m_params.onTop) glAssert(glDisable(GL_DEPTH_TEST))
+
+    {
+      PreferenceManager& prefs = PreferenceManager::instance();
+      ActiveShader shader(renderContext.shaderManager(), Shaders::BrushEdgeShader);
+      shader.set("OnTop", m_params.onTop);
+      shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
+      shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
+      shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
+      shader.set(
+        "SoftMapBoundsColor",
+        vm::vec4f(
+          prefs.get(Preferences::SoftMapBoundsColor).r(),
+          prefs.get(Preferences::SoftMapBoundsColor).g(),
+          prefs.get(Preferences::SoftMapBoundsColor).b(),
+          0.33f)); // NOTE: heavier tint than FaceRenderer, since these are lines
+      doRenderVertices(renderContext);
+    }
+
+  if (m_params.onTop)
+    glAssert(glEnable(GL_DEPTH_TEST))
+
+      if (m_params.width != 1.0f) glAssert(glLineWidth(1.0f))
+
+        if (m_params.offset != 0.0) glResetEdgeOffset();
+}
+
+BrushEdgeRenderer::~BrushEdgeRenderer() {}
+
+void BrushEdgeRenderer::render(RenderBatch& renderBatch, const float width, const double offset) {
+  doRender(renderBatch, Params(width, offset, false));
+}
+
+void BrushEdgeRenderer::render(
+  RenderBatch& renderBatch, const Color& color, const float width, const double offset) {
+  doRender(renderBatch, Params(width, offset, false, color));
+}
+
+void BrushEdgeRenderer::render(
+  RenderBatch& renderBatch, const bool useColor, const Color& color, const float width,
+  const double offset) {
+  doRender(renderBatch, Params(width, offset, false, useColor, color));
+}
+
+void BrushEdgeRenderer::renderOnTop(
+  RenderBatch& renderBatch, const float width, const double offset) {
+  doRender(renderBatch, Params(width, offset, true));
+}
+
+void BrushEdgeRenderer::renderOnTop(
+  RenderBatch& renderBatch, const Color& color, const float width, const double offset) {
+  doRender(renderBatch, Params(width, offset, true, color));
+}
+
+void BrushEdgeRenderer::renderOnTop(
+  RenderBatch& renderBatch, const bool useColor, const Color& color, const float width,
+  const double offset) {
+  doRender(renderBatch, Params(width, offset, true, useColor, color));
+}
+
+void BrushEdgeRenderer::render(
+  RenderBatch& renderBatch, const bool useColor, const Color& color, const bool onTop,
+  const float width, const double offset) {
+  doRender(renderBatch, Params(width, offset, onTop, useColor, color));
+}
+
+// DirectBrushEdgeRenderer::Render
+
+DirectBrushEdgeRenderer::Render::Render(
+  const BrushEdgeRenderer::Params& params, std::shared_ptr<BrushEdgeVertexArray> vertexArray)
+  : RenderBase(params)
+  , m_vertexArray(std::move(vertexArray)) {}
+
+void DirectBrushEdgeRenderer::Render::doPrepareVertices(VboManager& vboManager) {
+  m_vertexArray->prepare(vboManager);
+}
+
+void DirectBrushEdgeRenderer::Render::doRender(RenderContext& renderContext) {
+  if (m_vertexArray->empty()) {
+    return;
+  }
+  renderEdges(renderContext);
+}
+
+void DirectBrushEdgeRenderer::Render::doRenderVertices(RenderContext&) {
+  m_vertexArray->setupVertices();
+  m_vertexArray->render(PrimType::Lines);
+  m_vertexArray->cleanupVertices();
+}
+
+// DirectBrushEdgeRenderer
+
+DirectBrushEdgeRenderer::DirectBrushEdgeRenderer() {}
+
+DirectBrushEdgeRenderer::DirectBrushEdgeRenderer(std::shared_ptr<BrushEdgeVertexArray> vertexArray)
+  : m_vertexArray(std::move(vertexArray)) {}
+
+DirectBrushEdgeRenderer::DirectBrushEdgeRenderer(const DirectBrushEdgeRenderer& other)
+  : m_vertexArray(other.m_vertexArray) {}
+
+DirectBrushEdgeRenderer& DirectBrushEdgeRenderer::operator=(DirectBrushEdgeRenderer other) {
+  using std::swap;
+  swap(*this, other);
+  return *this;
+}
+
+void swap(DirectBrushEdgeRenderer& left, DirectBrushEdgeRenderer& right) {
+  using std::swap;
+  swap(left.m_vertexArray, right.m_vertexArray);
+}
+
+void DirectBrushEdgeRenderer::doRender(
+  RenderBatch& renderBatch, const BrushEdgeRenderer::Params& params) {
+  renderBatch.addOneShot(new Render(params, m_vertexArray));
+}
+
 // IndexedEdgeRenderer::Render
 
 IndexedEdgeRenderer::Render::Render(
-  const EdgeRenderer::Params& params, std::shared_ptr<BrushVertexArray> vertexArray,
+  const BrushEdgeRenderer::Params& params, std::shared_ptr<BrushVertexArray> vertexArray,
   std::shared_ptr<BrushIndexArray> indexArray)
   : RenderBase(params)
   , m_vertexArray(std::move(vertexArray))
@@ -239,7 +396,8 @@ void swap(IndexedEdgeRenderer& left, IndexedEdgeRenderer& right) {
   swap(left.m_indexArray, right.m_indexArray);
 }
 
-void IndexedEdgeRenderer::doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) {
+void IndexedEdgeRenderer::doRender(
+  RenderBatch& renderBatch, const BrushEdgeRenderer::Params& params) {
   renderBatch.addOneShot(new Render(params, m_vertexArray, m_indexArray));
 }
 } // namespace Renderer

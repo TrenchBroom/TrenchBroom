@@ -19,19 +19,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vec4 Color;
-uniform vec3 CameraPosition;
+varying vec4 worldCoordinates;
+varying vec3 vertexColor;
 
-varying vec4 modelCoordinates;
-varying vec3 modelNormal;
-varying vec4 faceColor;
-varying vec3 viewVector;
+vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
-void main(void) {
-	gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-	modelCoordinates = gl_Vertex;
-	modelNormal = gl_Normal;
-	faceColor = Color;
-	viewVector = CameraPosition - gl_Vertex.xyz;
+void main() {
+    gl_FragColor = vec4(vertexColor, 1.0);
+    gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, worldCoordinates.xyz);
 }

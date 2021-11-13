@@ -28,6 +28,7 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/TextAnchor.h"
 
 #include <vector>
@@ -95,12 +96,13 @@ void GroupRenderer::setShowOverlays(const bool showOverlays) {
   m_showOverlays = showOverlays;
 }
 
-void GroupRenderer::setOverlayTextColor(const Color& overlayTextColor) {
-  m_overlayTextColor = overlayTextColor;
+void GroupRenderer::setOverlayTextColor(const RenderType type, const Color& overlayTextColor) {
+  m_overlayTextColor[type] = overlayTextColor;
 }
 
-void GroupRenderer::setOverlayBackgroundColor(const Color& overlayBackgroundColor) {
-  m_overlayBackgroundColor = overlayBackgroundColor;
+void GroupRenderer::setOverlayBackgroundColor(
+  const RenderType type, const Color& overlayBackgroundColor) {
+  m_overlayBackgroundColor[type] = overlayBackgroundColor;
 }
 
 void GroupRenderer::setShowOccludedOverlays(const bool showOccludedOverlays) {
@@ -140,16 +142,28 @@ void GroupRenderer::renderBounds(RenderContext&, RenderBatch& renderBatch) {
   m_boundsRenderer.render(renderBatch, m_overrideColors, m_boundsColor);
 }
 
+static RenderType renderType(const Model::GroupNode* group) {
+  if (group->locked()) {
+    return RenderType::Locked;
+  } else if (selected(group) || group->opened()) {
+    return RenderType::Selected;
+  } else {
+    return RenderType::Default;
+  }
+}
+
 void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& renderBatch) {
   if (m_showOverlays) {
     Renderer::RenderService renderService(renderContext, renderBatch);
-    renderService.setBackgroundColor(m_overlayBackgroundColor);
-
-    if (m_overrideColors) {
-      renderService.setForegroundColor(m_overlayTextColor);
-    }
-
     for (const auto* group : m_groups) {
+      const auto type = renderType(group);
+
+      renderService.setBackgroundColor(m_overlayBackgroundColor[type]);
+
+      if (m_overrideColors) {
+        renderService.setForegroundColor(m_overlayTextColor[type]);
+      }
+
       if (shouldRenderGroup(group)) {
         if (!m_overrideColors) {
           renderService.setForegroundColor(groupColor(group));

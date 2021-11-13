@@ -24,9 +24,6 @@ uniform float Alpha;
 uniform bool EnableMasked;
 uniform bool ApplyTexture;
 uniform sampler2D Texture;
-uniform bool ApplyTinting;
-uniform vec4 TintColor;
-uniform bool GrayScale;
 uniform bool RenderGrid;
 uniform float GridSize;
 uniform float GridAlpha;
@@ -34,17 +31,21 @@ uniform vec3 GridColor;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
 
+varying vec2 texCoordVarying;
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
 varying vec3 viewVector;
+varying float GrayScale;
+varying float ApplyTinting;
+varying vec4 TintColor;
 
 float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
 void main() {
 	if (ApplyTexture)
-		gl_FragColor = texture2D(Texture, gl_TexCoord[0].st);
+		gl_FragColor = texture2D(Texture, texCoordVarying);
 	else
 		gl_FragColor = faceColor;
 
@@ -58,12 +59,12 @@ void main() {
     gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     gl_FragColor.a = Alpha;
 
-    if (GrayScale) {
+    if (GrayScale >= 0.5) {
         float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
         gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
     }
 
-    if (ApplyTinting) {
+    if (ApplyTinting >= 0.5) {
         gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
         float brightnessCorrection = 1.0 / max(max(abs(TintColor.r), abs(TintColor.g)), abs(TintColor.b));
         gl_FragColor = clamp(brightnessCorrection * gl_FragColor, 0.0, 1.0);

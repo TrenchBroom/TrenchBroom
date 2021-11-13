@@ -32,6 +32,7 @@ extern const ShaderConfig EntityModelShader;
 extern const ShaderConfig FaceShader;
 extern const ShaderConfig PatchShader;
 extern const ShaderConfig EdgeShader;
+extern const ShaderConfig BrushEdgeShader;
 extern const ShaderConfig ColoredTextShader;
 extern const ShaderConfig TextBackgroundShader;
 extern const ShaderConfig TextureBrowserShader;

@@ -34,6 +34,7 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/TextAnchor.h"
 
 #include <vecmath/forward.h>
@@ -121,25 +122,26 @@ void EntityRenderer::setShowOverlays(const bool showOverlays) {
   m_showOverlays = showOverlays;
 }
 
-void EntityRenderer::setOverlayTextColor(const Color& overlayTextColor) {
-  m_overlayTextColor = overlayTextColor;
+void EntityRenderer::setOverlayTextColor(const RenderType type, const Color& overlayTextColor) {
+  m_overlayTextColor[type] = overlayTextColor;
 }
 
-void EntityRenderer::setOverlayBackgroundColor(const Color& overlayBackgroundColor) {
-  m_overlayBackgroundColor = overlayBackgroundColor;
+void EntityRenderer::setOverlayBackgroundColor(
+  const RenderType type, const Color& overlayBackgroundColor) {
+  m_overlayBackgroundColor[type] = overlayBackgroundColor;
 }
 
 void EntityRenderer::setShowOccludedOverlays(const bool showOccludedOverlays) {
   m_showOccludedOverlays = showOccludedOverlays;
 }
 
-void EntityRenderer::setTint(const bool tint) {
-  m_tint = tint;
-}
+// void EntityRenderer::setTint(const bool tint) {
+//     m_tint = tint;
+// }
 
-void EntityRenderer::setTintColor(const Color& tintColor) {
-  m_tintColor = tintColor;
-}
+// void EntityRenderer::setTintColor(const Color& tintColor) {
+//     m_tintColor = tintColor;
+// }
 
 void EntityRenderer::setOverrideBoundsColor(const bool overrideBoundsColor) {
   m_overrideBoundsColor = overrideBoundsColor;
@@ -226,13 +228,26 @@ void EntityRenderer::renderModels(RenderContext& renderContext, RenderBatch& ren
   }
 }
 
+static RenderType renderType(const Model::EntityNode* entity) {
+  if (entity->locked()) {
+    return RenderType::Locked;
+  } else if (selected(entity)) {
+    return RenderType::Selected;
+  } else {
+    return RenderType::Default;
+  }
+}
+
 void EntityRenderer::renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch) {
   if (m_showOverlays && renderContext.showEntityClassnames()) {
     Renderer::RenderService renderService(renderContext, renderBatch);
-    renderService.setForegroundColor(m_overlayTextColor);
-    renderService.setBackgroundColor(m_overlayBackgroundColor);
 
     for (const Model::EntityNode* entity : m_entities) {
+      const auto type = renderType(entity);
+
+      renderService.setForegroundColor(m_overlayTextColor[type]);
+      renderService.setBackgroundColor(m_overlayBackgroundColor[type]);
+
       if (m_showHiddenEntities || m_editorContext.visible(entity)) {
         if (
           entity->containingGroup() == nullptr ||

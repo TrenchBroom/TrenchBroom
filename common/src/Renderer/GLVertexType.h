@@ -174,6 +174,9 @@ using P3NC4 =
   GLVertexType<GLVertexAttributeTypes::P3, GLVertexAttributeTypes::N, GLVertexAttributeTypes::C4>;
 using P3NT2 =
   GLVertexType<GLVertexAttributeTypes::P3, GLVertexAttributeTypes::N, GLVertexAttributeTypes::T02>;
+using P3NT2C4 = GLVertexType<
+  GLVertexAttributeTypes::P3, GLVertexAttributeTypes::N, GLVertexAttributeTypes::T02,
+  GLVertexAttributeTypes::C4>;
 } // namespace GLVertexTypes
 } // namespace Renderer
 } // namespace TrenchBroom

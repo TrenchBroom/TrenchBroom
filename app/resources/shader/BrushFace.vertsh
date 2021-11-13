@@ -1,0 +1,77 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2017 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+attribute vec4 position;
+attribute vec2 texCoord;
+attribute vec3 normal;
+attribute float flags;
+
+/**
+ * Used if ApplyTexture is false
+ */
+uniform vec4 Color;
+uniform vec3 CameraPosition;
+
+varying vec2 texCoordVarying;
+varying vec4 modelCoordinates;
+varying vec3 modelNormal;
+varying vec4 faceColor;
+varying vec3 viewVector;
+varying float GrayScale;
+varying float ApplyTinting;
+varying vec4 TintColor;
+
+struct flagsStruct {
+    bool hidden;
+    bool selected;
+    bool locked;
+};
+
+flagsStruct parseFlags(float v_float);
+
+void main(void) {
+    flagsStruct faceFlags = parseFlags(flags);
+
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * position;
+    texCoordVarying = texCoord;
+    modelCoordinates = position;
+    modelNormal = normal;
+    faceColor = Color;
+    viewVector = CameraPosition - position.xyz;
+
+    if (faceFlags.hidden) {
+        gl_Position = vec4(0.0, 0.0, 0.0, 0.0);
+    }
+
+    if (faceFlags.locked) {
+        GrayScale = 1.0;
+        ApplyTinting = 1.0;
+        TintColor = vec4(0.0, 0.0, 1.0, 1.0);
+    } else if (faceFlags.selected) {
+        GrayScale = 0.0;
+        ApplyTinting = 1.0;
+        TintColor = vec4(1.0, 0.0, 0.0, 1.0);
+    } else {
+        GrayScale = 0.0;
+        ApplyTinting = 0.0;
+        TintColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+}

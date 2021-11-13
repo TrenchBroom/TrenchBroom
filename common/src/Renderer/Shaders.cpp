@@ -32,12 +32,17 @@ const ShaderConfig MiniMapEdgeShader =
   ShaderConfig("MiniMap Edges", {"MiniMapEdge.vertsh"}, {"MiniMapEdge.fragsh"});
 const ShaderConfig EntityModelShader =
   ShaderConfig("Entity Model", {"EntityModel.vertsh"}, {"MapBounds.fragsh", "EntityModel.fragsh"});
-const ShaderConfig FaceShader =
-  ShaderConfig("Face", {"Face.vertsh"}, {"Grid.fragsh", "MapBounds.fragsh", "Face.fragsh"});
-const ShaderConfig PatchShader =
-  ShaderConfig("Patch", {"Face.vertsh"}, {"Grid.fragsh", "MapBounds.fragsh", "Face.fragsh"});
+const ShaderConfig FaceShader = ShaderConfig(
+  "Face", {"RenderFlags.vertsh", "BrushFace.vertsh"},
+  {"Grid.fragsh", "MapBounds.fragsh", "BrushFace.fragsh"});
+const ShaderConfig PatchShader = ShaderConfig(
+  "Patch", {"RenderFlags.vertsh", "BrushFace.vertsh"},
+  {"Grid.fragsh", "MapBounds.fragsh", "BrushFace.fragsh"});
 const ShaderConfig EdgeShader =
   ShaderConfig("Edge", {"Edge.vertsh"}, {"MapBounds.fragsh", "Edge.fragsh"});
+const ShaderConfig BrushEdgeShader = ShaderConfig(
+  "Brush Edge", {"RenderFlags.vertsh", "BrushEdge.vertsh"},
+  {"MapBounds.fragsh", "BrushEdge.fragsh"});
 const ShaderConfig ColoredTextShader =
   ShaderConfig("Colored Text", {"ColoredText.vertsh"}, {"Text.fragsh"});
 const ShaderConfig TextShader = ShaderConfig("Text", {"Text.vertsh"}, {"Text.fragsh"});

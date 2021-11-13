@@ -189,7 +189,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/BrushRendererArrays.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/BrushRendererBrushCache.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Camera.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Circle.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Compass.cpp
@@ -218,7 +217,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/LinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/ObjectRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/OrthographicCamera.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PatchRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PerspectiveCamera.cpp
@@ -702,7 +700,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/BoundsGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/BrushRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/BrushRendererArrays.h
-        ${COMMON_SOURCE_DIR}/Renderer/BrushRendererBrushCache.h
         ${COMMON_SOURCE_DIR}/Renderer/Camera.h
         ${COMMON_SOURCE_DIR}/Renderer/Circle.h
         ${COMMON_SOURCE_DIR}/Renderer/Compass.h
@@ -736,7 +733,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/LinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/ObjectRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/OrthographicCamera.h
         ${COMMON_SOURCE_DIR}/Renderer/PatchRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/PerspectiveCamera.h
@@ -748,6 +744,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.h
+        ${COMMON_SOURCE_DIR}/Renderer/RenderType.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.h
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/Shader.h

@@ -574,7 +574,8 @@ void ClipTool::render(
 void ClipTool::renderBrushes(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
   m_remainingBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
-  m_remainingBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
+  m_remainingBrushRenderer->setEdgeColor(
+    Renderer::RenderType::Default, pref(Preferences::SelectedEdgeColor));
   m_remainingBrushRenderer->setShowEdges(true);
   m_remainingBrushRenderer->setShowOccludedEdges(true);
   m_remainingBrushRenderer->setOccludedEdgeColor(
@@ -584,7 +585,8 @@ void ClipTool::renderBrushes(
   m_remainingBrushRenderer->render(renderContext, renderBatch);
 
   m_clippedBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
-  m_clippedBrushRenderer->setEdgeColor(Color(pref(Preferences::EdgeColor), 0.5f));
+  m_clippedBrushRenderer->setEdgeColor(
+    Renderer::RenderType::Default, Color(pref(Preferences::EdgeColor), 0.5f));
   m_clippedBrushRenderer->setShowEdges(true);
   m_clippedBrushRenderer->setTint(false);
   m_clippedBrushRenderer->setForceTransparent(true);

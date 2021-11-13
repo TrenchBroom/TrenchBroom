@@ -22,9 +22,11 @@
 #include "Color.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
+#include "Renderer/RenderType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/TriangleRenderer.h"
 
+#include <kdl/enum_array.h>
 #include <kdl/vector_set.h>
 #include <vecmath/forward.h>
 
@@ -61,8 +63,8 @@ private:
   bool m_boundsValid;
 
   bool m_showOverlays;
-  Color m_overlayTextColor;
-  Color m_overlayBackgroundColor;
+  kdl::enum_array<Color, RenderType, RenderTypeSize> m_overlayTextColor;
+  kdl::enum_array<Color, RenderType, RenderTypeSize> m_overlayBackgroundColor;
   bool m_showOccludedOverlays;
   bool m_tint;
   Color m_tintColor;
@@ -104,12 +106,12 @@ public:
   void invalidateEntity(const Model::EntityNode* entity);
 
   void setShowOverlays(bool showOverlays);
-  void setOverlayTextColor(const Color& overlayTextColor);
-  void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
+  void setOverlayTextColor(RenderType type, const Color& overlayTextColor);
+  void setOverlayBackgroundColor(RenderType type, const Color& overlayBackgroundColor);
   void setShowOccludedOverlays(bool showOccludedOverlays);
 
-  void setTint(bool tint);
-  void setTintColor(const Color& tintColor);
+  // void setTint(bool tint);
+  // void setTintColor(const Color& tintColor);
 
   void setOverrideBoundsColor(bool overrideBoundsColor);
   void setBoundsColor(const Color& boundsColor);

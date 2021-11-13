@@ -22,7 +22,9 @@
 #include "AttrString.h"
 #include "Color.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/RenderType.h"
 
+#include <kdl/enum_array.h>
 #include <kdl/vector_set.h>
 
 #include <vector>
@@ -49,8 +51,8 @@ private:
 
   bool m_overrideColors;
   bool m_showOverlays;
-  Color m_overlayTextColor;
-  Color m_overlayBackgroundColor;
+  kdl::enum_array<Color, RenderType, RenderTypeSize> m_overlayTextColor;
+  kdl::enum_array<Color, RenderType, RenderTypeSize> m_overlayBackgroundColor;
   bool m_showOccludedOverlays;
   Color m_boundsColor;
   bool m_showOccludedBounds;
@@ -85,8 +87,8 @@ public:
   void setOverrideColors(bool overrideColors);
 
   void setShowOverlays(bool showOverlays);
-  void setOverlayTextColor(const Color& overlayTextColor);
-  void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
+  void setOverlayTextColor(RenderType type, const Color& overlayTextColor);
+  void setOverlayBackgroundColor(RenderType type, const Color& overlayBackgroundColor);
   void setShowOccludedOverlays(bool showOccludedOverlays);
 
   void setBoundsColor(const Color& boundsColor);
