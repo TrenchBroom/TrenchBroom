@@ -31,56 +31,60 @@ class QDragEnterEvent;
 class QDropEvent;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
-    namespace View {
-        class MapDocument;
-
-        class FileTextureCollectionEditor : public QWidget {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-
-            QListWidget* m_collections;
-
-            QAbstractButton* m_addTextureCollectionsButton;
-            QAbstractButton* m_removeTextureCollectionsButton;
-            QAbstractButton* m_moveTextureCollectionUpButton;
-            QAbstractButton* m_moveTextureCollectionDownButton;
-            QAbstractButton* m_reloadTextureCollectionsButton;
-
-            NotifierConnection m_notifierConnection;
-        public:
-            explicit FileTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-
-            bool debugUIConsistency() const;
-            bool canRemoveTextureCollections() const;
-            bool canMoveTextureCollectionsUp() const;
-            bool canMoveTextureCollectionsDown() const;
-            bool canReloadTextureCollections() const;
-
-            void addTextureCollections();
-            void removeSelectedTextureCollections();
-            void moveSelectedTextureCollectionsUp();
-            void moveSelectedTextureCollectionsDown();
-            void reloadTextureCollections();
-        private:
-            void createGui();
-        private slots:
-            void updateButtons();
-        private:
-            void connectObservers();
-
-            void textureCollectionsDidChange();
-            void preferenceDidChange(const IO::Path& path);
-
-            void updateControls();
-        protected:
-            void dragEnterEvent(QDragEnterEvent* event) override;
-            void dropEvent(QDropEvent* event) override;
-        };
-    }
+namespace IO {
+class Path;
 }
 
+namespace View {
+class MapDocument;
+
+class FileTextureCollectionEditor : public QWidget {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+
+  QListWidget* m_collections;
+
+  QAbstractButton* m_addTextureCollectionsButton;
+  QAbstractButton* m_removeTextureCollectionsButton;
+  QAbstractButton* m_moveTextureCollectionUpButton;
+  QAbstractButton* m_moveTextureCollectionDownButton;
+  QAbstractButton* m_reloadTextureCollectionsButton;
+
+  NotifierConnection m_notifierConnection;
+
+public:
+  explicit FileTextureCollectionEditor(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+
+  bool debugUIConsistency() const;
+  bool canRemoveTextureCollections() const;
+  bool canMoveTextureCollectionsUp() const;
+  bool canMoveTextureCollectionsDown() const;
+  bool canReloadTextureCollections() const;
+
+  void addTextureCollections();
+  void removeSelectedTextureCollections();
+  void moveSelectedTextureCollectionsUp();
+  void moveSelectedTextureCollectionsDown();
+  void reloadTextureCollections();
+
+private:
+  void createGui();
+private slots:
+  void updateButtons();
+
+private:
+  void connectObservers();
+
+  void textureCollectionsDidChange();
+  void preferenceDidChange(const IO::Path& path);
+
+  void updateControls();
+
+protected:
+  void dragEnterEvent(QDragEnterEvent* event) override;
+  void dropEvent(QDropEvent* event) override;
+};
+} // namespace View
+} // namespace TrenchBroom

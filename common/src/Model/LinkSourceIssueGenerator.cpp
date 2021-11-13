@@ -30,51 +30,51 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class LinkSourceIssueGenerator::LinkSourceIssue : public Issue {
-        public:
-            static const IssueType Type;
-        public:
-            explicit LinkSourceIssue(EntityNodeBase* node) :
-            Issue(node) {}
+namespace Model {
+class LinkSourceIssueGenerator::LinkSourceIssue : public Issue {
+public:
+  static const IssueType Type;
 
-            IssueType doGetType() const override {
-                return Type;
-            }
+public:
+  explicit LinkSourceIssue(EntityNodeBase* node)
+    : Issue(node) {}
 
-            std::string doGetDescription() const override {
-                const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
-                return entityNode->name() + " has unused targetname key";
-            }
-        };
+  IssueType doGetType() const override { return Type; }
 
-        const IssueType LinkSourceIssueGenerator::LinkSourceIssue::Type = Issue::freeType();
+  std::string doGetDescription() const override {
+    const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+    return entityNode->name() + " has unused targetname key";
+  }
+};
 
-        class LinkSourceIssueGenerator::LinkSourceIssueQuickFix : public IssueQuickFix {
-        public:
-            LinkSourceIssueQuickFix() :
-            IssueQuickFix(LinkSourceIssue::Type, "Delete property") {}
-        private:
-            void doApply(MapFacade* facade, const Issue* issue) const override {
-                const PushSelection push(facade);
+const IssueType LinkSourceIssueGenerator::LinkSourceIssue::Type = Issue::freeType();
 
-                // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeProperty call will correctly affect worldspawn either way.
+class LinkSourceIssueGenerator::LinkSourceIssueQuickFix : public IssueQuickFix {
+public:
+  LinkSourceIssueQuickFix()
+    : IssueQuickFix(LinkSourceIssue::Type, "Delete property") {}
 
-                facade->deselectAll();
-                facade->select(issue->node());
-                facade->removeProperty(EntityPropertyKeys::Targetname);
-            }
-        };
+private:
+  void doApply(MapFacade* facade, const Issue* issue) const override {
+    const PushSelection push(facade);
 
-        LinkSourceIssueGenerator::LinkSourceIssueGenerator() :
-        IssueGenerator(LinkSourceIssue::Type, "Missing entity link source") {
-            addQuickFix(new LinkSourceIssueQuickFix());
-        }
+    // If world node is affected, the selection will fail, but if nothing is selected,
+    // the removeProperty call will correctly affect worldspawn either way.
 
-        void LinkSourceIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            if (node->hasMissingSources())
-                issues.push_back(new LinkSourceIssue(node));
-        }
-    }
+    facade->deselectAll();
+    facade->select(issue->node());
+    facade->removeProperty(EntityPropertyKeys::Targetname);
+  }
+};
+
+LinkSourceIssueGenerator::LinkSourceIssueGenerator()
+  : IssueGenerator(LinkSourceIssue::Type, "Missing entity link source") {
+  addQuickFix(new LinkSourceIssueQuickFix());
 }
+
+void LinkSourceIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+  if (node->hasMissingSources())
+    issues.push_back(new LinkSourceIssue(node));
+}
+} // namespace Model
+} // namespace TrenchBroom

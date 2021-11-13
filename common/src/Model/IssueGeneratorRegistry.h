@@ -24,24 +24,25 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class IssueGenerator;
-        class IssueQuickFix;
+namespace Model {
+class IssueGenerator;
+class IssueQuickFix;
 
-        class IssueGeneratorRegistry {
-        private:
-            std::vector<IssueGenerator*> m_generators;
-        public:
-            ~IssueGeneratorRegistry();
+class IssueGeneratorRegistry {
+private:
+  std::vector<IssueGenerator*> m_generators;
 
-            const std::vector<IssueGenerator*>& registeredGenerators() const;
-            std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
+public:
+  ~IssueGeneratorRegistry();
 
-            void registerGenerator(IssueGenerator* generator);
-            void unregisterAllGenerators();
-        private:
-            void clearGenerators();
-        };
-    }
-}
+  const std::vector<IssueGenerator*>& registeredGenerators() const;
+  std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
 
+  void registerGenerator(IssueGenerator* generator);
+  void unregisterAllGenerators();
+
+private:
+  void clearGenerators();
+};
+} // namespace Model
+} // namespace TrenchBroom

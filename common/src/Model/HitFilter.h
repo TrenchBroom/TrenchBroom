@@ -25,24 +25,23 @@
 #include <functional>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Hit;
+namespace Model {
+class Hit;
 
-        using HitFilter = std::function<bool(const Hit& hit)>;
+using HitFilter = std::function<bool(const Hit& hit)>;
 
-        namespace HitFilters {
-            HitFilter any();
-            HitFilter none();
+namespace HitFilters {
+HitFilter any();
+HitFilter none();
 
-            HitFilter type(HitType::Type typeMask = HitType::AnyType);
-            HitFilter selected();
-            HitFilter transitivelySelected();
-            HitFilter minDistance(FloatType minDistance);
-        }
+HitFilter type(HitType::Type typeMask = HitType::AnyType);
+HitFilter selected();
+HitFilter transitivelySelected();
+HitFilter minDistance(FloatType minDistance);
+} // namespace HitFilters
 
-        HitFilter operator&&(HitFilter lhs, HitFilter rhs);
-        HitFilter operator||(HitFilter lhs, HitFilter rhs);
-        HitFilter operator!(HitFilter filter);
-    }
-}
-
+HitFilter operator&&(HitFilter lhs, HitFilter rhs);
+HitFilter operator||(HitFilter lhs, HitFilter rhs);
+HitFilter operator!(HitFilter filter);
+} // namespace Model
+} // namespace TrenchBroom

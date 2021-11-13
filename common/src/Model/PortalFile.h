@@ -24,28 +24,29 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-    namespace Model {
-        class PortalFile {
-        private:
-            std::vector<vm::polygon3f> m_portals;
-        public:
-            PortalFile();
-            ~PortalFile();
-
-            /**
-             * Constructor throws an exception if portalFilePath couldn't be read.
-             */
-            explicit PortalFile(const IO::Path& path);
-
-            static bool canLoad(const IO::Path& path);
-
-            const std::vector<vm::polygon3f>& portals() const;
-        private:
-            void load(const IO::Path& path);
-        };
-    }
+namespace IO {
+class Path;
 }
+namespace Model {
+class PortalFile {
+private:
+  std::vector<vm::polygon3f> m_portals;
 
+public:
+  PortalFile();
+  ~PortalFile();
+
+  /**
+   * Constructor throws an exception if portalFilePath couldn't be read.
+   */
+  explicit PortalFile(const IO::Path& path);
+
+  static bool canLoad(const IO::Path& path);
+
+  const std::vector<vm::polygon3f>& portals() const;
+
+private:
+  void load(const IO::Path& path);
+};
+} // namespace Model
+} // namespace TrenchBroom

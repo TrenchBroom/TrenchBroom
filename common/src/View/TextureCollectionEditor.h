@@ -26,22 +26,23 @@
 #include <QWidget>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocument;
+namespace View {
+class MapDocument;
 
-        class TextureCollectionEditor : public QWidget {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            
-            NotifierConnection m_notifierConnection;
-        public:
-            explicit TextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
-            void documentWasNewedOrLoaded(MapDocument* document);
+class TextureCollectionEditor : public QWidget {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
 
-            void createGui();
-        };
-    }
-}
+  NotifierConnection m_notifierConnection;
 
+public:
+  explicit TextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+
+private:
+  void documentWasNewedOrLoaded(MapDocument* document);
+
+  void createGui();
+};
+} // namespace View
+} // namespace TrenchBroom

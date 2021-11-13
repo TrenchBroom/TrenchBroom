@@ -28,46 +28,46 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        struct TestVertex {
-            vm::vec3f pos;
-            vm::vec2f uv;
-            vm::vec4f color;
-        };
+namespace Renderer {
+struct TestVertex {
+  vm::vec3f pos;
+  vm::vec2f uv;
+  vm::vec4f color;
+};
 
-        TEST_CASE("VertexTest.memoryLayoutSingleVertex", "[VertexTest]") {
-            using Vertex = GLVertexTypes::P3T2C4::Vertex;
+TEST_CASE("VertexTest.memoryLayoutSingleVertex", "[VertexTest]") {
+  using Vertex = GLVertexTypes::P3T2C4::Vertex;
 
-            const auto pos   = vm::vec3f(1.0f, 2.0f, 3.0f);
-            const auto uv    = vm::vec2f(4.0f, 5.0f);
-            const auto color = vm::vec4f(7.0f, 8.0f, 9.0f, 10.0f);
+  const auto pos = vm::vec3f(1.0f, 2.0f, 3.0f);
+  const auto uv = vm::vec2f(4.0f, 5.0f);
+  const auto color = vm::vec4f(7.0f, 8.0f, 9.0f, 10.0f);
 
-            const auto expected = TestVertex{ pos, uv, color };
-            const auto actual   = Vertex(pos, uv, color);
+  const auto expected = TestVertex{pos, uv, color};
+  const auto actual = Vertex(pos, uv, color);
 
-            REQUIRE(sizeof(Vertex) == sizeof(TestVertex));
-            REQUIRE(std::memcmp(&expected, &actual, sizeof(expected)) == 0);
-        }
-
-        TEST_CASE("VertexTest.memoryLayoutVertexList", "[VertexTest]") {
-            using Vertex = GLVertexTypes::P3T2C4::Vertex;
-
-            auto expected = std::vector<TestVertex>();
-            auto actual   = std::vector<Vertex>();
-
-            for (size_t i = 0; i < 3; ++i) {
-                const auto f     = static_cast<float>(i);
-                const auto pos   = f * vm::vec3f(1.0f, 2.0f, 3.0f);
-                const auto uv    = f * vm::vec2f(4.0f, 5.0f);
-                const auto color = f * vm::vec4f(7.0f, 8.0f, 9.0f, 10.0f);
-
-                expected.emplace_back(TestVertex{ pos, uv, color });
-                actual.emplace_back(pos, uv, color);
-            }
-
-            REQUIRE(sizeof(Vertex) == sizeof(TestVertex));
-            REQUIRE(actual.size() == expected.size());
-            REQUIRE(std::memcmp(expected.data(), actual.data(), sizeof(TestVertex) * 3) == 0);
-        }
-    }
+  REQUIRE(sizeof(Vertex) == sizeof(TestVertex));
+  REQUIRE(std::memcmp(&expected, &actual, sizeof(expected)) == 0);
 }
+
+TEST_CASE("VertexTest.memoryLayoutVertexList", "[VertexTest]") {
+  using Vertex = GLVertexTypes::P3T2C4::Vertex;
+
+  auto expected = std::vector<TestVertex>();
+  auto actual = std::vector<Vertex>();
+
+  for (size_t i = 0; i < 3; ++i) {
+    const auto f = static_cast<float>(i);
+    const auto pos = f * vm::vec3f(1.0f, 2.0f, 3.0f);
+    const auto uv = f * vm::vec2f(4.0f, 5.0f);
+    const auto color = f * vm::vec4f(7.0f, 8.0f, 9.0f, 10.0f);
+
+    expected.emplace_back(TestVertex{pos, uv, color});
+    actual.emplace_back(pos, uv, color);
+  }
+
+  REQUIRE(sizeof(Vertex) == sizeof(TestVertex));
+  REQUIRE(actual.size() == expected.size());
+  REQUIRE(std::memcmp(expected.data(), actual.data(), sizeof(TestVertex) * 3) == 0);
+}
+} // namespace Renderer
+} // namespace TrenchBroom

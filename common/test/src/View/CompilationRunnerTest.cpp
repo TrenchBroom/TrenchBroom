@@ -17,89 +17,106 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MapDocumentTest.h"
+#include "View/CompilationRunner.h"
 #include "EL/VariableStore.h"
 #include "IO/TestEnvironment.h"
+#include "MapDocumentTest.h"
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
-#include "View/CompilationRunner.h"
 #include "View/TextOutputAdapter.h"
 
 #include <QObject>
 #include <QTextEdit>
 
-#include <condition_variable>
 #include <chrono>
+#include <condition_variable>
 #include <mutex>
 #include <thread>
 
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class ExecuteTask {
-        private:
-            CompilationTaskRunner& m_runner;
-            std::mutex m_mutex;
-            std::condition_variable m_condition;
-        public:
-            bool started{false};
-            bool errored{false};
-            bool ended{false};
-            
-            ExecuteTask(CompilationTaskRunner& runner)
-            : m_runner{runner} {
-                QObject::connect(&m_runner, &CompilationTaskRunner::start, [&]() { started = true; auto lock = std::unique_lock<std::mutex>{m_mutex}; m_condition.notify_all(); });
-                QObject::connect(&m_runner, &CompilationTaskRunner::error, [&]() { errored = true; auto lock = std::unique_lock<std::mutex>{m_mutex}; m_condition.notify_all(); });
-                QObject::connect(&m_runner, &CompilationTaskRunner::end, [&]()   { ended = true;   auto lock = std::unique_lock<std::mutex>{m_mutex}; m_condition.notify_all(); });
-            }
-            
-            void executeAndWait(const int timeout) {
-                m_runner.execute();
-                
-                auto lock = std::unique_lock<std::mutex>{m_mutex};
-                m_condition.wait_for(lock, std::chrono::milliseconds{timeout}, [&]() { return errored || ended; });
-            }
-        };
-        
-        TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool") {
-            auto variables = EL::NullVariableStore{};
-            auto output = QTextEdit{};
-            auto outputAdapter = TextOutputAdapter{&output};
-            
-            auto context = CompilationContext{document, variables, outputAdapter, false};
-            
-            auto task = Model::CompilationRunTool{true, "", ""};
-            auto runner = CompilationRunToolTaskRunner{context, task};
-            
-            auto exec = ExecuteTask{runner};
-            exec.executeAndWait(500);
-            
-            CHECK(exec.started);
-            CHECK(exec.errored);
-            CHECK_FALSE(exec.ended);
-        }
+namespace View {
+class ExecuteTask {
+private:
+  CompilationTaskRunner& m_runner;
+  std::mutex m_mutex;
+  std::condition_variable m_condition;
 
-        TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDirectories") {
-            auto variables = EL::NullVariableStore{};
-            auto output = QTextEdit{};
-            auto outputAdapter = TextOutputAdapter{&output};
-            
-            auto context = CompilationContext{document, variables, outputAdapter, false};
+public:
+  bool started{false};
+  bool errored{false};
+  bool ended{false};
 
-            auto testEnvironment = IO::TestEnvironment{};
+  ExecuteTask(CompilationTaskRunner& runner)
+    : m_runner{runner} {
+    QObject::connect(&m_runner, &CompilationTaskRunner::start, [&]() {
+      started = true;
+      auto lock = std::unique_lock<std::mutex>{m_mutex};
+      m_condition.notify_all();
+    });
+    QObject::connect(&m_runner, &CompilationTaskRunner::error, [&]() {
+      errored = true;
+      auto lock = std::unique_lock<std::mutex>{m_mutex};
+      m_condition.notify_all();
+    });
+    QObject::connect(&m_runner, &CompilationTaskRunner::end, [&]() {
+      ended = true;
+      auto lock = std::unique_lock<std::mutex>{m_mutex};
+      m_condition.notify_all();
+    });
+  }
 
-            const auto sourcePath = IO::Path("my_map.map");
-            testEnvironment.createFile(sourcePath, "{}");
+  void executeAndWait(const int timeout) {
+    m_runner.execute();
 
-            const auto targetPath = IO::Path("some/other/path");
+    auto lock = std::unique_lock<std::mutex>{m_mutex};
+    m_condition.wait_for(lock, std::chrono::milliseconds{timeout}, [&]() {
+      return errored || ended;
+    });
+  }
+};
 
-            auto task = Model::CompilationCopyFiles{true, (testEnvironment.dir() + sourcePath).asString(), (testEnvironment.dir() + targetPath).asString()};
-            auto runner = CompilationCopyFilesTaskRunner{context, task};
+TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool") {
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
 
-            REQUIRE_NOTHROW(runner.execute());
+  auto context = CompilationContext{document, variables, outputAdapter, false};
 
-            CHECK(testEnvironment.directoryExists(targetPath));
-        }
-    }
+  auto task = Model::CompilationRunTool{true, "", ""};
+  auto runner = CompilationRunToolTaskRunner{context, task};
+
+  auto exec = ExecuteTask{runner};
+  exec.executeAndWait(500);
+
+  CHECK(exec.started);
+  CHECK(exec.errored);
+  CHECK_FALSE(exec.ended);
 }
+
+TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDirectories") {
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  auto testEnvironment = IO::TestEnvironment{};
+
+  const auto sourcePath = IO::Path("my_map.map");
+  testEnvironment.createFile(sourcePath, "{}");
+
+  const auto targetPath = IO::Path("some/other/path");
+
+  auto task = Model::CompilationCopyFiles{
+    true, (testEnvironment.dir() + sourcePath).asString(),
+    (testEnvironment.dir() + targetPath).asString()};
+  auto runner = CompilationCopyFilesTaskRunner{context, task};
+
+  REQUIRE_NOTHROW(runner.execute());
+
+  CHECK(testEnvironment.directoryExists(targetPath));
+}
+} // namespace View
+} // namespace TrenchBroom

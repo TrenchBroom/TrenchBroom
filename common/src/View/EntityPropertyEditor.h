@@ -31,61 +31,62 @@ class QTextEdit;
 class QSplitter;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class PropertyDefinition;
-        class EntityDefinition;
-    }
+namespace Assets {
+class PropertyDefinition;
+class EntityDefinition;
+} // namespace Assets
 
-    namespace Model {
-        class Node;
-    }
-
-    namespace View {
-        class EntityPropertyGrid;
-        class MapDocument;
-        class Selection;
-        class SmartPropertyEditorManager;
-
-        /**
-         * Panel containing the EntityPropertyGrid (the key/value editor table),
-         * smart editor, and documentation text view.
-         */
-        class EntityPropertyEditor : public QWidget {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            QSplitter* m_splitter;
-            EntityPropertyGrid* m_propertyGrid;
-            SmartPropertyEditorManager* m_smartEditorManager;
-            QTextEdit* m_documentationText;
-            const Assets::EntityDefinition* m_currentDefinition;
-
-            NotifierConnection m_notifierConnection;
-        public:
-            explicit EntityPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~EntityPropertyEditor() override;
-        private:
-            void OnCurrentRowChanged();
-
-            void connectObservers();
-
-            void selectionDidChange(const Selection& selection);
-            void nodesDidChange(const std::vector<Model::Node*>& nodes);
-
-            void updateIfSelectedEntityDefinitionChanged();
-            void updateDocumentationAndSmartEditor();
-
-            /**
-             * Returns a description of the options for ChoicePropertyOption and FlagsPropertyDefinition,
-             * other subclasses return an empty string.
-             */
-            static QString optionDescriptions(const Assets::PropertyDefinition& definition);
-
-            void updateDocumentation(const std::string& propertyKey);
-            void createGui(std::weak_ptr<MapDocument> document);
-
-            void updateMinimumSize();
-        };
-    }
+namespace Model {
+class Node;
 }
 
+namespace View {
+class EntityPropertyGrid;
+class MapDocument;
+class Selection;
+class SmartPropertyEditorManager;
+
+/**
+ * Panel containing the EntityPropertyGrid (the key/value editor table),
+ * smart editor, and documentation text view.
+ */
+class EntityPropertyEditor : public QWidget {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+  QSplitter* m_splitter;
+  EntityPropertyGrid* m_propertyGrid;
+  SmartPropertyEditorManager* m_smartEditorManager;
+  QTextEdit* m_documentationText;
+  const Assets::EntityDefinition* m_currentDefinition;
+
+  NotifierConnection m_notifierConnection;
+
+public:
+  explicit EntityPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  ~EntityPropertyEditor() override;
+
+private:
+  void OnCurrentRowChanged();
+
+  void connectObservers();
+
+  void selectionDidChange(const Selection& selection);
+  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+
+  void updateIfSelectedEntityDefinitionChanged();
+  void updateDocumentationAndSmartEditor();
+
+  /**
+   * Returns a description of the options for ChoicePropertyOption and FlagsPropertyDefinition,
+   * other subclasses return an empty string.
+   */
+  static QString optionDescriptions(const Assets::PropertyDefinition& definition);
+
+  void updateDocumentation(const std::string& propertyKey);
+  void createGui(std::weak_ptr<MapDocument> document);
+
+  void updateMinimumSize();
+};
+} // namespace View
+} // namespace TrenchBroom

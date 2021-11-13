@@ -28,43 +28,45 @@ class QPushButton;
 class QTextEdit;
 
 namespace TrenchBroom {
-    namespace View {
-        class CompilationProfileManager;
-        class MapFrame;
+namespace View {
+class CompilationProfileManager;
+class MapFrame;
 
-        class CompilationDialog : public QDialog {
-            Q_OBJECT
-        private:
-            MapFrame* m_mapFrame;
-            CompilationProfileManager* m_profileManager;
-            QPushButton* m_launchButton;
-            QPushButton* m_compileButton;
-            QPushButton* m_testCompileButton;
-            QPushButton* m_stopCompileButton;
-            QPushButton* m_closeButton;
-            QLabel* m_currentRunLabel;
-            QTextEdit* m_output;
-            CompilationRun m_run;
-        public:
-            explicit CompilationDialog(MapFrame* mapFrame);
-        private:
-            void createGui();
+class CompilationDialog : public QDialog {
+  Q_OBJECT
+private:
+  MapFrame* m_mapFrame;
+  CompilationProfileManager* m_profileManager;
+  QPushButton* m_launchButton;
+  QPushButton* m_compileButton;
+  QPushButton* m_testCompileButton;
+  QPushButton* m_stopCompileButton;
+  QPushButton* m_closeButton;
+  QLabel* m_currentRunLabel;
+  QTextEdit* m_output;
+  CompilationRun m_run;
 
-            void keyPressEvent(QKeyEvent* event) override;
+public:
+  explicit CompilationDialog(MapFrame* mapFrame);
 
-            void updateCompileButtons();
-            void startCompilation(bool test);
-            void stopCompilation();
-            void closeEvent(QCloseEvent* event) override;
-        private slots:
-            void compilationStarted();
-            void compilationEnded();
+private:
+  void createGui();
 
-            void selectedProfileChanged();
-            void profileChanged();
-        private:
-            void saveProfile();
-        };
-    }
-}
+  void keyPressEvent(QKeyEvent* event) override;
 
+  void updateCompileButtons();
+  void startCompilation(bool test);
+  void stopCompilation();
+  void closeEvent(QCloseEvent* event) override;
+private slots:
+  void compilationStarted();
+  void compilationEnded();
+
+  void selectedProfileChanged();
+  void profileChanged();
+
+private:
+  void saveProfile();
+};
+} // namespace View
+} // namespace TrenchBroom

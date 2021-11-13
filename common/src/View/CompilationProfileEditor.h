@@ -28,61 +28,64 @@ class QLineEdit;
 class QStackedWidget;
 
 namespace TrenchBroom {
-    namespace Model {
-        class CompilationProfile;
-        class CompilationTask;
-    }
+namespace Model {
+class CompilationProfile;
+class CompilationTask;
+} // namespace Model
 
-    namespace View {
-        class CompilationTaskListBox;
-        class MapDocument;
-        class MultiCompletionLineEdit;
+namespace View {
+class CompilationTaskListBox;
+class MapDocument;
+class MultiCompletionLineEdit;
 
-        /**
-         * Editor UI for a single compilation profile.
-         */
-        class CompilationProfileEditor : public QWidget {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            Model::CompilationProfile* m_profile;
-            QStackedWidget* m_stackedWidget;
-            QLineEdit* m_nameTxt;
-            MultiCompletionLineEdit* m_workDirTxt;
-            CompilationTaskListBox* m_taskList;
-            QAbstractButton* m_addTaskButton;
-            QAbstractButton* m_removeTaskButton;
-            QAbstractButton* m_moveTaskUpButton;
-            QAbstractButton* m_moveTaskDownButton;
-        public:
-            explicit CompilationProfileEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
-            QWidget* createEditorPage(QWidget* parent);
+/**
+ * Editor UI for a single compilation profile.
+ */
+class CompilationProfileEditor : public QWidget {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+  Model::CompilationProfile* m_profile;
+  QStackedWidget* m_stackedWidget;
+  QLineEdit* m_nameTxt;
+  MultiCompletionLineEdit* m_workDirTxt;
+  CompilationTaskListBox* m_taskList;
+  QAbstractButton* m_addTaskButton;
+  QAbstractButton* m_removeTaskButton;
+  QAbstractButton* m_moveTaskUpButton;
+  QAbstractButton* m_moveTaskDownButton;
 
-        private slots:
-            void nameChanged(const QString& text);
-            void workDirChanged(const QString& text);
+public:
+  explicit CompilationProfileEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
-            void addTask();
-            void removeTask();
-            void removeTask(int index);
-            void duplicateTask(int index);
-            void moveTaskUp();
-            void moveTaskUp(int index);
-            void moveTaskDown();
-            void moveTaskDown(int index);
+private:
+  QWidget* createEditorPage(QWidget* parent);
 
-            void taskSelectionChanged();
-        public:
-            void setProfile(Model::CompilationProfile* profile);
-        private:
-            void refresh();
-        signals:
-            /**
-             * Emitted when the profile name/working directory change, or tasks are added/removed/reordered.
-             */
-            void profileChanged();
-        };
-    }
-}
+private slots:
+  void nameChanged(const QString& text);
+  void workDirChanged(const QString& text);
 
+  void addTask();
+  void removeTask();
+  void removeTask(int index);
+  void duplicateTask(int index);
+  void moveTaskUp();
+  void moveTaskUp(int index);
+  void moveTaskDown();
+  void moveTaskDown(int index);
+
+  void taskSelectionChanged();
+
+public:
+  void setProfile(Model::CompilationProfile* profile);
+
+private:
+  void refresh();
+signals:
+  /**
+   * Emitted when the profile name/working directory change, or tasks are added/removed/reordered.
+   */
+  void profileChanged();
+};
+} // namespace View
+} // namespace TrenchBroom

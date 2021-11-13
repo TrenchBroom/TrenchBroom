@@ -23,48 +23,51 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
+namespace IO {
+class Path;
 
-        class FileTypeMatcher {
-        private:
-            bool m_files;
-            bool m_directories;
-        public:
-            explicit FileTypeMatcher(bool files = true, bool directories = true);
-            bool operator()(const Path& path, bool directory) const;
-        };
+class FileTypeMatcher {
+private:
+  bool m_files;
+  bool m_directories;
 
-        class FileExtensionMatcher {
-        private:
-            std::vector<std::string> m_extensions;
-        public:
-            explicit FileExtensionMatcher(const std::string& extension);
-            explicit FileExtensionMatcher(const std::vector<std::string>& extensions);
-            bool operator()(const Path& path, bool directory) const;
-        };
+public:
+  explicit FileTypeMatcher(bool files = true, bool directories = true);
+  bool operator()(const Path& path, bool directory) const;
+};
 
-        class FileBasenameMatcher : public FileExtensionMatcher {
-        private:
-            std::string m_basename;
-        public:
-            FileBasenameMatcher(const std::string& basename, const std::string& extension);
-            FileBasenameMatcher(const std::string& basename, const std::vector<std::string>& extensions);
-            bool operator()(const Path& path, bool directory) const;
-        };
+class FileExtensionMatcher {
+private:
+  std::vector<std::string> m_extensions;
 
-        class FileNameMatcher {
-        private:
-            std::string m_pattern;
-        public:
-            explicit FileNameMatcher(const std::string& pattern);
-            bool operator()(const Path& path, bool directory) const;
-        };
+public:
+  explicit FileExtensionMatcher(const std::string& extension);
+  explicit FileExtensionMatcher(const std::vector<std::string>& extensions);
+  bool operator()(const Path& path, bool directory) const;
+};
 
-        class ExecutableFileMatcher {
-        public:
-            bool operator()(const Path& path, bool directory) const;
-        };
-    }
-}
+class FileBasenameMatcher : public FileExtensionMatcher {
+private:
+  std::string m_basename;
 
+public:
+  FileBasenameMatcher(const std::string& basename, const std::string& extension);
+  FileBasenameMatcher(const std::string& basename, const std::vector<std::string>& extensions);
+  bool operator()(const Path& path, bool directory) const;
+};
+
+class FileNameMatcher {
+private:
+  std::string m_pattern;
+
+public:
+  explicit FileNameMatcher(const std::string& pattern);
+  bool operator()(const Path& path, bool directory) const;
+};
+
+class ExecutableFileMatcher {
+public:
+  bool operator()(const Path& path, bool directory) const;
+};
+} // namespace IO
+} // namespace TrenchBroom

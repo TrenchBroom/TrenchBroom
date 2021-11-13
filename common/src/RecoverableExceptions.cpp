@@ -22,16 +22,16 @@
 #include "IO/DiskIO.h"
 
 namespace TrenchBroom {
-    FileDeletingException::FileDeletingException(std::string&& str, const IO::Path& path) :
-    RecoverableException(std::move(str)),
-    m_path(path) {}
+FileDeletingException::FileDeletingException(std::string&& str, const IO::Path& path)
+  : RecoverableException(std::move(str))
+  , m_path(path) {}
 
-    std::string_view FileDeletingException::query() const {
-        constexpr auto str = "Do you want to delete the file?";
-        return str;
-    }
-
-    void FileDeletingException::recover() const {
-        IO::Disk::deleteFile(m_path);
-    }
+std::string_view FileDeletingException::query() const {
+  constexpr auto str = "Do you want to delete the file?";
+  return str;
 }
+
+void FileDeletingException::recover() const {
+  IO::Disk::deleteFile(m_path);
+}
+} // namespace TrenchBroom

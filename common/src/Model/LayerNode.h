@@ -32,64 +32,70 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class LayerNode : public Node {
-        private:
-            Layer m_layer;
+namespace Model {
+class LayerNode : public Node {
+private:
+  Layer m_layer;
 
-            mutable vm::bbox3 m_logicalBounds;
-            mutable vm::bbox3 m_physicalBounds;
-            mutable bool m_boundsValid;
+  mutable vm::bbox3 m_logicalBounds;
+  mutable vm::bbox3 m_physicalBounds;
+  mutable bool m_boundsValid;
 
-            /**
-             * The ID used to serialize layer nodes (see MapReader and NodeSerializer). This is set by MapReader when a
-             * layer is read, or by WorldNode when a layer is added that doesn't yet have a persistent ID.
-             */
-            std::optional<IdType> m_persistentId;
-        public:
-            explicit LayerNode(Layer layer);
+  /**
+   * The ID used to serialize layer nodes (see MapReader and NodeSerializer). This is set by
+   * MapReader when a layer is read, or by WorldNode when a layer is added that doesn't yet have a
+   * persistent ID.
+   */
+  std::optional<IdType> m_persistentId;
 
-            const Layer& layer() const;
-            Layer setLayer(Layer layer);
+public:
+  explicit LayerNode(Layer layer);
 
-            bool isDefaultLayer() const;
+  const Layer& layer() const;
+  Layer setLayer(Layer layer);
 
-            /**
-             * Stable sort the given vector using `sortIndex()` as the sort key.
-             */
-            static void sortLayers(std::vector<LayerNode*>& layers);
+  bool isDefaultLayer() const;
 
-            const std::optional<IdType>& persistentId() const;
-            void setPersistentId(IdType persistentId);
-        private: // implement Node interface
-            const std::string& doGetName() const override;
-            const vm::bbox3& doGetLogicalBounds() const override;
-            const vm::bbox3& doGetPhysicalBounds() const override;
-            FloatType doGetProjectedArea(vm::axis::type axis) const override;
+  /**
+   * Stable sort the given vector using `sortIndex()` as the sort key.
+   */
+  static void sortLayers(std::vector<LayerNode*>& layers);
 
-            Node* doClone(const vm::bbox3& worldBounds) const override;
-            bool doCanAddChild(const Node* child) const override;
-            bool doCanRemoveChild(const Node* child) const override;
-            bool doRemoveIfEmpty() const override;
-            bool doShouldAddToSpacialIndex() const override;
-            void doNodePhysicalBoundsDidChange() override;
-            bool doSelectable() const override;
+  const std::optional<IdType>& persistentId() const;
+  void setPersistentId(IdType persistentId);
 
-            void doPick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
-            void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
+private: // implement Node interface
+  const std::string& doGetName() const override;
+  const vm::bbox3& doGetLogicalBounds() const override;
+  const vm::bbox3& doGetPhysicalBounds() const override;
+  FloatType doGetProjectedArea(vm::axis::type axis) const override;
 
-            void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
-            void doAccept(NodeVisitor& visitor) override;
-            void doAccept(ConstNodeVisitor& visitor) const override;
-        private:
-            void invalidateBounds();
-            void validateBounds() const;
-        private: // implement Taggable interface
-            void doAcceptTagVisitor(TagVisitor& visitor) override;
-            void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
-        private:
-            deleteCopyAndMove(LayerNode)
-        };
-    }
-}
+  Node* doClone(const vm::bbox3& worldBounds) const override;
+  bool doCanAddChild(const Node* child) const override;
+  bool doCanRemoveChild(const Node* child) const override;
+  bool doRemoveIfEmpty() const override;
+  bool doShouldAddToSpacialIndex() const override;
+  void doNodePhysicalBoundsDidChange() override;
+  bool doSelectable() const override;
 
+  void doPick(
+    const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
+  void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
+
+  void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
+  void doAccept(NodeVisitor& visitor) override;
+  void doAccept(ConstNodeVisitor& visitor) const override;
+
+private:
+  void invalidateBounds();
+  void validateBounds() const;
+
+private: // implement Taggable interface
+  void doAcceptTagVisitor(TagVisitor& visitor) override;
+  void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
+
+private:
+  deleteCopyAndMove(LayerNode)
+};
+} // namespace Model
+} // namespace TrenchBroom

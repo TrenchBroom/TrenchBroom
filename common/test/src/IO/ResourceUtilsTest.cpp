@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "IO/ResourceUtils.h"
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/ResourceUtils.h"
 
 #include <memory>
 
@@ -28,13 +28,14 @@
 #include "TestLogger.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        TEST_CASE("ResourceUtilsTest.loadDefaultTexture", "[ResourceUtilsTest]") {
-            auto fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets"));
-            NullLogger logger;
-            
-            auto texture = loadDefaultTexture(*fs, logger, "some_name");
-            CHECK(texture.name() == "some_name");
-        }
-    }
+namespace IO {
+TEST_CASE("ResourceUtilsTest.loadDefaultTexture", "[ResourceUtilsTest]") {
+  auto fs = std::make_shared<DiskFileSystem>(
+    IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets"));
+  NullLogger logger;
+
+  auto texture = loadDefaultTexture(*fs, logger, "some_name");
+  CHECK(texture.name() == "some_name");
 }
+} // namespace IO
+} // namespace TrenchBroom

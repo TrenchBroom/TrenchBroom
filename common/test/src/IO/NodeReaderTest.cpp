@@ -30,22 +30,21 @@
 #include <vecmath/bbox.h>
 
 namespace TrenchBroom {
-    namespace Model {
-        TEST_CASE("NodeReaderTest.parseFaceAsNode", "[NodeReaderTest]") {
-            const std::string data(R"(
+namespace Model {
+TEST_CASE("NodeReaderTest.parseFaceAsNode", "[NodeReaderTest]") {
+  const std::string data(R"(
 ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 )");
 
-            const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3 worldBounds(4096.0);
 
-            IO::TestParserStatus status;
+  IO::TestParserStatus status;
 
-            CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
-        }
+  CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
+}
 
-
-        TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat", "[NodeReaderTest]") {
-            const std::string data(R"(
+TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat", "[NodeReaderTest]") {
+  const std::string data(R"(
 // entity 0
 {
 "classname" "worldspawn"
@@ -62,21 +61,22 @@ namespace TrenchBroom {
 }
 )");
 
-            const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3 worldBounds(4096.0);
 
-            IO::TestParserStatus status;
+  IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
-            auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
-            REQUIRE(brushNode != nullptr);
+  std::vector<Node*> nodes =
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
+  REQUIRE(brushNode != nullptr);
 
-            Brush brush = brushNode->brush();
-            CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
-        }
+  Brush brush = brushNode->brush();
+  CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
+}
 
-        TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups", "[NodeReaderTest]") {
-            // Data comes from copying a Group in 2020.2
-            const std::string data(R"(// entity 0
+TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups", "[NodeReaderTest]") {
+  // Data comes from copying a Group in 2020.2
+  const std::string data(R"(// entity 0
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
@@ -94,20 +94,21 @@ namespace TrenchBroom {
 }
 )");
 
-            const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3 worldBounds(4096.0);
 
-            IO::TestParserStatus status;
+  IO::TestParserStatus status;
 
-            std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  std::vector<Node*> nodes =
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
 
-            auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
-            REQUIRE(groupNode != nullptr);
+  auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
+  REQUIRE(groupNode != nullptr);
 
-            auto* brushNode = dynamic_cast<BrushNode*>(groupNode->children().at(0));
-            REQUIRE(brushNode != nullptr);
+  auto* brushNode = dynamic_cast<BrushNode*>(groupNode->children().at(0));
+  REQUIRE(brushNode != nullptr);
 
-            const Brush brush = brushNode->brush();
-            CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
-        }
-    }
+  const Brush brush = brushNode->brush();
+  CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
 }
+} // namespace Model
+} // namespace TrenchBroom

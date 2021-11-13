@@ -21,9 +21,9 @@
 #include "MapDocumentTest.h"
 
 #include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
 #include "Model/EmptyPropertyKeyIssueGenerator.h"
 #include "Model/EmptyPropertyValueIssueGenerator.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -37,56 +37,70 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace View {
-        TEST_CASE_METHOD(MapDocumentTest, "IssueGeneratorTest.emptyProperty") {
-            Model::EntityNode* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-            
-            document->deselectAll();
-            document->select(entityNode);
-            document->setProperty("", "");
-            REQUIRE(entityNode->entity().hasProperty(""));
+namespace View {
+TEST_CASE_METHOD(MapDocumentTest, "IssueGeneratorTest.emptyProperty") {
+  Model::EntityNode* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
 
-            auto issueGenerators = std::vector<Model::IssueGenerator*>{
-                new Model::EmptyPropertyKeyIssueGenerator(),
-                new Model::EmptyPropertyValueIssueGenerator()
-            };
+  document->deselectAll();
+  document->select(entityNode);
+  document->setProperty("", "");
+  REQUIRE(entityNode->entity().hasProperty(""));
 
-            class AcceptAllIssues {
-            public:
-                bool operator()(const Model::Issue*) const {
-                    return true;
-                }
-            };
+  auto issueGenerators = std::vector<Model::IssueGenerator*>{
+    new Model::EmptyPropertyKeyIssueGenerator(), new Model::EmptyPropertyValueIssueGenerator()};
 
-            auto issues = std::vector<Model::Issue*>{};
-            document->world()->accept(kdl::overload(
-                [&](auto&& thisLambda, Model::WorldNode* w)  { issues = kdl::vec_concat(std::move(issues), w->issues(issueGenerators)); w->visitChildren(thisLambda); },
-                [&](auto&& thisLambda, Model::LayerNode* l)  { issues = kdl::vec_concat(std::move(issues), l->issues(issueGenerators)); l->visitChildren(thisLambda); },
-                [&](auto&& thisLambda, Model::GroupNode* g)  { issues = kdl::vec_concat(std::move(issues), g->issues(issueGenerators)); g->visitChildren(thisLambda); },
-                [&](auto&& thisLambda, Model::EntityNode* e) { issues = kdl::vec_concat(std::move(issues), e->issues(issueGenerators)); e->visitChildren(thisLambda); },
-                [&](Model::BrushNode* b)                     { issues = kdl::vec_concat(std::move(issues), b->issues(issueGenerators)); },
-                [&](Model::PatchNode* p)                     { issues = kdl::vec_concat(std::move(issues), p->issues(issueGenerators)); }
-            ));
+  class AcceptAllIssues {
+  public:
+    bool operator()(const Model::Issue*) const { return true; }
+  };
 
-            REQUIRE(2 == issues.size());
+  auto issues = std::vector<Model::Issue*>{};
+  document->world()->accept(kdl::overload(
+    [&](auto&& thisLambda, Model::WorldNode* w) {
+      issues = kdl::vec_concat(std::move(issues), w->issues(issueGenerators));
+      w->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, Model::LayerNode* l) {
+      issues = kdl::vec_concat(std::move(issues), l->issues(issueGenerators));
+      l->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, Model::GroupNode* g) {
+      issues = kdl::vec_concat(std::move(issues), g->issues(issueGenerators));
+      g->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, Model::EntityNode* e) {
+      issues = kdl::vec_concat(std::move(issues), e->issues(issueGenerators));
+      e->visitChildren(thisLambda);
+    },
+    [&](Model::BrushNode* b) {
+      issues = kdl::vec_concat(std::move(issues), b->issues(issueGenerators));
+    },
+    [&](Model::PatchNode* p) {
+      issues = kdl::vec_concat(std::move(issues), p->issues(issueGenerators));
+    }));
 
-            Model::Issue* issue0 = issues.at(0);
-            Model::Issue* issue1 = issues.at(1);
+  REQUIRE(2 == issues.size());
 
-            // Should be one EmptyPropertyNameIssue and one EmptyPropertyValueIssue
-            CHECK(((issue0->type() == issueGenerators[0]->type() && issue1->type() == issueGenerators[1]->type())
-                || (issue0->type() == issueGenerators[1]->type() && issue1->type() == issueGenerators[0]->type())));
-            
-            std::vector<Model::IssueQuickFix*> fixes = document->world()->quickFixes(issue0->type());
-            REQUIRE(1 == fixes.size());
+  Model::Issue* issue0 = issues.at(0);
+  Model::Issue* issue1 = issues.at(1);
 
-            Model::IssueQuickFix* quickFix = fixes.at(0);
-            quickFix->apply(document.get(), std::vector<Model::Issue*>{issue0});
+  // Should be one EmptyPropertyNameIssue and one EmptyPropertyValueIssue
+  CHECK(
+    ((issue0->type() == issueGenerators[0]->type() &&
+      issue1->type() == issueGenerators[1]->type()) ||
+     (issue0->type() == issueGenerators[1]->type() &&
+      issue1->type() == issueGenerators[0]->type())));
 
-            // The fix should have deleted the property
-            CHECK(!entityNode->entity().hasProperty(""));
+  std::vector<Model::IssueQuickFix*> fixes = document->world()->quickFixes(issue0->type());
+  REQUIRE(1 == fixes.size());
 
-            kdl::vec_clear_and_delete(issueGenerators);
-        }
-    }
+  Model::IssueQuickFix* quickFix = fixes.at(0);
+  quickFix->apply(document.get(), std::vector<Model::Issue*>{issue0});
+
+  // The fix should have deleted the property
+  CHECK(!entityNode->entity().hasProperty(""));
+
+  kdl::vec_clear_and_delete(issueGenerators);
 }
+} // namespace View
+} // namespace TrenchBroom

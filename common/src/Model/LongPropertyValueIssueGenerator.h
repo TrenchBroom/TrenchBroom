@@ -24,17 +24,20 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class LongPropertyValueIssueGenerator : public IssueGenerator {
-        private:
-            class LongPropertyValueIssue;
-            class TruncateLongPropertyValueIssueQuickFix;
-        private:
-            size_t m_maxLength;
-        public:
-            LongPropertyValueIssueGenerator(size_t maxLength);
-        private:
-            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
-        };
-    }
-}
+namespace Model {
+class LongPropertyValueIssueGenerator : public IssueGenerator {
+private:
+  class LongPropertyValueIssue;
+  class TruncateLongPropertyValueIssueQuickFix;
+
+private:
+  size_t m_maxLength;
+
+public:
+  LongPropertyValueIssueGenerator(size_t maxLength);
+
+private:
+  void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

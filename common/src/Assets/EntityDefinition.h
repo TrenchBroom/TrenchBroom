@@ -19,9 +19,9 @@
 
 #pragma once
 
+#include "Assets/ModelDefinition.h"
 #include "Color.h"
 #include "FloatType.h"
-#include "Assets/ModelDefinition.h"
 
 #include <vecmath/bbox.h>
 
@@ -31,77 +31,93 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class PropertyDefinition;
-        class FlagsPropertyDefinition;
-        class FlagsPropertyOption;
+namespace Assets {
+class PropertyDefinition;
+class FlagsPropertyDefinition;
+class FlagsPropertyOption;
 
-        enum class EntityDefinitionType {
-            PointEntity,
-            BrushEntity
-        };
+enum class EntityDefinitionType
+{
+  PointEntity,
+  BrushEntity
+};
 
-        enum class EntityDefinitionSortOrder {
-            Name,
-            Usage
-        };
+enum class EntityDefinitionSortOrder
+{
+  Name,
+  Usage
+};
 
-        class EntityDefinition {
-        protected:
-            using PropertyDefinitionPtr = std::shared_ptr<PropertyDefinition>;
-            using PropertyDefinitionList = std::vector<PropertyDefinitionPtr>;
-        private:
-            size_t m_index;
-            std::string m_name;
-            Color m_color;
-            std::string m_description;
-            std::atomic<size_t> m_usageCount;
-            PropertyDefinitionList m_propertyDefinitions;
-        public:
-            virtual ~EntityDefinition();
+class EntityDefinition {
+protected:
+  using PropertyDefinitionPtr = std::shared_ptr<PropertyDefinition>;
+  using PropertyDefinitionList = std::vector<PropertyDefinitionPtr>;
 
-            size_t index() const;
-            void setIndex(size_t index);
+private:
+  size_t m_index;
+  std::string m_name;
+  Color m_color;
+  std::string m_description;
+  std::atomic<size_t> m_usageCount;
+  PropertyDefinitionList m_propertyDefinitions;
 
-            virtual EntityDefinitionType type() const = 0;
-            const std::string& name() const;
-            std::string shortName() const;
-            std::string groupName() const;
-            const Color& color() const;
-            const std::string& description() const;
-            size_t usageCount() const;
-            void incUsageCount();
-            void decUsageCount();
+public:
+  virtual ~EntityDefinition();
 
-            const FlagsPropertyDefinition* spawnflags() const;
-            const PropertyDefinitionList& propertyDefinitions() const;
-            const PropertyDefinition* propertyDefinition(const std::string& propertyKey) const;
+  size_t index() const;
+  void setIndex(size_t index);
 
-            static const PropertyDefinition* safeGetPropertyDefinition(const EntityDefinition* entityDefinition, const std::string& propertyKey);
-            static const FlagsPropertyDefinition* safeGetFlagsPropertyDefinition(const EntityDefinition* entityDefinition, const std::string& propertyKey);
+  virtual EntityDefinitionType type() const = 0;
+  const std::string& name() const;
+  std::string shortName() const;
+  std::string groupName() const;
+  const Color& color() const;
+  const std::string& description() const;
+  size_t usageCount() const;
+  void incUsageCount();
+  void decUsageCount();
 
-            static std::vector<EntityDefinition*> filterAndSort(const std::vector<EntityDefinition*>& definitions, EntityDefinitionType type, EntityDefinitionSortOrder prder = EntityDefinitionSortOrder::Name);
-        protected:
-            EntityDefinition(const std::string& name, const Color& color, const std::string& description, const PropertyDefinitionList& propertyDefinitions);
-        };
+  const FlagsPropertyDefinition* spawnflags() const;
+  const PropertyDefinitionList& propertyDefinitions() const;
+  const PropertyDefinition* propertyDefinition(const std::string& propertyKey) const;
 
-        class PointEntityDefinition : public EntityDefinition {
-        private:
-            vm::bbox3 m_bounds;
-            ModelDefinition m_modelDefinition;
-        public:
-            PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const PropertyDefinitionList& propertyDefinitions, const ModelDefinition& modelDefinition);
+  static const PropertyDefinition* safeGetPropertyDefinition(
+    const EntityDefinition* entityDefinition, const std::string& propertyKey);
+  static const FlagsPropertyDefinition* safeGetFlagsPropertyDefinition(
+    const EntityDefinition* entityDefinition, const std::string& propertyKey);
 
-            EntityDefinitionType type() const override;
-            const vm::bbox3& bounds() const;
-            const ModelDefinition& modelDefinition() const;
-        };
+  static std::vector<EntityDefinition*> filterAndSort(
+    const std::vector<EntityDefinition*>& definitions, EntityDefinitionType type,
+    EntityDefinitionSortOrder prder = EntityDefinitionSortOrder::Name);
 
-        class BrushEntityDefinition : public EntityDefinition {
-        public:
-            BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const PropertyDefinitionList& propertyDefinitions);
-            EntityDefinitionType type() const override;
-        };
-    }
-}
+protected:
+  EntityDefinition(
+    const std::string& name, const Color& color, const std::string& description,
+    const PropertyDefinitionList& propertyDefinitions);
+};
 
+class PointEntityDefinition : public EntityDefinition {
+private:
+  vm::bbox3 m_bounds;
+  ModelDefinition m_modelDefinition;
+
+public:
+  PointEntityDefinition(
+    const std::string& name, const Color& color, const vm::bbox3& bounds,
+    const std::string& description, const PropertyDefinitionList& propertyDefinitions,
+    const ModelDefinition& modelDefinition);
+
+  EntityDefinitionType type() const override;
+  const vm::bbox3& bounds() const;
+  const ModelDefinition& modelDefinition() const;
+};
+
+class BrushEntityDefinition : public EntityDefinition {
+public:
+  BrushEntityDefinition(
+    const std::string& name, const Color& color, const std::string& description,
+    const PropertyDefinitionList& propertyDefinitions);
+  EntityDefinitionType type() const override;
+};
+} // namespace Assets
+} // namespace TrenchBroom

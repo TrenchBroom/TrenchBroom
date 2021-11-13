@@ -29,35 +29,38 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class AttrString;
-        class FontGlyph;
-        class FontTexture;
+namespace Renderer {
+class AttrString;
+class FontGlyph;
+class FontTexture;
 
-        class TextureFont {
-        private:
-            std::unique_ptr<FontTexture> m_texture;
-            std::vector<FontGlyph> m_glyphs;
-            int m_lineHeight;
+class TextureFont {
+private:
+  std::unique_ptr<FontTexture> m_texture;
+  std::vector<FontGlyph> m_glyphs;
+  int m_lineHeight;
 
-            unsigned char m_firstChar;
-            unsigned char m_charCount;
-        public:
-            TextureFont(std::unique_ptr<FontTexture> texture, const std::vector<FontGlyph>& glyphs, int lineHeight, unsigned char firstChar, unsigned char charCount);
-            ~TextureFont();
+  unsigned char m_firstChar;
+  unsigned char m_charCount;
 
-            deleteCopyAndMove(TextureFont)
+public:
+  TextureFont(
+    std::unique_ptr<FontTexture> texture, const std::vector<FontGlyph>& glyphs, int lineHeight,
+    unsigned char firstChar, unsigned char charCount);
+  ~TextureFont();
 
-            std::vector<vm::vec2f> quads(const AttrString& string, bool clockwise, const vm::vec2f& offset = vm::vec2f::zero()) const;
-            vm::vec2f measure(const AttrString& string) const;
+  deleteCopyAndMove(TextureFont)
 
-            std::vector<vm::vec2f> quads(const std::string& string, bool clockwise, const vm::vec2f& offset = vm::vec2f::zero()) const;
-            vm::vec2f measure(const std::string& string) const;
+    std::vector<vm::vec2f> quads(
+      const AttrString& string, bool clockwise, const vm::vec2f& offset = vm::vec2f::zero()) const;
+  vm::vec2f measure(const AttrString& string) const;
 
-            void activate();
-            void deactivate();
-        };
-    }
-}
+  std::vector<vm::vec2f> quads(
+    const std::string& string, bool clockwise, const vm::vec2f& offset = vm::vec2f::zero()) const;
+  vm::vec2f measure(const std::string& string) const;
 
-
+  void activate();
+  void deactivate();
+};
+} // namespace Renderer
+} // namespace TrenchBroom

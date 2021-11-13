@@ -29,61 +29,67 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushFace;
-        class BrushFaceHandle;
-        class BrushFaceReference;
-        class BrushNode;
-        class Node;
-    }
+namespace Model {
+class BrushFace;
+class BrushFaceHandle;
+class BrushFaceReference;
+class BrushNode;
+class Node;
+} // namespace Model
 
-    namespace View {
-        class SelectionCommand : public UndoableCommand {
-        public:
-            static const CommandType Type;
-        private:
-            enum class Action {
-                SelectNodes,
-                SelectFaces,
-                SelectAllNodes,
-                SelectAllFaces,
-                ConvertToFaces,
-                DeselectNodes,
-                DeselectFaces,
-                DeselectAll
-            };
+namespace View {
+class SelectionCommand : public UndoableCommand {
+public:
+  static const CommandType Type;
 
-            Action m_action;
+private:
+  enum class Action
+  {
+    SelectNodes,
+    SelectFaces,
+    SelectAllNodes,
+    SelectAllFaces,
+    ConvertToFaces,
+    DeselectNodes,
+    DeselectFaces,
+    DeselectAll
+  };
 
-            std::vector<Model::Node*> m_nodes;
-            std::vector<Model::BrushFaceReference> m_faceRefs;
+  Action m_action;
 
-            std::vector<Model::Node*> m_previouslySelectedNodes;
-            std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
-        public:
-            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
-            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::BrushFaceHandle>& faces);
+  std::vector<Model::Node*> m_nodes;
+  std::vector<Model::BrushFaceReference> m_faceRefs;
 
-            static std::unique_ptr<SelectionCommand> convertToFaces();
-            static std::unique_ptr<SelectionCommand> selectAllNodes();
-            static std::unique_ptr<SelectionCommand> selectAllFaces();
+  std::vector<Model::Node*> m_previouslySelectedNodes;
+  std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
 
-            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::Node*>& nodes);
-            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::BrushFaceHandle>& faces);
-            static std::unique_ptr<SelectionCommand> deselectAll();
+public:
+  static std::unique_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SelectionCommand> select(const std::vector<Model::BrushFaceHandle>& faces);
 
-            SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFaceHandle>& faces);
-            ~SelectionCommand() override;
-        private:
-            static std::string makeName(Action action, size_t nodeCount, size_t faceCount);
+  static std::unique_ptr<SelectionCommand> convertToFaces();
+  static std::unique_ptr<SelectionCommand> selectAllNodes();
+  static std::unique_ptr<SelectionCommand> selectAllFaces();
 
-            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+  static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SelectionCommand> deselect(
+    const std::vector<Model::BrushFaceHandle>& faces);
+  static std::unique_ptr<SelectionCommand> deselectAll();
 
-            bool doCollateWith(UndoableCommand* command) override;
+  SelectionCommand(
+    Action action, const std::vector<Model::Node*>& nodes,
+    const std::vector<Model::BrushFaceHandle>& faces);
+  ~SelectionCommand() override;
 
-            deleteCopyAndMove(SelectionCommand)
-        };
-    }
-}
+private:
+  static std::string makeName(Action action, size_t nodeCount, size_t faceCount);
 
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+
+  bool doCollateWith(UndoableCommand* command) override;
+
+  deleteCopyAndMove(SelectionCommand)
+};
+} // namespace View
+} // namespace TrenchBroom

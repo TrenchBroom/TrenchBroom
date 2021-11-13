@@ -21,32 +21,34 @@
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
-    namespace View {
-        const Command::CommandType SetCurrentLayerCommand::Type = Command::freeType();
+namespace View {
+const Command::CommandType SetCurrentLayerCommand::Type = Command::freeType();
 
-        std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(Model::LayerNode* layer) {
-            return std::make_unique<SetCurrentLayerCommand>(layer);
-        }
-
-        SetCurrentLayerCommand::SetCurrentLayerCommand(Model::LayerNode* layer) :
-        UndoableCommand(Type, "Set Current Layer", false),
-        m_currentLayer(layer),
-        m_oldCurrentLayer(nullptr) {}
-
-        std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_oldCurrentLayer = document->performSetCurrentLayer(m_currentLayer);
-            return std::make_unique<CommandResult>(true);
-        }
-
-        std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            document->performSetCurrentLayer(m_oldCurrentLayer);
-            return std::make_unique<CommandResult>(true);
-        }
-
-        bool SetCurrentLayerCommand::doCollateWith(UndoableCommand* command) {
-            SetCurrentLayerCommand* other = static_cast<SetCurrentLayerCommand*>(command);
-            m_currentLayer = other->m_currentLayer;
-            return true;
-        }
-    }
+std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(Model::LayerNode* layer) {
+  return std::make_unique<SetCurrentLayerCommand>(layer);
 }
+
+SetCurrentLayerCommand::SetCurrentLayerCommand(Model::LayerNode* layer)
+  : UndoableCommand(Type, "Set Current Layer", false)
+  , m_currentLayer(layer)
+  , m_oldCurrentLayer(nullptr) {}
+
+std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformDo(
+  MapDocumentCommandFacade* document) {
+  m_oldCurrentLayer = document->performSetCurrentLayer(m_currentLayer);
+  return std::make_unique<CommandResult>(true);
+}
+
+std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformUndo(
+  MapDocumentCommandFacade* document) {
+  document->performSetCurrentLayer(m_oldCurrentLayer);
+  return std::make_unique<CommandResult>(true);
+}
+
+bool SetCurrentLayerCommand::doCollateWith(UndoableCommand* command) {
+  SetCurrentLayerCommand* other = static_cast<SetCurrentLayerCommand*>(command);
+  m_currentLayer = other->m_currentLayer;
+  return true;
+}
+} // namespace View
+} // namespace TrenchBroom

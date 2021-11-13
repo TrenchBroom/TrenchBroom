@@ -22,14 +22,13 @@
 #include <cstdint>
 
 namespace TrenchBroom {
-    namespace Model {
-        namespace HitType {
-            using Type = uint64_t;
-            constexpr Type NoType  =  0u;
-            constexpr Type AnyType = ~NoType;
+namespace Model {
+namespace HitType {
+using Type = uint64_t;
+constexpr Type NoType = 0u;
+constexpr Type AnyType = ~NoType;
 
-            Type freeType();
-        }
-    }
-}
-
+Type freeType();
+} // namespace HitType
+} // namespace Model
+} // namespace TrenchBroom

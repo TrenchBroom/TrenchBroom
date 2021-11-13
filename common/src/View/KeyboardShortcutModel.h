@@ -28,59 +28,60 @@
 class QObject;
 
 namespace TrenchBroom {
-    namespace View {
-        class Action;
-        class MapDocument;
+namespace View {
+class Action;
+class MapDocument;
 
-        class KeyboardShortcutModel : public QAbstractTableModel {
-            Q_OBJECT
-        private:
-            struct ActionInfo {
-                /**
-                 * Path displayed to the user, unrelated to the preference path.
-                 */
-                const IO::Path displayPath;
-                const Action& action;
+class KeyboardShortcutModel : public QAbstractTableModel {
+  Q_OBJECT
+private:
+  struct ActionInfo {
+    /**
+     * Path displayed to the user, unrelated to the preference path.
+     */
+    const IO::Path displayPath;
+    const Action& action;
 
-                ActionInfo(const IO::Path& i_displayPath, const Action& i_action);
-            };
+    ActionInfo(const IO::Path& i_displayPath, const Action& i_action);
+  };
 
-            MapDocument* m_document;
-            std::vector<ActionInfo> m_actions;
-            std::vector<int> m_conflicts;
-        public:
-            explicit KeyboardShortcutModel(MapDocument* document, QObject* parent = nullptr);
+  MapDocument* m_document;
+  std::vector<ActionInfo> m_actions;
+  std::vector<int> m_conflicts;
 
-            void reset();
+public:
+  explicit KeyboardShortcutModel(MapDocument* document, QObject* parent = nullptr);
 
-            int rowCount(const QModelIndex& parent) const override;
-            int columnCount(const QModelIndex& parent) const override;
+  void reset();
 
-            QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-            QVariant data(const QModelIndex& index, int role) const override;
-            bool setData(const QModelIndex& index, const QVariant& value, int role) override;
+  int rowCount(const QModelIndex& parent) const override;
+  int columnCount(const QModelIndex& parent) const override;
 
-            Qt::ItemFlags flags(const QModelIndex& index) const override;
+  QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+  QVariant data(const QModelIndex& index, int role) const override;
+  bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-            bool hasConflicts() const;
-            bool hasConflicts(const QModelIndex& index) const;
-        private:
-            void initializeActions();
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-            class MenuActionVisitor;
-            void initializeMenuActions();
-            void initializeViewActions();
-            void initializeTagActions();
-            void initializeEntityDefinitionActions();
+  bool hasConflicts() const;
+  bool hasConflicts(const QModelIndex& index) const;
 
-            void updateConflicts();
+private:
+  void initializeActions();
 
-            const ActionInfo& actionInfo(int index) const;
+  class MenuActionVisitor;
+  void initializeMenuActions();
+  void initializeViewActions();
+  void initializeTagActions();
+  void initializeEntityDefinitionActions();
 
-            int totalActionCount() const;
+  void updateConflicts();
 
-            bool checkIndex(const QModelIndex& index) const;
-        };
-    }
-}
+  const ActionInfo& actionInfo(int index) const;
 
+  int totalActionCount() const;
+
+  bool checkIndex(const QModelIndex& index) const;
+};
+} // namespace View
+} // namespace TrenchBroom

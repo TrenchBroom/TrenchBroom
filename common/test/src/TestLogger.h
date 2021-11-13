@@ -25,16 +25,16 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class TestLogger : public Logger {
-    private:
-        std::unordered_map<LogLevel, std::size_t> m_messages;
-    public:
-        std::size_t countMessages() const;
-        std::size_t countMessages(LogLevel level) const;
-    private:
-        void doLog(LogLevel level, const std::string& message) override;
-        void doLog(LogLevel level, const QString& message) override;
-    };
-}
+class TestLogger : public Logger {
+private:
+  std::unordered_map<LogLevel, std::size_t> m_messages;
 
+public:
+  std::size_t countMessages() const;
+  std::size_t countMessages(LogLevel level) const;
 
+private:
+  void doLog(LogLevel level, const std::string& message) override;
+  void doLog(LogLevel level, const QString& message) override;
+};
+} // namespace TrenchBroom

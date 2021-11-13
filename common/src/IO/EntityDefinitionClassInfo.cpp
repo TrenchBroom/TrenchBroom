@@ -19,8 +19,8 @@
 
 #include "EntityDefinitionClassInfo.h"
 
-#include "Macros.h"
 #include "Assets/PropertyDefinition.h"
+#include "Macros.h"
 #include "Model/EntityProperties.h"
 
 #include <kdl/opt_utils.h>
@@ -34,74 +34,71 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassType type) {
-            switch (type) {
-                case EntityDefinitionClassType::BaseClass:
-                    str << "BaseClass";
-                    break;
-                case EntityDefinitionClassType::PointClass:
-                    str << "PointClass";
-                    break;
-                case EntityDefinitionClassType::BrushClass:
-                    str << "BrushClass";
-                    break;
-                switchDefault();
-            }
-            return str;
-        }
-
-        bool addPropertyDefinition(std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions, std::shared_ptr<Assets::PropertyDefinition> propertyDefinition) {
-            assert(propertyDefinition != nullptr);
-            if (kdl::vec_contains(propertyDefinitions, [&](const auto& a) { return a->key() ==
-                                                                                   propertyDefinition->key(); })) {
-                return false;
-            }
-            
-            propertyDefinitions.push_back(std::move(propertyDefinition));
-            return true;
-        }
-
-        bool operator==(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs) {
-            return lhs.type == rhs.type
-                && lhs.line == rhs.line
-                && lhs.column == rhs.column
-                && lhs.name == rhs.name
-                && lhs.description == rhs.description
-                && lhs.color == rhs.color
-                && lhs.size == rhs.size
-                && lhs.modelDefinition == rhs.modelDefinition
-                && lhs.propertyDefinitions == rhs.propertyDefinitions
-                && lhs.superClasses == rhs.superClasses;
-        }
-        
-        bool operator!=(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs) {
-            return !(lhs == rhs);
-        }
-
-        std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassInfo& classInfo) {
-            str << "EntityDefinitionClassInfo{ "
-                << "type: " << classInfo.type << ", "
-                << "line: " << classInfo.line << ", "
-                << "column: " << classInfo.column << ", "
-                << "name: " << classInfo.name << ", "
-                << "description: " << kdl::opt_to_string(classInfo.description) << ", "
-                << "color: " << kdl::opt_to_string(classInfo.color) << ", "
-                << "size: " << kdl::opt_to_string(classInfo.size) << ", "
-                << "modelDefinition: " << kdl::opt_to_string(classInfo.modelDefinition) << ", "
-                << "propertyDefinnitions: {";
-            for (const auto& propertyDefinition : classInfo.propertyDefinitions) {
-                str << "'" << propertyDefinition->key() << "', ";
-            }
-            str << "}, "
-                << "superClasses: { ";
-            for (const auto& superClass : classInfo.superClasses) {
-                str << superClass << ", ";
-            }
-            str << " } "
-                << " }";
-            
-            return str;
-        }
-    }
+namespace IO {
+std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassType type) {
+  switch (type) {
+    case EntityDefinitionClassType::BaseClass:
+      str << "BaseClass";
+      break;
+    case EntityDefinitionClassType::PointClass:
+      str << "PointClass";
+      break;
+    case EntityDefinitionClassType::BrushClass:
+      str << "BrushClass";
+      break;
+      switchDefault();
+  }
+  return str;
 }
+
+bool addPropertyDefinition(
+  std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions,
+  std::shared_ptr<Assets::PropertyDefinition> propertyDefinition) {
+  assert(propertyDefinition != nullptr);
+  if (kdl::vec_contains(propertyDefinitions, [&](const auto& a) {
+        return a->key() == propertyDefinition->key();
+      })) {
+    return false;
+  }
+
+  propertyDefinitions.push_back(std::move(propertyDefinition));
+  return true;
+}
+
+bool operator==(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs) {
+  return lhs.type == rhs.type && lhs.line == rhs.line && lhs.column == rhs.column &&
+         lhs.name == rhs.name && lhs.description == rhs.description && lhs.color == rhs.color &&
+         lhs.size == rhs.size && lhs.modelDefinition == rhs.modelDefinition &&
+         lhs.propertyDefinitions == rhs.propertyDefinitions && lhs.superClasses == rhs.superClasses;
+}
+
+bool operator!=(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs) {
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassInfo& classInfo) {
+  str << "EntityDefinitionClassInfo{ "
+      << "type: " << classInfo.type << ", "
+      << "line: " << classInfo.line << ", "
+      << "column: " << classInfo.column << ", "
+      << "name: " << classInfo.name << ", "
+      << "description: " << kdl::opt_to_string(classInfo.description) << ", "
+      << "color: " << kdl::opt_to_string(classInfo.color) << ", "
+      << "size: " << kdl::opt_to_string(classInfo.size) << ", "
+      << "modelDefinition: " << kdl::opt_to_string(classInfo.modelDefinition) << ", "
+      << "propertyDefinnitions: {";
+  for (const auto& propertyDefinition : classInfo.propertyDefinitions) {
+    str << "'" << propertyDefinition->key() << "', ";
+  }
+  str << "}, "
+      << "superClasses: { ";
+  for (const auto& superClass : classInfo.superClasses) {
+    str << superClass << ", ";
+  }
+  str << " } "
+      << " }";
+
+  return str;
+}
+} // namespace IO
+} // namespace TrenchBroom

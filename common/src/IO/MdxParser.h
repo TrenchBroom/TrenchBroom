@@ -29,83 +29,87 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class Logger;
-    
-    namespace IO {
-        class FileSystem;
-        class Reader;
+class Logger;
 
-        namespace MdxLayout {
-            static const int Ident = (('X'<<24) + ('P'<<16) + ('D'<<8) + 'I');
-            static const int Version = 4;
-            static const size_t SkinNameLength = 64;
-            static const size_t FrameNameLength = 16;
-        }
+namespace IO {
+class FileSystem;
+class Reader;
 
-        // see https://web.archive.org/web/20020404103848/http://members.cheapnet.co.uk/~tical/misc/mdx.htm
-        class MdxParser : public EntityModelParser {
-        private:
-            static const vm::vec3f Normals[162];
+namespace MdxLayout {
+static const int Ident = (('X' << 24) + ('P' << 16) + ('D' << 8) + 'I');
+static const int Version = 4;
+static const size_t SkinNameLength = 64;
+static const size_t FrameNameLength = 16;
+} // namespace MdxLayout
 
-            using MdxSkinList = std::vector<std::string>;
+// see https://web.archive.org/web/20020404103848/http://members.cheapnet.co.uk/~tical/misc/mdx.htm
+class MdxParser : public EntityModelParser {
+private:
+  static const vm::vec3f Normals[162];
 
-            struct MdxVertex {
-                unsigned char x, y, z;
-                unsigned char normalIndex;
-            };
-            using MdxVertexList = std::vector<MdxVertex>;
+  using MdxSkinList = std::vector<std::string>;
 
-            struct MdxFrame {
-                vm::vec3f scale;
-                vm::vec3f offset;
-                std::string name;
-                MdxVertexList vertices;
+  struct MdxVertex {
+    unsigned char x, y, z;
+    unsigned char normalIndex;
+  };
+  using MdxVertexList = std::vector<MdxVertex>;
 
-                explicit MdxFrame(size_t vertexCount);
-                vm::vec3f vertex(size_t index) const;
-                const vm::vec3f& normal(size_t index) const;
-            };
+  struct MdxFrame {
+    vm::vec3f scale;
+    vm::vec3f offset;
+    std::string name;
+    MdxVertexList vertices;
 
-            struct MdxMeshVertex {
-                vm::vec2f texCoords;
-                size_t vertexIndex;
-            };
-            using MdxMeshVertexList = std::vector<MdxMeshVertex>;
+    explicit MdxFrame(size_t vertexCount);
+    vm::vec3f vertex(size_t index) const;
+    const vm::vec3f& normal(size_t index) const;
+  };
 
-            struct MdxMesh {
-                enum Type {
-                    Fan,
-                    Strip
-                };
+  struct MdxMeshVertex {
+    vm::vec2f texCoords;
+    size_t vertexIndex;
+  };
+  using MdxMeshVertexList = std::vector<MdxMeshVertex>;
 
-                Type type;
-                size_t vertexCount;
-                MdxMeshVertexList vertices;
+  struct MdxMesh {
+    enum Type
+    {
+      Fan,
+      Strip
+    };
 
-                explicit MdxMesh(int i_vertexCount);
-            };
-            using MdxMeshList =  std::vector<MdxMesh>;
+    Type type;
+    size_t vertexCount;
+    MdxMeshVertexList vertices;
 
+    explicit MdxMesh(int i_vertexCount);
+  };
+  using MdxMeshList = std::vector<MdxMesh>;
 
-            std::string m_name;
-            const char* m_begin;
-            const char* m_end;
-            const FileSystem& m_fs;
-        public:
-            MdxParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
-        private:
-            std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
-            void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
+  std::string m_name;
+  const char* m_begin;
+  const char* m_end;
+  const FileSystem& m_fs;
 
-            MdxSkinList parseSkins(Reader reader, size_t skinCount);
-            MdxFrame parseFrame(Reader reader, size_t frameIndex, size_t vertexCount);
-            MdxMeshList parseMeshes(Reader reader, size_t commandCount);
+public:
+  MdxParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
 
-            void loadSkins(Assets::EntityModelSurface& surface, const MdxSkinList& skins, Logger& logger);
+private:
+  std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
+  void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
-            void buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex, const MdxFrame& frame, const MdxMeshList& meshes);
-            std::vector<Assets::EntityModelVertex> getVertices(const MdxFrame& frame, const MdxMeshVertexList& meshVertices) const;
-        };
-    }
-}
+  MdxSkinList parseSkins(Reader reader, size_t skinCount);
+  MdxFrame parseFrame(Reader reader, size_t frameIndex, size_t vertexCount);
+  MdxMeshList parseMeshes(Reader reader, size_t commandCount);
 
+  void loadSkins(Assets::EntityModelSurface& surface, const MdxSkinList& skins, Logger& logger);
+
+  void buildFrame(
+    Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex,
+    const MdxFrame& frame, const MdxMeshList& meshes);
+  std::vector<Assets::EntityModelVertex> getVertices(
+    const MdxFrame& frame, const MdxMeshVertexList& meshVertices) const;
+};
+} // namespace IO
+} // namespace TrenchBroom

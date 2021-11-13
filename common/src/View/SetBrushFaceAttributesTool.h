@@ -27,42 +27,43 @@
 #include <optional>
 
 namespace TrenchBroom {
-    namespace View {
-        class DragTracker;
-        class MapDocument;
+namespace View {
+class DragTracker;
+class MapDocument;
 
-        /**
-         * Functionality summary:
-         *
-         * Modifier combinations:
-         * - Alt:       transfer texture and alignment from selected
-         * - Alt+Shift: transfer texture and alignment (rotation method) from selected
-         * - Alt+Ctrl:  transfer texture (but not alignment) from selected
-         *
-         * Actions:
-         * - LMB Click: applies to clicked faces
-         * - LMB Drag: applies to all faces dragged over
-         * - LMB Double click: applies to all faces of target brush
-         */
-        class SetBrushFaceAttributesTool : public ToolController, public Tool {
-        private:
-            std::weak_ptr<MapDocument> m_document;
-        public:
-            SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document);
-        private:
-            Tool& tool() override;
-            const Tool& tool() const override;
+/**
+ * Functionality summary:
+ *
+ * Modifier combinations:
+ * - Alt:       transfer texture and alignment from selected
+ * - Alt+Shift: transfer texture and alignment (rotation method) from selected
+ * - Alt+Ctrl:  transfer texture (but not alignment) from selected
+ *
+ * Actions:
+ * - LMB Click: applies to clicked faces
+ * - LMB Drag: applies to all faces dragged over
+ * - LMB Double click: applies to all faces of target brush
+ */
+class SetBrushFaceAttributesTool : public ToolController, public Tool {
+private:
+  std::weak_ptr<MapDocument> m_document;
 
-            bool mouseClick(const InputState& inputState) override;
-            bool mouseDoubleClick(const InputState& inputState) override;
+public:
+  SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document);
 
-            bool cancel() override;
-            
-            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+private:
+  Tool& tool() override;
+  const Tool& tool() const override;
 
-            void copyAttributesFromSelection(const InputState& inputState, bool applyToBrush);
-            bool canCopyAttributesFromSelection(const InputState& inputState) const;
-        };
-    }
-}
+  bool mouseClick(const InputState& inputState) override;
+  bool mouseDoubleClick(const InputState& inputState) override;
 
+  bool cancel() override;
+
+  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+
+  void copyAttributesFromSelection(const InputState& inputState, bool applyToBrush);
+  bool canCopyAttributesFromSelection(const InputState& inputState) const;
+};
+} // namespace View
+} // namespace TrenchBroom

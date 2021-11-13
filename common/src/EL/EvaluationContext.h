@@ -19,38 +19,39 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "EL/EL_Forward.h"
+#include "Macros.h"
 
 #include <memory>
 #include <string>
 
 namespace TrenchBroom {
-    namespace EL {
-        class EvaluationContext {
-        private:
-            std::unique_ptr<VariableStore> m_store;
-        public:
-            EvaluationContext();
-            explicit EvaluationContext(const VariableStore& store);
-            virtual ~EvaluationContext();
+namespace EL {
+class EvaluationContext {
+private:
+  std::unique_ptr<VariableStore> m_store;
 
-            virtual Value variableValue(const std::string& name) const;
-            virtual void declareVariable(const std::string& name, const Value& value);
+public:
+  EvaluationContext();
+  explicit EvaluationContext(const VariableStore& store);
+  virtual ~EvaluationContext();
 
-            deleteCopyAndMove(EvaluationContext)
-        };
+  virtual Value variableValue(const std::string& name) const;
+  virtual void declareVariable(const std::string& name, const Value& value);
 
-        class EvaluationStack : public EvaluationContext {
-        private:
-            const EvaluationContext& m_next;
-        public:
-            explicit EvaluationStack(const EvaluationContext& next);
+  deleteCopyAndMove(EvaluationContext)
+};
 
-            Value variableValue(const std::string& name) const override;
+class EvaluationStack : public EvaluationContext {
+private:
+  const EvaluationContext& m_next;
 
-            deleteCopyAndMove(EvaluationStack)
-        };
-    }
-}
+public:
+  explicit EvaluationStack(const EvaluationContext& next);
 
+  Value variableValue(const std::string& name) const override;
+
+  deleteCopyAndMove(EvaluationStack)
+};
+} // namespace EL
+} // namespace TrenchBroom

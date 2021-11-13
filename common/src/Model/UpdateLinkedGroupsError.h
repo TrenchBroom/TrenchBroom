@@ -22,14 +22,15 @@
 #include <iosfwd>
 
 namespace TrenchBroom {
-    namespace Model {
-        enum class UpdateLinkedGroupsError {
-            TransformIsNotInvertible,
-            TransformFailed,
-            UpdateExceedsWorldBounds,
-            UpdateIsInconsistent
-        };
+namespace Model {
+enum class UpdateLinkedGroupsError
+{
+  TransformIsNotInvertible,
+  TransformFailed,
+  UpdateExceedsWorldBounds,
+  UpdateIsInconsistent
+};
 
-        std::ostream& operator<<(std::ostream& str, const UpdateLinkedGroupsError& e);
-    }
-}
+std::ostream& operator<<(std::ostream& str, const UpdateLinkedGroupsError& e);
+} // namespace Model
+} // namespace TrenchBroom

@@ -22,53 +22,53 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace View {
-        CommandResult::CommandResult(const bool success) :
-        m_success(success) {}
+namespace View {
+CommandResult::CommandResult(const bool success)
+  : m_success(success) {}
 
-        CommandResult::~CommandResult() = default;
+CommandResult::~CommandResult() = default;
 
-        bool CommandResult::success() const {
-            return m_success;
-        }
-
-        Command::CommandType Command::freeType() {
-            static CommandType type = 1;
-            return type++;
-        }
-
-        Command::Command(const CommandType type, const std::string& name) :
-        m_type(type),
-        m_state(CommandState::Default),
-        m_name(name) {}
-
-        Command::~Command() {}
-
-        Command::CommandType Command::type() const {
-            return m_type;
-        }
-
-        bool Command::isType(CommandType type) const {
-            return m_type == type;
-        }
-
-        Command::CommandState Command::state() const {
-            return m_state;
-        }
-
-        const std::string& Command::name() const {
-            return m_name;
-        }
-
-        std::unique_ptr<CommandResult> Command::performDo(MapDocumentCommandFacade* document) {
-            m_state = CommandState::Doing;
-            auto result = doPerformDo(document);
-            if (result->success()) {
-                m_state = CommandState::Done;
-            } else {
-                m_state = CommandState::Default;
-            }
-            return result;
-        }
-    }
+bool CommandResult::success() const {
+  return m_success;
 }
+
+Command::CommandType Command::freeType() {
+  static CommandType type = 1;
+  return type++;
+}
+
+Command::Command(const CommandType type, const std::string& name)
+  : m_type(type)
+  , m_state(CommandState::Default)
+  , m_name(name) {}
+
+Command::~Command() {}
+
+Command::CommandType Command::type() const {
+  return m_type;
+}
+
+bool Command::isType(CommandType type) const {
+  return m_type == type;
+}
+
+Command::CommandState Command::state() const {
+  return m_state;
+}
+
+const std::string& Command::name() const {
+  return m_name;
+}
+
+std::unique_ptr<CommandResult> Command::performDo(MapDocumentCommandFacade* document) {
+  m_state = CommandState::Doing;
+  auto result = doPerformDo(document);
+  if (result->success()) {
+    m_state = CommandState::Done;
+  } else {
+    m_state = CommandState::Default;
+  }
+  return result;
+}
+} // namespace View
+} // namespace TrenchBroom

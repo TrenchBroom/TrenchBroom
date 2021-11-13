@@ -27,42 +27,44 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinitionFileSpec {
-        private:
-            enum class Type {
-                Builtin,
-                External,
-                Unset
-            };
+namespace Assets {
+class EntityDefinitionFileSpec {
+private:
+  enum class Type
+  {
+    Builtin,
+    External,
+    Unset
+  };
 
-            Type m_type;
-            IO::Path m_path;
-        public:
-            EntityDefinitionFileSpec();
+  Type m_type;
+  IO::Path m_path;
 
-            static EntityDefinitionFileSpec parse(const std::string& str);
-            static EntityDefinitionFileSpec builtin(const IO::Path& path);
-            static EntityDefinitionFileSpec external(const IO::Path& path);
-            static EntityDefinitionFileSpec unset();
+public:
+  EntityDefinitionFileSpec();
 
-            friend bool operator<(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
-            friend bool operator==(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
-            friend bool operator!=(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
+  static EntityDefinitionFileSpec parse(const std::string& str);
+  static EntityDefinitionFileSpec builtin(const IO::Path& path);
+  static EntityDefinitionFileSpec external(const IO::Path& path);
+  static EntityDefinitionFileSpec unset();
 
-            bool valid() const;
-            bool builtin() const;
-            bool external() const;
+  friend bool operator<(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
+  friend bool operator==(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
+  friend bool operator!=(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
 
-            const IO::Path& path() const;
+  bool valid() const;
+  bool builtin() const;
+  bool external() const;
 
-            std::string asString() const;
-        private:
-            EntityDefinitionFileSpec(Type type, const IO::Path& path);
-        };
-    }
-}
+  const IO::Path& path() const;
+
+  std::string asString() const;
+
+private:
+  EntityDefinitionFileSpec(Type type, const IO::Path& path);
+};
+} // namespace Assets
+} // namespace TrenchBroom
 
 // Allow storing this class in a QVariant
 Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionFileSpec)
-

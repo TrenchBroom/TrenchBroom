@@ -32,56 +32,57 @@
 #include <QPushButton>
 
 namespace TrenchBroom {
-    namespace View {
-        MoveObjectsToolPage::MoveObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent) :
-        QWidget(parent),
-        m_document(document),
-        m_offset(nullptr),
-        m_button(nullptr) {
-            createGui();
-            connectObservers();
-            updateGui();
-        }
-
-        void MoveObjectsToolPage::connectObservers() {
-            auto document = kdl::mem_lock(m_document);
-            m_notifierConnection += document->selectionDidChangeNotifier.connect(this, &MoveObjectsToolPage::selectionDidChange);
-        }
-
-        void MoveObjectsToolPage::createGui() {
-            QLabel* text = new QLabel(tr("Move objects by"));
-            m_offset = new QLineEdit("0.0 0.0 0.0");
-            m_button = new QPushButton(tr("Apply"));
-
-            connect(m_button, &QAbstractButton::clicked, this, &MoveObjectsToolPage::applyMove);
-            connect(m_offset, &QLineEdit::returnPressed, this, &MoveObjectsToolPage::applyMove);
-
-            auto* layout = new QHBoxLayout();
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(LayoutConstants::MediumHMargin);
-
-            layout->addWidget(text, 0, Qt::AlignVCenter);
-            layout->addWidget(m_offset, 0, Qt::AlignVCenter);
-            layout->addWidget(m_button, 0, Qt::AlignVCenter);
-            layout->addStretch(1);
-
-            setLayout(layout);
-        }
-
-        void MoveObjectsToolPage::updateGui() {
-            auto document = kdl::mem_lock(m_document);
-            m_button->setEnabled(document->hasSelectedNodes());
-        }
-
-        void MoveObjectsToolPage::selectionDidChange(const Selection&) {
-            updateGui();
-        }
-
-        void MoveObjectsToolPage::applyMove() {
-            if (const auto delta = vm::parse<FloatType, 3>(m_offset->text().toStdString())) {
-                auto document = kdl::mem_lock(m_document);
-                document->translateObjects(*delta);
-            }
-        }
-    }
+namespace View {
+MoveObjectsToolPage::MoveObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent)
+  : QWidget(parent)
+  , m_document(document)
+  , m_offset(nullptr)
+  , m_button(nullptr) {
+  createGui();
+  connectObservers();
+  updateGui();
 }
+
+void MoveObjectsToolPage::connectObservers() {
+  auto document = kdl::mem_lock(m_document);
+  m_notifierConnection +=
+    document->selectionDidChangeNotifier.connect(this, &MoveObjectsToolPage::selectionDidChange);
+}
+
+void MoveObjectsToolPage::createGui() {
+  QLabel* text = new QLabel(tr("Move objects by"));
+  m_offset = new QLineEdit("0.0 0.0 0.0");
+  m_button = new QPushButton(tr("Apply"));
+
+  connect(m_button, &QAbstractButton::clicked, this, &MoveObjectsToolPage::applyMove);
+  connect(m_offset, &QLineEdit::returnPressed, this, &MoveObjectsToolPage::applyMove);
+
+  auto* layout = new QHBoxLayout();
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(LayoutConstants::MediumHMargin);
+
+  layout->addWidget(text, 0, Qt::AlignVCenter);
+  layout->addWidget(m_offset, 0, Qt::AlignVCenter);
+  layout->addWidget(m_button, 0, Qt::AlignVCenter);
+  layout->addStretch(1);
+
+  setLayout(layout);
+}
+
+void MoveObjectsToolPage::updateGui() {
+  auto document = kdl::mem_lock(m_document);
+  m_button->setEnabled(document->hasSelectedNodes());
+}
+
+void MoveObjectsToolPage::selectionDidChange(const Selection&) {
+  updateGui();
+}
+
+void MoveObjectsToolPage::applyMove() {
+  if (const auto delta = vm::parse<FloatType, 3>(m_offset->text().toStdString())) {
+    auto document = kdl::mem_lock(m_document);
+    document->translateObjects(*delta);
+  }
+}
+} // namespace View
+} // namespace TrenchBroom

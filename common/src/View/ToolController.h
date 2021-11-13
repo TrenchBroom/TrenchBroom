@@ -20,100 +20,112 @@
 #pragma once
 
 #include "FloatType.h"
-#include "ToolChain.h"
 #include "Model/HitFilter.h"
 #include "Model/HitType.h"
+#include "ToolChain.h"
 #include "View/InputState.h"
 
-#include <vecmath/vec.h>
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
+#include <vecmath/vec.h>
 
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Hit;
-        class HitQuery;
-        class PickResult;
-    }
+namespace Model {
+class Hit;
+class HitQuery;
+class PickResult;
+} // namespace Model
 
-    namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
-    }
+namespace Renderer {
+class RenderBatch;
+class RenderContext;
+} // namespace Renderer
 
-    namespace View {
-        class DragTracker;
-        class DropTracker;
-        class InputState;
-        class Tool;
+namespace View {
+class DragTracker;
+class DropTracker;
+class InputState;
+class Tool;
 
-        class ToolController {
-        public:
-            virtual ~ToolController();
+class ToolController {
+public:
+  virtual ~ToolController();
 
-            virtual Tool& tool() = 0;
-            virtual const Tool& tool() const = 0;
-            bool toolActive() const;
+  virtual Tool& tool() = 0;
+  virtual const Tool& tool() const = 0;
+  bool toolActive() const;
 
-            virtual void pick(const InputState& inputState, Model::PickResult& pickResult);
+  virtual void pick(const InputState& inputState, Model::PickResult& pickResult);
 
-            virtual void modifierKeyChange(const InputState& inputState);
+  virtual void modifierKeyChange(const InputState& inputState);
 
-            virtual void mouseDown(const InputState& inputState);
-            virtual void mouseUp(const InputState& inputState);
-            virtual bool mouseClick(const InputState& inputState);
-            virtual bool mouseDoubleClick(const InputState& inputState);
-            virtual void mouseMove(const InputState& inputState);
-            virtual void mouseScroll(const InputState& inputState);
+  virtual void mouseDown(const InputState& inputState);
+  virtual void mouseUp(const InputState& inputState);
+  virtual bool mouseClick(const InputState& inputState);
+  virtual bool mouseDoubleClick(const InputState& inputState);
+  virtual void mouseMove(const InputState& inputState);
+  virtual void mouseScroll(const InputState& inputState);
 
-            virtual std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState);
-            virtual bool anyToolDragging(const InputState& inputState) const;
+  virtual std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState);
+  virtual bool anyToolDragging(const InputState& inputState) const;
 
-            virtual std::unique_ptr<DropTracker> acceptDrop(const InputState& inputState, const std::string& payload);
+  virtual std::unique_ptr<DropTracker> acceptDrop(
+    const InputState& inputState, const std::string& payload);
 
-            virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  virtual void setRenderOptions(
+    const InputState& inputState, Renderer::RenderContext& renderContext) const;
+  virtual void render(
+    const InputState& inputState, Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch);
 
-            virtual bool cancel();
-        protected:
-            void refreshViews();
-        };
+  virtual bool cancel();
 
-        class ToolControllerGroup : public ToolController {
-        private:
-            ToolChain m_chain;
-        public:
-            ToolControllerGroup();
-            ~ToolControllerGroup() override;
-        protected:
-            void addController(std::unique_ptr<ToolController> controller);
-        public:
-            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+protected:
+  void refreshViews();
+};
 
-            void modifierKeyChange(const InputState& inputState) override;
+class ToolControllerGroup : public ToolController {
+private:
+  ToolChain m_chain;
 
-            void mouseDown(const InputState& inputState) override;
-            void mouseUp(const InputState& inputState) override;
-            bool mouseClick(const InputState& inputState) override;
-            bool mouseDoubleClick(const InputState& inputState) override;
-            void mouseMove(const InputState& inputState) override;
-            void mouseScroll(const InputState& inputState) override;
+public:
+  ToolControllerGroup();
+  ~ToolControllerGroup() override;
 
-            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
-            std::unique_ptr<DropTracker> acceptDrop(const InputState& inputState, const std::string& payload) override;
+protected:
+  void addController(std::unique_ptr<ToolController> controller);
 
-            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
-            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+public:
+  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            bool cancel() override;
-        private: // subclassing interface
-            virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;
-            virtual bool doShouldHandleDrop(const InputState& inputState, const std::string& payload) const;
-        };
-    }
-}
+  void modifierKeyChange(const InputState& inputState) override;
 
+  void mouseDown(const InputState& inputState) override;
+  void mouseUp(const InputState& inputState) override;
+  bool mouseClick(const InputState& inputState) override;
+  bool mouseDoubleClick(const InputState& inputState) override;
+  void mouseMove(const InputState& inputState) override;
+  void mouseScroll(const InputState& inputState) override;
+
+  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<DropTracker> acceptDrop(
+    const InputState& inputState, const std::string& payload) override;
+
+  void setRenderOptions(
+    const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+  void render(
+    const InputState& inputState, Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch) override;
+
+  bool cancel() override;
+
+private: // subclassing interface
+  virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;
+  virtual bool doShouldHandleDrop(const InputState& inputState, const std::string& payload) const;
+};
+} // namespace View
+} // namespace TrenchBroom

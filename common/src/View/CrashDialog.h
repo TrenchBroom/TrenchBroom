@@ -22,18 +22,18 @@
 #include <QDialog>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
-    namespace View {
-        class CrashDialog : public QDialog {
-            Q_OBJECT
-        public:
-            CrashDialog(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
-        private:
-            void createGui(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
-        };
-    }
+namespace IO {
+class Path;
 }
 
+namespace View {
+class CrashDialog : public QDialog {
+  Q_OBJECT
+public:
+  CrashDialog(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
+
+private:
+  void createGui(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
+};
+} // namespace View
+} // namespace TrenchBroom

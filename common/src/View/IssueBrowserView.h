@@ -24,87 +24,93 @@
 #include <memory>
 #include <vector>
 
-#include <QWidget>
 #include <QAbstractItemModel>
+#include <QWidget>
 
 class QWidget;
 class QTableView;
 
 namespace TrenchBroom {
-    namespace Model {
-        class Issue;
-        class IssueQuickFix;
-    }
+namespace Model {
+class Issue;
+class IssueQuickFix;
+} // namespace Model
 
-    namespace View {
-        class IssueBrowserModel;
-        class MapDocument;
+namespace View {
+class IssueBrowserModel;
+class MapDocument;
 
-        class IssueBrowserView : public QWidget {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
+class IssueBrowserView : public QWidget {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
 
-            int m_hiddenGenerators;
-            bool m_showHiddenIssues;
+  int m_hiddenGenerators;
+  bool m_showHiddenIssues;
 
-            bool m_valid;
+  bool m_valid;
 
-            QTableView* m_tableView;
-            IssueBrowserModel* m_tableModel;
-        public:
-            explicit IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
-            void createGui();
-        public:
-            int hiddenGenerators() const;
-            void setHiddenGenerators(int hiddenGenerators);
-            void setShowHiddenIssues(bool show);
-            void reload();
-            void deselectAll();
-        private:
-            void updateIssues();
+  QTableView* m_tableView;
+  IssueBrowserModel* m_tableModel;
 
-            std::vector<Model::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
-            std::vector<Model::IssueQuickFix*> collectQuickFixes(const QList<QModelIndex>& indices) const;
-            Model::IssueType issueTypeMask() const;
+public:
+  explicit IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
-            void setIssueVisibility(bool show);
+private:
+  void createGui();
 
-            QList<QModelIndex> getSelection() const;
-            void updateSelection();
-            void bindEvents();
+public:
+  int hiddenGenerators() const;
+  void setHiddenGenerators(int hiddenGenerators);
+  void setShowHiddenIssues(bool show);
+  void reload();
+  void deselectAll();
 
-            void itemRightClicked(const QPoint& pos);
-            void itemSelectionChanged();
-            void showIssues();
-            void hideIssues();
-            void applyQuickFix(const Model::IssueQuickFix* quickFix);
-        private:
-            void invalidate();
-        public slots:
-            void validate();
-        };
+private:
+  void updateIssues();
 
-        /**
-         * Trivial QAbstractTableModel subclass, when the issues list changes,
-         * it just refreshes the entire list with beginResetModel()/endResetModel().
-         */
-        class IssueBrowserModel : public QAbstractTableModel {
-            Q_OBJECT
-        private:
-            std::vector<Model::Issue*> m_issues;
-        public:
-            explicit IssueBrowserModel(QObject* parent);
+  std::vector<Model::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
+  std::vector<Model::IssueQuickFix*> collectQuickFixes(const QList<QModelIndex>& indices) const;
+  Model::IssueType issueTypeMask() const;
 
-            void setIssues(std::vector<Model::Issue*> issues);
-            const std::vector<Model::Issue*>& issues();
-        public: // QAbstractTableModel overrides
-            int rowCount(const QModelIndex& parent) const override;
-            int columnCount(const QModelIndex& parent) const override;
-            QVariant data(const QModelIndex& index, int role) const override;
-            QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-        };
-    }
-}
+  void setIssueVisibility(bool show);
 
+  QList<QModelIndex> getSelection() const;
+  void updateSelection();
+  void bindEvents();
+
+  void itemRightClicked(const QPoint& pos);
+  void itemSelectionChanged();
+  void showIssues();
+  void hideIssues();
+  void applyQuickFix(const Model::IssueQuickFix* quickFix);
+
+private:
+  void invalidate();
+public slots:
+  void validate();
+};
+
+/**
+ * Trivial QAbstractTableModel subclass, when the issues list changes,
+ * it just refreshes the entire list with beginResetModel()/endResetModel().
+ */
+class IssueBrowserModel : public QAbstractTableModel {
+  Q_OBJECT
+private:
+  std::vector<Model::Issue*> m_issues;
+
+public:
+  explicit IssueBrowserModel(QObject* parent);
+
+  void setIssues(std::vector<Model::Issue*> issues);
+  const std::vector<Model::Issue*>& issues();
+
+public: // QAbstractTableModel overrides
+  int rowCount(const QModelIndex& parent) const override;
+  int columnCount(const QModelIndex& parent) const override;
+  QVariant data(const QModelIndex& index, int role) const override;
+  QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+};
+} // namespace View
+} // namespace TrenchBroom

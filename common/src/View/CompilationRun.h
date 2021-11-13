@@ -27,38 +27,47 @@
 class QTextEdit;
 
 namespace TrenchBroom {
-    class VariableTable;
+class VariableTable;
 
-    namespace Model {
-        class CompilationProfile;
-    }
-
-    namespace View {
-        class CompilationRunner;
-        class MapDocument;
-
-        class CompilationRun : public QObject {
-            Q_OBJECT
-        private:
-            CompilationRunner* m_currentRun;
-        public:
-            CompilationRun();
-            ~CompilationRun() override;
-
-            bool running() const;
-            void run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput);
-            void test(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput);
-            void terminate();
-        private:
-            bool doIsRunning() const;
-            void run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput, bool test);
-        private:
-            std::string buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document);
-            void cleanup();
-        signals:
-            void compilationStarted();
-            void compilationEnded();
-        };
-    }
+namespace Model {
+class CompilationProfile;
 }
 
+namespace View {
+class CompilationRunner;
+class MapDocument;
+
+class CompilationRun : public QObject {
+  Q_OBJECT
+private:
+  CompilationRunner* m_currentRun;
+
+public:
+  CompilationRun();
+  ~CompilationRun() override;
+
+  bool running() const;
+  void run(
+    const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document,
+    QTextEdit* currentOutput);
+  void test(
+    const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document,
+    QTextEdit* currentOutput);
+  void terminate();
+
+private:
+  bool doIsRunning() const;
+  void run(
+    const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document,
+    QTextEdit* currentOutput, bool test);
+
+private:
+  std::string buildWorkDir(
+    const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document);
+  void cleanup();
+signals:
+  void compilationStarted();
+  void compilationEnded();
+};
+} // namespace View
+} // namespace TrenchBroom

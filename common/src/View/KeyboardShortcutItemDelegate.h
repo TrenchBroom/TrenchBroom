@@ -22,15 +22,15 @@
 #include <QStyledItemDelegate>
 
 namespace TrenchBroom {
-    namespace View {
-        class KeyboardShortcutItemDelegate : public QStyledItemDelegate {
-            Q_OBJECT
-        public:
-            KeyboardShortcutItemDelegate();
-            QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-        private slots:
-            void commitAndCloseEditor();
-        };
-    }
-}
-
+namespace View {
+class KeyboardShortcutItemDelegate : public QStyledItemDelegate {
+  Q_OBJECT
+public:
+  KeyboardShortcutItemDelegate();
+  QWidget* createEditor(
+    QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+private slots:
+  void commitAndCloseEditor();
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Color.h"
-#include "FloatType.h"
 #include "Assets/EntityDefinition.h"
+#include "Color.h"
 #include "EL/ELExceptions.h"
 #include "EL/Expression.h"
 #include "EL/Expressions.h"
+#include "FloatType.h"
+#include "IO/ELParser.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
-#include "IO/ELParser.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
@@ -35,25 +35,28 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        TEST_CASE("EntityTest.modelScaleExpressionThrows") {
-            // see https://github.com/TrenchBroom/TrenchBroom/issues/3914
+namespace Model {
+TEST_CASE("EntityTest.modelScaleExpressionThrows") {
+  // see https://github.com/TrenchBroom/TrenchBroom/issues/3914
 
-            const auto modelExpression = IO::ELParser{IO::ELParser::Mode::Strict, R"(
+  const auto modelExpression = IO::ELParser{IO::ELParser::Mode::Strict, R"(
 {{
     spawnflags & 2 ->   ":maps/b_bh100.bsp",
     spawnflags & 1 ->   ":maps/b_bh10.bsp",
                         ":maps/b_bh25.bsp"
-}})"}.parse();
+}})"}
+                                 .parse();
 
-            auto definition = Assets::PointEntityDefinition{"some_name", Color{}, vm::bbox3{32.0}, "", {}, Assets::ModelDefinition{modelExpression}};
-            const auto propertyConfig = EntityPropertyConfig{};
+  auto definition = Assets::PointEntityDefinition{
+    "some_name", Color{}, vm::bbox3{32.0}, "", {}, Assets::ModelDefinition{modelExpression}};
+  const auto propertyConfig = EntityPropertyConfig{};
 
-            auto entity = Entity{};
-            entity.setDefinition(propertyConfig, &definition);
+  auto entity = Entity{};
+  entity.setDefinition(propertyConfig, &definition);
 
-            // throws because 'a & 2' cannot be evaluated -- we must catch the exception in Entity::updateCachedProperties
-            CHECK_NOTHROW(entity.addOrUpdateProperty(propertyConfig, "spawnflags", "a"));
-        }
-    }
+  // throws because 'a & 2' cannot be evaluated -- we must catch the exception in
+  // Entity::updateCachedProperties
+  CHECK_NOTHROW(entity.addOrUpdateProperty(propertyConfig, "spawnflags", "a"));
 }
+} // namespace Model
+} // namespace TrenchBroom

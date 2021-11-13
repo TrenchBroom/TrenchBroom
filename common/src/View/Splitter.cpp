@@ -20,49 +20,49 @@
 #include "Splitter.h"
 
 #include <QDebug>
-#include <QPainter>
 #include <QPaintEvent>
+#include <QPainter>
 
 namespace TrenchBroom {
-    namespace View {
-        SplitterHandle::SplitterHandle(const Qt::Orientation orientation, QSplitter* parent) :
-        QSplitterHandle(orientation, parent) {}
+namespace View {
+SplitterHandle::SplitterHandle(const Qt::Orientation orientation, QSplitter* parent)
+  : QSplitterHandle(orientation, parent) {}
 
-        QSize SplitterHandle::sizeHint() const {
-            return QSize(3, 3);
-        }
-
-        void SplitterHandle::paintEvent(QPaintEvent* event) {
-            QPainter painter(this);
-            painter.setPen(Qt::NoPen);
-            painter.fillRect(event->rect(), QBrush(palette().color(QPalette::Mid)));
-        }
-
-        Splitter::Splitter(const Qt::Orientation orientation, QWidget* parent) :
-        QSplitter(orientation, parent){
-#ifdef __APPLE__
-            connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
-#endif
-        }
-
-        Splitter::Splitter(QWidget* parent) :
-        QSplitter(parent) {
-#ifdef __APPLE__
-            connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
-#endif
-        }
-
-        QSplitterHandle* Splitter::createHandle() {
-            return new SplitterHandle(orientation(), this);
-        }
-
-#ifdef __APPLE__
-        void Splitter::doSplitterMoved() {
-            for (int i = 0; i < count(); ++i) {
-                auto* widget = this->widget(i);
-                widget->repaint();
-            }
-        }
-#endif
-    }
+QSize SplitterHandle::sizeHint() const {
+  return QSize(3, 3);
 }
+
+void SplitterHandle::paintEvent(QPaintEvent* event) {
+  QPainter painter(this);
+  painter.setPen(Qt::NoPen);
+  painter.fillRect(event->rect(), QBrush(palette().color(QPalette::Mid)));
+}
+
+Splitter::Splitter(const Qt::Orientation orientation, QWidget* parent)
+  : QSplitter(orientation, parent) {
+#ifdef __APPLE__
+  connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
+#endif
+}
+
+Splitter::Splitter(QWidget* parent)
+  : QSplitter(parent) {
+#ifdef __APPLE__
+  connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
+#endif
+}
+
+QSplitterHandle* Splitter::createHandle() {
+  return new SplitterHandle(orientation(), this);
+}
+
+#ifdef __APPLE__
+void Splitter::doSplitterMoved() {
+  for (int i = 0; i < count(); ++i) {
+    auto* widget = this->widget(i);
+    widget->repaint();
+  }
+}
+#endif
+} // namespace View
+} // namespace TrenchBroom

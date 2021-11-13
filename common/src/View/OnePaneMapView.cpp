@@ -26,24 +26,27 @@
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
-    namespace View {
-        OnePaneMapView::OnePaneMapView(Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent) :
-        MultiMapView(parent),
-        m_logger(logger),
-        m_document(document),
-        m_mapView(nullptr) {
-            createGui(toolBox, mapRenderer, contextManager);
-        }
-
-        void OnePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
-            m_mapView = new CyclingMapView(m_document, toolBox, mapRenderer, contextManager,
-                CyclingMapView::View_ALL, m_logger, this);
-            m_mapView->linkCamera(m_linkHelper);
-            addMapView(m_mapView);
-
-            auto* layout = new QGridLayout();
-            layout->addWidget(m_mapView, 0, 0, 1, 1);
-            setLayout(layout);
-        }
-    }
+namespace View {
+OnePaneMapView::OnePaneMapView(
+  Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
+  Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent)
+  : MultiMapView(parent)
+  , m_logger(logger)
+  , m_document(document)
+  , m_mapView(nullptr) {
+  createGui(toolBox, mapRenderer, contextManager);
 }
+
+void OnePaneMapView::createGui(
+  MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
+  m_mapView = new CyclingMapView(
+    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ALL, m_logger, this);
+  m_mapView->linkCamera(m_linkHelper);
+  addMapView(m_mapView);
+
+  auto* layout = new QGridLayout();
+  layout->addWidget(m_mapView, 0, 0, 1, 1);
+  setLayout(layout);
+}
+} // namespace View
+} // namespace TrenchBroom

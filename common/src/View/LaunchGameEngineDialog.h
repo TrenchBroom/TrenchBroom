@@ -29,45 +29,47 @@
 class QPushButton;
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineProfile;
-    }
-
-    namespace View {
-        class GameEngineProfileListBox;
-        class MultiCompletionLineEdit;
-
-        /**
-         * Dialog for launching engine (Run -> Launch Engine); only lets you edit the
-         * parameters of a GameEngineProfile, not edit the profile list/name/path.
-         *
-         * A "Configure Engines..." button opens GameEngineDialog for editing the
-         * name/path of engines.
-         */
-        class LaunchGameEngineDialog : public QDialog {
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            GameEngineProfileListBox* m_gameEngineList;
-            MultiCompletionLineEdit* m_parameterText;
-            QPushButton* m_launchButton;
-            Model::GameEngineProfile* m_lastProfile;
-            Model::GameEngineConfig m_config;
-        public:
-            explicit LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
-            void createGui();
-            void reloadConfig();
-            LaunchGameEngineVariables variables() const;
-        private slots:
-            void gameEngineProfileChanged();
-            void parametersChanged(const QString& text);
-            void editGameEngines();
-            void launchEngine();
-        public slots: // QDialog overrides
-            void done(int r) override;
-        private:
-            void saveConfig();
-        };
-    }
+namespace Model {
+class GameEngineProfile;
 }
 
+namespace View {
+class GameEngineProfileListBox;
+class MultiCompletionLineEdit;
+
+/**
+ * Dialog for launching engine (Run -> Launch Engine); only lets you edit the
+ * parameters of a GameEngineProfile, not edit the profile list/name/path.
+ *
+ * A "Configure Engines..." button opens GameEngineDialog for editing the
+ * name/path of engines.
+ */
+class LaunchGameEngineDialog : public QDialog {
+private:
+  std::weak_ptr<MapDocument> m_document;
+  GameEngineProfileListBox* m_gameEngineList;
+  MultiCompletionLineEdit* m_parameterText;
+  QPushButton* m_launchButton;
+  Model::GameEngineProfile* m_lastProfile;
+  Model::GameEngineConfig m_config;
+
+public:
+  explicit LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+
+private:
+  void createGui();
+  void reloadConfig();
+  LaunchGameEngineVariables variables() const;
+private slots:
+  void gameEngineProfileChanged();
+  void parametersChanged(const QString& text);
+  void editGameEngines();
+  void launchEngine();
+public slots: // QDialog overrides
+  void done(int r) override;
+
+private:
+  void saveConfig();
+};
+} // namespace View
+} // namespace TrenchBroom

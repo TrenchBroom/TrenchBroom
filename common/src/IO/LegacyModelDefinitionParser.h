@@ -20,51 +20,55 @@
 #pragma once
 
 #include "EL/EL_Forward.h"
-#include "IO/Tokenizer.h"
 #include "IO/Parser.h"
+#include "IO/Tokenizer.h"
 
 #include <string_view>
 
 namespace TrenchBroom {
-    namespace IO {
-        class ParserStatus;
+namespace IO {
+class ParserStatus;
 
-        namespace MdlToken {
-            using Type = size_t;
-            static const Type Integer       = 1 << 0;
-            static const Type Equality      = 1 << 1;
-            static const Type Word          = 1 << 2;
-            static const Type String        = 1 << 3;
-            static const Type Comma         = 1 << 4;
-            static const Type CParenthesis  = 1 << 5;
-            static const Type Eof           = 1 << 6;
-        }
+namespace MdlToken {
+using Type = size_t;
+static const Type Integer = 1 << 0;
+static const Type Equality = 1 << 1;
+static const Type Word = 1 << 2;
+static const Type String = 1 << 3;
+static const Type Comma = 1 << 4;
+static const Type CParenthesis = 1 << 5;
+static const Type Eof = 1 << 6;
+} // namespace MdlToken
 
-        class LegacyModelDefinitionTokenizer : public Tokenizer<MdlToken::Type> {
-        public:
-            LegacyModelDefinitionTokenizer(std::string_view str, size_t line, size_t column);
-        private:
-            static const std::string WordDelims;
-            Token emitToken() override;
-        };
+class LegacyModelDefinitionTokenizer : public Tokenizer<MdlToken::Type> {
+public:
+  LegacyModelDefinitionTokenizer(std::string_view str, size_t line, size_t column);
 
-        class LegacyModelDefinitionParser : public Parser<MdlToken::Type> {
-        private:
-            using Token = LegacyModelDefinitionTokenizer::Token;
-            LegacyModelDefinitionTokenizer m_tokenizer;
-        public:
-            LegacyModelDefinitionParser(std::string_view str, size_t line, size_t column);
-            TokenizerState tokenizerState() const;
-        public:
-            EL::Expression parse(ParserStatus& status);
-        private:
-            EL::Expression parseModelDefinition(ParserStatus& status);
-            EL::Expression parseStaticModelDefinition(ParserStatus& status);
-            EL::Expression parseDynamicModelDefinition(ParserStatus& status);
-            EL::Expression parseNamedValue(ParserStatus& status, const std::string& name);
-        private:
-            TokenNameMap tokenNames() const override;
-        };
-    }
-}
+private:
+  static const std::string WordDelims;
+  Token emitToken() override;
+};
 
+class LegacyModelDefinitionParser : public Parser<MdlToken::Type> {
+private:
+  using Token = LegacyModelDefinitionTokenizer::Token;
+  LegacyModelDefinitionTokenizer m_tokenizer;
+
+public:
+  LegacyModelDefinitionParser(std::string_view str, size_t line, size_t column);
+  TokenizerState tokenizerState() const;
+
+public:
+  EL::Expression parse(ParserStatus& status);
+
+private:
+  EL::Expression parseModelDefinition(ParserStatus& status);
+  EL::Expression parseStaticModelDefinition(ParserStatus& status);
+  EL::Expression parseDynamicModelDefinition(ParserStatus& status);
+  EL::Expression parseNamedValue(ParserStatus& status, const std::string& name);
+
+private:
+  TokenNameMap tokenNames() const override;
+};
+} // namespace IO
+} // namespace TrenchBroom

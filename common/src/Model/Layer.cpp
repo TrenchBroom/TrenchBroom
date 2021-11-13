@@ -20,62 +20,62 @@
 #include "Layer.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        Layer::Layer(std::string name, const bool defaultLayer) :
-        m_defaultLayer(defaultLayer),
-        m_name(std::move(name)),
-        m_omitFromExport(false) {}
+namespace Model {
+Layer::Layer(std::string name, const bool defaultLayer)
+  : m_defaultLayer(defaultLayer)
+  , m_name(std::move(name))
+  , m_omitFromExport(false) {}
 
-        bool Layer::defaultLayer() const {
-            return m_defaultLayer;
-        }
-
-        const std::string& Layer::name() const {
-            return m_name;
-        }
-
-        void Layer::setName(std::string name) {
-            m_name = std::move(name);
-        }
-
-        bool Layer::hasSortIndex() const {
-            return m_sortIndex.has_value();
-        }
-
-        int Layer::sortIndex() const {
-            if (defaultLayer()) {
-                return defaultLayerSortIndex();
-            }
-
-            return m_sortIndex.value_or(invalidSortIndex());
-        }
-        
-        void Layer::setSortIndex(const int sortIndex) {
-            m_sortIndex = sortIndex;
-        }
-
-        const std::optional<Color>& Layer::color() const {
-            return m_color;
-        }
-
-        void Layer::setColor(const Color& color) {
-            m_color = color;
-        }
-
-        bool Layer::omitFromExport() const {
-            return m_omitFromExport;
-        }
-
-        void Layer::setOmitFromExport(const bool omitFromExport) {
-            m_omitFromExport = omitFromExport;
-        }
-
-        int Layer::invalidSortIndex() {
-            return std::numeric_limits<int>::max();
-        }
-
-        int Layer::defaultLayerSortIndex() {
-            return -1;
-        }
-    }
+bool Layer::defaultLayer() const {
+  return m_defaultLayer;
 }
+
+const std::string& Layer::name() const {
+  return m_name;
+}
+
+void Layer::setName(std::string name) {
+  m_name = std::move(name);
+}
+
+bool Layer::hasSortIndex() const {
+  return m_sortIndex.has_value();
+}
+
+int Layer::sortIndex() const {
+  if (defaultLayer()) {
+    return defaultLayerSortIndex();
+  }
+
+  return m_sortIndex.value_or(invalidSortIndex());
+}
+
+void Layer::setSortIndex(const int sortIndex) {
+  m_sortIndex = sortIndex;
+}
+
+const std::optional<Color>& Layer::color() const {
+  return m_color;
+}
+
+void Layer::setColor(const Color& color) {
+  m_color = color;
+}
+
+bool Layer::omitFromExport() const {
+  return m_omitFromExport;
+}
+
+void Layer::setOmitFromExport(const bool omitFromExport) {
+  m_omitFromExport = omitFromExport;
+}
+
+int Layer::invalidSortIndex() {
+  return std::numeric_limits<int>::max();
+}
+
+int Layer::defaultLayerSortIndex() {
+  return -1;
+}
+} // namespace Model
+} // namespace TrenchBroom

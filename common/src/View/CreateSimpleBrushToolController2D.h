@@ -22,31 +22,33 @@
 #include "FloatType.h"
 #include "View/ToolController.h"
 
-#include <vecmath/vec.h>
 #include <vecmath/bbox.h>
+#include <vecmath/vec.h>
 
 #include <memory>
 
 namespace TrenchBroom {
-    namespace View {
-        class CreateSimpleBrushTool;
-        class DragTracker;
-        class MapDocument;
+namespace View {
+class CreateSimpleBrushTool;
+class DragTracker;
+class MapDocument;
 
-        class CreateSimpleBrushToolController2D : public ToolController {
-        private:
-            CreateSimpleBrushTool& m_tool;
-            std::weak_ptr<MapDocument> m_document;
-        public:
-            CreateSimpleBrushToolController2D(CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document);
-        private:
-            Tool& tool() override;
-            const Tool& tool() const override;
+class CreateSimpleBrushToolController2D : public ToolController {
+private:
+  CreateSimpleBrushTool& m_tool;
+  std::weak_ptr<MapDocument> m_document;
 
-            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+public:
+  CreateSimpleBrushToolController2D(
+    CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document);
 
-            bool cancel() override;
-        };
-    }
-}
+private:
+  Tool& tool() override;
+  const Tool& tool() const override;
 
+  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+
+  bool cancel() override;
+};
+} // namespace View
+} // namespace TrenchBroom

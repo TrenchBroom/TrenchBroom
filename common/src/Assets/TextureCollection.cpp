@@ -27,105 +27,105 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        TextureCollection::TextureCollection() :
-        m_loaded(false) {}
+namespace Assets {
+TextureCollection::TextureCollection()
+  : m_loaded(false) {}
 
-        TextureCollection::TextureCollection(std::vector<Texture> textures) :
-        m_loaded(false),
-        m_textures(std::move(textures)) {}
+TextureCollection::TextureCollection(std::vector<Texture> textures)
+  : m_loaded(false)
+  , m_textures(std::move(textures)) {}
 
-        TextureCollection::TextureCollection(const IO::Path& path) :
-        m_loaded(false),
-        m_path(path) {}
+TextureCollection::TextureCollection(const IO::Path& path)
+  : m_loaded(false)
+  , m_path(path) {}
 
-        TextureCollection::TextureCollection(const IO::Path& path, std::vector<Texture> textures) :
-        m_loaded(true),
-        m_path(path),
-        m_textures(std::move(textures)) {}
+TextureCollection::TextureCollection(const IO::Path& path, std::vector<Texture> textures)
+  : m_loaded(true)
+  , m_path(path)
+  , m_textures(std::move(textures)) {}
 
-        TextureCollection::~TextureCollection() {
-            if (!m_textureIds.empty()) {
-                glAssert(glDeleteTextures(static_cast<GLsizei>(m_textureIds.size()),
-                                          static_cast<GLuint*>(&m_textureIds.front())));
-                m_textureIds.clear();
-            }
-        }
-
-        bool TextureCollection::loaded() const {
-            return m_loaded;
-        }
-
-        const IO::Path& TextureCollection::path() const {
-            return m_path;
-        }
-
-        std::string TextureCollection::name() const {
-            if (m_path.isEmpty())
-                return "";
-            return m_path.lastComponent().asString();
-        }
-
-        size_t TextureCollection::textureCount() const {
-            return m_textures.size();
-        }
-
-        const std::vector<Texture>& TextureCollection::textures() const {
-            return m_textures;
-        }
-
-        std::vector<Texture>& TextureCollection::textures() {
-            return m_textures;
-        }
-
-        const Texture* TextureCollection::textureByIndex(const size_t index) const {
-            if (index >= m_textures.size()) {
-                return nullptr;
-            } else {
-                return &(m_textures[index]);
-            }
-        }
-
-        Texture* TextureCollection::textureByIndex(const size_t index) {
-            return const_cast<Texture*>(const_cast<const TextureCollection*>(this)->textureByIndex(index));
-        }
-
-        const Texture* TextureCollection::textureByName(const std::string& name) const {
-            for (const auto& texture : m_textures) {
-                if (texture.name() == name) {
-                    return &texture;
-                }
-            }
-            return nullptr;
-        }
-
-        Texture* TextureCollection::textureByName(const std::string& name) {
-            return const_cast<Texture*>(const_cast<const TextureCollection*>(this)->textureByName(name));
-        }
-
-        bool TextureCollection::prepared() const {
-            return !m_textureIds.empty();
-        }
-
-        void TextureCollection::prepare(const int minFilter, const int magFilter) {
-            assert(!prepared());
-
-            m_textureIds.resize(textureCount());
-            if (textureCount() != 0u) {
-                glAssert(glGenTextures(static_cast<GLsizei>(textureCount()),
-                                       static_cast<GLuint*>(&m_textureIds.front())));
-
-                for (size_t i = 0; i < textureCount(); ++i) {
-                    Texture& texture = m_textures[i];
-                    texture.prepare(m_textureIds[i], minFilter, magFilter);
-                }
-            }
-        }
-
-        void TextureCollection::setTextureMode(const int minFilter, const int magFilter) {
-            for (auto& texture : m_textures) {
-                texture.setMode(minFilter, magFilter);
-            }
-        }
-    }
+TextureCollection::~TextureCollection() {
+  if (!m_textureIds.empty()) {
+    glAssert(glDeleteTextures(
+      static_cast<GLsizei>(m_textureIds.size()), static_cast<GLuint*>(&m_textureIds.front())));
+    m_textureIds.clear();
+  }
 }
+
+bool TextureCollection::loaded() const {
+  return m_loaded;
+}
+
+const IO::Path& TextureCollection::path() const {
+  return m_path;
+}
+
+std::string TextureCollection::name() const {
+  if (m_path.isEmpty())
+    return "";
+  return m_path.lastComponent().asString();
+}
+
+size_t TextureCollection::textureCount() const {
+  return m_textures.size();
+}
+
+const std::vector<Texture>& TextureCollection::textures() const {
+  return m_textures;
+}
+
+std::vector<Texture>& TextureCollection::textures() {
+  return m_textures;
+}
+
+const Texture* TextureCollection::textureByIndex(const size_t index) const {
+  if (index >= m_textures.size()) {
+    return nullptr;
+  } else {
+    return &(m_textures[index]);
+  }
+}
+
+Texture* TextureCollection::textureByIndex(const size_t index) {
+  return const_cast<Texture*>(const_cast<const TextureCollection*>(this)->textureByIndex(index));
+}
+
+const Texture* TextureCollection::textureByName(const std::string& name) const {
+  for (const auto& texture : m_textures) {
+    if (texture.name() == name) {
+      return &texture;
+    }
+  }
+  return nullptr;
+}
+
+Texture* TextureCollection::textureByName(const std::string& name) {
+  return const_cast<Texture*>(const_cast<const TextureCollection*>(this)->textureByName(name));
+}
+
+bool TextureCollection::prepared() const {
+  return !m_textureIds.empty();
+}
+
+void TextureCollection::prepare(const int minFilter, const int magFilter) {
+  assert(!prepared());
+
+  m_textureIds.resize(textureCount());
+  if (textureCount() != 0u) {
+    glAssert(glGenTextures(
+      static_cast<GLsizei>(textureCount()), static_cast<GLuint*>(&m_textureIds.front())));
+
+    for (size_t i = 0; i < textureCount(); ++i) {
+      Texture& texture = m_textures[i];
+      texture.prepare(m_textureIds[i], minFilter, magFilter);
+    }
+  }
+}
+
+void TextureCollection::setTextureMode(const int minFilter, const int magFilter) {
+  for (auto& texture : m_textures) {
+    texture.setMode(minFilter, magFilter);
+  }
+}
+} // namespace Assets
+} // namespace TrenchBroom

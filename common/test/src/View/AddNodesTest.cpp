@@ -24,8 +24,8 @@
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
-#include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
+#include "View/MapDocumentTest.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
@@ -40,109 +40,114 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace View {
-        TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes") {
-            SECTION("Update linked groups") {
-                auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
-                auto* brushNode = createBrushNode();
-                groupNode->addChild(brushNode);
-                document->addNodes({{document->parentForNodes(), {groupNode}}});
+namespace View {
+TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes") {
+  SECTION("Update linked groups") {
+    auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
+    auto* brushNode = createBrushNode();
+    groupNode->addChild(brushNode);
+    document->addNodes({{document->parentForNodes(), {groupNode}}});
 
-                document->select(groupNode);
-                auto* linkedGroupNode = document->createLinkedDuplicate();
-                document->deselectAll();
+    document->select(groupNode);
+    auto* linkedGroupNode = document->createLinkedDuplicate();
+    document->deselectAll();
 
-                using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
-                CreateNode createNode = GENERATE_COPY(
-                    CreateNode{[](const auto&) -> Model::Node* { return new Model::EntityNode{Model::Entity{}}; }},
-                    CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
-                    CreateNode{[](const auto& test) -> Model::Node* { return test.createPatchNode(); }}
-                );
+    using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+    CreateNode createNode = GENERATE_COPY(
+      CreateNode{[](const auto&) -> Model::Node* {
+        return new Model::EntityNode{Model::Entity{}};
+      }},
+      CreateNode{[](const auto& test) -> Model::Node* {
+        return test.createBrushNode();
+      }},
+      CreateNode{[](const auto& test) -> Model::Node* {
+        return test.createPatchNode();
+      }});
 
-                auto* nodeToAdd = createNode(*this);
-                document->addNodes({{groupNode, {nodeToAdd}}});
+    auto* nodeToAdd = createNode(*this);
+    document->addNodes({{groupNode, {nodeToAdd}}});
 
-                CHECK(linkedGroupNode->childCount() == 2u);
-                
-                auto* linkedNode = linkedGroupNode->children().back();
-                linkedNode->accept(kdl::overload(
-                    [] (const Model::WorldNode*) {},
-                    [] (const Model::LayerNode*) {},
-                    [] (const Model::GroupNode*) {},
-                    [&](const Model::EntityNode* linkedEntityNode) {
-                        const auto* originalEntityNode = dynamic_cast<Model::EntityNode*>(nodeToAdd);
-                        REQUIRE(originalEntityNode);
-                        CHECK(originalEntityNode->entity() == linkedEntityNode->entity());
-                    },
-                    [&](const Model::BrushNode* linkedBrushNode) {
-                        const auto* originalBrushNode = dynamic_cast<Model::BrushNode*>(nodeToAdd);
-                        REQUIRE(originalBrushNode);
-                        CHECK(originalBrushNode->brush() == linkedBrushNode->brush());
-                    },
-                    [&](const Model::PatchNode* linkedPatchNode) {
-                        const auto* originalPatchNode = dynamic_cast<Model::PatchNode*>(nodeToAdd);
-                        REQUIRE(originalPatchNode);
-                        CHECK(originalPatchNode->patch() == linkedPatchNode->patch());
-                    }
-                ));
+    CHECK(linkedGroupNode->childCount() == 2u);
 
-                document->undoCommand();
+    auto* linkedNode = linkedGroupNode->children().back();
+    linkedNode->accept(kdl::overload(
+      [](const Model::WorldNode*) {}, [](const Model::LayerNode*) {},
+      [](const Model::GroupNode*) {},
+      [&](const Model::EntityNode* linkedEntityNode) {
+        const auto* originalEntityNode = dynamic_cast<Model::EntityNode*>(nodeToAdd);
+        REQUIRE(originalEntityNode);
+        CHECK(originalEntityNode->entity() == linkedEntityNode->entity());
+      },
+      [&](const Model::BrushNode* linkedBrushNode) {
+        const auto* originalBrushNode = dynamic_cast<Model::BrushNode*>(nodeToAdd);
+        REQUIRE(originalBrushNode);
+        CHECK(originalBrushNode->brush() == linkedBrushNode->brush());
+      },
+      [&](const Model::PatchNode* linkedPatchNode) {
+        const auto* originalPatchNode = dynamic_cast<Model::PatchNode*>(nodeToAdd);
+        REQUIRE(originalPatchNode);
+        CHECK(originalPatchNode->patch() == linkedPatchNode->patch());
+      }));
 
-                REQUIRE(groupNode->childCount() == 1u);
-                CHECK(linkedGroupNode->childCount() == 1u);
-            }
-        }
+    document->undoCommand();
 
-        TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups") {
-            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
-            document->addNodes({{document->parentForNodes(), {groupNode}}});
-
-            document->select(groupNode);
-            auto* linkedGroupNode = document->createLinkedDuplicate();
-            document->deselectAll();
-
-            document->select(linkedGroupNode);
-            document->translateObjects(vm::vec3(32.0, 0.0, 0.0));
-            document->deselectAll();
-
-            auto* brushNode = createBrushNode();
-            document->addNodes({{groupNode, {brushNode}}});
-
-            REQUIRE(groupNode->childCount() == 1u);
-            CHECK(linkedGroupNode->childCount() == 1u);
-            
-            auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
-            CHECK(linkedBrushNode != nullptr);
-
-            CHECK(linkedBrushNode->physicalBounds() == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
-
-            document->undoCommand();
-            REQUIRE(groupNode->childCount() == 0u);
-            CHECK(linkedGroupNode->childCount() == 0u);
-
-            document->redoCommand();
-            REQUIRE(groupNode->childCount() == 1u);
-            CHECK(linkedGroupNode->childCount() == 1u);
-        }
-            
-        TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails") {
-            auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
-            document->addNodes({{document->parentForNodes(), {groupNode}}});
-
-            document->select(groupNode);
-            auto* linkedGroupNode = document->createLinkedDuplicate();
-            document->deselectAll();
-
-            // adding a brush to the linked group node will fail because it will go out of world bounds
-            document->select(linkedGroupNode);
-            document->translateObjects(document->worldBounds().max);
-            document->deselectAll();
-
-            auto* brushNode = createBrushNode();
-            CHECK(document->addNodes({{groupNode, {brushNode}}}).empty());
-
-            CHECK(groupNode->childCount() == 0u);
-            CHECK(linkedGroupNode->childCount() == 0u);
-        }
-    }
+    REQUIRE(groupNode->childCount() == 1u);
+    CHECK(linkedGroupNode->childCount() == 1u);
+  }
 }
+
+TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups") {
+  auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+  document->addNodes({{document->parentForNodes(), {groupNode}}});
+
+  document->select(groupNode);
+  auto* linkedGroupNode = document->createLinkedDuplicate();
+  document->deselectAll();
+
+  document->select(linkedGroupNode);
+  document->translateObjects(vm::vec3(32.0, 0.0, 0.0));
+  document->deselectAll();
+
+  auto* brushNode = createBrushNode();
+  document->addNodes({{groupNode, {brushNode}}});
+
+  REQUIRE(groupNode->childCount() == 1u);
+  CHECK(linkedGroupNode->childCount() == 1u);
+
+  auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+  CHECK(linkedBrushNode != nullptr);
+
+  CHECK(
+    linkedBrushNode->physicalBounds() ==
+    brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+
+  document->undoCommand();
+  REQUIRE(groupNode->childCount() == 0u);
+  CHECK(linkedGroupNode->childCount() == 0u);
+
+  document->redoCommand();
+  REQUIRE(groupNode->childCount() == 1u);
+  CHECK(linkedGroupNode->childCount() == 1u);
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails") {
+  auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+  document->addNodes({{document->parentForNodes(), {groupNode}}});
+
+  document->select(groupNode);
+  auto* linkedGroupNode = document->createLinkedDuplicate();
+  document->deselectAll();
+
+  // adding a brush to the linked group node will fail because it will go out of world bounds
+  document->select(linkedGroupNode);
+  document->translateObjects(document->worldBounds().max);
+  document->deselectAll();
+
+  auto* brushNode = createBrushNode();
+  CHECK(document->addNodes({{groupNode, {brushNode}}}).empty());
+
+  CHECK(groupNode->childCount() == 0u);
+  CHECK(linkedGroupNode->childCount() == 0u);
+}
+} // namespace View
+} // namespace TrenchBroom

@@ -26,33 +26,34 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
-    namespace Model {
-        class PointFile {
-        private:
-            std::vector<vm::vec3f> m_points;
-            size_t m_current;
-        public:
-            PointFile();
-            PointFile(const IO::Path& path);
-
-            static bool canLoad(const IO::Path& path);
-
-            bool empty() const;
-            bool hasNextPoint() const;
-            bool hasPreviousPoint() const;
-
-            const std::vector<vm::vec3f>& points() const;
-            const vm::vec3f& currentPoint() const;
-            const vm::vec3f currentDirection() const;
-            void advance();
-            void retreat();
-        private:
-            void load(const IO::Path& path);
-        };
-    }
+namespace IO {
+class Path;
 }
 
+namespace Model {
+class PointFile {
+private:
+  std::vector<vm::vec3f> m_points;
+  size_t m_current;
+
+public:
+  PointFile();
+  PointFile(const IO::Path& path);
+
+  static bool canLoad(const IO::Path& path);
+
+  bool empty() const;
+  bool hasNextPoint() const;
+  bool hasPreviousPoint() const;
+
+  const std::vector<vm::vec3f>& points() const;
+  const vm::vec3f& currentPoint() const;
+  const vm::vec3f currentDirection() const;
+  void advance();
+  void retreat();
+
+private:
+  void load(const IO::Path& path);
+};
+} // namespace Model
+} // namespace TrenchBroom

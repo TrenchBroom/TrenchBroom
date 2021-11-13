@@ -20,43 +20,43 @@
 #include "TestLogger.h"
 #include "TestUtils.h"
 
-#include "Assets/Texture.h"
 #include "Assets/Palette.h"
-#include "IO/DiskIO.h"
+#include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/Path.h"
+#include "IO/DiskIO.h"
 #include "IO/M8TextureReader.h"
+#include "IO/Path.h"
 
 #include <memory>
 
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        TEST_CASE("M8TextureReaderTest.testBasicLoading", "[M8TextureReaderTest]") {
-            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-            const Path filePath = Path("fixture/test/IO/M8/test.m8");
-            
-            TextureReader::PathSuffixNameStrategy nameStrategy(filePath.length() - 1u);
-            NullLogger logger;
-            M8TextureReader textureReader(nameStrategy, fs, logger);
+namespace IO {
+TEST_CASE("M8TextureReaderTest.testBasicLoading", "[M8TextureReaderTest]") {
+  DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+  const Path filePath = Path("fixture/test/IO/M8/test.m8");
 
-            auto texture = textureReader.readTexture(fs.openFile(filePath));
+  TextureReader::PathSuffixNameStrategy nameStrategy(filePath.length() - 1u);
+  NullLogger logger;
+  M8TextureReader textureReader(nameStrategy, fs, logger);
 
-            CHECK("test" == texture.name());
-            CHECK(64 == texture.width());
-            CHECK(64 == texture.height());
+  auto texture = textureReader.readTexture(fs.openFile(filePath));
 
-            for (size_t y = 0; y < 64; ++y) {
-                for (size_t x = 0; x < 64; ++x) {
-                    // One pixel is blue, the others are black
-                    if (x == 4 && y == 1) {                        
-                        checkColor(texture, x, y, 20, 20, 138, 255);
-                    } else {
-                        checkColor(texture, x, y, 0,   0,   0, 255);
-                    }
-                }
-            }
-        }
+  CHECK("test" == texture.name());
+  CHECK(64 == texture.width());
+  CHECK(64 == texture.height());
+
+  for (size_t y = 0; y < 64; ++y) {
+    for (size_t x = 0; x < 64; ++x) {
+      // One pixel is blue, the others are black
+      if (x == 4 && y == 1) {
+        checkColor(texture, x, y, 20, 20, 138, 255);
+      } else {
+        checkColor(texture, x, y, 0, 0, 0, 255);
+      }
     }
+  }
 }
+} // namespace IO
+} // namespace TrenchBroom

@@ -19,34 +19,34 @@
 
 #pragma once
 
-#include "Logger.h"
 #include "Assets/ModelDefinition.h"
 #include "EL/ELExceptions.h"
+#include "Logger.h"
 
 #include <string_view>
 
 namespace TrenchBroom {
-    namespace Assets {
-        /**
-         * Evaluates the given lambda and returns the resulting model specification. If an EL exception is thrown by
-         * the given lambda, it is caught and an error message is logged using the given logger.
-         *
-         * @tparam GetModelSpec the type of the given lambda
-         * @param logger the logger to log errors to
-         * @param classname the classname to use when logging errors
-         * @param getModelSpec the lambda to evaluate, must return a ModelSpecification
-         * @return the model specification returned by the lambda, or an empty model specification if the lambda throws
-         * an EL exception
-         */
-        template <typename GetModelSpec>
-        ModelSpecification safeGetModelSpecification(Logger& logger, std::string_view classname, GetModelSpec getModelSpec) {
-            try {
-                return getModelSpec();
-            } catch (const EL::Exception& e) {
-                logger.error() << "Could not get entity model for entity '" << classname << "': " << e.what();
-                return ModelSpecification();
-            }
-        }
-    }
+namespace Assets {
+/**
+ * Evaluates the given lambda and returns the resulting model specification. If an EL exception is
+ * thrown by the given lambda, it is caught and an error message is logged using the given logger.
+ *
+ * @tparam GetModelSpec the type of the given lambda
+ * @param logger the logger to log errors to
+ * @param classname the classname to use when logging errors
+ * @param getModelSpec the lambda to evaluate, must return a ModelSpecification
+ * @return the model specification returned by the lambda, or an empty model specification if the
+ * lambda throws an EL exception
+ */
+template <typename GetModelSpec>
+ModelSpecification safeGetModelSpecification(
+  Logger& logger, std::string_view classname, GetModelSpec getModelSpec) {
+  try {
+    return getModelSpec();
+  } catch (const EL::Exception& e) {
+    logger.error() << "Could not get entity model for entity '" << classname << "': " << e.what();
+    return ModelSpecification();
+  }
 }
-
+} // namespace Assets
+} // namespace TrenchBroom

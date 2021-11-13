@@ -30,43 +30,42 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class MissingClassnameIssueGenerator::MissingClassnameIssue : public Issue {
-        public:
-            static const IssueType Type;
-        public:
-            explicit MissingClassnameIssue(EntityNodeBase* node) :
-            Issue(node) {}
-        private:
-            IssueType doGetType() const override {
-                return Type;
-            }
+namespace Model {
+class MissingClassnameIssueGenerator::MissingClassnameIssue : public Issue {
+public:
+  static const IssueType Type;
 
-            std::string doGetDescription() const override {
-                return "Entity has no classname property";
-            }
-        };
+public:
+  explicit MissingClassnameIssue(EntityNodeBase* node)
+    : Issue(node) {}
 
-        const IssueType MissingClassnameIssueGenerator::MissingClassnameIssue::Type = Issue::freeType();
+private:
+  IssueType doGetType() const override { return Type; }
 
-        class MissingClassnameIssueGenerator::MissingClassnameIssueQuickFix : public IssueQuickFix {
-        public:
-            MissingClassnameIssueQuickFix() :
-            IssueQuickFix(MissingClassnameIssue::Type, "Delete entities") {}
-        private:
-            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
-                facade->deleteObjects();
-            }
-        };
+  std::string doGetDescription() const override { return "Entity has no classname property"; }
+};
 
-        MissingClassnameIssueGenerator::MissingClassnameIssueGenerator() :
-        IssueGenerator(MissingClassnameIssue::Type, "Missing entity classname") {
-            addQuickFix(new MissingClassnameIssueQuickFix());
-        }
+const IssueType MissingClassnameIssueGenerator::MissingClassnameIssue::Type = Issue::freeType();
 
-        void MissingClassnameIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            if (!node->entity().hasProperty(EntityPropertyKeys::Classname))
-                issues.push_back(new MissingClassnameIssue(node));
-        }
-    }
+class MissingClassnameIssueGenerator::MissingClassnameIssueQuickFix : public IssueQuickFix {
+public:
+  MissingClassnameIssueQuickFix()
+    : IssueQuickFix(MissingClassnameIssue::Type, "Delete entities") {}
+
+private:
+  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+    facade->deleteObjects();
+  }
+};
+
+MissingClassnameIssueGenerator::MissingClassnameIssueGenerator()
+  : IssueGenerator(MissingClassnameIssue::Type, "Missing entity classname") {
+  addQuickFix(new MissingClassnameIssueQuickFix());
 }
+
+void MissingClassnameIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+  if (!node->entity().hasProperty(EntityPropertyKeys::Classname))
+    issues.push_back(new MissingClassnameIssue(node));
+}
+} // namespace Model
+} // namespace TrenchBroom

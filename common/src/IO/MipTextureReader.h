@@ -25,34 +25,37 @@
 #include <string>
 
 namespace TrenchBroom {
-    class Logger;
-    
-    namespace Assets {
-        class Palette;
-    }
+class Logger;
 
-    namespace IO {
-        class BufferedReader;
-        class File;
-        class FileSystem;
-        class Reader;
-
-        class MipTextureReader : public TextureReader {
-        protected:
-            explicit MipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
-        public:
-            ~MipTextureReader() override;
-        public:
-            static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
-            /**
-             * Reads the texture name or returns an empty string in case of error.
-             * Doesn't modify the provided reader.
-             */
-            static std::string getTextureName(const BufferedReader& reader);
-        protected:
-            Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
-            virtual Assets::Palette doGetPalette(Reader& reader, const size_t offset[], size_t width, size_t height) const = 0;
-        };
-    }
+namespace Assets {
+class Palette;
 }
 
+namespace IO {
+class BufferedReader;
+class File;
+class FileSystem;
+class Reader;
+
+class MipTextureReader : public TextureReader {
+protected:
+  explicit MipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+
+public:
+  ~MipTextureReader() override;
+
+public:
+  static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
+  /**
+   * Reads the texture name or returns an empty string in case of error.
+   * Doesn't modify the provided reader.
+   */
+  static std::string getTextureName(const BufferedReader& reader);
+
+protected:
+  Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
+  virtual Assets::Palette doGetPalette(
+    Reader& reader, const size_t offset[], size_t width, size_t height) const = 0;
+};
+} // namespace IO
+} // namespace TrenchBroom

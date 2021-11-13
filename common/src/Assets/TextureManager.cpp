@@ -19,11 +19,11 @@
 
 #include "TextureManager.h"
 
-#include "Exceptions.h"
-#include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Exceptions.h"
 #include "IO/TextureLoader.h"
+#include "Logger.h"
 
 #include <kdl/map_utils.h>
 #include <kdl/string_format.h>
@@ -36,165 +36,173 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class CompareByName {
-        public:
-            CompareByName() {}
-            bool operator() (const Texture* left, const Texture* right) const {
-                return left->name() < right->name();
-            }
-        };
+namespace Assets {
+class CompareByName {
+public:
+  CompareByName() {}
+  bool operator()(const Texture* left, const Texture* right) const {
+    return left->name() < right->name();
+  }
+};
 
-        class CompareByUsage {
-        public:
-            bool operator() (const Texture* left, const Texture* right) const {
-                if (left->usageCount() == right->usageCount()) {
-                    return left->name() < right->name();
-                } else {
-                    return left->usageCount() > right->usageCount();
-                }
-            }
-        };
-
-        TextureManager::TextureManager(int magFilter, int minFilter, Logger& logger) :
-        m_logger(logger),
-        m_minFilter(minFilter),
-        m_magFilter(magFilter),
-        m_resetTextureMode(false) {}
-
-        TextureManager::~TextureManager() = default;
-
-        void TextureManager::setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader) {
-            auto collections = std::move(m_collections);
-            clear();
-
-            for (const auto& path : paths) {
-                const auto it = std::find_if(std::begin(collections), std::end(collections), [&](const auto& c) { return c.path() == path; });
-                if (it == std::end(collections) || !it->loaded()) {
-                    try {
-                        const auto startTime = std::chrono::high_resolution_clock::now();
-                        auto collection = loader.loadTextureCollection(path);
-                        const auto endTime = std::chrono::high_resolution_clock::now();
-
-                        m_logger.info() << "Loaded texture collection '" << path << "' in "
-                                        << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
-                        addTextureCollection(std::move(collection));
-                    } catch (const Exception& e) {
-                        addTextureCollection(Assets::TextureCollection(path));
-                        if (it == std::end(collections)) {
-                            m_logger.error() << "Could not load texture collection '" << path << "': " << e.what();
-                        }
-                    }
-                } else {
-                    addTextureCollection(std::move(*it));
-                }
-                if (it != std::end(collections)) {
-                    collections.erase(it);
-                }
-            }
-
-            updateTextures();
-            m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
-        }
-
-        void TextureManager::setTextureCollections(std::vector<TextureCollection> collections) {
-            for (auto& collection : collections) {
-                addTextureCollection(std::move(collection));
-            }
-            updateTextures();
-        }
-
-        void TextureManager::addTextureCollection(Assets::TextureCollection collection) {
-            const auto index = m_collections.size();
-            m_collections.push_back(std::move(collection));
-            
-            if (m_collections[index].loaded() && !m_collections[index].prepared()) {
-                m_toPrepare.push_back(index);
-            }
-
-            m_logger.debug() << "Added texture collection " << m_collections[index].path();
-        }
-
-        void TextureManager::clear() {
-            m_collections.clear();
-
-            m_toPrepare.clear();
-            m_texturesByName.clear();
-            m_textures.clear();
-
-            // Remove logging because it might fail when the document is already destroyed.
-        }
-
-        void TextureManager::setTextureMode(const int minFilter, const int magFilter) {
-            m_minFilter = minFilter;
-            m_magFilter = magFilter;
-            m_resetTextureMode = true;
-        }
-
-        void TextureManager::commitChanges() {
-            resetTextureMode();
-            prepare();
-            m_toRemove.clear();
-        }
-
-        const Texture* TextureManager::texture(const std::string& name) const {
-            auto it = m_texturesByName.find(kdl::str_to_lower(name));
-            if (it == std::end(m_texturesByName)) {
-                return nullptr;
-            } else {
-                return it->second;
-            }
-        }
-
-        Texture* TextureManager::texture(const std::string& name) {
-            return const_cast<Texture*>(const_cast<const TextureManager*>(this)->texture(name));
-        }
-
-        const std::vector<const Texture*>& TextureManager::textures() const {
-            return m_textures;
-        }
-
-        const std::vector<TextureCollection>& TextureManager::collections() const {
-            return m_collections;
-        }
-
-        void TextureManager::resetTextureMode() {
-            if (m_resetTextureMode) {
-                for (auto& collection : m_collections) {
-                    collection.setTextureMode(m_minFilter, m_magFilter);
-                }
-                m_resetTextureMode = false;
-            }
-        }
-
-        void TextureManager::prepare() {
-            for (const size_t index : m_toPrepare) {
-                auto& collection = m_collections[index];
-                collection.prepare(m_minFilter, m_magFilter);
-            }
-            m_toPrepare.clear();
-        }
-
-        void TextureManager::updateTextures() {
-            m_texturesByName.clear();
-            m_textures.clear();
-
-            for (auto& collection : m_collections) {
-                for (auto& texture : collection.textures()) {
-                    const auto key = kdl::str_to_lower(texture.name());
-                    texture.setOverridden(false);
-
-                    auto mIt = m_texturesByName.find(key);
-                    if (mIt != std::end(m_texturesByName)) {
-                        mIt->second->setOverridden(true);
-                        mIt->second = &texture;
-                    } else {
-                        m_texturesByName.insert(std::make_pair(key, &texture));
-                    }
-                }
-            }
-
-            m_textures = kdl::vec_transform(kdl::map_values(m_texturesByName), [](auto* t) { return const_cast<const Texture*>(t); });
-        }
+class CompareByUsage {
+public:
+  bool operator()(const Texture* left, const Texture* right) const {
+    if (left->usageCount() == right->usageCount()) {
+      return left->name() < right->name();
+    } else {
+      return left->usageCount() > right->usageCount();
     }
+  }
+};
+
+TextureManager::TextureManager(int magFilter, int minFilter, Logger& logger)
+  : m_logger(logger)
+  , m_minFilter(minFilter)
+  , m_magFilter(magFilter)
+  , m_resetTextureMode(false) {}
+
+TextureManager::~TextureManager() = default;
+
+void TextureManager::setTextureCollections(
+  const std::vector<IO::Path>& paths, IO::TextureLoader& loader) {
+  auto collections = std::move(m_collections);
+  clear();
+
+  for (const auto& path : paths) {
+    const auto it =
+      std::find_if(std::begin(collections), std::end(collections), [&](const auto& c) {
+        return c.path() == path;
+      });
+    if (it == std::end(collections) || !it->loaded()) {
+      try {
+        const auto startTime = std::chrono::high_resolution_clock::now();
+        auto collection = loader.loadTextureCollection(path);
+        const auto endTime = std::chrono::high_resolution_clock::now();
+
+        m_logger.info()
+          << "Loaded texture collection '" << path << "' in "
+          << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count()
+          << "ms";
+        addTextureCollection(std::move(collection));
+      } catch (const Exception& e) {
+        addTextureCollection(Assets::TextureCollection(path));
+        if (it == std::end(collections)) {
+          m_logger.error() << "Could not load texture collection '" << path << "': " << e.what();
+        }
+      }
+    } else {
+      addTextureCollection(std::move(*it));
+    }
+    if (it != std::end(collections)) {
+      collections.erase(it);
+    }
+  }
+
+  updateTextures();
+  m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
 }
+
+void TextureManager::setTextureCollections(std::vector<TextureCollection> collections) {
+  for (auto& collection : collections) {
+    addTextureCollection(std::move(collection));
+  }
+  updateTextures();
+}
+
+void TextureManager::addTextureCollection(Assets::TextureCollection collection) {
+  const auto index = m_collections.size();
+  m_collections.push_back(std::move(collection));
+
+  if (m_collections[index].loaded() && !m_collections[index].prepared()) {
+    m_toPrepare.push_back(index);
+  }
+
+  m_logger.debug() << "Added texture collection " << m_collections[index].path();
+}
+
+void TextureManager::clear() {
+  m_collections.clear();
+
+  m_toPrepare.clear();
+  m_texturesByName.clear();
+  m_textures.clear();
+
+  // Remove logging because it might fail when the document is already destroyed.
+}
+
+void TextureManager::setTextureMode(const int minFilter, const int magFilter) {
+  m_minFilter = minFilter;
+  m_magFilter = magFilter;
+  m_resetTextureMode = true;
+}
+
+void TextureManager::commitChanges() {
+  resetTextureMode();
+  prepare();
+  m_toRemove.clear();
+}
+
+const Texture* TextureManager::texture(const std::string& name) const {
+  auto it = m_texturesByName.find(kdl::str_to_lower(name));
+  if (it == std::end(m_texturesByName)) {
+    return nullptr;
+  } else {
+    return it->second;
+  }
+}
+
+Texture* TextureManager::texture(const std::string& name) {
+  return const_cast<Texture*>(const_cast<const TextureManager*>(this)->texture(name));
+}
+
+const std::vector<const Texture*>& TextureManager::textures() const {
+  return m_textures;
+}
+
+const std::vector<TextureCollection>& TextureManager::collections() const {
+  return m_collections;
+}
+
+void TextureManager::resetTextureMode() {
+  if (m_resetTextureMode) {
+    for (auto& collection : m_collections) {
+      collection.setTextureMode(m_minFilter, m_magFilter);
+    }
+    m_resetTextureMode = false;
+  }
+}
+
+void TextureManager::prepare() {
+  for (const size_t index : m_toPrepare) {
+    auto& collection = m_collections[index];
+    collection.prepare(m_minFilter, m_magFilter);
+  }
+  m_toPrepare.clear();
+}
+
+void TextureManager::updateTextures() {
+  m_texturesByName.clear();
+  m_textures.clear();
+
+  for (auto& collection : m_collections) {
+    for (auto& texture : collection.textures()) {
+      const auto key = kdl::str_to_lower(texture.name());
+      texture.setOverridden(false);
+
+      auto mIt = m_texturesByName.find(key);
+      if (mIt != std::end(m_texturesByName)) {
+        mIt->second->setOverridden(true);
+        mIt->second = &texture;
+      } else {
+        m_texturesByName.insert(std::make_pair(key, &texture));
+      }
+    }
+  }
+
+  m_textures = kdl::vec_transform(kdl::map_values(m_texturesByName), [](auto* t) {
+    return const_cast<const Texture*>(t);
+  });
+}
+} // namespace Assets
+} // namespace TrenchBroom

@@ -30,56 +30,59 @@ class QListWidget;
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
-    namespace View {
-        class MapDocument;
-
-        class DirectoryTextureCollectionEditor : public QWidget {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-
-            QListWidget* m_availableCollectionsList;
-            QListWidget* m_enabledCollectionsList;
-
-            QAbstractButton* m_addCollectionsButton;
-            QAbstractButton* m_removeCollectionsButton;
-            QAbstractButton* m_reloadCollectionsButton;
-
-            NotifierConnection m_notifierConnection;
-        public:
-            explicit DirectoryTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
-            void addSelectedTextureCollections();
-            void removeSelectedTextureCollections();
-            void reloadTextureCollections();
-            void availableTextureCollectionSelectionChanged();
-            void enabledTextureCollectionSelectionChanged();
-
-            bool canAddTextureCollections() const;
-            bool canRemoveTextureCollections() const;
-            bool canReloadTextureCollections() const;
-        private:
-            void createGui();
-            void updateButtons();
-
-            void connectObservers();
-
-            void textureCollectionsDidChange();
-            void modsDidChange();
-            void preferenceDidChange(const IO::Path& path);
-
-            void updateAllTextureCollections();
-            void updateAvailableTextureCollections();
-            void updateEnabledTextureCollections();
-            void updateListBox(QListWidget* box, const std::vector<IO::Path>& paths);
-
-            std::vector<IO::Path> availableTextureCollections() const;
-            std::vector<IO::Path> enabledTextureCollections() const;
-        };
-    }
+namespace IO {
+class Path;
 }
 
+namespace View {
+class MapDocument;
+
+class DirectoryTextureCollectionEditor : public QWidget {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+
+  QListWidget* m_availableCollectionsList;
+  QListWidget* m_enabledCollectionsList;
+
+  QAbstractButton* m_addCollectionsButton;
+  QAbstractButton* m_removeCollectionsButton;
+  QAbstractButton* m_reloadCollectionsButton;
+
+  NotifierConnection m_notifierConnection;
+
+public:
+  explicit DirectoryTextureCollectionEditor(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+
+private:
+  void addSelectedTextureCollections();
+  void removeSelectedTextureCollections();
+  void reloadTextureCollections();
+  void availableTextureCollectionSelectionChanged();
+  void enabledTextureCollectionSelectionChanged();
+
+  bool canAddTextureCollections() const;
+  bool canRemoveTextureCollections() const;
+  bool canReloadTextureCollections() const;
+
+private:
+  void createGui();
+  void updateButtons();
+
+  void connectObservers();
+
+  void textureCollectionsDidChange();
+  void modsDidChange();
+  void preferenceDidChange(const IO::Path& path);
+
+  void updateAllTextureCollections();
+  void updateAvailableTextureCollections();
+  void updateEnabledTextureCollections();
+  void updateListBox(QListWidget* box, const std::vector<IO::Path>& paths);
+
+  std::vector<IO::Path> availableTextureCollections() const;
+  std::vector<IO::Path> enabledTextureCollections() const;
+};
+} // namespace View
+} // namespace TrenchBroom

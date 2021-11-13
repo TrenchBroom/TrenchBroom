@@ -27,27 +27,28 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class TextureBuffer {
-        private:
-            std::unique_ptr<unsigned char[]> m_buffer;
-            size_t m_size;
-        public:
-            explicit TextureBuffer();
-            explicit TextureBuffer(size_t size);
+namespace Assets {
+class TextureBuffer {
+private:
+  std::unique_ptr<unsigned char[]> m_buffer;
+  size_t m_size;
 
-            const unsigned char* data() const;
-            unsigned char* data();
+public:
+  explicit TextureBuffer();
+  explicit TextureBuffer(size_t size);
 
-            size_t size() const;
-        };
-        using TextureBufferList = std::vector<TextureBuffer>;
+  const unsigned char* data() const;
+  unsigned char* data();
 
-        vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
-        size_t bytesPerPixelForFormat(GLenum format);
-        void setMipBufferSize(TextureBufferList& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
+  size_t size() const;
+};
+using TextureBufferList = std::vector<TextureBuffer>;
 
-        void resizeMips(TextureBufferList& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize);
-    }
-}
+vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
+size_t bytesPerPixelForFormat(GLenum format);
+void setMipBufferSize(
+  TextureBufferList& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
 
+void resizeMips(TextureBufferList& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize);
+} // namespace Assets
+} // namespace TrenchBroom

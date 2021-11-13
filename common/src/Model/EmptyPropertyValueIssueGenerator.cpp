@@ -30,63 +30,62 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssue : public Issue {
-        public:
-            static const IssueType Type;
-        private:
-            std::string m_propertyKey;
-        public:
-            EmptyPropertyValueIssue(EntityNodeBase* node, const std::string& propertyKey) :
-            Issue(node),
-            m_propertyKey(propertyKey) {}
+namespace Model {
+class EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssue : public Issue {
+public:
+  static const IssueType Type;
 
-            IssueType doGetType() const override {
-                return Type;
-            }
+private:
+  std::string m_propertyKey;
 
-            std::string doGetDescription() const override {
-                const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
-                return "Property '" + m_propertyKey + "' of " + entityNode->name() + " has an empty value.";
-            }
+public:
+  EmptyPropertyValueIssue(EntityNodeBase* node, const std::string& propertyKey)
+    : Issue(node)
+    , m_propertyKey(propertyKey) {}
 
-            const std::string& attributeName() const {
-                return m_propertyKey;
-            }
-        };
+  IssueType doGetType() const override { return Type; }
 
-        const IssueType EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssue::Type = Issue::freeType();
+  std::string doGetDescription() const override {
+    const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+    return "Property '" + m_propertyKey + "' of " + entityNode->name() + " has an empty value.";
+  }
 
-        class EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssueQuickFix : public IssueQuickFix {
-        public:
-            EmptyPropertyValueIssueQuickFix() :
-            IssueQuickFix(EmptyPropertyValueIssue::Type, "Delete property") {}
-        private:
-            void doApply(MapFacade* facade, const Issue* issue) const override {
-                const EmptyPropertyValueIssue* actualIssue = static_cast<const EmptyPropertyValueIssue*>(issue);
-                const std::string& propertyKey = actualIssue->attributeName();
+  const std::string& attributeName() const { return m_propertyKey; }
+};
 
-                const PushSelection push(facade);
+const IssueType EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssue::Type = Issue::freeType();
 
-                // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeProperty call will correctly affect worldspawn either way.
+class EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssueQuickFix : public IssueQuickFix {
+public:
+  EmptyPropertyValueIssueQuickFix()
+    : IssueQuickFix(EmptyPropertyValueIssue::Type, "Delete property") {}
 
-                facade->deselectAll();
-                facade->select(issue->node());
-                facade->removeProperty(propertyKey);
-            }
-        };
+private:
+  void doApply(MapFacade* facade, const Issue* issue) const override {
+    const EmptyPropertyValueIssue* actualIssue = static_cast<const EmptyPropertyValueIssue*>(issue);
+    const std::string& propertyKey = actualIssue->attributeName();
 
-        EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssueGenerator() :
-        IssueGenerator(EmptyPropertyValueIssue::Type, "Empty property value") {
-            addQuickFix(new EmptyPropertyValueIssueQuickFix());
-        }
+    const PushSelection push(facade);
 
-        void EmptyPropertyValueIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            for (const EntityProperty& property : node->entity().properties()) {
-                if (property.value().empty())
-                    issues.push_back(new EmptyPropertyValueIssue(node, property.key()));
-            }
-        }
-    }
+    // If world node is affected, the selection will fail, but if nothing is selected,
+    // the removeProperty call will correctly affect worldspawn either way.
+
+    facade->deselectAll();
+    facade->select(issue->node());
+    facade->removeProperty(propertyKey);
+  }
+};
+
+EmptyPropertyValueIssueGenerator::EmptyPropertyValueIssueGenerator()
+  : IssueGenerator(EmptyPropertyValueIssue::Type, "Empty property value") {
+  addQuickFix(new EmptyPropertyValueIssueQuickFix());
 }
+
+void EmptyPropertyValueIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+  for (const EntityProperty& property : node->entity().properties()) {
+    if (property.value().empty())
+      issues.push_back(new EmptyPropertyValueIssue(node, property.key()));
+  }
+}
+} // namespace Model
+} // namespace TrenchBroom

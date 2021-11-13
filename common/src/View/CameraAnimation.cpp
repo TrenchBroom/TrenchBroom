@@ -25,27 +25,29 @@
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
-    namespace View {
-        const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
+namespace View {
+const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
 
-        CameraAnimation::CameraAnimation(Renderer::Camera& camera, const vm::vec3f& targetPosition, const vm::vec3f& targetDirection, const vm::vec3f& targetUp, const double duration) :
-        Animation(AnimationType, Curve::EaseInEaseOut, duration),
-        m_camera(camera),
-        m_startPosition(m_camera.position()),
-        m_startDirection(m_camera.direction()),
-        m_startUp(m_camera.up()),
-        m_targetPosition(targetPosition),
-        m_targetDirection(targetDirection),
-        m_targetUp(targetUp) {}
+CameraAnimation::CameraAnimation(
+  Renderer::Camera& camera, const vm::vec3f& targetPosition, const vm::vec3f& targetDirection,
+  const vm::vec3f& targetUp, const double duration)
+  : Animation(AnimationType, Curve::EaseInEaseOut, duration)
+  , m_camera(camera)
+  , m_startPosition(m_camera.position())
+  , m_startDirection(m_camera.direction())
+  , m_startUp(m_camera.up())
+  , m_targetPosition(targetPosition)
+  , m_targetDirection(targetDirection)
+  , m_targetUp(targetUp) {}
 
-        void CameraAnimation::doUpdate(const double progress) {
-            const auto fltProgress = float(progress);
-            const auto position = m_startPosition + (m_targetPosition - m_startPosition) * fltProgress;
-            const auto direction = m_startDirection + (m_targetDirection - m_startDirection) * fltProgress;
-            const auto up = m_startUp + (m_targetUp - m_startUp) * fltProgress;
+void CameraAnimation::doUpdate(const double progress) {
+  const auto fltProgress = float(progress);
+  const auto position = m_startPosition + (m_targetPosition - m_startPosition) * fltProgress;
+  const auto direction = m_startDirection + (m_targetDirection - m_startDirection) * fltProgress;
+  const auto up = m_startUp + (m_targetUp - m_startUp) * fltProgress;
 
-            m_camera.moveTo(position);
-            m_camera.setDirection(direction, up);
-        }
-    }
+  m_camera.moveTo(position);
+  m_camera.setDirection(direction, up);
 }
+} // namespace View
+} // namespace TrenchBroom

@@ -25,34 +25,34 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocument;
-        class MapFrame;
+namespace View {
+class MapDocument;
+class MapFrame;
 
-        class FrameManager : public QObject {
-            Q_OBJECT
-        private:
-            bool m_singleFrame;
-            std::vector<MapFrame*> m_frames;
-        public:
-            explicit FrameManager(bool singleFrame);
-            ~FrameManager() override;
+class FrameManager : public QObject {
+  Q_OBJECT
+private:
+  bool m_singleFrame;
+  std::vector<MapFrame*> m_frames;
 
-            MapFrame* newFrame();
-            bool closeAllFrames();
+public:
+  explicit FrameManager(bool singleFrame);
+  ~FrameManager() override;
 
-            std::vector<MapFrame*> frames() const;
-            MapFrame* topFrame() const;
-            bool allFramesClosed() const;
+  MapFrame* newFrame();
+  bool closeAllFrames();
 
-        private:
-            void onFocusChange(QWidget* old, QWidget* now);
-            MapFrame* createOrReuseFrame();
-            MapFrame* createFrame(std::shared_ptr<MapDocument> document);
-            void removeFrame(MapFrame* frame);
+  std::vector<MapFrame*> frames() const;
+  MapFrame* topFrame() const;
+  bool allFramesClosed() const;
 
-            friend class MapFrame;
-        };
-    }
-}
+private:
+  void onFocusChange(QWidget* old, QWidget* now);
+  MapFrame* createOrReuseFrame();
+  MapFrame* createFrame(std::shared_ptr<MapDocument> document);
+  void removeFrame(MapFrame* frame);
 
+  friend class MapFrame;
+};
+} // namespace View
+} // namespace TrenchBroom

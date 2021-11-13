@@ -22,21 +22,23 @@
 #include <QMenu>
 
 namespace TrenchBroom {
-    namespace View {
-        EnableDisableTagCallback::EnableDisableTagCallback() :
-        m_selectedOption(0) {}
+namespace View {
+EnableDisableTagCallback::EnableDisableTagCallback()
+  : m_selectedOption(0) {}
 
-        size_t EnableDisableTagCallback::selectOption(const std::vector<std::string>& options) {
-            QMenu menu;
-            for (size_t i = 0; i < options.size(); ++i) {
-                const auto& option = options[i];
-                menu.addAction(QString::fromStdString(option), this, [this, i]() { m_selectedOption = i; });
-            }
+size_t EnableDisableTagCallback::selectOption(const std::vector<std::string>& options) {
+  QMenu menu;
+  for (size_t i = 0; i < options.size(); ++i) {
+    const auto& option = options[i];
+    menu.addAction(QString::fromStdString(option), this, [this, i]() {
+      m_selectedOption = i;
+    });
+  }
 
-            m_selectedOption = options.size();
-            menu.exec(QCursor::pos());
-            m_selectedOption = std::min(m_selectedOption, options.size());
-            return m_selectedOption;
-        }
-    }
+  m_selectedOption = options.size();
+  menu.exec(QCursor::pos());
+  m_selectedOption = std::min(m_selectedOption, options.size());
+  return m_selectedOption;
 }
+} // namespace View
+} // namespace TrenchBroom

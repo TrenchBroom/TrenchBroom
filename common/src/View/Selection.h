@@ -24,28 +24,28 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Node;
-    }
-
-    namespace View {
-        class Selection {
-        private:
-            std::vector<Model::Node*> m_selectedNodes;
-            std::vector<Model::Node*> m_deselectedNodes;
-            std::vector<Model::BrushFaceHandle> m_selectedBrushFaces;
-            std::vector<Model::BrushFaceHandle> m_deselectedBrushFaces;
-        public:
-            const std::vector<Model::Node*>& selectedNodes() const;
-            const std::vector<Model::Node*>& deselectedNodes() const;
-            const std::vector<Model::BrushFaceHandle>& selectedBrushFaces() const;
-            const std::vector<Model::BrushFaceHandle>& deselectedBrushFaces() const;
-
-            void addSelectedNodes(const std::vector<Model::Node*>& nodes);
-            void addDeselectedNodes(const std::vector<Model::Node*>& nodes);
-            void addSelectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
-            void addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
-        };
-    }
+namespace Model {
+class Node;
 }
 
+namespace View {
+class Selection {
+private:
+  std::vector<Model::Node*> m_selectedNodes;
+  std::vector<Model::Node*> m_deselectedNodes;
+  std::vector<Model::BrushFaceHandle> m_selectedBrushFaces;
+  std::vector<Model::BrushFaceHandle> m_deselectedBrushFaces;
+
+public:
+  const std::vector<Model::Node*>& selectedNodes() const;
+  const std::vector<Model::Node*>& deselectedNodes() const;
+  const std::vector<Model::BrushFaceHandle>& selectedBrushFaces() const;
+  const std::vector<Model::BrushFaceHandle>& deselectedBrushFaces() const;
+
+  void addSelectedNodes(const std::vector<Model::Node*>& nodes);
+  void addDeselectedNodes(const std::vector<Model::Node*>& nodes);
+  void addSelectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
+  void addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -22,33 +22,33 @@
 #include <QKeyEvent>
 
 namespace TrenchBroom {
-    namespace View {
-        LimitedKeySequenceEdit::LimitedKeySequenceEdit(QWidget* parent) :
-        LimitedKeySequenceEdit(MaxCount, parent) {}
+namespace View {
+LimitedKeySequenceEdit::LimitedKeySequenceEdit(QWidget* parent)
+  : LimitedKeySequenceEdit(MaxCount, parent) {}
 
-        LimitedKeySequenceEdit::LimitedKeySequenceEdit(const size_t maxCount, QWidget* parent) :
-        QKeySequenceEdit(parent),
-        m_maxCount(maxCount),
-        m_count(0) {
-            Q_ASSERT(m_maxCount <= MaxCount);
-            connect(this, &QKeySequenceEdit::editingFinished, this, &LimitedKeySequenceEdit::resetCount);
-        }
-
-        void LimitedKeySequenceEdit::keyPressEvent(QKeyEvent* event) {
-            QKeySequenceEdit::keyPressEvent(event);
-            if (event->modifiers() == Qt::NoModifier) {
-                ++m_count;
-                if (m_count == m_maxCount) {
-                    // will call resetState and thereby clear the timer
-                    setKeySequence(keySequence());
-                    emit keySequenceChanged(keySequence());
-                    emit editingFinished();
-                }
-            }
-        }
-
-        void LimitedKeySequenceEdit::resetCount() {
-            m_count = 0;
-        }
-    }
+LimitedKeySequenceEdit::LimitedKeySequenceEdit(const size_t maxCount, QWidget* parent)
+  : QKeySequenceEdit(parent)
+  , m_maxCount(maxCount)
+  , m_count(0) {
+  Q_ASSERT(m_maxCount <= MaxCount);
+  connect(this, &QKeySequenceEdit::editingFinished, this, &LimitedKeySequenceEdit::resetCount);
 }
+
+void LimitedKeySequenceEdit::keyPressEvent(QKeyEvent* event) {
+  QKeySequenceEdit::keyPressEvent(event);
+  if (event->modifiers() == Qt::NoModifier) {
+    ++m_count;
+    if (m_count == m_maxCount) {
+      // will call resetState and thereby clear the timer
+      setKeySequence(keySequence());
+      emit keySequenceChanged(keySequence());
+      emit editingFinished();
+    }
+  }
+}
+
+void LimitedKeySequenceEdit::resetCount() {
+  m_count = 0;
+}
+} // namespace View
+} // namespace TrenchBroom

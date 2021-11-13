@@ -20,13 +20,13 @@
 #include "PathQt.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        QString pathAsQString(const IO::Path& path, const std::string_view separator) {
-            return QString::fromStdString(path.asString(separator));
-        }
-
-        Path pathFromQString(const QString& path) {
-            return Path(path.toStdString());
-        }
-    }
+namespace IO {
+QString pathAsQString(const IO::Path& path, const std::string_view separator) {
+  return QString::fromStdString(path.asString(separator));
 }
+
+Path pathFromQString(const QString& path) {
+  return Path(path.toStdString());
+}
+} // namespace IO
+} // namespace TrenchBroom

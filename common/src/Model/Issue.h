@@ -25,61 +25,67 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushFace;
-        class BrushNode;
-        class Node;
+namespace Model {
+class BrushFace;
+class BrushNode;
+class Node;
 
-        class Issue {
-        private:
-            size_t m_seqId;
-        protected:
-            Node* const m_node;
-        public:
-            virtual ~Issue();
+class Issue {
+private:
+  size_t m_seqId;
 
-            size_t seqId() const;
-            size_t lineNumber() const;
-            std::string description() const;
+protected:
+  Node* const m_node;
 
-            IssueType type() const;
-            Node* node() const;
+public:
+  virtual ~Issue();
 
-            bool addSelectableNodes(std::vector<Model::Node*>& nodes) const;
+  size_t seqId() const;
+  size_t lineNumber() const;
+  std::string description() const;
 
-            bool hidden() const;
-            void setHidden(bool hidden);
-        protected:
-            explicit Issue(Node* node);
-            static size_t nextSeqId();
-            static IssueType freeType();
-        private: // subclassing interface
-            virtual size_t doGetLineNumber() const;
-            virtual IssueType doGetType() const = 0;
-            virtual std::string doGetDescription() const = 0;
-        };
+  IssueType type() const;
+  Node* node() const;
 
-        class BrushFaceIssue : public Issue {
-        private:
-            const size_t m_faceIndex;
-        protected:
-            explicit BrushFaceIssue(BrushNode* node, size_t faceIndex);
-        public:
-            ~BrushFaceIssue() override;
-            size_t faceIndex() const;
-            const BrushFace& face() const;
-        private:
-            size_t doGetLineNumber() const override;
-        };
+  bool addSelectableNodes(std::vector<Model::Node*>& nodes) const;
 
-        class EntityPropertyIssue : public Issue {
-        public:
-            using Issue::Issue;
+  bool hidden() const;
+  void setHidden(bool hidden);
 
-            ~EntityPropertyIssue() override;
-            virtual const std::string& propertyKey() const = 0;
-            const std::string& propertyValue() const;
-        };
-    }
-}
+protected:
+  explicit Issue(Node* node);
+  static size_t nextSeqId();
+  static IssueType freeType();
 
+private: // subclassing interface
+  virtual size_t doGetLineNumber() const;
+  virtual IssueType doGetType() const = 0;
+  virtual std::string doGetDescription() const = 0;
+};
+
+class BrushFaceIssue : public Issue {
+private:
+  const size_t m_faceIndex;
+
+protected:
+  explicit BrushFaceIssue(BrushNode* node, size_t faceIndex);
+
+public:
+  ~BrushFaceIssue() override;
+  size_t faceIndex() const;
+  const BrushFace& face() const;
+
+private:
+  size_t doGetLineNumber() const override;
+};
+
+class EntityPropertyIssue : public Issue {
+public:
+  using Issue::Issue;
+
+  ~EntityPropertyIssue() override;
+  virtual const std::string& propertyKey() const = 0;
+  const std::string& propertyValue() const;
+};
+} // namespace Model
+} // namespace TrenchBroom

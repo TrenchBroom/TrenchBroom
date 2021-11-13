@@ -26,47 +26,50 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
+namespace IO {
+class Path;
 
-        class DiskFileSystem : public FileSystem {
-        protected:
-            Path m_root;
-        public:
-            explicit DiskFileSystem(const Path& root, bool ensureExists = true);
-            DiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
+class DiskFileSystem : public FileSystem {
+protected:
+  Path m_root;
 
-            const Path& root() const;
-        protected:
-            bool doCanMakeAbsolute(const Path& path) const override;
-            Path doMakeAbsolute(const Path& path) const override;
+public:
+  explicit DiskFileSystem(const Path& root, bool ensureExists = true);
+  DiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
 
-            bool doDirectoryExists(const Path& path) const override;
-            bool doFileExists(const Path& path) const override;
+  const Path& root() const;
 
-            std::vector<Path> doGetDirectoryContents(const Path& path) const override;
-            std::shared_ptr<File> doOpenFile(const Path& path) const override;
-        };
+protected:
+  bool doCanMakeAbsolute(const Path& path) const override;
+  Path doMakeAbsolute(const Path& path) const override;
+
+  bool doDirectoryExists(const Path& path) const override;
+  bool doFileExists(const Path& path) const override;
+
+  std::vector<Path> doGetDirectoryContents(const Path& path) const override;
+  std::shared_ptr<File> doOpenFile(const Path& path) const override;
+};
 
 #ifdef _MSC_VER
-// MSVC complains about the fact that this class inherits some (pure virtual) method declarations several times from different base classes, even though there is only one definition.
+// MSVC complains about the fact that this class inherits some (pure virtual) method declarations
+// several times from different base classes, even though there is only one definition.
 #pragma warning(push)
 #pragma warning(disable : 4250)
 #endif
-        class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem {
-        public:
-            WritableDiskFileSystem(const Path& root, bool create);
-            WritableDiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool create);
-        private:
-            void doCreateFile(const Path& path, const std::string& contents) override;
-            void doCreateDirectory(const Path& path) override;
-            void doDeleteFile(const Path& path) override;
-            void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
-            void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
-        };
+class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem {
+public:
+  WritableDiskFileSystem(const Path& root, bool create);
+  WritableDiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool create);
+
+private:
+  void doCreateFile(const Path& path, const std::string& contents) override;
+  void doCreateDirectory(const Path& path) override;
+  void doDeleteFile(const Path& path) override;
+  void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
+  void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
+};
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-    }
-}
-
+} // namespace IO
+} // namespace TrenchBroom

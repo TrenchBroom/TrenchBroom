@@ -22,17 +22,18 @@
 #include "PreferenceManager.h"
 
 namespace TrenchBroom {
-    class TestPreferenceManager : public PreferenceManager {
-    public:
-        TestPreferenceManager() = default;
+class TestPreferenceManager : public PreferenceManager {
+public:
+  TestPreferenceManager() = default;
 
-        void initialize() override;
+  void initialize() override;
 
-        bool saveInstantly() const override;
-        void saveChanges() override;
-        void discardChanges() override;
-    private:
-        void validatePreference(PreferenceBase&) override;
-        void savePreference(PreferenceBase&) override;
-    };
-}
+  bool saveInstantly() const override;
+  void saveChanges() override;
+  void discardChanges() override;
+
+private:
+  void validatePreference(PreferenceBase&) override;
+  void savePreference(PreferenceBase&) override;
+};
+} // namespace TrenchBroom

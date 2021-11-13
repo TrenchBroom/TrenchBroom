@@ -31,38 +31,41 @@
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
-    namespace View {
-        CameraLinkHelper::CameraLinkHelper() :
-        m_ignoreNotifications(false) {}
+namespace View {
+CameraLinkHelper::CameraLinkHelper()
+  : m_ignoreNotifications(false) {}
 
-        void CameraLinkHelper::addCamera(Renderer::Camera* camera) {
-            ensure(camera != nullptr, "camera is null");
-            assert(!kdl::vec_contains(m_cameras, camera));
-            m_cameras.push_back(camera);
-            m_notifierConnection += camera->cameraDidChangeNotifier.connect(this, &CameraLinkHelper::cameraDidChange);
-        }
-
-        void CameraLinkHelper::cameraDidChange(const Renderer::Camera* camera) {
-            if (!m_ignoreNotifications && pref(Preferences::Link2DCameras)) {
-                const kdl::set_temp ignoreNotifications(m_ignoreNotifications);
-
-                for (Renderer::Camera* other : m_cameras) {
-                    if (camera != other) {
-                        other->setZoom(camera->zoom());
-
-                        const vm::vec3f oldPosition = other->position();
-                        const vm::vec3f factors = vm::vec3f::one() - abs(camera->direction()) - abs(other->direction());
-                        const vm::vec3f newPosition = (vm::vec3f::one() - factors) * oldPosition + factors * camera->position();
-                        other->moveTo(newPosition);
-                    }
-                }
-            }
-        }
-
-        CameraLinkableView::~CameraLinkableView() = default;
-
-        void CameraLinkableView::linkCamera(CameraLinkHelper& linkHelper) {
-            doLinkCamera(linkHelper);
-        }
-    }
+void CameraLinkHelper::addCamera(Renderer::Camera* camera) {
+  ensure(camera != nullptr, "camera is null");
+  assert(!kdl::vec_contains(m_cameras, camera));
+  m_cameras.push_back(camera);
+  m_notifierConnection +=
+    camera->cameraDidChangeNotifier.connect(this, &CameraLinkHelper::cameraDidChange);
 }
+
+void CameraLinkHelper::cameraDidChange(const Renderer::Camera* camera) {
+  if (!m_ignoreNotifications && pref(Preferences::Link2DCameras)) {
+    const kdl::set_temp ignoreNotifications(m_ignoreNotifications);
+
+    for (Renderer::Camera* other : m_cameras) {
+      if (camera != other) {
+        other->setZoom(camera->zoom());
+
+        const vm::vec3f oldPosition = other->position();
+        const vm::vec3f factors =
+          vm::vec3f::one() - abs(camera->direction()) - abs(other->direction());
+        const vm::vec3f newPosition =
+          (vm::vec3f::one() - factors) * oldPosition + factors * camera->position();
+        other->moveTo(newPosition);
+      }
+    }
+  }
+}
+
+CameraLinkableView::~CameraLinkableView() = default;
+
+void CameraLinkableView::linkCamera(CameraLinkHelper& linkHelper) {
+  doLinkCamera(linkHelper);
+}
+} // namespace View
+} // namespace TrenchBroom

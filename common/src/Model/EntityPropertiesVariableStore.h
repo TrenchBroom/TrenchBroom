@@ -19,31 +19,32 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "EL/VariableStore.h"
+#include "Macros.h"
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Entity;
+namespace Model {
+class Entity;
 
-        class EntityPropertiesVariableStore : public EL::VariableStore {
-        private:
-            const Entity& m_entity;
-        public:
-            explicit EntityPropertiesVariableStore(const Entity& entity);
-        private:
-            VariableStore* doClone() const override;
-            size_t doGetSize() const override;
-            EL::Value doGetValue(const std::string& name) const override;
-            std::vector<std::string> doGetNames() const override;
-            void doDeclare(const std::string& name, const EL::Value& value) override;
-            void doAssign(const std::string& name, const EL::Value& value) override;
+class EntityPropertiesVariableStore : public EL::VariableStore {
+private:
+  const Entity& m_entity;
 
-            deleteCopyAndMove(EntityPropertiesVariableStore)
-        };
-    }
-}
+public:
+  explicit EntityPropertiesVariableStore(const Entity& entity);
 
+private:
+  VariableStore* doClone() const override;
+  size_t doGetSize() const override;
+  EL::Value doGetValue(const std::string& name) const override;
+  std::vector<std::string> doGetNames() const override;
+  void doDeclare(const std::string& name, const EL::Value& value) override;
+  void doAssign(const std::string& name, const EL::Value& value) override;
+
+  deleteCopyAndMove(EntityPropertiesVariableStore)
+};
+} // namespace Model
+} // namespace TrenchBroom

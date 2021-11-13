@@ -22,14 +22,14 @@
 #include <iosfwd>
 
 namespace TrenchBroom {
-    namespace Model {
-        enum class VisibilityState {
-            Inherited = 1,
-            Hidden    = 2,
-            Shown     = 4
-        };
+namespace Model {
+enum class VisibilityState
+{
+  Inherited = 1,
+  Hidden = 2,
+  Shown = 4
+};
 
-        std::ostream& operator<<(std::ostream& str, VisibilityState state);
-    }
-}
-
+std::ostream& operator<<(std::ostream& str, VisibilityState state);
+} // namespace Model
+} // namespace TrenchBroom

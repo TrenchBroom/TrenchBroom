@@ -22,13 +22,17 @@
 #include "Assets/Palette.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        IdMipTextureReader::IdMipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger, const Assets::Palette& palette) :
-        MipTextureReader(nameStrategy, fs, logger),
-        m_palette(palette) {}
+namespace IO {
+IdMipTextureReader::IdMipTextureReader(
+  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger,
+  const Assets::Palette& palette)
+  : MipTextureReader(nameStrategy, fs, logger)
+  , m_palette(palette) {}
 
-        Assets::Palette IdMipTextureReader::doGetPalette(Reader& /* reader */, const size_t /* offset */[], const size_t /* width */, const size_t /* height */) const {
-            return m_palette;
-        }
-    }
+Assets::Palette IdMipTextureReader::doGetPalette(
+  Reader& /* reader */, const size_t /* offset */[], const size_t /* width */,
+  const size_t /* height */) const {
+  return m_palette;
 }
+} // namespace IO
+} // namespace TrenchBroom

@@ -22,30 +22,29 @@
 #include "Renderer/ShaderConfig.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        namespace Shaders {
-            extern const ShaderConfig Grid2DShader;
-            extern const ShaderConfig VaryingPCShader;
-            extern const ShaderConfig VaryingPUniformCShader;
-            extern const ShaderConfig MiniMapEdgeShader;
-            extern const ShaderConfig EntityModelShader;
-            extern const ShaderConfig FaceShader;
-            extern const ShaderConfig PatchShader;
-            extern const ShaderConfig EdgeShader;
-            extern const ShaderConfig ColoredTextShader;
-            extern const ShaderConfig TextBackgroundShader;
-            extern const ShaderConfig TextureBrowserShader;
-            extern const ShaderConfig TextureBrowserBorderShader;
-            extern const ShaderConfig HandleShader;
-            extern const ShaderConfig ColoredHandleShader;
-            extern const ShaderConfig CompassShader;
-            extern const ShaderConfig CompassOutlineShader;
-            extern const ShaderConfig CompassBackgroundShader;
-            extern const ShaderConfig LinkLineShader;
-            extern const ShaderConfig LinkArrowShader;
-            extern const ShaderConfig TriangleShader;
-            extern const ShaderConfig UVViewShader;
-        }
-    }
-}
-
+namespace Renderer {
+namespace Shaders {
+extern const ShaderConfig Grid2DShader;
+extern const ShaderConfig VaryingPCShader;
+extern const ShaderConfig VaryingPUniformCShader;
+extern const ShaderConfig MiniMapEdgeShader;
+extern const ShaderConfig EntityModelShader;
+extern const ShaderConfig FaceShader;
+extern const ShaderConfig PatchShader;
+extern const ShaderConfig EdgeShader;
+extern const ShaderConfig ColoredTextShader;
+extern const ShaderConfig TextBackgroundShader;
+extern const ShaderConfig TextureBrowserShader;
+extern const ShaderConfig TextureBrowserBorderShader;
+extern const ShaderConfig HandleShader;
+extern const ShaderConfig ColoredHandleShader;
+extern const ShaderConfig CompassShader;
+extern const ShaderConfig CompassOutlineShader;
+extern const ShaderConfig CompassBackgroundShader;
+extern const ShaderConfig LinkLineShader;
+extern const ShaderConfig LinkArrowShader;
+extern const ShaderConfig TriangleShader;
+extern const ShaderConfig UVViewShader;
+} // namespace Shaders
+} // namespace Renderer
+} // namespace TrenchBroom

@@ -30,53 +30,56 @@ class QLabel;
 class QStackedLayout;
 
 namespace TrenchBroom {
-    namespace View {
-        class TabBook;
-        class TabBookPage;
+namespace View {
+class TabBook;
+class TabBookPage;
 
-        class TabBarButton : public QWidget {
-            Q_OBJECT
-        private:
-            QLabel* m_label;
-            QWidget* m_indicator;
-            bool m_pressed;
-        public:
-            explicit TabBarButton(const QString& label = "", QWidget* parent = nullptr);
-            /**
-             * Update the label color
-             */
-            void setPressed(bool pressed);
-        protected:
-            void mousePressEvent(QMouseEvent *event) override;
+class TabBarButton : public QWidget {
+  Q_OBJECT
+private:
+  QLabel* m_label;
+  QWidget* m_indicator;
+  bool m_pressed;
 
-        signals:
-            void clicked();
+public:
+  explicit TabBarButton(const QString& label = "", QWidget* parent = nullptr);
+  /**
+   * Update the label color
+   */
+  void setPressed(bool pressed);
 
-        private:
-            void updateState();
-        };
+protected:
+  void mousePressEvent(QMouseEvent* event) override;
 
-        class TabBar : public ContainerBar {
-            Q_OBJECT
-        private:
-            using ButtonList = std::vector<TabBarButton*>;
+signals:
+  void clicked();
 
-            TabBook* m_tabBook;
+private:
+  void updateState();
+};
 
-            QStackedLayout* m_barBook;
-            QHBoxLayout* m_controlLayout;
-            ButtonList m_buttons;
-        public:
-            explicit TabBar(TabBook* tabBook);
+class TabBar : public ContainerBar {
+  Q_OBJECT
+private:
+  using ButtonList = std::vector<TabBarButton*>;
 
-            void addTab(TabBookPage* bookPage, const QString& title);
-        private:
-            size_t findButtonIndex(QWidget* button) const;
-            void setButtonActive(int index);
+  TabBook* m_tabBook;
 
-            void buttonClicked();
-            void tabBookPageChanged(int newIndex);
-        };
-    }
-}
+  QStackedLayout* m_barBook;
+  QHBoxLayout* m_controlLayout;
+  ButtonList m_buttons;
 
+public:
+  explicit TabBar(TabBook* tabBook);
+
+  void addTab(TabBookPage* bookPage, const QString& title);
+
+private:
+  size_t findButtonIndex(QWidget* button) const;
+  void setButtonActive(int index);
+
+  void buttonClicked();
+  void tabBookPageChanged(int newIndex);
+};
+} // namespace View
+} // namespace TrenchBroom

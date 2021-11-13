@@ -22,21 +22,23 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinition;
-    }
-
-    namespace IO {
-        class ParserStatus;
-        class Path;
-
-        class EntityDefinitionLoader {
-        public:
-            virtual ~EntityDefinitionLoader();
-            std::vector<Assets::EntityDefinition*> loadEntityDefinitions(ParserStatus& status, const Path& path) const;
-        private:
-            virtual std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(ParserStatus& status, const Path& path) const = 0;
-        };
-    }
+namespace Assets {
+class EntityDefinition;
 }
 
+namespace IO {
+class ParserStatus;
+class Path;
+
+class EntityDefinitionLoader {
+public:
+  virtual ~EntityDefinitionLoader();
+  std::vector<Assets::EntityDefinition*> loadEntityDefinitions(
+    ParserStatus& status, const Path& path) const;
+
+private:
+  virtual std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(
+    ParserStatus& status, const Path& path) const = 0;
+};
+} // namespace IO
+} // namespace TrenchBroom

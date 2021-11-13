@@ -26,45 +26,49 @@
 class QLabel;
 
 namespace TrenchBroom {
-    namespace View {
-        class BorderLine;
+namespace View {
+class BorderLine;
 
-        class CollapsibleTitleBar : public TitleBar {
-            Q_OBJECT
-        private:
-            QLabel* m_stateText;
-        public:
-            CollapsibleTitleBar(const QString& title, const QString& stateText, QWidget* parent = nullptr);
+class CollapsibleTitleBar : public TitleBar {
+  Q_OBJECT
+private:
+  QLabel* m_stateText;
 
-            void setStateText(const QString& stateText);
-        signals:
-            void titleBarClicked();
-        protected:
-            void mousePressEvent(QMouseEvent* event) override;
-        };
+public:
+  CollapsibleTitleBar(const QString& title, const QString& stateText, QWidget* parent = nullptr);
 
-        class CollapsibleTitledPanel : public QWidget {
-            Q_OBJECT
-        private:
-            CollapsibleTitleBar* m_titleBar;
-            BorderLine* m_divider;
-            QWidget* m_panel;
-            bool m_expanded;
-        public:
-            explicit CollapsibleTitledPanel(const QString& title, bool initiallyExpanded = true, QWidget* parent = nullptr);
+  void setStateText(const QString& stateText);
+signals:
+  void titleBarClicked();
 
-            QWidget* getPanel() const;
+protected:
+  void mousePressEvent(QMouseEvent* event) override;
+};
 
-            void expand();
-            void collapse();
-            bool expanded() const;
-            void setExpanded(bool expanded);
+class CollapsibleTitledPanel : public QWidget {
+  Q_OBJECT
+private:
+  CollapsibleTitleBar* m_titleBar;
+  BorderLine* m_divider;
+  QWidget* m_panel;
+  bool m_expanded;
 
-            QByteArray saveState() const;
-            bool restoreState(const QByteArray& state);
-        private:
-            void updateExpanded();
-        };
-    }
-}
+public:
+  explicit CollapsibleTitledPanel(
+    const QString& title, bool initiallyExpanded = true, QWidget* parent = nullptr);
 
+  QWidget* getPanel() const;
+
+  void expand();
+  void collapse();
+  bool expanded() const;
+  void setExpanded(bool expanded);
+
+  QByteArray saveState() const;
+  bool restoreState(const QByteArray& state);
+
+private:
+  void updateExpanded();
+};
+} // namespace View
+} // namespace TrenchBroom

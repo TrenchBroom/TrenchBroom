@@ -26,33 +26,32 @@ class QIcon;
 class QPixmap;
 
 namespace TrenchBroom {
-    class Logger;
-    
-    namespace Assets {
-        class Texture;
-    }
-    
-    namespace IO {
-        class FileSystem;
-        class Path;
+class Logger;
 
-        /**
-         * Loads a default texture file from the given file system. If the default texture cannot be found
-         * or opened, an empty texture is returned.
-         *
-         * @param fs the file system used to locate the texture file
-         * @param name the name of the texture to be returned
-         * @return the default texture
-         */
-        Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger, const std::string& name);
-        
-        QPixmap loadPixmapResource(const std::string& name);
-        QPixmap loadPixmapResource(const Path& imagePath);
-
-        /**
-         * Loads an SVG image into a QIcon
-         */
-        QIcon loadSVGIcon(const Path& imagePath);
-    }
+namespace Assets {
+class Texture;
 }
 
+namespace IO {
+class FileSystem;
+class Path;
+
+/**
+ * Loads a default texture file from the given file system. If the default texture cannot be found
+ * or opened, an empty texture is returned.
+ *
+ * @param fs the file system used to locate the texture file
+ * @param name the name of the texture to be returned
+ * @return the default texture
+ */
+Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger, const std::string& name);
+
+QPixmap loadPixmapResource(const std::string& name);
+QPixmap loadPixmapResource(const Path& imagePath);
+
+/**
+ * Loads an SVG image into a QIcon
+ */
+QIcon loadSVGIcon(const Path& imagePath);
+} // namespace IO
+} // namespace TrenchBroom

@@ -25,81 +25,62 @@
 #include <kdl/string_utils.h>
 
 namespace TrenchBroom {
-    namespace IO {
-        template <typename Type>
-        class TokenTemplate {
-        private:
-            Type m_type;
-            const char* m_begin;
-            const char* m_end;
-            size_t m_position;
-            size_t m_line;
-            size_t m_column;
-        public:
-            TokenTemplate() :
-            m_type(0),
-            m_begin(nullptr),
-            m_end(nullptr),
-            m_position(0),
-            m_line(0),
-            m_column(0) {}
+namespace IO {
+template <typename Type> class TokenTemplate {
+private:
+  Type m_type;
+  const char* m_begin;
+  const char* m_end;
+  size_t m_position;
+  size_t m_line;
+  size_t m_column;
 
-            TokenTemplate(const Type type, const char* begin, const char* end, const size_t position, const size_t line, const size_t column) :
-            m_type(type),
-            m_begin(begin),
-            m_end(end),
-            m_position(position),
-            m_line(line),
-            m_column(column) {
-                assert(end >= begin);
-            }
+public:
+  TokenTemplate()
+    : m_type(0)
+    , m_begin(nullptr)
+    , m_end(nullptr)
+    , m_position(0)
+    , m_line(0)
+    , m_column(0) {}
 
-            Type type() const {
-                return m_type;
-            }
+  TokenTemplate(
+    const Type type, const char* begin, const char* end, const size_t position, const size_t line,
+    const size_t column)
+    : m_type(type)
+    , m_begin(begin)
+    , m_end(end)
+    , m_position(position)
+    , m_line(line)
+    , m_column(column) {
+    assert(end >= begin);
+  }
 
-            bool hasType(const Type typeMask) const {
-                return (m_type & typeMask) != 0;
-            }
+  Type type() const { return m_type; }
 
-            const char* begin() const {
-                return m_begin;
-            }
+  bool hasType(const Type typeMask) const { return (m_type & typeMask) != 0; }
 
-            const char* end() const {
-                return m_end;
-            }
+  const char* begin() const { return m_begin; }
 
-            const std::string data() const {
-                return std::string(m_begin, length());
-            }
+  const char* end() const { return m_end; }
 
-            size_t position() const {
-                return m_position;
-            }
+  const std::string data() const { return std::string(m_begin, length()); }
 
-            size_t length() const {
-                return static_cast<size_t>(m_end - m_begin);
-            }
+  size_t position() const { return m_position; }
 
-            size_t line() const {
-                return m_line;
-            }
+  size_t length() const { return static_cast<size_t>(m_end - m_begin); }
 
-            size_t column() const {
-                return m_column;
-            }
+  size_t line() const { return m_line; }
 
-            template <typename T>
-            T toFloat() const {
-                return static_cast<T>(kdl::str_to_double(std::string(m_begin, m_end)).value_or(0.0));
-            }
+  size_t column() const { return m_column; }
 
-            template <typename T>
-            T toInteger() const {
-                return static_cast<T>(kdl::str_to_long(std::string(m_begin, m_end)).value_or(0l));
-            }
-        };
-    }
-}
+  template <typename T> T toFloat() const {
+    return static_cast<T>(kdl::str_to_double(std::string(m_begin, m_end)).value_or(0.0));
+  }
 
+  template <typename T> T toInteger() const {
+    return static_cast<T>(kdl::str_to_long(std::string(m_begin, m_end)).value_or(0l));
+  }
+};
+} // namespace IO
+} // namespace TrenchBroom

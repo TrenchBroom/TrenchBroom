@@ -25,57 +25,60 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocumentCommandFacade;
+namespace View {
+class MapDocumentCommandFacade;
 
-        class CommandResult {
-        private:
-            bool m_success;
-        public:
-            explicit CommandResult(bool success);
-            virtual ~CommandResult();
+class CommandResult {
+private:
+  bool m_success;
 
-            bool success() const;
-        };
+public:
+  explicit CommandResult(bool success);
+  virtual ~CommandResult();
 
-        class Command {
-        public:
-            using CommandType = size_t;
+  bool success() const;
+};
 
-            enum class CommandState {
-                Default,
-                Doing,
-                Done,
-                Undoing
-            } ;
-        protected:
-            CommandType m_type;
-            CommandState m_state;
-            std::string m_name;
-        public:
-            static CommandType freeType();
+class Command {
+public:
+  using CommandType = size_t;
 
-            Command(CommandType type, const std::string& name);
-            virtual ~Command();
+  enum class CommandState
+  {
+    Default,
+    Doing,
+    Done,
+    Undoing
+  };
 
-            CommandType type() const;
+protected:
+  CommandType m_type;
+  CommandState m_state;
+  std::string m_name;
 
-            bool isType(CommandType type) const;
+public:
+  static CommandType freeType();
 
-            template <typename... C>
-            bool isType(CommandType type, C... types) const {
-                return isType(type) || isType(types...);
-            }
+  Command(CommandType type, const std::string& name);
+  virtual ~Command();
 
-            CommandState state() const;
-            const std::string& name() const;
+  CommandType type() const;
 
-            virtual std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document);
-        private:
-            virtual std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) = 0;
+  bool isType(CommandType type) const;
 
-            deleteCopyAndMove(Command)
-        };
-    }
-}
+  template <typename... C> bool isType(CommandType type, C... types) const {
+    return isType(type) || isType(types...);
+  }
 
+  CommandState state() const;
+  const std::string& name() const;
+
+  virtual std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document);
+
+private:
+  virtual std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) = 0;
+
+  deleteCopyAndMove(Command)
+};
+} // namespace View
+} // namespace TrenchBroom

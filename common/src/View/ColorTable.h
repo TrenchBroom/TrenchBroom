@@ -26,35 +26,36 @@
 class QColor;
 
 namespace TrenchBroom {
-    namespace View {
-        class ColorTable : public QWidget {
-            Q_OBJECT
-        private:
-            int m_cellSize;
-            int m_cellSpacing;
-            std::vector<QColor> m_colors;
-            std::vector<QColor> m_selectedColors;
-        public:
-            explicit ColorTable(int cellSize, QWidget* parent = nullptr);
+namespace View {
+class ColorTable : public QWidget {
+  Q_OBJECT
+private:
+  int m_cellSize;
+  int m_cellSpacing;
+  std::vector<QColor> m_colors;
+  std::vector<QColor> m_selectedColors;
 
-            void setColors(const std::vector<QColor>& colors);
-            void setSelection(const std::vector<QColor>& colors);
-        protected: // QWidget overrides
-            void paintEvent(QPaintEvent* event) override;
-            void mouseReleaseEvent(QMouseEvent* event) override;
+public:
+  explicit ColorTable(int cellSize, QWidget* parent = nullptr);
 
-        public: // QWidget overrides
-            bool hasHeightForWidth() const override;
-            int heightForWidth(int w) const override;
+  void setColors(const std::vector<QColor>& colors);
+  void setSelection(const std::vector<QColor>& colors);
 
-        private:
-            int computeCols(int width) const;
-            int computeRows(int cols) const;
-            int computeHeight(int rows) const;
+protected: // QWidget overrides
+  void paintEvent(QPaintEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
 
-        signals:
-            void colorTableSelected(QColor color);
-        };
-    }
-}
+public: // QWidget overrides
+  bool hasHeightForWidth() const override;
+  int heightForWidth(int w) const override;
 
+private:
+  int computeCols(int width) const;
+  int computeRows(int cols) const;
+  int computeHeight(int rows) const;
+
+signals:
+  void colorTableSelected(QColor color);
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -27,58 +27,73 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-        class RenderBatch;
-        class RenderContext;
-    }
+namespace Renderer {
+class Camera;
+class RenderBatch;
+class RenderContext;
+} // namespace Renderer
 
-    namespace View {
-        class MapDocument;
-        class ScaleObjectsTool;
+namespace View {
+class MapDocument;
+class ScaleObjectsTool;
 
-        class ScaleObjectsToolController : public ToolController {
-        protected:
-            ScaleObjectsTool& m_tool;
-        private:
-            std::weak_ptr<MapDocument> m_document;
-        public:
-            explicit ScaleObjectsToolController(ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document);
-            ~ScaleObjectsToolController() override;
-        private:
-            Tool& tool() override;
-            const Tool& tool() const override;
+class ScaleObjectsToolController : public ToolController {
+protected:
+  ScaleObjectsTool& m_tool;
 
-            void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+private:
+  std::weak_ptr<MapDocument> m_document;
 
-            void modifierKeyChange(const InputState& inputState) override;
+public:
+  explicit ScaleObjectsToolController(ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document);
+  ~ScaleObjectsToolController() override;
 
-            void mouseMove(const InputState& inputState) override;
+private:
+  Tool& tool() override;
+  const Tool& tool() const override;
 
-            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
-            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+  void modifierKeyChange(const InputState& inputState) override;
 
-            bool cancel() override;
-        private:
-            virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) const = 0;
-        };
+  void mouseMove(const InputState& inputState) override;
 
-        class ScaleObjectsToolController2D : public ScaleObjectsToolController {
-        public:
-            explicit ScaleObjectsToolController2D(ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document);
-        private:
-            void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
-        };
+  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
-        class ScaleObjectsToolController3D : public ScaleObjectsToolController {
-        public:
-            explicit ScaleObjectsToolController3D(ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document);
-        private:
-            void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
-        };
-    }
-}
+  void setRenderOptions(
+    const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+  void render(
+    const InputState& inputState, Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch) override;
 
+  bool cancel() override;
 
+private:
+  virtual void doPick(
+    const vm::ray3& pickRay, const Renderer::Camera& camera,
+    Model::PickResult& pickResult) const = 0;
+};
+
+class ScaleObjectsToolController2D : public ScaleObjectsToolController {
+public:
+  explicit ScaleObjectsToolController2D(
+    ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document);
+
+private:
+  void doPick(
+    const vm::ray3& pickRay, const Renderer::Camera& camera,
+    Model::PickResult& pickResult) const override;
+};
+
+class ScaleObjectsToolController3D : public ScaleObjectsToolController {
+public:
+  explicit ScaleObjectsToolController3D(
+    ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document);
+
+private:
+  void doPick(
+    const vm::ray3& pickRay, const Renderer::Camera& camera,
+    Model::PickResult& pickResult) const override;
+};
+} // namespace View
+} // namespace TrenchBroom

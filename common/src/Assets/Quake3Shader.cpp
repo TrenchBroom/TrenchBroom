@@ -22,106 +22,102 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Assets {
-        const std::string Quake3ShaderStage::BlendFunc::One = "GL_ONE";
-        const std::string Quake3ShaderStage::BlendFunc::Zero = "GL_ZERO";
-        const std::string Quake3ShaderStage::BlendFunc::SrcColor = "GL_SRC_COLOR";
-        const std::string Quake3ShaderStage::BlendFunc::DestColor = "GL_DST_COLOR";
-        const std::string Quake3ShaderStage::BlendFunc::OneMinusSrcColor = "GL_ONE_MINUS_SRC_COLOR";
-        const std::string Quake3ShaderStage::BlendFunc::OneMinusDestColor = "GL_ONE_MINUS_DST_COLOR";
-        const std::string Quake3ShaderStage::BlendFunc::SrcAlpha = "GL_SRC_ALPHA";
-        const std::string Quake3ShaderStage::BlendFunc::DestAlpha = "GL_DST_ALPHA";
-        const std::string Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha = "GL_ONE_MINUS_SRC_ALPHA";
-        const std::string Quake3ShaderStage::BlendFunc::OneMinusDestAlpha = "GL_ONE_MINUS_DST_ALPHA";
-        const std::string Quake3ShaderStage::BlendFunc::SrcAlphaSaturate = "GL_SRC_ALPHA_SATURATE";
+namespace Assets {
+const std::string Quake3ShaderStage::BlendFunc::One = "GL_ONE";
+const std::string Quake3ShaderStage::BlendFunc::Zero = "GL_ZERO";
+const std::string Quake3ShaderStage::BlendFunc::SrcColor = "GL_SRC_COLOR";
+const std::string Quake3ShaderStage::BlendFunc::DestColor = "GL_DST_COLOR";
+const std::string Quake3ShaderStage::BlendFunc::OneMinusSrcColor = "GL_ONE_MINUS_SRC_COLOR";
+const std::string Quake3ShaderStage::BlendFunc::OneMinusDestColor = "GL_ONE_MINUS_DST_COLOR";
+const std::string Quake3ShaderStage::BlendFunc::SrcAlpha = "GL_SRC_ALPHA";
+const std::string Quake3ShaderStage::BlendFunc::DestAlpha = "GL_DST_ALPHA";
+const std::string Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha = "GL_ONE_MINUS_SRC_ALPHA";
+const std::string Quake3ShaderStage::BlendFunc::OneMinusDestAlpha = "GL_ONE_MINUS_DST_ALPHA";
+const std::string Quake3ShaderStage::BlendFunc::SrcAlphaSaturate = "GL_SRC_ALPHA_SATURATE";
 
-        bool Quake3ShaderStage::BlendFunc::enable() const {
-            return srcFactor != "" && destFactor != "";
-        }
-
-        bool Quake3ShaderStage::BlendFunc::validateSrcFactor() const {
-            if (srcFactor == One) {
-                return true;
-            } else if (srcFactor == Zero) {
-                return true;
-            } else if (srcFactor == DestColor) {
-                return true;
-            } else if (srcFactor == OneMinusDestColor) {
-                return true;
-            } else if (srcFactor == SrcAlpha) {
-                return true;
-            } else if (srcFactor == DestAlpha) {
-                return true;
-            } else if (srcFactor == OneMinusSrcAlpha) {
-                return true;
-            } else if (srcFactor == OneMinusDestAlpha) {
-                return true;
-            } else if (srcFactor == SrcAlphaSaturate) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        bool Quake3ShaderStage::BlendFunc::validateDestFactor() const {
-            if (destFactor == One) {
-                return true;
-            } else if (destFactor == Zero) {
-                return true;
-            } else if (destFactor == SrcColor) {
-                return true;
-            } else if (destFactor == OneMinusSrcColor) {
-                return true;
-            } else if (destFactor == SrcAlpha) {
-                return true;
-            } else if (destFactor == DestAlpha) {
-                return true;
-            } else if (destFactor == OneMinusSrcAlpha) {
-                return true;
-            } else if (destFactor == OneMinusDestAlpha) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        void Quake3ShaderStage::BlendFunc::reset() {
-            srcFactor = destFactor = "";
-        }
-
-        bool operator==(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs) {
-            return lhs.srcFactor == rhs.srcFactor && lhs.destFactor == rhs.destFactor;
-        }
-
-        bool operator!=(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs) {
-            return !(lhs == rhs);
-        }
-        
-        bool operator==(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs) {
-            return lhs.map == rhs.map && lhs.blendFunc == rhs.blendFunc;
-        }
-
-        bool operator!=(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs) {
-            return !(lhs == rhs);
-        }
-
-        Quake3ShaderStage& Quake3Shader::addStage() {
-            stages.emplace_back();
-            return stages.back();
-        }
-
-        bool operator==(const Quake3Shader& lhs, const Quake3Shader& rhs) {
-            return lhs.shaderPath == rhs.shaderPath &&
-                   lhs.editorImage == rhs.editorImage &&
-                   lhs.lightImage == rhs.lightImage &&
-                   lhs.culling == rhs.culling &&
-                   lhs.surfaceParms == rhs.surfaceParms &&
-                   lhs.stages == rhs.stages;
-        }
-
-        bool operator!=(const Quake3Shader& lhs, const Quake3Shader& rhs) {
-            return !(lhs == rhs);
-        }
-    }
+bool Quake3ShaderStage::BlendFunc::enable() const {
+  return srcFactor != "" && destFactor != "";
 }
 
+bool Quake3ShaderStage::BlendFunc::validateSrcFactor() const {
+  if (srcFactor == One) {
+    return true;
+  } else if (srcFactor == Zero) {
+    return true;
+  } else if (srcFactor == DestColor) {
+    return true;
+  } else if (srcFactor == OneMinusDestColor) {
+    return true;
+  } else if (srcFactor == SrcAlpha) {
+    return true;
+  } else if (srcFactor == DestAlpha) {
+    return true;
+  } else if (srcFactor == OneMinusSrcAlpha) {
+    return true;
+  } else if (srcFactor == OneMinusDestAlpha) {
+    return true;
+  } else if (srcFactor == SrcAlphaSaturate) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool Quake3ShaderStage::BlendFunc::validateDestFactor() const {
+  if (destFactor == One) {
+    return true;
+  } else if (destFactor == Zero) {
+    return true;
+  } else if (destFactor == SrcColor) {
+    return true;
+  } else if (destFactor == OneMinusSrcColor) {
+    return true;
+  } else if (destFactor == SrcAlpha) {
+    return true;
+  } else if (destFactor == DestAlpha) {
+    return true;
+  } else if (destFactor == OneMinusSrcAlpha) {
+    return true;
+  } else if (destFactor == OneMinusDestAlpha) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void Quake3ShaderStage::BlendFunc::reset() {
+  srcFactor = destFactor = "";
+}
+
+bool operator==(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs) {
+  return lhs.srcFactor == rhs.srcFactor && lhs.destFactor == rhs.destFactor;
+}
+
+bool operator!=(const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs) {
+  return !(lhs == rhs);
+}
+
+bool operator==(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs) {
+  return lhs.map == rhs.map && lhs.blendFunc == rhs.blendFunc;
+}
+
+bool operator!=(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs) {
+  return !(lhs == rhs);
+}
+
+Quake3ShaderStage& Quake3Shader::addStage() {
+  stages.emplace_back();
+  return stages.back();
+}
+
+bool operator==(const Quake3Shader& lhs, const Quake3Shader& rhs) {
+  return lhs.shaderPath == rhs.shaderPath && lhs.editorImage == rhs.editorImage &&
+         lhs.lightImage == rhs.lightImage && lhs.culling == rhs.culling &&
+         lhs.surfaceParms == rhs.surfaceParms && lhs.stages == rhs.stages;
+}
+
+bool operator!=(const Quake3Shader& lhs, const Quake3Shader& rhs) {
+  return !(lhs == rhs);
+}
+} // namespace Assets
+} // namespace TrenchBroom

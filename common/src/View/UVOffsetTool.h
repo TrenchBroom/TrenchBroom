@@ -25,25 +25,26 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace View {
-        class DragTracker;
-        class MapDocument;
-        class UVViewHelper;
+namespace View {
+class DragTracker;
+class MapDocument;
+class UVViewHelper;
 
-        class UVOffsetTool : public ToolController, public Tool {
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            const UVViewHelper& m_helper;
-        public:
-            UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper);
-        private:
-            Tool& tool() override;
-            const Tool& tool() const override;
+class UVOffsetTool : public ToolController, public Tool {
+private:
+  std::weak_ptr<MapDocument> m_document;
+  const UVViewHelper& m_helper;
 
-            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+public:
+  UVOffsetTool(std::weak_ptr<MapDocument> document, const UVViewHelper& helper);
 
-            bool cancel() override;
-        };
-    }
-}
+private:
+  Tool& tool() override;
+  const Tool& tool() const override;
 
+  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+
+  bool cancel() override;
+};
+} // namespace View
+} // namespace TrenchBroom

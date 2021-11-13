@@ -25,43 +25,47 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushNode;
-        class BrushFace;
-        class EntityNode;
-        class LayerNode;
-        class Node;
-        class WorldNode;
-    }
+namespace Model {
+class BrushNode;
+class BrushFace;
+class EntityNode;
+class LayerNode;
+class Node;
+class WorldNode;
+} // namespace Model
 
-    namespace IO {
-        class NodeSerializer;
+namespace IO {
+class NodeSerializer;
 
-        class NodeWriter {
-        private:
-            using EntityBrushesMap = std::map<Model::EntityNode*, std::vector<Model::BrushNode*>>;
+class NodeWriter {
+private:
+  using EntityBrushesMap = std::map<Model::EntityNode*, std::vector<Model::BrushNode*>>;
 
-            const Model::WorldNode& m_world;
-            std::unique_ptr<NodeSerializer> m_serializer;
-        public:
-            NodeWriter(const Model::WorldNode& world, std::ostream& stream);
-            NodeWriter(const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
-            ~NodeWriter();
+  const Model::WorldNode& m_world;
+  std::unique_ptr<NodeSerializer> m_serializer;
 
-            void setExporting(bool exporting);
-            void writeMap();
-        private:
-            void writeDefaultLayer();
-            void writeCustomLayers();
-            void writeCustomLayer(const Model::LayerNode* layer);
-        public:
-            void writeNodes(const std::vector<Model::Node*>& nodes);
-        private:
-            void writeWorldBrushes(const std::vector<Model::BrushNode*>& brushes);
-            void writeEntityBrushes(const EntityBrushesMap& entityBrushes);
-        public:
-            void writeBrushFaces(const std::vector<Model::BrushFace>& faces);
-        };
-    }
-}
+public:
+  NodeWriter(const Model::WorldNode& world, std::ostream& stream);
+  NodeWriter(const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
+  ~NodeWriter();
 
+  void setExporting(bool exporting);
+  void writeMap();
+
+private:
+  void writeDefaultLayer();
+  void writeCustomLayers();
+  void writeCustomLayer(const Model::LayerNode* layer);
+
+public:
+  void writeNodes(const std::vector<Model::Node*>& nodes);
+
+private:
+  void writeWorldBrushes(const std::vector<Model::BrushNode*>& brushes);
+  void writeEntityBrushes(const EntityBrushesMap& entityBrushes);
+
+public:
+  void writeBrushFaces(const std::vector<Model::BrushFace>& faces);
+};
+} // namespace IO
+} // namespace TrenchBroom

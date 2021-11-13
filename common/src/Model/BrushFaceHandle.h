@@ -22,64 +22,65 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushNode;
-        class BrushFace;
+namespace Model {
+class BrushNode;
+class BrushFace;
 
-        /**
-         * A brush face handle represents a brush face and additionally gives access to its containing brush node.
-         *
-         * Note that brush faces are volatile and may be deleted when a brush is modified. Care must be taken to prevent
-         * stale brush face handles which reference non existing brush faces.
-         */
-        class BrushFaceHandle {
-        private:
-            BrushNode* m_node;
-            size_t m_faceIndex;
-        public:
-            /**
-             * Creates a n brush face handle.
-             *
-             * @param node the containing brush node, must not be null
-             * @param faceIndex the brush face index, must be valid for the given brush node
-             */
-            BrushFaceHandle(BrushNode* node, size_t faceIndex);
+/**
+ * A brush face handle represents a brush face and additionally gives access to its containing brush
+ * node.
+ *
+ * Note that brush faces are volatile and may be deleted when a brush is modified. Care must be
+ * taken to prevent stale brush face handles which reference non existing brush faces.
+ */
+class BrushFaceHandle {
+private:
+  BrushNode* m_node;
+  size_t m_faceIndex;
 
-            /**
-             * Returns the containing brush node.
-             */
-            BrushNode* node() const;
+public:
+  /**
+   * Creates a n brush face handle.
+   *
+   * @param node the containing brush node, must not be null
+   * @param faceIndex the brush face index, must be valid for the given brush node
+   */
+  BrushFaceHandle(BrushNode* node, size_t faceIndex);
 
-            /**
-             * Returns the face index.
-             */
-            size_t faceIndex() const;
-            
-            /**
-             * Returns the brush face.
-             */
-            const BrushFace& face() const;
+  /**
+   * Returns the containing brush node.
+   */
+  BrushNode* node() const;
 
-            /**
-             * Returns true if the given handles represent the same face.
-             */
-            friend bool operator==(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs);
+  /**
+   * Returns the face index.
+   */
+  size_t faceIndex() const;
 
-            /**
-             * Returns true if the given handles do not represent the same face.
-             */
-            friend bool operator!=(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs);
-        };
+  /**
+   * Returns the brush face.
+   */
+  const BrushFace& face() const;
 
-        /**
-         * Returns a vector containing the nodes contained in the given handles.
-         */
-        std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles);
+  /**
+   * Returns true if the given handles represent the same face.
+   */
+  friend bool operator==(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs);
 
-        /**
-         * Returns a vector containing handles representing the faces of the given brush.
-         */
-        std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode);
-    }
-}
+  /**
+   * Returns true if the given handles do not represent the same face.
+   */
+  friend bool operator!=(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs);
+};
 
+/**
+ * Returns a vector containing the nodes contained in the given handles.
+ */
+std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles);
+
+/**
+ * Returns a vector containing handles representing the faces of the given brush.
+ */
+std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode);
+} // namespace Model
+} // namespace TrenchBroom

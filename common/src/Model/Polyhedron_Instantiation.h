@@ -25,20 +25,24 @@
 #include "Polyhedron_DefaultPayload.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        extern template class Polyhedron_Vertex<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        extern template class Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
+namespace Model {
+extern template class Polyhedron_Vertex<
+  FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+extern template class Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        extern template class Polyhedron_Edge<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        extern template class Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron_Edge<
+  FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+extern template class Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        extern template class Polyhedron_HalfEdge<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        extern template class Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron_HalfEdge<
+  FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+extern template class Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        extern template class Polyhedron_Face<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        extern template class Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron_Face<
+  FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+extern template class Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        extern template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        extern template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
-    }
-}
+extern template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+extern template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
+} // namespace Model
+} // namespace TrenchBroom

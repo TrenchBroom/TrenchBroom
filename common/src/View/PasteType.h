@@ -20,12 +20,12 @@
 #pragma once
 
 namespace TrenchBroom {
-    namespace View {
-        enum class PasteType {
-            Node,
-            BrushFace,
-            Failed
-        };
-    }
-}
-
+namespace View {
+enum class PasteType
+{
+  Node,
+  BrushFace,
+  Failed
+};
+} // namespace View
+} // namespace TrenchBroom

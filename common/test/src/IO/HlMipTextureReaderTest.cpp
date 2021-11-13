@@ -19,7 +19,6 @@
 
 #include "TestLogger.h"
 
-#include "Logger.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
@@ -29,36 +28,40 @@
 #include "IO/Path.h"
 #include "IO/TextureReader.h"
 #include "IO/WadFileSystem.h"
+#include "Logger.h"
 
 #include <string>
 
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        TEST_CASE("HlMipTextureReaderTest.testLoadWad", "[HlMipTextureReaderTest]") {
-            using TexInfo = std::tuple<std::string, size_t, size_t>;
+namespace IO {
+TEST_CASE("HlMipTextureReaderTest.testLoadWad", "[HlMipTextureReaderTest]") {
+  using TexInfo = std::tuple<std::string, size_t, size_t>;
 
+  // clang-format off
             const auto [textureName, width, height] = GENERATE(values<TexInfo>({
-                { "bongs2",            128, 128 },
-                { "blowjob_machine",   128, 128 },
+            { "bongs2",            128, 128 },
+            { "blowjob_machine",   128, 128 },
             }));
+  // clang-format on
 
-            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+  DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
 
-            TextureReader::TextureNameStrategy nameStrategy;
-            TestLogger logger;
-            HlMipTextureReader textureLoader(nameStrategy, fs, logger);
+  TextureReader::TextureNameStrategy nameStrategy;
+  TestLogger logger;
+  HlMipTextureReader textureLoader(nameStrategy, fs, logger);
 
-            const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/HL/hl.wad");
-            WadFileSystem wadFS(wadPath, logger);
+  const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/HL/hl.wad");
+  WadFileSystem wadFS(wadPath, logger);
 
-            const Assets::Texture texture = textureLoader.readTexture(wadFS.openFile(Path(textureName + ".C")));
-            CHECK(logger.countMessages(LogLevel::Error) == 0);
-            CHECK(logger.countMessages(LogLevel::Warn) == 0);
-            CHECK(texture.name() == textureName);
-            CHECK(texture.width() == width);
-            CHECK(texture.height() == height);
-        }
-    }
+  const Assets::Texture texture =
+    textureLoader.readTexture(wadFS.openFile(Path(textureName + ".C")));
+  CHECK(logger.countMessages(LogLevel::Error) == 0);
+  CHECK(logger.countMessages(LogLevel::Warn) == 0);
+  CHECK(texture.name() == textureName);
+  CHECK(texture.width() == width);
+  CHECK(texture.height() == height);
 }
+} // namespace IO
+} // namespace TrenchBroom

@@ -22,18 +22,20 @@
 #include "IO/MipTextureReader.h"
 
 namespace TrenchBroom {
-    class Logger;
-    
-    namespace IO {
-        class FileSystem;
-        class Reader;
+class Logger;
 
-        class HlMipTextureReader : public MipTextureReader {
-        public:
-            explicit HlMipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
-        protected:
-            Assets::Palette doGetPalette(Reader& reader, const size_t offset[], size_t width, size_t height) const override;
-        };
-    }
-}
+namespace IO {
+class FileSystem;
+class Reader;
 
+class HlMipTextureReader : public MipTextureReader {
+public:
+  explicit HlMipTextureReader(
+    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+
+protected:
+  Assets::Palette doGetPalette(
+    Reader& reader, const size_t offset[], size_t width, size_t height) const override;
+};
+} // namespace IO
+} // namespace TrenchBroom

@@ -19,8 +19,8 @@
 
 #include "MixedBrushContentsIssueGenerator.h"
 
-#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushNode.h"
 #include "Model/Issue.h"
 
 #include <cassert>
@@ -28,45 +28,43 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class MixedBrushContentsIssueGenerator::MixedBrushContentsIssue : public Issue {
-        public:
-            friend class MixedBrushContentsIssueQuickFix;
-        public:
-            static const IssueType Type;
-        public:
-            explicit MixedBrushContentsIssue(BrushNode* brush) :
-            Issue(brush) {}
+namespace Model {
+class MixedBrushContentsIssueGenerator::MixedBrushContentsIssue : public Issue {
+public:
+  friend class MixedBrushContentsIssueQuickFix;
 
-            IssueType doGetType() const override {
-                return Type;
-            }
+public:
+  static const IssueType Type;
 
-            std::string doGetDescription() const override {
-                return "Brush has mixed content flags";
-            }
-        };
+public:
+  explicit MixedBrushContentsIssue(BrushNode* brush)
+    : Issue(brush) {}
 
-        const IssueType MixedBrushContentsIssueGenerator::MixedBrushContentsIssue::Type = Issue::freeType();
+  IssueType doGetType() const override { return Type; }
 
-        MixedBrushContentsIssueGenerator::MixedBrushContentsIssueGenerator() :
-        IssueGenerator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
+  std::string doGetDescription() const override { return "Brush has mixed content flags"; }
+};
 
-        void MixedBrushContentsIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
-            const Brush& brush = brushNode->brush();
-            const auto& faces = brush.faces();
-            auto it = std::begin(faces);
-            auto end = std::end(faces);
-            assert(it != end);
+const IssueType MixedBrushContentsIssueGenerator::MixedBrushContentsIssue::Type = Issue::freeType();
 
-            const int contentFlags = it->resolvedSurfaceContents();
-            ++it;
-            while (it != end) {
-                if (it->resolvedSurfaceContents() != contentFlags) {
-                    issues.push_back(new MixedBrushContentsIssue(brushNode));
-                }
-                ++it;
-            }
-        }
+MixedBrushContentsIssueGenerator::MixedBrushContentsIssueGenerator()
+  : IssueGenerator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
+
+void MixedBrushContentsIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+  const Brush& brush = brushNode->brush();
+  const auto& faces = brush.faces();
+  auto it = std::begin(faces);
+  auto end = std::end(faces);
+  assert(it != end);
+
+  const int contentFlags = it->resolvedSurfaceContents();
+  ++it;
+  while (it != end) {
+    if (it->resolvedSurfaceContents() != contentFlags) {
+      issues.push_back(new MixedBrushContentsIssue(brushNode));
     }
+    ++it;
+  }
 }
+} // namespace Model
+} // namespace TrenchBroom

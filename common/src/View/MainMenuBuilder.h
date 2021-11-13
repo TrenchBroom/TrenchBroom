@@ -28,50 +28,52 @@ class QMenu;
 class QMenuBar;
 
 namespace TrenchBroom {
-    namespace View {
-        /**
-         * Builds actions for a menu and saves them in the given ActionMap.
-         */
-        class MenuBuilderBase {
-        protected:
-            using ActionMap = std::map<const Action*, QAction*>;
-            using TriggerFn = std::function<void(const Action&)>;
-            ActionMap& m_actions;
-            TriggerFn m_triggerFn;
-        protected:
-            MenuBuilderBase(ActionMap& actions, const TriggerFn& triggerFn);
-        public:
-            virtual ~MenuBuilderBase();
+namespace View {
+/**
+ * Builds actions for a menu and saves them in the given ActionMap.
+ */
+class MenuBuilderBase {
+protected:
+  using ActionMap = std::map<const Action*, QAction*>;
+  using TriggerFn = std::function<void(const Action&)>;
+  ActionMap& m_actions;
+  TriggerFn m_triggerFn;
 
-            /**
-             * Updates the key sequence and tooltip of the given QAction to match the given Action.
-             */
-            static void updateActionKeySeqeunce(QAction* qAction, const Action* tAction);
-        protected:
-            QAction* findOrCreateQAction(const Action* tAction);
-        };
+protected:
+  MenuBuilderBase(ActionMap& actions, const TriggerFn& triggerFn);
 
-        class MainMenuBuilder : public MenuVisitor, public MenuBuilderBase {
-        private:
-            QMenuBar& m_menuBar;
+public:
+  virtual ~MenuBuilderBase();
 
-            QMenu* m_currentMenu;
+  /**
+   * Updates the key sequence and tooltip of the given QAction to match the given Action.
+   */
+  static void updateActionKeySeqeunce(QAction* qAction, const Action* tAction);
 
-            // special menu items and actions
-        public:
-            QMenu* recentDocumentsMenu;
-            QAction* undoAction;
-            QAction* redoAction;
-            QAction* pasteAction;
-            QAction* pasteAtOriginalPositionAction;
-        public:
-            MainMenuBuilder(QMenuBar& menuBar, ActionMap& actions, const TriggerFn& triggerFn);
+protected:
+  QAction* findOrCreateQAction(const Action* tAction);
+};
 
-            void visit(const Menu& menu) override;
-            void visit(const MenuSeparatorItem& item) override;
-            void visit(const MenuActionItem& item) override;
-       };
-    }
-}
+class MainMenuBuilder : public MenuVisitor, public MenuBuilderBase {
+private:
+  QMenuBar& m_menuBar;
 
+  QMenu* m_currentMenu;
 
+  // special menu items and actions
+public:
+  QMenu* recentDocumentsMenu;
+  QAction* undoAction;
+  QAction* redoAction;
+  QAction* pasteAction;
+  QAction* pasteAtOriginalPositionAction;
+
+public:
+  MainMenuBuilder(QMenuBar& menuBar, ActionMap& actions, const TriggerFn& triggerFn);
+
+  void visit(const Menu& menu) override;
+  void visit(const MenuSeparatorItem& item) override;
+  void visit(const MenuActionItem& item) override;
+};
+} // namespace View
+} // namespace TrenchBroom

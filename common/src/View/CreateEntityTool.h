@@ -28,29 +28,29 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EntityNode;
-        class PickResult;
-    }
+namespace Model {
+class EntityNode;
+class PickResult;
+} // namespace Model
 
-    namespace View {
-        class MapDocument;
+namespace View {
+class MapDocument;
 
-        class CreateEntityTool : public Tool {
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            Model::EntityNode* m_entity;
-            vm::bbox3 m_referenceBounds;
-        public:
-            explicit CreateEntityTool(std::weak_ptr<MapDocument> document);
+class CreateEntityTool : public Tool {
+private:
+  std::weak_ptr<MapDocument> m_document;
+  Model::EntityNode* m_entity;
+  vm::bbox3 m_referenceBounds;
 
-            bool createEntity(const std::string& classname);
-            void removeEntity();
-            void commitEntity();
+public:
+  explicit CreateEntityTool(std::weak_ptr<MapDocument> document);
 
-            void updateEntityPosition2D(const vm::ray3& pickRay);
-            void updateEntityPosition3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
-        };
-    }
-}
+  bool createEntity(const std::string& classname);
+  void removeEntity();
+  void commitEntity();
 
+  void updateEntityPosition2D(const vm::ray3& pickRay);
+  void updateEntityPosition3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
+};
+} // namespace View
+} // namespace TrenchBroom

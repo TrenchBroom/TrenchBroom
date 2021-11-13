@@ -24,37 +24,37 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        const std::vector<Model::Node*>& Selection::selectedNodes() const {
-            return m_selectedNodes;
-        }
-
-        const std::vector<Model::Node*>& Selection::deselectedNodes() const {
-            return m_deselectedNodes;
-        }
-
-        const std::vector<Model::BrushFaceHandle>& Selection::selectedBrushFaces() const {
-            return m_selectedBrushFaces;
-        }
-
-        const std::vector<Model::BrushFaceHandle>& Selection::deselectedBrushFaces() const {
-            return m_deselectedBrushFaces;
-        }
-
-        void Selection::addSelectedNodes(const std::vector<Model::Node*>& nodes) {
-            m_selectedNodes = kdl::vec_concat(std::move(m_selectedNodes), nodes);
-        }
-
-        void Selection::addDeselectedNodes(const std::vector<Model::Node*>& nodes) {
-            m_deselectedNodes = kdl::vec_concat(std::move(m_deselectedNodes), nodes);
-        }
-
-        void Selection::addSelectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces) {
-            m_selectedBrushFaces = kdl::vec_concat(std::move(m_selectedBrushFaces), faces);
-        }
-
-        void Selection::addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces) {
-            m_deselectedBrushFaces = kdl::vec_concat(std::move(m_deselectedBrushFaces), faces);
-        }
-    }
+namespace View {
+const std::vector<Model::Node*>& Selection::selectedNodes() const {
+  return m_selectedNodes;
 }
+
+const std::vector<Model::Node*>& Selection::deselectedNodes() const {
+  return m_deselectedNodes;
+}
+
+const std::vector<Model::BrushFaceHandle>& Selection::selectedBrushFaces() const {
+  return m_selectedBrushFaces;
+}
+
+const std::vector<Model::BrushFaceHandle>& Selection::deselectedBrushFaces() const {
+  return m_deselectedBrushFaces;
+}
+
+void Selection::addSelectedNodes(const std::vector<Model::Node*>& nodes) {
+  m_selectedNodes = kdl::vec_concat(std::move(m_selectedNodes), nodes);
+}
+
+void Selection::addDeselectedNodes(const std::vector<Model::Node*>& nodes) {
+  m_deselectedNodes = kdl::vec_concat(std::move(m_deselectedNodes), nodes);
+}
+
+void Selection::addSelectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces) {
+  m_selectedBrushFaces = kdl::vec_concat(std::move(m_selectedBrushFaces), faces);
+}
+
+void Selection::addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces) {
+  m_deselectedBrushFaces = kdl::vec_concat(std::move(m_deselectedBrushFaces), faces);
+}
+} // namespace View
+} // namespace TrenchBroom

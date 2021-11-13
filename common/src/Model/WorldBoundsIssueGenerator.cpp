@@ -28,51 +28,50 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class WorldBoundsIssueGenerator::WorldBoundsIssue : public Issue {
-        public:
-            friend class WorldBoundsIssueQuickFix;
-        public:
-            static const IssueType Type;
-        public:
-            explicit WorldBoundsIssue(Node* node) :
-            Issue(node) {}
+namespace Model {
+class WorldBoundsIssueGenerator::WorldBoundsIssue : public Issue {
+public:
+  friend class WorldBoundsIssueQuickFix;
 
-            IssueType doGetType() const override {
-                return Type;
-            }
+public:
+  static const IssueType Type;
 
-            std::string doGetDescription() const override {
-                return "Object is out of world bounds";
-            }
-        };
+public:
+  explicit WorldBoundsIssue(Node* node)
+    : Issue(node) {}
 
-        class WorldBoundsIssueGenerator::WorldBoundsIssueQuickFix : public IssueQuickFix {
-        public:
-            WorldBoundsIssueQuickFix() :
-            IssueQuickFix(WorldBoundsIssue::Type, "Delete objects") {}
-        private:
-            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
-                facade->deleteObjects();
-            }
-        };
+  IssueType doGetType() const override { return Type; }
 
-        const IssueType WorldBoundsIssueGenerator::WorldBoundsIssue::Type = Issue::freeType();
+  std::string doGetDescription() const override { return "Object is out of world bounds"; }
+};
 
-        WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(const vm::bbox3& bounds) :
-        IssueGenerator(WorldBoundsIssue::Type, "Objects out of world bounds"),
-        m_bounds(bounds) {
-            addQuickFix(new WorldBoundsIssueQuickFix());
-        }
+class WorldBoundsIssueGenerator::WorldBoundsIssueQuickFix : public IssueQuickFix {
+public:
+  WorldBoundsIssueQuickFix()
+    : IssueQuickFix(WorldBoundsIssue::Type, "Delete objects") {}
 
-        void WorldBoundsIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
-            if (!m_bounds.contains(entity->logicalBounds()))
-                issues.push_back(new WorldBoundsIssue(entity));
-        }
+private:
+  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+    facade->deleteObjects();
+  }
+};
 
-        void WorldBoundsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
-            if (!m_bounds.contains(brush->logicalBounds()))
-                issues.push_back(new WorldBoundsIssue(brush));
-        }
-    }
+const IssueType WorldBoundsIssueGenerator::WorldBoundsIssue::Type = Issue::freeType();
+
+WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(const vm::bbox3& bounds)
+  : IssueGenerator(WorldBoundsIssue::Type, "Objects out of world bounds")
+  , m_bounds(bounds) {
+  addQuickFix(new WorldBoundsIssueQuickFix());
 }
+
+void WorldBoundsIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
+  if (!m_bounds.contains(entity->logicalBounds()))
+    issues.push_back(new WorldBoundsIssue(entity));
+}
+
+void WorldBoundsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
+  if (!m_bounds.contains(brush->logicalBounds()))
+    issues.push_back(new WorldBoundsIssue(brush));
+}
+} // namespace Model
+} // namespace TrenchBroom

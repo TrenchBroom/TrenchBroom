@@ -20,12 +20,12 @@
 #pragma once
 
 namespace TrenchBroom {
-    namespace View {
-        enum class MapTextEncoding {
-            Quake,
-            Iso88591,
-            Utf8
-        };
-    }
-}
-
+namespace View {
+enum class MapTextEncoding
+{
+  Quake,
+  Iso88591,
+  Utf8
+};
+} // namespace View
+} // namespace TrenchBroom

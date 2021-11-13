@@ -27,46 +27,46 @@
 #include <QVBoxLayout>
 
 namespace TrenchBroom {
-    namespace View {
-        TabBookPage::TabBookPage(QWidget* parent) :
-        QWidget(parent) {}
-        TabBookPage::~TabBookPage() {}
+namespace View {
+TabBookPage::TabBookPage(QWidget* parent)
+  : QWidget(parent) {}
+TabBookPage::~TabBookPage() {}
 
-        QWidget* TabBookPage::createTabBarPage(QWidget* parent) {
-            return new QWidget(parent);
-        }
-
-        TabBook::TabBook(QWidget* parent) :
-        QWidget(parent),
-        m_tabBar(new TabBar(this)) {
-            m_tabBook = new QStackedLayout();
-            m_tabBook->setContentsMargins(0, 0, 0, 0);
-
-            QVBoxLayout* sizer = new QVBoxLayout();
-            sizer->setSpacing(0);
-            sizer->setContentsMargins(0,0,0,0);
-            sizer->addWidget(m_tabBar, 0);
-            sizer->addLayout(m_tabBook, 1);
-            setLayout(sizer);
-
-            // Forward the signal, so we don't have to expose the QStackedLayout
-            connect(m_tabBook, &QStackedLayout::currentChanged, this, &TabBook::pageChanged);
-        }
-
-        TabBar* TabBook::tabBar() {
-            return m_tabBar;
-        }
-
-        void TabBook::addPage(TabBookPage* page, const QString& title) {
-            ensure(page != nullptr, "page is null");
-
-            m_tabBar->addTab(page, title);
-            m_tabBook->addWidget(page);
-        }
-
-        void TabBook::switchToPage(const int index) {
-            assert(index < m_tabBook->count());
-            m_tabBook->setCurrentIndex(index);
-        }
-    }
+QWidget* TabBookPage::createTabBarPage(QWidget* parent) {
+  return new QWidget(parent);
 }
+
+TabBook::TabBook(QWidget* parent)
+  : QWidget(parent)
+  , m_tabBar(new TabBar(this)) {
+  m_tabBook = new QStackedLayout();
+  m_tabBook->setContentsMargins(0, 0, 0, 0);
+
+  QVBoxLayout* sizer = new QVBoxLayout();
+  sizer->setSpacing(0);
+  sizer->setContentsMargins(0, 0, 0, 0);
+  sizer->addWidget(m_tabBar, 0);
+  sizer->addLayout(m_tabBook, 1);
+  setLayout(sizer);
+
+  // Forward the signal, so we don't have to expose the QStackedLayout
+  connect(m_tabBook, &QStackedLayout::currentChanged, this, &TabBook::pageChanged);
+}
+
+TabBar* TabBook::tabBar() {
+  return m_tabBar;
+}
+
+void TabBook::addPage(TabBookPage* page, const QString& title) {
+  ensure(page != nullptr, "page is null");
+
+  m_tabBar->addTab(page, title);
+  m_tabBook->addWidget(page);
+}
+
+void TabBook::switchToPage(const int index) {
+  assert(index < m_tabBook->count());
+  m_tabBook->setCurrentIndex(index);
+}
+} // namespace View
+} // namespace TrenchBroom

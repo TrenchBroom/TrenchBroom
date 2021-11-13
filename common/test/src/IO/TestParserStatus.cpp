@@ -22,31 +22,32 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace IO {
-        NullLogger TestParserStatus::_logger;
+namespace IO {
+NullLogger TestParserStatus::_logger;
 
-        TestParserStatus::TestParserStatus() : ParserStatus(_logger, "") {}
+TestParserStatus::TestParserStatus()
+  : ParserStatus(_logger, "") {}
 
-        size_t TestParserStatus::countStatus(const LogLevel level) const {
-            const auto it = m_messages.find(level);
-            if (it == std::end(m_messages))
-                return 0u;
-            return it->second.size();
-        }
-
-        const std::vector<std::string>& TestParserStatus::messages(const LogLevel level) const {
-            static const auto Empty = std::vector<std::string>();
-        
-            const auto it = m_messages.find(level);
-            if (it == std::end(m_messages))
-                return Empty;
-            return it->second;
-        }
-
-        void TestParserStatus::doProgress(const double) {}
-
-        void TestParserStatus::doLog(const LogLevel level, const std::string& str) {
-            m_messages[level].push_back(str);
-        }
-    }
+size_t TestParserStatus::countStatus(const LogLevel level) const {
+  const auto it = m_messages.find(level);
+  if (it == std::end(m_messages))
+    return 0u;
+  return it->second.size();
 }
+
+const std::vector<std::string>& TestParserStatus::messages(const LogLevel level) const {
+  static const auto Empty = std::vector<std::string>();
+
+  const auto it = m_messages.find(level);
+  if (it == std::end(m_messages))
+    return Empty;
+  return it->second;
+}
+
+void TestParserStatus::doProgress(const double) {}
+
+void TestParserStatus::doLog(const LogLevel level, const std::string& str) {
+  m_messages[level].push_back(str);
+}
+} // namespace IO
+} // namespace TrenchBroom

@@ -17,42 +17,42 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FloatType.h"
 #include "Assets/Texture.h"
+#include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
-#include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
+#include "Model/ParaxialTexCoordSystem.h"
 
 #include <vecmath/vec.h>
 
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        // Disable a clang warning when using ASSERT_DEATH
+namespace Model {
+// Disable a clang warning when using ASSERT_DEATH
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-        TEST_CASE("TexCoordSystemTest.testSnapshotTypeSafety", "[TexCoordSystemTest]") {
-            BrushFaceAttributes attribs("");
+TEST_CASE("TexCoordSystemTest.testSnapshotTypeSafety", "[TexCoordSystemTest]") {
+  BrushFaceAttributes attribs("");
 
-            ParaxialTexCoordSystem paraxial(vm::vec3::pos_z(), attribs);
-            CHECK(paraxial.takeSnapshot() == nullptr);
+  ParaxialTexCoordSystem paraxial(vm::vec3::pos_z(), attribs);
+  CHECK(paraxial.takeSnapshot() == nullptr);
 
-            ParallelTexCoordSystem parallel(vm::vec3::pos_y(), vm::vec3::pos_x());
-            auto parallelSnapshot = parallel.takeSnapshot();
-            CHECK(parallelSnapshot != nullptr);
+  ParallelTexCoordSystem parallel(vm::vec3::pos_y(), vm::vec3::pos_x());
+  auto parallelSnapshot = parallel.takeSnapshot();
+  CHECK(parallelSnapshot != nullptr);
 
 #if 0 // not supported with Catch2
             ASSERT_DEATH(parallelSnapshot->restore(paraxial), "");
 #endif
-            parallelSnapshot->restore(parallel);
-        }
+  parallelSnapshot->restore(parallel);
+}
 
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-    }
-}
+} // namespace Model
+} // namespace TrenchBroom

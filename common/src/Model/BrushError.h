@@ -22,15 +22,15 @@
 #include <iosfwd>
 
 namespace TrenchBroom {
-    namespace Model {
-        enum class BrushError {
-            EmptyBrush,
-            IncompleteBrush,
-            InvalidBrush,
-            InvalidFace
-        };
+namespace Model {
+enum class BrushError
+{
+  EmptyBrush,
+  IncompleteBrush,
+  InvalidBrush,
+  InvalidFace
+};
 
-        std::ostream& operator<<(std::ostream& str, BrushError error);
-    }
-}
-
+std::ostream& operator<<(std::ostream& str, BrushError error);
+} // namespace Model
+} // namespace TrenchBroom

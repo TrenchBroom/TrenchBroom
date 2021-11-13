@@ -24,31 +24,36 @@
 class QWidget;
 
 namespace TrenchBroom {
-    namespace View {
-        class ElidedLabel;
-        class FlagsEditor;
-        class PopupButton;
+namespace View {
+class ElidedLabel;
+class FlagsEditor;
+class PopupButton;
 
-        /**
-         * Button that opens up a flags editor popup
-         */
-        class FlagsPopupEditor : public QWidget {
-            Q_OBJECT
-        private:
-            ElidedLabel* m_flagsTxt;
-            PopupButton* m_button;
-            FlagsEditor* m_editor;
-        public:
-            explicit FlagsPopupEditor(size_t numCols, QWidget* parent = nullptr, const QString& buttonLabel = "...", bool showFlagsText = true);
+/**
+ * Button that opens up a flags editor popup
+ */
+class FlagsPopupEditor : public QWidget {
+  Q_OBJECT
+private:
+  ElidedLabel* m_flagsTxt;
+  PopupButton* m_button;
+  FlagsEditor* m_editor;
 
-            void setFlags(const QStringList& labels, const QStringList& tooltips = QStringList());
-            void setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips = QStringList());
-            void setFlagValue(int set, int mixed = 0);
-        private:
-            void updateFlagsText();
-        signals:
-            void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
-        };
-    }
-}
+public:
+  explicit FlagsPopupEditor(
+    size_t numCols, QWidget* parent = nullptr, const QString& buttonLabel = "...",
+    bool showFlagsText = true);
 
+  void setFlags(const QStringList& labels, const QStringList& tooltips = QStringList());
+  void setFlags(
+    const QList<int>& values, const QStringList& labels,
+    const QStringList& tooltips = QStringList());
+  void setFlagValue(int set, int mixed = 0);
+
+private:
+  void updateFlagsText();
+signals:
+  void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
+};
+} // namespace View
+} // namespace TrenchBroom

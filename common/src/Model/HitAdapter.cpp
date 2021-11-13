@@ -26,25 +26,25 @@
 #include "Model/PatchNode.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        Node* hitToNode(const Hit& hit) {
-            if (hit.type() == EntityNode::EntityHitType) {
-                return hit.target<EntityNode*>();
-            } else if (hit.type() == PatchNode::PatchHitType) {
-                return hit.target<PatchNode*>();
-            } else if (hit.type() == BrushNode::BrushHitType) {
-                return hit.target<BrushFaceHandle>().node();
-            } else {
-                return nullptr;
-            }
-        }
-
-        std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit) {
-            if (hit.type() == BrushNode::BrushHitType) {
-                return hit.target<BrushFaceHandle>();
-            } else {
-                return std::nullopt;
-            }
-        }
-    }
+namespace Model {
+Node* hitToNode(const Hit& hit) {
+  if (hit.type() == EntityNode::EntityHitType) {
+    return hit.target<EntityNode*>();
+  } else if (hit.type() == PatchNode::PatchHitType) {
+    return hit.target<PatchNode*>();
+  } else if (hit.type() == BrushNode::BrushHitType) {
+    return hit.target<BrushFaceHandle>().node();
+  } else {
+    return nullptr;
+  }
 }
+
+std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit) {
+  if (hit.type() == BrushNode::BrushHitType) {
+    return hit.target<BrushFaceHandle>();
+  } else {
+    return std::nullopt;
+  }
+}
+} // namespace Model
+} // namespace TrenchBroom

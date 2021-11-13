@@ -24,26 +24,28 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontDescriptor {
-        private:
-            IO::Path m_path;
-            size_t m_size;
-            unsigned char m_minChar;
-            unsigned char m_maxChar;
-        public:
-            FontDescriptor(const IO::Path& path, const size_t size, unsigned char minChar = ' ', unsigned char maxChar = '~');
+namespace Renderer {
+class FontDescriptor {
+private:
+  IO::Path m_path;
+  size_t m_size;
+  unsigned char m_minChar;
+  unsigned char m_maxChar;
 
-            int compare(const FontDescriptor& other) const;
-            bool operator<(const FontDescriptor& other) const;
+public:
+  FontDescriptor(
+    const IO::Path& path, const size_t size, unsigned char minChar = ' ',
+    unsigned char maxChar = '~');
 
-            const IO::Path& path() const;
-            std::string name() const;
-            size_t size() const;
-            unsigned char minChar() const;
-            unsigned char maxChar() const;
-            unsigned char charCount() const;
-        };
-    }
-}
+  int compare(const FontDescriptor& other) const;
+  bool operator<(const FontDescriptor& other) const;
 
+  const IO::Path& path() const;
+  std::string name() const;
+  size_t size() const;
+  unsigned char minChar() const;
+  unsigned char maxChar() const;
+  unsigned char charCount() const;
+};
+} // namespace Renderer
+} // namespace TrenchBroom

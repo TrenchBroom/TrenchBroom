@@ -22,24 +22,25 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontDescriptor;
-        class TextureFont;
+namespace Renderer {
+class FontDescriptor;
+class TextureFont;
 
-        class FontFactory {
-        protected:
-            struct Metrics {
-                size_t cellSize;
-                size_t maxAscend;
-                size_t lineHeight;
-            };
-        public:
-            virtual ~FontFactory();
+class FontFactory {
+protected:
+  struct Metrics {
+    size_t cellSize;
+    size_t maxAscend;
+    size_t lineHeight;
+  };
 
-            std::unique_ptr<TextureFont> createFont(const FontDescriptor& fontDescriptor);
-        private:
-            virtual std::unique_ptr<TextureFont> doCreateFont(const FontDescriptor& fontDescriptor) = 0;
-        };
-    }
-}
+public:
+  virtual ~FontFactory();
 
+  std::unique_ptr<TextureFont> createFont(const FontDescriptor& fontDescriptor);
+
+private:
+  virtual std::unique_ptr<TextureFont> doCreateFont(const FontDescriptor& fontDescriptor) = 0;
+};
+} // namespace Renderer
+} // namespace TrenchBroom

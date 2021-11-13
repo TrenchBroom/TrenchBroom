@@ -19,36 +19,38 @@
 
 #pragma once
 
+#include "Color.h"
 #include "IO/Path.h"
 #include "Preference.h"
-#include "Color.h"
 
 #include <QAbstractTableModel>
 
 namespace TrenchBroom::View {
-    class ColorModel : public QAbstractTableModel {
-        Q_OBJECT
-    private:
-        std::vector<Preference<Color>*> m_colors;
-        int m_colorsCount;
-    public:
-        explicit ColorModel(QObject* parent = nullptr);
+class ColorModel : public QAbstractTableModel {
+  Q_OBJECT
+private:
+  std::vector<Preference<Color>*> m_colors;
+  int m_colorsCount;
 
-        void reset();
+public:
+  explicit ColorModel(QObject* parent = nullptr);
 
-        int rowCount(const QModelIndex& parent) const override;
-        int columnCount(const QModelIndex& parent) const override;
+  void reset();
 
-        QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-        QVariant data(const QModelIndex& index, int role) const override;
-        bool setData(const QModelIndex& index, const QVariant& value, int role) override;
+  int rowCount(const QModelIndex& parent) const override;
+  int columnCount(const QModelIndex& parent) const override;
 
-        Qt::ItemFlags flags(const QModelIndex& index) const override;
+  QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+  QVariant data(const QModelIndex& index, int role) const override;
+  bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-        void pickColor(const QModelIndex& index);
-    private:
-        void initialize();
-        Preference<Color>* getColorPreference(int index) const;
-        bool checkIndex(const QModelIndex& index) const;
-    };
-}
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
+
+  void pickColor(const QModelIndex& index);
+
+private:
+  void initialize();
+  Preference<Color>* getColorPreference(int index) const;
+  bool checkIndex(const QModelIndex& index) const;
+};
+} // namespace TrenchBroom::View

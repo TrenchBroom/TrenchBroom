@@ -23,21 +23,21 @@
 #include "FloatType.h"
 
 namespace TrenchBroom {
-    namespace View {
-        PickRequest::PickRequest() :
-        m_camera(nullptr) {}
+namespace View {
+PickRequest::PickRequest()
+  : m_camera(nullptr) {}
 
-        PickRequest::PickRequest(const vm::ray3& pickRay, const Renderer::Camera& camera) :
-        m_pickRay(pickRay),
-        m_camera(&camera) {}
+PickRequest::PickRequest(const vm::ray3& pickRay, const Renderer::Camera& camera)
+  : m_pickRay(pickRay)
+  , m_camera(&camera) {}
 
-        const vm::ray3& PickRequest::pickRay() const {
-            return m_pickRay;
-        }
-
-        const Renderer::Camera& PickRequest::camera() const {
-            ensure(m_camera != nullptr, "camera is null");
-            return *m_camera;
-        }
-    }
+const vm::ray3& PickRequest::pickRay() const {
+  return m_pickRay;
 }
+
+const Renderer::Camera& PickRequest::camera() const {
+  ensure(m_camera != nullptr, "camera is null");
+  return *m_camera;
+}
+} // namespace View
+} // namespace TrenchBroom

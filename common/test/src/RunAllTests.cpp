@@ -27,18 +27,18 @@
 
 #include "Catch2.h"
 
-int main(int argc, char **argv) {
-    TrenchBroom::PreferenceManager::createInstance<TrenchBroom::TestPreferenceManager>();
-    TrenchBroom::View::TrenchBroomApp app(argc, argv);
+int main(int argc, char** argv) {
+  TrenchBroom::PreferenceManager::createInstance<TrenchBroom::TestPreferenceManager>();
+  TrenchBroom::View::TrenchBroomApp app(argc, argv);
 
-    TrenchBroom::View::setCrashReportGUIEnbled(false);
+  TrenchBroom::View::setCrashReportGUIEnbled(false);
 
-    ensure(qApp == &app, "invalid app instance");
+  ensure(qApp == &app, "invalid app instance");
 
-    // set the locale to US so that we can parse floats attribute
-    std::setlocale(LC_NUMERIC, "C");
+  // set the locale to US so that we can parse floats attribute
+  std::setlocale(LC_NUMERIC, "C");
 
-    const int result = Catch::Session().run(argc, argv);
+  const int result = Catch::Session().run(argc, argv);
 
-    return result;
+  return result;
 }

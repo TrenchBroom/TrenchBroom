@@ -25,49 +25,60 @@
 #include <kdl/result.h>
 
 namespace TrenchBroom {
-    namespace View {
-        const Command::CommandType ReparentNodesCommand::Type = Command::freeType();
+namespace View {
+const Command::CommandType ReparentNodesCommand::Type = Command::freeType();
 
-        std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd, std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate) {
-            return std::make_unique<ReparentNodesCommand>(std::move(nodesToAdd), std::move(nodesToRemove), std::move(linkedGroupsToUpdate));
-        }
-
-        ReparentNodesCommand::ReparentNodesCommand(std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd, std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate) :
-        UndoableCommand(Type, "Reparent Objects", true),
-        m_nodesToAdd(std::move(nodesToAdd)),
-        m_nodesToRemove(std::move(nodesToRemove)),
-        m_updateLinkedGroupsHelper(std::move(linkedGroupsToUpdate)) {}
-
-        std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            doAction(document);
-
-            const auto success = m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document)
-                .handle_errors([&](const Model::UpdateLinkedGroupsError& e) {
-                    document->error() << e;
-                    undoAction(document);
-                });
-
-            return std::make_unique<CommandResult>(success);
-        }
-
-        std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            undoAction(document);
-            m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(*document);
-            return std::make_unique<CommandResult>(true);
-        }
-
-        void ReparentNodesCommand::doAction(MapDocumentCommandFacade* document) {
-            document->performRemoveNodes(m_nodesToRemove);
-            document->performAddNodes(m_nodesToAdd);
-        }
-
-        void ReparentNodesCommand::undoAction(MapDocumentCommandFacade* document) {
-            document->performRemoveNodes(m_nodesToAdd);
-            document->performAddNodes(m_nodesToRemove);
-        }
-
-        bool ReparentNodesCommand::doCollateWith(UndoableCommand*) {
-            return false;
-        }
-    }
+std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
+  std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
+  std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
+  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
+    linkedGroupsToUpdate) {
+  return std::make_unique<ReparentNodesCommand>(
+    std::move(nodesToAdd), std::move(nodesToRemove), std::move(linkedGroupsToUpdate));
 }
+
+ReparentNodesCommand::ReparentNodesCommand(
+  std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
+  std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
+  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
+    linkedGroupsToUpdate)
+  : UndoableCommand(Type, "Reparent Objects", true)
+  , m_nodesToAdd(std::move(nodesToAdd))
+  , m_nodesToRemove(std::move(nodesToRemove))
+  , m_updateLinkedGroupsHelper(std::move(linkedGroupsToUpdate)) {}
+
+std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformDo(
+  MapDocumentCommandFacade* document) {
+  doAction(document);
+
+  const auto success = m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document).handle_errors(
+    [&](const Model::UpdateLinkedGroupsError& e) {
+      document->error() << e;
+      undoAction(document);
+    });
+
+  return std::make_unique<CommandResult>(success);
+}
+
+std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(
+  MapDocumentCommandFacade* document) {
+  undoAction(document);
+  m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(*document);
+  return std::make_unique<CommandResult>(true);
+}
+
+void ReparentNodesCommand::doAction(MapDocumentCommandFacade* document) {
+  document->performRemoveNodes(m_nodesToRemove);
+  document->performAddNodes(m_nodesToAdd);
+}
+
+void ReparentNodesCommand::undoAction(MapDocumentCommandFacade* document) {
+  document->performRemoveNodes(m_nodesToAdd);
+  document->performAddNodes(m_nodesToRemove);
+}
+
+bool ReparentNodesCommand::doCollateWith(UndoableCommand*) {
+  return false;
+}
+} // namespace View
+} // namespace TrenchBroom

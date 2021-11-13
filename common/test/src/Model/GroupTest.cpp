@@ -35,16 +35,18 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        TEST_CASE("GroupTest.transform", "[GroupNodeTest]") {
-            auto group = Group{"name"};
-            REQUIRE(group.transformation() == vm::mat4x4());
+namespace Model {
+TEST_CASE("GroupTest.transform", "[GroupNodeTest]") {
+  auto group = Group{"name"};
+  REQUIRE(group.transformation() == vm::mat4x4());
 
-            group.transform(vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
-            CHECK(group.transformation() == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+  group.transform(vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+  CHECK(group.transformation() == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
 
-            group.transform(vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0)));
-            CHECK(group.transformation() == vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0)) * vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
-        }
-    }
+  group.transform(vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0)));
+  CHECK(
+    group.transformation() == vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0)) *
+                                vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
 }
+} // namespace Model
+} // namespace TrenchBroom

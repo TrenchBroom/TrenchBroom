@@ -31,66 +31,69 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class LinkTargetIssueGenerator::LinkTargetIssue : public Issue {
-        public:
-            friend class LinkTargetIssueQuickFix;
-        private:
-            const std::string m_name;
-        public:
-            static const IssueType Type;
-        public:
-            LinkTargetIssue(EntityNodeBase* node, const std::string& name) :
-            Issue(node),
-            m_name(name) {}
+namespace Model {
+class LinkTargetIssueGenerator::LinkTargetIssue : public Issue {
+public:
+  friend class LinkTargetIssueQuickFix;
 
-            IssueType doGetType() const override {
-                return Type;
-            }
+private:
+  const std::string m_name;
 
-            std::string doGetDescription() const override {
-                const EntityNodeBase* propertyNode = static_cast<EntityNodeBase*>(node());
-                return propertyNode->name() + " has missing target for key '" + m_name + "'";
-            }
-        };
+public:
+  static const IssueType Type;
 
-        const IssueType LinkTargetIssueGenerator::LinkTargetIssue::Type = Issue::freeType();
+public:
+  LinkTargetIssue(EntityNodeBase* node, const std::string& name)
+    : Issue(node)
+    , m_name(name) {}
 
-        class LinkTargetIssueGenerator::LinkTargetIssueQuickFix : public IssueQuickFix {
-        public:
-            LinkTargetIssueQuickFix() :
-            IssueQuickFix(LinkTargetIssue::Type, "Delete property") {}
-        private:
-            void doApply(MapFacade* facade, const Issue* issue) const override {
-                const PushSelection push(facade);
+  IssueType doGetType() const override { return Type; }
 
-                const LinkTargetIssue* targetIssue = static_cast<const LinkTargetIssue*>(issue);
-                const std::string& propertyKey = targetIssue->m_name;
+  std::string doGetDescription() const override {
+    const EntityNodeBase* propertyNode = static_cast<EntityNodeBase*>(node());
+    return propertyNode->name() + " has missing target for key '" + m_name + "'";
+  }
+};
 
-                // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeProperty call will correctly affect worldspawn either way.
+const IssueType LinkTargetIssueGenerator::LinkTargetIssue::Type = Issue::freeType();
 
-                facade->deselectAll();
-                facade->select(issue->node());
-                facade->removeProperty(propertyKey);
-            }
-        };
+class LinkTargetIssueGenerator::LinkTargetIssueQuickFix : public IssueQuickFix {
+public:
+  LinkTargetIssueQuickFix()
+    : IssueQuickFix(LinkTargetIssue::Type, "Delete property") {}
 
-        LinkTargetIssueGenerator::LinkTargetIssueGenerator() :
-        IssueGenerator(LinkTargetIssue::Type, "Missing entity link source") {
-            addQuickFix(new LinkTargetIssueQuickFix());
-        }
+private:
+  void doApply(MapFacade* facade, const Issue* issue) const override {
+    const PushSelection push(facade);
 
-        void LinkTargetIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            processKeys(node, node->findMissingLinkTargets(), issues);
-            processKeys(node, node->findMissingKillTargets(), issues);
-        }
+    const LinkTargetIssue* targetIssue = static_cast<const LinkTargetIssue*>(issue);
+    const std::string& propertyKey = targetIssue->m_name;
 
-        void LinkTargetIssueGenerator::processKeys(EntityNodeBase* node, const std::vector<std::string>& keys, IssueList& issues) const {
-            issues.reserve(issues.size() + keys.size());
-            for (const std::string& key : keys) {
-                issues.push_back(new LinkTargetIssue(node, key));
-            }
-        }
-    }
+    // If world node is affected, the selection will fail, but if nothing is selected,
+    // the removeProperty call will correctly affect worldspawn either way.
+
+    facade->deselectAll();
+    facade->select(issue->node());
+    facade->removeProperty(propertyKey);
+  }
+};
+
+LinkTargetIssueGenerator::LinkTargetIssueGenerator()
+  : IssueGenerator(LinkTargetIssue::Type, "Missing entity link source") {
+  addQuickFix(new LinkTargetIssueQuickFix());
 }
+
+void LinkTargetIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+  processKeys(node, node->findMissingLinkTargets(), issues);
+  processKeys(node, node->findMissingKillTargets(), issues);
+}
+
+void LinkTargetIssueGenerator::processKeys(
+  EntityNodeBase* node, const std::vector<std::string>& keys, IssueList& issues) const {
+  issues.reserve(issues.size() + keys.size());
+  for (const std::string& key : keys) {
+    issues.push_back(new LinkTargetIssue(node, key));
+  }
+}
+} // namespace Model
+} // namespace TrenchBroom

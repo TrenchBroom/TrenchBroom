@@ -19,9 +19,9 @@
 
 #include "SoftMapBoundsIssueGenerator.h"
 
-#include "Model/Game.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
+#include "Model/Game.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
@@ -33,61 +33,61 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class SoftMapBoundsIssueGenerator::SoftMapBoundsIssue : public Issue {
-        public:
-            friend class SoftMapBoundsIssueQuickFix;
-        public:
-            static const IssueType Type;
-        public:
-            explicit SoftMapBoundsIssue(Node* node) :
-            Issue(node) {}
+namespace Model {
+class SoftMapBoundsIssueGenerator::SoftMapBoundsIssue : public Issue {
+public:
+  friend class SoftMapBoundsIssueQuickFix;
 
-            IssueType doGetType() const override {
-                return Type;
-            }
-            std::string doGetDescription() const override {
-                return "Object is out of soft map bounds";
-            }
-        };
+public:
+  static const IssueType Type;
 
-        class SoftMapBoundsIssueGenerator::SoftMapBoundsIssueQuickFix : public IssueQuickFix {
-        public:
-            SoftMapBoundsIssueQuickFix() :
-            IssueQuickFix(SoftMapBoundsIssue::Type, "Delete objects") {}
-        private:
-            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
-                facade->deleteObjects();
-            }
-        };
+public:
+  explicit SoftMapBoundsIssue(Node* node)
+    : Issue(node) {}
 
-        const IssueType SoftMapBoundsIssueGenerator::SoftMapBoundsIssue::Type = Issue::freeType();
+  IssueType doGetType() const override { return Type; }
+  std::string doGetDescription() const override { return "Object is out of soft map bounds"; }
+};
 
-        SoftMapBoundsIssueGenerator::SoftMapBoundsIssueGenerator(std::weak_ptr<Game> game, const WorldNode* world) :
-        IssueGenerator(SoftMapBoundsIssue::Type, "Objects out of soft map bounds"),
-        m_game(game),
-        m_world(world) {
-            addQuickFix(new SoftMapBoundsIssueQuickFix());
-        }
+class SoftMapBoundsIssueGenerator::SoftMapBoundsIssueQuickFix : public IssueQuickFix {
+public:
+  SoftMapBoundsIssueQuickFix()
+    : IssueQuickFix(SoftMapBoundsIssue::Type, "Delete objects") {}
 
-        void SoftMapBoundsIssueGenerator::generateInternal(Node* node, IssueList& issues) const {
-            auto game = kdl::mem_lock(m_game);
-            const Game::SoftMapBounds bounds = game->extractSoftMapBounds(m_world->entity());
+private:
+  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+    facade->deleteObjects();
+  }
+};
 
-            if (!bounds.bounds.has_value()) {
-                return;
-            }
-            if (!bounds.bounds->contains(node->logicalBounds())) {
-                issues.push_back(new SoftMapBoundsIssue(node));
-            }
-        }
+const IssueType SoftMapBoundsIssueGenerator::SoftMapBoundsIssue::Type = Issue::freeType();
 
-        void SoftMapBoundsIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
-            generateInternal(entity, issues);
-        }
-
-        void SoftMapBoundsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
-            generateInternal(brush, issues);
-        }
-    }
+SoftMapBoundsIssueGenerator::SoftMapBoundsIssueGenerator(
+  std::weak_ptr<Game> game, const WorldNode* world)
+  : IssueGenerator(SoftMapBoundsIssue::Type, "Objects out of soft map bounds")
+  , m_game(game)
+  , m_world(world) {
+  addQuickFix(new SoftMapBoundsIssueQuickFix());
 }
+
+void SoftMapBoundsIssueGenerator::generateInternal(Node* node, IssueList& issues) const {
+  auto game = kdl::mem_lock(m_game);
+  const Game::SoftMapBounds bounds = game->extractSoftMapBounds(m_world->entity());
+
+  if (!bounds.bounds.has_value()) {
+    return;
+  }
+  if (!bounds.bounds->contains(node->logicalBounds())) {
+    issues.push_back(new SoftMapBoundsIssue(node));
+  }
+}
+
+void SoftMapBoundsIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
+  generateInternal(entity, issues);
+}
+
+void SoftMapBoundsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
+  generateInternal(brush, issues);
+}
+} // namespace Model
+} // namespace TrenchBroom

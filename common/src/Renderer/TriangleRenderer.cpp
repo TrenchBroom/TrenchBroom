@@ -22,58 +22,58 @@
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
+#include "Renderer/Shaders.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        TriangleRenderer::TriangleRenderer() :
-        m_useColor(false),
-        m_applyTinting(false) {}
+namespace Renderer {
+TriangleRenderer::TriangleRenderer()
+  : m_useColor(false)
+  , m_applyTinting(false) {}
 
-        TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray) :
-        m_vertexArray(vertexArray),
-        m_indexArray(indexArray),
-        m_useColor(false),
-        m_applyTinting(false) {}
+TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray)
+  : m_vertexArray(vertexArray)
+  , m_indexArray(indexArray)
+  , m_useColor(false)
+  , m_applyTinting(false) {}
 
-        TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const PrimType primType) :
-        m_vertexArray(vertexArray),
-        m_indexArray(primType, 0, m_vertexArray.vertexCount()),
-        m_useColor(false),
-        m_applyTinting(false) {}
+TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray, const PrimType primType)
+  : m_vertexArray(vertexArray)
+  , m_indexArray(primType, 0, m_vertexArray.vertexCount())
+  , m_useColor(false)
+  , m_applyTinting(false) {}
 
-        void TriangleRenderer::setUseColor(const bool useColor) {
-            m_useColor = useColor;
-        }
-
-        void TriangleRenderer::setColor(const Color& color) {
-            m_color = color;
-        }
-
-        void TriangleRenderer::setApplyTinting(const bool applyTinting) {
-            m_applyTinting = applyTinting;
-        }
-
-        void TriangleRenderer::setTintColor(const Color& tintColor) {
-            m_tintColor = tintColor;
-        }
-
-        void TriangleRenderer::doPrepareVertices(VboManager& vboManager) {
-            m_vertexArray.prepare(vboManager);
-        }
-
-        void TriangleRenderer::doRender(RenderContext& context) {
-            if (m_vertexArray.vertexCount() == 0)
-                return;
-
-            ActiveShader shader(context.shaderManager(), Shaders::TriangleShader);
-            shader.set("ApplyTinting", m_applyTinting);
-            shader.set("TintColor", m_tintColor);
-            shader.set("UseColor", m_useColor);
-            shader.set("Color", m_color);
-            shader.set("CameraPosition", context.camera().position());
-            m_indexArray.render(m_vertexArray);
-        }
-    }
+void TriangleRenderer::setUseColor(const bool useColor) {
+  m_useColor = useColor;
 }
+
+void TriangleRenderer::setColor(const Color& color) {
+  m_color = color;
+}
+
+void TriangleRenderer::setApplyTinting(const bool applyTinting) {
+  m_applyTinting = applyTinting;
+}
+
+void TriangleRenderer::setTintColor(const Color& tintColor) {
+  m_tintColor = tintColor;
+}
+
+void TriangleRenderer::doPrepareVertices(VboManager& vboManager) {
+  m_vertexArray.prepare(vboManager);
+}
+
+void TriangleRenderer::doRender(RenderContext& context) {
+  if (m_vertexArray.vertexCount() == 0)
+    return;
+
+  ActiveShader shader(context.shaderManager(), Shaders::TriangleShader);
+  shader.set("ApplyTinting", m_applyTinting);
+  shader.set("TintColor", m_tintColor);
+  shader.set("UseColor", m_useColor);
+  shader.set("Color", m_color);
+  shader.set("CameraPosition", context.camera().position());
+  m_indexArray.render(m_vertexArray);
+}
+} // namespace Renderer
+} // namespace TrenchBroom

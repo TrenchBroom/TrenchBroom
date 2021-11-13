@@ -20,27 +20,27 @@
 #include "PreferencePane.h"
 
 namespace TrenchBroom {
-    namespace View {
-        PreferencePane::PreferencePane(QWidget* parent) :
-        QWidget(parent) {}
+namespace View {
+PreferencePane::PreferencePane(QWidget* parent)
+  : QWidget(parent) {}
 
-        PreferencePane::~PreferencePane() = default;
+PreferencePane::~PreferencePane() = default;
 
-        bool PreferencePane::canResetToDefaults() {
-            return doCanResetToDefaults();
-        }
-
-        void PreferencePane::resetToDefaults() {
-            doResetToDefaults();
-            updateControls();
-        }
-
-        void PreferencePane::updateControls() {
-            doUpdateControls();
-        }
-
-        bool PreferencePane::validate() {
-            return doValidate();
-        }
-    }
+bool PreferencePane::canResetToDefaults() {
+  return doCanResetToDefaults();
 }
+
+void PreferencePane::resetToDefaults() {
+  doResetToDefaults();
+  updateControls();
+}
+
+void PreferencePane::updateControls() {
+  doUpdateControls();
+}
+
+bool PreferencePane::validate() {
+  return doValidate();
+}
+} // namespace View
+} // namespace TrenchBroom

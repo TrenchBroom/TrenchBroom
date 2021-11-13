@@ -20,30 +20,32 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Renderer/GLVertexType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/GLVertexType.h"
 
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class OrthographicCamera;
-        class RenderContext;
-        class VboManager;
+namespace Renderer {
+class OrthographicCamera;
+class RenderContext;
+class VboManager;
 
-        class GridRenderer : public DirectRenderable {
-        private:
-            using Vertex = GLVertexTypes::P3::Vertex;
-            VertexArray m_vertexArray;
-        public:
-            GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
-        private:
-            static std::vector<Vertex> vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
+class GridRenderer : public DirectRenderable {
+private:
+  using Vertex = GLVertexTypes::P3::Vertex;
+  VertexArray m_vertexArray;
 
-            void doPrepareVertices(VboManager& vboManager) override;
-            void doRender(RenderContext& renderContext) override;
-        };
-    }
-}
+public:
+  GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
 
+private:
+  static std::vector<Vertex> vertices(
+    const OrthographicCamera& camera, const vm::bbox3& worldBounds);
+
+  void doPrepareVertices(VboManager& vboManager) override;
+  void doRender(RenderContext& renderContext) override;
+};
+} // namespace Renderer
+} // namespace TrenchBroom

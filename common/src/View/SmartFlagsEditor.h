@@ -29,32 +29,36 @@ class QWidget;
 class QScrollArea;
 
 namespace TrenchBroom {
-    namespace View {
-        class FlagsEditor;
-        class MapDocument;
+namespace View {
+class FlagsEditor;
+class MapDocument;
 
-        class SmartFlagsEditor : public SmartPropertyEditor {
-            Q_OBJECT
-        private:
-            static const size_t NumFlags = 24;
-            static const size_t NumCols = 3;
+class SmartFlagsEditor : public SmartPropertyEditor {
+  Q_OBJECT
+private:
+  static const size_t NumFlags = 24;
+  static const size_t NumCols = 3;
 
-            QScrollArea* m_scrolledWindow;
-            FlagsEditor* m_flagsEditor;
-            bool m_ignoreUpdates;
-        public:
-            explicit SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
-            void createGui();
-            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
-            void resetScrollPos();
+  QScrollArea* m_scrolledWindow;
+  FlagsEditor* m_flagsEditor;
+  bool m_ignoreUpdates;
 
-            void getFlags(const std::vector<Model::EntityNodeBase*>& nodes, QStringList& labels, QStringList& tooltips) const;
-            void getFlagValues(const std::vector<Model::EntityNodeBase*>& nodes, int& setFlags, int& mixedFlags) const;
-            int getFlagValue(const Model::EntityNodeBase* node) const;
+public:
+  explicit SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
-            void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
-        };
-    }
-}
+private:
+  void createGui();
+  void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
+  void resetScrollPos();
 
+  void getFlags(
+    const std::vector<Model::EntityNodeBase*>& nodes, QStringList& labels,
+    QStringList& tooltips) const;
+  void getFlagValues(
+    const std::vector<Model::EntityNodeBase*>& nodes, int& setFlags, int& mixedFlags) const;
+  int getFlagValue(const Model::EntityNodeBase* node) const;
+
+  void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
+};
+} // namespace View
+} // namespace TrenchBroom

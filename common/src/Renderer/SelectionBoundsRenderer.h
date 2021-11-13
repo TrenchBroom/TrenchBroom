@@ -24,28 +24,29 @@
 #include <vecmath/bbox.h>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
+namespace Renderer {
+class RenderBatch;
+class RenderContext;
 
-        class SelectionBoundsRenderer {
-        private:
-            const vm::bbox3 m_bounds;
+class SelectionBoundsRenderer {
+private:
+  const vm::bbox3 m_bounds;
 
-            class SizeTextAnchor2D;
-            class SizeTextAnchor3D;
-            class MinMaxTextAnchor3D;
-        public:
-            SelectionBoundsRenderer(const vm::bbox3& bounds);
+  class SizeTextAnchor2D;
+  class SizeTextAnchor3D;
+  class MinMaxTextAnchor3D;
 
-            void render(RenderContext& renderContext, RenderBatch& renderBatch);
-        private:
-            void renderBounds(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderSize(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderSize2D(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderSize3D(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderMinMax(RenderContext& renderContext, RenderBatch& renderBatch);
-        };
-    }
-}
+public:
+  SelectionBoundsRenderer(const vm::bbox3& bounds);
 
+  void render(RenderContext& renderContext, RenderBatch& renderBatch);
+
+private:
+  void renderBounds(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderSize(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderSize2D(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderSize3D(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderMinMax(RenderContext& renderContext, RenderBatch& renderBatch);
+};
+} // namespace Renderer
+} // namespace TrenchBroom

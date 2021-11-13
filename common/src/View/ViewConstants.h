@@ -24,87 +24,87 @@ class QFont;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace View {
-        namespace LayoutConstants {
+namespace View {
+namespace LayoutConstants {
 #if defined _WIN32
-            static const int DialogOuterMargin                  = 10;
-            static const int DialogButtonTopMargin              = 10;
-            static const int DialogButtonLeftMargin             = 7;
-            static const int DialogButtonRightMargin            = 7;
-            static const int DialogButtonBottomMargin           = 10;
-            static const int WideHMargin                        = 8;
-            static const int MediumHMargin                      = 6;
-            static const int NarrowHMargin                      = 4;
-            static const int WideVMargin                        = 8;
-            static const int MediumVMargin                      = 4;
-            static const int NarrowVMargin                      = 2;
-            static const int StaticBoxSideMargin                = 15;
-            static const int StaticBoxTopMargin                 = 20;
-            static const int StaticBoxBottomMargin              = 15;
-            static const int ChoiceTopMargin                    = 1;
-            static const int ChoiceLeftMargin                   = 0;
-            static const int ChoiceSizeDelta                    = 0;
-            static const int TextBoxInnerMargin                 = 5;
-            static const int TabBarBarLeftMargin                = 10;
-            static const int ToggleButtonStyle                  = 0;
+static const int DialogOuterMargin = 10;
+static const int DialogButtonTopMargin = 10;
+static const int DialogButtonLeftMargin = 7;
+static const int DialogButtonRightMargin = 7;
+static const int DialogButtonBottomMargin = 10;
+static const int WideHMargin = 8;
+static const int MediumHMargin = 6;
+static const int NarrowHMargin = 4;
+static const int WideVMargin = 8;
+static const int MediumVMargin = 4;
+static const int NarrowVMargin = 2;
+static const int StaticBoxSideMargin = 15;
+static const int StaticBoxTopMargin = 20;
+static const int StaticBoxBottomMargin = 15;
+static const int ChoiceTopMargin = 1;
+static const int ChoiceLeftMargin = 0;
+static const int ChoiceSizeDelta = 0;
+static const int TextBoxInnerMargin = 5;
+static const int TabBarBarLeftMargin = 10;
+static const int ToggleButtonStyle = 0;
 #elif defined __APPLE__
-            static const int DialogOuterMargin                  = 10;
-            static const int DialogButtonTopMargin              = 10;
-            static const int DialogButtonLeftMargin             = 10;
-            static const int DialogButtonRightMargin            = 10;
-            static const int DialogButtonBottomMargin           = 10;
-            static const int WideHMargin                        = 8;
-            static const int MediumHMargin                      = 4;
-            static const int NarrowHMargin                      = 2;
-            static const int WideVMargin                        = 8;
-            static const int MediumVMargin                      = 4;
-            static const int NarrowVMargin                      = 2;
-            static const int StaticBoxSideMargin                = 10;
-            static const int StaticBoxTopMargin                 = 10;
-            static const int StaticBoxBottomMargin              = 10;
-            static const int ChoiceTopMargin                    = 1;
-            static const int ChoiceLeftMargin                   = 1;
-            static const int ChoiceSizeDelta                    = 1;
-            static const int TextBoxInnerMargin                 = 0;
-            static const int TabBarBarLeftMargin                = 10;
-            static const int ToggleButtonStyle                  = 0x08000000; // wxBORDER_SUNKEN
+static const int DialogOuterMargin = 10;
+static const int DialogButtonTopMargin = 10;
+static const int DialogButtonLeftMargin = 10;
+static const int DialogButtonRightMargin = 10;
+static const int DialogButtonBottomMargin = 10;
+static const int WideHMargin = 8;
+static const int MediumHMargin = 4;
+static const int NarrowHMargin = 2;
+static const int WideVMargin = 8;
+static const int MediumVMargin = 4;
+static const int NarrowVMargin = 2;
+static const int StaticBoxSideMargin = 10;
+static const int StaticBoxTopMargin = 10;
+static const int StaticBoxBottomMargin = 10;
+static const int ChoiceTopMargin = 1;
+static const int ChoiceLeftMargin = 1;
+static const int ChoiceSizeDelta = 1;
+static const int TextBoxInnerMargin = 0;
+static const int TabBarBarLeftMargin = 10;
+static const int ToggleButtonStyle = 0x08000000; // wxBORDER_SUNKEN
 #else
-            static const int DialogOuterMargin                  = 10;
-            static const int DialogButtonTopMargin              = 10;
-            static const int DialogButtonLeftMargin             = 8;
-            static const int DialogButtonRightMargin            = 8;
-            static const int DialogButtonBottomMargin           = 10;
-            static const int WideHMargin                        = 8;
-            static const int MediumHMargin                      = 4;
-            static const int NarrowHMargin                      = 2;
-            static const int WideVMargin                        = 8;
-            static const int MediumVMargin                      = 4;
-            static const int NarrowVMargin                      = 2;
-            static const int StaticBoxSideMargin                = 15;
-            static const int StaticBoxTopMargin                 = 10;
-            static const int StaticBoxBottomMargin              = 30;
-            static const int ChoiceTopMargin                    = 0;
-            static const int ChoiceLeftMargin                   = 0;
-            static const int ChoiceSizeDelta                    = 0;
-            static const int TextBoxInnerMargin                 = 2;
-            static const int TabBarBarLeftMargin                = 10;
-            static const int ToggleButtonStyle                  = 0;
+static const int DialogOuterMargin = 10;
+static const int DialogButtonTopMargin = 10;
+static const int DialogButtonLeftMargin = 8;
+static const int DialogButtonRightMargin = 8;
+static const int DialogButtonBottomMargin = 10;
+static const int WideHMargin = 8;
+static const int MediumHMargin = 4;
+static const int NarrowHMargin = 2;
+static const int WideVMargin = 8;
+static const int MediumVMargin = 4;
+static const int NarrowVMargin = 2;
+static const int StaticBoxSideMargin = 15;
+static const int StaticBoxTopMargin = 10;
+static const int StaticBoxBottomMargin = 30;
+static const int ChoiceTopMargin = 0;
+static const int ChoiceLeftMargin = 0;
+static const int ChoiceSizeDelta = 0;
+static const int TextBoxInnerMargin = 2;
+static const int TabBarBarLeftMargin = 10;
+static const int ToggleButtonStyle = 0;
 #endif
-            static const int MinPreferenceLabelWidth            = 100;
-            static const int HighlightBoxMargin                 = 5;
-        }
+static const int MinPreferenceLabelWidth = 100;
+static const int HighlightBoxMargin = 5;
+} // namespace LayoutConstants
 
-        namespace Fonts {
-            QFont fixedWidthFont();
-        }
-
-        namespace Colors {
-            QColor defaultText();
-            QColor highlightText();
-            QColor disabledText();
-            QColor disabledCellText();
-            QColor disabledText(const QWidget* widget);
-            QColor window();
-        }
-    }
+namespace Fonts {
+QFont fixedWidthFont();
 }
+
+namespace Colors {
+QColor defaultText();
+QColor highlightText();
+QColor disabledText();
+QColor disabledCellText();
+QColor disabledText(const QWidget* widget);
+QColor window();
+} // namespace Colors
+} // namespace View
+} // namespace TrenchBroom

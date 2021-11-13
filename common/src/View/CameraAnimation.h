@@ -25,28 +25,31 @@
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-
-    namespace View {
-        class CameraAnimation : public Animation {
-        private:
-            static const Type AnimationType;
-
-            Renderer::Camera& m_camera;
-
-            const vm::vec3f m_startPosition;
-            const vm::vec3f m_startDirection;
-            const vm::vec3f m_startUp;
-            const vm::vec3f m_targetPosition;
-            const vm::vec3f m_targetDirection;
-            const vm::vec3f m_targetUp;
-        public:
-            CameraAnimation(Renderer::Camera& camera, const vm::vec3f& targetPosition, const vm::vec3f& targetDirection, const vm::vec3f& targetUp, double duration);
-        private:
-            void doUpdate(double progress) override;
-        };
-    }
+namespace Renderer {
+class Camera;
 }
 
+namespace View {
+class CameraAnimation : public Animation {
+private:
+  static const Type AnimationType;
+
+  Renderer::Camera& m_camera;
+
+  const vm::vec3f m_startPosition;
+  const vm::vec3f m_startDirection;
+  const vm::vec3f m_startUp;
+  const vm::vec3f m_targetPosition;
+  const vm::vec3f m_targetDirection;
+  const vm::vec3f m_targetUp;
+
+public:
+  CameraAnimation(
+    Renderer::Camera& camera, const vm::vec3f& targetPosition, const vm::vec3f& targetDirection,
+    const vm::vec3f& targetUp, double duration);
+
+private:
+  void doUpdate(double progress) override;
+};
+} // namespace View
+} // namespace TrenchBroom

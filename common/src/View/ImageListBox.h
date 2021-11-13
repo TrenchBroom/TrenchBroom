@@ -25,34 +25,36 @@ class QLabel;
 class QPixmap;
 
 namespace TrenchBroom {
-    namespace View {
-        class ElidedLabel;
+namespace View {
+class ElidedLabel;
 
-        class ImageListBoxItemRenderer : public ControlListBoxItemRenderer {
-            Q_OBJECT
-        private:
-            ElidedLabel* m_titleLabel;
-            ElidedLabel* m_subtitleLabel;
-            QLabel* m_imageLabel;
-        public:
-            ImageListBoxItemRenderer(const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent) ;
-            void updateItem() override;
-        };
+class ImageListBoxItemRenderer : public ControlListBoxItemRenderer {
+  Q_OBJECT
+private:
+  ElidedLabel* m_titleLabel;
+  ElidedLabel* m_subtitleLabel;
+  QLabel* m_imageLabel;
 
-        class ImageListBox : public ControlListBox {
-            Q_OBJECT
-        public:
-            explicit ImageListBox(const QString& emptyText, bool showSeparator, QWidget* parent = nullptr);
-        private:
-            ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
-        private:
-            friend class ImageListBoxItemRenderer;
+public:
+  ImageListBoxItemRenderer(
+    const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent);
+  void updateItem() override;
+};
 
-            virtual QPixmap image(size_t index) const;
-            virtual QString title(size_t index) const = 0;
-            virtual QString subtitle(size_t index) const = 0;
-        };
-    }
-}
+class ImageListBox : public ControlListBox {
+  Q_OBJECT
+public:
+  explicit ImageListBox(const QString& emptyText, bool showSeparator, QWidget* parent = nullptr);
 
+private:
+  ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
 
+private:
+  friend class ImageListBoxItemRenderer;
+
+  virtual QPixmap image(size_t index) const;
+  virtual QString title(size_t index) const = 0;
+  virtual QString subtitle(size_t index) const = 0;
+};
+} // namespace View
+} // namespace TrenchBroom

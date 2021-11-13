@@ -27,29 +27,30 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Group {
-        private:
-            std::string m_name;
-            std::optional<std::string> m_linkedGroupId;
+namespace Model {
+class Group {
+private:
+  std::string m_name;
+  std::optional<std::string> m_linkedGroupId;
 
-            vm::mat4x4 m_transformation;
-        public:
-            explicit Group(std::string name);
+  vm::mat4x4 m_transformation;
 
-            const std::string& name() const;
-            void setName(std::string name);
+public:
+  explicit Group(std::string name);
 
-            std::optional<std::string> linkedGroupId() const;
-            void setLinkedGroupId(std::string linkedGroupId);
-            void resetLinkedGroupId();
+  const std::string& name() const;
+  void setName(std::string name);
 
-            const vm::mat4x4& transformation() const;
-            void setTransformation(const vm::mat4x4& transformation);
-            void transform(const vm::mat4x4& transformation);
+  std::optional<std::string> linkedGroupId() const;
+  void setLinkedGroupId(std::string linkedGroupId);
+  void resetLinkedGroupId();
 
-            friend bool operator==(const Group& lhs, const Group& rhs);
-            friend bool operator!=(const Group& lhs, const Group& rhs);
-        };
-    }
-}
+  const vm::mat4x4& transformation() const;
+  void setTransformation(const vm::mat4x4& transformation);
+  void transform(const vm::mat4x4& transformation);
+
+  friend bool operator==(const Group& lhs, const Group& rhs);
+  friend bool operator!=(const Group& lhs, const Group& rhs);
+};
+} // namespace Model
+} // namespace TrenchBroom

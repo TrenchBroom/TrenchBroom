@@ -27,19 +27,21 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class WorldBoundsIssueGenerator : public IssueGenerator {
-        private:
-            class WorldBoundsIssue;
-            class WorldBoundsIssueQuickFix;
-        private:
-            const vm::bbox3 m_bounds;
-        public:
-            explicit WorldBoundsIssueGenerator(const vm::bbox3& bounds);
-        private:
-            void doGenerate(EntityNode* brush, IssueList& issues) const override;
-            void doGenerate(BrushNode* brush, IssueList& issues) const override;
-        };
-    }
-}
+namespace Model {
+class WorldBoundsIssueGenerator : public IssueGenerator {
+private:
+  class WorldBoundsIssue;
+  class WorldBoundsIssueQuickFix;
 
+private:
+  const vm::bbox3 m_bounds;
+
+public:
+  explicit WorldBoundsIssueGenerator(const vm::bbox3& bounds);
+
+private:
+  void doGenerate(EntityNode* brush, IssueList& issues) const override;
+  void doGenerate(BrushNode* brush, IssueList& issues) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

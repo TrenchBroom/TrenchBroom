@@ -25,35 +25,39 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace View {
-        class Grid;
-        class InputState;
-        class MapDocument;
+namespace View {
+class Grid;
+class InputState;
+class MapDocument;
 
-        class MoveObjectsTool : public Tool {
-        public:
-            typedef enum {
-                MR_Continue,
-                MR_Deny,
-                MR_Cancel
-            } MoveResult;
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            bool m_duplicateObjects;
-        public:
-            explicit MoveObjectsTool(std::weak_ptr<MapDocument> document);
-        public:
-            const Grid& grid() const;
+class MoveObjectsTool : public Tool {
+public:
+  typedef enum
+  {
+    MR_Continue,
+    MR_Deny,
+    MR_Cancel
+  } MoveResult;
 
-            bool startMove(const InputState& inputState);
-            MoveResult move(const InputState& inputState, const vm::vec3& delta);
-            void endMove(const InputState& inputState);
-            void cancelMove();
-        private:
-            bool duplicateObjects(const InputState& inputState) const;
+private:
+  std::weak_ptr<MapDocument> m_document;
+  bool m_duplicateObjects;
 
-            QWidget* doCreatePage(QWidget* parent) override;
-        };
-    }
-}
+public:
+  explicit MoveObjectsTool(std::weak_ptr<MapDocument> document);
 
+public:
+  const Grid& grid() const;
+
+  bool startMove(const InputState& inputState);
+  MoveResult move(const InputState& inputState, const vm::vec3& delta);
+  void endMove(const InputState& inputState);
+  void cancelMove();
+
+private:
+  bool duplicateObjects(const InputState& inputState) const;
+
+  QWidget* doCreatePage(QWidget* parent) override;
+};
+} // namespace View
+} // namespace TrenchBroom

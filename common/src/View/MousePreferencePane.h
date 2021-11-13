@@ -25,72 +25,74 @@ class QCheckBox;
 class QKeySequence;
 
 namespace TrenchBroom {
-    template <typename T> class Preference;
+template <typename T> class Preference;
 
-    namespace View {
-        class KeySequenceEdit;
-        class SliderWithLabel;
+namespace View {
+class KeySequenceEdit;
+class SliderWithLabel;
 
-        class MousePreferencePane : public PreferencePane {
-        private:
-            SliderWithLabel* m_lookSpeedSlider;
-            QCheckBox* m_invertLookHAxisCheckBox;
-            QCheckBox* m_invertLookVAxisCheckBox;
-            SliderWithLabel* m_panSpeedSlider;
-            QCheckBox* m_invertPanHAxisCheckBox;
-            QCheckBox* m_invertPanVAxisCheckBox;
-            SliderWithLabel* m_moveSpeedSlider;
-            QCheckBox* m_invertMouseWheelCheckBox;
-            QCheckBox* m_enableAltMoveCheckBox;
-            QCheckBox* m_invertAltMoveAxisCheckBox;
-            QCheckBox* m_moveInCursorDirCheckBox;
+class MousePreferencePane : public PreferencePane {
+private:
+  SliderWithLabel* m_lookSpeedSlider;
+  QCheckBox* m_invertLookHAxisCheckBox;
+  QCheckBox* m_invertLookVAxisCheckBox;
+  SliderWithLabel* m_panSpeedSlider;
+  QCheckBox* m_invertPanHAxisCheckBox;
+  QCheckBox* m_invertPanVAxisCheckBox;
+  SliderWithLabel* m_moveSpeedSlider;
+  QCheckBox* m_invertMouseWheelCheckBox;
+  QCheckBox* m_enableAltMoveCheckBox;
+  QCheckBox* m_invertAltMoveAxisCheckBox;
+  QCheckBox* m_moveInCursorDirCheckBox;
 
-            KeySequenceEdit* m_forwardKeyEditor;
-            KeySequenceEdit* m_backwardKeyEditor;
-            KeySequenceEdit* m_leftKeyEditor;
-            KeySequenceEdit* m_rightKeyEditor;
-            KeySequenceEdit* m_upKeyEditor;
-            KeySequenceEdit* m_downKeyEditor;
-            SliderWithLabel* m_flyMoveSpeedSlider;
-        public:
-            explicit MousePreferencePane(QWidget* parent = nullptr);
+  KeySequenceEdit* m_forwardKeyEditor;
+  KeySequenceEdit* m_backwardKeyEditor;
+  KeySequenceEdit* m_leftKeyEditor;
+  KeySequenceEdit* m_rightKeyEditor;
+  KeySequenceEdit* m_upKeyEditor;
+  KeySequenceEdit* m_downKeyEditor;
+  SliderWithLabel* m_flyMoveSpeedSlider;
 
-        private:
-            void createGui();
+public:
+  explicit MousePreferencePane(QWidget* parent = nullptr);
 
-            void bindEvents();
+private:
+  void createGui();
 
-            bool doCanResetToDefaults() override;
-            void doResetToDefaults() override;
-            void doUpdateControls() override;
-            bool doValidate() override;
-        private slots:
-            void lookSpeedChanged(int value);
-            void invertLookHAxisChanged(int state);
-            void invertLookVAxisChanged(int state);
+  void bindEvents();
 
-            void panSpeedChanged(int value);
-            void invertPanHAxisChanged(int state);
-            void invertPanVAxisChanged(int state);
+  bool doCanResetToDefaults() override;
+  void doResetToDefaults() override;
+  void doUpdateControls() override;
+  bool doValidate() override;
+private slots:
+  void lookSpeedChanged(int value);
+  void invertLookHAxisChanged(int state);
+  void invertLookVAxisChanged(int state);
 
-            void moveSpeedChanged(int value);
-            void invertMouseWheelChanged(int state);
-            void enableAltMoveChanged(int state);
-            void invertAltMoveAxisChanged(int state);
-            void moveInCursorDirChanged(int state);
+  void panSpeedChanged(int value);
+  void invertPanHAxisChanged(int state);
+  void invertPanVAxisChanged(int state);
 
-            void forwardKeyChanged();
-            void backwardKeyChanged();
-            void leftKeyChanged();
-            void rightKeyChanged();
-            void upKeyChanged();
-            void downKeyChanged();
+  void moveSpeedChanged(int value);
+  void invertMouseWheelChanged(int state);
+  void enableAltMoveChanged(int state);
+  void invertAltMoveAxisChanged(int state);
+  void moveInCursorDirChanged(int state);
 
-            void flyMoveSpeedChanged(int value);
-        private:
-            void setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preference);
-            bool hasConflict(const QKeySequence& keySequence, const Preference<QKeySequence>& preference) const;
-        };
-    }
-}
+  void forwardKeyChanged();
+  void backwardKeyChanged();
+  void leftKeyChanged();
+  void rightKeyChanged();
+  void upKeyChanged();
+  void downKeyChanged();
 
+  void flyMoveSpeedChanged(int value);
+
+private:
+  void setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preference);
+  bool hasConflict(
+    const QKeySequence& keySequence, const Preference<QKeySequence>& preference) const;
+};
+} // namespace View
+} // namespace TrenchBroom

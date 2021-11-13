@@ -27,26 +27,27 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocument; // FIXME: Renderer should not depend on View
-    }
-
-    namespace Renderer {
-        class EntityLinkRenderer : public LinkRenderer {
-            std::weak_ptr<View::MapDocument> m_document;
-
-            Color m_defaultColor;
-            Color m_selectedColor;
-        public:
-            EntityLinkRenderer(std::weak_ptr<View::MapDocument> document);
-
-            void setDefaultColor(const Color& color);
-            void setSelectedColor(const Color& color);
-        private:
-            std::vector<LinkRenderer::LineVertex> getLinks() override;
-
-            deleteCopy(EntityLinkRenderer)
-        };
-    }
+namespace View {
+class MapDocument; // FIXME: Renderer should not depend on View
 }
 
+namespace Renderer {
+class EntityLinkRenderer : public LinkRenderer {
+  std::weak_ptr<View::MapDocument> m_document;
+
+  Color m_defaultColor;
+  Color m_selectedColor;
+
+public:
+  EntityLinkRenderer(std::weak_ptr<View::MapDocument> document);
+
+  void setDefaultColor(const Color& color);
+  void setSelectedColor(const Color& color);
+
+private:
+  std::vector<LinkRenderer::LineVertex> getLinks() override;
+
+  deleteCopy(EntityLinkRenderer)
+};
+} // namespace Renderer
+} // namespace TrenchBroom

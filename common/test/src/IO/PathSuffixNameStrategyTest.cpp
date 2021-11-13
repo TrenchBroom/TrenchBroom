@@ -23,14 +23,21 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        TEST_CASE("PathSuffixNameStrategyTest.getTextureName", "[PathSuffixNameStrategyTest]") {
-            CHECK(TextureReader::PathSuffixNameStrategy(1u).textureName("", Path()) == "");
-            CHECK(TextureReader::PathSuffixNameStrategy(1u).textureName("", Path("/textures")) == "");
-            CHECK(TextureReader::PathSuffixNameStrategy(1u).textureName("", Path("/textures/e1m1")) == "e1m1");
-            CHECK(TextureReader::PathSuffixNameStrategy(1u).textureName("", Path("/textures/e1m1/haha")) == "e1m1/haha");
-            CHECK(TextureReader::PathSuffixNameStrategy(1u).textureName("", Path("/textures/e1m1/haha.jpg")) == "e1m1/haha");
-            CHECK(TextureReader::PathSuffixNameStrategy(1u).textureName("", Path("/textures/nesting/e1m1/haha.jpg")) == "nesting/e1m1/haha");
-        }
-    }
+namespace IO {
+TEST_CASE("PathSuffixNameStrategyTest.getTextureName", "[PathSuffixNameStrategyTest]") {
+  CHECK(TextureReader::PathSuffixNameStrategy(1u).textureName("", Path()) == "");
+  CHECK(TextureReader::PathSuffixNameStrategy(1u).textureName("", Path("/textures")) == "");
+  CHECK(
+    TextureReader::PathSuffixNameStrategy(1u).textureName("", Path("/textures/e1m1")) == "e1m1");
+  CHECK(
+    TextureReader::PathSuffixNameStrategy(1u).textureName("", Path("/textures/e1m1/haha")) ==
+    "e1m1/haha");
+  CHECK(
+    TextureReader::PathSuffixNameStrategy(1u).textureName("", Path("/textures/e1m1/haha.jpg")) ==
+    "e1m1/haha");
+  CHECK(
+    TextureReader::PathSuffixNameStrategy(1u).textureName(
+      "", Path("/textures/nesting/e1m1/haha.jpg")) == "nesting/e1m1/haha");
 }
+} // namespace IO
+} // namespace TrenchBroom

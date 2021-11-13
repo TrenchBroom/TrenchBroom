@@ -19,61 +19,61 @@
 
 #include "GameEngineProfile.h"
 
-#include <ostream>
 #include <memory>
+#include <ostream>
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        GameEngineProfile::GameEngineProfile(const std::string& name, const IO::Path& path, const std::string& parameterSpec) :
-        m_name(name),
-        m_path(path),
-        m_parameterSpec(parameterSpec) {}
+namespace Model {
+GameEngineProfile::GameEngineProfile(
+  const std::string& name, const IO::Path& path, const std::string& parameterSpec)
+  : m_name(name)
+  , m_path(path)
+  , m_parameterSpec(parameterSpec) {}
 
-        std::unique_ptr<GameEngineProfile> GameEngineProfile::clone() const {
-            return std::make_unique<GameEngineProfile>(m_name, m_path, m_parameterSpec);
-        }
-
-        const std::string& GameEngineProfile::name() const {
-            return m_name;
-        }
-
-        const IO::Path& GameEngineProfile::path() const {
-            return m_path;
-        }
-
-        const std::string& GameEngineProfile::parameterSpec() const {
-            return m_parameterSpec;
-        }
-
-        void GameEngineProfile::setName(const std::string& name) {
-            m_name = name;
-        }
-
-        void GameEngineProfile::setPath(const IO::Path& path) {
-            m_path = path;
-        }
-
-        void GameEngineProfile::setParameterSpec(const std::string& parameterSpec) {
-            m_parameterSpec = parameterSpec;
-        }
-
-        bool operator==(const GameEngineProfile& lhs, const GameEngineProfile& rhs) {
-            return lhs.m_name == rhs.m_name &&
-                   lhs.m_path == rhs.m_path &&
-                   lhs.m_parameterSpec == rhs.m_parameterSpec;
-        }
-
-        bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs) {
-            return !(lhs == rhs);
-        }
-
-        std::ostream& operator<<(std::ostream& str, const GameEngineProfile& profile) {
-            str << "GameEngineProfile{"
-                << "name: " << profile.m_name << ", "
-                << "path: " << profile.m_path << ", "
-                << "parameterSpec: " << profile.m_parameterSpec << "}";
-            return str;
-        }
-    }
+std::unique_ptr<GameEngineProfile> GameEngineProfile::clone() const {
+  return std::make_unique<GameEngineProfile>(m_name, m_path, m_parameterSpec);
 }
+
+const std::string& GameEngineProfile::name() const {
+  return m_name;
+}
+
+const IO::Path& GameEngineProfile::path() const {
+  return m_path;
+}
+
+const std::string& GameEngineProfile::parameterSpec() const {
+  return m_parameterSpec;
+}
+
+void GameEngineProfile::setName(const std::string& name) {
+  m_name = name;
+}
+
+void GameEngineProfile::setPath(const IO::Path& path) {
+  m_path = path;
+}
+
+void GameEngineProfile::setParameterSpec(const std::string& parameterSpec) {
+  m_parameterSpec = parameterSpec;
+}
+
+bool operator==(const GameEngineProfile& lhs, const GameEngineProfile& rhs) {
+  return lhs.m_name == rhs.m_name && lhs.m_path == rhs.m_path &&
+         lhs.m_parameterSpec == rhs.m_parameterSpec;
+}
+
+bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs) {
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& str, const GameEngineProfile& profile) {
+  str << "GameEngineProfile{"
+      << "name: " << profile.m_name << ", "
+      << "path: " << profile.m_path << ", "
+      << "parameterSpec: " << profile.m_parameterSpec << "}";
+  return str;
+}
+} // namespace Model
+} // namespace TrenchBroom

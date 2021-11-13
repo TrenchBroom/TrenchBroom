@@ -22,51 +22,55 @@
 #include <string>
 
 namespace TrenchBroom {
-    class Logger;
-    enum class LogLevel;
+class Logger;
+enum class LogLevel;
 
-    namespace IO {
-        class ParserStatus {
-        private:
-            Logger& m_logger;
-            std::string m_prefix;
-        protected:
-            explicit ParserStatus(Logger& logger, const std::string& prefix);
-        public:
-            virtual ~ParserStatus();
-        public:
-            void progress(double progress);
+namespace IO {
+class ParserStatus {
+private:
+  Logger& m_logger;
+  std::string m_prefix;
 
-            void debug(size_t line, size_t column, const std::string& str);
-            void info(size_t line, size_t column, const std::string& str);
-            void warn(size_t line, size_t column, const std::string& str);
-            void error(size_t line, size_t column, const std::string& str);
-            [[noreturn]] void errorAndThrow(size_t line, size_t column, const std::string& str);
+protected:
+  explicit ParserStatus(Logger& logger, const std::string& prefix);
 
-            void debug(size_t line, const std::string& str);
-            void info(size_t line, const std::string& str);
-            void warn(size_t line, const std::string& str);
-            void error(size_t line, const std::string& str);
-            [[noreturn]] void errorAndThrow(size_t line, const std::string& str);
+public:
+  virtual ~ParserStatus();
 
-            void debug(const std::string& str);
-            void info(const std::string& str);
-            void warn(const std::string& str);
-            void error(const std::string& str);
-            [[noreturn]] void errorAndThrow(const std::string& str);
-        private:
-            void log(LogLevel level, size_t line, size_t column, const std::string& str);
-            std::string buildMessage(size_t line, size_t column, const std::string& str) const;
+public:
+  void progress(double progress);
 
-            void log(LogLevel level, size_t line, const std::string& str);
-            std::string buildMessage(size_t line, const std::string& str) const;
+  void debug(size_t line, size_t column, const std::string& str);
+  void info(size_t line, size_t column, const std::string& str);
+  void warn(size_t line, size_t column, const std::string& str);
+  void error(size_t line, size_t column, const std::string& str);
+  [[noreturn]] void errorAndThrow(size_t line, size_t column, const std::string& str);
 
-            void log(LogLevel level, const std::string& str);
-            std::string buildMessage(const std::string& str) const;
-        private:
-            virtual void doProgress(double progress) = 0;
-            virtual void doLog(LogLevel level, const std::string& str);
-        };
-    }
-}
+  void debug(size_t line, const std::string& str);
+  void info(size_t line, const std::string& str);
+  void warn(size_t line, const std::string& str);
+  void error(size_t line, const std::string& str);
+  [[noreturn]] void errorAndThrow(size_t line, const std::string& str);
 
+  void debug(const std::string& str);
+  void info(const std::string& str);
+  void warn(const std::string& str);
+  void error(const std::string& str);
+  [[noreturn]] void errorAndThrow(const std::string& str);
+
+private:
+  void log(LogLevel level, size_t line, size_t column, const std::string& str);
+  std::string buildMessage(size_t line, size_t column, const std::string& str) const;
+
+  void log(LogLevel level, size_t line, const std::string& str);
+  std::string buildMessage(size_t line, const std::string& str) const;
+
+  void log(LogLevel level, const std::string& str);
+  std::string buildMessage(const std::string& str) const;
+
+private:
+  virtual void doProgress(double progress) = 0;
+  virtual void doLog(LogLevel level, const std::string& str);
+};
+} // namespace IO
+} // namespace TrenchBroom

@@ -20,14 +20,14 @@
 #pragma once
 
 namespace TrenchBroom {
-    namespace View {
-        class ViewEffectsService {
-        public:
-            virtual ~ViewEffectsService();
-            void flashSelection();
-        private:
-            virtual void doFlashSelection() = 0;
-        };
-    }
-}
+namespace View {
+class ViewEffectsService {
+public:
+  virtual ~ViewEffectsService();
+  void flashSelection();
 
+private:
+  virtual void doFlashSelection() = 0;
+};
+} // namespace View
+} // namespace TrenchBroom

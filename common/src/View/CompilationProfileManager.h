@@ -29,53 +29,56 @@ class QAbstractButton;
 class QPoint;
 
 namespace TrenchBroom {
-    namespace Model {
-        class CompilationProfile;
-    }
-
-    namespace View {
-        class CompilationProfileListBox;
-        class CompilationProfileEditor;
-        class MapDocument;
-
-        /**
-         * Editor widget for all profiles in a compilation config.
-         *
-         * The UI updates our Model::CompilationConfig m_config; calling code can
-         * read the modified config with `config()` and save it to disk.
-         */
-        class CompilationProfileManager : public QWidget {
-            Q_OBJECT
-        private:
-            Model::CompilationConfig m_config;
-            CompilationProfileListBox* m_profileList;
-            CompilationProfileEditor* m_profileEditor;
-            QAbstractButton* m_removeProfileButton;
-        public:
-            CompilationProfileManager(std::weak_ptr<MapDocument> document, Model::CompilationConfig config, QWidget* parent = nullptr);
-
-            const Model::CompilationProfile* selectedProfile() const;
-            const Model::CompilationConfig& config() const;
-        private:
-            void updateGui();
-        private slots:
-            void addProfile();
-            void removeProfile();
-            void removeProfile(size_t index);
-            void removeProfile(Model::CompilationProfile* profile);
-            void duplicateProfile(Model::CompilationProfile* profile);
-            void profileContextMenuRequested(const QPoint& globalPos, Model::CompilationProfile* profile);
-            void profileSelectionChanged();
-        signals:
-            /**
-             * *Which* profile is selected changed.
-             */
-            void selectedProfileChanged();
-            /**
-             * An edit was made to a profile.
-             */
-            void profileChanged();
-        };
-    }
+namespace Model {
+class CompilationProfile;
 }
 
+namespace View {
+class CompilationProfileListBox;
+class CompilationProfileEditor;
+class MapDocument;
+
+/**
+ * Editor widget for all profiles in a compilation config.
+ *
+ * The UI updates our Model::CompilationConfig m_config; calling code can
+ * read the modified config with `config()` and save it to disk.
+ */
+class CompilationProfileManager : public QWidget {
+  Q_OBJECT
+private:
+  Model::CompilationConfig m_config;
+  CompilationProfileListBox* m_profileList;
+  CompilationProfileEditor* m_profileEditor;
+  QAbstractButton* m_removeProfileButton;
+
+public:
+  CompilationProfileManager(
+    std::weak_ptr<MapDocument> document, Model::CompilationConfig config,
+    QWidget* parent = nullptr);
+
+  const Model::CompilationProfile* selectedProfile() const;
+  const Model::CompilationConfig& config() const;
+
+private:
+  void updateGui();
+private slots:
+  void addProfile();
+  void removeProfile();
+  void removeProfile(size_t index);
+  void removeProfile(Model::CompilationProfile* profile);
+  void duplicateProfile(Model::CompilationProfile* profile);
+  void profileContextMenuRequested(const QPoint& globalPos, Model::CompilationProfile* profile);
+  void profileSelectionChanged();
+signals:
+  /**
+   * *Which* profile is selected changed.
+   */
+  void selectedProfileChanged();
+  /**
+   * An edit was made to a profile.
+   */
+  void profileChanged();
+};
+} // namespace View
+} // namespace TrenchBroom

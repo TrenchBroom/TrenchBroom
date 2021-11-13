@@ -22,9 +22,9 @@
 #include "Model/Tag.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        namespace TagAttributes {
-            const TagAttribute Transparency = TagAttribute(1, "transparent");
-        }
-    }
+namespace Model {
+namespace TagAttributes {
+const TagAttribute Transparency = TagAttribute(1, "transparent");
 }
+} // namespace Model
+} // namespace TrenchBroom

@@ -27,27 +27,29 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace View {
-        class CreateSimpleBrushTool;
-        class DragTracker;
-        class MapDocument;
+namespace View {
+class CreateSimpleBrushTool;
+class DragTracker;
+class MapDocument;
 
-        class CreateSimpleBrushToolController3D : public ToolController {
-        private:
-            CreateSimpleBrushTool& m_tool;
-            std::weak_ptr<MapDocument> m_document;
+class CreateSimpleBrushToolController3D : public ToolController {
+private:
+  CreateSimpleBrushTool& m_tool;
+  std::weak_ptr<MapDocument> m_document;
 
-            vm::vec3 m_initialPoint;
-        public:
-            CreateSimpleBrushToolController3D(CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document);
-        private:
-            Tool& tool() override;
-            const Tool& tool() const override;
+  vm::vec3 m_initialPoint;
 
-            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+public:
+  CreateSimpleBrushToolController3D(
+    CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document);
 
-            bool cancel() override;
-        };
-    }
-}
+private:
+  Tool& tool() override;
+  const Tool& tool() const override;
 
+  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+
+  bool cancel() override;
+};
+} // namespace View
+} // namespace TrenchBroom

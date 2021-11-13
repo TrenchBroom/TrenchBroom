@@ -25,44 +25,45 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace View {
-        UndoableCommand::UndoableCommand(const CommandType type, const std::string& name, const bool updateModificationCount) :
-        Command(type, name),
-        m_modificationCount(updateModificationCount ? 1u : 0u) {}
+namespace View {
+UndoableCommand::UndoableCommand(
+  const CommandType type, const std::string& name, const bool updateModificationCount)
+  : Command(type, name)
+  , m_modificationCount(updateModificationCount ? 1u : 0u) {}
 
-        UndoableCommand::~UndoableCommand() {}
+UndoableCommand::~UndoableCommand() {}
 
-        std::unique_ptr<CommandResult> UndoableCommand::performDo(MapDocumentCommandFacade* document) {
-            auto result = Command::performDo(document);
-            if (result->success() && m_modificationCount) {
-                if (document) {
-                    document->incModificationCount(m_modificationCount);
-                }
-            }
-            return result;
-        }
-
-        std::unique_ptr<CommandResult> UndoableCommand::performUndo(MapDocumentCommandFacade* document) {
-            m_state = CommandState::Undoing;
-            auto result = doPerformUndo(document);
-            if (result->success()) {
-                if (document) {
-                    document->decModificationCount(m_modificationCount);
-                }
-                m_state = CommandState::Default;
-            } else {
-                m_state = CommandState::Done;
-            }
-            return result;
-        }
-
-        bool UndoableCommand::collateWith(UndoableCommand* command) {
-            assert(command != this);
-            if (command->type() == m_type && doCollateWith(command)) {
-                m_modificationCount += command->m_modificationCount;
-                return true;
-            }
-            return false;
-        }
+std::unique_ptr<CommandResult> UndoableCommand::performDo(MapDocumentCommandFacade* document) {
+  auto result = Command::performDo(document);
+  if (result->success() && m_modificationCount) {
+    if (document) {
+      document->incModificationCount(m_modificationCount);
     }
+  }
+  return result;
 }
+
+std::unique_ptr<CommandResult> UndoableCommand::performUndo(MapDocumentCommandFacade* document) {
+  m_state = CommandState::Undoing;
+  auto result = doPerformUndo(document);
+  if (result->success()) {
+    if (document) {
+      document->decModificationCount(m_modificationCount);
+    }
+    m_state = CommandState::Default;
+  } else {
+    m_state = CommandState::Done;
+  }
+  return result;
+}
+
+bool UndoableCommand::collateWith(UndoableCommand* command) {
+  assert(command != this);
+  if (command->type() == m_type && doCollateWith(command)) {
+    m_modificationCount += command->m_modificationCount;
+    return true;
+  }
+  return false;
+}
+} // namespace View
+} // namespace TrenchBroom

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
@@ -26,9 +25,10 @@
 #include "IO/Path.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"
+#include "Logger.h"
 
-#include <vecmath/forward.h>
 #include <vecmath/bbox.h>
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 #include <cstdio>
@@ -37,32 +37,33 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]") {
-            // see https://github.com/TrenchBroom/TrenchBroom/issues/2659
+namespace IO {
+TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]") {
+  // see https://github.com/TrenchBroom/TrenchBroom/issues/2659
 
-            NullLogger logger;
-            const auto shaderSearchPath = Path("scripts");
-            const auto textureSearchPaths = std::vector<Path> { Path("models") };
-            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/armor"));
-            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+  NullLogger logger;
+  const auto shaderSearchPath = Path("scripts");
+  const auto textureSearchPaths = std::vector<Path>{Path("models")};
+  std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(
+    IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/armor"));
+  fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
 
-            const auto md3Path = IO::Path("models/armor_red.md3");
-            const auto md3File = fs->openFile(md3Path);
-            REQUIRE(md3File != nullptr);
+  const auto md3Path = IO::Path("models/armor_red.md3");
+  const auto md3File = fs->openFile(md3Path);
+  REQUIRE(md3File != nullptr);
 
-            auto reader = md3File->reader().buffer();
-            auto parser = Md3Parser("armor_red", std::begin(reader), std::end(reader), *fs);
-            auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
+  auto reader = md3File->reader().buffer();
+  auto parser = Md3Parser("armor_red", std::begin(reader), std::end(reader), *fs);
+  auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
 
-            CHECK(model != nullptr);
+  CHECK(model != nullptr);
 
-            CHECK(model->frameCount() == 30u);
-            CHECK(model->surfaceCount() == 2u);
+  CHECK(model->frameCount() == 30u);
+  CHECK(model->surfaceCount() == 2u);
 
-            for (size_t i = 0; i < model->frameCount(); ++i) {
-                CHECK_NOTHROW(parser.loadFrame(i, *model, logger));
-            }
-        }
-    }
+  for (size_t i = 0; i < model->frameCount(); ++i) {
+    CHECK_NOTHROW(parser.loadFrame(i, *model, logger));
+  }
 }
+} // namespace IO
+} // namespace TrenchBroom

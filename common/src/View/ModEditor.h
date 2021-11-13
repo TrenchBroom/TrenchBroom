@@ -33,56 +33,58 @@ class QWidget;
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
-    namespace View {
-        class MapDocument;
-
-        class ModEditor : public QWidget {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-
-            QListWidget* m_availableModList;
-            QListWidget* m_enabledModList;
-            QLineEdit* m_filterBox;
-            QAbstractButton* m_addModsButton;
-            QAbstractButton* m_removeModsButton;
-            QAbstractButton* m_moveModUpButton;
-            QAbstractButton* m_moveModDownButton;
-
-            std::vector<std::string> m_availableMods;
-
-            NotifierConnection m_notifierConnection;
-        public:
-            explicit ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
-            void createGui();
-        private slots:
-            void updateButtons();
-        private:
-            void connectObservers();
-
-            void documentWasNewed(MapDocument* document);
-            void documentWasLoaded(MapDocument* document);
-            void modsDidChange();
-            void preferenceDidChange(const IO::Path& path);
-
-            void updateAvailableMods();
-            void updateMods();
-
-            void addModClicked();
-            void removeModClicked();
-            void moveModUpClicked();
-            void moveModDownClicked();
-            bool canEnableAddButton() const;
-            bool canEnableRemoveButton() const;
-            bool canEnableMoveUpButton() const;
-            bool canEnableMoveDownButton() const;
-            void filterBoxChanged();
-        };
-    }
+namespace IO {
+class Path;
 }
 
+namespace View {
+class MapDocument;
+
+class ModEditor : public QWidget {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+
+  QListWidget* m_availableModList;
+  QListWidget* m_enabledModList;
+  QLineEdit* m_filterBox;
+  QAbstractButton* m_addModsButton;
+  QAbstractButton* m_removeModsButton;
+  QAbstractButton* m_moveModUpButton;
+  QAbstractButton* m_moveModDownButton;
+
+  std::vector<std::string> m_availableMods;
+
+  NotifierConnection m_notifierConnection;
+
+public:
+  explicit ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+
+private:
+  void createGui();
+private slots:
+  void updateButtons();
+
+private:
+  void connectObservers();
+
+  void documentWasNewed(MapDocument* document);
+  void documentWasLoaded(MapDocument* document);
+  void modsDidChange();
+  void preferenceDidChange(const IO::Path& path);
+
+  void updateAvailableMods();
+  void updateMods();
+
+  void addModClicked();
+  void removeModClicked();
+  void moveModUpClicked();
+  void moveModDownClicked();
+  bool canEnableAddButton() const;
+  bool canEnableRemoveButton() const;
+  bool canEnableMoveUpButton() const;
+  bool canEnableMoveDownButton() const;
+  void filterBoxChanged();
+};
+} // namespace View
+} // namespace TrenchBroom

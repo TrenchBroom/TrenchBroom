@@ -26,34 +26,34 @@
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineConfig;
-        class GameEngineProfile;
-    }
+namespace Model {
+class GameEngineConfig;
+class GameEngineProfile;
+} // namespace Model
 
-    namespace View {
-        class GameEngineProfileEditor;
-        class GameEngineProfileListBox;
+namespace View {
+class GameEngineProfileEditor;
+class GameEngineProfileListBox;
 
-        /**
-         * Widget for editing game engine profiles (name/path, not parameters).
-         */
-        class GameEngineProfileManager : public QWidget {
-            Q_OBJECT
-        private:
-            Model::GameEngineConfig m_config;
-            GameEngineProfileListBox* m_profileList;
-            GameEngineProfileEditor* m_profileEditor;
-            QAbstractButton* m_removeProfileButton;
-        public:
-            explicit GameEngineProfileManager(Model::GameEngineConfig config, QWidget* parent = nullptr);
-            const Model::GameEngineConfig& config() const;
-        private slots:
-            void addProfile();
-            void removeProfile();
+/**
+ * Widget for editing game engine profiles (name/path, not parameters).
+ */
+class GameEngineProfileManager : public QWidget {
+  Q_OBJECT
+private:
+  Model::GameEngineConfig m_config;
+  GameEngineProfileListBox* m_profileList;
+  GameEngineProfileEditor* m_profileEditor;
+  QAbstractButton* m_removeProfileButton;
 
-            void currentProfileChanged(Model::GameEngineProfile* profile);
-        };
-    }
-}
+public:
+  explicit GameEngineProfileManager(Model::GameEngineConfig config, QWidget* parent = nullptr);
+  const Model::GameEngineConfig& config() const;
+private slots:
+  void addProfile();
+  void removeProfile();
 
+  void currentProfileChanged(Model::GameEngineProfile* profile);
+};
+} // namespace View
+} // namespace TrenchBroom

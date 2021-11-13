@@ -24,31 +24,31 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class CompilationProfile;
+namespace Model {
+class CompilationProfile;
 
-        class CompilationConfig {
-        private:
-            std::vector<std::unique_ptr<CompilationProfile>> m_profiles;
-        public:
-            CompilationConfig();
-            explicit CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles);
-            CompilationConfig(const CompilationConfig& other);
-            ~CompilationConfig();
+class CompilationConfig {
+private:
+  std::vector<std::unique_ptr<CompilationProfile>> m_profiles;
 
-            CompilationConfig& operator=(CompilationConfig other);
-            friend void swap(CompilationConfig& lhs, CompilationConfig& rhs);
-            friend bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs);
-            friend bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs);
-            friend std::ostream& operator<<(std::ostream& str, const CompilationConfig& config);
+public:
+  CompilationConfig();
+  explicit CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles);
+  CompilationConfig(const CompilationConfig& other);
+  ~CompilationConfig();
 
-            size_t profileCount() const;
-            CompilationProfile* profile(size_t index) const;
-            size_t indexOfProfile(CompilationProfile* profile) const;
+  CompilationConfig& operator=(CompilationConfig other);
+  friend void swap(CompilationConfig& lhs, CompilationConfig& rhs);
+  friend bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs);
+  friend bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs);
+  friend std::ostream& operator<<(std::ostream& str, const CompilationConfig& config);
 
-            void addProfile(std::unique_ptr<CompilationProfile> profile);
-            void removeProfile(size_t index);
-        };
-    }
-}
+  size_t profileCount() const;
+  CompilationProfile* profile(size_t index) const;
+  size_t indexOfProfile(CompilationProfile* profile) const;
 
+  void addProfile(std::unique_ptr<CompilationProfile> profile);
+  void removeProfile(size_t index);
+};
+} // namespace Model
+} // namespace TrenchBroom
