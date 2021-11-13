@@ -115,10 +115,10 @@ TEST_CASE("GroupNodeTest.canAddChild") {
     BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
-            auto patchNode = PatchNode{BezierPatch{3, 3, {
-                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+  auto patchNode = PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
   // clang-format on
 
   CHECK_FALSE(groupNode.canAddChild(&worldNode));
@@ -141,10 +141,10 @@ TEST_CASE("GroupNodeTest.canRemoveChild") {
     BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
-            auto patchNode = PatchNode{BezierPatch{3, 3, {
-                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+  auto patchNode = PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
   // clang-format on
 
   CHECK(groupNode.canRemoveChild(&worldNode));
@@ -488,78 +488,78 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveEntityProperties", "[Group
     std::vector<EntityProperty>, std::vector<EntityProperty>>;
 
   // clang-format off
-            const auto
-            [srcProtProperties, trgtProtProperties, sourceProperties, 
-                                                    targetProperties, 
-                                                    expectedProperties ] = GENERATE(values<T>({
-            // properties remain unchanged
-            {{},                {},                 { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
+  const auto
+  [srcProtProperties, trgtProtProperties, sourceProperties, 
+                                          targetProperties, 
+                                          expectedProperties ] = GENERATE(values<T>({
+  // properties remain unchanged
+  {{},                {},                 { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
 
-            {{},                { "some_key" },     { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
+  {{},                { "some_key" },     { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
 
-            {{ "some_key" },    {},                 { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
+  {{ "some_key" },    {},                 { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
 
-            {{ "some_key" },    { "some_key" },     { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
+  {{ "some_key" },    { "some_key" },     { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
 
-            // property was added to source
-            {{},                {},                 { { "some_key", "some_value" } },
-                                                    {},
-                                                    { { "some_key", "some_value" } } },
+  // property was added to source
+  {{},                {},                 { { "some_key", "some_value" } },
+                                          {},
+                                          { { "some_key", "some_value" } } },
 
-            {{},                { "some_key" },     { { "some_key", "some_value" } },
-                                                    {},
-                                                    {} },
+  {{},                { "some_key" },     { { "some_key", "some_value" } },
+                                          {},
+                                          {} },
 
-            {{ "some_key" },    {},                 { { "some_key", "some_value" } },
-                                                    {},
-                                                    {} },
+  {{ "some_key" },    {},                 { { "some_key", "some_value" } },
+                                          {},
+                                          {} },
 
-            {{ "some_key" },    { "some_key" },     { { "some_key", "some_value" } },
-                                                    {},
-                                                    {} },
+  {{ "some_key" },    { "some_key" },     { { "some_key", "some_value" } },
+                                          {},
+                                          {} },
 
-            // property was changed in source
-            {{},                {},                 { { "some_key", "other_value" } },
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "other_value" } } },
+  // property was changed in source
+  {{},                {},                 { { "some_key", "other_value" } },
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "other_value" } } },
 
-            {{ "some_key" },    {},                 { { "some_key", "other_value" } },
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
+  {{ "some_key" },    {},                 { { "some_key", "other_value" } },
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
 
-            {{},                { "some_key" },     { { "some_key", "other_value" } },
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
+  {{},                { "some_key" },     { { "some_key", "other_value" } },
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
 
-            {{ "some_key" },    { "some_key" },     { { "some_key", "other_value" } },
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
+  {{ "some_key" },    { "some_key" },     { { "some_key", "other_value" } },
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
 
-            // property was removed in source
-            {{},                {},                 {},
-                                                    { { "some_key", "some_value" } },
-                                                    {} },
+  // property was removed in source
+  {{},                {},                 {},
+                                          { { "some_key", "some_value" } },
+                                          {} },
 
-            {{ "some_key" },    {},                 {},
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
+  {{ "some_key" },    {},                 {},
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
 
-            {{},                { "some_key" },     {},
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
+  {{},                { "some_key" },     {},
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
 
-            {{ "some_key" },    { "some_key" },     {},
-                                                    { { "some_key", "some_value" } },
-                                                    { { "some_key", "some_value" } } },
-            }));
+  {{ "some_key" },    { "some_key" },     {},
+                                          { { "some_key", "some_value" } },
+                                          { { "some_key", "some_value" } } },
+  }));
   // clang-format on
 
   CAPTURE(

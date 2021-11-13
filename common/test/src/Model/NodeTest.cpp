@@ -584,11 +584,11 @@ TEST_CASE("NodeTest.accept", "[NodeTest]") {
   BrushNode brush(BrushBuilder(world.mapFormat(), worldBounds).createCube(32.0, "texture").value());
 
   // clang-format off
-            PatchNode patch(BezierPatch(3, 3, { 
-                BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
-                BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
-                BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
-            }, "texture"));
+  PatchNode patch(BezierPatch(3, 3, { 
+    BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
+    BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
+    BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
+  }, "texture"));
   // clang-format on
 
   SECTION("Non const nodes accept non const visitor") {
