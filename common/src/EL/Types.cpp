@@ -24,46 +24,46 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace EL {
-        std::string typeName(const ValueType type) {
-            switch (type) {
-                case ValueType::Boolean:
-                    return "Boolean";
-                case ValueType::String:
-                    return "String";
-                case ValueType::Number:
-                    return "Number";
-                case ValueType::Array:
-                    return "Array";
-                case ValueType::Map:
-                    return "Map";
-                case ValueType::Range:
-                    return "Range";
-                case ValueType::Null:
-                    return "Null";
-                case ValueType::Undefined:
-                    return "Undefined";
-                    switchDefault()
-            }
-        }
-
-        ValueType typeForName(const std::string& type) {
-            if (type == "Boolean")
-                return ValueType::Boolean;
-            if (type == "String")
-                return ValueType::String;
-            if (type == "Number")
-                return ValueType::Number;
-            if (type == "Array")
-                return ValueType::Array;
-            if (type == "Map")
-                return ValueType::Map;
-            if (type == "Range")
-                return ValueType::Range;
-            if (type == "Undefined")
-                return ValueType::Undefined;
-            assert(false);
-            return ValueType::Null;
-        }
-    }
+namespace EL {
+std::string typeName(const ValueType type) {
+  switch (type) {
+    case ValueType::Boolean:
+      return "Boolean";
+    case ValueType::String:
+      return "String";
+    case ValueType::Number:
+      return "Number";
+    case ValueType::Array:
+      return "Array";
+    case ValueType::Map:
+      return "Map";
+    case ValueType::Range:
+      return "Range";
+    case ValueType::Null:
+      return "Null";
+    case ValueType::Undefined:
+      return "Undefined";
+      switchDefault()
+  }
 }
+
+ValueType typeForName(const std::string& type) {
+  if (type == "Boolean")
+    return ValueType::Boolean;
+  if (type == "String")
+    return ValueType::String;
+  if (type == "Number")
+    return ValueType::Number;
+  if (type == "Array")
+    return ValueType::Array;
+  if (type == "Map")
+    return ValueType::Map;
+  if (type == "Range")
+    return ValueType::Range;
+  if (type == "Undefined")
+    return ValueType::Undefined;
+  assert(false);
+  return ValueType::Null;
+}
+} // namespace EL
+} // namespace TrenchBroom

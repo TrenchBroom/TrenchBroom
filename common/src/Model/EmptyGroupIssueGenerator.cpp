@@ -19,8 +19,8 @@
 
 #include "EmptyGroupIssueGenerator.h"
 
-#include "Ensure.h"
 #include "Assets/EntityDefinition.h"
+#include "Ensure.h"
 #include "Model/GroupNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -29,45 +29,46 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EmptyGroupIssueGenerator::EmptyGroupIssue : public Issue {
-        public:
-            static const IssueType Type;
-        public:
-            explicit EmptyGroupIssue(GroupNode* group) :
-            Issue(group) {}
-        private:
-            IssueType doGetType() const override {
-                return Type;
-            }
+namespace Model {
+class EmptyGroupIssueGenerator::EmptyGroupIssue : public Issue {
+public:
+  static const IssueType Type;
 
-            std::string doGetDescription() const override {
-                const GroupNode* group = static_cast<GroupNode*>(node());
-                return "Group '" + group->name() + "' does not contain any objects";
-            }
-        };
+public:
+  explicit EmptyGroupIssue(GroupNode* group)
+    : Issue(group) {}
 
-        const IssueType EmptyGroupIssueGenerator::EmptyGroupIssue::Type = Issue::freeType();
+private:
+  IssueType doGetType() const override { return Type; }
 
-        class EmptyGroupIssueGenerator::EmptyGroupIssueQuickFix : public IssueQuickFix {
-        public:
-            EmptyGroupIssueQuickFix() :
-            IssueQuickFix(EmptyGroupIssue::Type, "Delete groups") {}
-        private:
-            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
-                facade->deleteObjects();
-            }
-        };
+  std::string doGetDescription() const override {
+    const GroupNode* group = static_cast<GroupNode*>(node());
+    return "Group '" + group->name() + "' does not contain any objects";
+  }
+};
 
-        EmptyGroupIssueGenerator::EmptyGroupIssueGenerator() :
-        IssueGenerator(EmptyGroupIssue::Type, "Empty group") {
-            addQuickFix(new EmptyGroupIssueQuickFix());
-        }
+const IssueType EmptyGroupIssueGenerator::EmptyGroupIssue::Type = Issue::freeType();
 
-        void EmptyGroupIssueGenerator::doGenerate(GroupNode* group, IssueList& issues) const {
-            ensure(group != nullptr, "group is null");
-            if (!group->hasChildren())
-                issues.push_back(new EmptyGroupIssue(group));
-        }
-    }
+class EmptyGroupIssueGenerator::EmptyGroupIssueQuickFix : public IssueQuickFix {
+public:
+  EmptyGroupIssueQuickFix()
+    : IssueQuickFix(EmptyGroupIssue::Type, "Delete groups") {}
+
+private:
+  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+    facade->deleteObjects();
+  }
+};
+
+EmptyGroupIssueGenerator::EmptyGroupIssueGenerator()
+  : IssueGenerator(EmptyGroupIssue::Type, "Empty group") {
+  addQuickFix(new EmptyGroupIssueQuickFix());
 }
+
+void EmptyGroupIssueGenerator::doGenerate(GroupNode* group, IssueList& issues) const {
+  ensure(group != nullptr, "group is null");
+  if (!group->hasChildren())
+    issues.push_back(new EmptyGroupIssue(group));
+}
+} // namespace Model
+} // namespace TrenchBroom

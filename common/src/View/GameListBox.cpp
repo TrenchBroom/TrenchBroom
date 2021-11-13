@@ -29,102 +29,101 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        GameListBox::GameListBox(QWidget* parent) :
-        ImageListBox("No Games Found", true, parent) {
-            reloadGameInfos();
-        }
-
-        std::string GameListBox::selectedGameName() const {
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const std::vector<std::string>& gameList = gameFactory.gameList();
-
-            const int index = currentRow();
-            if (index < 0 || index >= static_cast<int>(gameList.size())) {
-                return "";
-            } else {
-                return gameList[static_cast<size_t>(index)];
-            }
-        }
-
-        void GameListBox::selectGame(const size_t index) {
-            setCurrentRow(static_cast<int>(index));
-        }
-
-        void GameListBox::reloadGameInfos() {
-            const auto currentGameName = selectedGameName();
-
-            m_gameInfos.clear();
-
-            const auto& gameFactory = Model::GameFactory::instance();
-            for (const std::string& gameName : gameFactory.gameList()) {
-                m_gameInfos.push_back(makeGameInfo(gameName));
-            }
-
-            reload();
-
-            const std::vector<std::string>& gameList = gameFactory.gameList();
-            for (size_t i = 0u; i < gameList.size(); ++i) {
-                if (gameList[i] == currentGameName) {
-                    selectGame(i);
-                    break;
-                }
-            }
-        }
-
-        void GameListBox::updateGameInfos() {
-            for (auto& gameInfo : m_gameInfos) {
-                gameInfo = makeGameInfo(gameInfo.name);
-            }
-            updateItems();
-        }
-
-        GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const {
-            const auto& gameFactory = Model::GameFactory::instance();
-            const auto gamePath = gameFactory.gamePath(gameName);
-            auto iconPath = gameFactory.iconPath(gameName);
-            if (iconPath.isEmpty()) {
-                iconPath = IO::Path("DefaultGameIcon.svg");
-            }
-            const auto experimental = gameFactory.gameConfig(gameName).experimental;
-
-            return Info {
-                gameName,
-                IO::loadPixmapResource(iconPath),
-                QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
-                QString::fromStdString(gamePath.isEmpty() ? std::string("Game not found") : gamePath.asString())
-            };
-        }
-
-        size_t GameListBox::itemCount() const {
-            return m_gameInfos.size();
-        }
-
-        QPixmap GameListBox::image(size_t index) const {
-            ensure(index < m_gameInfos.size(), "index out of range");
-            return m_gameInfos[index].image;
-        }
-
-        QString GameListBox::title(const size_t n) const {
-            ensure(n < m_gameInfos.size(), "index out of range");
-            return m_gameInfos[n].title;
-        }
-
-        QString GameListBox::subtitle(const size_t n) const {
-            ensure(n < m_gameInfos.size(), "index out of range");
-            return m_gameInfos[n].subtitle;
-        }
-
-        void GameListBox::selectedRowChanged(const int index) {
-            if (index >= 0 && index < count()) {
-                emit currentGameChanged(QString::fromStdString(m_gameInfos[static_cast<size_t>(index)].name));
-            }
-        }
-
-        void GameListBox::doubleClicked(const size_t index) {
-            if (index < static_cast<size_t>(count())) {
-                emit selectCurrentGame(QString::fromStdString(m_gameInfos[index].name));
-            }
-        }
-    }
+namespace View {
+GameListBox::GameListBox(QWidget* parent)
+  : ImageListBox("No Games Found", true, parent) {
+  reloadGameInfos();
 }
+
+std::string GameListBox::selectedGameName() const {
+  const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+  const std::vector<std::string>& gameList = gameFactory.gameList();
+
+  const int index = currentRow();
+  if (index < 0 || index >= static_cast<int>(gameList.size())) {
+    return "";
+  } else {
+    return gameList[static_cast<size_t>(index)];
+  }
+}
+
+void GameListBox::selectGame(const size_t index) {
+  setCurrentRow(static_cast<int>(index));
+}
+
+void GameListBox::reloadGameInfos() {
+  const auto currentGameName = selectedGameName();
+
+  m_gameInfos.clear();
+
+  const auto& gameFactory = Model::GameFactory::instance();
+  for (const std::string& gameName : gameFactory.gameList()) {
+    m_gameInfos.push_back(makeGameInfo(gameName));
+  }
+
+  reload();
+
+  const std::vector<std::string>& gameList = gameFactory.gameList();
+  for (size_t i = 0u; i < gameList.size(); ++i) {
+    if (gameList[i] == currentGameName) {
+      selectGame(i);
+      break;
+    }
+  }
+}
+
+void GameListBox::updateGameInfos() {
+  for (auto& gameInfo : m_gameInfos) {
+    gameInfo = makeGameInfo(gameInfo.name);
+  }
+  updateItems();
+}
+
+GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const {
+  const auto& gameFactory = Model::GameFactory::instance();
+  const auto gamePath = gameFactory.gamePath(gameName);
+  auto iconPath = gameFactory.iconPath(gameName);
+  if (iconPath.isEmpty()) {
+    iconPath = IO::Path("DefaultGameIcon.svg");
+  }
+  const auto experimental = gameFactory.gameConfig(gameName).experimental;
+
+  return Info{
+    gameName, IO::loadPixmapResource(iconPath),
+    QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
+    QString::fromStdString(
+      gamePath.isEmpty() ? std::string("Game not found") : gamePath.asString())};
+}
+
+size_t GameListBox::itemCount() const {
+  return m_gameInfos.size();
+}
+
+QPixmap GameListBox::image(size_t index) const {
+  ensure(index < m_gameInfos.size(), "index out of range");
+  return m_gameInfos[index].image;
+}
+
+QString GameListBox::title(const size_t n) const {
+  ensure(n < m_gameInfos.size(), "index out of range");
+  return m_gameInfos[n].title;
+}
+
+QString GameListBox::subtitle(const size_t n) const {
+  ensure(n < m_gameInfos.size(), "index out of range");
+  return m_gameInfos[n].subtitle;
+}
+
+void GameListBox::selectedRowChanged(const int index) {
+  if (index >= 0 && index < count()) {
+    emit currentGameChanged(QString::fromStdString(m_gameInfos[static_cast<size_t>(index)].name));
+  }
+}
+
+void GameListBox::doubleClicked(const size_t index) {
+  if (index < static_cast<size_t>(count())) {
+    emit selectCurrentGame(QString::fromStdString(m_gameInfos[index].name));
+  }
+}
+} // namespace View
+} // namespace TrenchBroom

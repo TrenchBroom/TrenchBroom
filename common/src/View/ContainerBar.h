@@ -24,12 +24,11 @@
 #include <QObject>
 
 namespace TrenchBroom {
-    namespace View {
-        class ContainerBar : public BorderPanel {
-            Q_OBJECT
-        public:
-            explicit ContainerBar(Sides borders, QWidget* parent = nullptr);
-        };
-    }
-}
-
+namespace View {
+class ContainerBar : public BorderPanel {
+  Q_OBJECT
+public:
+  explicit ContainerBar(Sides borders, QWidget* parent = nullptr);
+};
+} // namespace View
+} // namespace TrenchBroom

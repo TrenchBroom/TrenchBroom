@@ -28,39 +28,52 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        TEST_CASE("PortalFileTest.parseInvalidPRT1", "[PortalFileTest]") {
-            const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt");
+namespace Model {
+TEST_CASE("PortalFileTest.parseInvalidPRT1", "[PortalFileTest]") {
+  const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt");
 
-            CHECK_THROWS([&](){
-                const Model::PortalFile p = Model::PortalFile(path);
-            }());
-        }
-
-        static const std::vector<vm::polygon3f> ExpectedPortals {
-                {{-96,-32,80}, {-96,160,80}, {0,160,80}, {0,-32,80}},
-                {{208,-64,80}, {64,-64,80}, {64,160,80}, {208,160,80}},
-                {{64,80,48}, {64,80,16}, {64,64,0}, {64,32,0}, {64,16,16}, {64,16,48}, {64,32,64}, {64,64,64}},
-                {{0,80,48}, {0,80,16}, {0,64,0}, {0,32,0}, {0,16,16}, {0,16,48}, {0,32,64}, {0,64,64}},
-                {{-64,-32,0}, {-32,-32,0}, {-48,-32,64}}
-        };
-
-        TEST_CASE("PortalFileTest.parsePRT1", "[PortalFileTest]") {
-            const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1.prt");
-            const Model::PortalFile portalFile(path);
-            CHECK(portalFile.portals() == ExpectedPortals);
-        }
-
-        TEST_CASE("PortalFileTest.parsePRT1AM", "[PortalFileTest]") {
-            const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1am.prt");
-            const Model::PortalFile portalFile(path);
-            CHECK(portalFile.portals() == ExpectedPortals);
-        }
-
-        TEST_CASE("PortalFileTest.parsePRT2", "[PortalFileTest]") {
-            const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt2.prt");
-            const Model::PortalFile portalFile(path);
-            CHECK(portalFile.portals() == ExpectedPortals);
-        }
-    }
+  CHECK_THROWS([&]() {
+    const Model::PortalFile p = Model::PortalFile(path);
+  }());
 }
+
+static const std::vector<vm::polygon3f> ExpectedPortals{
+  {{-96, -32, 80}, {-96, 160, 80}, {0, 160, 80}, {0, -32, 80}},
+  {{208, -64, 80}, {64, -64, 80}, {64, 160, 80}, {208, 160, 80}},
+  {{64, 80, 48},
+   {64, 80, 16},
+   {64, 64, 0},
+   {64, 32, 0},
+   {64, 16, 16},
+   {64, 16, 48},
+   {64, 32, 64},
+   {64, 64, 64}},
+  {{0, 80, 48},
+   {0, 80, 16},
+   {0, 64, 0},
+   {0, 32, 0},
+   {0, 16, 16},
+   {0, 16, 48},
+   {0, 32, 64},
+   {0, 64, 64}},
+  {{-64, -32, 0}, {-32, -32, 0}, {-48, -32, 64}}};
+
+TEST_CASE("PortalFileTest.parsePRT1", "[PortalFileTest]") {
+  const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1.prt");
+  const Model::PortalFile portalFile(path);
+  CHECK(portalFile.portals() == ExpectedPortals);
+}
+
+TEST_CASE("PortalFileTest.parsePRT1AM", "[PortalFileTest]") {
+  const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1am.prt");
+  const Model::PortalFile portalFile(path);
+  CHECK(portalFile.portals() == ExpectedPortals);
+}
+
+TEST_CASE("PortalFileTest.parsePRT2", "[PortalFileTest]") {
+  const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt2.prt");
+  const Model::PortalFile portalFile(path);
+  CHECK(portalFile.portals() == ExpectedPortals);
+}
+} // namespace Model
+} // namespace TrenchBroom

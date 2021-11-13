@@ -20,40 +20,39 @@
 #pragma once
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushNode;
-        class BrushFace;
-        class EntityNode;
-        class GroupNode;
-        class LayerNode;
-        class PatchNode;
-        class WorldNode;
+namespace Model {
+class BrushNode;
+class BrushFace;
+class EntityNode;
+class GroupNode;
+class LayerNode;
+class PatchNode;
+class WorldNode;
 
-        class TagVisitor {
-        public:
-            virtual ~TagVisitor();
+class TagVisitor {
+public:
+  virtual ~TagVisitor();
 
-            virtual void visit(WorldNode& world);
-            virtual void visit(LayerNode& layer);
-            virtual void visit(GroupNode& group);
-            virtual void visit(EntityNode& entity);
-            virtual void visit(BrushNode& brush);
-            virtual void visit(BrushFace& face);
-            virtual void visit(PatchNode& patch);
-        };
+  virtual void visit(WorldNode& world);
+  virtual void visit(LayerNode& layer);
+  virtual void visit(GroupNode& group);
+  virtual void visit(EntityNode& entity);
+  virtual void visit(BrushNode& brush);
+  virtual void visit(BrushFace& face);
+  virtual void visit(PatchNode& patch);
+};
 
-        class ConstTagVisitor {
-        public:
-            virtual ~ConstTagVisitor();
+class ConstTagVisitor {
+public:
+  virtual ~ConstTagVisitor();
 
-            virtual void visit(const WorldNode& world);
-            virtual void visit(const LayerNode& layer);
-            virtual void visit(const GroupNode& group);
-            virtual void visit(const EntityNode& entity);
-            virtual void visit(const BrushNode& brush);
-            virtual void visit(const BrushFace& face);
-            virtual void visit(const PatchNode& patch);
-        };
-    }
-}
-
+  virtual void visit(const WorldNode& world);
+  virtual void visit(const LayerNode& layer);
+  virtual void visit(const GroupNode& group);
+  virtual void visit(const EntityNode& entity);
+  virtual void visit(const BrushNode& brush);
+  virtual void visit(const BrushFace& face);
+  virtual void visit(const PatchNode& patch);
+};
+} // namespace Model
+} // namespace TrenchBroom

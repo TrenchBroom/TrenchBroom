@@ -22,28 +22,27 @@
 #include <QFormLayout>
 
 namespace TrenchBroom {
-    namespace View {
-        class FormWithSectionsLayout : public QFormLayout {
-        public:
-            using QFormLayout::QFormLayout;
+namespace View {
+class FormWithSectionsLayout : public QFormLayout {
+public:
+  using QFormLayout::QFormLayout;
 
-            void addSection(const QString& title, const QString& info = "");
+  void addSection(const QString& title, const QString& info = "");
 
-            // Since these functions are not virtual, we can only hide the inherited ones.
-            void addRow(QWidget* label, QWidget* field);
-            void addRow(QWidget* label, QLayout* field);
-            void addRow(const QString& labelText, QWidget* field);
-            void addRow(const QString& labelText, QLayout* field);
-            void addRow(QWidget* field);
-            void addRow(QLayout* field);
+  // Since these functions are not virtual, we can only hide the inherited ones.
+  void addRow(QWidget* label, QWidget* field);
+  void addRow(QWidget* label, QLayout* field);
+  void addRow(const QString& labelText, QWidget* field);
+  void addRow(const QString& labelText, QLayout* field);
+  void addRow(QWidget* field);
+  void addRow(QLayout* field);
 
-            void insertRow(int row, QWidget* label, QWidget* field);
-            void insertRow(int row, QWidget* label, QLayout* field);
-            void insertRow(int row, const QString& labelText, QWidget* field);
-            void insertRow(int row, const QString& labelText, QLayout* field);
-            void insertRow(int row, QWidget* field);
-            void insertRow(int row, QLayout* field);
-        };
-    }
-}
-
+  void insertRow(int row, QWidget* label, QWidget* field);
+  void insertRow(int row, QWidget* label, QLayout* field);
+  void insertRow(int row, const QString& labelText, QWidget* field);
+  void insertRow(int row, const QString& labelText, QLayout* field);
+  void insertRow(int row, QWidget* field);
+  void insertRow(int row, QLayout* field);
+};
+} // namespace View
+} // namespace TrenchBroom

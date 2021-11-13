@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Model/PatchNode.h"
 #include "FloatType.h"
 #include "Model/BezierPatch.h"
 #include "Model/EditorContext.h"
-#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 
 #include <kdl/vector_utils.h>
@@ -34,53 +34,50 @@
 #include "Catch2.h"
 
 namespace vm {
-    template <>
-    class approx<TrenchBroom::Model::PatchGrid::Point> {
-    private:
-        using GP = TrenchBroom::Model::PatchGrid::Point;
-        const GP m_value;
-        const FloatType m_epsilon;
-    public:
-        constexpr explicit approx(const GP value, const FloatType epsilon) : m_value(value), m_epsilon(epsilon) { assert(epsilon >= FloatType(0)); }
-        constexpr explicit approx(const GP value) : approx(value, vm::constants<FloatType>::almost_zero()) {}
+template <> class approx<TrenchBroom::Model::PatchGrid::Point> {
+private:
+  using GP = TrenchBroom::Model::PatchGrid::Point;
+  const GP m_value;
+  const FloatType m_epsilon;
 
-        friend constexpr bool operator==(const GP& lhs, const approx<GP>& rhs) {
-            return lhs.position == approx<vec3>{rhs.m_value.position, rhs.m_epsilon} &&
-                   lhs.texCoords == approx<vec2>{rhs.m_value.texCoords, rhs.m_epsilon} &&
-                   lhs.normal == approx<vec3>{rhs.m_value.normal, rhs.m_epsilon};
-        }
+public:
+  constexpr explicit approx(const GP value, const FloatType epsilon)
+    : m_value(value)
+    , m_epsilon(epsilon) {
+    assert(epsilon >= FloatType(0));
+  }
+  constexpr explicit approx(const GP value)
+    : approx(value, vm::constants<FloatType>::almost_zero()) {}
 
-        friend constexpr bool operator==(const approx<GP>& lhs, const GP& rhs) {
-            return rhs == lhs;
-        }
+  friend constexpr bool operator==(const GP& lhs, const approx<GP>& rhs) {
+    return lhs.position == approx<vec3>{rhs.m_value.position, rhs.m_epsilon} &&
+           lhs.texCoords == approx<vec2>{rhs.m_value.texCoords, rhs.m_epsilon} &&
+           lhs.normal == approx<vec3>{rhs.m_value.normal, rhs.m_epsilon};
+  }
 
-        friend constexpr bool operator!=(const GP& lhs, const approx<GP>& rhs) {
-            return !(lhs == rhs);
-        }
+  friend constexpr bool operator==(const approx<GP>& lhs, const GP& rhs) { return rhs == lhs; }
 
-        friend constexpr bool operator!=(const approx<GP>& lhs, const GP& rhs) {
-            return !(lhs == rhs);
-        }
+  friend constexpr bool operator!=(const GP& lhs, const approx<GP>& rhs) { return !(lhs == rhs); }
 
-        friend std::ostream& operator<<(std::ostream& str, const approx<GP>& a) {
-            str << a.m_value;
-            return str;
-        }
-    };
-}
+  friend constexpr bool operator!=(const approx<GP>& lhs, const GP& rhs) { return !(lhs == rhs); }
+
+  friend std::ostream& operator<<(std::ostream& str, const approx<GP>& a) {
+    str << a.m_value;
+    return str;
+  }
+};
+} // namespace vm
 
 namespace TrenchBroom {
-    namespace Model {
-        TEST_CASE("PatchNode.computeGridNormals") {
+namespace Model {
+TEST_CASE("PatchNode.computeGridNormals") {}
 
-        }
+TEST_CASE("PatchNode.makePatchGrid") {
+  using CP = BezierPatch::Point;
+  using GP = PatchGrid::Point;
+  using T = std::tuple<size_t, size_t, size_t, std::vector<CP>, std::vector<GP>>;
 
-        TEST_CASE("PatchNode.makePatchGrid") {
-            using CP = BezierPatch::Point;
-            using GP = PatchGrid::Point;
-            using T = std::tuple<size_t, size_t, size_t, std::vector<CP>, std::vector<GP>>;
-
-            // clang-format off
+  // clang-format off
             const auto 
             [r, c, sd, 
                controlPoints, 
@@ -142,16 +139,20 @@ namespace TrenchBroom {
                 GP{{-0.75, -0.75,  1.0}, {0.0, 0.875}, {-0.707107, -0.707107, 0.0}}, GP{{-0.75, -0.75, 0.0}, {0.5, 0.875}, {-0.707107, -0.707107, 0.0}}, GP{{-0.75, -0.75, -1.0}, {1.0, 0.875}, {-0.707107, -0.707107, 0.0}},
                 GP{{-1.0,   0.0,   1.0}, {0.0, 1.0  }, {-1.0,       0.0,      0.0}}, GP{{-1.0,   0.0,  0.0}, {0.5, 1.0  }, {-1.0,       0.0,      0.0}}, GP{{-1.0,   0.0,  -1.0}, {1.0, 1.0  }, {-1.0,       0.0,      0.0}}}},
             }));
-            // clang-format on
+  // clang-format on
 
-            CAPTURE(r, c, sd, controlPoints);
-            CHECK(makePatchGrid(BezierPatch{r, c, controlPoints, "texture"}, sd).points == kdl::vec_transform(expectedPoints, [](const auto& p) { return vm::approx{p}; }));
-        }
+  CAPTURE(r, c, sd, controlPoints);
+  CHECK(
+    makePatchGrid(BezierPatch{r, c, controlPoints, "texture"}, sd).points ==
+    kdl::vec_transform(expectedPoints, [](const auto& p) {
+      return vm::approx{p};
+    }));
+}
 
-        TEST_CASE("PatchNode.pickFlatPatch") {
-            using P = BezierPatch::Point;
+TEST_CASE("PatchNode.pickFlatPatch") {
+  using P = BezierPatch::Point;
 
-            // clang-format off
+  // clang-format off
             auto patchNode = PatchNode{BezierPatch{5, 5, {
                 P{0.0, 4.0, 0.0}, P{1.0, 4.0, 0.0}, P{2.0, 4.0, 0.0}, P{3.0, 4.0, 0.0}, P{4.0, 4.0, 0.0},
                 P{0.0, 3.0, 0.0}, P{1.0, 3.0, 0.0}, P{2.0, 3.0, 0.0}, P{3.0, 3.0, 0.0}, P{4.0, 3.0, 0.0},
@@ -159,11 +160,11 @@ namespace TrenchBroom {
                 P{0.0, 1.0, 0.0}, P{1.0, 1.0, 0.0}, P{2.0, 1.0, 0.0}, P{3.0, 1.0, 0.0}, P{4.0, 1.0, 0.0},
                 P{0.0, 0.0, 0.0}, P{1.0, 0.0, 0.0}, P{2.0, 0.0, 0.0}, P{3.0, 0.0, 0.0}, P{4.0, 0.0, 0.0},
             }, "texture"}};
-            // clang-format on
+  // clang-format on
 
-            using T = std::tuple<vm::ray3, std::optional<vm::vec3>>;
+  using T = std::tuple<vm::ray3, std::optional<vm::vec3>>;
 
-            // clang-format off
+  // clang-format off
             const auto 
             [pickRay,                                        expectedHitPoint  ] = GENERATE(values<T>({
             {vm::ray3{vm::vec3{2, 2,  1}, vm::vec3::neg_z()}, vm::vec3{2, 2, 0}},
@@ -172,22 +173,22 @@ namespace TrenchBroom {
             {vm::ray3{vm::vec3{2, 3,  1}, vm::vec3::pos_z()}, std::nullopt     },
             {vm::ray3{vm::vec3{0, -1, 1}, vm::vec3::neg_z()}, std::nullopt     },
             }));
-            // clang-format on
+  // clang-format on
 
-            CAPTURE(pickRay);
+  CAPTURE(pickRay);
 
-            const auto editorContext = EditorContext{};
-            auto pickResult = PickResult{};
-            patchNode.pick(editorContext, pickRay, pickResult);
-            
-            if (expectedHitPoint.has_value()) {
-                CHECK(pickResult.size() == 1u);
+  const auto editorContext = EditorContext{};
+  auto pickResult = PickResult{};
+  patchNode.pick(editorContext, pickRay, pickResult);
 
-                const auto hit = pickResult.all().front();
-                CHECK(hit.hitPoint() == expectedHitPoint);
-            } else {
-                CHECK(pickResult.size() == 0u);
-            }
-        }
-    }
+  if (expectedHitPoint.has_value()) {
+    CHECK(pickResult.size() == 1u);
+
+    const auto hit = pickResult.all().front();
+    CHECK(hit.hitPoint() == expectedHitPoint);
+  } else {
+    CHECK(pickResult.size() == 0u);
+  }
 }
+} // namespace Model
+} // namespace TrenchBroom

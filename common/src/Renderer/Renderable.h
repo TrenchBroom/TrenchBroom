@@ -22,43 +22,44 @@
 #include "Macros.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class RenderContext;
-        class VboManager;
+namespace Renderer {
+class RenderContext;
+class VboManager;
 
-        class Renderable {
-        public:
-            Renderable() = default;
-            virtual ~Renderable() = default;
+class Renderable {
+public:
+  Renderable() = default;
+  virtual ~Renderable() = default;
 
-            void render(RenderContext& renderContext);
-        private:
-            virtual void doRender(RenderContext& renderContext) = 0;
+  void render(RenderContext& renderContext);
 
-            defineCopyAndMove(Renderable)
-        };
+private:
+  virtual void doRender(RenderContext& renderContext) = 0;
 
-        class DirectRenderable : public Renderable {
-        public:
-            DirectRenderable() = default;
-            ~DirectRenderable() override = default;
+  defineCopyAndMove(Renderable)
+};
 
-            void prepareVertices(VboManager& vboManager);
-        private:
-            virtual void doPrepareVertices(VboManager& vboManager) = 0;
+class DirectRenderable : public Renderable {
+public:
+  DirectRenderable() = default;
+  ~DirectRenderable() override = default;
 
-            defineCopyAndMove(DirectRenderable)
-        };
+  void prepareVertices(VboManager& vboManager);
 
-        class IndexedRenderable : public Renderable {
-        public:
-            IndexedRenderable() = default;
-            ~IndexedRenderable() override = default;
+private:
+  virtual void doPrepareVertices(VboManager& vboManager) = 0;
 
-            virtual void prepareVerticesAndIndices(VboManager& vboManager) = 0;
+  defineCopyAndMove(DirectRenderable)
+};
 
-            defineCopyAndMove(IndexedRenderable)
-        };
-    }
-}
+class IndexedRenderable : public Renderable {
+public:
+  IndexedRenderable() = default;
+  ~IndexedRenderable() override = default;
 
+  virtual void prepareVerticesAndIndices(VboManager& vboManager) = 0;
+
+  defineCopyAndMove(IndexedRenderable)
+};
+} // namespace Renderer
+} // namespace TrenchBroom

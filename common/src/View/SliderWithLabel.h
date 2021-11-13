@@ -25,26 +25,25 @@ class QLabel;
 class QSlider;
 
 namespace TrenchBroom {
-    namespace View {
-        class SliderWithLabel : public QWidget {
-            Q_OBJECT
-        private:
-            QSlider* m_slider;
-            QLabel* m_label;
-        public:
-            SliderWithLabel(int minimum, int maximum, QWidget* parent = nullptr);
+namespace View {
+class SliderWithLabel : public QWidget {
+  Q_OBJECT
+private:
+  QSlider* m_slider;
+  QLabel* m_label;
 
-            int value() const;
-            float ratio() const;
-        public slots:
-            void setValue(int value);
-            void setRatio(float ratio);
-        private slots:
-            void valueChangedInternal(int value);
-        signals:
-            void valueChanged(int value);
-        };
-    }
-}
+public:
+  SliderWithLabel(int minimum, int maximum, QWidget* parent = nullptr);
 
-
+  int value() const;
+  float ratio() const;
+public slots:
+  void setValue(int value);
+  void setRatio(float ratio);
+private slots:
+  void valueChangedInternal(int value);
+signals:
+  void valueChanged(int value);
+};
+} // namespace View
+} // namespace TrenchBroom

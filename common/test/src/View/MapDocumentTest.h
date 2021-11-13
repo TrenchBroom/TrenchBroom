@@ -27,49 +27,54 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class BrushEntityDefinition;
-        class PointEntityDefinition;
-    }
+namespace Assets {
+class BrushEntityDefinition;
+class PointEntityDefinition;
+} // namespace Assets
 
-    namespace Model {
-        class Brush;
-        class PatchNode;
-        class TestGame;
-    }
+namespace Model {
+class Brush;
+class PatchNode;
+class TestGame;
+} // namespace Model
 
-    namespace View {
-        class MapDocumentTest {
-        private:
-            Model::MapFormat m_mapFormat;
-        protected:
-            std::shared_ptr<Model::TestGame> game;
-            std::shared_ptr<MapDocument> document;
-            Assets::PointEntityDefinition* m_pointEntityDef;
-            Assets::BrushEntityDefinition* m_brushEntityDef;
-        protected:
-            MapDocumentTest();
-            explicit MapDocumentTest(Model::MapFormat mapFormat);
+namespace View {
+class MapDocumentTest {
+private:
+  Model::MapFormat m_mapFormat;
 
-        private:
-            void SetUp();
-        protected:
-            virtual ~MapDocumentTest();
-        public:
-            Model::BrushNode* createBrushNode(const std::string& textureName = "texture", const std::function<void(Model::Brush&)>& brushFunc = [](Model::Brush&) {}) const;
-            Model::PatchNode* createPatchNode(const std::string& textureName = "texture") const;
-        };
+protected:
+  std::shared_ptr<Model::TestGame> game;
+  std::shared_ptr<MapDocument> document;
+  Assets::PointEntityDefinition* m_pointEntityDef;
+  Assets::BrushEntityDefinition* m_brushEntityDef;
 
-        class ValveMapDocumentTest : public MapDocumentTest {
-        protected:
-            ValveMapDocumentTest();
-        };
+protected:
+  MapDocumentTest();
+  explicit MapDocumentTest(Model::MapFormat mapFormat);
 
-        class Quake3MapDocumentTest : public MapDocumentTest {
-        public:
-            Quake3MapDocumentTest();
-        };
+private:
+  void SetUp();
 
-    }
-}
+protected:
+  virtual ~MapDocumentTest();
 
+public:
+  Model::BrushNode* createBrushNode(
+    const std::string& textureName = "texture",
+    const std::function<void(Model::Brush&)>& brushFunc = [](Model::Brush&) {}) const;
+  Model::PatchNode* createPatchNode(const std::string& textureName = "texture") const;
+};
+
+class ValveMapDocumentTest : public MapDocumentTest {
+protected:
+  ValveMapDocumentTest();
+};
+
+class Quake3MapDocumentTest : public MapDocumentTest {
+public:
+  Quake3MapDocumentTest();
+};
+
+} // namespace View
+} // namespace TrenchBroom

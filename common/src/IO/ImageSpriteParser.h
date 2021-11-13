@@ -25,20 +25,22 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace IO {
-        class File;
-        class FileSystem;
+namespace IO {
+class File;
+class FileSystem;
 
-        class ImageSpriteParser : public EntityModelParser {
-        private:
-            std::string m_name;
-            std::shared_ptr<File> m_file;
-            const FileSystem& m_fs;
-        public:
-            ImageSpriteParser(std::string name, std::shared_ptr<File> file, const FileSystem& fs);
-        private:
-            std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
-            void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
-        };
-    }
-}
+class ImageSpriteParser : public EntityModelParser {
+private:
+  std::string m_name;
+  std::shared_ptr<File> m_file;
+  const FileSystem& m_fs;
+
+public:
+  ImageSpriteParser(std::string name, std::shared_ptr<File> file, const FileSystem& fs);
+
+private:
+  std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
+  void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
+};
+} // namespace IO
+} // namespace TrenchBroom

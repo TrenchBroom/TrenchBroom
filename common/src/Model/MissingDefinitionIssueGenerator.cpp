@@ -30,44 +30,45 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class MissingDefinitionIssueGenerator::MissingDefinitionIssue : public Issue {
-        public:
-            static const IssueType Type;
-        public:
-            explicit MissingDefinitionIssue(EntityNodeBase* node) :
-            Issue(node) {}
-        private:
-            IssueType doGetType() const override {
-                return Type;
-            }
+namespace Model {
+class MissingDefinitionIssueGenerator::MissingDefinitionIssue : public Issue {
+public:
+  static const IssueType Type;
 
-            std::string doGetDescription() const override {
-                const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
-                return entityNode->name() + " not found in entity definitions";
-            }
-        };
+public:
+  explicit MissingDefinitionIssue(EntityNodeBase* node)
+    : Issue(node) {}
 
-        const IssueType MissingDefinitionIssueGenerator::MissingDefinitionIssue::Type = Issue::freeType();
+private:
+  IssueType doGetType() const override { return Type; }
 
-        class MissingDefinitionIssueGenerator::MissingDefinitionIssueQuickFix : public IssueQuickFix {
-        public:
-            MissingDefinitionIssueQuickFix() :
-            IssueQuickFix(MissingDefinitionIssue::Type, "Delete entities") {}
-        private:
-            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
-                facade->deleteObjects();
-            }
-        };
+  std::string doGetDescription() const override {
+    const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+    return entityNode->name() + " not found in entity definitions";
+  }
+};
 
-        MissingDefinitionIssueGenerator::MissingDefinitionIssueGenerator() :
-        IssueGenerator(MissingDefinitionIssue::Type, "Missing entity definition") {
-            addQuickFix(new MissingDefinitionIssueQuickFix());
-        }
+const IssueType MissingDefinitionIssueGenerator::MissingDefinitionIssue::Type = Issue::freeType();
 
-        void MissingDefinitionIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            if (node->entity().definition() == nullptr)
-                issues.push_back(new MissingDefinitionIssue(node));
-        }
-    }
+class MissingDefinitionIssueGenerator::MissingDefinitionIssueQuickFix : public IssueQuickFix {
+public:
+  MissingDefinitionIssueQuickFix()
+    : IssueQuickFix(MissingDefinitionIssue::Type, "Delete entities") {}
+
+private:
+  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+    facade->deleteObjects();
+  }
+};
+
+MissingDefinitionIssueGenerator::MissingDefinitionIssueGenerator()
+  : IssueGenerator(MissingDefinitionIssue::Type, "Missing entity definition") {
+  addQuickFix(new MissingDefinitionIssueQuickFix());
 }
+
+void MissingDefinitionIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+  if (node->entity().definition() == nullptr)
+    issues.push_back(new MissingDefinitionIssue(node));
+}
+} // namespace Model
+} // namespace TrenchBroom

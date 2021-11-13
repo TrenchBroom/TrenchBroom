@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Color.h"
-#include "FloatType.h"
 #include "EL/Expression.h"
+#include "FloatType.h"
 #include "IO/Path.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"
@@ -38,148 +38,147 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        struct MapFormatConfig {
-            std::string format;
-            IO::Path initialMap;
-        };
+namespace Model {
+struct MapFormatConfig {
+  std::string format;
+  IO::Path initialMap;
+};
 
-        bool operator==(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
-        bool operator!=(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const MapFormatConfig& config);
+bool operator==(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
+bool operator!=(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const MapFormatConfig& config);
 
-        struct PackageFormatConfig {
-            std::vector<std::string> extensions;
-            std::string format;
-        };
+struct PackageFormatConfig {
+  std::vector<std::string> extensions;
+  std::string format;
+};
 
-        bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
-        bool operator!=(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const PackageFormatConfig& config);
+bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
+bool operator!=(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const PackageFormatConfig& config);
 
-        struct FileSystemConfig {
-            IO::Path searchPath;
-            PackageFormatConfig packageFormat;
-        };
+struct FileSystemConfig {
+  IO::Path searchPath;
+  PackageFormatConfig packageFormat;
+};
 
-        bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
-        bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const FileSystemConfig& config);
+bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
+bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const FileSystemConfig& config);
 
-        struct TextureFilePackageConfig {
-            PackageFormatConfig fileFormat;
-        };
+struct TextureFilePackageConfig {
+  PackageFormatConfig fileFormat;
+};
 
-        bool operator==(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
-        bool operator!=(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const TextureFilePackageConfig& config);
+bool operator==(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
+bool operator!=(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const TextureFilePackageConfig& config);
 
-        struct TextureDirectoryPackageConfig {
-            IO::Path rootDirectory;
-        };
+struct TextureDirectoryPackageConfig {
+  IO::Path rootDirectory;
+};
 
-        bool operator==(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
-        bool operator!=(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const TextureDirectoryPackageConfig& config);
+bool operator==(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
+bool operator!=(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const TextureDirectoryPackageConfig& config);
 
-        using TexturePackageConfig = std::variant<TextureFilePackageConfig, TextureDirectoryPackageConfig>;
-        std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config);
+using TexturePackageConfig = std::variant<TextureFilePackageConfig, TextureDirectoryPackageConfig>;
+std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config);
 
-        IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig);
+IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig);
 
-        struct TextureConfig {
-            TexturePackageConfig package;
-            PackageFormatConfig format;
-            IO::Path palette;
-            std::string property;
-            IO::Path shaderSearchPath;
-            std::vector<std::string> excludes; // Glob patterns used to match texture names for exclusion
-        };
+struct TextureConfig {
+  TexturePackageConfig package;
+  PackageFormatConfig format;
+  IO::Path palette;
+  std::string property;
+  IO::Path shaderSearchPath;
+  std::vector<std::string> excludes; // Glob patterns used to match texture names for exclusion
+};
 
-        bool operator==(const TextureConfig& lhs, const TextureConfig& rhs);
-        bool operator!=(const TextureConfig& lhs, const TextureConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const TextureConfig& config);
+bool operator==(const TextureConfig& lhs, const TextureConfig& rhs);
+bool operator!=(const TextureConfig& lhs, const TextureConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const TextureConfig& config);
 
-        struct EntityConfig {
-            std::vector<IO::Path> defFilePaths;
-            std::vector<std::string> modelFormats;
-            Color defaultColor;
-            std::optional<EL::Expression> scaleExpression;
-        };
+struct EntityConfig {
+  std::vector<IO::Path> defFilePaths;
+  std::vector<std::string> modelFormats;
+  Color defaultColor;
+  std::optional<EL::Expression> scaleExpression;
+};
 
-        bool operator==(const EntityConfig& lhs, const EntityConfig& rhs);
-        bool operator!=(const EntityConfig& lhs, const EntityConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const EntityConfig& config);
+bool operator==(const EntityConfig& lhs, const EntityConfig& rhs);
+bool operator!=(const EntityConfig& lhs, const EntityConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const EntityConfig& config);
 
-        struct FlagConfig {
-            std::string name;
-            std::string description;
-            int value;
-        };
+struct FlagConfig {
+  std::string name;
+  std::string description;
+  int value;
+};
 
-        bool operator==(const FlagConfig& lhs, const FlagConfig& rhs);
-        bool operator!=(const FlagConfig& lhs, const FlagConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const FlagConfig& config);
+bool operator==(const FlagConfig& lhs, const FlagConfig& rhs);
+bool operator!=(const FlagConfig& lhs, const FlagConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const FlagConfig& config);
 
-        struct FlagsConfig {
-            std::vector<FlagConfig> flags;
+struct FlagsConfig {
+  std::vector<FlagConfig> flags;
 
-            int flagValue(const std::string& flagName) const;
-            std::string flagName(size_t index) const;
-            std::vector<std::string> flagNames(int mask = ~0) const;
-        };
+  int flagValue(const std::string& flagName) const;
+  std::string flagName(size_t index) const;
+  std::vector<std::string> flagNames(int mask = ~0) const;
+};
 
-        bool operator==(const FlagsConfig& lhs, const FlagsConfig& rhs);
-        bool operator!=(const FlagsConfig& lhs, const FlagsConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const FlagsConfig& config);
+bool operator==(const FlagsConfig& lhs, const FlagsConfig& rhs);
+bool operator!=(const FlagsConfig& lhs, const FlagsConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const FlagsConfig& config);
 
-        struct FaceAttribsConfig {
-            FlagsConfig surfaceFlags;
-            FlagsConfig contentFlags;
-            BrushFaceAttributes defaults{BrushFaceAttributes::NoTextureName};
-        };
+struct FaceAttribsConfig {
+  FlagsConfig surfaceFlags;
+  FlagsConfig contentFlags;
+  BrushFaceAttributes defaults{BrushFaceAttributes::NoTextureName};
+};
 
-        bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
-        bool operator!=(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const FaceAttribsConfig& config);
+bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
+bool operator!=(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const FaceAttribsConfig& config);
 
-        struct CompilationTool {
-            std::string name;
-            std::optional<std::string> description;
-        };
+struct CompilationTool {
+  std::string name;
+  std::optional<std::string> description;
+};
 
-        bool operator==(const CompilationTool& lhs, const CompilationTool& rhs);
-        bool operator!=(const CompilationTool& lhs, const CompilationTool& rhs);
-        std::ostream& operator<<(std::ostream& str, const CompilationTool& tool);
+bool operator==(const CompilationTool& lhs, const CompilationTool& rhs);
+bool operator!=(const CompilationTool& lhs, const CompilationTool& rhs);
+std::ostream& operator<<(std::ostream& str, const CompilationTool& tool);
 
-        struct GameConfig {
-            std::string name;
-            IO::Path path;
-            IO::Path icon;
-            bool experimental;
-            std::vector<MapFormatConfig> fileFormats;
-            FileSystemConfig fileSystemConfig;
-            TextureConfig textureConfig;
-            EntityConfig entityConfig;
-            FaceAttribsConfig faceAttribsConfig;
-            std::vector<SmartTag> smartTags;
-            std::optional<vm::bbox3> softMapBounds;
-            std::vector<CompilationTool> compilationTools;
+struct GameConfig {
+  std::string name;
+  IO::Path path;
+  IO::Path icon;
+  bool experimental;
+  std::vector<MapFormatConfig> fileFormats;
+  FileSystemConfig fileSystemConfig;
+  TextureConfig textureConfig;
+  EntityConfig entityConfig;
+  FaceAttribsConfig faceAttribsConfig;
+  std::vector<SmartTag> smartTags;
+  std::optional<vm::bbox3> softMapBounds;
+  std::vector<CompilationTool> compilationTools;
 
-            CompilationConfig compilationConfig{};
-            GameEngineConfig gameEngineConfig{};
-            bool compilationConfigParseFailed{false};
-            bool gameEngineConfigParseFailed{false};
+  CompilationConfig compilationConfig{};
+  GameEngineConfig gameEngineConfig{};
+  bool compilationConfigParseFailed{false};
+  bool gameEngineConfigParseFailed{false};
 
-            size_t maxPropertyLength{1023};
+  size_t maxPropertyLength{1023};
 
-            IO::Path findInitialMap(const std::string& formatName) const;
-            IO::Path findConfigFile(const IO::Path& filePath) const;
-        };
+  IO::Path findInitialMap(const std::string& formatName) const;
+  IO::Path findConfigFile(const IO::Path& filePath) const;
+};
 
-        bool operator==(const GameConfig& lhs, const GameConfig& rhs);
-        bool operator!=(const GameConfig& lhs, const GameConfig& rhs);
-        std::ostream& operator<<(std::ostream& str, const GameConfig& config);
-    }
-}
-
+bool operator==(const GameConfig& lhs, const GameConfig& rhs);
+bool operator!=(const GameConfig& lhs, const GameConfig& rhs);
+std::ostream& operator<<(std::ostream& str, const GameConfig& config);
+} // namespace Model
+} // namespace TrenchBroom

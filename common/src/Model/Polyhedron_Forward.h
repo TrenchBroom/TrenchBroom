@@ -22,29 +22,32 @@
 #include <kdl/intrusive_circular_list_forward.h>
 
 namespace TrenchBroom {
-    namespace Model {
-        template<typename T, typename FP, typename VP> class Polyhedron;
-        template<typename T, typename FP, typename VP> class Polyhedron_Vertex;
-        template<typename T, typename FP, typename VP> class Polyhedron_Edge;
-        template<typename T, typename FP, typename VP> class Polyhedron_HalfEdge;
-        template<typename T, typename FP, typename VP> class Polyhedron_Face;
+namespace Model {
+template <typename T, typename FP, typename VP> class Polyhedron;
+template <typename T, typename FP, typename VP> class Polyhedron_Vertex;
+template <typename T, typename FP, typename VP> class Polyhedron_Edge;
+template <typename T, typename FP, typename VP> class Polyhedron_HalfEdge;
+template <typename T, typename FP, typename VP> class Polyhedron_Face;
 
-        template<typename T, typename FP, typename VP> struct Polyhedron_GetVertexLink;
-        template<typename T, typename FP, typename VP> struct Polyhedron_GetEdgeLink;
-        template<typename T, typename FP, typename VP> struct Polyhedron_GetHalfEdgeLink;
-        template<typename T, typename FP, typename VP> struct Polyhedron_GetFaceLink;
+template <typename T, typename FP, typename VP> struct Polyhedron_GetVertexLink;
+template <typename T, typename FP, typename VP> struct Polyhedron_GetEdgeLink;
+template <typename T, typename FP, typename VP> struct Polyhedron_GetHalfEdgeLink;
+template <typename T, typename FP, typename VP> struct Polyhedron_GetFaceLink;
 
-        template <typename T, typename FP, typename VP>
-        using Polyhedron_VertexList = kdl::intrusive_circular_list<Polyhedron_Vertex<T,FP,VP>, Polyhedron_GetVertexLink<T,FP,VP>>;
+template <typename T, typename FP, typename VP>
+using Polyhedron_VertexList =
+  kdl::intrusive_circular_list<Polyhedron_Vertex<T, FP, VP>, Polyhedron_GetVertexLink<T, FP, VP>>;
 
-        template <typename T, typename FP, typename VP>
-        using Polyhedron_EdgeList = kdl::intrusive_circular_list<Polyhedron_Edge<T,FP,VP>, Polyhedron_GetEdgeLink<T,FP,VP>>;
+template <typename T, typename FP, typename VP>
+using Polyhedron_EdgeList =
+  kdl::intrusive_circular_list<Polyhedron_Edge<T, FP, VP>, Polyhedron_GetEdgeLink<T, FP, VP>>;
 
-        template <typename T, typename FP, typename VP>
-        using Polyhedron_HalfEdgeList = kdl::intrusive_circular_list<Polyhedron_HalfEdge<T,FP,VP>, Polyhedron_GetHalfEdgeLink<T,FP,VP>>;
+template <typename T, typename FP, typename VP>
+using Polyhedron_HalfEdgeList = kdl::intrusive_circular_list<
+  Polyhedron_HalfEdge<T, FP, VP>, Polyhedron_GetHalfEdgeLink<T, FP, VP>>;
 
-        template <typename T, typename FP, typename VP>
-        using Polyhedron_FaceList = kdl::intrusive_circular_list<Polyhedron_Face<T,FP,VP>, Polyhedron_GetFaceLink<T,FP,VP>>;
-    }
-}
-
+template <typename T, typename FP, typename VP>
+using Polyhedron_FaceList =
+  kdl::intrusive_circular_list<Polyhedron_Face<T, FP, VP>, Polyhedron_GetFaceLink<T, FP, VP>>;
+} // namespace Model
+} // namespace TrenchBroom

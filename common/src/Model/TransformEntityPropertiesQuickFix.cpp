@@ -26,35 +26,37 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        TransformEntityPropertiesQuickFix::TransformEntityPropertiesQuickFix(const IssueType issueType, const std::string& description, const KeyTransform& keyTransform, const ValueTransform& valueTransform) :
-        IssueQuickFix(issueType, description),
-        m_keyTransform(keyTransform),
-        m_valueTransform(valueTransform) {}
+namespace Model {
+TransformEntityPropertiesQuickFix::TransformEntityPropertiesQuickFix(
+  const IssueType issueType, const std::string& description, const KeyTransform& keyTransform,
+  const ValueTransform& valueTransform)
+  : IssueQuickFix(issueType, description)
+  , m_keyTransform(keyTransform)
+  , m_valueTransform(valueTransform) {}
 
-        void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
-            const PushSelection push(facade);
+void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
+  const PushSelection push(facade);
 
-            const auto* propIssue = static_cast<const EntityPropertyIssue*>(issue);
-            const auto& oldkey = propIssue->propertyKey();
-            const auto& oldValue = propIssue->propertyValue();
-            const auto newKey = m_keyTransform(oldkey);
-            const auto newValue = m_valueTransform(oldValue);
+  const auto* propIssue = static_cast<const EntityPropertyIssue*>(issue);
+  const auto& oldkey = propIssue->propertyKey();
+  const auto& oldValue = propIssue->propertyValue();
+  const auto newKey = m_keyTransform(oldkey);
+  const auto newValue = m_valueTransform(oldValue);
 
-            // If world node is affected, the selection will fail, but if nothing is selected,
-            // the removeProperty call will correctly affect worldspawn either way.
+  // If world node is affected, the selection will fail, but if nothing is selected,
+  // the removeProperty call will correctly affect worldspawn either way.
 
-            facade->deselectAll();
-            facade->select(issue->node());
+  facade->deselectAll();
+  facade->select(issue->node());
 
-            if (newKey.empty()) {
-                facade->removeProperty(propIssue->propertyKey());
-            } else {
-                if (newKey != oldkey)
-                    facade->renameProperty(oldkey, newKey);
-                if (newValue != oldValue)
-                    facade->setProperty(newKey, newValue);
-            }
-        }
-    }
+  if (newKey.empty()) {
+    facade->removeProperty(propIssue->propertyKey());
+  } else {
+    if (newKey != oldkey)
+      facade->renameProperty(oldkey, newKey);
+    if (newValue != oldValue)
+      facade->setProperty(newKey, newValue);
+  }
 }
+} // namespace Model
+} // namespace TrenchBroom

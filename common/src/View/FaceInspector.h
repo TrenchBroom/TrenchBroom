@@ -27,39 +27,45 @@ class QSplitter;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
-    namespace View {
-        class CollapsibleTitledPanel;
-        class FaceAttribsEditor;
-        class GLContextManager;
-        class MapDocument;
-        class TextureBrowser;
-
-        class FaceInspector : public TabBookPage {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            QSplitter* m_splitter;
-            FaceAttribsEditor* m_faceAttribsEditor;
-            TextureBrowser* m_textureBrowser;
-            CollapsibleTitledPanel* m_textureCollectionsEditor;
-        public:
-            FaceInspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
-            ~FaceInspector() override;
-
-            bool cancelMouseDrag();
-            void revealTexture(const Assets::Texture* texture);
-        private:
-            void createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
-            QWidget* createFaceAttribsEditor(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
-            QWidget* createTextureBrowser(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
-            CollapsibleTitledPanel* createTextureCollectionEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
-
-            void textureSelected(const Assets::Texture* texture);
-        };
-    }
+namespace Assets {
+class Texture;
 }
 
+namespace View {
+class CollapsibleTitledPanel;
+class FaceAttribsEditor;
+class GLContextManager;
+class MapDocument;
+class TextureBrowser;
+
+class FaceInspector : public TabBookPage {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+  QSplitter* m_splitter;
+  FaceAttribsEditor* m_faceAttribsEditor;
+  TextureBrowser* m_textureBrowser;
+  CollapsibleTitledPanel* m_textureCollectionsEditor;
+
+public:
+  FaceInspector(
+    std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    QWidget* parent = nullptr);
+  ~FaceInspector() override;
+
+  bool cancelMouseDrag();
+  void revealTexture(const Assets::Texture* texture);
+
+private:
+  void createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+  QWidget* createFaceAttribsEditor(
+    QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+  QWidget* createTextureBrowser(
+    QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+  CollapsibleTitledPanel* createTextureCollectionEditor(
+    QWidget* parent, std::weak_ptr<MapDocument> document);
+
+  void textureSelected(const Assets::Texture* texture);
+};
+} // namespace View
+} // namespace TrenchBroom

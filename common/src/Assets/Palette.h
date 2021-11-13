@@ -27,60 +27,64 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class BufferedReader;
-        class FileSystem;
-        class Path;
-    }
+namespace IO {
+class BufferedReader;
+class FileSystem;
+class Path;
+} // namespace IO
 
-    namespace Assets {
-        struct PaletteData;
-        class TextureBuffer;
+namespace Assets {
+struct PaletteData;
+class TextureBuffer;
 
-        enum class PaletteTransparency {
-            Opaque, Index255Transparent
-        };
+enum class PaletteTransparency
+{
+  Opaque,
+  Index255Transparent
+};
 
-        class Palette {
-        private:
-            std::shared_ptr<PaletteData> m_data;
-        public:
-            Palette();
-            /**
-             * @throws AssetException if data is not 768 bytes
-             */
-            Palette(const std::vector<unsigned char>& data);
+class Palette {
+private:
+  std::shared_ptr<PaletteData> m_data;
 
-            /**
-             * @throws AssetException if the palette can't be loaded
-             */
-            static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
-            static Palette loadLmp(IO::Reader& reader);
-            static Palette loadPcx(IO::Reader& reader);
-            static Palette loadBmp(IO::Reader& reader);
-            static Palette fromRaw(IO::Reader& reader);
+public:
+  Palette();
+  /**
+   * @throws AssetException if data is not 768 bytes
+   */
+  Palette(const std::vector<unsigned char>& data);
 
-            bool initialized() const;
+  /**
+   * @throws AssetException if the palette can't be loaded
+   */
+  static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
+  static Palette loadLmp(IO::Reader& reader);
+  static Palette loadPcx(IO::Reader& reader);
+  static Palette loadBmp(IO::Reader& reader);
+  static Palette fromRaw(IO::Reader& reader);
 
-            /**
-             * Reads `pixelCount` bytes from `reader` where each byte is a palette index,
-             * and writes `pixelCount` * 4 bytes to `rgbaImage` using the palette to convert
-             * the image to RGBA.
-             *
-             * Must not be called if `initialized()` is false.
-             *
-             * @param reader the reader to read from; the position will be advanced
-             * @param pixelCount number of pixels (bytes) to read
-             * @param rgbaImage the destination buffer, size must be exactly `pixelCount` * 4 bytes
-             * @param transparency controls whether or not the palette contains a transparent index
-             * @param averageColor output parameter for the average color of the generated pixel buffer
-             * @return true if the given index buffer did contain a transparent index, unless the transparency parameter
-             *     indicates that the image is opaque
-             *
-             * @throws ReaderException if reader doesn't have pixelCount bytes available
-             */
-            bool indexedToRgba(IO::BufferedReader& reader, size_t pixelCount, TextureBuffer& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const;
-        };
-    }
-}
+  bool initialized() const;
 
+  /**
+   * Reads `pixelCount` bytes from `reader` where each byte is a palette index,
+   * and writes `pixelCount` * 4 bytes to `rgbaImage` using the palette to convert
+   * the image to RGBA.
+   *
+   * Must not be called if `initialized()` is false.
+   *
+   * @param reader the reader to read from; the position will be advanced
+   * @param pixelCount number of pixels (bytes) to read
+   * @param rgbaImage the destination buffer, size must be exactly `pixelCount` * 4 bytes
+   * @param transparency controls whether or not the palette contains a transparent index
+   * @param averageColor output parameter for the average color of the generated pixel buffer
+   * @return true if the given index buffer did contain a transparent index, unless the transparency
+   * parameter indicates that the image is opaque
+   *
+   * @throws ReaderException if reader doesn't have pixelCount bytes available
+   */
+  bool indexedToRgba(
+    IO::BufferedReader& reader, size_t pixelCount, TextureBuffer& rgbaImage,
+    const PaletteTransparency transparency, Color& averageColor) const;
+};
+} // namespace Assets
+} // namespace TrenchBroom

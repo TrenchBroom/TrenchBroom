@@ -32,48 +32,57 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PropertyKeyWithDoubleQuotationMarksIssueGenerator::PropertyKeyWithDoubleQuotationMarksIssue : public EntityPropertyIssue {
-        public:
-            static const IssueType Type;
-        private:
-            const std::string m_propertyKey;
-        public:
-            PropertyKeyWithDoubleQuotationMarksIssue(EntityNodeBase* node, const std::string& propertyKey) :
-                EntityPropertyIssue(node),
-                m_propertyKey(propertyKey) {}
+namespace Model {
+class PropertyKeyWithDoubleQuotationMarksIssueGenerator::PropertyKeyWithDoubleQuotationMarksIssue
+  : public EntityPropertyIssue {
+public:
+  static const IssueType Type;
 
-            const std::string& propertyKey() const override {
-                return m_propertyKey;
-            }
-        private:
-            IssueType doGetType() const override {
-                return Type;
-            }
+private:
+  const std::string m_propertyKey;
 
-            std::string doGetDescription() const override {
-                return "The key of entity property '" + m_propertyKey + "' contains double quotation marks. This may cause errors during compilation or in the game.";
-            }
-        };
+public:
+  PropertyKeyWithDoubleQuotationMarksIssue(EntityNodeBase* node, const std::string& propertyKey)
+    : EntityPropertyIssue(node)
+    , m_propertyKey(propertyKey) {}
 
-        const IssueType PropertyKeyWithDoubleQuotationMarksIssueGenerator::PropertyKeyWithDoubleQuotationMarksIssue::Type = Issue::freeType();
+  const std::string& propertyKey() const override { return m_propertyKey; }
 
-        PropertyKeyWithDoubleQuotationMarksIssueGenerator::PropertyKeyWithDoubleQuotationMarksIssueGenerator() :
-        IssueGenerator(PropertyKeyWithDoubleQuotationMarksIssue::Type, "Invalid entity property keys") {
-            addQuickFix(new RemoveEntityPropertiesQuickFix(PropertyKeyWithDoubleQuotationMarksIssue::Type));
-            addQuickFix(new TransformEntityPropertiesQuickFix(PropertyKeyWithDoubleQuotationMarksIssue::Type,
-                                                              "Replace \" with '",
-                                                              [] (const std::string& key)   { return kdl::str_replace_every(key, "\"", "'"); },
-                                                              [] (const std::string& value) { return value; }));
-        }
+private:
+  IssueType doGetType() const override { return Type; }
 
-        void PropertyKeyWithDoubleQuotationMarksIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            for (const EntityProperty& property : node->entity().properties()) {
-                const std::string& propertyKey = property.key();
-                if (propertyKey.find('"') != std::string::npos) {
-                    issues.push_back(new PropertyKeyWithDoubleQuotationMarksIssue(node, propertyKey));
-                }
-            }
-        }
-    }
+  std::string doGetDescription() const override {
+    return "The key of entity property '" + m_propertyKey +
+           "' contains double quotation marks. This may cause errors during compilation or in the "
+           "game.";
+  }
+};
+
+const IssueType PropertyKeyWithDoubleQuotationMarksIssueGenerator::
+  PropertyKeyWithDoubleQuotationMarksIssue::Type = Issue::freeType();
+
+PropertyKeyWithDoubleQuotationMarksIssueGenerator::
+  PropertyKeyWithDoubleQuotationMarksIssueGenerator()
+  : IssueGenerator(PropertyKeyWithDoubleQuotationMarksIssue::Type, "Invalid entity property keys") {
+  addQuickFix(new RemoveEntityPropertiesQuickFix(PropertyKeyWithDoubleQuotationMarksIssue::Type));
+  addQuickFix(new TransformEntityPropertiesQuickFix(
+    PropertyKeyWithDoubleQuotationMarksIssue::Type, "Replace \" with '",
+    [](const std::string& key) {
+      return kdl::str_replace_every(key, "\"", "'");
+    },
+    [](const std::string& value) {
+      return value;
+    }));
 }
+
+void PropertyKeyWithDoubleQuotationMarksIssueGenerator::doGenerate(
+  EntityNodeBase* node, IssueList& issues) const {
+  for (const EntityProperty& property : node->entity().properties()) {
+    const std::string& propertyKey = property.key();
+    if (propertyKey.find('"') != std::string::npos) {
+      issues.push_back(new PropertyKeyWithDoubleQuotationMarksIssue(node, propertyKey));
+    }
+  }
+}
+} // namespace Model
+} // namespace TrenchBroom

@@ -25,32 +25,32 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineProfile;
+namespace Model {
+class GameEngineProfile;
 
-        class GameEngineConfig {
-        private:
-            std::vector<std::unique_ptr<GameEngineProfile>> m_profiles;
-        public:
-            GameEngineConfig();
-            GameEngineConfig(std::vector<std::unique_ptr<GameEngineProfile>> profiles);
-            GameEngineConfig(const GameEngineConfig& other);
-            ~GameEngineConfig();
+class GameEngineConfig {
+private:
+  std::vector<std::unique_ptr<GameEngineProfile>> m_profiles;
 
-            GameEngineConfig& operator=(GameEngineConfig other);
-            friend void swap(GameEngineConfig& lhs, GameEngineConfig& rhs);
+public:
+  GameEngineConfig();
+  GameEngineConfig(std::vector<std::unique_ptr<GameEngineProfile>> profiles);
+  GameEngineConfig(const GameEngineConfig& other);
+  ~GameEngineConfig();
 
-            size_t profileCount() const;
-            bool hasProfile(const std::string& name) const;
-            GameEngineProfile* profile(size_t index) const;
+  GameEngineConfig& operator=(GameEngineConfig other);
+  friend void swap(GameEngineConfig& lhs, GameEngineConfig& rhs);
 
-            void addProfile(std::unique_ptr<GameEngineProfile> profile);
-            void removeProfile(size_t index);
+  size_t profileCount() const;
+  bool hasProfile(const std::string& name) const;
+  GameEngineProfile* profile(size_t index) const;
 
-            friend bool operator==(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
-            friend bool operator!=(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
-            friend std::ostream& operator<<(std::ostream& str, const GameEngineConfig& config);
-        };
-    }
-}
+  void addProfile(std::unique_ptr<GameEngineProfile> profile);
+  void removeProfile(size_t index);
 
+  friend bool operator==(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
+  friend bool operator!=(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
+  friend std::ostream& operator<<(std::ostream& str, const GameEngineConfig& config);
+};
+} // namespace Model
+} // namespace TrenchBroom

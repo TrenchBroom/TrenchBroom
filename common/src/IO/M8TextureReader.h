@@ -22,21 +22,21 @@
 #include "IO/TextureReader.h"
 
 namespace TrenchBroom {
-    class Logger;
+class Logger;
 
-    namespace IO {
-        class File;
-        class FileSystem;
+namespace IO {
+class File;
+class FileSystem;
 
-        /**
-         * Heretic 2 .m8 format
-         */
-        class M8TextureReader : public TextureReader {
-        public:
-            M8TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
-        private:
-            Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
-        };
-    }
-}
+/**
+ * Heretic 2 .m8 format
+ */
+class M8TextureReader : public TextureReader {
+public:
+  M8TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
 
+private:
+  Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
+};
+} // namespace IO
+} // namespace TrenchBroom

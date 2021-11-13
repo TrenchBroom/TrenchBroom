@@ -18,12 +18,12 @@
  */
 
 #include "Exceptions.h"
-#include "Model/Tag.h"
-#include "Model/TagManager.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
+#include "Model/BrushNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
+#include "Model/Tag.h"
+#include "Model/TagManager.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/result.h>
@@ -31,36 +31,37 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]") {
-            const vm::bbox3 worldBounds{4096.0};
-            WorldNode world{{}, {}, MapFormat::Standard};
+namespace Model {
+TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]") {
+  const vm::bbox3 worldBounds{4096.0};
+  WorldNode world{{}, {}, MapFormat::Standard};
 
-            BrushBuilder builder{MapFormat::Standard, worldBounds};
-            BrushNode* brushNode = new BrushNode(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value());
+  BrushBuilder builder{MapFormat::Standard, worldBounds};
+  BrushNode* brushNode = new BrushNode(
+    builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value());
 
-            world.defaultLayer()->addChild(brushNode);
+  world.defaultLayer()->addChild(brushNode);
 
-            Tag tag1{"tag1", {}};
-            Tag tag2{"tag2", {}};
+  Tag tag1{"tag1", {}};
+  Tag tag2{"tag2", {}};
 
-            tag1.setIndex(0);
-            tag2.setIndex(1);
+  tag1.setIndex(0);
+  tag2.setIndex(1);
 
-            CHECK_FALSE(brushNode->hasTag(tag1));
-            CHECK_FALSE(brushNode->hasTag(tag2));
+  CHECK_FALSE(brushNode->hasTag(tag1));
+  CHECK_FALSE(brushNode->hasTag(tag2));
 
-            CHECK(brushNode->addTag(tag1));
-            CHECK_FALSE(brushNode->addTag(tag1));
+  CHECK(brushNode->addTag(tag1));
+  CHECK_FALSE(brushNode->addTag(tag1));
 
-            CHECK(brushNode->hasTag(tag1));
-            CHECK_FALSE(brushNode->hasTag(tag2));
+  CHECK(brushNode->hasTag(tag1));
+  CHECK_FALSE(brushNode->hasTag(tag2));
 
-            CHECK(brushNode->removeTag(tag1));
-            CHECK_FALSE(brushNode->removeTag(tag1));
+  CHECK(brushNode->removeTag(tag1));
+  CHECK_FALSE(brushNode->removeTag(tag1));
 
-            CHECK_FALSE(brushNode->hasTag(tag1));
-            CHECK_FALSE(brushNode->hasTag(tag2));
-        }
-    }
+  CHECK_FALSE(brushNode->hasTag(tag1));
+  CHECK_FALSE(brushNode->hasTag(tag2));
 }
+} // namespace Model
+} // namespace TrenchBroom

@@ -19,24 +19,27 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Ensure.h"
 
-#include "TrenchBroomStackWalker.h"
 #include "TrenchBroomApp.h"
+#include "TrenchBroomStackWalker.h"
 
-#include <sstream>
 #include <cassert>
+#include <sstream>
 
 #ifndef NDEBUG
 // for debug builds, ensure is just an assertion
-void TrenchBroom::ensureFailed(const char* /* file */, const int /* line */, const char* /* condition */, const char* /* message */) {
-    assert(0);
+void TrenchBroom::ensureFailed(
+  const char* /* file */, const int /* line */, const char* /* condition */,
+  const char* /* message */) {
+  assert(0);
 }
 #else
 // for release builds, ensure generates a crash report
-void TrenchBroom::ensureFailed(const char* file, const int line, const char* condition, const char* message) {
-    std::stringstream reason;
-    reason << file << ":" << line << ": Condition '" << condition << "' failed: " << message;
+void TrenchBroom::ensureFailed(
+  const char* file, const int line, const char* condition, const char* message) {
+  std::stringstream reason;
+  reason << file << ":" << line << ": Condition '" << condition << "' failed: " << message;
 
-    const std::string stacktrace = TrenchBroomStackWalker::getStackTrace();
-    TrenchBroom::View::reportCrashAndExit(stacktrace, reason.str());
+  const std::string stacktrace = TrenchBroomStackWalker::getStackTrace();
+  TrenchBroom::View::reportCrashAndExit(stacktrace, reason.str());
 }
 #endif

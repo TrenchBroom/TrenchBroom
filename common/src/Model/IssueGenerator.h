@@ -25,47 +25,50 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EntityNodeBase;
-        class BrushNode;
-        class EntityNode;
-        class GroupNode;
-        class Issue;
-        class IssueQuickFix;
-        class LayerNode;
-        class WorldNode;
+namespace Model {
+class EntityNodeBase;
+class BrushNode;
+class EntityNode;
+class GroupNode;
+class Issue;
+class IssueQuickFix;
+class LayerNode;
+class WorldNode;
 
-        class IssueGenerator {
-        protected:
-            using IssueList = std::vector<Issue*>;
-            using IssueQuickFixList = std::vector<IssueQuickFix*>;
-        private:
-            IssueType m_type;
-            std::string m_description;
-            IssueQuickFixList m_quickFixes;
-        public:
-            virtual ~IssueGenerator();
+class IssueGenerator {
+protected:
+  using IssueList = std::vector<Issue*>;
+  using IssueQuickFixList = std::vector<IssueQuickFix*>;
 
-            IssueType type() const;
-            const std::string& description() const;
-            const IssueQuickFixList& quickFixes() const;
+private:
+  IssueType m_type;
+  std::string m_description;
+  IssueQuickFixList m_quickFixes;
 
-            void generate(WorldNode* worldNode,   IssueList& issues) const;
-            void generate(LayerNode* layerNode,   IssueList& issues) const;
-            void generate(GroupNode* groupNode,   IssueList& issues) const;
-            void generate(EntityNode* entityNode, IssueList& issues) const;
-            void generate(BrushNode* brushNode,   IssueList& issues) const;
-        protected:
-            IssueGenerator(IssueType type, const std::string& description);
-            void addQuickFix(IssueQuickFix* quickFix);
-        private:
-            virtual void doGenerate(WorldNode* worldNode,           IssueList& issues) const;
-            virtual void doGenerate(LayerNode* layerNode,           IssueList& issues) const;
-            virtual void doGenerate(GroupNode* groupNode,           IssueList& issues) const;
-            virtual void doGenerate(EntityNode* entityNode,         IssueList& issues) const;
-            virtual void doGenerate(BrushNode* brushNode,           IssueList& issues) const;
-            virtual void doGenerate(EntityNodeBase* node,           IssueList& issues) const;
-        };
-    }
-}
+public:
+  virtual ~IssueGenerator();
 
+  IssueType type() const;
+  const std::string& description() const;
+  const IssueQuickFixList& quickFixes() const;
+
+  void generate(WorldNode* worldNode, IssueList& issues) const;
+  void generate(LayerNode* layerNode, IssueList& issues) const;
+  void generate(GroupNode* groupNode, IssueList& issues) const;
+  void generate(EntityNode* entityNode, IssueList& issues) const;
+  void generate(BrushNode* brushNode, IssueList& issues) const;
+
+protected:
+  IssueGenerator(IssueType type, const std::string& description);
+  void addQuickFix(IssueQuickFix* quickFix);
+
+private:
+  virtual void doGenerate(WorldNode* worldNode, IssueList& issues) const;
+  virtual void doGenerate(LayerNode* layerNode, IssueList& issues) const;
+  virtual void doGenerate(GroupNode* groupNode, IssueList& issues) const;
+  virtual void doGenerate(EntityNode* entityNode, IssueList& issues) const;
+  virtual void doGenerate(BrushNode* brushNode, IssueList& issues) const;
+  virtual void doGenerate(EntityNodeBase* node, IssueList& issues) const;
+};
+} // namespace Model
+} // namespace TrenchBroom

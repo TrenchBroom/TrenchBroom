@@ -25,34 +25,35 @@
 #include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class RenderContext;
+namespace Renderer {
+class RenderContext;
 
-        class TriangleRenderer : public DirectRenderable {
-        private:
-            VertexArray m_vertexArray;
-            IndexRangeMap m_indexArray;
+class TriangleRenderer : public DirectRenderable {
+private:
+  VertexArray m_vertexArray;
+  IndexRangeMap m_indexArray;
 
-            Color m_color;
-            bool m_useColor;
-            Color m_tintColor;
-            bool m_applyTinting;
-        public:
-            TriangleRenderer();
-            TriangleRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray);
-            TriangleRenderer(const VertexArray& vertexArray, PrimType primType);
-            
-            TriangleRenderer(const TriangleRenderer& other) = default;
-            TriangleRenderer& operator=(const TriangleRenderer& other) = default;
+  Color m_color;
+  bool m_useColor;
+  Color m_tintColor;
+  bool m_applyTinting;
 
-            void setUseColor(bool useColor);
-            void setColor(const Color& color);
-            void setApplyTinting(bool applyTinting);
-            void setTintColor(const Color& tintColor);
-        private:
-            void doPrepareVertices(VboManager& vboManager) override;
-            void doRender(RenderContext& context) override;
-        };
-    }
-}
+public:
+  TriangleRenderer();
+  TriangleRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray);
+  TriangleRenderer(const VertexArray& vertexArray, PrimType primType);
 
+  TriangleRenderer(const TriangleRenderer& other) = default;
+  TriangleRenderer& operator=(const TriangleRenderer& other) = default;
+
+  void setUseColor(bool useColor);
+  void setColor(const Color& color);
+  void setApplyTinting(bool applyTinting);
+  void setTintColor(const Color& tintColor);
+
+private:
+  void doPrepareVertices(VboManager& vboManager) override;
+  void doRender(RenderContext& context) override;
+};
+} // namespace Renderer
+} // namespace TrenchBroom

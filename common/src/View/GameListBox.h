@@ -27,41 +27,42 @@
 class QPixmap;
 
 namespace TrenchBroom {
-    namespace View {
-        class GameListBox : public ImageListBox {
-            Q_OBJECT
-        private:
-            struct Info {
-                std::string name;
-                QPixmap image;
-                QString title;
-                QString subtitle;
-            };
+namespace View {
+class GameListBox : public ImageListBox {
+  Q_OBJECT
+private:
+  struct Info {
+    std::string name;
+    QPixmap image;
+    QString title;
+    QString subtitle;
+  };
 
-            using InfoList = std::vector<Info>;
+  using InfoList = std::vector<Info>;
 
-            InfoList m_gameInfos;
-        public:
-            explicit GameListBox(QWidget* parent = nullptr);
-            std::string selectedGameName() const;
-            void selectGame(size_t index);
-            void reloadGameInfos();
-            void updateGameInfos();
-        private:
-            Info makeGameInfo(const std::string& gameName) const;
-        private:
-            size_t itemCount() const override;
-            QPixmap image(size_t index) const override;
-            QString title(size_t index) const override;
-            QString subtitle(size_t index) const override;
+  InfoList m_gameInfos;
 
-            void selectedRowChanged(int index) override;
-            void doubleClicked(size_t index) override;
-        signals:
-            void currentGameChanged(const QString& gameName);
-            void selectCurrentGame(const QString& gameName);
-        };
-    }
-}
+public:
+  explicit GameListBox(QWidget* parent = nullptr);
+  std::string selectedGameName() const;
+  void selectGame(size_t index);
+  void reloadGameInfos();
+  void updateGameInfos();
 
+private:
+  Info makeGameInfo(const std::string& gameName) const;
 
+private:
+  size_t itemCount() const override;
+  QPixmap image(size_t index) const override;
+  QString title(size_t index) const override;
+  QString subtitle(size_t index) const override;
+
+  void selectedRowChanged(int index) override;
+  void doubleClicked(size_t index) override;
+signals:
+  void currentGameChanged(const QString& gameName);
+  void selectCurrentGame(const QString& gameName);
+};
+} // namespace View
+} // namespace TrenchBroom

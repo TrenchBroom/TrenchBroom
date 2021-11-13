@@ -30,96 +30,98 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace IO {
-        namespace DkPakLayout {
-            static const size_t      HeaderMagicLength = 0x4;
-            static const size_t      EntryLength       = 0x48;
-            static const size_t      EntryNameLength   = 0x38;
-            static const std::string HeaderMagic       = "PACK";
-        }
+namespace IO {
+namespace DkPakLayout {
+static const size_t HeaderMagicLength = 0x4;
+static const size_t EntryLength = 0x48;
+static const size_t EntryNameLength = 0x38;
+static const std::string HeaderMagic = "PACK";
+} // namespace DkPakLayout
 
-        std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(std::shared_ptr<File> file, const size_t uncompressedSize) const {
-            auto reader = file->reader().buffer();
+std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(
+  std::shared_ptr<File> file, const size_t uncompressedSize) const {
+  auto reader = file->reader().buffer();
 
-            auto result = std::make_unique<char[]>(uncompressedSize);
-            auto* begin = result.get();
-            auto* curTarget = begin;
+  auto result = std::make_unique<char[]>(uncompressedSize);
+  auto* begin = result.get();
+  auto* curTarget = begin;
 
-            auto x = reader.readUnsignedChar<unsigned char>();
-            while (!reader.eof() && x < 0xFF) {
-                if (x < 0x40) {
-                    // x+1 bytes of uncompressed data follow (just read+write them as they are)
-                    const auto len = static_cast<size_t>(x) + 1;
-                    reader.read(curTarget, len);
-                    curTarget += len;
-                } else if (x < 0x80) {
-                    // run-length encoded zeros, write (x - 62) zero-bytes to output
-                    const auto len = static_cast<size_t>(x) - 62;
-                    std::memset(curTarget, 0, len);
-                    curTarget += len;
-                } else if (x < 0xC0) {
-                    // run-length encoded data, read one byte, write it (x-126) times to output
-                    const auto len = static_cast<size_t>(x) - 126;
-                    const auto data = reader.readInt<unsigned char>();
-                    std::memset(curTarget, data, len);
-                    curTarget += len;
-                } else if (x < 0xFE) {
-                    // this references previously uncompressed data
-                    // read one byte to get _offset_
-                    // read (x-190) bytes from the already uncompressed and written output data,
-                    // starting at (offset+2) bytes before the current write position (and add them to output, of course)
-                    const auto len = static_cast<size_t>(x) - 190;
-                    const auto offset = reader.readSize<unsigned char>();
-                    auto* from = curTarget - (offset + 2);
+  auto x = reader.readUnsignedChar<unsigned char>();
+  while (!reader.eof() && x < 0xFF) {
+    if (x < 0x40) {
+      // x+1 bytes of uncompressed data follow (just read+write them as they are)
+      const auto len = static_cast<size_t>(x) + 1;
+      reader.read(curTarget, len);
+      curTarget += len;
+    } else if (x < 0x80) {
+      // run-length encoded zeros, write (x - 62) zero-bytes to output
+      const auto len = static_cast<size_t>(x) - 62;
+      std::memset(curTarget, 0, len);
+      curTarget += len;
+    } else if (x < 0xC0) {
+      // run-length encoded data, read one byte, write it (x-126) times to output
+      const auto len = static_cast<size_t>(x) - 126;
+      const auto data = reader.readInt<unsigned char>();
+      std::memset(curTarget, data, len);
+      curTarget += len;
+    } else if (x < 0xFE) {
+      // this references previously uncompressed data
+      // read one byte to get _offset_
+      // read (x-190) bytes from the already uncompressed and written output data,
+      // starting at (offset+2) bytes before the current write position (and add them to output, of
+      // course)
+      const auto len = static_cast<size_t>(x) - 190;
+      const auto offset = reader.readSize<unsigned char>();
+      auto* from = curTarget - (offset + 2);
 
-                    assert(from >= begin);
-                    assert(from <=  curTarget - len);
+      assert(from >= begin);
+      assert(from <= curTarget - len);
 
-                    std::memcpy(curTarget, from, len);
-                    curTarget += len;
-                }
-
-                x = reader.readUnsignedChar<unsigned char>();
-            }
-
-            return result;
-        }
-
-        DkPakFileSystem::DkPakFileSystem(const Path& path) :
-        DkPakFileSystem(nullptr, path) {}
-
-        DkPakFileSystem::DkPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path) :
-        ImageFileSystem(std::move(next), path) {
-            initialize();
-        }
-
-        void DkPakFileSystem::doReadDirectory() {
-            auto reader = m_file->reader();
-            reader.seekFromBegin(DkPakLayout::HeaderMagicLength);
-
-            const auto directoryAddress = reader.readSize<int32_t>();
-            const auto directorySize = reader.readSize<int32_t>();
-            const auto entryCount = directorySize / DkPakLayout::EntryLength;
-
-            reader.seekFromBegin(directoryAddress);
-
-            for (size_t i = 0; i < entryCount; ++i) {
-                const auto entryName = reader.readString(DkPakLayout::EntryNameLength);
-                const auto entryAddress = reader.readSize<int32_t>();
-                const auto uncompressedSize = reader.readSize<int32_t>();
-                const auto compressedSize = reader.readSize<int32_t>();
-                const auto compressed = reader.readBool<int32_t>();
-                const auto entrySize = compressed ? compressedSize : uncompressedSize;
-
-                const auto entryPath = Path(kdl::str_to_lower(entryName));
-                auto entryFile = std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
-
-                if (compressed) {
-                    m_root.addFile(entryPath, std::make_unique<DkCompressedFile>(entryFile, uncompressedSize));
-                } else {
-                    m_root.addFile(entryPath, std::make_unique<SimpleFileEntry>(entryFile));
-                }
-            }
-        }
+      std::memcpy(curTarget, from, len);
+      curTarget += len;
     }
+
+    x = reader.readUnsignedChar<unsigned char>();
+  }
+
+  return result;
 }
+
+DkPakFileSystem::DkPakFileSystem(const Path& path)
+  : DkPakFileSystem(nullptr, path) {}
+
+DkPakFileSystem::DkPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path)
+  : ImageFileSystem(std::move(next), path) {
+  initialize();
+}
+
+void DkPakFileSystem::doReadDirectory() {
+  auto reader = m_file->reader();
+  reader.seekFromBegin(DkPakLayout::HeaderMagicLength);
+
+  const auto directoryAddress = reader.readSize<int32_t>();
+  const auto directorySize = reader.readSize<int32_t>();
+  const auto entryCount = directorySize / DkPakLayout::EntryLength;
+
+  reader.seekFromBegin(directoryAddress);
+
+  for (size_t i = 0; i < entryCount; ++i) {
+    const auto entryName = reader.readString(DkPakLayout::EntryNameLength);
+    const auto entryAddress = reader.readSize<int32_t>();
+    const auto uncompressedSize = reader.readSize<int32_t>();
+    const auto compressedSize = reader.readSize<int32_t>();
+    const auto compressed = reader.readBool<int32_t>();
+    const auto entrySize = compressed ? compressedSize : uncompressedSize;
+
+    const auto entryPath = Path(kdl::str_to_lower(entryName));
+    auto entryFile = std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
+
+    if (compressed) {
+      m_root.addFile(entryPath, std::make_unique<DkCompressedFile>(entryFile, uncompressedSize));
+    } else {
+      m_root.addFile(entryPath, std::make_unique<SimpleFileEntry>(entryFile));
+    }
+  }
+}
+} // namespace IO
+} // namespace TrenchBroom

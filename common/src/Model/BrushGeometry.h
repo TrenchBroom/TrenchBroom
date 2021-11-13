@@ -26,16 +26,16 @@
 #include "Model/Polyhedron_Forward.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        using BrushGeometry = Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
+namespace Model {
+using BrushGeometry = Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        using BrushVertex = Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
-        using BrushEdge = Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
-        using BrushHalfEdge = Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
-        using BrushFaceGeometry = Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
+using BrushVertex = Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
+using BrushEdge = Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
+using BrushHalfEdge = Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
+using BrushFaceGeometry = Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        using BrushVertexList = Polyhedron_VertexList<FloatType, BrushFacePayload, BrushVertexPayload>;
-        using BrushEdgeList = Polyhedron_EdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
-        using BrushHalfEdgeList = Polyhedron_HalfEdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
-    }
-}
+using BrushVertexList = Polyhedron_VertexList<FloatType, BrushFacePayload, BrushVertexPayload>;
+using BrushEdgeList = Polyhedron_EdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
+using BrushHalfEdgeList = Polyhedron_HalfEdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
+} // namespace Model
+} // namespace TrenchBroom

@@ -25,28 +25,28 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace View {
-        class FaceToolController::SelectFacePart : public SelectPartBase<vm::polygon3> {
-        public:
-            explicit SelectFacePart(FaceTool& tool) :
-            SelectPartBase(tool, FaceHandleManager::HandleHitType) {}
-        private:
-            bool equalHandles(const vm::polygon3& lhs, const vm::polygon3& rhs) const override {
-                return compareUnoriented(lhs, rhs, MaxHandleDistance) == 0;
-            }
-        };
+namespace View {
+class FaceToolController::SelectFacePart : public SelectPartBase<vm::polygon3> {
+public:
+  explicit SelectFacePart(FaceTool& tool)
+    : SelectPartBase(tool, FaceHandleManager::HandleHitType) {}
 
-        class FaceToolController::MoveFacePart : public MovePartBase {
-        public:
-            explicit MoveFacePart(FaceTool& tool) :
-            MovePartBase(tool, FaceHandleManager::HandleHitType) {}
-        };
+private:
+  bool equalHandles(const vm::polygon3& lhs, const vm::polygon3& rhs) const override {
+    return compareUnoriented(lhs, rhs, MaxHandleDistance) == 0;
+  }
+};
 
-        FaceToolController::FaceToolController(FaceTool& tool) :
-        VertexToolControllerBase(tool) {
-            addController(std::make_unique<MoveFacePart>(tool));
-            addController(std::make_unique<SelectFacePart>(tool));
-        }
-    }
+class FaceToolController::MoveFacePart : public MovePartBase {
+public:
+  explicit MoveFacePart(FaceTool& tool)
+    : MovePartBase(tool, FaceHandleManager::HandleHitType) {}
+};
+
+FaceToolController::FaceToolController(FaceTool& tool)
+  : VertexToolControllerBase(tool) {
+  addController(std::make_unique<MoveFacePart>(tool));
+  addController(std::make_unique<SelectFacePart>(tool));
 }
-
+} // namespace View
+} // namespace TrenchBroom

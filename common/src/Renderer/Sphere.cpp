@@ -27,24 +27,24 @@
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        Sphere::Sphere(const float radius, const size_t iterations) {
-            using Vertex = GLVertexTypes::P3::Vertex;
+namespace Renderer {
+Sphere::Sphere(const float radius, const size_t iterations) {
+  using Vertex = GLVertexTypes::P3::Vertex;
 
-            const auto positions = sphere3D(radius, iterations);
-            m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
-        }
-
-        bool Sphere::prepared() const {
-            return m_array.prepared();
-        }
-
-        void Sphere::prepare(VboManager& vboManager) {
-            m_array.prepare(vboManager);
-        }
-
-        void Sphere::render() {
-            m_array.render(PrimType::Triangles);
-        }
-    }
+  const auto positions = sphere3D(radius, iterations);
+  m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
+
+bool Sphere::prepared() const {
+  return m_array.prepared();
+}
+
+void Sphere::prepare(VboManager& vboManager) {
+  m_array.prepare(vboManager);
+}
+
+void Sphere::render() {
+  m_array.render(PrimType::Triangles);
+}
+} // namespace Renderer
+} // namespace TrenchBroom

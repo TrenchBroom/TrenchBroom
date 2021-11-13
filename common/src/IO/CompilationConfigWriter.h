@@ -19,38 +19,39 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "EL/EL_Forward.h"
+#include "Macros.h"
 
 #include <iosfwd>
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class CompilationConfig;
-        class CompilationProfile;
-    }
+namespace Model {
+class CompilationConfig;
+class CompilationProfile;
+} // namespace Model
 
-    namespace IO {
-        class CompilationConfigWriter {
-        private:
-            const Model::CompilationConfig& m_config;
-            std::ostream& m_stream;
-        public:
-            CompilationConfigWriter(const Model::CompilationConfig& config, std::ostream& stream);
+namespace IO {
+class CompilationConfigWriter {
+private:
+  const Model::CompilationConfig& m_config;
+  std::ostream& m_stream;
 
-            void writeConfig();
-        private:
-            EL::Value writeProfiles(const Model::CompilationConfig& config) const;
-            EL::Value writeProfile(const Model::CompilationProfile* profile) const;
+public:
+  CompilationConfigWriter(const Model::CompilationConfig& config, std::ostream& stream);
 
-            class WriteCompilationTaskVisitor;
-            EL::Value writeTasks(const Model::CompilationProfile* profile) const;
+  void writeConfig();
 
-            std::string escape(const std::string& str) const;
+private:
+  EL::Value writeProfiles(const Model::CompilationConfig& config) const;
+  EL::Value writeProfile(const Model::CompilationProfile* profile) const;
 
-            deleteCopyAndMove(CompilationConfigWriter)
-        };
-    }
-}
+  class WriteCompilationTaskVisitor;
+  EL::Value writeTasks(const Model::CompilationProfile* profile) const;
 
+  std::string escape(const std::string& str) const;
+
+  deleteCopyAndMove(CompilationConfigWriter)
+};
+} // namespace IO
+} // namespace TrenchBroom

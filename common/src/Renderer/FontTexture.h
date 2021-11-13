@@ -22,30 +22,31 @@
 #include "Renderer/GL.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontGlyphBuilder;
+namespace Renderer {
+class FontGlyphBuilder;
 
-        class FontTexture {
-        private:
-            size_t m_size;
-            char* m_buffer;
-            GLuint m_textureId;
+class FontTexture {
+private:
+  size_t m_size;
+  char* m_buffer;
+  GLuint m_textureId;
 
-            friend class FontGlyphBuilder;
-        public:
-            FontTexture();
-            FontTexture(size_t cellCount, size_t cellSize, size_t margin);
-            FontTexture(const FontTexture& other);
-            FontTexture& operator=(FontTexture other);
-            ~FontTexture();
+  friend class FontGlyphBuilder;
 
-            size_t size() const;
+public:
+  FontTexture();
+  FontTexture(size_t cellCount, size_t cellSize, size_t margin);
+  FontTexture(const FontTexture& other);
+  FontTexture& operator=(FontTexture other);
+  ~FontTexture();
 
-            void activate();
-            void deactivate();
-        private:
-            size_t computeTextureSize(size_t cellCount, size_t cellSize, size_t margin) const;
-        };
-    }
-}
+  size_t size() const;
 
+  void activate();
+  void deactivate();
+
+private:
+  size_t computeTextureSize(size_t cellCount, size_t cellSize, size_t margin) const;
+};
+} // namespace Renderer
+} // namespace TrenchBroom

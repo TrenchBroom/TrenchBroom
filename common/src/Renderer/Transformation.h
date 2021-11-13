@@ -25,68 +25,82 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Transformation {
-        private:
-            using MatrixStack = std::vector<vm::mat4x4f>;
-            MatrixStack m_projectionStack;
-            MatrixStack m_viewStack;
-            MatrixStack m_modelStack;
-        public:
-            Transformation(const vm::mat4x4f& projection, const vm::mat4x4f& view, const vm::mat4x4f& model = vm::mat4x4f::identity());
-            ~Transformation();
+namespace Renderer {
+class Transformation {
+private:
+  using MatrixStack = std::vector<vm::mat4x4f>;
+  MatrixStack m_projectionStack;
+  MatrixStack m_viewStack;
+  MatrixStack m_modelStack;
 
-            const vm::mat4x4f& projectionMatrix() const;
-            const vm::mat4x4f& viewMatrix() const;
-            const vm::mat4x4f& modelMatrix() const;
+public:
+  Transformation(
+    const vm::mat4x4f& projection, const vm::mat4x4f& view,
+    const vm::mat4x4f& model = vm::mat4x4f::identity());
+  ~Transformation();
 
-            Transformation slice() const;
+  const vm::mat4x4f& projectionMatrix() const;
+  const vm::mat4x4f& viewMatrix() const;
+  const vm::mat4x4f& modelMatrix() const;
 
-            void pushTransformation(const vm::mat4x4f& projection, const vm::mat4x4f& view, const vm::mat4x4f& model = vm::mat4x4f::identity());
-            void popTransformation();
-            void pushModelMatrix(const vm::mat4x4f& matrix);
-            void replaceAndPushModelMatrix(const vm::mat4x4f& matrix);
-            void popModelMatrix();
-        private:
-            void loadProjectionMatrix(const vm::mat4x4f& matrix);
-            void loadModelViewMatrix(const vm::mat4x4f& matrix);
-        private:
-            Transformation(const Transformation& other);
-            Transformation& operator=(const Transformation& other);
-        };
+  Transformation slice() const;
 
-        class ReplaceTransformation {
-        protected:
-            Transformation& m_transformation;
-        public:
-            ReplaceTransformation(Transformation& transformation, const vm::mat4x4f& projectionMatrix, const vm::mat4x4f& viewMatrix, const vm::mat4x4f& modelMatrix = vm::mat4x4f::identity());
-            ~ReplaceTransformation();
-        private:
-            ReplaceTransformation(const ReplaceTransformation& other);
-            ReplaceTransformation& operator=(const ReplaceTransformation& other);
-        };
+  void pushTransformation(
+    const vm::mat4x4f& projection, const vm::mat4x4f& view,
+    const vm::mat4x4f& model = vm::mat4x4f::identity());
+  void popTransformation();
+  void pushModelMatrix(const vm::mat4x4f& matrix);
+  void replaceAndPushModelMatrix(const vm::mat4x4f& matrix);
+  void popModelMatrix();
 
-        class MultiplyModelMatrix {
-        protected:
-            Transformation& m_transformation;
-        public:
-            MultiplyModelMatrix(Transformation& transformation, const vm::mat4x4f& modelMatrix);
-            ~MultiplyModelMatrix();
-        private:
-            MultiplyModelMatrix(const ReplaceTransformation& other);
-            MultiplyModelMatrix& operator=(const ReplaceTransformation& other);
-        };
+private:
+  void loadProjectionMatrix(const vm::mat4x4f& matrix);
+  void loadModelViewMatrix(const vm::mat4x4f& matrix);
 
-        class ReplaceModelMatrix {
-        protected:
-            Transformation& m_transformation;
-        public:
-            ReplaceModelMatrix(Transformation& transformation, const vm::mat4x4f& modelMatrix);
-            ~ReplaceModelMatrix();
-        private:
-            ReplaceModelMatrix(const ReplaceTransformation& other);
-            ReplaceModelMatrix& operator=(const ReplaceTransformation& other);
-        };
-    }
-}
+private:
+  Transformation(const Transformation& other);
+  Transformation& operator=(const Transformation& other);
+};
 
+class ReplaceTransformation {
+protected:
+  Transformation& m_transformation;
+
+public:
+  ReplaceTransformation(
+    Transformation& transformation, const vm::mat4x4f& projectionMatrix,
+    const vm::mat4x4f& viewMatrix, const vm::mat4x4f& modelMatrix = vm::mat4x4f::identity());
+  ~ReplaceTransformation();
+
+private:
+  ReplaceTransformation(const ReplaceTransformation& other);
+  ReplaceTransformation& operator=(const ReplaceTransformation& other);
+};
+
+class MultiplyModelMatrix {
+protected:
+  Transformation& m_transformation;
+
+public:
+  MultiplyModelMatrix(Transformation& transformation, const vm::mat4x4f& modelMatrix);
+  ~MultiplyModelMatrix();
+
+private:
+  MultiplyModelMatrix(const ReplaceTransformation& other);
+  MultiplyModelMatrix& operator=(const ReplaceTransformation& other);
+};
+
+class ReplaceModelMatrix {
+protected:
+  Transformation& m_transformation;
+
+public:
+  ReplaceModelMatrix(Transformation& transformation, const vm::mat4x4f& modelMatrix);
+  ~ReplaceModelMatrix();
+
+private:
+  ReplaceModelMatrix(const ReplaceTransformation& other);
+  ReplaceModelMatrix& operator=(const ReplaceTransformation& other);
+};
+} // namespace Renderer
+} // namespace TrenchBroom

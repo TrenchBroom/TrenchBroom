@@ -22,27 +22,31 @@
 #include <cstddef>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontGlyph;
-        class FontTexture;
+namespace Renderer {
+class FontGlyph;
+class FontTexture;
 
-        class FontGlyphBuilder {
-        private:
-            size_t m_maxAscend;
-            size_t m_cellSize;
-            size_t m_margin;
-            size_t m_textureSize;
-            char* m_textureBuffer;
+class FontGlyphBuilder {
+private:
+  size_t m_maxAscend;
+  size_t m_cellSize;
+  size_t m_margin;
+  size_t m_textureSize;
+  char* m_textureBuffer;
 
-            size_t m_x;
-            size_t m_y;
-        public:
-            FontGlyphBuilder(size_t maxAscend, size_t cellSize, size_t margin, FontTexture& texture);
+  size_t m_x;
+  size_t m_y;
 
-            FontGlyph createGlyph(size_t left, size_t top, size_t width, size_t height, size_t advance, const char* glyphBuffer, size_t pitch);
-        private:
-            void drawGlyph(size_t left, size_t top, size_t width, size_t height, const char* glyphBuffer, size_t pitch);
-        };
-    }
-}
+public:
+  FontGlyphBuilder(size_t maxAscend, size_t cellSize, size_t margin, FontTexture& texture);
 
+  FontGlyph createGlyph(
+    size_t left, size_t top, size_t width, size_t height, size_t advance, const char* glyphBuffer,
+    size_t pitch);
+
+private:
+  void drawGlyph(
+    size_t left, size_t top, size_t width, size_t height, const char* glyphBuffer, size_t pitch);
+};
+} // namespace Renderer
+} // namespace TrenchBroom

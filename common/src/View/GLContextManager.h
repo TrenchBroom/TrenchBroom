@@ -25,41 +25,42 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontManager;
-        class ShaderManager;
-        class VboManager;
-    }
+namespace Renderer {
+class FontManager;
+class ShaderManager;
+class VboManager;
+} // namespace Renderer
 
-    namespace View {
-        class GLContextManager {
-        public:
-            static std::string GLVendor;
-            static std::string GLRenderer;
-            static std::string GLVersion;
-        private:
-            bool m_initialized;
+namespace View {
+class GLContextManager {
+public:
+  static std::string GLVendor;
+  static std::string GLRenderer;
+  static std::string GLVersion;
 
-            std::string m_glVendor;
-            std::string m_glRenderer;
-            std::string m_glVersion;
+private:
+  bool m_initialized;
 
-            std::unique_ptr<Renderer::ShaderManager> m_shaderManager;
-            std::unique_ptr<Renderer::VboManager> m_vboManager;
-            std::unique_ptr<Renderer::FontManager> m_fontManager;
-        public:
-            GLContextManager();
-            ~GLContextManager();
+  std::string m_glVendor;
+  std::string m_glRenderer;
+  std::string m_glVersion;
 
-            bool initialized() const;
-            bool initialize();
+  std::unique_ptr<Renderer::ShaderManager> m_shaderManager;
+  std::unique_ptr<Renderer::VboManager> m_vboManager;
+  std::unique_ptr<Renderer::FontManager> m_fontManager;
 
-            Renderer::VboManager& vboManager();
-            Renderer::FontManager& fontManager();
-            Renderer::ShaderManager& shaderManager();
+public:
+  GLContextManager();
+  ~GLContextManager();
 
-            deleteCopyAndMove(GLContextManager)
-        };
-    }
-}
+  bool initialized() const;
+  bool initialize();
 
+  Renderer::VboManager& vboManager();
+  Renderer::FontManager& fontManager();
+  Renderer::ShaderManager& shaderManager();
+
+  deleteCopyAndMove(GLContextManager)
+};
+} // namespace View
+} // namespace TrenchBroom

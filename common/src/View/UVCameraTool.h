@@ -25,28 +25,29 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class OrthographicCamera;
-    }
-
-    namespace View {
-        class DragTracker;
-
-        class UVCameraTool : public ToolController, public Tool {
-        private:
-            Renderer::OrthographicCamera& m_camera;
-        public:
-            explicit UVCameraTool(Renderer::OrthographicCamera& camera);
-        private:
-            Tool& tool() override;
-            const Tool& tool() const override;
-
-            void mouseScroll(const InputState& inputState) override;
-
-            std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
-
-            bool cancel() override;
-        };
-    }
+namespace Renderer {
+class OrthographicCamera;
 }
 
+namespace View {
+class DragTracker;
+
+class UVCameraTool : public ToolController, public Tool {
+private:
+  Renderer::OrthographicCamera& m_camera;
+
+public:
+  explicit UVCameraTool(Renderer::OrthographicCamera& camera);
+
+private:
+  Tool& tool() override;
+  const Tool& tool() const override;
+
+  void mouseScroll(const InputState& inputState) override;
+
+  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+
+  bool cancel() override;
+};
+} // namespace View
+} // namespace TrenchBroom

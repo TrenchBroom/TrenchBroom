@@ -20,59 +20,61 @@
 #include "RecentDocumentListBox.h"
 
 #include "Ensure.h"
-#include "TrenchBroomApp.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/ResourceUtils.h"
+#include "TrenchBroomApp.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
-    namespace View {
-        RecentDocumentListBox::RecentDocumentListBox(QWidget* parent) :
-        ImageListBox("No Recent Documents", true, parent),
-        m_documentIcon(IO::loadPixmapResource("DocIcon.png")) {
-            TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            connect(&app, &TrenchBroomApp::recentDocumentsDidChange, this, &RecentDocumentListBox::recentDocumentsDidChange);
-            reload();
-        }
-
-        void RecentDocumentListBox::recentDocumentsDidChange() {
-            reload();
-        }
-
-        size_t RecentDocumentListBox::itemCount() const {
-            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
-            return recentDocuments.size();
-        }
-
-        QPixmap RecentDocumentListBox::image(const size_t /* index */) const {
-            return m_documentIcon;
-        }
-
-        QString RecentDocumentListBox::title(const size_t index) const {
-            const auto& app = View::TrenchBroomApp::instance();
-            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
-            ensure(index < recentDocuments.size(), "index out of range");
-            return IO::pathAsQString(recentDocuments[index].lastComponent());
-        }
-
-        QString RecentDocumentListBox::subtitle(const size_t index) const {
-            const auto& app = View::TrenchBroomApp::instance();
-            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
-            ensure(index < recentDocuments.size(), "index out of range");
-            return IO::pathAsQString(recentDocuments[index]);
-        }
-
-        void RecentDocumentListBox::doubleClicked(const size_t index) {
-            auto& app = View::TrenchBroomApp::instance();
-            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
-
-            if (index < recentDocuments.size()) {
-                const IO::Path& documentPath = recentDocuments[index];
-                emit loadRecentDocument(documentPath);
-            }
-        }
-    }
+namespace View {
+RecentDocumentListBox::RecentDocumentListBox(QWidget* parent)
+  : ImageListBox("No Recent Documents", true, parent)
+  , m_documentIcon(IO::loadPixmapResource("DocIcon.png")) {
+  TrenchBroomApp& app = View::TrenchBroomApp::instance();
+  connect(
+    &app, &TrenchBroomApp::recentDocumentsDidChange, this,
+    &RecentDocumentListBox::recentDocumentsDidChange);
+  reload();
 }
+
+void RecentDocumentListBox::recentDocumentsDidChange() {
+  reload();
+}
+
+size_t RecentDocumentListBox::itemCount() const {
+  const TrenchBroomApp& app = View::TrenchBroomApp::instance();
+  const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+  return recentDocuments.size();
+}
+
+QPixmap RecentDocumentListBox::image(const size_t /* index */) const {
+  return m_documentIcon;
+}
+
+QString RecentDocumentListBox::title(const size_t index) const {
+  const auto& app = View::TrenchBroomApp::instance();
+  const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+  ensure(index < recentDocuments.size(), "index out of range");
+  return IO::pathAsQString(recentDocuments[index].lastComponent());
+}
+
+QString RecentDocumentListBox::subtitle(const size_t index) const {
+  const auto& app = View::TrenchBroomApp::instance();
+  const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+  ensure(index < recentDocuments.size(), "index out of range");
+  return IO::pathAsQString(recentDocuments[index]);
+}
+
+void RecentDocumentListBox::doubleClicked(const size_t index) {
+  auto& app = View::TrenchBroomApp::instance();
+  const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+
+  if (index < recentDocuments.size()) {
+    const IO::Path& documentPath = recentDocuments[index];
+    emit loadRecentDocument(documentPath);
+  }
+}
+} // namespace View
+} // namespace TrenchBroom

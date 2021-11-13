@@ -30,50 +30,51 @@ class QStackedLayout;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushFaceHandle;
-        class Issue;
-        class Node;
-    }
+namespace Model {
+class BrushFaceHandle;
+class Issue;
+class Node;
+} // namespace Model
 
-    namespace View {
-        class FlagsPopupEditor;
-        class IssueBrowserView;
-        class MapDocument;
+namespace View {
+class FlagsPopupEditor;
+class IssueBrowserView;
+class MapDocument;
 
-        class IssueBrowser : public TabBookPage {
-            Q_OBJECT
-        private:
-            static const int SelectObjectsCommandId = 1;
-            static const int ShowIssuesCommandId = 2;
-            static const int HideIssuesCommandId = 3;
-            static const int FixObjectsBaseId = 4;
+class IssueBrowser : public TabBookPage {
+  Q_OBJECT
+private:
+  static const int SelectObjectsCommandId = 1;
+  static const int ShowIssuesCommandId = 2;
+  static const int HideIssuesCommandId = 3;
+  static const int FixObjectsBaseId = 4;
 
-            std::weak_ptr<MapDocument> m_document;
-            IssueBrowserView* m_view;
-            QCheckBox* m_showHiddenIssuesCheckBox;
-            FlagsPopupEditor* m_filterEditor;
+  std::weak_ptr<MapDocument> m_document;
+  IssueBrowserView* m_view;
+  QCheckBox* m_showHiddenIssuesCheckBox;
+  FlagsPopupEditor* m_filterEditor;
 
-            NotifierConnection m_notifierConnection;
-        public:
-            explicit IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  NotifierConnection m_notifierConnection;
 
-            QWidget* createTabBarPage(QWidget* parent) override;
-        private:
-            void connectObservers();
-            void documentWasNewedOrLoaded(MapDocument* document);
-            void documentWasSaved(MapDocument* document);
-            void nodesWereAdded(const std::vector<Model::Node*>& nodes);
-            void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
-            void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
-            void issueIgnoreChanged(Model::Issue* issue);
+public:
+  explicit IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
-            void updateFilterFlags();
+  QWidget* createTabBarPage(QWidget* parent) override;
 
-            void showHiddenIssuesChanged();
-            void filterChanged(size_t index, int value, int setFlag, int mixedFlag);
-        };
-    }
-}
+private:
+  void connectObservers();
+  void documentWasNewedOrLoaded(MapDocument* document);
+  void documentWasSaved(MapDocument* document);
+  void nodesWereAdded(const std::vector<Model::Node*>& nodes);
+  void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
+  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
+  void issueIgnoreChanged(Model::Issue* issue);
 
+  void updateFilterFlags();
+
+  void showHiddenIssuesChanged();
+  void filterChanged(size_t index, int value, int setFlag, int mixedFlag);
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -24,14 +24,16 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PropertyValueWithDoubleQuotationMarksIssueGenerator : public IssueGenerator {
-        private:
-            class PropertyValueWithDoubleQuotationMarksIssue;
-        public:
-            PropertyValueWithDoubleQuotationMarksIssueGenerator();
-        private:
-            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
-        };
-    }
-}
+namespace Model {
+class PropertyValueWithDoubleQuotationMarksIssueGenerator : public IssueGenerator {
+private:
+  class PropertyValueWithDoubleQuotationMarksIssue;
+
+public:
+  PropertyValueWithDoubleQuotationMarksIssueGenerator();
+
+private:
+  void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

@@ -20,10 +20,14 @@
 #include "BrushFacePredicates.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        namespace BrushFacePredicates {
-            bool True::operator()(const Model::BrushNode* /* brush */, const BrushFace& /* face */) const  { return true;  }
-            bool False::operator()(const Model::BrushNode* /* brush */, const BrushFace& /* face */) const { return false; }
-        }
-    }
+namespace Model {
+namespace BrushFacePredicates {
+bool True::operator()(const Model::BrushNode* /* brush */, const BrushFace& /* face */) const {
+  return true;
 }
+bool False::operator()(const Model::BrushNode* /* brush */, const BrushFace& /* face */) const {
+  return false;
+}
+} // namespace BrushFacePredicates
+} // namespace Model
+} // namespace TrenchBroom

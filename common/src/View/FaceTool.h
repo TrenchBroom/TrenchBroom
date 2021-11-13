@@ -29,33 +29,40 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        class FaceHandleManager;
+namespace View {
+class FaceHandleManager;
 
-        class FaceTool : public VertexToolBase<vm::polygon3> {
-        private:
-            std::unique_ptr<FaceHandleManager> m_faceHandles;
-        public:
-            FaceTool(std::weak_ptr<MapDocument> document);
-        public:
-            // FIXME: use vector_set
-            std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3& handle) const;
-        private:
-            using VertexToolBase::findIncidentBrushes;
-        public:
-            void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
-        public:
-            FaceHandleManager& handleManager() override;
-            const FaceHandleManager& handleManager() const override;
-        public:
-            std::tuple<vm::vec3, vm::vec3> handlePositionAndOffset(const std::vector<Model::Hit>& hits) const override;
+class FaceTool : public VertexToolBase<vm::polygon3> {
+private:
+  std::unique_ptr<FaceHandleManager> m_faceHandles;
 
-            MoveResult move(const vm::vec3& delta) override;
+public:
+  FaceTool(std::weak_ptr<MapDocument> document);
 
-            std::string actionName() const override;
+public:
+  // FIXME: use vector_set
+  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3& handle) const;
 
-            void removeSelection();
-        };
-    }
-}
+private:
+  using VertexToolBase::findIncidentBrushes;
 
+public:
+  void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
+    const override;
+
+public:
+  FaceHandleManager& handleManager() override;
+  const FaceHandleManager& handleManager() const override;
+
+public:
+  std::tuple<vm::vec3, vm::vec3> handlePositionAndOffset(
+    const std::vector<Model::Hit>& hits) const override;
+
+  MoveResult move(const vm::vec3& delta) override;
+
+  std::string actionName() const override;
+
+  void removeSelection();
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -25,30 +25,35 @@
 #include <memory>
 
 namespace TrenchBroom {
-    class Logger;
+class Logger;
 
-    namespace Renderer {
-        class MapRenderer;
-    }
-
-    namespace View {
-        class CyclingMapView;
-        class GLContextManager;
-        class MapDocument;
-        class MapViewToolBox;
-
-        class OnePaneMapView : public MultiMapView {
-        private:
-            Logger* m_logger;
-            std::weak_ptr<MapDocument> m_document;
-
-            CameraLinkHelper m_linkHelper;
-            CyclingMapView* m_mapView;
-        public:
-            explicit OnePaneMapView(Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent = nullptr);
-        private:
-            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
-        };
-    }
+namespace Renderer {
+class MapRenderer;
 }
 
+namespace View {
+class CyclingMapView;
+class GLContextManager;
+class MapDocument;
+class MapViewToolBox;
+
+class OnePaneMapView : public MultiMapView {
+private:
+  Logger* m_logger;
+  std::weak_ptr<MapDocument> m_document;
+
+  CameraLinkHelper m_linkHelper;
+  CyclingMapView* m_mapView;
+
+public:
+  explicit OnePaneMapView(
+    Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
+    Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager,
+    QWidget* parent = nullptr);
+
+private:
+  void createGui(
+    MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
+};
+} // namespace View
+} // namespace TrenchBroom

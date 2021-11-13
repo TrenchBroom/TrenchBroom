@@ -22,58 +22,53 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 namespace TrenchBroom {
-    namespace Assets {
-        template <typename T>
-        class AssetReference {
-        private:
-            T* m_asset;
-        public:
-            explicit AssetReference(T* asset = nullptr) :
-            m_asset(asset) {
-                if (m_asset != nullptr) {
-                    m_asset->incUsageCount();
-                }
-            }
-            
-            AssetReference(const AssetReference& other) noexcept :
-            AssetReference(other.m_asset) {}
+namespace Assets {
+template <typename T> class AssetReference {
+private:
+  T* m_asset;
 
-            AssetReference(AssetReference&& other) noexcept :
-            m_asset(std::exchange(other.m_asset, nullptr)) {}
-            
-            ~AssetReference() {
-                if (m_asset != nullptr) {
-                    m_asset->decUsageCount();
-                }
-            }
-            
-            AssetReference& operator=(AssetReference other) noexcept {
-                using std::swap;
-                swap(*this, other);
-                return *this;
-            }
-
-            friend void swap(AssetReference& lhs, AssetReference& rhs) {
-                using std::swap;
-                swap(lhs.m_asset, rhs.m_asset);
-            }
-
-            T* get() {
-                return m_asset;
-            }
-
-            const T* get() const {
-                return m_asset;
-            }
-
-            friend bool operator==(const AssetReference& lhs, const AssetReference& rhs) {
-                return lhs.m_asset == rhs.m_asset;
-            }
-
-            friend bool operator!=(const AssetReference& lhs, const AssetReference& rhs) {
-                return !(lhs == rhs);
-            }
-        };
+public:
+  explicit AssetReference(T* asset = nullptr)
+    : m_asset(asset) {
+    if (m_asset != nullptr) {
+      m_asset->incUsageCount();
     }
-}
+  }
 
+  AssetReference(const AssetReference& other) noexcept
+    : AssetReference(other.m_asset) {}
+
+  AssetReference(AssetReference&& other) noexcept
+    : m_asset(std::exchange(other.m_asset, nullptr)) {}
+
+  ~AssetReference() {
+    if (m_asset != nullptr) {
+      m_asset->decUsageCount();
+    }
+  }
+
+  AssetReference& operator=(AssetReference other) noexcept {
+    using std::swap;
+    swap(*this, other);
+    return *this;
+  }
+
+  friend void swap(AssetReference& lhs, AssetReference& rhs) {
+    using std::swap;
+    swap(lhs.m_asset, rhs.m_asset);
+  }
+
+  T* get() { return m_asset; }
+
+  const T* get() const { return m_asset; }
+
+  friend bool operator==(const AssetReference& lhs, const AssetReference& rhs) {
+    return lhs.m_asset == rhs.m_asset;
+  }
+
+  friend bool operator!=(const AssetReference& lhs, const AssetReference& rhs) {
+    return !(lhs == rhs);
+  }
+};
+} // namespace Assets
+} // namespace TrenchBroom

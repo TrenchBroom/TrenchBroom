@@ -37,32 +37,36 @@
 // clang-format on
 
 namespace TrenchBroom {
-    namespace Model {
-        template struct Polyhedron_GetVertexLink<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        template struct Polyhedron_GetVertexLink<FloatType, BrushFacePayload, BrushVertexPayload>;
+namespace Model {
+template struct Polyhedron_GetVertexLink<
+  FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template struct Polyhedron_GetVertexLink<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        template class Polyhedron_Vertex<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        template class Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
+template class Polyhedron_Vertex<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        template struct Polyhedron_GetEdgeLink<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        template struct Polyhedron_GetEdgeLink<FloatType, BrushFacePayload, BrushVertexPayload>;
+template struct Polyhedron_GetEdgeLink<
+  FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template struct Polyhedron_GetEdgeLink<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        template class Polyhedron_Edge<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        template class Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
+template class Polyhedron_Edge<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        template struct Polyhedron_GetHalfEdgeLink<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        template struct Polyhedron_GetHalfEdgeLink<FloatType, BrushFacePayload, BrushVertexPayload>;
+template struct Polyhedron_GetHalfEdgeLink<
+  FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template struct Polyhedron_GetHalfEdgeLink<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        template class Polyhedron_HalfEdge<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        template class Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
+template class Polyhedron_HalfEdge<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        template struct Polyhedron_GetFaceLink<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        template struct Polyhedron_GetFaceLink<FloatType, BrushFacePayload, BrushVertexPayload>;
+template struct Polyhedron_GetFaceLink<
+  FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template struct Polyhedron_GetFaceLink<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        template class Polyhedron_Face<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        template class Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
+template class Polyhedron_Face<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-        template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-        template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
-    }
-}
+template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
+} // namespace Model
+} // namespace TrenchBroom

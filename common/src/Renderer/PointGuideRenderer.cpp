@@ -23,47 +23,47 @@
 
 #include <kdl/memory_utils.h>
 
-#include <vecmath/vec.h>
 #include <vecmath/ray.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        const FloatType PointGuideRenderer::SpikeLength = 512.0;
+namespace Renderer {
+const FloatType PointGuideRenderer::SpikeLength = 512.0;
 
-        PointGuideRenderer::PointGuideRenderer(std::weak_ptr<View::MapDocument> document) :
-        m_document(document) {}
+PointGuideRenderer::PointGuideRenderer(std::weak_ptr<View::MapDocument> document)
+  : m_document(document) {}
 
-        void PointGuideRenderer::setColor(const Color& color) {
-            if (color == m_color)
-                return;
+void PointGuideRenderer::setColor(const Color& color) {
+  if (color == m_color)
+    return;
 
-            m_spikeRenderer.setColor(color);
-            m_color = color;
-        }
-
-        void PointGuideRenderer::setPosition(const vm::vec3& position) {
-            if (position == m_position)
-                return;
-
-            m_spikeRenderer.clear();
-
-            auto document = kdl::mem_lock(m_document);
-            m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_x()), SpikeLength, document);
-            m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_x()), SpikeLength, document);
-            m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_y()), SpikeLength, document);
-            m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_y()), SpikeLength, document);
-            m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_z()), SpikeLength, document);
-            m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_z()), SpikeLength, document);
-
-            m_position = position;
-        }
-
-        void PointGuideRenderer::doPrepareVertices(VboManager& vboManager) {
-            m_spikeRenderer.prepareVertices(vboManager);
-        }
-
-        void PointGuideRenderer::doRender(RenderContext& renderContext) {
-            m_spikeRenderer.render(renderContext);
-        }
-    }
+  m_spikeRenderer.setColor(color);
+  m_color = color;
 }
+
+void PointGuideRenderer::setPosition(const vm::vec3& position) {
+  if (position == m_position)
+    return;
+
+  m_spikeRenderer.clear();
+
+  auto document = kdl::mem_lock(m_document);
+  m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_x()), SpikeLength, document);
+  m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_x()), SpikeLength, document);
+  m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_y()), SpikeLength, document);
+  m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_y()), SpikeLength, document);
+  m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_z()), SpikeLength, document);
+  m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_z()), SpikeLength, document);
+
+  m_position = position;
+}
+
+void PointGuideRenderer::doPrepareVertices(VboManager& vboManager) {
+  m_spikeRenderer.prepareVertices(vboManager);
+}
+
+void PointGuideRenderer::doRender(RenderContext& renderContext) {
+  m_spikeRenderer.render(renderContext);
+}
+} // namespace Renderer
+} // namespace TrenchBroom

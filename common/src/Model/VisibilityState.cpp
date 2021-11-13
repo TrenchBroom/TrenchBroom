@@ -24,22 +24,21 @@
 #include <iostream>
 
 namespace TrenchBroom {
-    namespace Model {
-        std::ostream& operator<<(std::ostream& str, const VisibilityState state) {
-            switch (state) {
-                case VisibilityState::Inherited:
-                    str << "Inherited";
-                    break;
-                case VisibilityState::Hidden:
-                    str << "Hidden";
-                    break;
-                case VisibilityState::Shown:
-                    str << "Shown";
-                    break;
-                switchDefault()
-            }
-            return str;
-        }
-    }
+namespace Model {
+std::ostream& operator<<(std::ostream& str, const VisibilityState state) {
+  switch (state) {
+    case VisibilityState::Inherited:
+      str << "Inherited";
+      break;
+    case VisibilityState::Hidden:
+      str << "Hidden";
+      break;
+    case VisibilityState::Shown:
+      str << "Shown";
+      break;
+      switchDefault()
+  }
+  return str;
 }
-
+} // namespace Model
+} // namespace TrenchBroom

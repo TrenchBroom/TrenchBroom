@@ -25,15 +25,14 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace EL {
-        class Interpolator : private IO::ELParser {
-        public:
-            explicit Interpolator(const std::string& str);
+namespace EL {
+class Interpolator : private IO::ELParser {
+public:
+  explicit Interpolator(const std::string& str);
 
-            std::string interpolate(const EvaluationContext& context);
-        };
+  std::string interpolate(const EvaluationContext& context);
+};
 
-        std::string interpolate(const std::string& str, const EvaluationContext& context);
-    }
-}
-
+std::string interpolate(const std::string& str, const EvaluationContext& context);
+} // namespace EL
+} // namespace TrenchBroom

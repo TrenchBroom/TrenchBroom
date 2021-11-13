@@ -32,98 +32,100 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace IO {
-        FILE* openPathAsFILE(const IO::Path& path, const std::string& mode) {
-            // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
-            // to open a Unicode path. We will use Qt to help convert the IO::Path to a UTF-16 encoded
-            // wchar array.
-            //
-            // - IO::Path contains UTF-8 (stored in std::string)
-            // - pathAsQString() converts UTF-8 to UTF-16 (stored in QString)
-            // - QString::toStdWString() returns a UTF-16 std::wstring on Windows
-            //
-            // All other platforms, just assume fopen() can handle UTF-8
+namespace IO {
+FILE* openPathAsFILE(const IO::Path& path, const std::string& mode) {
+  // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
+  // to open a Unicode path. We will use Qt to help convert the IO::Path to a UTF-16 encoded
+  // wchar array.
+  //
+  // - IO::Path contains UTF-8 (stored in std::string)
+  // - pathAsQString() converts UTF-8 to UTF-16 (stored in QString)
+  // - QString::toStdWString() returns a UTF-16 std::wstring on Windows
+  //
+  // All other platforms, just assume fopen() can handle UTF-8
 #ifdef _WIN32
-            return _wfopen(pathAsQString(path).toStdWString().c_str(),
-                           QString::fromStdString(mode).toStdWString().c_str());
+  return _wfopen(
+    pathAsQString(path).toStdWString().c_str(),
+    QString::fromStdString(mode).toStdWString().c_str());
 #else
-            return fopen(path.asString().c_str(), mode.c_str());
+  return fopen(path.asString().c_str(), mode.c_str());
 #endif
-        }
-
-        std::ofstream openPathAsOutputStream(const IO::Path& path, const std::ios::openmode mode) {
-#ifdef _WIN32
-            return std::ofstream(pathAsQString(path).toStdWString().c_str(), mode);
-#else
-            return std::ofstream(path.asString().c_str(), mode);
-#endif
-        }
-
-        std::ifstream openPathAsInputStream(const IO::Path& path, const std::ios::openmode mode) {
-#ifdef _WIN32
-            return std::ifstream(pathAsQString(path).toStdWString().c_str(), mode);
-#else
-            return std::ifstream(path.asString().c_str(), mode);
-#endif
-        }
-
-        size_t fileSize(std::FILE* file) {
-            ensure(file != nullptr, "file is null");
-            const auto pos = std::ftell(file);
-            if (pos < 0) {
-                throw FileSystemException("ftell failed");
-            }
-
-            if (std::fseek(file, 0, SEEK_END) != 0) {
-                throw FileSystemException("fseek failed");
-            }
-
-            const auto size = std::ftell(file);
-            if (size < 0) {
-                throw FileSystemException("ftell failed");
-            }
-
-            if (std::fseek(file, pos, SEEK_SET) != 0) {
-                throw FileSystemException("fseek failed");
-            }
-
-            return static_cast<size_t>(size);
-        }
-
-        std::string readGameComment(std::istream& stream) {
-            return readInfoComment(stream, "Game");
-        }
-
-        std::string readFormatComment(std::istream& stream) {
-            return readInfoComment(stream, "Format");
-        }
-
-        std::string readInfoComment(std::istream& stream, const std::string& name) {
-            static const size_t MaxChars = 64;
-            const std::string expectedHeader = "// " + name + ": ";
-            char buf[MaxChars];
-
-            stream.getline(buf, MaxChars);
-            if (stream.fail())
-                return "";
-
-            std::string line(buf);
-            if (line.size() < expectedHeader.size())
-                return "";
-
-            if (line.substr(0, expectedHeader.size()) != expectedHeader)
-                return "";
-
-            auto result = line.substr(expectedHeader.size());
-            if (result.size() > 0u && result.back() == '\r') {
-                result = result.substr(0u, result.size() - 1u);
-            }
-            return result;
-        }
-
-        void writeGameComment(std::ostream& stream, const std::string& gameName, const std::string& mapFormat) {
-            stream << "// Game: " << gameName << "\n"
-                   << "// Format: " << mapFormat << "\n";
-        }
-    }
 }
+
+std::ofstream openPathAsOutputStream(const IO::Path& path, const std::ios::openmode mode) {
+#ifdef _WIN32
+  return std::ofstream(pathAsQString(path).toStdWString().c_str(), mode);
+#else
+  return std::ofstream(path.asString().c_str(), mode);
+#endif
+}
+
+std::ifstream openPathAsInputStream(const IO::Path& path, const std::ios::openmode mode) {
+#ifdef _WIN32
+  return std::ifstream(pathAsQString(path).toStdWString().c_str(), mode);
+#else
+  return std::ifstream(path.asString().c_str(), mode);
+#endif
+}
+
+size_t fileSize(std::FILE* file) {
+  ensure(file != nullptr, "file is null");
+  const auto pos = std::ftell(file);
+  if (pos < 0) {
+    throw FileSystemException("ftell failed");
+  }
+
+  if (std::fseek(file, 0, SEEK_END) != 0) {
+    throw FileSystemException("fseek failed");
+  }
+
+  const auto size = std::ftell(file);
+  if (size < 0) {
+    throw FileSystemException("ftell failed");
+  }
+
+  if (std::fseek(file, pos, SEEK_SET) != 0) {
+    throw FileSystemException("fseek failed");
+  }
+
+  return static_cast<size_t>(size);
+}
+
+std::string readGameComment(std::istream& stream) {
+  return readInfoComment(stream, "Game");
+}
+
+std::string readFormatComment(std::istream& stream) {
+  return readInfoComment(stream, "Format");
+}
+
+std::string readInfoComment(std::istream& stream, const std::string& name) {
+  static const size_t MaxChars = 64;
+  const std::string expectedHeader = "// " + name + ": ";
+  char buf[MaxChars];
+
+  stream.getline(buf, MaxChars);
+  if (stream.fail())
+    return "";
+
+  std::string line(buf);
+  if (line.size() < expectedHeader.size())
+    return "";
+
+  if (line.substr(0, expectedHeader.size()) != expectedHeader)
+    return "";
+
+  auto result = line.substr(expectedHeader.size());
+  if (result.size() > 0u && result.back() == '\r') {
+    result = result.substr(0u, result.size() - 1u);
+  }
+  return result;
+}
+
+void writeGameComment(
+  std::ostream& stream, const std::string& gameName, const std::string& mapFormat) {
+  stream << "// Game: " << gameName << "\n"
+         << "// Format: " << mapFormat << "\n";
+}
+} // namespace IO
+} // namespace TrenchBroom

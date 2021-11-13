@@ -20,11 +20,11 @@
 #include "FreeTypeFontFactory.h"
 
 #include "Exceptions.h"
-#include "Macros.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/SystemPaths.h"
+#include "Macros.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontGlyph.h"
 #include "Renderer/FontGlyphBuilder.h"
@@ -35,105 +35,111 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        FreeTypeFontFactory::FreeTypeFontFactory() :
-        m_library(nullptr) {
-            FT_Error error = FT_Init_FreeType(&m_library);
-            if (error != 0) {
-                m_library = nullptr;
-                throw RenderException("Error initializing FreeType: " + std::to_string(error));
-            }
-        }
-
-        FreeTypeFontFactory::~FreeTypeFontFactory() {
-            if (m_library != nullptr) {
-                FT_Done_FreeType(m_library);
-                m_library = nullptr;
-            }
-        }
-
-        std::unique_ptr<TextureFont> FreeTypeFontFactory::doCreateFont(const FontDescriptor& fontDescriptor) {
-            auto [face, bufferedReader] = loadFont(fontDescriptor);
-            auto font = buildFont(face, fontDescriptor.minChar(), fontDescriptor.charCount());
-            FT_Done_Face(face);
-
-            // NOTE: bufferedReader is returned from loadFont() just to keep the buffer from
-            // being deallocated until after we call FT_Done_Face
-            unused(bufferedReader);
-
-            return font;
-        }
-
-        std::pair<FT_Face, IO::BufferedReader> FreeTypeFontFactory::loadFont(const FontDescriptor& fontDescriptor) {
-            const auto fontPath = fontDescriptor.path().isAbsolute() ? fontDescriptor.path() : IO::SystemPaths::findResourceFile(fontDescriptor.path());
-
-            auto file = IO::Disk::openFile(fontPath);
-            auto reader = file->reader().buffer();
-
-            FT_Face face;
-            const FT_Error error = FT_New_Memory_Face(m_library, reinterpret_cast<const FT_Byte*>(reader.begin()), static_cast<FT_Long>(reader.size()), 0, &face);
-            if (error != 0) {
-                throw RenderException("Error loading font '" + fontDescriptor.name() + "': " + std::to_string(error));
-            }
-
-            const auto fontSize = static_cast<FT_UInt>(fontDescriptor.size());
-            FT_Set_Pixel_Sizes(face, 0, fontSize);
-
-            return {face, std::move(reader)};
-        }
-
-        std::unique_ptr<TextureFont> FreeTypeFontFactory::buildFont(FT_Face face, const unsigned char firstChar, const unsigned char charCount) {
-            const Metrics metrics = computeMetrics(face, firstChar, charCount);
-
-            std::unique_ptr<FontTexture> texture = std::make_unique<FontTexture>(charCount, metrics.cellSize, metrics.lineHeight);
-            FontGlyphBuilder glyphBuilder(metrics.maxAscend, metrics.cellSize, 3, *texture);
-
-            FT_GlyphSlot glyph = face->glyph;
-            std::vector<FontGlyph> glyphs;
-            for (unsigned char c = firstChar; c < firstChar + charCount; ++c) {
-                FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
-                if (error != 0) {
-                    glyphs.push_back(FontGlyph(0, 0, 0, 0, 0));
-                } else {
-                    glyphs.push_back(glyphBuilder.createGlyph(
-                        static_cast<size_t>(glyph->bitmap_left),
-                        static_cast<size_t>(glyph->bitmap_top),
-                        static_cast<size_t>(glyph->bitmap.width), static_cast<size_t>(glyph->bitmap.rows),
-                        static_cast<size_t>(glyph->advance.x >> 6),
-                        reinterpret_cast<char*>(glyph->bitmap.buffer),
-                        static_cast<size_t>(glyph->bitmap.pitch)));
-                }
-            }
-
-            return std::make_unique<TextureFont>(std::move(texture), glyphs, static_cast<int>(metrics.lineHeight), firstChar, charCount);
-        }
-
-        FreeTypeFontFactory::Metrics FreeTypeFontFactory::computeMetrics(FT_Face face, const unsigned char firstChar, const unsigned char charCount) const {
-            FT_GlyphSlot glyph = face->glyph;
-
-            int maxWidth = 0;
-            int maxAscend = 0;
-            int maxDescend = 0;
-            int lineHeight = 0;
-
-            for (unsigned char c = firstChar; c < firstChar + charCount; ++c) {
-                FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
-                if (error != 0) {
-                    continue;
-                }
-
-                maxWidth = std::max(maxWidth, glyph->bitmap_left + static_cast<FT_Int>(glyph->bitmap.width));
-                maxAscend = std::max(maxAscend, glyph->bitmap_top);
-                maxDescend = std::max(maxDescend, static_cast<FT_Int>(glyph->bitmap.rows) - glyph->bitmap_top);
-                lineHeight = std::max(lineHeight, static_cast<int>(glyph->metrics.height >> 6));
-            }
-
-            const int cellSize = std::max(maxWidth, maxAscend + maxDescend);
-            return {
-                static_cast<size_t>(cellSize),
-                static_cast<size_t>(maxAscend),
-                static_cast<size_t>(lineHeight)
-            };
-        }
-    }
+namespace Renderer {
+FreeTypeFontFactory::FreeTypeFontFactory()
+  : m_library(nullptr) {
+  FT_Error error = FT_Init_FreeType(&m_library);
+  if (error != 0) {
+    m_library = nullptr;
+    throw RenderException("Error initializing FreeType: " + std::to_string(error));
+  }
 }
+
+FreeTypeFontFactory::~FreeTypeFontFactory() {
+  if (m_library != nullptr) {
+    FT_Done_FreeType(m_library);
+    m_library = nullptr;
+  }
+}
+
+std::unique_ptr<TextureFont> FreeTypeFontFactory::doCreateFont(
+  const FontDescriptor& fontDescriptor) {
+  auto [face, bufferedReader] = loadFont(fontDescriptor);
+  auto font = buildFont(face, fontDescriptor.minChar(), fontDescriptor.charCount());
+  FT_Done_Face(face);
+
+  // NOTE: bufferedReader is returned from loadFont() just to keep the buffer from
+  // being deallocated until after we call FT_Done_Face
+  unused(bufferedReader);
+
+  return font;
+}
+
+std::pair<FT_Face, IO::BufferedReader> FreeTypeFontFactory::loadFont(
+  const FontDescriptor& fontDescriptor) {
+  const auto fontPath = fontDescriptor.path().isAbsolute()
+                          ? fontDescriptor.path()
+                          : IO::SystemPaths::findResourceFile(fontDescriptor.path());
+
+  auto file = IO::Disk::openFile(fontPath);
+  auto reader = file->reader().buffer();
+
+  FT_Face face;
+  const FT_Error error = FT_New_Memory_Face(
+    m_library, reinterpret_cast<const FT_Byte*>(reader.begin()),
+    static_cast<FT_Long>(reader.size()), 0, &face);
+  if (error != 0) {
+    throw RenderException(
+      "Error loading font '" + fontDescriptor.name() + "': " + std::to_string(error));
+  }
+
+  const auto fontSize = static_cast<FT_UInt>(fontDescriptor.size());
+  FT_Set_Pixel_Sizes(face, 0, fontSize);
+
+  return {face, std::move(reader)};
+}
+
+std::unique_ptr<TextureFont> FreeTypeFontFactory::buildFont(
+  FT_Face face, const unsigned char firstChar, const unsigned char charCount) {
+  const Metrics metrics = computeMetrics(face, firstChar, charCount);
+
+  std::unique_ptr<FontTexture> texture =
+    std::make_unique<FontTexture>(charCount, metrics.cellSize, metrics.lineHeight);
+  FontGlyphBuilder glyphBuilder(metrics.maxAscend, metrics.cellSize, 3, *texture);
+
+  FT_GlyphSlot glyph = face->glyph;
+  std::vector<FontGlyph> glyphs;
+  for (unsigned char c = firstChar; c < firstChar + charCount; ++c) {
+    FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
+    if (error != 0) {
+      glyphs.push_back(FontGlyph(0, 0, 0, 0, 0));
+    } else {
+      glyphs.push_back(glyphBuilder.createGlyph(
+        static_cast<size_t>(glyph->bitmap_left), static_cast<size_t>(glyph->bitmap_top),
+        static_cast<size_t>(glyph->bitmap.width), static_cast<size_t>(glyph->bitmap.rows),
+        static_cast<size_t>(glyph->advance.x >> 6), reinterpret_cast<char*>(glyph->bitmap.buffer),
+        static_cast<size_t>(glyph->bitmap.pitch)));
+    }
+  }
+
+  return std::make_unique<TextureFont>(
+    std::move(texture), glyphs, static_cast<int>(metrics.lineHeight), firstChar, charCount);
+}
+
+FreeTypeFontFactory::Metrics FreeTypeFontFactory::computeMetrics(
+  FT_Face face, const unsigned char firstChar, const unsigned char charCount) const {
+  FT_GlyphSlot glyph = face->glyph;
+
+  int maxWidth = 0;
+  int maxAscend = 0;
+  int maxDescend = 0;
+  int lineHeight = 0;
+
+  for (unsigned char c = firstChar; c < firstChar + charCount; ++c) {
+    FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
+    if (error != 0) {
+      continue;
+    }
+
+    maxWidth = std::max(maxWidth, glyph->bitmap_left + static_cast<FT_Int>(glyph->bitmap.width));
+    maxAscend = std::max(maxAscend, glyph->bitmap_top);
+    maxDescend = std::max(maxDescend, static_cast<FT_Int>(glyph->bitmap.rows) - glyph->bitmap_top);
+    lineHeight = std::max(lineHeight, static_cast<int>(glyph->metrics.height >> 6));
+  }
+
+  const int cellSize = std::max(maxWidth, maxAscend + maxDescend);
+  return {
+    static_cast<size_t>(cellSize), static_cast<size_t>(maxAscend), static_cast<size_t>(lineHeight)};
+}
+} // namespace Renderer
+} // namespace TrenchBroom

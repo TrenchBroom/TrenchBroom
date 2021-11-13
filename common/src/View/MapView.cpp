@@ -25,64 +25,65 @@
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
-    namespace View {
-        MapView::MapView() :
-        m_container(nullptr) {}
+namespace View {
+MapView::MapView()
+  : m_container(nullptr) {}
 
-        MapView::~MapView() = default;
+MapView::~MapView() = default;
 
-        void MapView::setContainer(MapViewContainer* container) {
-            m_container = container;
-        }
-
-        void MapView::installActivationTracker(MapViewActivationTracker& activationTracker) {
-            doInstallActivationTracker(activationTracker);
-        }
-
-        bool MapView::isCurrent() const {
-            return doGetIsCurrent();
-        }
-
-        MapViewBase* MapView::firstMapViewBase() {
-            return doGetFirstMapViewBase();
-        }
-
-        bool MapView::canSelectTall() {
-            return doCanSelectTall();
-        }
-
-        void MapView::selectTall() {
-            doSelectTall();
-        }
-
-        vm::vec3 MapView::pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
-            return doGetPasteObjectsDelta(bounds, referenceBounds);
-        }
-
-        void MapView::focusCameraOnSelection(const bool animate) {
-            doFocusCameraOnSelection(animate);
-        }
-
-        void MapView::moveCameraToPosition(const vm::vec3& position, const bool animate) {
-            doMoveCameraToPosition(position, animate);
-        }
-
-        void MapView::moveCameraToCurrentTracePoint() {
-            doMoveCameraToCurrentTracePoint();
-        }
-
-        bool MapView::cancelMouseDrag() {
-            return doCancelMouseDrag();
-        }
-
-        void MapView::cycleMapView() {
-            if (m_container != nullptr) {
-                m_container->cycleChildMapView(this);
-            }
-        }
-
-        void MapView::refreshViews() {
-            doRefreshViews();
-        }
-    }
+void MapView::setContainer(MapViewContainer* container) {
+  m_container = container;
 }
+
+void MapView::installActivationTracker(MapViewActivationTracker& activationTracker) {
+  doInstallActivationTracker(activationTracker);
+}
+
+bool MapView::isCurrent() const {
+  return doGetIsCurrent();
+}
+
+MapViewBase* MapView::firstMapViewBase() {
+  return doGetFirstMapViewBase();
+}
+
+bool MapView::canSelectTall() {
+  return doCanSelectTall();
+}
+
+void MapView::selectTall() {
+  doSelectTall();
+}
+
+vm::vec3 MapView::pasteObjectsDelta(
+  const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
+  return doGetPasteObjectsDelta(bounds, referenceBounds);
+}
+
+void MapView::focusCameraOnSelection(const bool animate) {
+  doFocusCameraOnSelection(animate);
+}
+
+void MapView::moveCameraToPosition(const vm::vec3& position, const bool animate) {
+  doMoveCameraToPosition(position, animate);
+}
+
+void MapView::moveCameraToCurrentTracePoint() {
+  doMoveCameraToCurrentTracePoint();
+}
+
+bool MapView::cancelMouseDrag() {
+  return doCancelMouseDrag();
+}
+
+void MapView::cycleMapView() {
+  if (m_container != nullptr) {
+    m_container->cycleChildMapView(this);
+  }
+}
+
+void MapView::refreshViews() {
+  doRefreshViews();
+}
+} // namespace View
+} // namespace TrenchBroom

@@ -29,40 +29,42 @@ class QToolBar;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocument;
-        class PreferencePane;
+namespace View {
+class MapDocument;
+class PreferencePane;
 
-        class PreferenceDialog : public QDialog {
-            Q_OBJECT
-        private:
-            typedef enum {
-                PrefPane_First = 0,
-                PrefPane_Games = 0,
-                PrefPane_View = 1,
-                PrefPane_Colors = 2,
-                PrefPane_Mouse = 3,
-                PrefPane_Keyboard = 4,
-                PrefPane_Last = 4
-            } PrefPane;
+class PreferenceDialog : public QDialog {
+  Q_OBJECT
+private:
+  typedef enum
+  {
+    PrefPane_First = 0,
+    PrefPane_Games = 0,
+    PrefPane_View = 1,
+    PrefPane_Colors = 2,
+    PrefPane_Mouse = 3,
+    PrefPane_Keyboard = 4,
+    PrefPane_Last = 4
+  } PrefPane;
 
-            std::shared_ptr<MapDocument> m_document;
-            QToolBar* m_toolBar;
-            QStackedWidget* m_stackedWidget;
-            QDialogButtonBox* m_buttonBox;
-        public:
-            explicit PreferenceDialog(std::shared_ptr<MapDocument> document, QWidget* parent = nullptr);
+  std::shared_ptr<MapDocument> m_document;
+  QToolBar* m_toolBar;
+  QStackedWidget* m_stackedWidget;
+  QDialogButtonBox* m_buttonBox;
 
-        protected: // QWidget overrides
-            void closeEvent(QCloseEvent* event) override;
-            bool eventFilter(QObject* o, QEvent* e) override;
-        private:
-            void createGui();
-            void switchToPane(PrefPane pane);
-            PreferencePane* currentPane() const;
-        private slots:
-            void resetToDefaults();
-        };
-    }
-}
+public:
+  explicit PreferenceDialog(std::shared_ptr<MapDocument> document, QWidget* parent = nullptr);
 
+protected: // QWidget overrides
+  void closeEvent(QCloseEvent* event) override;
+  bool eventFilter(QObject* o, QEvent* e) override;
+
+private:
+  void createGui();
+  void switchToPane(PrefPane pane);
+  PreferencePane* currentPane() const;
+private slots:
+  void resetToDefaults();
+};
+} // namespace View
+} // namespace TrenchBroom

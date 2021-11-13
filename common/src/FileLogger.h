@@ -19,31 +19,32 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "Logger.h"
+#include "Macros.h"
 
 #include <string>
 
 class QString;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
-    class FileLogger : public Logger {
-    private:
-        FILE* m_file;
-    public:
-        explicit FileLogger(const IO::Path& filePath);
-        ~FileLogger() override;
-
-        static FileLogger& instance();
-    private:
-        void doLog(LogLevel level, const std::string& message) override;
-        void doLog(LogLevel level, const QString& message) override;
-
-        deleteCopyAndMove(FileLogger)
-    };
+namespace IO {
+class Path;
 }
 
+class FileLogger : public Logger {
+private:
+  FILE* m_file;
+
+public:
+  explicit FileLogger(const IO::Path& filePath);
+  ~FileLogger() override;
+
+  static FileLogger& instance();
+
+private:
+  void doLog(LogLevel level, const std::string& message) override;
+  void doLog(LogLevel level, const QString& message) override;
+
+  deleteCopyAndMove(FileLogger)
+};
+} // namespace TrenchBroom

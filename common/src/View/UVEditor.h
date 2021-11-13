@@ -30,50 +30,54 @@ class QWidget;
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace View {
-        class Selection;
-        class GLContextManager;
-        class MapDocument;
-        class UVView;
+namespace View {
+class Selection;
+class GLContextManager;
+class MapDocument;
+class UVView;
 
-        class UVEditor : public QWidget {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
+class UVEditor : public QWidget {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
 
-            UVView* m_uvView;
-            QSpinBox* m_xSubDivisionEditor;
-            QSpinBox* m_ySubDivisionEditor;
+  UVView* m_uvView;
+  QSpinBox* m_xSubDivisionEditor;
+  QSpinBox* m_ySubDivisionEditor;
 
-            QAbstractButton* m_resetTextureButton;
-            QAbstractButton* m_resetTextureToWorldButton;
-            QAbstractButton* m_flipTextureHButton;
-            QAbstractButton* m_flipTextureVButton;
-            QAbstractButton* m_rotateTextureCCWButton;
-            QAbstractButton* m_rotateTextureCWButton;
+  QAbstractButton* m_resetTextureButton;
+  QAbstractButton* m_resetTextureToWorldButton;
+  QAbstractButton* m_flipTextureHButton;
+  QAbstractButton* m_flipTextureVButton;
+  QAbstractButton* m_rotateTextureCCWButton;
+  QAbstractButton* m_rotateTextureCWButton;
 
-            NotifierConnection m_notifierConnection;
-        public:
-            explicit UVEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
+  NotifierConnection m_notifierConnection;
 
-            bool cancelMouseDrag();
-        private:
-            void updateButtons();
-        private:
-            void createGui(GLContextManager& contextManager);
+public:
+  explicit UVEditor(
+    std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    QWidget* parent = nullptr);
 
-            void selectionDidChange(const Selection& selection);
+  bool cancelMouseDrag();
 
-            void connectObservers();
+private:
+  void updateButtons();
 
-            void resetTextureClicked();
-            void resetTextureToWorldClicked();
-            void flipTextureHClicked();
-            void flipTextureVClicked();
-            void rotateTextureCCWClicked();
-            void rotateTextureCWClicked();
-            void subDivisionChanged();
-        };
-    }
-}
+private:
+  void createGui(GLContextManager& contextManager);
 
+  void selectionDidChange(const Selection& selection);
+
+  void connectObservers();
+
+  void resetTextureClicked();
+  void resetTextureToWorldClicked();
+  void flipTextureHClicked();
+  void flipTextureVClicked();
+  void rotateTextureCCWClicked();
+  void rotateTextureCWClicked();
+  void subDivisionChanged();
+};
+} // namespace View
+} // namespace TrenchBroom

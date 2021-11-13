@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
+#include "IO/ObjSerializer.h"
 #include "Assets/Texture.h"
 #include "IO/ExportOptions.h"
 #include "IO/NodeWriter.h"
-#include "IO/ObjSerializer.h"
+#include "Logger.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -43,27 +43,27 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        TEST_CASE("ObjSerializer.writeBrush") {
-            const auto worldBounds = vm::bbox3{8192.0};
+namespace IO {
+TEST_CASE("ObjSerializer.writeBrush") {
+  const auto worldBounds = vm::bbox3{8192.0};
 
-            auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
+  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
-            auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-            auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
-            map.defaultLayer()->addChild(brushNode);
+  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+  map.defaultLayer()->addChild(brushNode);
 
-            auto objStream = std::ostringstream{};
-            auto mtlStream = std::ostringstream{};
-            const auto mtlFilename = "some_file_name.mtl";
-            const auto objOptions = ObjExportOptions{
-                Path{"/some/export/path.obj"}, 
-                ObjMtlPathMode::RelativeToGamePath};
+  auto objStream = std::ostringstream{};
+  auto mtlStream = std::ostringstream{};
+  const auto mtlFilename = "some_file_name.mtl";
+  const auto objOptions =
+    ObjExportOptions{Path{"/some/export/path.obj"}, ObjMtlPathMode::RelativeToGamePath};
 
-            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
-            writer.writeMap();
+  auto writer =
+    NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
+  writer.writeMap();
 
-            CHECK(objStream.str() == R"(mtllib some_file_name.mtl
+  CHECK(objStream.str() == R"(mtllib some_file_name.mtl
 # vertices
 v -32 -32 -32
 v -32 -32 32
@@ -103,35 +103,44 @@ usemtl some_texture
 f  8/4/6  5/3/6  6/2/6  7/1/6
 
 )");
-            
-            CHECK(mtlStream.str() == R"(newmtl some_texture
+
+  CHECK(mtlStream.str() == R"(newmtl some_texture
 
 )");
-        }
+}
 
-        TEST_CASE("ObjSerializer.writePatch") {
-            const auto worldBounds = vm::bbox3{8192.0};
+TEST_CASE("ObjSerializer.writePatch") {
+  const auto worldBounds = vm::bbox3{8192.0};
 
-            auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
+  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
-            auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-            auto* patchNode = new Model::PatchNode{Model::BezierPatch{3,  3, { 
-                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_texture"}};
-            map.defaultLayer()->addChild(patchNode);
+  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* patchNode = new Model::PatchNode{Model::BezierPatch{
+    3,
+    3,
+    {{0, 0, 0},
+     {1, 0, 1},
+     {2, 0, 0},
+     {0, 1, 1},
+     {1, 1, 2},
+     {2, 1, 1},
+     {0, 2, 0},
+     {1, 2, 1},
+     {2, 2, 0}},
+    "some_texture"}};
+  map.defaultLayer()->addChild(patchNode);
 
-            auto objStream = std::ostringstream{};
-            auto mtlStream = std::ostringstream{};
-            const auto mtlFilename = "some_file_name.mtl";
-            const auto objOptions = ObjExportOptions{
-                Path{"/some/export/path.obj"}, 
-                ObjMtlPathMode::RelativeToGamePath};
+  auto objStream = std::ostringstream{};
+  auto mtlStream = std::ostringstream{};
+  const auto mtlFilename = "some_file_name.mtl";
+  const auto objOptions =
+    ObjExportOptions{Path{"/some/export/path.obj"}, ObjMtlPathMode::RelativeToGamePath};
 
-            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
-            writer.writeMap();
+  auto writer =
+    NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
+  writer.writeMap();
 
-            CHECK(objStream.str() == R"(mtllib some_file_name.mtl
+  CHECK(objStream.str() == R"(mtllib some_file_name.mtl
 # vertices
 v 0 0 -0
 v 0 0.21875 -0.25
@@ -369,59 +378,66 @@ f  70/1/70  79/1/79  80/1/80  71/1/71
 f  71/1/71  80/1/80  81/1/81  72/1/72
 
 )");
-            
-            CHECK(mtlStream.str() == R"(newmtl some_texture
+
+  CHECK(mtlStream.str() == R"(newmtl some_texture
 
 )");
-        }
+}
 
-        TEST_CASE("ObjSerializer.writeRelativeMaterialPath") {
-            const auto worldBounds = vm::bbox3{8192.0};
+TEST_CASE("ObjSerializer.writeRelativeMaterialPath") {
+  const auto worldBounds = vm::bbox3{8192.0};
 
-            // must outlive map
-            auto texture = Assets::Texture{"some_texture", 16, 16};
-            texture.setRelativePath(Path{"textures/some_texture.png"});
+  // must outlive map
+  auto texture = Assets::Texture{"some_texture", 16, 16};
+  texture.setRelativePath(Path{"textures/some_texture.png"});
 
-            auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
+  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
-            auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-            auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
-            map.defaultLayer()->addChild(brushNode);
+  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+  map.defaultLayer()->addChild(brushNode);
 
-            for (size_t i = 0; i < brushNode->brush().faceCount(); ++i) {
-                brushNode->setFaceTexture(i, &texture);
-            }
+  for (size_t i = 0; i < brushNode->brush().faceCount(); ++i) {
+    brushNode->setFaceTexture(i, &texture);
+  }
 
-            auto objStream = std::ostringstream{};
-            auto mtlStream = std::ostringstream{};
-            const auto mtlName = "some_mtl_file.mtl";
+  auto objStream = std::ostringstream{};
+  auto mtlStream = std::ostringstream{};
+  const auto mtlName = "some_mtl_file.mtl";
 
-            using T = std::tuple<ObjExportOptions, Path, std::optional<Path>>;
+  using T = std::tuple<ObjExportOptions, Path, std::optional<Path>>;
 
-            const auto
-            [options,                                                                              textureAbsolutePath,                                    expectedPath] = GENERATE(values<T>({
-            {{Path{"/home/that_guy/quake/export/file.obj"}, ObjMtlPathMode::RelativeToExportPath}, Path{"/home/that_guy/quake/textures/some_texture.png"}, Path{"../textures/some_texture.png"}},
-            {{Path{"/home/that_guy/quake/export/file.obj"}, ObjMtlPathMode::RelativeToExportPath}, Path{},                                                 std::nullopt},
-            {{Path{"/home/that_guy/quake/export/file.obj"}, ObjMtlPathMode::RelativeToGamePath},   Path{"/home/that_guy/quake/textures/some_texture.png"}, Path{"textures/some_texture.png"}},
-            }));
+  const auto [options, textureAbsolutePath, expectedPath] = GENERATE(values<T>({
+    {{Path{"/home/that_guy/quake/export/file.obj"}, ObjMtlPathMode::RelativeToExportPath},
+     Path{"/home/that_guy/quake/textures/some_texture.png"},
+     Path{"../textures/some_texture.png"}},
+    {{Path{"/home/that_guy/quake/export/file.obj"}, ObjMtlPathMode::RelativeToExportPath},
+     Path{},
+     std::nullopt},
+    {{Path{"/home/that_guy/quake/export/file.obj"}, ObjMtlPathMode::RelativeToGamePath},
+     Path{"/home/that_guy/quake/textures/some_texture.png"},
+     Path{"textures/some_texture.png"}},
+  }));
 
-            CAPTURE(options, textureAbsolutePath);
+  CAPTURE(options, textureAbsolutePath);
 
-            texture.setAbsolutePath(textureAbsolutePath);
+  texture.setAbsolutePath(textureAbsolutePath);
 
-            auto writer = NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
-            writer.writeMap();
+  auto writer =
+    NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
+  writer.writeMap();
 
-            const auto expectedMtl = expectedPath
-                ? fmt::format(R"(newmtl some_texture
+  const auto expectedMtl = expectedPath ? fmt::format(
+                                            R"(newmtl some_texture
 map_Kd {}
 
-)", expectedPath->asString())
-                : R"(newmtl some_texture
+)",
+                                            expectedPath->asString())
+                                        : R"(newmtl some_texture
 
 )";
 
-            CHECK(mtlStream.str() == expectedMtl);
-        }
-    }
+  CHECK(mtlStream.str() == expectedMtl);
 }
+} // namespace IO
+} // namespace TrenchBroom

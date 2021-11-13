@@ -25,42 +25,45 @@ class QLineEdit;
 class QStackedWidget;
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineProfile;
-    }
-
-    namespace View {
-        /**
-         * Editor widget for a single game engine profile.
-         */
-        class GameEngineProfileEditor : public QWidget {
-            Q_OBJECT
-        private:
-            Model::GameEngineProfile* m_profile;
-            QStackedWidget* m_stackedWidget;
-            QLineEdit* m_nameEdit;
-            QLineEdit* m_pathEdit;
-        public:
-            explicit GameEngineProfileEditor(QWidget* parent = nullptr);
-        private:
-            QWidget* createEditorPage();
-            void updatePath(const QString& str);
-        public:
-            void setProfile(Model::GameEngineProfile* profile);
-        private:
-            void refresh();
-
-            bool isValidEnginePath(const QString& str) const;
-        private slots:
-            void nameChanged(const QString& text);
-            void pathChanged();
-            void changePathClicked();
-        signals:
-            /**
-             * Emitted after m_profile is changed in response to a UI action.
-             */
-            void profileChanged();
-        };
-    }
+namespace Model {
+class GameEngineProfile;
 }
 
+namespace View {
+/**
+ * Editor widget for a single game engine profile.
+ */
+class GameEngineProfileEditor : public QWidget {
+  Q_OBJECT
+private:
+  Model::GameEngineProfile* m_profile;
+  QStackedWidget* m_stackedWidget;
+  QLineEdit* m_nameEdit;
+  QLineEdit* m_pathEdit;
+
+public:
+  explicit GameEngineProfileEditor(QWidget* parent = nullptr);
+
+private:
+  QWidget* createEditorPage();
+  void updatePath(const QString& str);
+
+public:
+  void setProfile(Model::GameEngineProfile* profile);
+
+private:
+  void refresh();
+
+  bool isValidEnginePath(const QString& str) const;
+private slots:
+  void nameChanged(const QString& text);
+  void pathChanged();
+  void changePathClicked();
+signals:
+  /**
+   * Emitted after m_profile is changed in response to a UI action.
+   */
+  void profileChanged();
+};
+} // namespace View
+} // namespace TrenchBroom

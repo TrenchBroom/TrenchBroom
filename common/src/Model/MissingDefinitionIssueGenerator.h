@@ -24,16 +24,17 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class MissingDefinitionIssueGenerator : public IssueGenerator {
-        private:
-            class MissingDefinitionIssue;
-            class MissingDefinitionIssueQuickFix;
-        public:
-            MissingDefinitionIssueGenerator();
-        private:
-            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
-        };
-    }
-}
+namespace Model {
+class MissingDefinitionIssueGenerator : public IssueGenerator {
+private:
+  class MissingDefinitionIssue;
+  class MissingDefinitionIssueQuickFix;
 
+public:
+  MissingDefinitionIssueGenerator();
+
+private:
+  void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

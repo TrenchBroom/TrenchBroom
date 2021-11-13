@@ -28,45 +28,60 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class GroupNode;
-        class Node;
-    }
+namespace Model {
+class GroupNode;
+class Node;
+} // namespace Model
 
-    namespace View {
-        class AddRemoveNodesCommand : public UndoableCommand {
-        public:
-            static const CommandType Type;
-        private:
-            enum class Action {
-                Add,
-                Remove
-            };
+namespace View {
+class AddRemoveNodesCommand : public UndoableCommand {
+public:
+  static const CommandType Type;
 
-            Action m_action;
-            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
-            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
-            UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
-        public:
-            static std::unique_ptr<AddRemoveNodesCommand> add(Model::Node* parent, const std::vector<Model::Node*>& children, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
-            static std::unique_ptr<AddRemoveNodesCommand> add(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
-            static std::unique_ptr<AddRemoveNodesCommand> remove(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
+private:
+  enum class Action
+  {
+    Add,
+    Remove
+  };
 
-            AddRemoveNodesCommand(Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
-            ~AddRemoveNodesCommand() override;
-        private:
-            static std::string makeName(Action action);
+  Action m_action;
+  std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
+  std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
+  UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
 
-            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+public:
+  static std::unique_ptr<AddRemoveNodesCommand> add(
+    Model::Node* parent, const std::vector<Model::Node*>& children,
+    std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
+      linkedGroupsToUpdate);
+  static std::unique_ptr<AddRemoveNodesCommand> add(
+    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
+    std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
+      linkedGroupsToUpdate);
+  static std::unique_ptr<AddRemoveNodesCommand> remove(
+    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
+    std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
+      linkedGroupsToUpdate);
 
-            void doAction(MapDocumentCommandFacade* document);
-            void undoAction(MapDocumentCommandFacade* document);
+  AddRemoveNodesCommand(
+    Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
+    std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
+      linkedGroupsToUpdate);
+  ~AddRemoveNodesCommand() override;
 
-            bool doCollateWith(UndoableCommand* command) override;
+private:
+  static std::string makeName(Action action);
 
-            deleteCopyAndMove(AddRemoveNodesCommand)
-        };
-    }
-}
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
+  void doAction(MapDocumentCommandFacade* document);
+  void undoAction(MapDocumentCommandFacade* document);
+
+  bool doCollateWith(UndoableCommand* command) override;
+
+  deleteCopyAndMove(AddRemoveNodesCommand)
+};
+} // namespace View
+} // namespace TrenchBroom

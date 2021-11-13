@@ -27,21 +27,24 @@ class QString;
 class QStringList;
 
 namespace TrenchBroom {
-    class Logger;
+class Logger;
 
-    namespace View {
-        class MapDocument;
+namespace View {
+class MapDocument;
 
-        void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
+void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 
-        bool loadTextureCollection(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
-        size_t loadTextureCollections(std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
+bool loadTextureCollection(
+  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
+size_t loadTextureCollections(
+  std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
 
-        bool loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
-        size_t loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
+bool loadEntityDefinitionFile(
+  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
+size_t loadEntityDefinitionFile(
+  std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
 
-        std::string queryGroupName(QWidget* parent, const std::string& suggestion);
-        std::string queryLayerName(QWidget* parent, const std::string& suggestion);
-    }
-}
-
+std::string queryGroupName(QWidget* parent, const std::string& suggestion);
+std::string queryLayerName(QWidget* parent, const std::string& suggestion);
+} // namespace View
+} // namespace TrenchBroom

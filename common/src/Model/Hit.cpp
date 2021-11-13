@@ -22,45 +22,45 @@
 #include "Ensure.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        const Hit Hit::NoHit = Hit(HitType::NoType, 0.0, vm::vec3::zero(), false);
+namespace Model {
+const Hit Hit::NoHit = Hit(HitType::NoType, 0.0, vm::vec3::zero(), false);
 
-        bool Hit::isMatch() const {
-            return m_type != HitType::NoType;
-        }
-
-        HitType::Type Hit::type() const {
-            return m_type;
-        }
-
-        bool Hit::hasType(const HitType::Type typeMask) const {
-            return (m_type & typeMask) != 0;
-        }
-
-        FloatType Hit::distance() const {
-            return m_distance;
-        }
-
-        const vm::vec3& Hit::hitPoint() const {
-            return m_hitPoint;
-        }
-
-        FloatType Hit::error() const {
-            return m_error;
-        }
-
-        Hit selectClosest(const Hit& first, const Hit& second) {
-            if (!first.isMatch()) {
-                return second;
-            }
-            if (!second.isMatch()) {
-                return first;
-            }
-            if (first.distance() <= second.distance()) {
-                return first;
-            } else {
-                return second;
-            }
-        }
-    }
+bool Hit::isMatch() const {
+  return m_type != HitType::NoType;
 }
+
+HitType::Type Hit::type() const {
+  return m_type;
+}
+
+bool Hit::hasType(const HitType::Type typeMask) const {
+  return (m_type & typeMask) != 0;
+}
+
+FloatType Hit::distance() const {
+  return m_distance;
+}
+
+const vm::vec3& Hit::hitPoint() const {
+  return m_hitPoint;
+}
+
+FloatType Hit::error() const {
+  return m_error;
+}
+
+Hit selectClosest(const Hit& first, const Hit& second) {
+  if (!first.isMatch()) {
+    return second;
+  }
+  if (!second.isMatch()) {
+    return first;
+  }
+  if (first.distance() <= second.distance()) {
+    return first;
+  } else {
+    return second;
+  }
+}
+} // namespace Model
+} // namespace TrenchBroom

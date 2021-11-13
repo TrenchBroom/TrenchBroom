@@ -19,32 +19,33 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "EL/EL_Forward.h"
+#include "Macros.h"
 
 #include <iosfwd>
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineConfig;
-        class GameEngineProfile;
-    }
+namespace Model {
+class GameEngineConfig;
+class GameEngineProfile;
+} // namespace Model
 
-    namespace IO {
-        class GameEngineConfigWriter {
-        private:
-            const Model::GameEngineConfig& m_config;
-            std::ostream& m_stream;
-        public:
-            GameEngineConfigWriter(const Model::GameEngineConfig& config, std::ostream& stream);
+namespace IO {
+class GameEngineConfigWriter {
+private:
+  const Model::GameEngineConfig& m_config;
+  std::ostream& m_stream;
 
-            void writeConfig();
-        private:
-            EL::Value writeProfiles(const Model::GameEngineConfig& config) const;
-            EL::Value writeProfile(const Model::GameEngineProfile* profile) const;
+public:
+  GameEngineConfigWriter(const Model::GameEngineConfig& config, std::ostream& stream);
 
-            deleteCopyAndMove(GameEngineConfigWriter)
-        };
-    }
-}
+  void writeConfig();
 
+private:
+  EL::Value writeProfiles(const Model::GameEngineConfig& config) const;
+  EL::Value writeProfile(const Model::GameEngineProfile* profile) const;
+
+  deleteCopyAndMove(GameEngineConfigWriter)
+};
+} // namespace IO
+} // namespace TrenchBroom

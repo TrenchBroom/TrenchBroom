@@ -26,59 +26,62 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class Logger;
+class Logger;
 
-    namespace IO {
-        class Path;
-        class TextureLoader;
-    }
+namespace IO {
+class Path;
+class TextureLoader;
+} // namespace IO
 
-    namespace Assets {
-        class Texture;
-        class TextureCollection;
+namespace Assets {
+class Texture;
+class TextureCollection;
 
-        class TextureManager {
-        private:
-            using TextureMap = std::map<std::string, Texture*>;
+class TextureManager {
+private:
+  using TextureMap = std::map<std::string, Texture*>;
 
-            Logger& m_logger;
+  Logger& m_logger;
 
-            std::vector<TextureCollection> m_collections;
+  std::vector<TextureCollection> m_collections;
 
-            std::vector<size_t> m_toPrepare;
-            std::vector<TextureCollection> m_toRemove;
+  std::vector<size_t> m_toPrepare;
+  std::vector<TextureCollection> m_toRemove;
 
-            TextureMap m_texturesByName;
-            std::vector<const Texture*> m_textures;
+  TextureMap m_texturesByName;
+  std::vector<const Texture*> m_textures;
 
-            int m_minFilter;
-            int m_magFilter;
-            bool m_resetTextureMode;
-        public:
-            TextureManager(int magFilter, int minFilter, Logger& logger);
-            ~TextureManager();
+  int m_minFilter;
+  int m_magFilter;
+  bool m_resetTextureMode;
 
-            void setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader);
-            void setTextureCollections(std::vector<TextureCollection> collections);
-        private:
-            void addTextureCollection(Assets::TextureCollection collection);
-        public:
-            void clear();
+public:
+  TextureManager(int magFilter, int minFilter, Logger& logger);
+  ~TextureManager();
 
-            void setTextureMode(int minFilter, int magFilter);
-            void commitChanges();
+  void setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader);
+  void setTextureCollections(std::vector<TextureCollection> collections);
 
-            const Texture* texture(const std::string& name) const;
-            Texture* texture(const std::string& name);
-            
-            const std::vector<const Texture*>& textures() const;
-            const std::vector<TextureCollection>& collections() const;
-        private:
-            void resetTextureMode();
-            void prepare();
+private:
+  void addTextureCollection(Assets::TextureCollection collection);
 
-            void updateTextures();
-        };
-    }
-}
+public:
+  void clear();
 
+  void setTextureMode(int minFilter, int magFilter);
+  void commitChanges();
+
+  const Texture* texture(const std::string& name) const;
+  Texture* texture(const std::string& name);
+
+  const std::vector<const Texture*>& textures() const;
+  const std::vector<TextureCollection>& collections() const;
+
+private:
+  void resetTextureMode();
+  void prepare();
+
+  void updateTextures();
+};
+} // namespace Assets
+} // namespace TrenchBroom

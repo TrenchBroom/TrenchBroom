@@ -23,47 +23,47 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        TEST_CASE("CameraTest.testInvalidUp", "[CameraTest]") {
-            PerspectiveCamera c;
-            c.setDirection(vm::vec3f(0,0,1), vm::vec3f(0,0,1));
+namespace Renderer {
+TEST_CASE("CameraTest.testInvalidUp", "[CameraTest]") {
+  PerspectiveCamera c;
+  c.setDirection(vm::vec3f(0, 0, 1), vm::vec3f(0, 0, 1));
 
-            CHECK_FALSE(vm::is_nan(c.direction()));
-            CHECK_FALSE(vm::is_nan(c.right()));
-            CHECK_FALSE(vm::is_nan(c.up()));
-        }
-
-        TEST_CASE("CameraTest.testOrbitDown", "[CameraTest]") {
-            PerspectiveCamera c;
-            c.setDirection(vm::vec3f(1,0,0), vm::vec3f(0,0,1));
-
-            c.orbit(vm::vec3f::zero(), 0.0f, vm::constants<float>::pi());
-
-            CHECK_FALSE(vm::is_nan(c.direction()));
-            CHECK_FALSE(vm::is_nan(c.right()));
-            CHECK_FALSE(vm::is_nan(c.up()));
-        }
-
-        TEST_CASE("CameraTest.testOrbitWhileInverted", "[CameraTest]") {
-            PerspectiveCamera c;
-            c.setDirection(vm::vec3f(1,0,0), vm::vec3f(0,0,-1));
-
-            c.orbit(vm::vec3f::zero(), vm::constants<float>::pi(), 0.0f);
-
-            CHECK_FALSE(vm::is_nan(c.direction()));
-            CHECK_FALSE(vm::is_nan(c.right()));
-            CHECK_FALSE(vm::is_nan(c.up()));
-        }
-
-        TEST_CASE("CameraTest.testYawWhenPitchedDown", "[CameraTest]") {
-            PerspectiveCamera c;
-            c.setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_x());
-
-            c.rotate(0.1f, 0.0f);
-
-            CHECK_FALSE(vm::is_nan(c.direction()));
-            CHECK_FALSE(vm::is_nan(c.right()));
-            CHECK_FALSE(vm::is_nan(c.up()));
-        }
-    }
+  CHECK_FALSE(vm::is_nan(c.direction()));
+  CHECK_FALSE(vm::is_nan(c.right()));
+  CHECK_FALSE(vm::is_nan(c.up()));
 }
+
+TEST_CASE("CameraTest.testOrbitDown", "[CameraTest]") {
+  PerspectiveCamera c;
+  c.setDirection(vm::vec3f(1, 0, 0), vm::vec3f(0, 0, 1));
+
+  c.orbit(vm::vec3f::zero(), 0.0f, vm::constants<float>::pi());
+
+  CHECK_FALSE(vm::is_nan(c.direction()));
+  CHECK_FALSE(vm::is_nan(c.right()));
+  CHECK_FALSE(vm::is_nan(c.up()));
+}
+
+TEST_CASE("CameraTest.testOrbitWhileInverted", "[CameraTest]") {
+  PerspectiveCamera c;
+  c.setDirection(vm::vec3f(1, 0, 0), vm::vec3f(0, 0, -1));
+
+  c.orbit(vm::vec3f::zero(), vm::constants<float>::pi(), 0.0f);
+
+  CHECK_FALSE(vm::is_nan(c.direction()));
+  CHECK_FALSE(vm::is_nan(c.right()));
+  CHECK_FALSE(vm::is_nan(c.up()));
+}
+
+TEST_CASE("CameraTest.testYawWhenPitchedDown", "[CameraTest]") {
+  PerspectiveCamera c;
+  c.setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_x());
+
+  c.rotate(0.1f, 0.0f);
+
+  CHECK_FALSE(vm::is_nan(c.direction()));
+  CHECK_FALSE(vm::is_nan(c.right()));
+  CHECK_FALSE(vm::is_nan(c.up()));
+}
+} // namespace Renderer
+} // namespace TrenchBroom

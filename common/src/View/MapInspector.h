@@ -34,60 +34,64 @@ class QLineEdit;
 class QRadioButton;
 
 namespace TrenchBroom {
-    namespace Model {
-        class Node;
-    }
-
-    namespace View {
-        class CollapsibleTitledPanel;
-        class MapDocument;
-
-        class MapInspector : public TabBookPage {
-            Q_OBJECT
-        private:
-            CollapsibleTitledPanel* m_mapPropertiesEditor;
-            CollapsibleTitledPanel* m_modEditor;
-        public:
-            explicit MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~MapInspector();
-        private:
-            void createGui(std::weak_ptr<MapDocument> document);
-            QWidget* createLayerEditor(std::weak_ptr<MapDocument> document);
-            CollapsibleTitledPanel* createMapPropertiesEditor(std::weak_ptr<MapDocument> document);
-            CollapsibleTitledPanel* createModEditor(std::weak_ptr<MapDocument> document);
-        };
-
-        /**
-         * Currently just the soft bounds editor
-         */
-        class MapPropertiesEditor : public QWidget {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            bool m_updatingGui;
-
-            QRadioButton* m_softBoundsDisabled;
-            QRadioButton* m_softBoundsFromGame;
-            QLabel* m_softBoundsFromGameMinLabel;
-            QLabel* m_softBoundsFromGameMaxLabel;
-            QRadioButton* m_softBoundsFromMap;
-            QLineEdit* m_softBoundsFromMapMinEdit;
-            QLineEdit* m_softBoundsFromMapMaxEdit;         
-
-            NotifierConnection m_notifierConnection;
-        public:
-            explicit MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
-            std::optional<vm::bbox3> parseLineEdits();
-            void createGui();
-        private:
-            void connectObservers();
-
-            void documentWasNewed(MapDocument* document);
-            void documentWasLoaded(MapDocument* document);
-            void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void updateGui();
-        };
-    }
+namespace Model {
+class Node;
 }
 
+namespace View {
+class CollapsibleTitledPanel;
+class MapDocument;
+
+class MapInspector : public TabBookPage {
+  Q_OBJECT
+private:
+  CollapsibleTitledPanel* m_mapPropertiesEditor;
+  CollapsibleTitledPanel* m_modEditor;
+
+public:
+  explicit MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  ~MapInspector();
+
+private:
+  void createGui(std::weak_ptr<MapDocument> document);
+  QWidget* createLayerEditor(std::weak_ptr<MapDocument> document);
+  CollapsibleTitledPanel* createMapPropertiesEditor(std::weak_ptr<MapDocument> document);
+  CollapsibleTitledPanel* createModEditor(std::weak_ptr<MapDocument> document);
+};
+
+/**
+ * Currently just the soft bounds editor
+ */
+class MapPropertiesEditor : public QWidget {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+  bool m_updatingGui;
+
+  QRadioButton* m_softBoundsDisabled;
+  QRadioButton* m_softBoundsFromGame;
+  QLabel* m_softBoundsFromGameMinLabel;
+  QLabel* m_softBoundsFromGameMaxLabel;
+  QRadioButton* m_softBoundsFromMap;
+  QLineEdit* m_softBoundsFromMapMinEdit;
+  QLineEdit* m_softBoundsFromMapMaxEdit;
+
+  NotifierConnection m_notifierConnection;
+
+public:
+  explicit MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+
+private:
+  std::optional<vm::bbox3> parseLineEdits();
+  void createGui();
+
+private:
+  void connectObservers();
+
+  void documentWasNewed(MapDocument* document);
+  void documentWasLoaded(MapDocument* document);
+  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void updateGui();
+};
+} // namespace View
+} // namespace TrenchBroom

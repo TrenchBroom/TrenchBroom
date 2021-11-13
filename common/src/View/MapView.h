@@ -25,66 +25,68 @@
 #include <vecmath/forward.h>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapViewActivationTracker;
-        class MapViewBase;
-        class MapViewContainer;
+namespace View {
+class MapViewActivationTracker;
+class MapViewBase;
+class MapViewContainer;
 
-        class MapView : public ViewEffectsService {
-        private:
-            MapViewContainer* m_container;
-        public:
-            MapView();
-            ~MapView() override;
+class MapView : public ViewEffectsService {
+private:
+  MapViewContainer* m_container;
 
-            void setContainer(MapViewContainer* container);
-            void installActivationTracker(MapViewActivationTracker& activationTracker);
+public:
+  MapView();
+  ~MapView() override;
 
-            bool isCurrent() const;
-            MapViewBase* firstMapViewBase();
+  void setContainer(MapViewContainer* container);
+  void installActivationTracker(MapViewActivationTracker& activationTracker);
 
-            bool canSelectTall();
-            void selectTall();
+  bool isCurrent() const;
+  MapViewBase* firstMapViewBase();
 
-            vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
+  bool canSelectTall();
+  void selectTall();
 
-            void focusCameraOnSelection(bool animate);
-            void moveCameraToPosition(const vm::vec3& position, bool animate);
+  vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
 
-            void moveCameraToCurrentTracePoint();
+  void focusCameraOnSelection(bool animate);
+  void moveCameraToPosition(const vm::vec3& position, bool animate);
 
-            bool cancelMouseDrag();
+  void moveCameraToCurrentTracePoint();
 
-            /**
-             * If the parent of this view is a CyclingMapView, cycle to the
-             * next child, otherwise do nothing.
-             */
-            void cycleMapView();
+  bool cancelMouseDrag();
 
-            /**
-             * Requests repaint of the managed map views. Note, this must be used instead of QWidget::update()
-             */
-            void refreshViews();
-        private:
-            virtual void doInstallActivationTracker(MapViewActivationTracker& activationTracker) = 0;
+  /**
+   * If the parent of this view is a CyclingMapView, cycle to the
+   * next child, otherwise do nothing.
+   */
+  void cycleMapView();
 
-            virtual bool doGetIsCurrent() const = 0;
-            virtual MapViewBase* doGetFirstMapViewBase() = 0;
+  /**
+   * Requests repaint of the managed map views. Note, this must be used instead of QWidget::update()
+   */
+  void refreshViews();
 
-            virtual bool doCanSelectTall() = 0;
-            virtual void doSelectTall() = 0;
+private:
+  virtual void doInstallActivationTracker(MapViewActivationTracker& activationTracker) = 0;
 
-            virtual vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
+  virtual bool doGetIsCurrent() const = 0;
+  virtual MapViewBase* doGetFirstMapViewBase() = 0;
 
-            virtual void doFocusCameraOnSelection(bool animate) = 0;
-            virtual void doMoveCameraToPosition(const vm::vec3& position, bool animate) = 0;
+  virtual bool doCanSelectTall() = 0;
+  virtual void doSelectTall() = 0;
 
-            virtual void doMoveCameraToCurrentTracePoint() = 0;
+  virtual vm::vec3 doGetPasteObjectsDelta(
+    const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 
-            virtual bool doCancelMouseDrag() = 0;
+  virtual void doFocusCameraOnSelection(bool animate) = 0;
+  virtual void doMoveCameraToPosition(const vm::vec3& position, bool animate) = 0;
 
-            virtual void doRefreshViews() = 0;
-        };
-    }
-}
+  virtual void doMoveCameraToCurrentTracePoint() = 0;
 
+  virtual bool doCancelMouseDrag() = 0;
+
+  virtual void doRefreshViews() = 0;
+};
+} // namespace View
+} // namespace TrenchBroom

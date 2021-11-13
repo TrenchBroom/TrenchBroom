@@ -24,24 +24,24 @@
 #include <QWidget>
 
 namespace TrenchBroom {
-    class Logger;
+class Logger;
 
-    namespace View {
-        class Console;
-        class IssueBrowser;
-        class MapDocument;
-        class TabBook;
+namespace View {
+class Console;
+class IssueBrowser;
+class MapDocument;
+class TabBook;
 
-        class InfoPanel : public QWidget {
-            Q_OBJECT
-        private:
-            TabBook* m_tabBook;
-            Console* m_console;
-            IssueBrowser* m_issueBrowser;
-        public:
-            explicit InfoPanel(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            Console* console() const;
-        };
-    }
-}
+class InfoPanel : public QWidget {
+  Q_OBJECT
+private:
+  TabBook* m_tabBook;
+  Console* m_console;
+  IssueBrowser* m_issueBrowser;
 
+public:
+  explicit InfoPanel(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  Console* console() const;
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -27,8 +27,8 @@
 // Include this header instead of <catch2/catch.hpp> to ensure that vecmath
 // stream operators work consistently.
 
-#include <vecmath/forward.h>
 #include <vecmath/bbox_io.h>
+#include <vecmath/forward.h>
 #include <vecmath/line_io.h>
 #include <vecmath/mat_io.h>
 #include <vecmath/plane_io.h>

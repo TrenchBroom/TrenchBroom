@@ -22,16 +22,16 @@
 #include <QWidget>
 
 namespace TrenchBroom {
-    namespace View {
-        class AppInfoPanel : public QWidget {
-            Q_OBJECT
-        public:
-            explicit AppInfoPanel(QWidget* parent = nullptr);
-        private:
-            void createGui();
+namespace View {
+class AppInfoPanel : public QWidget {
+  Q_OBJECT
+public:
+  explicit AppInfoPanel(QWidget* parent = nullptr);
 
-            void versionInfoClicked();
-        };
-    }
-}
+private:
+  void createGui();
 
+  void versionInfoClicked();
+};
+} // namespace View
+} // namespace TrenchBroom

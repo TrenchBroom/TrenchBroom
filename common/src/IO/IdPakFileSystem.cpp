@@ -19,9 +19,9 @@
 
 #include "IdPakFileSystem.h"
 
+#include "IO/DiskFileSystem.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
-#include "IO/DiskFileSystem.h"
 
 #include <kdl/string_format.h>
 
@@ -29,45 +29,45 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace IO {
-        namespace PakLayout {
-            static const size_t HeaderAddress     = 0x0;
-            static const size_t HeaderMagicLength = 0x4;
-            static const size_t EntryLength       = 0x40;
-            static const size_t EntryNameLength   = 0x38;
-            static const std::string HeaderMagic       = "PACK";
-        }
+namespace IO {
+namespace PakLayout {
+static const size_t HeaderAddress = 0x0;
+static const size_t HeaderMagicLength = 0x4;
+static const size_t EntryLength = 0x40;
+static const size_t EntryNameLength = 0x38;
+static const std::string HeaderMagic = "PACK";
+} // namespace PakLayout
 
-        IdPakFileSystem::IdPakFileSystem(const Path& path) :
-        IdPakFileSystem(nullptr, path) {}
+IdPakFileSystem::IdPakFileSystem(const Path& path)
+  : IdPakFileSystem(nullptr, path) {}
 
-        IdPakFileSystem::IdPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path) :
-        ImageFileSystem(std::move(next), path) {
-            initialize();
-        }
-
-        void IdPakFileSystem::doReadDirectory() {
-            char magic[PakLayout::HeaderMagicLength];
-
-            auto reader = m_file->reader();
-            reader.seekForward(PakLayout::HeaderAddress);
-            reader.read(magic, PakLayout::HeaderMagicLength);
-
-            const auto directoryAddress = reader.readSize<int32_t>();
-            const auto directorySize = reader.readSize<int32_t>();
-            const auto entryCount = directorySize / PakLayout::EntryLength;
-
-            reader.seekFromBegin(directoryAddress);
-
-            for (size_t i = 0; i < entryCount; ++i) {
-                const auto entryName = reader.readString(PakLayout::EntryNameLength);
-                const auto entryAddress = reader.readSize<int32_t>();
-                const auto entrySize = reader.readSize<int32_t>();
-
-                const auto entryPath = Path(kdl::str_to_lower(entryName));
-                auto entryFile = std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
-                m_root.addFile(entryPath, entryFile);
-            }
-        }
-    }
+IdPakFileSystem::IdPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path)
+  : ImageFileSystem(std::move(next), path) {
+  initialize();
 }
+
+void IdPakFileSystem::doReadDirectory() {
+  char magic[PakLayout::HeaderMagicLength];
+
+  auto reader = m_file->reader();
+  reader.seekForward(PakLayout::HeaderAddress);
+  reader.read(magic, PakLayout::HeaderMagicLength);
+
+  const auto directoryAddress = reader.readSize<int32_t>();
+  const auto directorySize = reader.readSize<int32_t>();
+  const auto entryCount = directorySize / PakLayout::EntryLength;
+
+  reader.seekFromBegin(directoryAddress);
+
+  for (size_t i = 0; i < entryCount; ++i) {
+    const auto entryName = reader.readString(PakLayout::EntryNameLength);
+    const auto entryAddress = reader.readSize<int32_t>();
+    const auto entrySize = reader.readSize<int32_t>();
+
+    const auto entryPath = Path(kdl::str_to_lower(entryName));
+    auto entryFile = std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
+    m_root.addFile(entryPath, entryFile);
+  }
+}
+} // namespace IO
+} // namespace TrenchBroom

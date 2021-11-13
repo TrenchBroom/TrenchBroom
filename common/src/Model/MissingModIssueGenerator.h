@@ -26,21 +26,22 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Game;
+namespace Model {
+class Game;
 
-        class MissingModIssueGenerator : public IssueGenerator {
-        private:
-            class MissingModIssue;
-            class MissingModIssueQuickFix;
+class MissingModIssueGenerator : public IssueGenerator {
+private:
+  class MissingModIssue;
+  class MissingModIssueQuickFix;
 
-            std::weak_ptr<Game> m_game;
-            mutable std::vector<std::string> m_lastMods;
-        public:
-            MissingModIssueGenerator(std::weak_ptr<Game> game);
-        private:
-            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
-        };
-    }
-}
+  std::weak_ptr<Game> m_game;
+  mutable std::vector<std::string> m_lastMods;
 
+public:
+  MissingModIssueGenerator(std::weak_ptr<Game> game);
+
+private:
+  void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

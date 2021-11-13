@@ -19,15 +19,15 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Color.h"
+#include "FloatType.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#include <vecmath/vec.h>
 #include <vecmath/bbox.h>
+#include <vecmath/vec.h>
 
 #include <memory>
 #include <optional>
@@ -35,65 +35,67 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        namespace DefToken {
-            using Type = unsigned int;
-            static const Type Integer         = 1 <<  0; // integer number
-            static const Type Decimal         = 1 <<  1; // decimal number
-            static const Type QuotedString    = 1 <<  2; // string
-            static const Type OParenthesis    = 1 <<  3; // opening parenthesis: (
-            static const Type CParenthesis    = 1 <<  4; // closing parenthesis: )
-            static const Type OBrace          = 1 <<  5; // opening brace: {
-            static const Type CBrace          = 1 <<  6; // closing brace: }
-            static const Type Word            = 1 <<  7; // word
-            static const Type ODefinition     = 1 <<  9; // entity definition open
-            static const Type CDefinition     = 1 << 10; // entity definition close
-            static const Type Semicolon       = 1 << 11; // semicolon: ;
-            static const Type Newline         = 1 << 12; // new line
-            static const Type Comma           = 1 << 13; // comma: ,
-            static const Type Equality        = 1 << 14; // equality sign: =
-            static const Type Minus           = 1 << 15; // minus sign: -
-            static const Type Eof             = 1 << 16; // end of file
-        }
+namespace IO {
+namespace DefToken {
+using Type = unsigned int;
+static const Type Integer = 1 << 0;      // integer number
+static const Type Decimal = 1 << 1;      // decimal number
+static const Type QuotedString = 1 << 2; // string
+static const Type OParenthesis = 1 << 3; // opening parenthesis: (
+static const Type CParenthesis = 1 << 4; // closing parenthesis: )
+static const Type OBrace = 1 << 5;       // opening brace: {
+static const Type CBrace = 1 << 6;       // closing brace: }
+static const Type Word = 1 << 7;         // word
+static const Type ODefinition = 1 << 9;  // entity definition open
+static const Type CDefinition = 1 << 10; // entity definition close
+static const Type Semicolon = 1 << 11;   // semicolon: ;
+static const Type Newline = 1 << 12;     // new line
+static const Type Comma = 1 << 13;       // comma: ,
+static const Type Equality = 1 << 14;    // equality sign: =
+static const Type Minus = 1 << 15;       // minus sign: -
+static const Type Eof = 1 << 16;         // end of file
+} // namespace DefToken
 
-        class DefTokenizer : public Tokenizer<DefToken::Type> {
-        public:
-            explicit DefTokenizer(std::string_view str);
-        private:
-            static const std::string WordDelims;
-            Token emitToken() override;
-        };
+class DefTokenizer : public Tokenizer<DefToken::Type> {
+public:
+  explicit DefTokenizer(std::string_view str);
 
-        class DefParser : public EntityDefinitionParser, public Parser<DefToken::Type> {
-        private:
-            using Token = DefTokenizer::Token;
+private:
+  static const std::string WordDelims;
+  Token emitToken() override;
+};
 
-            DefTokenizer m_tokenizer;
-            std::map<std::string, EntityDefinitionClassInfo> m_baseClasses;
-        public:
-            DefParser(std::string_view str, const Color& defaultEntityColor);
-        private:
-            TokenNameMap tokenNames() const override;
-            std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
+class DefParser : public EntityDefinitionParser, public Parser<DefToken::Type> {
+private:
+  using Token = DefTokenizer::Token;
 
-            std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
-            PropertyDefinitionPtr parseSpawnflags(ParserStatus& status);
-            void parseProperties(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
-            bool parseProperty(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
+  DefTokenizer m_tokenizer;
+  std::map<std::string, EntityDefinitionClassInfo> m_baseClasses;
 
-            void parseDefaultProperty(ParserStatus& status);
-            std::string parseBaseProperty(ParserStatus& status);
-            PropertyDefinitionPtr parseChoicePropertyDefinition(ParserStatus& status);
-            Assets::ModelDefinition parseModelDefinition(ParserStatus& status);
+public:
+  DefParser(std::string_view str, const Color& defaultEntityColor);
 
-            std::string parseDescription();
+private:
+  TokenNameMap tokenNames() const override;
+  std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
-            vm::vec3 parseVector(ParserStatus& status);
-            vm::bbox3 parseBounds(ParserStatus& status);
-            Color parseColor(ParserStatus& status);
+  std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
+  PropertyDefinitionPtr parseSpawnflags(ParserStatus& status);
+  void parseProperties(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
+  bool parseProperty(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
 
-            Token nextTokenIgnoringNewlines();
-        };
-    }
-}
+  void parseDefaultProperty(ParserStatus& status);
+  std::string parseBaseProperty(ParserStatus& status);
+  PropertyDefinitionPtr parseChoicePropertyDefinition(ParserStatus& status);
+  Assets::ModelDefinition parseModelDefinition(ParserStatus& status);
 
+  std::string parseDescription();
+
+  vm::vec3 parseVector(ParserStatus& status);
+  vm::bbox3 parseBounds(ParserStatus& status);
+  Color parseColor(ParserStatus& status);
+
+  Token nextTokenIgnoringNewlines();
+};
+} // namespace IO
+} // namespace TrenchBroom

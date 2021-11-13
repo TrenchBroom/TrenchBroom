@@ -22,13 +22,13 @@
 #include "Model/IssueQuickFix.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class RemoveEntityPropertiesQuickFix : public IssueQuickFix {
-        public:
-            explicit RemoveEntityPropertiesQuickFix(IssueType issueType);
-        private:
-            void doApply(MapFacade* facade, const Issue* issue) const override;
-        };
-    }
-}
+namespace Model {
+class RemoveEntityPropertiesQuickFix : public IssueQuickFix {
+public:
+  explicit RemoveEntityPropertiesQuickFix(IssueType issueType);
 
+private:
+  void doApply(MapFacade* facade, const Issue* issue) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

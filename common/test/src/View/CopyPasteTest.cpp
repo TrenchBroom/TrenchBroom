@@ -35,10 +35,10 @@
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace View {
-        TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste") {
-            SECTION("Paste worldspawn with single brush in layer") {
-                const auto data = R"(
+namespace View {
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste") {
+  SECTION("Paste worldspawn with single brush in layer") {
+    const auto data = R"(
 {
 "classname" "worldspawn"
 "to_be_ignored" "somevalue"
@@ -58,22 +58,22 @@ namespace TrenchBroom {
 }
 })";
 
-                const auto& world = *document->world();
-                REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
+    const auto& world = *document->world();
+    REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
 
-                const auto& defaultLayer = *world.defaultLayer();
-                REQUIRE(defaultLayer.childCount() == 0u);
-                REQUIRE(world.customLayers().empty());
+    const auto& defaultLayer = *world.defaultLayer();
+    REQUIRE(defaultLayer.childCount() == 0u);
+    REQUIRE(world.customLayers().empty());
 
-                CHECK(document->paste(data) == PasteType::Node);
-                CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
-                CHECK(world.customLayers().empty());
-                CHECK(defaultLayer.childCount() == 1u);
-                CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
-            }
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
+    CHECK(world.customLayers().empty());
+    CHECK(defaultLayer.childCount() == 1u);
+    CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
+  }
 
-            SECTION("Paste worldspawn with single brush in group") {
-                const auto data = R"(
+  SECTION("Paste worldspawn with single brush in group") {
+    const auto data = R"(
 {
 "classname" "worldspawn"
 "to_be_ignored" "somevalue"
@@ -93,25 +93,25 @@ namespace TrenchBroom {
 }
 })";
 
-                const auto& world = *document->world();
-                REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
+    const auto& world = *document->world();
+    REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
 
-                const auto& defaultLayer = *world.defaultLayer();
-                REQUIRE(defaultLayer.childCount() == 0u);
+    const auto& defaultLayer = *world.defaultLayer();
+    REQUIRE(defaultLayer.childCount() == 0u);
 
-                CHECK(document->paste(data) == PasteType::Node);
-                CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
-                CHECK(defaultLayer.childCount() == 1u);
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
+    CHECK(defaultLayer.childCount() == 1u);
 
-                const auto* groupNode = dynamic_cast<Model::GroupNode*>(defaultLayer.children().front());
-                CHECK(groupNode != nullptr);
-                CHECK(groupNode->group().name() == "My Group");
-                CHECK(groupNode->childCount() == 1u);
-                CHECK(dynamic_cast<Model::BrushNode*>(groupNode->children().front()) != nullptr);
-            }
+    const auto* groupNode = dynamic_cast<Model::GroupNode*>(defaultLayer.children().front());
+    CHECK(groupNode != nullptr);
+    CHECK(groupNode->group().name() == "My Group");
+    CHECK(groupNode->childCount() == 1u);
+    CHECK(dynamic_cast<Model::BrushNode*>(groupNode->children().front()) != nullptr);
+  }
 
-            SECTION("Paste worldspawn with single brush in entity") {
-                const auto data = R"(
+  SECTION("Paste worldspawn with single brush in entity") {
+    const auto data = R"(
 {
 "classname" "worldspawn"
 "to_be_ignored" "somevalue"
@@ -128,25 +128,25 @@ namespace TrenchBroom {
 }
 })";
 
-                const auto& world = *document->world();
-                REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
+    const auto& world = *document->world();
+    REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
 
-                const auto& defaultLayer = *world.defaultLayer();
-                REQUIRE(defaultLayer.childCount() == 0u);
+    const auto& defaultLayer = *world.defaultLayer();
+    REQUIRE(defaultLayer.childCount() == 0u);
 
-                CHECK(document->paste(data) == PasteType::Node);
-                CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
-                CHECK(defaultLayer.childCount() == 1u);
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
+    CHECK(defaultLayer.childCount() == 1u);
 
-                const auto* entityNode = dynamic_cast<Model::EntityNode*>(defaultLayer.children().front());
-                CHECK(entityNode != nullptr);
-                CHECK(entityNode->entity().classname() == "func_door");
-                CHECK(entityNode->childCount() == 1u);
-                CHECK(dynamic_cast<Model::BrushNode*>(entityNode->children().front()) != nullptr);
-            }
+    const auto* entityNode = dynamic_cast<Model::EntityNode*>(defaultLayer.children().front());
+    CHECK(entityNode != nullptr);
+    CHECK(entityNode->entity().classname() == "func_door");
+    CHECK(entityNode->childCount() == 1u);
+    CHECK(dynamic_cast<Model::BrushNode*>(entityNode->children().front()) != nullptr);
+  }
 
-            SECTION("Paste worldspawn with single brush") {
-                const auto data = R"(
+  SECTION("Paste worldspawn with single brush") {
+    const auto data = R"(
 {
 "classname" "worldspawn"
 "to_be_ignored" "somevalue"
@@ -160,20 +160,20 @@ namespace TrenchBroom {
 }
 })";
 
-                const auto& world = *document->world();
-                REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
+    const auto& world = *document->world();
+    REQUIRE_FALSE(world.entity().hasProperty("to_be_ignored"));
 
-                const auto& defaultLayer = *world.defaultLayer();
-                REQUIRE(defaultLayer.childCount() == 0u);
+    const auto& defaultLayer = *world.defaultLayer();
+    REQUIRE(defaultLayer.childCount() == 0u);
 
-                CHECK(document->paste(data) == PasteType::Node);
-                CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
-                CHECK(defaultLayer.childCount() == 1u);
-                CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
-            }
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK_FALSE(world.entity().hasProperty("to_be_ignored"));
+    CHECK(defaultLayer.childCount() == 1u);
+    CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
+  }
 
-            SECTION("Paste single brush") {
-                const auto data = R"(
+  SECTION("Paste single brush") {
+    const auto data = R"(
 {
 ( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) tex1 1 2 3 4 5
 ( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) tex2 0 0 0 1 1
@@ -183,20 +183,20 @@ namespace TrenchBroom {
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
 })";
 
-                const auto& world = *document->world();
+    const auto& world = *document->world();
 
-                const auto& defaultLayer = *world.defaultLayer();
-                REQUIRE(defaultLayer.childCount() == 0u);
+    const auto& defaultLayer = *world.defaultLayer();
+    REQUIRE(defaultLayer.childCount() == 0u);
 
-                CHECK(document->paste(data) == PasteType::Node);
-                CHECK(defaultLayer.childCount() == 1u);
-                CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
-            }
-        }
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(defaultLayer.childCount() == 1u);
+    CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
+  }
+}
 
-        TEST_CASE_METHOD(Quake3MapDocumentTest, "CopyPasteTest.pastePatch") {
-            SECTION("Paste single patch") {
-                const auto data = R"(
+TEST_CASE_METHOD(Quake3MapDocumentTest, "CopyPasteTest.pastePatch") {
+  SECTION("Paste single patch") {
+    const auto data = R"(
 {
 patchDef2
 {
@@ -212,106 +212,109 @@ common/caulk
 }
 })";
 
-                const auto& world = *document->world();
+    const auto& world = *document->world();
 
-                const auto& defaultLayer = *world.defaultLayer();
-                REQUIRE(defaultLayer.childCount() == 0u);
+    const auto& defaultLayer = *world.defaultLayer();
+    REQUIRE(defaultLayer.childCount() == 0u);
 
-                CHECK(document->paste(data) == PasteType::Node);
-                CHECK(defaultLayer.childCount() == 1u);
-                CHECK(dynamic_cast<Model::PatchNode*>(defaultLayer.children().front()) != nullptr);
-            }
-        }
-
-        // https://github.com/TrenchBroom/TrenchBroom/issues/2776
-        TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup") {
-            // delete default brush
-            document->selectAllNodes();
-            document->deleteObjects();
-
-            const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
-
-            auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
-            addNode(*document, document->parentForNodes(), brushNode1);
-            document->select(brushNode1);
-
-            const auto groupName = std::string("testGroup");
-
-            auto* group = document->groupSelection(groupName);
-            CHECK(group != nullptr);
-            document->select(group);
-
-            const std::string copied = document->serializeSelectedNodes();
-
-            const auto delta = vm::vec3(16, 16, 16);
-            CHECK(document->paste(copied) == PasteType::Node);
-            CHECK(document->selectedNodes().groupCount() == 1u);
-            CHECK(document->selectedNodes().groups().at(0)->name() == groupName);
-            CHECK(document->translateObjects(delta));
-            CHECK(document->selectionBounds() == box.translate(delta));
-        }
-
-        TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]") {
-            // https://github.com/TrenchBroom/TrenchBroom/issues/1734
-
-            const std::string data("{"
-                              "\"classname\" \"light\""
-                              "\"origin\" \"0 0 0\""
-                              "}");
-
-            Model::BrushNode* brush = createBrushNode();
-            addNode(*document, document->parentForNodes(), brush);
-            document->select(brush);
-
-            Model::GroupNode* group = document->groupSelection("test");
-            document->openGroup(group);
-
-            CHECK(document->paste(data) == PasteType::Node);
-            CHECK(document->selectedNodes().hasOnlyEntities());
-            CHECK(document->selectedNodes().entityCount() == 1u);
-
-            Model::EntityNode* light = document->selectedNodes().entities().front();
-            CHECK(light->parent() == group);
-        }
-
-        TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGroupId", "[CopyPasteTest]") {
-            auto* entityNode = new Model::EntityNode{Model::Entity{}};
-            document->addNodes({{document->parentForNodes(), {entityNode}}});
-
-            document->select(entityNode);
-            auto* groupNode = document->groupSelection("test");
-
-            const auto persistentGroupId = groupNode->persistentId();
-            REQUIRE(persistentGroupId.has_value());
-
-            document->deselectAll();
-            document->select(groupNode);
-
-            const auto str = document->serializeSelectedNodes();
-
-            SECTION("Copy and paste resets persistent group ID") {
-                document->deselectAll();
-                REQUIRE(document->paste(str) == PasteType::Node);
-
-                auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children().back());
-                REQUIRE(pastedGroupNode != nullptr);
-                REQUIRE(pastedGroupNode != groupNode);
-
-                CHECK(pastedGroupNode->persistentId() != persistentGroupId);
-            }
-
-            SECTION("Cut and paste retains persistent group ID") {
-                document->deleteObjects();
-                document->deselectAll();
-                REQUIRE(document->paste(str) == PasteType::Node);
-
-                auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children().back());
-                REQUIRE(pastedGroupNode != nullptr);
-                REQUIRE(pastedGroupNode != groupNode);
-
-                CHECK(pastedGroupNode->persistentId() == persistentGroupId);
-            }
-        }
-    }
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(defaultLayer.childCount() == 1u);
+    CHECK(dynamic_cast<Model::PatchNode*>(defaultLayer.children().front()) != nullptr);
+  }
 }
+
+// https://github.com/TrenchBroom/TrenchBroom/issues/2776
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup") {
+  // delete default brush
+  document->selectAllNodes();
+  document->deleteObjects();
+
+  const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+  const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+  auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+  addNode(*document, document->parentForNodes(), brushNode1);
+  document->select(brushNode1);
+
+  const auto groupName = std::string("testGroup");
+
+  auto* group = document->groupSelection(groupName);
+  CHECK(group != nullptr);
+  document->select(group);
+
+  const std::string copied = document->serializeSelectedNodes();
+
+  const auto delta = vm::vec3(16, 16, 16);
+  CHECK(document->paste(copied) == PasteType::Node);
+  CHECK(document->selectedNodes().groupCount() == 1u);
+  CHECK(document->selectedNodes().groups().at(0)->name() == groupName);
+  CHECK(document->translateObjects(delta));
+  CHECK(document->selectionBounds() == box.translate(delta));
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]") {
+  // https://github.com/TrenchBroom/TrenchBroom/issues/1734
+
+  const std::string data("{"
+                         "\"classname\" \"light\""
+                         "\"origin\" \"0 0 0\""
+                         "}");
+
+  Model::BrushNode* brush = createBrushNode();
+  addNode(*document, document->parentForNodes(), brush);
+  document->select(brush);
+
+  Model::GroupNode* group = document->groupSelection("test");
+  document->openGroup(group);
+
+  CHECK(document->paste(data) == PasteType::Node);
+  CHECK(document->selectedNodes().hasOnlyEntities());
+  CHECK(document->selectedNodes().entityCount() == 1u);
+
+  Model::EntityNode* light = document->selectedNodes().entities().front();
+  CHECK(light->parent() == group);
+}
+
+TEST_CASE_METHOD(
+  MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGroupId", "[CopyPasteTest]") {
+  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
+
+  document->select(entityNode);
+  auto* groupNode = document->groupSelection("test");
+
+  const auto persistentGroupId = groupNode->persistentId();
+  REQUIRE(persistentGroupId.has_value());
+
+  document->deselectAll();
+  document->select(groupNode);
+
+  const auto str = document->serializeSelectedNodes();
+
+  SECTION("Copy and paste resets persistent group ID") {
+    document->deselectAll();
+    REQUIRE(document->paste(str) == PasteType::Node);
+
+    auto* pastedGroupNode =
+      dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children().back());
+    REQUIRE(pastedGroupNode != nullptr);
+    REQUIRE(pastedGroupNode != groupNode);
+
+    CHECK(pastedGroupNode->persistentId() != persistentGroupId);
+  }
+
+  SECTION("Cut and paste retains persistent group ID") {
+    document->deleteObjects();
+    document->deselectAll();
+    REQUIRE(document->paste(str) == PasteType::Node);
+
+    auto* pastedGroupNode =
+      dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children().back());
+    REQUIRE(pastedGroupNode != nullptr);
+    REQUIRE(pastedGroupNode != groupNode);
+
+    CHECK(pastedGroupNode->persistentId() == persistentGroupId);
+  }
+}
+} // namespace View
+} // namespace TrenchBroom

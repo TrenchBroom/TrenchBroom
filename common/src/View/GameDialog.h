@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
 #include "Model/MapFormat.h"
+#include "NotifierConnection.h"
 
 #include <string>
 
@@ -31,48 +31,58 @@ class QPushButton;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
-    namespace View {
-        class GameListBox;
-
-        class GameDialog : public QDialog {
-            Q_OBJECT
-        private:
-            enum class DialogType { Open, New };
-        protected:
-            DialogType m_dialogType;
-            GameListBox* m_gameListBox;
-            QComboBox* m_mapFormatComboBox;
-            QPushButton* m_openPreferencesButton;
-            QPushButton* m_okButton;
-
-            NotifierConnection m_notifierConnection;
-        public:
-            // FIXME: return a tuple instead of taking in/out parameters
-            static bool showNewDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
-            static bool showOpenDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
-
-            std::string currentGameName() const;
-            Model::MapFormat currentMapFormat() const;
-        private slots:
-            void currentGameChanged(const QString& gameName);
-            void gameSelected(const QString& gameName);
-            void openPreferencesClicked();
-        protected:
-            GameDialog(const QString& title, const QString& infoText, DialogType type, QWidget* parent = nullptr);
-
-            void createGui(const QString& title, const QString& infoText);
-            QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);
-            QWidget* createSelectionPanel(QWidget* parent);
-        private:
-            void updateMapFormats(const std::string& gameName);
-
-            void connectObservers();
-            void preferenceDidChange(const IO::Path& path);
-        };
-    }
+namespace IO {
+class Path;
 }
 
+namespace View {
+class GameListBox;
+
+class GameDialog : public QDialog {
+  Q_OBJECT
+private:
+  enum class DialogType
+  {
+    Open,
+    New
+  };
+
+protected:
+  DialogType m_dialogType;
+  GameListBox* m_gameListBox;
+  QComboBox* m_mapFormatComboBox;
+  QPushButton* m_openPreferencesButton;
+  QPushButton* m_okButton;
+
+  NotifierConnection m_notifierConnection;
+
+public:
+  // FIXME: return a tuple instead of taking in/out parameters
+  static bool showNewDocumentDialog(
+    QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
+  static bool showOpenDocumentDialog(
+    QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
+
+  std::string currentGameName() const;
+  Model::MapFormat currentMapFormat() const;
+private slots:
+  void currentGameChanged(const QString& gameName);
+  void gameSelected(const QString& gameName);
+  void openPreferencesClicked();
+
+protected:
+  GameDialog(
+    const QString& title, const QString& infoText, DialogType type, QWidget* parent = nullptr);
+
+  void createGui(const QString& title, const QString& infoText);
+  QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);
+  QWidget* createSelectionPanel(QWidget* parent);
+
+private:
+  void updateMapFormats(const std::string& gameName);
+
+  void connectObservers();
+  void preferenceDidChange(const IO::Path& path);
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -22,18 +22,17 @@
 #include <QLabel>
 
 namespace TrenchBroom {
-    namespace View {
-        class ClickableLabel : public QLabel {
-            Q_OBJECT
-        public:
-            explicit ClickableLabel(const QString& text, QWidget* parent = nullptr);
+namespace View {
+class ClickableLabel : public QLabel {
+  Q_OBJECT
+public:
+  explicit ClickableLabel(const QString& text, QWidget* parent = nullptr);
 
-        protected:
-            void mousePressEvent(QMouseEvent *event) override;
+protected:
+  void mousePressEvent(QMouseEvent* event) override;
 
-        signals:
-            void clicked();
-        };
-    }
-}
-
+signals:
+  void clicked();
+};
+} // namespace View
+} // namespace TrenchBroom

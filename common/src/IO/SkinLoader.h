@@ -22,21 +22,21 @@
 #include <memory>
 
 namespace TrenchBroom {
-    class Logger;
-    
-    namespace Assets {
-        class Palette;
-        class Texture;
-    }
+class Logger;
 
-    namespace IO {
-        class FileSystem;
-        class Path;
+namespace Assets {
+class Palette;
+class Texture;
+} // namespace Assets
 
-        Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger);
-        Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette);
-        
-        Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger);
-    }
-}
+namespace IO {
+class FileSystem;
+class Path;
 
+Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger);
+Assets::Texture loadSkin(
+  const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette);
+
+Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger);
+} // namespace IO
+} // namespace TrenchBroom

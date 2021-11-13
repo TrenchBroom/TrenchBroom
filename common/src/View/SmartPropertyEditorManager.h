@@ -30,52 +30,56 @@
 class QStackedLayout;
 
 namespace TrenchBroom {
-    namespace Model {
-        class EntityNodeBase;
-        class Node;
-    }
+namespace Model {
+class EntityNodeBase;
+class Node;
+} // namespace Model
 
-    namespace View {
-        class MapDocument;
-        class Selection;
-        class SmartPropertyEditor;
-        class SmartPropertyEditorMatcher;
+namespace View {
+class MapDocument;
+class Selection;
+class SmartPropertyEditor;
+class SmartPropertyEditorMatcher;
 
-        class SmartPropertyEditorManager : public QWidget {
-        private:
-            using EditorPtr = SmartPropertyEditor*;
-            using MatcherPtr = std::shared_ptr<SmartPropertyEditorMatcher>;
-            using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
-            using EditorList = std::vector<MatcherEditorPair>;
+class SmartPropertyEditorManager : public QWidget {
+private:
+  using EditorPtr = SmartPropertyEditor*;
+  using MatcherPtr = std::shared_ptr<SmartPropertyEditorMatcher>;
+  using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
+  using EditorList = std::vector<MatcherEditorPair>;
 
-            std::weak_ptr<MapDocument> m_document;
+  std::weak_ptr<MapDocument> m_document;
 
-            EditorList m_editors;
-            std::string m_propertyKey;
-            QStackedLayout* m_stackedLayout;
+  EditorList m_editors;
+  std::string m_propertyKey;
+  QStackedLayout* m_stackedLayout;
 
-            NotifierConnection m_notifierConnection;
-        public:
-            explicit SmartPropertyEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  NotifierConnection m_notifierConnection;
 
-            void switchEditor(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes);
-            bool isDefaultEditorActive() const;
-        private:
-            SmartPropertyEditor* activeEditor() const;
-            void createEditors();
+public:
+  explicit SmartPropertyEditorManager(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
-            void connectObservers();
+  void switchEditor(
+    const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes);
+  bool isDefaultEditorActive() const;
 
-            void selectionDidChange(const Selection& selection);
-            void nodesDidChange(const std::vector<Model::Node*>& nodes);
+private:
+  SmartPropertyEditor* activeEditor() const;
+  void createEditors();
 
-            EditorPtr selectEditor(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const;
-            EditorPtr defaultEditor() const;
+  void connectObservers();
 
-            void activateEditor(EditorPtr editor, const std::string& propertyKey);
-            void deactivateEditor();
-            void updateEditor();
-        };
-    }
-}
+  void selectionDidChange(const Selection& selection);
+  void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
+  EditorPtr selectEditor(
+    const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const;
+  EditorPtr defaultEditor() const;
+
+  void activateEditor(EditorPtr editor, const std::string& propertyKey);
+  void deactivateEditor();
+  void updateEditor();
+};
+} // namespace View
+} // namespace TrenchBroom

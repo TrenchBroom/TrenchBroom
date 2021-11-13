@@ -26,34 +26,34 @@
 #include <variant>
 
 namespace TrenchBroom {
-    namespace IO {
-        struct MapExportOptions {
-            Path exportPath;
-        };
+namespace IO {
+struct MapExportOptions {
+  Path exportPath;
+};
 
-        bool operator==(const MapExportOptions& lhs, const MapExportOptions& rhs);
-        bool operator!=(const MapExportOptions& lhs, const MapExportOptions& rhs);
-        std::ostream& operator<<(std::ostream& lhs, const MapExportOptions& rhs);
+bool operator==(const MapExportOptions& lhs, const MapExportOptions& rhs);
+bool operator!=(const MapExportOptions& lhs, const MapExportOptions& rhs);
+std::ostream& operator<<(std::ostream& lhs, const MapExportOptions& rhs);
 
-        enum class ObjMtlPathMode {
-            RelativeToGamePath,
-            RelativeToExportPath
-        };
+enum class ObjMtlPathMode
+{
+  RelativeToGamePath,
+  RelativeToExportPath
+};
 
-        std::ostream& operator<<(std::ostream& lhs, ObjMtlPathMode rhs);
+std::ostream& operator<<(std::ostream& lhs, ObjMtlPathMode rhs);
 
-        struct ObjExportOptions {
-            Path exportPath;
-            ObjMtlPathMode mtlPathMode;
-        };
+struct ObjExportOptions {
+  Path exportPath;
+  ObjMtlPathMode mtlPathMode;
+};
 
-        bool operator==(const ObjExportOptions& lhs, const ObjExportOptions& rhs);
-        bool operator!=(const ObjExportOptions& lhs, const ObjExportOptions& rhs);
-        std::ostream& operator<<(std::ostream& lhs, const ObjExportOptions& rhs);
+bool operator==(const ObjExportOptions& lhs, const ObjExportOptions& rhs);
+bool operator!=(const ObjExportOptions& lhs, const ObjExportOptions& rhs);
+std::ostream& operator<<(std::ostream& lhs, const ObjExportOptions& rhs);
 
-        using ExportOptions = std::variant<MapExportOptions, ObjExportOptions>;
+using ExportOptions = std::variant<MapExportOptions, ObjExportOptions>;
 
-        std::ostream& operator<<(std::ostream& lhs, const ExportOptions& rhs);
-    }
-}
-
+std::ostream& operator<<(std::ostream& lhs, const ExportOptions& rhs);
+} // namespace IO
+} // namespace TrenchBroom

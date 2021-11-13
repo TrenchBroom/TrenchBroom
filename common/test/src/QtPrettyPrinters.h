@@ -19,21 +19,20 @@
 
 #pragma once
 
-#include <QString>
 #include <QJsonValue>
+#include <QString>
 
 #include <ostream>
 
 // These are so Catch can print Qt types
 
 inline void PrintTo(const QString& string, std::ostream* ostream) {
-    *ostream << qUtf8Printable(string);
+  *ostream << qUtf8Printable(string);
 }
 
 inline void PrintTo(const QJsonValue& value, std::ostream* ostream) {
-    const QVariant asVariant = value.toVariant();
+  const QVariant asVariant = value.toVariant();
 
-    *ostream << "QJsonValue<" << asVariant.typeName() << ">("
-             << qUtf8Printable(asVariant.toString()) << ")";
+  *ostream << "QJsonValue<" << asVariant.typeName() << ">(" << qUtf8Printable(asVariant.toString())
+           << ")";
 }
-

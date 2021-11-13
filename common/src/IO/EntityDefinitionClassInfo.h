@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "FloatType.h"
-#include "Color.h"
 #include "Assets/ModelDefinition.h"
+#include "Color.h"
+#include "FloatType.h"
 
 #include <vecmath/bbox.h>
 
@@ -32,40 +32,42 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class PropertyDefinition;
-    }
-
-    namespace IO {
-        enum class EntityDefinitionClassType {
-            PointClass,
-            BrushClass,
-            BaseClass
-        };
-        
-        std::ostream& operator<<(std::ostream& str, EntityDefinitionClassType type);
-    
-        struct EntityDefinitionClassInfo {
-            EntityDefinitionClassType type;
-            size_t line;
-            size_t column;
-            std::string name;
-
-            std::optional<std::string> description;
-            std::optional<Color> color;
-            std::optional<vm::bbox3> size;
-            std::optional<Assets::ModelDefinition> modelDefinition;
-
-            std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
-            std::vector<std::string> superClasses;
-        };
-
-        bool addPropertyDefinition(std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions, std::shared_ptr<Assets::PropertyDefinition> propertyDefinition);
-
-        bool operator==(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
-        bool operator!=(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
-        
-        std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassInfo& classInfo);
-    }
+namespace Assets {
+class PropertyDefinition;
 }
 
+namespace IO {
+enum class EntityDefinitionClassType
+{
+  PointClass,
+  BrushClass,
+  BaseClass
+};
+
+std::ostream& operator<<(std::ostream& str, EntityDefinitionClassType type);
+
+struct EntityDefinitionClassInfo {
+  EntityDefinitionClassType type;
+  size_t line;
+  size_t column;
+  std::string name;
+
+  std::optional<std::string> description;
+  std::optional<Color> color;
+  std::optional<vm::bbox3> size;
+  std::optional<Assets::ModelDefinition> modelDefinition;
+
+  std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
+  std::vector<std::string> superClasses;
+};
+
+bool addPropertyDefinition(
+  std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions,
+  std::shared_ptr<Assets::PropertyDefinition> propertyDefinition);
+
+bool operator==(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
+bool operator!=(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
+
+std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassInfo& classInfo);
+} // namespace IO
+} // namespace TrenchBroom

@@ -24,22 +24,23 @@
 class QToolButton;
 
 namespace TrenchBroom {
-    namespace View {
-        class PopupWindow;
+namespace View {
+class PopupWindow;
 
-        class PopupButton : public QWidget {
-            Q_OBJECT
-        private:
-            QToolButton* m_button;
-            PopupWindow* m_window;
-        public:
-            explicit PopupButton(const QString& caption = "", QWidget* parent = nullptr);
+class PopupButton : public QWidget {
+  Q_OBJECT
+private:
+  QToolButton* m_button;
+  PopupWindow* m_window;
 
-            QWidget* GetPopupWindow() const;
-        private:
-            void buttonClicked(bool checked);
-            void popupVisibilityChanged(bool visible);
-        };
-    }
-}
+public:
+  explicit PopupButton(const QString& caption = "", QWidget* parent = nullptr);
 
+  QWidget* GetPopupWindow() const;
+
+private:
+  void buttonClicked(bool checked);
+  void popupVisibilityChanged(bool visible);
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -25,31 +25,31 @@ class QPushButton;
 class QResizeEvent;
 
 namespace TrenchBroom {
-    namespace View {
-        class ColorButton : public QWidget {
-            Q_OBJECT
-        private:
-            QWidget* m_colorIndicator;
-            QPushButton* m_button;
-            QColor m_color;
-        public:
-            explicit ColorButton(QWidget* parent = nullptr);
-        signals:
-            /**
-             * Emitted when the color is set either programatically via setColor() or
-             * as a result of the user clicking on the color button.
-             */
-            void colorChanged(const QColor& color);
-            /**
-             * Emitted only as a result of the user clicking on the color button.
-             */
-            void colorChangedByUser(const QColor& color);
-        public slots:
-            /**
-             * Change the current color displayed on the button. Causes colorChanged() to be emitted.
-             */
-            void setColor(const QColor& color);
-        };
-    }
-}
+namespace View {
+class ColorButton : public QWidget {
+  Q_OBJECT
+private:
+  QWidget* m_colorIndicator;
+  QPushButton* m_button;
+  QColor m_color;
 
+public:
+  explicit ColorButton(QWidget* parent = nullptr);
+signals:
+  /**
+   * Emitted when the color is set either programatically via setColor() or
+   * as a result of the user clicking on the color button.
+   */
+  void colorChanged(const QColor& color);
+  /**
+   * Emitted only as a result of the user clicking on the color button.
+   */
+  void colorChangedByUser(const QColor& color);
+public slots:
+  /**
+   * Change the current color displayed on the button. Causes colorChanged() to be emitted.
+   */
+  void setColor(const QColor& color);
+};
+} // namespace View
+} // namespace TrenchBroom

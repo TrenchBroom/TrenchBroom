@@ -17,58 +17,59 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
+#include "IO/MdlParser.h"
+#include "Assets/EntityModel.h"
+#include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/MdlParser.h"
 #include "IO/Reader.h"
+#include "Logger.h"
 #include "Model/EntityNode.h"
-#include "Assets/EntityModel.h"
-#include "Assets/Palette.h"
 
 #include "Catch2.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]") {
-            NullLogger logger;
+namespace IO {
+TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]") {
+  NullLogger logger;
 
-            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
+  DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+  const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
-            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/armor.mdl");
-            const auto mdlFile = Disk::openFile(mdlPath);
-            REQUIRE(mdlFile != nullptr);
+  const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/armor.mdl");
+  const auto mdlFile = Disk::openFile(mdlPath);
+  REQUIRE(mdlFile != nullptr);
 
-            auto reader = mdlFile->reader().buffer();
-            auto parser = MdlParser("armor", std::begin(reader), std::end(reader), palette);
-            auto model = parser.initializeModel(logger);
-            parser.loadFrame(0, *model, logger);
+  auto reader = mdlFile->reader().buffer();
+  auto parser = MdlParser("armor", std::begin(reader), std::end(reader), palette);
+  auto model = parser.initializeModel(logger);
+  parser.loadFrame(0, *model, logger);
 
-            CHECK(model != nullptr);
-            CHECK(model->surfaceCount() == 1u);
-            CHECK(model->frameCount() == 1u);
+  CHECK(model != nullptr);
+  CHECK(model->surfaceCount() == 1u);
+  CHECK(model->frameCount() == 1u);
 
-            const auto surfaces = model->surfaces();
-            const auto& surface = *surfaces.front();
-            CHECK(surface.skinCount() == 3u);
-            CHECK(surface.frameCount() == 1u);
-        }
-
-        TEST_CASE("MdlParserTest.loadInvalidMdl", "[MdlParserTest]") {
-            NullLogger logger;
-
-            DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-            const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
-
-            const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/invalid.mdl");
-            const auto mdlFile = Disk::openFile(mdlPath);
-            REQUIRE(mdlFile != nullptr);
-
-            auto reader = mdlFile->reader().buffer();
-            auto parser = MdlParser("armor", std::begin(reader), std::end(reader), palette);
-            CHECK_THROWS_AS(parser.initializeModel(logger), AssetException);
-        }
-    }
+  const auto surfaces = model->surfaces();
+  const auto& surface = *surfaces.front();
+  CHECK(surface.skinCount() == 3u);
+  CHECK(surface.frameCount() == 1u);
 }
+
+TEST_CASE("MdlParserTest.loadInvalidMdl", "[MdlParserTest]") {
+  NullLogger logger;
+
+  DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+  const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
+
+  const auto mdlPath =
+    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/invalid.mdl");
+  const auto mdlFile = Disk::openFile(mdlPath);
+  REQUIRE(mdlFile != nullptr);
+
+  auto reader = mdlFile->reader().buffer();
+  auto parser = MdlParser("armor", std::begin(reader), std::end(reader), palette);
+  CHECK_THROWS_AS(parser.initializeModel(logger), AssetException);
+}
+} // namespace IO
+} // namespace TrenchBroom

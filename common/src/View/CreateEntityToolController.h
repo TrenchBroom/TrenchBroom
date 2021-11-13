@@ -24,40 +24,46 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace View {
-        class CreateEntityTool;
+namespace View {
+class CreateEntityTool;
 
-        class CreateEntityToolController : public ToolController {
-        protected:
-            CreateEntityTool& m_tool;
-        protected:
-            CreateEntityToolController(CreateEntityTool& tool);
-        public:
-            virtual ~CreateEntityToolController() override;
-        private:
-            Tool& tool() override;
-            const Tool& tool() const override;
+class CreateEntityToolController : public ToolController {
+protected:
+  CreateEntityTool& m_tool;
 
-            std::unique_ptr<DropTracker> acceptDrop(const InputState& inputState, const std::string& payload) override;
+protected:
+  CreateEntityToolController(CreateEntityTool& tool);
 
-            bool cancel() override;
-        private:
-            virtual std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const = 0;
-        };
+public:
+  virtual ~CreateEntityToolController() override;
 
-        class CreateEntityToolController2D : public CreateEntityToolController {
-        public:
-            CreateEntityToolController2D(CreateEntityTool& tool);
-        private:
-            std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
-        };
+private:
+  Tool& tool() override;
+  const Tool& tool() const override;
 
-        class CreateEntityToolController3D : public CreateEntityToolController {
-        public:
-            CreateEntityToolController3D(CreateEntityTool& tool);
-        private:
-            std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
-        };
-    }
-}
+  std::unique_ptr<DropTracker> acceptDrop(
+    const InputState& inputState, const std::string& payload) override;
 
+  bool cancel() override;
+
+private:
+  virtual std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const = 0;
+};
+
+class CreateEntityToolController2D : public CreateEntityToolController {
+public:
+  CreateEntityToolController2D(CreateEntityTool& tool);
+
+private:
+  std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
+};
+
+class CreateEntityToolController3D : public CreateEntityToolController {
+public:
+  CreateEntityToolController3D(CreateEntityTool& tool);
+
+private:
+  std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
+};
+} // namespace View
+} // namespace TrenchBroom

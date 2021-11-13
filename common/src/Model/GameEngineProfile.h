@@ -19,39 +19,40 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "IO/Path.h"
+#include "Macros.h"
 
 #include <iosfwd>
 #include <memory>
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class GameEngineProfile {
-        private:
-            std::string m_name;
-            IO::Path m_path;
-            std::string m_parameterSpec;
-        public:
-            GameEngineProfile(const std::string& name, const IO::Path& path, const std::string& parameterSpec);
+namespace Model {
+class GameEngineProfile {
+private:
+  std::string m_name;
+  IO::Path m_path;
+  std::string m_parameterSpec;
 
-            std::unique_ptr<GameEngineProfile> clone() const;
+public:
+  GameEngineProfile(
+    const std::string& name, const IO::Path& path, const std::string& parameterSpec);
 
-            const std::string& name() const;
-            const IO::Path& path() const;
-            const std::string& parameterSpec() const;
+  std::unique_ptr<GameEngineProfile> clone() const;
 
-            void setName(const std::string& name);
-            void setPath(const IO::Path& path);
-            void setParameterSpec(const std::string& parameterSpec);
+  const std::string& name() const;
+  const IO::Path& path() const;
+  const std::string& parameterSpec() const;
 
-            friend bool operator==(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
-            friend bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
-            friend std::ostream& operator<<(std::ostream& str, const GameEngineProfile& profile);
+  void setName(const std::string& name);
+  void setPath(const IO::Path& path);
+  void setParameterSpec(const std::string& parameterSpec);
 
-            deleteCopyAndMove(GameEngineProfile)
-        };
-    }
-}
+  friend bool operator==(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
+  friend bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
+  friend std::ostream& operator<<(std::ostream& str, const GameEngineProfile& profile);
 
+  deleteCopyAndMove(GameEngineProfile)
+};
+} // namespace Model
+} // namespace TrenchBroom

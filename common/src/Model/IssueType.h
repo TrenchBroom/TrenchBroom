@@ -20,8 +20,7 @@
 #pragma once
 
 namespace TrenchBroom {
-    namespace Model {
-        using IssueType = int;
-    }
+namespace Model {
+using IssueType = int;
 }
-
+} // namespace TrenchBroom

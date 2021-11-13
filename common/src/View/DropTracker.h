@@ -20,16 +20,16 @@
 #pragma once
 
 namespace TrenchBroom {
-    namespace View {
-        class InputState;
+namespace View {
+class InputState;
 
-        class DropTracker {
-        public:
-            virtual ~DropTracker();
+class DropTracker {
+public:
+  virtual ~DropTracker();
 
-            virtual bool move(const InputState& inputState) = 0;
-            virtual bool drop(const InputState& inputState) = 0;
-            virtual void leave(const InputState& inputState) = 0;
-        };
-    }
-}
+  virtual bool move(const InputState& inputState) = 0;
+  virtual bool drop(const InputState& inputState) = 0;
+  virtual void leave(const InputState& inputState) = 0;
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -20,48 +20,49 @@
 #include "Group.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        Group::Group(std::string name) :
-        m_name(std::move(name)) {}
+namespace Model {
+Group::Group(std::string name)
+  : m_name(std::move(name)) {}
 
-        const std::string& Group::name() const {
-            return m_name;
-        }
-
-        void Group::setName(std::string name) {
-            m_name = std::move(name);
-        }
-
-        std::optional<std::string> Group::linkedGroupId() const {
-            return m_linkedGroupId;
-        }
-
-        void Group::setLinkedGroupId(std::string linkedGroupId) {
-            m_linkedGroupId = std::move(linkedGroupId);
-        }
-
-        void Group::resetLinkedGroupId() {
-            m_linkedGroupId = std::nullopt;
-        }
-
-        const vm::mat4x4& Group::transformation() const {
-            return m_transformation;
-        }
-
-        void Group::setTransformation(const vm::mat4x4& transformation) {
-            m_transformation = transformation;
-        }
-
-        void Group::transform(const vm::mat4x4& transformation) {
-            m_transformation = transformation * m_transformation;
-        }
-
-        bool operator==(const Group& lhs, const Group& rhs) {
-            return lhs.m_name == rhs.m_name && lhs.m_linkedGroupId == rhs.m_linkedGroupId && lhs.m_transformation == rhs.m_transformation;
-        }
-
-        bool operator!=(const Group& lhs, const Group& rhs) {
-            return !(lhs == rhs);
-        }
-    }
+const std::string& Group::name() const {
+  return m_name;
 }
+
+void Group::setName(std::string name) {
+  m_name = std::move(name);
+}
+
+std::optional<std::string> Group::linkedGroupId() const {
+  return m_linkedGroupId;
+}
+
+void Group::setLinkedGroupId(std::string linkedGroupId) {
+  m_linkedGroupId = std::move(linkedGroupId);
+}
+
+void Group::resetLinkedGroupId() {
+  m_linkedGroupId = std::nullopt;
+}
+
+const vm::mat4x4& Group::transformation() const {
+  return m_transformation;
+}
+
+void Group::setTransformation(const vm::mat4x4& transformation) {
+  m_transformation = transformation;
+}
+
+void Group::transform(const vm::mat4x4& transformation) {
+  m_transformation = transformation * m_transformation;
+}
+
+bool operator==(const Group& lhs, const Group& rhs) {
+  return lhs.m_name == rhs.m_name && lhs.m_linkedGroupId == rhs.m_linkedGroupId &&
+         lhs.m_transformation == rhs.m_transformation;
+}
+
+bool operator!=(const Group& lhs, const Group& rhs) {
+  return !(lhs == rhs);
+}
+} // namespace Model
+} // namespace TrenchBroom

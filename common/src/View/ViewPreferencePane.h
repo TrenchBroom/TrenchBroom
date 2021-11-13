@@ -25,49 +25,50 @@ class QCheckBox;
 class QComboBox;
 
 namespace TrenchBroom {
-    namespace View {
-        class SliderWithLabel;
+namespace View {
+class SliderWithLabel;
 
-        class ViewPreferencePane : public PreferencePane {
-            Q_OBJECT
-        private:
-            QComboBox* m_layoutCombo;
-            SliderWithLabel* m_brightnessSlider;
-            SliderWithLabel* m_gridAlphaSlider;
-            SliderWithLabel* m_fovSlider;
-            QCheckBox* m_showAxes;
-            QComboBox* m_textureModeCombo;
-            QCheckBox* m_enableMsaa;
-            QComboBox* m_themeCombo;
-            QComboBox* m_textureBrowserIconSizeCombo;
-            QComboBox* m_rendererFontSizeCombo;
-        public:
-            explicit ViewPreferencePane(QWidget* parent = nullptr);
-       private:
-            void createGui();
-            QWidget* createViewPreferences();
+class ViewPreferencePane : public PreferencePane {
+  Q_OBJECT
+private:
+  QComboBox* m_layoutCombo;
+  SliderWithLabel* m_brightnessSlider;
+  SliderWithLabel* m_gridAlphaSlider;
+  SliderWithLabel* m_fovSlider;
+  QCheckBox* m_showAxes;
+  QComboBox* m_textureModeCombo;
+  QCheckBox* m_enableMsaa;
+  QComboBox* m_themeCombo;
+  QComboBox* m_textureBrowserIconSizeCombo;
+  QComboBox* m_rendererFontSizeCombo;
 
-            void bindEvents();
+public:
+  explicit ViewPreferencePane(QWidget* parent = nullptr);
 
-            bool doCanResetToDefaults() override;
-            void doResetToDefaults() override;
-            void doUpdateControls() override;
-            bool doValidate() override;
+private:
+  void createGui();
+  QWidget* createViewPreferences();
 
-            size_t findTextureMode(int minFilter, int magFilter) const;
-            int findThemeIndex(const QString& theme);
-        private slots:
-            void layoutChanged(int index);
-            void brightnessChanged(int value);
-            void gridAlphaChanged(int value);
-            void fovChanged(int value);
-            void showAxesChanged(int state);
-            void enableMsaaChanged(int state);
-            void textureModeChanged(int index);
-            void themeChanged(int index);
-            void textureBrowserIconSizeChanged(int index);
-            void rendererFontSizeChanged(const QString& text);
-        };
-    }
-}
+  void bindEvents();
 
+  bool doCanResetToDefaults() override;
+  void doResetToDefaults() override;
+  void doUpdateControls() override;
+  bool doValidate() override;
+
+  size_t findTextureMode(int minFilter, int magFilter) const;
+  int findThemeIndex(const QString& theme);
+private slots:
+  void layoutChanged(int index);
+  void brightnessChanged(int value);
+  void gridAlphaChanged(int value);
+  void fovChanged(int value);
+  void showAxesChanged(int state);
+  void enableMsaaChanged(int state);
+  void textureModeChanged(int index);
+  void themeChanged(int index);
+  void textureBrowserIconSizeChanged(int index);
+  void rendererFontSizeChanged(const QString& text);
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -28,35 +28,37 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        enum class LockState;
-        class Node;
-    }
+namespace Model {
+enum class LockState;
+class Node;
+} // namespace Model
 
-    namespace View {
-        class SetLockStateCommand : public UndoableCommand {
-        public:
-            static const CommandType Type;
-        private:
-            std::vector<Model::Node*> m_nodes;
-            Model::LockState m_lockState;
-            std::map<Model::Node*, Model::LockState> m_oldLockState;
-        public:
-            static std::unique_ptr<SetLockStateCommand> lock(const std::vector<Model::Node*>& nodes);
-            static std::unique_ptr<SetLockStateCommand> unlock(const std::vector<Model::Node*>& nodes);
-            static std::unique_ptr<SetLockStateCommand> reset(const std::vector<Model::Node*>& nodes);
+namespace View {
+class SetLockStateCommand : public UndoableCommand {
+public:
+  static const CommandType Type;
 
-            SetLockStateCommand(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
-        private:
-            static std::string makeName(Model::LockState lockState);
+private:
+  std::vector<Model::Node*> m_nodes;
+  Model::LockState m_lockState;
+  std::map<Model::Node*, Model::LockState> m_oldLockState;
 
-            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+public:
+  static std::unique_ptr<SetLockStateCommand> lock(const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SetLockStateCommand> unlock(const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SetLockStateCommand> reset(const std::vector<Model::Node*>& nodes);
 
-            bool doCollateWith(UndoableCommand* command) override;
+  SetLockStateCommand(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
 
-            deleteCopyAndMove(SetLockStateCommand)
-        };
-    }
-}
+private:
+  static std::string makeName(Model::LockState lockState);
 
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+
+  bool doCollateWith(UndoableCommand* command) override;
+
+  deleteCopyAndMove(SetLockStateCommand)
+};
+} // namespace View
+} // namespace TrenchBroom

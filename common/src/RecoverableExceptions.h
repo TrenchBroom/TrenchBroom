@@ -27,22 +27,23 @@
 #include <string_view>
 
 namespace TrenchBroom {
-    class RecoverableException : public Exception {
-    protected:
-        using Exception::Exception;
-    public:
-        virtual std::string_view query() const = 0;
-        virtual void recover() const = 0;
-    };
+class RecoverableException : public Exception {
+protected:
+  using Exception::Exception;
 
-    class FileDeletingException : public RecoverableException {
-    private:
-        IO::Path m_path;
-    public:
-        FileDeletingException(std::string&& str, const IO::Path& path);
+public:
+  virtual std::string_view query() const = 0;
+  virtual void recover() const = 0;
+};
 
-        std::string_view query() const override;
-        void recover() const override;
-    };
-}
+class FileDeletingException : public RecoverableException {
+private:
+  IO::Path m_path;
 
+public:
+  FileDeletingException(std::string&& str, const IO::Path& path);
+
+  std::string_view query() const override;
+  void recover() const override;
+};
+} // namespace TrenchBroom

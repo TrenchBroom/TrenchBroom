@@ -24,16 +24,16 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
+namespace IO {
+class Path;
 
-        class IdPakFileSystem : public ImageFileSystem {
-        public:
-            explicit IdPakFileSystem(const Path& path);
-            IdPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path);
-        private:
-            void doReadDirectory() override;
-        };
-    }
-}
+class IdPakFileSystem : public ImageFileSystem {
+public:
+  explicit IdPakFileSystem(const Path& path);
+  IdPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path);
 
+private:
+  void doReadDirectory() override;
+};
+} // namespace IO
+} // namespace TrenchBroom

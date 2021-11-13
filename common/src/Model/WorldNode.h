@@ -34,134 +34,155 @@
 #include <vector>
 
 namespace TrenchBroom {
-    template <typename T, size_t S, typename U> class AABBTree;
+template <typename T, size_t S, typename U> class AABBTree;
 
-    namespace Model {
-        class EntityNodeIndex;
-        enum class BrushError;
-        class BrushFace;
-        class IssueGeneratorRegistry;
-        class IssueQuickFix;
-        enum class MapFormat;
-        class PickResult;
+namespace Model {
+class EntityNodeIndex;
+enum class BrushError;
+class BrushFace;
+class IssueGeneratorRegistry;
+class IssueQuickFix;
+enum class MapFormat;
+class PickResult;
 
-        class WorldNode : public EntityNodeBase {
-        private:
-            EntityPropertyConfig m_entityPropertyConfig;
-            MapFormat m_mapFormat;
-            LayerNode* m_defaultLayer;
-            std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
-            std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
+class WorldNode : public EntityNodeBase {
+private:
+  EntityPropertyConfig m_entityPropertyConfig;
+  MapFormat m_mapFormat;
+  LayerNode* m_defaultLayer;
+  std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
+  std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
-            using NodeTree = AABBTree<FloatType, 3, Node*>;
-            std::unique_ptr<NodeTree> m_nodeTree;
-            bool m_updateNodeTree;
+  using NodeTree = AABBTree<FloatType, 3, Node*>;
+  std::unique_ptr<NodeTree> m_nodeTree;
+  bool m_updateNodeTree;
 
-            IdType m_nextPersistentId = 1;
-        public:
-            WorldNode(EntityPropertyConfig entityPropertyConfig, Entity entity, MapFormat mapFormat);
-            WorldNode(EntityPropertyConfig entityPropertyConfig, std::initializer_list<EntityProperty> properties, MapFormat mapFormat);
-            ~WorldNode() override;
+  IdType m_nextPersistentId = 1;
 
-            MapFormat mapFormat() const;
+public:
+  WorldNode(EntityPropertyConfig entityPropertyConfig, Entity entity, MapFormat mapFormat);
+  WorldNode(
+    EntityPropertyConfig entityPropertyConfig, std::initializer_list<EntityProperty> properties,
+    MapFormat mapFormat);
+  ~WorldNode() override;
 
-            const NodeTree& nodeTree() const;
-        public: // layer management
-            LayerNode* defaultLayer();
+  MapFormat mapFormat() const;
 
-            const LayerNode* defaultLayer() const;
+  const NodeTree& nodeTree() const;
 
-            /**
-             * Returns defaultLayer() plus customLayers()
-             */
-            std::vector<LayerNode*> allLayers();
+public: // layer management
+  LayerNode* defaultLayer();
 
-            /**
-             * Returns defaultLayer() plus customLayers()
-             */
-            std::vector<const LayerNode*> allLayers() const;
+  const LayerNode* defaultLayer() const;
 
-            /**
-             * Returns the custom layers in file order
-             */
-            std::vector<LayerNode*> customLayers();
+  /**
+   * Returns defaultLayer() plus customLayers()
+   */
+  std::vector<LayerNode*> allLayers();
 
-            /**
-             * Returns the custom layers in file order
-             */
-            std::vector<const LayerNode*> customLayers() const;
+  /**
+   * Returns defaultLayer() plus customLayers()
+   */
+  std::vector<const LayerNode*> allLayers() const;
 
-            /**
-             * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer is always first.
-             */
-            std::vector<LayerNode*> allLayersUserSorted();
+  /**
+   * Returns the custom layers in file order
+   */
+  std::vector<LayerNode*> customLayers();
 
-            /**
-             * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer is always first.
-             */
-            std::vector<const LayerNode*> allLayersUserSorted() const;
+  /**
+   * Returns the custom layers in file order
+   */
+  std::vector<const LayerNode*> customLayers() const;
 
-            /**
-             * Returns customLayers() ordered by LayerNode::sortIndex()
-             */
-            std::vector<LayerNode*> customLayersUserSorted();
+  /**
+   * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer
+   * is always first.
+   */
+  std::vector<LayerNode*> allLayersUserSorted();
 
-            /**
-             * Returns customLayers() ordered by LayerNode::sortIndex()
-             */
-            std::vector<const LayerNode*> customLayersUserSorted() const;
-        private:
-            void createDefaultLayer();
-        public: // index
-            const EntityNodeIndex& entityNodeIndex() const;
-        public: // selection
-            // issue generator registration
-            const std::vector<IssueGenerator*>& registeredIssueGenerators() const;
-            std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
-            void registerIssueGenerator(IssueGenerator* issueGenerator);
-            void unregisterAllIssueGenerators();
-        public: // node tree bulk updating
-            void disableNodeTreeUpdates();
-            void enableNodeTreeUpdates();
-            void rebuildNodeTree();
-        private:
-            void invalidateAllIssues();
-        private: // implement Node interface
-            const vm::bbox3& doGetLogicalBounds() const override;
-            const vm::bbox3& doGetPhysicalBounds() const override;
-            FloatType doGetProjectedArea(vm::axis::type axis) const override;
-            Node* doClone(const vm::bbox3& worldBounds) const override;
-            Node* doCloneRecursively(const vm::bbox3& worldBounds) const override;
-            bool doCanAddChild(const Node* child) const override;
-            bool doCanRemoveChild(const Node* child) const override;
-            bool doRemoveIfEmpty() const override;
-            bool doShouldAddToSpacialIndex() const override;
+  /**
+   * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer
+   * is always first.
+   */
+  std::vector<const LayerNode*> allLayersUserSorted() const;
 
-            void doDescendantWasAdded(Node* node, size_t depth) override;
-            void doDescendantWillBeRemoved(Node* node, size_t depth) override;
-            void doDescendantPhysicalBoundsDidChange(Node* node) override;
+  /**
+   * Returns customLayers() ordered by LayerNode::sortIndex()
+   */
+  std::vector<LayerNode*> customLayersUserSorted();
 
-            bool doSelectable() const override;
-            void doPick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
-            void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
-            void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
-            void doAccept(NodeVisitor& visitor) override;
-            void doAccept(ConstNodeVisitor& visitor) const override;
-            const EntityPropertyConfig& doGetEntityPropertyConfig() const override;
-            void doFindEntityNodesWithProperty(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
-            void doFindEntityNodesWithNumberedProperty(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
-            void doAddToIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
-            void doRemoveFromIndex(EntityNodeBase* node, const std::string& key, const std::string& value) override;
-        private: // implement EntityNodeBase interface
-            void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
-            vm::vec3 doGetLinkSourceAnchor() const override;
-            vm::vec3 doGetLinkTargetAnchor() const override;
-        private: // implement Taggable interface
-            void doAcceptTagVisitor(TagVisitor& visitor) override;
-            void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
-        private:
-            deleteCopyAndMove(WorldNode)
-        };
-    }
-}
+  /**
+   * Returns customLayers() ordered by LayerNode::sortIndex()
+   */
+  std::vector<const LayerNode*> customLayersUserSorted() const;
 
+private:
+  void createDefaultLayer();
+
+public: // index
+  const EntityNodeIndex& entityNodeIndex() const;
+
+public: // selection
+  // issue generator registration
+  const std::vector<IssueGenerator*>& registeredIssueGenerators() const;
+  std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
+  void registerIssueGenerator(IssueGenerator* issueGenerator);
+  void unregisterAllIssueGenerators();
+
+public: // node tree bulk updating
+  void disableNodeTreeUpdates();
+  void enableNodeTreeUpdates();
+  void rebuildNodeTree();
+
+private:
+  void invalidateAllIssues();
+
+private: // implement Node interface
+  const vm::bbox3& doGetLogicalBounds() const override;
+  const vm::bbox3& doGetPhysicalBounds() const override;
+  FloatType doGetProjectedArea(vm::axis::type axis) const override;
+  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doCloneRecursively(const vm::bbox3& worldBounds) const override;
+  bool doCanAddChild(const Node* child) const override;
+  bool doCanRemoveChild(const Node* child) const override;
+  bool doRemoveIfEmpty() const override;
+  bool doShouldAddToSpacialIndex() const override;
+
+  void doDescendantWasAdded(Node* node, size_t depth) override;
+  void doDescendantWillBeRemoved(Node* node, size_t depth) override;
+  void doDescendantPhysicalBoundsDidChange(Node* node) override;
+
+  bool doSelectable() const override;
+  void doPick(
+    const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
+  void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
+  void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
+  void doAccept(NodeVisitor& visitor) override;
+  void doAccept(ConstNodeVisitor& visitor) const override;
+  const EntityPropertyConfig& doGetEntityPropertyConfig() const override;
+  void doFindEntityNodesWithProperty(
+    const std::string& name, const std::string& value,
+    std::vector<EntityNodeBase*>& result) const override;
+  void doFindEntityNodesWithNumberedProperty(
+    const std::string& prefix, const std::string& value,
+    std::vector<EntityNodeBase*>& result) const override;
+  void doAddToIndex(
+    EntityNodeBase* node, const std::string& key, const std::string& value) override;
+  void doRemoveFromIndex(
+    EntityNodeBase* node, const std::string& key, const std::string& value) override;
+
+private: // implement EntityNodeBase interface
+  void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
+  vm::vec3 doGetLinkSourceAnchor() const override;
+  vm::vec3 doGetLinkTargetAnchor() const override;
+
+private: // implement Taggable interface
+  void doAcceptTagVisitor(TagVisitor& visitor) override;
+  void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
+
+private:
+  deleteCopyAndMove(WorldNode)
+};
+} // namespace Model
+} // namespace TrenchBroom

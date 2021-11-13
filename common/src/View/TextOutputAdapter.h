@@ -26,35 +26,35 @@
 class QTextEdit;
 
 namespace TrenchBroom {
-    namespace View {
-        /**
-         * Helper for displaying the output of a command line tool in QTextEdit.
-         *
-         * - Interprets CR and LF control characters.
-         * - Scroll bar follows output, unless it's manually raised.
-         */
-        class TextOutputAdapter {
-        private:
-            QTextEdit* m_textEdit;
-            QTextCursor m_insertionCursor;
-        public:
-            explicit TextOutputAdapter(QTextEdit* textEdit);
+namespace View {
+/**
+ * Helper for displaying the output of a command line tool in QTextEdit.
+ *
+ * - Interprets CR and LF control characters.
+ * - Scroll bar follows output, unless it's manually raised.
+ */
+class TextOutputAdapter {
+private:
+  QTextEdit* m_textEdit;
+  QTextCursor m_insertionCursor;
 
-            /**
-             * Appends the given value to the text widget.
-             * Objects are formatted using QTextStream.
-             */
-            template <typename T>
-            TextOutputAdapter& operator<<(const T& t) {
-                QString string;
-                QTextStream stream(&string);
-                stream << t;
-                appendString(string);
-                return *this;
-            }
-        private:
-            void appendString(const QString& string);
-        };
-    }
-}
+public:
+  explicit TextOutputAdapter(QTextEdit* textEdit);
 
+  /**
+   * Appends the given value to the text widget.
+   * Objects are formatted using QTextStream.
+   */
+  template <typename T> TextOutputAdapter& operator<<(const T& t) {
+    QString string;
+    QTextStream stream(&string);
+    stream << t;
+    appendString(string);
+    return *this;
+  }
+
+private:
+  void appendString(const QString& string);
+};
+} // namespace View
+} // namespace TrenchBroom

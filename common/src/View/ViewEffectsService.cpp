@@ -20,11 +20,11 @@
 #include "ViewEffectsService.h"
 
 namespace TrenchBroom {
-    namespace View {
-        ViewEffectsService::~ViewEffectsService() {}
+namespace View {
+ViewEffectsService::~ViewEffectsService() {}
 
-        void ViewEffectsService::flashSelection() {
-            doFlashSelection();
-        }
-    }
+void ViewEffectsService::flashSelection() {
+  doFlashSelection();
 }
+} // namespace View
+} // namespace TrenchBroom

@@ -19,8 +19,8 @@
 
 #include "CompilationConfigWriter.h"
 
-#include "EL/Value.h"
 #include "EL/Types.h"
+#include "EL/Value.h"
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
@@ -29,81 +29,85 @@
 #include <ostream>
 
 namespace TrenchBroom {
-    namespace IO {
-        CompilationConfigWriter::CompilationConfigWriter(const Model::CompilationConfig& config, std::ostream& stream) :
-        m_config(config),
-        m_stream(stream) {
-            assert(!m_stream.bad());
-        }
-
-        void CompilationConfigWriter::writeConfig() {
-            EL::MapType map;
-            map["version"] = EL::Value(1.0);
-            map["profiles"] = writeProfiles(m_config);
-            m_stream << EL::Value(std::move(map)) << "\n";
-        }
-
-        EL::Value CompilationConfigWriter::writeProfiles(const Model::CompilationConfig& config) const {
-            EL::ArrayType array;
-            for (size_t i = 0; i < config.profileCount(); ++i) {
-                const Model::CompilationProfile* profile = config.profile(i);
-                array.push_back(writeProfile(profile));
-            }
-
-            return EL::Value(std::move(array));
-        }
-
-        EL::Value CompilationConfigWriter::writeProfile(const Model::CompilationProfile* profile) const {
-            EL::MapType map;
-            map["name"] = EL::Value(profile->name());
-            map["workdir"] = EL::Value(profile->workDirSpec());
-            map["tasks"] = writeTasks(profile);
-            return EL::Value(std::move(map));
-        }
-
-        class CompilationConfigWriter::WriteCompilationTaskVisitor : public Model::ConstCompilationTaskVisitor {
-        private:
-            EL::ArrayType m_array;
-        public:
-            EL::Value result() const { return EL::Value(m_array); }
-        public:
-            void visit(const Model::CompilationExportMap& task) override {
-                EL::MapType map;
-                if (!task.enabled()) {
-                    map["enabled"] = EL::Value(false);
-                }
-                map["type"] = EL::Value("export");
-                map["target"] = EL::Value(task.targetSpec());
-                m_array.push_back(EL::Value(std::move(map)));
-            }
-
-            void visit(const Model::CompilationCopyFiles& task) override {
-                EL::MapType map;
-                if (!task.enabled()) {
-                    map["enabled"] = EL::Value(false);
-                }
-                map["type"] = EL::Value("copy");
-                map["source"] = EL::Value(task.sourceSpec());
-                map["target"] = EL::Value(task.targetSpec());
-                m_array.push_back(EL::Value(std::move(map)));
-            }
-
-            void visit(const Model::CompilationRunTool& task) override {
-                EL::MapType map;
-                if (!task.enabled()) {
-                    map["enabled"] = EL::Value(false);
-                }
-                map["type"] = EL::Value("tool");
-                map["tool"] = EL::Value(task.toolSpec());
-                map["parameters"] = EL::Value(task.parameterSpec());
-                m_array.push_back(EL::Value(std::move(map)));
-            }
-        };
-
-        EL::Value CompilationConfigWriter::writeTasks(const Model::CompilationProfile* profile) const {
-            WriteCompilationTaskVisitor visitor;
-            profile->accept(visitor);
-            return visitor.result();
-        }
-    }
+namespace IO {
+CompilationConfigWriter::CompilationConfigWriter(
+  const Model::CompilationConfig& config, std::ostream& stream)
+  : m_config(config)
+  , m_stream(stream) {
+  assert(!m_stream.bad());
 }
+
+void CompilationConfigWriter::writeConfig() {
+  EL::MapType map;
+  map["version"] = EL::Value(1.0);
+  map["profiles"] = writeProfiles(m_config);
+  m_stream << EL::Value(std::move(map)) << "\n";
+}
+
+EL::Value CompilationConfigWriter::writeProfiles(const Model::CompilationConfig& config) const {
+  EL::ArrayType array;
+  for (size_t i = 0; i < config.profileCount(); ++i) {
+    const Model::CompilationProfile* profile = config.profile(i);
+    array.push_back(writeProfile(profile));
+  }
+
+  return EL::Value(std::move(array));
+}
+
+EL::Value CompilationConfigWriter::writeProfile(const Model::CompilationProfile* profile) const {
+  EL::MapType map;
+  map["name"] = EL::Value(profile->name());
+  map["workdir"] = EL::Value(profile->workDirSpec());
+  map["tasks"] = writeTasks(profile);
+  return EL::Value(std::move(map));
+}
+
+class CompilationConfigWriter::WriteCompilationTaskVisitor
+  : public Model::ConstCompilationTaskVisitor {
+private:
+  EL::ArrayType m_array;
+
+public:
+  EL::Value result() const { return EL::Value(m_array); }
+
+public:
+  void visit(const Model::CompilationExportMap& task) override {
+    EL::MapType map;
+    if (!task.enabled()) {
+      map["enabled"] = EL::Value(false);
+    }
+    map["type"] = EL::Value("export");
+    map["target"] = EL::Value(task.targetSpec());
+    m_array.push_back(EL::Value(std::move(map)));
+  }
+
+  void visit(const Model::CompilationCopyFiles& task) override {
+    EL::MapType map;
+    if (!task.enabled()) {
+      map["enabled"] = EL::Value(false);
+    }
+    map["type"] = EL::Value("copy");
+    map["source"] = EL::Value(task.sourceSpec());
+    map["target"] = EL::Value(task.targetSpec());
+    m_array.push_back(EL::Value(std::move(map)));
+  }
+
+  void visit(const Model::CompilationRunTool& task) override {
+    EL::MapType map;
+    if (!task.enabled()) {
+      map["enabled"] = EL::Value(false);
+    }
+    map["type"] = EL::Value("tool");
+    map["tool"] = EL::Value(task.toolSpec());
+    map["parameters"] = EL::Value(task.parameterSpec());
+    m_array.push_back(EL::Value(std::move(map)));
+  }
+};
+
+EL::Value CompilationConfigWriter::writeTasks(const Model::CompilationProfile* profile) const {
+  WriteCompilationTaskVisitor visitor;
+  profile->accept(visitor);
+  return visitor.result();
+}
+} // namespace IO
+} // namespace TrenchBroom

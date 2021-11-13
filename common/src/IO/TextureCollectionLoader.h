@@ -22,54 +22,70 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <string>
 
 namespace TrenchBroom {
-    class Logger;
+class Logger;
 
-    namespace Assets {
-        class TextureCollection;
-    }
-
-    namespace IO {
-        class File;
-        class FileSystem;
-        class Path;
-        class TextureReader;
-
-        class TextureCollectionLoader {
-        protected:
-            using FileList = std::vector<std::shared_ptr<File>>;
-        protected:
-            Logger& m_logger;
-            const std::vector<std::string> m_textureExclusions;
-        protected:
-            explicit TextureCollectionLoader(Logger& logger, const std::vector<std::string>& exclusions);
-        public:
-            virtual ~TextureCollectionLoader();
-        public:
-            virtual Assets::TextureCollection loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) = 0;
-        protected:
-            bool shouldExclude(const std::string& textureName);
-        };
-
-        class FileTextureCollectionLoader : public TextureCollectionLoader {
-        private:
-            const std::vector<Path> m_searchPaths;
-        public:
-            FileTextureCollectionLoader(Logger& logger, const std::vector<Path>& searchPaths, const std::vector<std::string>& exclusions);
-        private:
-            Assets::TextureCollection loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
-        };
-
-        class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
-        private:
-            const FileSystem& m_gameFS;
-        public:
-            DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS, const std::vector<std::string>& exclusions);
-        private:
-            Assets::TextureCollection loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
-        };
-    }
+namespace Assets {
+class TextureCollection;
 }
 
+namespace IO {
+class File;
+class FileSystem;
+class Path;
+class TextureReader;
+
+class TextureCollectionLoader {
+protected:
+  using FileList = std::vector<std::shared_ptr<File>>;
+
+protected:
+  Logger& m_logger;
+  const std::vector<std::string> m_textureExclusions;
+
+protected:
+  explicit TextureCollectionLoader(Logger& logger, const std::vector<std::string>& exclusions);
+
+public:
+  virtual ~TextureCollectionLoader();
+
+public:
+  virtual Assets::TextureCollection loadTextureCollection(
+    const Path& path, const std::vector<std::string>& textureExtensions,
+    const TextureReader& textureReader) = 0;
+
+protected:
+  bool shouldExclude(const std::string& textureName);
+};
+
+class FileTextureCollectionLoader : public TextureCollectionLoader {
+private:
+  const std::vector<Path> m_searchPaths;
+
+public:
+  FileTextureCollectionLoader(
+    Logger& logger, const std::vector<Path>& searchPaths,
+    const std::vector<std::string>& exclusions);
+
+private:
+  Assets::TextureCollection loadTextureCollection(
+    const Path& path, const std::vector<std::string>& textureExtensions,
+    const TextureReader& textureReader);
+};
+
+class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
+private:
+  const FileSystem& m_gameFS;
+
+public:
+  DirectoryTextureCollectionLoader(
+    Logger& logger, const FileSystem& gameFS, const std::vector<std::string>& exclusions);
+
+private:
+  Assets::TextureCollection loadTextureCollection(
+    const Path& path, const std::vector<std::string>& textureExtensions,
+    const TextureReader& textureReader);
+};
+} // namespace IO
+} // namespace TrenchBroom

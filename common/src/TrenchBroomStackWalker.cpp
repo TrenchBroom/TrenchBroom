@@ -29,85 +29,81 @@
 #include "TrenchBroomStackWalker.h"
 
 #include <cstdlib>
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
 #ifdef _WIN32
 #ifdef _MSC_VER
 
-    // use https://stackwalker.codeplex.com/
-    class TBStackWalker : public StackWalker {
-    public:
-        std::stringstream m_string;
-        TBStackWalker() : StackWalker() {}
-        void clear() {
-            m_string.str("");
-        }
-        std::string asString() {
-            return m_string.str();
-        }
-    protected:
-      virtual void OnOutput(LPCSTR szText) {
-          m_string << szText;
-      }
-    };
+// use https://stackwalker.codeplex.com/
+class TBStackWalker : public StackWalker {
+public:
+  std::stringstream m_string;
+  TBStackWalker()
+    : StackWalker() {}
+  void clear() { m_string.str(""); }
+  std::string asString() { return m_string.str(); }
 
-    static QMutex s_stackWalkerMutex;
-    static TBStackWalker *s_stackWalker;
+protected:
+  virtual void OnOutput(LPCSTR szText) { m_string << szText; }
+};
 
-    static std::string getStackTraceInternal(CONTEXT *context) {
-        // StackWalker is not threadsafe so acquire a mutex
-        QMutexLocker lock(&s_stackWalkerMutex);
+static QMutex s_stackWalkerMutex;
+static TBStackWalker* s_stackWalker;
 
-        if (s_stackWalker == nullptr) {
-            // create a shared instance on first use
-            s_stackWalker = new TBStackWalker();
-        }
-        s_stackWalker->clear();
-        if (context == nullptr) {
-            // get the current call stack
-            s_stackWalker->ShowCallstack();
-        } else {
-            // get the call stack of the exception.
-            // see: http://www.codeproject.com/Articles/11132/Walking-the-callstack
-            s_stackWalker->ShowCallstack(GetCurrentThread(), context);
-        }
-        return s_stackWalker->asString();
-    }
+static std::string getStackTraceInternal(CONTEXT* context) {
+  // StackWalker is not threadsafe so acquire a mutex
+  QMutexLocker lock(&s_stackWalkerMutex);
 
-    std::string TrenchBroomStackWalker::getStackTrace() {
-        return getStackTraceInternal(nullptr);
-    }
-
-    std::string TrenchBroomStackWalker::getStackTraceFromContext(void *context) {
-        return getStackTraceInternal(static_cast<CONTEXT *>(context));
-    }
-#else
-    // TODO: not sure what to use on mingw
-    std::string TrenchBroomStackWalker::getStackTrace() {
-        return "";
-    }
-#endif
-#else
-    std::string TrenchBroomStackWalker::getStackTrace() {
-        const int MaxDepth = 256;
-        void *callstack[MaxDepth];
-        const int frames = backtrace(callstack, MaxDepth);
-
-        // copy into a vector
-        std::vector<void *> framesVec(callstack, callstack + frames);
-        if (framesVec.empty())
-            return "";
-
-        std::stringstream ss;
-        char **strs = backtrace_symbols(&framesVec.front(), static_cast<int>(framesVec.size()));
-        for (size_t i = 0; i < framesVec.size(); i++) {
-            ss << strs[i] << std::endl;
-        }
-        free(strs);
-        return ss.str();
-    }
-#endif
+  if (s_stackWalker == nullptr) {
+    // create a shared instance on first use
+    s_stackWalker = new TBStackWalker();
+  }
+  s_stackWalker->clear();
+  if (context == nullptr) {
+    // get the current call stack
+    s_stackWalker->ShowCallstack();
+  } else {
+    // get the call stack of the exception.
+    // see: http://www.codeproject.com/Articles/11132/Walking-the-callstack
+    s_stackWalker->ShowCallstack(GetCurrentThread(), context);
+  }
+  return s_stackWalker->asString();
 }
+
+std::string TrenchBroomStackWalker::getStackTrace() {
+  return getStackTraceInternal(nullptr);
+}
+
+std::string TrenchBroomStackWalker::getStackTraceFromContext(void* context) {
+  return getStackTraceInternal(static_cast<CONTEXT*>(context));
+}
+#else
+// TODO: not sure what to use on mingw
+std::string TrenchBroomStackWalker::getStackTrace() {
+  return "";
+}
+#endif
+#else
+std::string TrenchBroomStackWalker::getStackTrace() {
+  const int MaxDepth = 256;
+  void* callstack[MaxDepth];
+  const int frames = backtrace(callstack, MaxDepth);
+
+  // copy into a vector
+  std::vector<void*> framesVec(callstack, callstack + frames);
+  if (framesVec.empty())
+    return "";
+
+  std::stringstream ss;
+  char** strs = backtrace_symbols(&framesVec.front(), static_cast<int>(framesVec.size()));
+  for (size_t i = 0; i < framesVec.size(); i++) {
+    ss << strs[i] << std::endl;
+  }
+  free(strs);
+  return ss.str();
+}
+#endif
+} // namespace TrenchBroom

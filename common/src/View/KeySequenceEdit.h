@@ -25,28 +25,28 @@ class QKeySequence;
 class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace View {
-        class LimitedKeySequenceEdit;
+namespace View {
+class LimitedKeySequenceEdit;
 
-        class KeySequenceEdit : public QWidget {
-            Q_OBJECT
-            Q_PROPERTY(QKeySequence keySequence READ keySequence WRITE setKeySequence NOTIFY keySequenceChanged USER true)
-        private:
-            LimitedKeySequenceEdit* m_keySequenceEdit;
-            QAbstractButton* m_clearButton;
-        public:
-            explicit KeySequenceEdit(QWidget* parent = nullptr);
-            explicit KeySequenceEdit(size_t maxCount, QWidget* parent = nullptr);
+class KeySequenceEdit : public QWidget {
+  Q_OBJECT
+  Q_PROPERTY(QKeySequence keySequence READ keySequence WRITE setKeySequence NOTIFY
+               keySequenceChanged USER true)
+private:
+  LimitedKeySequenceEdit* m_keySequenceEdit;
+  QAbstractButton* m_clearButton;
 
-            const QKeySequence keySequence() const;
-        public slots:
-            void setKeySequence(const QKeySequence& keySequence);
-            void clear();
-        signals:
-            void editingFinished();
-            void keySequenceChanged(const QKeySequence &keySequence);
-        };
-    }
-}
+public:
+  explicit KeySequenceEdit(QWidget* parent = nullptr);
+  explicit KeySequenceEdit(size_t maxCount, QWidget* parent = nullptr);
 
-
+  const QKeySequence keySequence() const;
+public slots:
+  void setKeySequence(const QKeySequence& keySequence);
+  void clear();
+signals:
+  void editingFinished();
+  void keySequenceChanged(const QKeySequence& keySequence);
+};
+} // namespace View
+} // namespace TrenchBroom

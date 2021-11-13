@@ -17,13 +17,12 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "Preference.h"
 
 namespace TrenchBroom {
-    PrefSerializer::~PrefSerializer() {}
+PrefSerializer::~PrefSerializer() {}
 
-    PreferenceBase::~PreferenceBase() {}
+PreferenceBase::~PreferenceBase() {}
 
-    DynamicPreferencePatternBase::~DynamicPreferencePatternBase() {}
-}
+DynamicPreferencePatternBase::~DynamicPreferencePatternBase() {}
+} // namespace TrenchBroom

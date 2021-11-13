@@ -28,51 +28,52 @@
 #include <any>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Hit {
-        public:
-            static const Hit NoHit;
-        private:
-            HitType::Type m_type;
-            FloatType m_distance;
-            vm::vec3 m_hitPoint;
-            std::any m_target;
-            FloatType m_error;
-        public:
-            template <typename T>
-            Hit(const HitType::Type type, const FloatType distance, const vm::vec3& hitPoint, const T& target, const FloatType error = 0.0) :
-            m_type(type),
-            m_distance(distance),
-            m_hitPoint(hitPoint),
-            m_target(target),
-            m_error(error) {}
+namespace Model {
+class Hit {
+public:
+  static const Hit NoHit;
 
-            // TODO: rename to create
-            template <typename T>
-            static Hit hit(const HitType::Type type, const FloatType distance, const vm::vec3& hitPoint, const T& target, const FloatType error = 0.0) {
-                unused(error);
-                return Hit(type, distance, hitPoint, target);
-            }
+private:
+  HitType::Type m_type;
+  FloatType m_distance;
+  vm::vec3 m_hitPoint;
+  std::any m_target;
+  FloatType m_error;
 
-            bool isMatch() const;
-            HitType::Type type() const;
-            bool hasType(HitType::Type typeMask) const;
-            FloatType distance() const;
-            const vm::vec3& hitPoint() const;
-            FloatType error() const;
+public:
+  template <typename T>
+  Hit(
+    const HitType::Type type, const FloatType distance, const vm::vec3& hitPoint, const T& target,
+    const FloatType error = 0.0)
+    : m_type(type)
+    , m_distance(distance)
+    , m_hitPoint(hitPoint)
+    , m_target(target)
+    , m_error(error) {}
 
-            template <typename T>
-            T target() const {
-                return std::any_cast<T>(m_target);
-            }
-        };
+  // TODO: rename to create
+  template <typename T>
+  static Hit hit(
+    const HitType::Type type, const FloatType distance, const vm::vec3& hitPoint, const T& target,
+    const FloatType error = 0.0) {
+    unused(error);
+    return Hit(type, distance, hitPoint, target);
+  }
 
-        Hit selectClosest(const Hit& first, const Hit& second);
+  bool isMatch() const;
+  HitType::Type type() const;
+  bool hasType(HitType::Type typeMask) const;
+  FloatType distance() const;
+  const vm::vec3& hitPoint() const;
+  FloatType error() const;
 
-        template <typename... Hits>
-        Hit selectClosest(const Hit& first, const Hits&... rest) {
-            return selectClosest(first, selectClosest(rest...));
-        }
-    }
+  template <typename T> T target() const { return std::any_cast<T>(m_target); }
+};
+
+Hit selectClosest(const Hit& first, const Hit& second);
+
+template <typename... Hits> Hit selectClosest(const Hit& first, const Hits&... rest) {
+  return selectClosest(first, selectClosest(rest...));
 }
-
+} // namespace Model
+} // namespace TrenchBroom

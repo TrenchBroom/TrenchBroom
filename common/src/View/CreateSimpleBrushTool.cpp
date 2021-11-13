@@ -25,31 +25,33 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushError.h"
 #include "Model/BrushNode.h"
-#include "Model/WorldNode.h"
 #include "Model/Game.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/result.h>
 
 namespace TrenchBroom {
-    namespace View {
-        CreateSimpleBrushTool::CreateSimpleBrushTool(std::weak_ptr<MapDocument> document) :
-        CreateBrushToolBase(true, document) {}
+namespace View {
+CreateSimpleBrushTool::CreateSimpleBrushTool(std::weak_ptr<MapDocument> document)
+  : CreateBrushToolBase(true, document) {}
 
-        void CreateSimpleBrushTool::update(const vm::bbox3& bounds) {
-            auto document = kdl::mem_lock(m_document);
-            const auto game = document->game();
-            const auto builder = Model::BrushBuilder(document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
+void CreateSimpleBrushTool::update(const vm::bbox3& bounds) {
+  auto document = kdl::mem_lock(m_document);
+  const auto game = document->game();
+  const auto builder = Model::BrushBuilder(
+    document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
 
-            builder.createCuboid(bounds, document->currentTextureName())
-                .and_then([&](Model::Brush&& b) {
-                    updateBrush(new Model::BrushNode(std::move(b)));
-                }).handle_errors([&](const Model::BrushError e) {
-                    updateBrush(nullptr);
-                    document->error() << "Could not update brush: " << e;
-                });
-        }
-
-    }
+  builder.createCuboid(bounds, document->currentTextureName())
+    .and_then([&](Model::Brush&& b) {
+      updateBrush(new Model::BrushNode(std::move(b)));
+    })
+    .handle_errors([&](const Model::BrushError e) {
+      updateBrush(nullptr);
+      document->error() << "Could not update brush: " << e;
+    });
 }
+
+} // namespace View
+} // namespace TrenchBroom

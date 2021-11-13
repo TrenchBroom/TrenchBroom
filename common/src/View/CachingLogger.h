@@ -27,29 +27,30 @@
 #include <QString>
 
 namespace TrenchBroom {
-    namespace View {
-        class CachingLogger : public Logger {
-        private:
-            struct Message {
-            public:
-                LogLevel level;
-                QString str;
+namespace View {
+class CachingLogger : public Logger {
+private:
+  struct Message {
+  public:
+    LogLevel level;
+    QString str;
 
-                Message(LogLevel i_level, const QString& i_str);
-            };
+    Message(LogLevel i_level, const QString& i_str);
+  };
 
-            using MessageList = std::vector<Message>;
+  using MessageList = std::vector<Message>;
 
-            MessageList m_cachedMessages;
-            Logger* m_logger;
-        public:
-            CachingLogger();
+  MessageList m_cachedMessages;
+  Logger* m_logger;
 
-            void setParentLogger(Logger* logger);
-        private:
-            void doLog(LogLevel level, const std::string& message) override;
-            void doLog(LogLevel level, const QString& message) override;
-        };
-    }
-}
+public:
+  CachingLogger();
 
+  void setParentLogger(Logger* logger);
+
+private:
+  void doLog(LogLevel level, const std::string& message) override;
+  void doLog(LogLevel level, const QString& message) override;
+};
+} // namespace View
+} // namespace TrenchBroom

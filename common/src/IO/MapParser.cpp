@@ -25,7 +25,7 @@
 #include <list>
 
 namespace TrenchBroom {
-    namespace IO {
-        MapParser::~MapParser() = default;
-    }
+namespace IO {
+MapParser::~MapParser() = default;
 }
+} // namespace TrenchBroom

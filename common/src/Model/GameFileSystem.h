@@ -25,35 +25,41 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class Logger;
+class Logger;
 
-    namespace IO {
-        class Path;
-        class Quake3ShaderFileSystem;
-    }
+namespace IO {
+class Path;
+class Quake3ShaderFileSystem;
+} // namespace IO
 
-    namespace Model {
-        struct GameConfig;
+namespace Model {
+struct GameConfig;
 
-        class GameFileSystem : public IO::FileSystem {
-        private:
-            IO::Quake3ShaderFileSystem* m_shaderFS;
-        public:
-            GameFileSystem();
-            void initialize(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
-            void reloadShaders();
-        private:
-            void addDefaultAssetPaths(const GameConfig& config, Logger& logger);
-            void addGameFileSystems(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
-            void addShaderFileSystem(const GameConfig& config, Logger& logger);
-            void addFileSystemPath(const IO::Path& path, Logger& logger);
-            void addFileSystemPackages(const GameConfig& config, const IO::Path& searchPath, Logger& logger);
-        private:
-            bool doDirectoryExists(const IO::Path& path) const override;
-            bool doFileExists(const IO::Path& path) const override;
-            std::vector<IO::Path> doGetDirectoryContents(const IO::Path& path) const override;
-            std::shared_ptr<IO::File> doOpenFile(const IO::Path& path) const override;
-        };
-    }
-}
+class GameFileSystem : public IO::FileSystem {
+private:
+  IO::Quake3ShaderFileSystem* m_shaderFS;
 
+public:
+  GameFileSystem();
+  void initialize(
+    const GameConfig& config, const IO::Path& gamePath,
+    const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
+  void reloadShaders();
+
+private:
+  void addDefaultAssetPaths(const GameConfig& config, Logger& logger);
+  void addGameFileSystems(
+    const GameConfig& config, const IO::Path& gamePath,
+    const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
+  void addShaderFileSystem(const GameConfig& config, Logger& logger);
+  void addFileSystemPath(const IO::Path& path, Logger& logger);
+  void addFileSystemPackages(const GameConfig& config, const IO::Path& searchPath, Logger& logger);
+
+private:
+  bool doDirectoryExists(const IO::Path& path) const override;
+  bool doFileExists(const IO::Path& path) const override;
+  std::vector<IO::Path> doGetDirectoryContents(const IO::Path& path) const override;
+  std::shared_ptr<IO::File> doOpenFile(const IO::Path& path) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

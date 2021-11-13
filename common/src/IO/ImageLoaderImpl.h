@@ -26,46 +26,48 @@
 #include <FreeImage.h>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
+namespace IO {
+class Path;
 
-        class InitFreeImage {
-        private:
-            InitFreeImage();
-            ~InitFreeImage();
-        public:
-            static void initialize();
-        };
+class InitFreeImage {
+private:
+  InitFreeImage();
+  ~InitFreeImage();
 
-        class ImageLoaderImpl {
-        private:
-            FIMEMORY* m_stream;
-            FIBITMAP* m_bitmap;
-        public:
-            ImageLoaderImpl(const ImageLoader::Format format, const Path& path);
-            ImageLoaderImpl(const ImageLoader::Format format, const char* begin, const char* end);
-            ~ImageLoaderImpl();
+public:
+  static void initialize();
+};
 
-            size_t paletteSize() const;
-            size_t bitsPerPixel() const;
-            size_t width() const;
-            size_t height() const;
-            size_t byteWidth() const;
-            size_t scanWidth() const;
+class ImageLoaderImpl {
+private:
+  FIMEMORY* m_stream;
+  FIBITMAP* m_bitmap;
 
-            bool hasPalette() const;
-            bool hasIndices() const;
-            bool hasPixels() const;
+public:
+  ImageLoaderImpl(const ImageLoader::Format format, const Path& path);
+  ImageLoaderImpl(const ImageLoader::Format format, const char* begin, const char* end);
+  ~ImageLoaderImpl();
 
-            std::vector<unsigned char> loadPalette() const;
-            std::vector<unsigned char> loadIndices() const;
-            std::vector<unsigned char> loadPixels(const ImageLoader::PixelFormat format) const;
-        private:
-            std::vector<unsigned char> loadIndexedPixels(const size_t pSize) const;
-            std::vector<unsigned char> loadPixels(const size_t pSize) const;
-            static FREE_IMAGE_FORMAT translateFormat(const ImageLoader::Format format);
-            static size_t pixelSize(const ImageLoader::PixelFormat format);
-        };
-    }
-}
+  size_t paletteSize() const;
+  size_t bitsPerPixel() const;
+  size_t width() const;
+  size_t height() const;
+  size_t byteWidth() const;
+  size_t scanWidth() const;
 
+  bool hasPalette() const;
+  bool hasIndices() const;
+  bool hasPixels() const;
+
+  std::vector<unsigned char> loadPalette() const;
+  std::vector<unsigned char> loadIndices() const;
+  std::vector<unsigned char> loadPixels(const ImageLoader::PixelFormat format) const;
+
+private:
+  std::vector<unsigned char> loadIndexedPixels(const size_t pSize) const;
+  std::vector<unsigned char> loadPixels(const size_t pSize) const;
+  static FREE_IMAGE_FORMAT translateFormat(const ImageLoader::Format format);
+  static size_t pixelSize(const ImageLoader::PixelFormat format);
+};
+} // namespace IO
+} // namespace TrenchBroom

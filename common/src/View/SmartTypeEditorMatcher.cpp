@@ -23,36 +23,39 @@
 #include "Model/EntityNodeBase.h"
 
 namespace TrenchBroom {
-    namespace View {
-        // SmartTypeEditorMatcher
+namespace View {
+// SmartTypeEditorMatcher
 
-        SmartTypeEditorMatcher::SmartTypeEditorMatcher(const Assets::PropertyDefinitionType type) :
-        m_type(type) {}
+SmartTypeEditorMatcher::SmartTypeEditorMatcher(const Assets::PropertyDefinitionType type)
+  : m_type(type) {}
 
-        bool SmartTypeEditorMatcher::doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
-            if (nodes.empty()) {
-                return false;
-            }
-            for (const auto* node : nodes) {
-                const auto* propDef = Model::propertyDefinition(node, propertyKey);
-                if (propDef == nullptr) {
-                    return false;
-                }
-                if (propDef->type() != m_type) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        // SmartTypeWithSameDefinitionEditorMatcher
-
-        SmartTypeWithSameDefinitionEditorMatcher::SmartTypeWithSameDefinitionEditorMatcher(const Assets::PropertyDefinitionType type) :
-        m_type(type) {}
-
-        bool SmartTypeWithSameDefinitionEditorMatcher::doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
-            const Assets::PropertyDefinition* propDef = Model::selectPropertyDefinition(propertyKey, nodes);
-            return propDef != nullptr && propDef->type() == m_type;
-        }
+bool SmartTypeEditorMatcher::doMatches(
+  const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
+  if (nodes.empty()) {
+    return false;
+  }
+  for (const auto* node : nodes) {
+    const auto* propDef = Model::propertyDefinition(node, propertyKey);
+    if (propDef == nullptr) {
+      return false;
     }
+    if (propDef->type() != m_type) {
+      return false;
+    }
+  }
+  return true;
 }
+
+// SmartTypeWithSameDefinitionEditorMatcher
+
+SmartTypeWithSameDefinitionEditorMatcher::SmartTypeWithSameDefinitionEditorMatcher(
+  const Assets::PropertyDefinitionType type)
+  : m_type(type) {}
+
+bool SmartTypeWithSameDefinitionEditorMatcher::doMatches(
+  const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
+  const Assets::PropertyDefinition* propDef = Model::selectPropertyDefinition(propertyKey, nodes);
+  return propDef != nullptr && propDef->type() == m_type;
+}
+} // namespace View
+} // namespace TrenchBroom

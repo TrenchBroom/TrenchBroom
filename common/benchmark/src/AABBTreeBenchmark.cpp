@@ -24,8 +24,8 @@
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
@@ -37,36 +37,51 @@
 
 #include <vecmath/bbox.h>
 
-#include "BenchmarkUtils.h"
 #include "../../test/src/Catch2.h"
+#include "BenchmarkUtils.h"
 
 namespace TrenchBroom {
-    using AABB = AABBTree<double, 3, Model::Node*>;
-    using BOX = AABB::Box;
+using AABB = AABBTree<double, 3, Model::Node*>;
+using BOX = AABB::Box;
 
-    TEST_CASE("AABBTreeBenchmark.benchBuildTree", "[AABBTreeBenchmark]") {
-        const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/benchmark/AABBTree/ne_ruins.map");
-        const auto file = IO::Disk::openFile(mapPath);
-        auto fileReader = file->reader().buffer();
+TEST_CASE("AABBTreeBenchmark.benchBuildTree", "[AABBTreeBenchmark]") {
+  const auto mapPath =
+    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/benchmark/AABBTree/ne_ruins.map");
+  const auto file = IO::Disk::openFile(mapPath);
+  auto fileReader = file->reader().buffer();
 
-        IO::TestParserStatus status;
-        IO::WorldReader worldReader(fileReader.stringView(), Model::MapFormat::Standard, {});
+  IO::TestParserStatus status;
+  IO::WorldReader worldReader(fileReader.stringView(), Model::MapFormat::Standard, {});
 
-        const vm::bbox3 worldBounds(8192.0);
-        auto world = worldReader.read(worldBounds, status);
+  const vm::bbox3 worldBounds(8192.0);
+  auto world = worldReader.read(worldBounds, status);
 
-        std::vector<AABB> trees(100);
-        timeLambda([&world, &trees]() {
-            for (auto& tree : trees) {
-                world->accept(kdl::overload(
-                    [] (auto&& thisLambda, Model::WorldNode* world_)  { world_->visitChildren(thisLambda); },
-                    [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
-                    [] (auto&& thisLambda, Model::GroupNode* group)   { group->visitChildren(thisLambda); },
-                    [&](auto&& thisLambda, Model::EntityNode* entity) { entity->visitChildren(thisLambda); tree.insert(entity->physicalBounds(), entity); },
-                    [&](Model::BrushNode* brush)                      { tree.insert(brush->physicalBounds(), brush); },
-                    [&](Model::PatchNode* patch)                      { tree.insert(patch->physicalBounds(), patch); }
-                ));
-            }
-        }, "Add objects to AABB tree");
-    }
+  std::vector<AABB> trees(100);
+  timeLambda(
+    [&world, &trees]() {
+      for (auto& tree : trees) {
+        world->accept(kdl::overload(
+          [](auto&& thisLambda, Model::WorldNode* world_) {
+            world_->visitChildren(thisLambda);
+          },
+          [](auto&& thisLambda, Model::LayerNode* layer) {
+            layer->visitChildren(thisLambda);
+          },
+          [](auto&& thisLambda, Model::GroupNode* group) {
+            group->visitChildren(thisLambda);
+          },
+          [&](auto&& thisLambda, Model::EntityNode* entity) {
+            entity->visitChildren(thisLambda);
+            tree.insert(entity->physicalBounds(), entity);
+          },
+          [&](Model::BrushNode* brush) {
+            tree.insert(brush->physicalBounds(), brush);
+          },
+          [&](Model::PatchNode* patch) {
+            tree.insert(patch->physicalBounds(), patch);
+          }));
+      }
+    },
+    "Add objects to AABB tree");
 }
+} // namespace TrenchBroom

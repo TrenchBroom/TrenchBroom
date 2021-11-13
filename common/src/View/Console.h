@@ -29,18 +29,19 @@ class QString;
 class QWidget;
 
 namespace TrenchBroom {
-    namespace View {
-        class Console : public TabBookPage, public Logger {
-        private:
-            QTextEdit* m_textView;
-        public:
-            explicit Console(QWidget* parent = nullptr);
-        private:
-            void doLog(LogLevel level, const std::string& message) override;
-            void doLog(LogLevel level, const QString& message) override;
-            void logToDebugOut(LogLevel level, const QString& message);
-            void logToConsole(LogLevel level, const QString& message);
-        };
-    }
-}
+namespace View {
+class Console : public TabBookPage, public Logger {
+private:
+  QTextEdit* m_textView;
 
+public:
+  explicit Console(QWidget* parent = nullptr);
+
+private:
+  void doLog(LogLevel level, const std::string& message) override;
+  void doLog(LogLevel level, const QString& message) override;
+  void logToDebugOut(LogLevel level, const QString& message);
+  void logToConsole(LogLevel level, const QString& message);
+};
+} // namespace View
+} // namespace TrenchBroom

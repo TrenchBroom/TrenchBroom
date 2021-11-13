@@ -21,38 +21,39 @@
 
 #include "Color.h"
 
-#include <string>
 #include <optional>
+#include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Layer {
-        private:
-            bool m_defaultLayer;
-            std::string m_name;
-            std::optional<int> m_sortIndex;
-            std::optional<Color> m_color;
-            bool m_omitFromExport;
-        public:
-            explicit Layer(std::string name, bool defaultLayer = false);
+namespace Model {
+class Layer {
+private:
+  bool m_defaultLayer;
+  std::string m_name;
+  std::optional<int> m_sortIndex;
+  std::optional<Color> m_color;
+  bool m_omitFromExport;
 
-            bool defaultLayer() const;
+public:
+  explicit Layer(std::string name, bool defaultLayer = false);
 
-            const std::string& name() const;
-            void setName(std::string name);
+  bool defaultLayer() const;
 
-            bool hasSortIndex() const;
-            int sortIndex() const;
-            void setSortIndex(int sortIndex);
+  const std::string& name() const;
+  void setName(std::string name);
 
-            const std::optional<Color>& color() const;
-            void setColor(const Color& color);
+  bool hasSortIndex() const;
+  int sortIndex() const;
+  void setSortIndex(int sortIndex);
 
-            bool omitFromExport() const;
-            void setOmitFromExport(bool omitFromExport);
+  const std::optional<Color>& color() const;
+  void setColor(const Color& color);
 
-            static int invalidSortIndex();
-            static int defaultLayerSortIndex();
-        };
-    }
-}
+  bool omitFromExport() const;
+  void setOmitFromExport(bool omitFromExport);
+
+  static int invalidSortIndex();
+  static int defaultLayerSortIndex();
+};
+} // namespace Model
+} // namespace TrenchBroom

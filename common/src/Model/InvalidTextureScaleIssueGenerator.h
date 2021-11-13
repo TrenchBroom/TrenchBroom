@@ -24,16 +24,17 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class InvalidTextureScaleIssueGenerator : public IssueGenerator {
-        private:
-            class InvalidTextureScaleIssue;
-            class InvalidTextureScaleIssueQuickFix;
-        public:
-            InvalidTextureScaleIssueGenerator();
-        private:
-            void doGenerate(BrushNode* brushNode, IssueList& issues) const override;
-        };
-    }
-}
+namespace Model {
+class InvalidTextureScaleIssueGenerator : public IssueGenerator {
+private:
+  class InvalidTextureScaleIssue;
+  class InvalidTextureScaleIssueQuickFix;
 
+public:
+  InvalidTextureScaleIssueGenerator();
+
+private:
+  void doGenerate(BrushNode* brushNode, IssueList& issues) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

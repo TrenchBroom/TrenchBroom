@@ -30,30 +30,35 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Brush;
-        class Entity;
-        class GroupNode;
-        class Node;
-    }
+namespace Model {
+class Brush;
+class Entity;
+class GroupNode;
+class Node;
+} // namespace Model
 
-    namespace View {
-        class SwapNodeContentsCommand : public UndoableCommand {
-        public:
-            static const CommandType Type;
-        protected:
-            std::vector<std::pair<Model::Node*, Model::NodeContents>> m_nodes;
-            UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
-        public:
-            SwapNodeContentsCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>> linkedGroupsToUpdate);
-            ~SwapNodeContentsCommand();
+namespace View {
+class SwapNodeContentsCommand : public UndoableCommand {
+public:
+  static const CommandType Type;
 
-            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+protected:
+  std::vector<std::pair<Model::Node*, Model::NodeContents>> m_nodes;
+  UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
 
-            bool doCollateWith(UndoableCommand* command) override;
+public:
+  SwapNodeContentsCommand(
+    const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
+    std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
+      linkedGroupsToUpdate);
+  ~SwapNodeContentsCommand();
 
-            deleteCopyAndMove(SwapNodeContentsCommand)
-        };
-    }
-}
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+
+  bool doCollateWith(UndoableCommand* command) override;
+
+  deleteCopyAndMove(SwapNodeContentsCommand)
+};
+} // namespace View
+} // namespace TrenchBroom

@@ -29,32 +29,33 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocument;
-    }
-
-    namespace Renderer {
-        class RenderContext;
-        class VboManager;
-
-        class PointGuideRenderer : public DirectRenderable {
-        private:
-            static const FloatType SpikeLength;
-
-            std::weak_ptr<View::MapDocument> m_document;
-
-            Color m_color;
-            vm::vec3 m_position;
-            SpikeGuideRenderer m_spikeRenderer;
-        public:
-            PointGuideRenderer(std::weak_ptr<View::MapDocument> document);
-
-            void setColor(const Color& color);
-            void setPosition(const vm::vec3& position);
-        private:
-            void doPrepareVertices(VboManager& vboManager) override;
-            void doRender(RenderContext& renderContext) override;
-        };
-    }
+namespace View {
+class MapDocument;
 }
 
+namespace Renderer {
+class RenderContext;
+class VboManager;
+
+class PointGuideRenderer : public DirectRenderable {
+private:
+  static const FloatType SpikeLength;
+
+  std::weak_ptr<View::MapDocument> m_document;
+
+  Color m_color;
+  vm::vec3 m_position;
+  SpikeGuideRenderer m_spikeRenderer;
+
+public:
+  PointGuideRenderer(std::weak_ptr<View::MapDocument> document);
+
+  void setColor(const Color& color);
+  void setPosition(const vm::vec3& position);
+
+private:
+  void doPrepareVertices(VboManager& vboManager) override;
+  void doRender(RenderContext& renderContext) override;
+};
+} // namespace Renderer
+} // namespace TrenchBroom

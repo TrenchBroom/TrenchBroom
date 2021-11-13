@@ -26,28 +26,30 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocumentCommandFacade;
+namespace View {
+class MapDocumentCommandFacade;
 
-        class UndoableCommand : public Command {
-        private:
-            size_t m_modificationCount;
-        protected:
-            UndoableCommand(CommandType type, const std::string& name, bool updateModificationCount);
-        public:
-            virtual ~UndoableCommand();
+class UndoableCommand : public Command {
+private:
+  size_t m_modificationCount;
 
-            std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
-            virtual std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document);
+protected:
+  UndoableCommand(CommandType type, const std::string& name, bool updateModificationCount);
 
-            virtual bool collateWith(UndoableCommand* command);
-        private:
-            virtual std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) = 0;
+public:
+  virtual ~UndoableCommand();
 
-            virtual bool doCollateWith(UndoableCommand* command) = 0;
+  std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
+  virtual std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document);
 
-            deleteCopyAndMove(UndoableCommand)
-        };
-    }
-}
+  virtual bool collateWith(UndoableCommand* command);
 
+private:
+  virtual std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) = 0;
+
+  virtual bool doCollateWith(UndoableCommand* command) = 0;
+
+  deleteCopyAndMove(UndoableCommand)
+};
+} // namespace View
+} // namespace TrenchBroom

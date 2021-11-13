@@ -25,29 +25,31 @@
 #include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        class LayerNode;
-    }
-
-    namespace View {
-        class SetCurrentLayerCommand : public UndoableCommand {
-        public:
-            static const CommandType Type;
-        private:
-            Model::LayerNode* m_currentLayer;
-            Model::LayerNode* m_oldCurrentLayer;
-        public:
-            static std::unique_ptr<SetCurrentLayerCommand> set(Model::LayerNode* layer);
-
-            SetCurrentLayerCommand(Model::LayerNode* layer);
-        private:
-            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
-
-            bool doCollateWith(UndoableCommand* command) override;
-
-            deleteCopyAndMove(SetCurrentLayerCommand)
-        };
-    }
+namespace Model {
+class LayerNode;
 }
 
+namespace View {
+class SetCurrentLayerCommand : public UndoableCommand {
+public:
+  static const CommandType Type;
+
+private:
+  Model::LayerNode* m_currentLayer;
+  Model::LayerNode* m_oldCurrentLayer;
+
+public:
+  static std::unique_ptr<SetCurrentLayerCommand> set(Model::LayerNode* layer);
+
+  SetCurrentLayerCommand(Model::LayerNode* layer);
+
+private:
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+
+  bool doCollateWith(UndoableCommand* command) override;
+
+  deleteCopyAndMove(SetCurrentLayerCommand)
+};
+} // namespace View
+} // namespace TrenchBroom

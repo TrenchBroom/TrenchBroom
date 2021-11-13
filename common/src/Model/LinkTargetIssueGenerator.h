@@ -25,17 +25,19 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class LinkTargetIssueGenerator : public IssueGenerator {
-        private:
-            class LinkTargetIssue;
-            class LinkTargetIssueQuickFix;
-        public:
-            LinkTargetIssueGenerator();
-        private:
-            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
-            void processKeys(EntityNodeBase* node, const std::vector<std::string>& keys, IssueList& issues) const;
-        };
-    }
-}
+namespace Model {
+class LinkTargetIssueGenerator : public IssueGenerator {
+private:
+  class LinkTargetIssue;
+  class LinkTargetIssueQuickFix;
 
+public:
+  LinkTargetIssueGenerator();
+
+private:
+  void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
+  void processKeys(
+    EntityNodeBase* node, const std::vector<std::string>& keys, IssueList& issues) const;
+};
+} // namespace Model
+} // namespace TrenchBroom

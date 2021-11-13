@@ -28,25 +28,27 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class WorldNode;
-        class Game;
-        class Node;
+namespace Model {
+class WorldNode;
+class Game;
+class Node;
 
-        class SoftMapBoundsIssueGenerator : public IssueGenerator {
-        private:
-            class SoftMapBoundsIssue;
-            class SoftMapBoundsIssueQuickFix;
-        private:
-            std::weak_ptr<Game> m_game;
-            const WorldNode* m_world;
-        public:
-            explicit SoftMapBoundsIssueGenerator(std::weak_ptr<Game> game, const WorldNode* world);
-        private:
-            void generateInternal(Node* node, IssueList& issues) const;
-            void doGenerate(EntityNode* brush, IssueList& issues) const override;
-            void doGenerate(BrushNode* brush, IssueList& issues) const override;
-        };
-    }
-}
+class SoftMapBoundsIssueGenerator : public IssueGenerator {
+private:
+  class SoftMapBoundsIssue;
+  class SoftMapBoundsIssueQuickFix;
 
+private:
+  std::weak_ptr<Game> m_game;
+  const WorldNode* m_world;
+
+public:
+  explicit SoftMapBoundsIssueGenerator(std::weak_ptr<Game> game, const WorldNode* world);
+
+private:
+  void generateInternal(Node* node, IssueList& issues) const;
+  void doGenerate(EntityNode* brush, IssueList& issues) const override;
+  void doGenerate(BrushNode* brush, IssueList& issues) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

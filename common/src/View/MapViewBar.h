@@ -27,23 +27,24 @@ class QStackedLayout;
 class QLabel;
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocument;
-        class ViewPopupEditor;
+namespace View {
+class MapDocument;
+class ViewPopupEditor;
 
-        class MapViewBar : public ContainerBar {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-            QStackedLayout* m_toolBook;
-            ViewPopupEditor* m_viewEditor;
-        public:
-            explicit MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+class MapViewBar : public ContainerBar {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+  QStackedLayout* m_toolBook;
+  ViewPopupEditor* m_viewEditor;
 
-            QStackedLayout* toolBook();
-        private:
-            void createGui(std::weak_ptr<MapDocument> document);
-        };
-    }
-}
+public:
+  explicit MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
+  QStackedLayout* toolBook();
+
+private:
+  void createGui(std::weak_ptr<MapDocument> document);
+};
+} // namespace View
+} // namespace TrenchBroom

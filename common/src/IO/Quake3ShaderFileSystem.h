@@ -24,47 +24,49 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class Logger;
+class Logger;
 
-    namespace Assets {
-        class Quake3Shader;
-    }
-
-    namespace IO {
-        /**
-         * Parses Quake 3 shader scripts found in a file system and makes the shader objects available as virtual files
-         * in the file system.
-         *
-         * Also scans for textures available at a list of search paths and generates shaders for such textures which
-         * do not already have a shader by the same name.
-         */
-        class Quake3ShaderFileSystem : public ImageFileSystemBase {
-        private:
-            Path m_shaderSearchPath;
-            std::vector<Path> m_textureSearchPaths;
-            Logger& m_logger;
-        public:
-            /**
-             * Creates a new instance at the given base path that uses the given file system to find shaders and shader
-             * image resources. The shader search path is used to find the shader scripts.The given texture search
-             * paths are recursively searched for textures, and any texture found that does not have a corresponding
-             * shader will have a shader generated for it.
-             *
-             * @param fs the filesystem to use when searching for shaders and linking image resources
-             * @param shaderSearchPath the path at which to search for shader scripts
-             * @param textureSearchPaths the paths at which to search for texture images
-             * @param logger the logger to use
-             */
-            Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path shaderSearchPath, std::vector<Path> textureSearchPaths, Logger& logger);
-        private:
-            void doReadDirectory() override;
-
-            std::vector<Assets::Quake3Shader> loadShaders() const;
-            void linkShaders(std::vector<Assets::Quake3Shader>& shaders);
-            void linkTextures(const std::vector<Path>& textures, std::vector<Assets::Quake3Shader>& shaders);
-            void linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders);
-        };
-    }
+namespace Assets {
+class Quake3Shader;
 }
 
+namespace IO {
+/**
+ * Parses Quake 3 shader scripts found in a file system and makes the shader objects available as
+ * virtual files in the file system.
+ *
+ * Also scans for textures available at a list of search paths and generates shaders for such
+ * textures which do not already have a shader by the same name.
+ */
+class Quake3ShaderFileSystem : public ImageFileSystemBase {
+private:
+  Path m_shaderSearchPath;
+  std::vector<Path> m_textureSearchPaths;
+  Logger& m_logger;
 
+public:
+  /**
+   * Creates a new instance at the given base path that uses the given file system to find shaders
+   * and shader image resources. The shader search path is used to find the shader scripts.The
+   * given texture search paths are recursively searched for textures, and any texture found that
+   * does not have a corresponding shader will have a shader generated for it.
+   *
+   * @param fs the filesystem to use when searching for shaders and linking image resources
+   * @param shaderSearchPath the path at which to search for shader scripts
+   * @param textureSearchPaths the paths at which to search for texture images
+   * @param logger the logger to use
+   */
+  Quake3ShaderFileSystem(
+    std::shared_ptr<FileSystem> fs, Path shaderSearchPath, std::vector<Path> textureSearchPaths,
+    Logger& logger);
+
+private:
+  void doReadDirectory() override;
+
+  std::vector<Assets::Quake3Shader> loadShaders() const;
+  void linkShaders(std::vector<Assets::Quake3Shader>& shaders);
+  void linkTextures(const std::vector<Path>& textures, std::vector<Assets::Quake3Shader>& shaders);
+  void linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders);
+};
+} // namespace IO
+} // namespace TrenchBroom

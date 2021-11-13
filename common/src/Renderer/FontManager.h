@@ -26,25 +26,27 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class FontDescriptor;
-        class FontFactory;
-        class TextureFont;
+namespace Renderer {
+class FontDescriptor;
+class FontFactory;
+class TextureFont;
 
-        class FontManager {
-        private:
-            std::unique_ptr<FontFactory> m_factory;
-            std::map<FontDescriptor, std::unique_ptr<TextureFont>> m_cache;
-        public:
-            FontManager();
-            ~FontManager();
+class FontManager {
+private:
+  std::unique_ptr<FontFactory> m_factory;
+  std::map<FontDescriptor, std::unique_ptr<TextureFont>> m_cache;
 
-            TextureFont& font(const FontDescriptor& fontDescriptor);
-            FontDescriptor selectFontSize(const FontDescriptor& fontDescriptor, const std::string& string, float maxWidth, size_t minFontSize);
-            void clearCache();
+public:
+  FontManager();
+  ~FontManager();
 
-            deleteCopyAndMove(FontManager)
-        };
-    }
-}
+  TextureFont& font(const FontDescriptor& fontDescriptor);
+  FontDescriptor selectFontSize(
+    const FontDescriptor& fontDescriptor, const std::string& string, float maxWidth,
+    size_t minFontSize);
+  void clearCache();
 
+  deleteCopyAndMove(FontManager)
+};
+} // namespace Renderer
+} // namespace TrenchBroom

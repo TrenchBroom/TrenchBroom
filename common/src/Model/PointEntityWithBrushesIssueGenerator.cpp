@@ -19,8 +19,8 @@
 
 #include "PointEntityWithBrushesIssueGenerator.h"
 
-#include "Ensure.h"
 #include "Assets/EntityDefinition.h"
+#include "Ensure.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
@@ -34,59 +34,65 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssue : public Issue {
-        public:
-            static const IssueType Type;
-        public:
-            explicit PointEntityWithBrushesIssue(EntityNode* entity) :
-            Issue(entity) {}
-        private:
-            IssueType doGetType() const override {
-                return Type;
-            }
+namespace Model {
+class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssue : public Issue {
+public:
+  static const IssueType Type;
 
-            std::string doGetDescription() const override {
-                const EntityNode* entity = static_cast<EntityNode*>(node());
-                return entity->name() + " contains brushes";
-            }
-        };
+public:
+  explicit PointEntityWithBrushesIssue(EntityNode* entity)
+    : Issue(entity) {}
 
-        const IssueType PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssue::Type = Issue::freeType();
+private:
+  IssueType doGetType() const override { return Type; }
 
-        class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssueQuickFix : public IssueQuickFix {
-        public:
-            PointEntityWithBrushesIssueQuickFix() :
-            IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
-        private:
-            void doApply(MapFacade* facade, const IssueList& issues) const override {
-                std::vector<Node*> affectedNodes;
-                std::map<Node*, std::vector<Node*>> nodesToReparent;
+  std::string doGetDescription() const override {
+    const EntityNode* entity = static_cast<EntityNode*>(node());
+    return entity->name() + " contains brushes";
+  }
+};
 
-                for (const Issue* issue : issues) {
-                    Node* node = issue->node();
-                    nodesToReparent[node->parent()] = node->children();
+const IssueType PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssue::Type =
+  Issue::freeType();
 
-                    affectedNodes.push_back(node);
-                    affectedNodes = kdl::vec_concat(std::move(affectedNodes), node->children());
-                }
+class PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssueQuickFix
+  : public IssueQuickFix {
+public:
+  PointEntityWithBrushesIssueQuickFix()
+    : IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
 
-                facade->deselectAll();
-                facade->reparentNodes(nodesToReparent);
-                facade->select(affectedNodes);
-            }
-        };
+private:
+  void doApply(MapFacade* facade, const IssueList& issues) const override {
+    std::vector<Node*> affectedNodes;
+    std::map<Node*, std::vector<Node*>> nodesToReparent;
 
-        PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssueGenerator() :
-        IssueGenerator(PointEntityWithBrushesIssue::Type, "Point entity with brushes") {
-            addQuickFix(new PointEntityWithBrushesIssueQuickFix());
-        }
+    for (const Issue* issue : issues) {
+      Node* node = issue->node();
+      nodesToReparent[node->parent()] = node->children();
 
-        void PointEntityWithBrushesIssueGenerator::doGenerate(EntityNode* entityNode, IssueList& issues) const {
-            ensure(entityNode != nullptr, "entity is null");
-            const Assets::EntityDefinition* definition = entityNode->entity().definition();
-            if (definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity && entityNode->hasChildren())
-                issues.push_back(new PointEntityWithBrushesIssue(entityNode));
-        }
+      affectedNodes.push_back(node);
+      affectedNodes = kdl::vec_concat(std::move(affectedNodes), node->children());
     }
+
+    facade->deselectAll();
+    facade->reparentNodes(nodesToReparent);
+    facade->select(affectedNodes);
+  }
+};
+
+PointEntityWithBrushesIssueGenerator::PointEntityWithBrushesIssueGenerator()
+  : IssueGenerator(PointEntityWithBrushesIssue::Type, "Point entity with brushes") {
+  addQuickFix(new PointEntityWithBrushesIssueQuickFix());
 }
+
+void PointEntityWithBrushesIssueGenerator::doGenerate(
+  EntityNode* entityNode, IssueList& issues) const {
+  ensure(entityNode != nullptr, "entity is null");
+  const Assets::EntityDefinition* definition = entityNode->entity().definition();
+  if (
+    definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity &&
+    entityNode->hasChildren())
+    issues.push_back(new PointEntityWithBrushesIssue(entityNode));
+}
+} // namespace Model
+} // namespace TrenchBroom

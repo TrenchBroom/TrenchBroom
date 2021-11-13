@@ -24,14 +24,15 @@
 class QLabel;
 
 namespace TrenchBroom {
-    namespace View {
-        class TitleBar : public QWidget {
-        protected:
-            QLabel* m_titleText;
-        public:
-            TitleBar(const QString& title, QWidget* parent, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
-            explicit TitleBar(const QString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
-        };
-    }
-}
+namespace View {
+class TitleBar : public QWidget {
+protected:
+  QLabel* m_titleText;
 
+public:
+  TitleBar(
+    const QString& title, QWidget* parent, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
+  explicit TitleBar(const QString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
+};
+} // namespace View
+} // namespace TrenchBroom

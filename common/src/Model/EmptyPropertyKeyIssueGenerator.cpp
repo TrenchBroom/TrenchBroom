@@ -29,51 +29,51 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace Model {
-        class EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssue : public Issue {
-        public:
-            static const IssueType Type;
-        public:
-            explicit EmptyPropertyKeyIssue(EntityNodeBase* node) :
-            Issue(node) {}
+namespace Model {
+class EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssue : public Issue {
+public:
+  static const IssueType Type;
 
-            IssueType doGetType() const override {
-                return Type;
-            }
+public:
+  explicit EmptyPropertyKeyIssue(EntityNodeBase* node)
+    : Issue(node) {}
 
-            std::string doGetDescription() const override {
-                const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
-                return entityNode->name() + " has a property with an empty name.";
-            }
-        };
+  IssueType doGetType() const override { return Type; }
 
-        const IssueType EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssue::Type = Issue::freeType();
+  std::string doGetDescription() const override {
+    const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
+    return entityNode->name() + " has a property with an empty name.";
+  }
+};
 
-        class EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssueQuickFix : public IssueQuickFix {
-        public:
-            EmptyPropertyKeyIssueQuickFix() :
-            IssueQuickFix(EmptyPropertyKeyIssue::Type, "Delete property") {}
-        private:
-            void doApply(MapFacade* facade, const Issue* issue) const override {
-                const PushSelection push(facade);
+const IssueType EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssue::Type = Issue::freeType();
 
-                // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeProperty call will correctly affect worldspawn either way.
+class EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssueQuickFix : public IssueQuickFix {
+public:
+  EmptyPropertyKeyIssueQuickFix()
+    : IssueQuickFix(EmptyPropertyKeyIssue::Type, "Delete property") {}
 
-                facade->deselectAll();
-                facade->select(issue->node());
-                facade->removeProperty("");
-            }
-        };
+private:
+  void doApply(MapFacade* facade, const Issue* issue) const override {
+    const PushSelection push(facade);
 
-        EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssueGenerator() :
-        IssueGenerator(EmptyPropertyKeyIssue::Type, "Empty property name") {
-            addQuickFix(new EmptyPropertyKeyIssueQuickFix());
-        }
+    // If world node is affected, the selection will fail, but if nothing is selected,
+    // the removeProperty call will correctly affect worldspawn either way.
 
-        void EmptyPropertyKeyIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            if (node->entity().hasProperty(""))
-                issues.push_back(new EmptyPropertyKeyIssue(node));
-        }
-    }
+    facade->deselectAll();
+    facade->select(issue->node());
+    facade->removeProperty("");
+  }
+};
+
+EmptyPropertyKeyIssueGenerator::EmptyPropertyKeyIssueGenerator()
+  : IssueGenerator(EmptyPropertyKeyIssue::Type, "Empty property name") {
+  addQuickFix(new EmptyPropertyKeyIssueQuickFix());
 }
+
+void EmptyPropertyKeyIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+  if (node->entity().hasProperty(""))
+    issues.push_back(new EmptyPropertyKeyIssue(node));
+}
+} // namespace Model
+} // namespace TrenchBroom

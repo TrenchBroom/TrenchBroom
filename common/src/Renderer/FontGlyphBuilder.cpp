@@ -27,40 +27,45 @@
 #include <cstring>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        FontGlyphBuilder::FontGlyphBuilder(const size_t maxAscend, size_t cellSize, const size_t margin, FontTexture& texture) :
-        m_maxAscend(maxAscend),
-        m_cellSize(cellSize),
-        m_margin(margin),
-        m_textureSize(texture.m_size),
-        m_textureBuffer(texture.m_buffer),
-        m_x(m_margin),
-        m_y(m_margin) {
-            ensure(m_textureBuffer != nullptr, "textureBuffer is null");
-        }
-
-        FontGlyph FontGlyphBuilder::createGlyph(const size_t left, const size_t top, const size_t width, const size_t height, const size_t advance, const char* glyphBuffer, const size_t pitch) {
-
-            if (m_x + m_cellSize + m_margin > m_textureSize) {
-                m_x = m_margin;
-                m_y += m_cellSize + m_margin;
-            }
-
-            drawGlyph(left, top, width, height, glyphBuffer, pitch);
-            const FontGlyph glyph(m_x, m_y, m_cellSize, m_cellSize, advance);
-            m_x += m_cellSize + m_margin;
-            return glyph;
-        }
-
-        void FontGlyphBuilder::drawGlyph(const size_t left, const size_t top, const size_t width, const size_t height, const char* glyphBuffer, const size_t pitch) {
-            const size_t x = m_x + left;
-            const size_t y = m_y + m_maxAscend - top;
-
-            for (size_t r = 0; r < height; ++r) {
-                const size_t index = (r + y) * m_textureSize + x;
-                assert(index + width < m_textureSize * m_textureSize);
-                std::memcpy(m_textureBuffer + index, glyphBuffer + r * pitch, width);
-            }
-        }
-    }
+namespace Renderer {
+FontGlyphBuilder::FontGlyphBuilder(
+  const size_t maxAscend, size_t cellSize, const size_t margin, FontTexture& texture)
+  : m_maxAscend(maxAscend)
+  , m_cellSize(cellSize)
+  , m_margin(margin)
+  , m_textureSize(texture.m_size)
+  , m_textureBuffer(texture.m_buffer)
+  , m_x(m_margin)
+  , m_y(m_margin) {
+  ensure(m_textureBuffer != nullptr, "textureBuffer is null");
 }
+
+FontGlyph FontGlyphBuilder::createGlyph(
+  const size_t left, const size_t top, const size_t width, const size_t height,
+  const size_t advance, const char* glyphBuffer, const size_t pitch) {
+
+  if (m_x + m_cellSize + m_margin > m_textureSize) {
+    m_x = m_margin;
+    m_y += m_cellSize + m_margin;
+  }
+
+  drawGlyph(left, top, width, height, glyphBuffer, pitch);
+  const FontGlyph glyph(m_x, m_y, m_cellSize, m_cellSize, advance);
+  m_x += m_cellSize + m_margin;
+  return glyph;
+}
+
+void FontGlyphBuilder::drawGlyph(
+  const size_t left, const size_t top, const size_t width, const size_t height,
+  const char* glyphBuffer, const size_t pitch) {
+  const size_t x = m_x + left;
+  const size_t y = m_y + m_maxAscend - top;
+
+  for (size_t r = 0; r < height; ++r) {
+    const size_t index = (r + y) * m_textureSize + x;
+    assert(index + width < m_textureSize * m_textureSize);
+    std::memcpy(m_textureBuffer + index, glyphBuffer + r * pitch, width);
+  }
+}
+} // namespace Renderer
+} // namespace TrenchBroom

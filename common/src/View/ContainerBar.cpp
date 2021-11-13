@@ -20,8 +20,8 @@
 #include "ContainerBar.h"
 
 namespace TrenchBroom {
-    namespace View {
-        ContainerBar::ContainerBar(const Sides borders, QWidget* parent) :
-        BorderPanel(borders, 1, parent) {}
-    }
-}
+namespace View {
+ContainerBar::ContainerBar(const Sides borders, QWidget* parent)
+  : BorderPanel(borders, 1, parent) {}
+} // namespace View
+} // namespace TrenchBroom

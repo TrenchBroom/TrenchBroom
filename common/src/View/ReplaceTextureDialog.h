@@ -27,38 +27,41 @@
 class QPushButton;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
-    namespace Model {
-        class BrushFaceHandle;
-    }
-
-    namespace View {
-        class GLContextManager;
-        class MapDocument;
-        class TextureBrowser;
-
-        class ReplaceTextureDialog : public QDialog {
-            Q_OBJECT
-        private:
-            std::weak_ptr<MapDocument> m_document;
-
-            TextureBrowser* m_subjectBrowser;
-            TextureBrowser* m_replacementBrowser;
-            QPushButton* m_replaceButton;
-        public:
-            ReplaceTextureDialog(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
-        private:
-            virtual void accept() override;
-            std::vector<Model::BrushFaceHandle> getApplicableFaces() const;
-            void createGui(GLContextManager& contextManager);
-        private slots:
-            void subjectSelected(const Assets::Texture* subject);
-            void replacementSelected(const Assets::Texture* replacement);
-            void updateReplaceButton();
-        };
-    }
+namespace Assets {
+class Texture;
 }
 
+namespace Model {
+class BrushFaceHandle;
+}
+
+namespace View {
+class GLContextManager;
+class MapDocument;
+class TextureBrowser;
+
+class ReplaceTextureDialog : public QDialog {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+
+  TextureBrowser* m_subjectBrowser;
+  TextureBrowser* m_replacementBrowser;
+  QPushButton* m_replaceButton;
+
+public:
+  ReplaceTextureDialog(
+    std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    QWidget* parent = nullptr);
+
+private:
+  virtual void accept() override;
+  std::vector<Model::BrushFaceHandle> getApplicableFaces() const;
+  void createGui(GLContextManager& contextManager);
+private slots:
+  void subjectSelected(const Assets::Texture* subject);
+  void replacementSelected(const Assets::Texture* replacement);
+  void updateReplaceButton();
+};
+} // namespace View
+} // namespace TrenchBroom

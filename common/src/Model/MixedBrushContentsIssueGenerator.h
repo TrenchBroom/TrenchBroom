@@ -24,15 +24,16 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class MixedBrushContentsIssueGenerator : public IssueGenerator {
-        private:
-            class MixedBrushContentsIssue;
-        public:
-            MixedBrushContentsIssueGenerator();
-        private:
-            void doGenerate(BrushNode* brushNode, IssueList& issues) const override;
-        };
-    }
-}
+namespace Model {
+class MixedBrushContentsIssueGenerator : public IssueGenerator {
+private:
+  class MixedBrushContentsIssue;
 
+public:
+  MixedBrushContentsIssueGenerator();
+
+private:
+  void doGenerate(BrushNode* brushNode, IssueList& issues) const override;
+};
+} // namespace Model
+} // namespace TrenchBroom

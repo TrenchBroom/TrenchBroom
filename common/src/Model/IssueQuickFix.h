@@ -25,26 +25,28 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Issue;
-        class MapFacade;
+namespace Model {
+class Issue;
+class MapFacade;
 
-        class IssueQuickFix {
-        private:
-            IssueType m_issueType;
-            std::string m_description;
-        protected:
-            IssueQuickFix(IssueType issueType, const std::string& description);
-        public:
-            virtual ~IssueQuickFix();
+class IssueQuickFix {
+private:
+  IssueType m_issueType;
+  std::string m_description;
 
-            const std::string& description() const;
+protected:
+  IssueQuickFix(IssueType issueType, const std::string& description);
 
-            void apply(MapFacade* facade, const std::vector<Issue*>& issues) const;
-        private:
-            virtual void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const;
-            virtual void doApply(MapFacade* facade, const Issue* issue) const;
-        };
-    }
-}
+public:
+  virtual ~IssueQuickFix();
 
+  const std::string& description() const;
+
+  void apply(MapFacade* facade, const std::vector<Issue*>& issues) const;
+
+private:
+  virtual void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const;
+  virtual void doApply(MapFacade* facade, const Issue* issue) const;
+};
+} // namespace Model
+} // namespace TrenchBroom

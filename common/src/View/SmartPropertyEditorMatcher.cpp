@@ -25,37 +25,42 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        SmartPropertyEditorMatcher::~SmartPropertyEditorMatcher() {}
+namespace View {
+SmartPropertyEditorMatcher::~SmartPropertyEditorMatcher() {}
 
-        bool SmartPropertyEditorMatcher::matches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
-            return doMatches(propertyKey, nodes);
-        }
-
-        SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(const std::string& pattern) :
-            SmartPropertyEditorKeyMatcher({ pattern }) {}
-
-        SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(const std::initializer_list<std::string> patterns) :
-        m_patterns(patterns) {
-            m_patterns = kdl::vec_sort_and_remove_duplicates(std::move(m_patterns));
-        }
-
-        bool SmartPropertyEditorKeyMatcher::doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
-            if (nodes.empty()) {
-                return false;
-            }
-
-            for (const std::string& pattern : m_patterns) {
-                if (kdl::cs::str_matches_glob(propertyKey, pattern)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        bool SmartPropertyEditorDefaultMatcher::doMatches(const std::string& /* propertyKey */, const std::vector<Model::EntityNodeBase*>& /* nodes */) const {
-            return true;
-        }
-    }
+bool SmartPropertyEditorMatcher::matches(
+  const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
+  return doMatches(propertyKey, nodes);
 }
+
+SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(const std::string& pattern)
+  : SmartPropertyEditorKeyMatcher({pattern}) {}
+
+SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(
+  const std::initializer_list<std::string> patterns)
+  : m_patterns(patterns) {
+  m_patterns = kdl::vec_sort_and_remove_duplicates(std::move(m_patterns));
+}
+
+bool SmartPropertyEditorKeyMatcher::doMatches(
+  const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const {
+  if (nodes.empty()) {
+    return false;
+  }
+
+  for (const std::string& pattern : m_patterns) {
+    if (kdl::cs::str_matches_glob(propertyKey, pattern)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool SmartPropertyEditorDefaultMatcher::doMatches(
+  const std::string& /* propertyKey */,
+  const std::vector<Model::EntityNodeBase*>& /* nodes */) const {
+  return true;
+}
+} // namespace View
+} // namespace TrenchBroom

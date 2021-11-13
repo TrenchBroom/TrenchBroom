@@ -20,12 +20,12 @@
 #include "ClickableLabel.h"
 
 namespace TrenchBroom {
-    namespace View {
-        ClickableLabel::ClickableLabel(const QString& text, QWidget* parent)
-        : QLabel(text, parent) {}
+namespace View {
+ClickableLabel::ClickableLabel(const QString& text, QWidget* parent)
+  : QLabel(text, parent) {}
 
-        void ClickableLabel::mousePressEvent(QMouseEvent*) {
-            emit clicked();
-        }
-    }
+void ClickableLabel::mousePressEvent(QMouseEvent*) {
+  emit clicked();
 }
+} // namespace View
+} // namespace TrenchBroom

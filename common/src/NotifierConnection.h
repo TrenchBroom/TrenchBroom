@@ -23,46 +23,48 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class NotifierStateBase;
+class NotifierStateBase;
 
-    /**
-     * Manages one or multiple connections of observer calllbacks to notifiers.
-     *
-     * All connections are disconnected when an instance of this class is destroyed.
-     */
-    class NotifierConnection {
-    private:
-        std::vector<std::tuple<std::weak_ptr<NotifierStateBase>, size_t>> m_connections;
-    public:
-        /**
-         * Creates a new instance that contains no connections.
-         */
-        NotifierConnection();
+/**
+ * Manages one or multiple connections of observer calllbacks to notifiers.
+ *
+ * All connections are disconnected when an instance of this class is destroyed.
+ */
+class NotifierConnection {
+private:
+  std::vector<std::tuple<std::weak_ptr<NotifierStateBase>, size_t>> m_connections;
 
-        /**
-         * Creates a new instance that contains one connection to the given notifier with the given id.
-         */
-        NotifierConnection(std::weak_ptr<NotifierStateBase> notifier, const size_t id);
+public:
+  /**
+   * Creates a new instance that contains no connections.
+   */
+  NotifierConnection();
 
-        NotifierConnection(const NotifierConnection&) = delete;
-        NotifierConnection(NotifierConnection&&) noexcept;
+  /**
+   * Creates a new instance that contains one connection to the given notifier with the given id.
+   */
+  NotifierConnection(std::weak_ptr<NotifierStateBase> notifier, const size_t id);
 
-        NotifierConnection& operator=(const NotifierConnection&) = delete;
-        NotifierConnection& operator=(NotifierConnection&&) noexcept;
+  NotifierConnection(const NotifierConnection&) = delete;
+  NotifierConnection(NotifierConnection&&) noexcept;
 
-        /**
-         * Disconnects all connected observers.
-         */
-        ~NotifierConnection();
+  NotifierConnection& operator=(const NotifierConnection&) = delete;
+  NotifierConnection& operator=(NotifierConnection&&) noexcept;
 
-        /**
-         * Transfers the connections from the given instance to this one. The given instance will lose its connections.
-         */
-        NotifierConnection& operator+=(NotifierConnection&& other);
+  /**
+   * Disconnects all connected observers.
+   */
+  ~NotifierConnection();
 
-        /**
-         * Disconnects all connected observers.
-         */
-        void disconnect();
-    };
-}
+  /**
+   * Transfers the connections from the given instance to this one. The given instance will lose its
+   * connections.
+   */
+  NotifierConnection& operator+=(NotifierConnection&& other);
+
+  /**
+   * Disconnects all connected observers.
+   */
+  void disconnect();
+};
+} // namespace TrenchBroom

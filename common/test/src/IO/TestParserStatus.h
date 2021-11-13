@@ -19,28 +19,30 @@
 
 #pragma once
 
-#include "Logger.h"
 #include "IO/ParserStatus.h"
+#include "Logger.h"
 
 #include <map>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class TestParserStatus : public ParserStatus {
-        private:
-            static NullLogger _logger;
-            std::map<LogLevel, std::vector<std::string>> m_messages;
-        public:
-            TestParserStatus();
-        public:
-            size_t countStatus(LogLevel level) const;
-            const std::vector<std::string>& messages(LogLevel level) const;
-        private:
-            void doProgress(double progress) override;
-            void doLog(LogLevel level, const std::string& str) override;
-        };
-    }
-}
+namespace IO {
+class TestParserStatus : public ParserStatus {
+private:
+  static NullLogger _logger;
+  std::map<LogLevel, std::vector<std::string>> m_messages;
 
+public:
+  TestParserStatus();
+
+public:
+  size_t countStatus(LogLevel level) const;
+  const std::vector<std::string>& messages(LogLevel level) const;
+
+private:
+  void doProgress(double progress) override;
+  void doLog(LogLevel level, const std::string& str) override;
+};
+} // namespace IO
+} // namespace TrenchBroom

@@ -27,51 +27,50 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class TextureCollection {
-        private:
-            using TextureIdList = std::vector<GLuint>;
+namespace Assets {
+class TextureCollection {
+private:
+  using TextureIdList = std::vector<GLuint>;
 
-            bool m_loaded;
-            IO::Path m_path;
-            std::vector<Texture> m_textures;
+  bool m_loaded;
+  IO::Path m_path;
+  std::vector<Texture> m_textures;
 
-            TextureIdList m_textureIds;
+  TextureIdList m_textureIds;
 
-            friend class Texture;
-        public:
-            TextureCollection();
-            explicit TextureCollection(std::vector<Texture> textures);
-            explicit TextureCollection(const IO::Path& path);
-            TextureCollection(const IO::Path& path, std::vector<Texture> textures);
+  friend class Texture;
 
-            TextureCollection(const TextureCollection&) = delete;
-            TextureCollection& operator=(const TextureCollection&) = delete;
-            
-            TextureCollection(TextureCollection&& other) = default;
-            TextureCollection& operator=(TextureCollection&& other) = default;
+public:
+  TextureCollection();
+  explicit TextureCollection(std::vector<Texture> textures);
+  explicit TextureCollection(const IO::Path& path);
+  TextureCollection(const IO::Path& path, std::vector<Texture> textures);
 
-            ~TextureCollection();
+  TextureCollection(const TextureCollection&) = delete;
+  TextureCollection& operator=(const TextureCollection&) = delete;
 
-            bool loaded() const;
-            const IO::Path& path() const;
-            std::string name() const;
-            size_t textureCount() const;
+  TextureCollection(TextureCollection&& other) = default;
+  TextureCollection& operator=(TextureCollection&& other) = default;
 
-            const std::vector<Texture>& textures() const;
-            std::vector<Texture>& textures();
+  ~TextureCollection();
 
-            const Texture* textureByIndex(size_t index) const;
-            Texture* textureByIndex(size_t index);
+  bool loaded() const;
+  const IO::Path& path() const;
+  std::string name() const;
+  size_t textureCount() const;
 
-            const Texture* textureByName(const std::string& name) const;
-            Texture* textureByName(const std::string& name);
+  const std::vector<Texture>& textures() const;
+  std::vector<Texture>& textures();
 
-            bool prepared() const;
-            void prepare(int minFilter, int magFilter);
-            void setTextureMode(int minFilter, int magFilter);
-        };
-    }
-}
+  const Texture* textureByIndex(size_t index) const;
+  Texture* textureByIndex(size_t index);
 
+  const Texture* textureByName(const std::string& name) const;
+  Texture* textureByName(const std::string& name);
 
+  bool prepared() const;
+  void prepare(int minFilter, int magFilter);
+  void setTextureMode(int minFilter, int magFilter);
+};
+} // namespace Assets
+} // namespace TrenchBroom

@@ -26,22 +26,17 @@
 #include <optional>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushFace;
+namespace Model {
+class BrushFace;
 
-        struct BrushVertexPayload {
-            using Type = uint32_t; // FIXME: GLuint
-            static Type defaultValue() {
-                return std::numeric_limits<Type>::max();
-            }
-        };
+struct BrushVertexPayload {
+  using Type = uint32_t; // FIXME: GLuint
+  static Type defaultValue() { return std::numeric_limits<Type>::max(); }
+};
 
-        struct BrushFacePayload {
-            using Type = std::optional<size_t>;
-            static Type defaultValue() {
-                return std::nullopt;
-            }
-        };
-    }
-}
-
+struct BrushFacePayload {
+  using Type = std::optional<size_t>;
+  static Type defaultValue() { return std::nullopt; }
+};
+} // namespace Model
+} // namespace TrenchBroom

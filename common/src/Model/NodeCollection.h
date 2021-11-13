@@ -22,62 +22,62 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushNode;
-        class EntityNode;
-        class GroupNode;
-        class LayerNode;
-        class Node;
-        class PatchNode;
+namespace Model {
+class BrushNode;
+class EntityNode;
+class GroupNode;
+class LayerNode;
+class Node;
+class PatchNode;
 
-        class NodeCollection {
-        private:
-            std::vector<Node*> m_nodes;
-            std::vector<LayerNode*> m_layers;
-            std::vector<GroupNode*> m_groups;
-            std::vector<EntityNode*> m_entities;
-            std::vector<BrushNode*> m_brushes;
-            std::vector<PatchNode*> m_patches;
-        public:
-            bool empty() const;
-            size_t nodeCount() const;
-            size_t layerCount() const;
-            size_t groupCount() const;
-            size_t entityCount() const;
-            size_t brushCount() const;
-            size_t patchCount() const;
+class NodeCollection {
+private:
+  std::vector<Node*> m_nodes;
+  std::vector<LayerNode*> m_layers;
+  std::vector<GroupNode*> m_groups;
+  std::vector<EntityNode*> m_entities;
+  std::vector<BrushNode*> m_brushes;
+  std::vector<PatchNode*> m_patches;
 
-            bool hasLayers() const;
-            bool hasOnlyLayers() const;
-            bool hasGroups() const;
-            bool hasOnlyGroups() const;
-            bool hasEntities() const;
-            bool hasOnlyEntities() const;
-            bool hasBrushes() const;
-            bool hasOnlyBrushes() const;
-            bool hasPatches() const;
-            bool hasOnlyPatches() const;
+public:
+  bool empty() const;
+  size_t nodeCount() const;
+  size_t layerCount() const;
+  size_t groupCount() const;
+  size_t entityCount() const;
+  size_t brushCount() const;
+  size_t patchCount() const;
 
-            std::vector<Node*>::iterator begin();
-            std::vector<Node*>::iterator end();
-            std::vector<Node*>::const_iterator begin() const;
-            std::vector<Node*>::const_iterator end() const;
+  bool hasLayers() const;
+  bool hasOnlyLayers() const;
+  bool hasGroups() const;
+  bool hasOnlyGroups() const;
+  bool hasEntities() const;
+  bool hasOnlyEntities() const;
+  bool hasBrushes() const;
+  bool hasOnlyBrushes() const;
+  bool hasPatches() const;
+  bool hasOnlyPatches() const;
 
-            const std::vector<Node*>& nodes() const;
-            const std::vector<LayerNode*>& layers() const;
-            const std::vector<GroupNode*>& groups() const;
-            const std::vector<EntityNode*>& entities() const;
-            const std::vector<BrushNode*>& brushes() const;
-            const std::vector<PatchNode*>& patches() const;
+  std::vector<Node*>::iterator begin();
+  std::vector<Node*>::iterator end();
+  std::vector<Node*>::const_iterator begin() const;
+  std::vector<Node*>::const_iterator end() const;
 
-            void addNodes(const std::vector<Node*>& nodes);
-            void addNode(Node* node);
+  const std::vector<Node*>& nodes() const;
+  const std::vector<LayerNode*>& layers() const;
+  const std::vector<GroupNode*>& groups() const;
+  const std::vector<EntityNode*>& entities() const;
+  const std::vector<BrushNode*>& brushes() const;
+  const std::vector<PatchNode*>& patches() const;
 
-            void removeNodes(const std::vector<Node*>& nodes);
-            void removeNode(Node* node);
+  void addNodes(const std::vector<Node*>& nodes);
+  void addNode(Node* node);
 
-            void clear();
-        };
-    }
-}
+  void removeNodes(const std::vector<Node*>& nodes);
+  void removeNode(Node* node);
 
+  void clear();
+};
+} // namespace Model
+} // namespace TrenchBroom

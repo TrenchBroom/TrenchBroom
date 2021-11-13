@@ -19,11 +19,11 @@
 
 #include "SetLockStateCommand.h"
 #include "Macros.h"
-#include "Model/LockState.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/LockState.h"
 #include "Model/Node.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -33,67 +33,84 @@
 #include <string>
 
 namespace TrenchBroom {
-    namespace View {
-        const Command::CommandType SetLockStateCommand::Type = Command::freeType();
+namespace View {
+const Command::CommandType SetLockStateCommand::Type = Command::freeType();
 
-        std::unique_ptr<SetLockStateCommand> SetLockStateCommand::lock(const std::vector<Model::Node*>& nodes) {
-            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Locked);
-        }
-
-        std::unique_ptr<SetLockStateCommand> SetLockStateCommand::unlock(const std::vector<Model::Node*>& nodes) {
-            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Unlocked);
-        }
-
-        std::unique_ptr<SetLockStateCommand> SetLockStateCommand::reset(const std::vector<Model::Node*>& nodes) {
-            return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Inherited);
-        }
-
-        static bool shouldUpdateModificationCount(const std::vector<Model::Node*>& nodes) {
-            for (const auto* node : nodes) {
-                const auto modifiesLayer = node->accept(kdl::overload(
-                    [](const Model::WorldNode*)  { return false; },
-                    [](const Model::LayerNode*)  { return true; },
-                    [](const Model::GroupNode*)  { return false; },
-                    [](const Model::EntityNode*) { return false; },
-                    [](const Model::BrushNode*)  { return false; },
-                    [](const Model::PatchNode*)  { return false; }
-                ));
-                if (modifiesLayer) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        SetLockStateCommand::SetLockStateCommand(const std::vector<Model::Node*>& nodes, const Model::LockState lockState) :
-        UndoableCommand(Type, makeName(lockState), shouldUpdateModificationCount(nodes)),
-        m_nodes(nodes),
-        m_lockState(lockState) {}
-
-        std::string SetLockStateCommand::makeName(const Model::LockState state) {
-            switch (state) {
-                case Model::LockState::Inherited:
-                    return "Reset Locking";
-                case Model::LockState::Locked:
-                    return "Lock Objects";
-                case Model::LockState::Unlocked:
-                    return "Unlock Objects";
-                switchDefault()
-            }
-        }
-
-        std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_oldLockState = document->setLockState(m_nodes, m_lockState);
-            return std::make_unique<CommandResult>(true);
-        }
-
-        std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            document->restoreLockState(m_oldLockState);
-            return std::make_unique<CommandResult>(true);
-        }
-
-        bool SetLockStateCommand::doCollateWith(UndoableCommand*) {
-            return false;
-        }
-    }
+std::unique_ptr<SetLockStateCommand> SetLockStateCommand::lock(
+  const std::vector<Model::Node*>& nodes) {
+  return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Locked);
 }
+
+std::unique_ptr<SetLockStateCommand> SetLockStateCommand::unlock(
+  const std::vector<Model::Node*>& nodes) {
+  return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Unlocked);
+}
+
+std::unique_ptr<SetLockStateCommand> SetLockStateCommand::reset(
+  const std::vector<Model::Node*>& nodes) {
+  return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Inherited);
+}
+
+static bool shouldUpdateModificationCount(const std::vector<Model::Node*>& nodes) {
+  for (const auto* node : nodes) {
+    const auto modifiesLayer = node->accept(kdl::overload(
+      [](const Model::WorldNode*) {
+        return false;
+      },
+      [](const Model::LayerNode*) {
+        return true;
+      },
+      [](const Model::GroupNode*) {
+        return false;
+      },
+      [](const Model::EntityNode*) {
+        return false;
+      },
+      [](const Model::BrushNode*) {
+        return false;
+      },
+      [](const Model::PatchNode*) {
+        return false;
+      }));
+    if (modifiesLayer) {
+      return true;
+    }
+  }
+  return false;
+}
+
+SetLockStateCommand::SetLockStateCommand(
+  const std::vector<Model::Node*>& nodes, const Model::LockState lockState)
+  : UndoableCommand(Type, makeName(lockState), shouldUpdateModificationCount(nodes))
+  , m_nodes(nodes)
+  , m_lockState(lockState) {}
+
+std::string SetLockStateCommand::makeName(const Model::LockState state) {
+  switch (state) {
+    case Model::LockState::Inherited:
+      return "Reset Locking";
+    case Model::LockState::Locked:
+      return "Lock Objects";
+    case Model::LockState::Unlocked:
+      return "Unlock Objects";
+      switchDefault()
+  }
+}
+
+std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(
+  MapDocumentCommandFacade* document) {
+  m_oldLockState = document->setLockState(m_nodes, m_lockState);
+  return std::make_unique<CommandResult>(true);
+}
+
+std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(
+  MapDocumentCommandFacade* document) {
+  document->restoreLockState(m_oldLockState);
+  return std::make_unique<CommandResult>(true);
+}
+
+bool SetLockStateCommand::doCollateWith(UndoableCommand*) {
+  return false;
+}
+} // namespace View
+} // namespace TrenchBroom
