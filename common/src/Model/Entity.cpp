@@ -317,7 +317,7 @@ namespace TrenchBroom {
 
             if (const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get())) {
                 const auto variableStore = EntityPropertiesVariableStore{*this};
-                const auto scale = pointDefinition->modelDefinition().scale(variableStore, propertyConfig.defaultModelScaleExpression);
+                const auto scale = Assets::safeGetModelScale(pointDefinition->modelDefinition(), variableStore, propertyConfig.defaultModelScaleExpression);
                 m_cachedProperties.modelTransformation = vm::translation_matrix(origin()) * rotation() * vm::scaling_matrix(scale);
             } else {
                 m_cachedProperties.modelTransformation = vm::mat4x4::identity();

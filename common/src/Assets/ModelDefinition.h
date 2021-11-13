@@ -91,6 +91,12 @@ namespace TrenchBroom {
              */
             vm::vec3 scale(const EL::VariableStore& variableStore, const std::optional<EL::Expression>& defaultScaleExpression) const;
         };
+
+        /**
+         * Returns the model scale value for the given parameters or a default scale of 1, 1, 1 if
+         * an error occurs.
+         */
+        vm::vec3 safeGetModelScale(const ModelDefinition& definition, const EL::VariableStore& variableStore, const std::optional<EL::Expression>& defaultScaleExpression);
     }
 }
 

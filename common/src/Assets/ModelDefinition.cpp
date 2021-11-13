@@ -19,6 +19,7 @@
 
 #include "ModelDefinition.h"
 
+#include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expressions.h"
 #include "EL/Types.h"
@@ -231,6 +232,14 @@ namespace TrenchBroom {
             }
 
             return vm::vec3{1, 1, 1};
+        }
+
+        vm::vec3 safeGetModelScale(const ModelDefinition& definition, const EL::VariableStore& variableStore, const std::optional<EL::Expression>& defaultScaleExpression) {
+            try {
+                return definition.scale(variableStore, defaultScaleExpression);
+            } catch (const EL::Exception&) {
+                return vm::vec3{1, 1, 1};
+            }
         }
     }
 }

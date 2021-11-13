@@ -53,10 +53,7 @@ namespace TrenchBroom {
             entity.setDefinition(propertyConfig, &definition);
 
             // throws because 'a & 2' cannot be evaluated -- we must catch the exception in Entity::updateCachedProperties
-            /* EXPECTED:
             CHECK_NOTHROW(entity.addOrUpdateProperty(propertyConfig, "spawnflags", "a"));
-            ACTUAL: */
-            CHECK_THROWS_AS(entity.addOrUpdateProperty(propertyConfig, "spawnflags", "a"), EL::Exception);
         }
     }
 }
