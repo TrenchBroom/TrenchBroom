@@ -204,13 +204,16 @@ void BrushRenderer::renderTransparentFaces(RenderBatch& renderBatch) {
 }
 
 void BrushRenderer::renderEdges(RenderBatch& renderBatch) {
-  //            if (m_showOccludedEdges) {
-
-  m_edgeRenderer.render(renderBatch); //, m_edgeColor); -- disable uniform color
+  BrushEdgeRenderer::Params params;
+  params.lockedEdgeColor = pref(Preferences::LockedEdgeColor);
+  params.selectedEdgeColor = pref(Preferences::SelectedEdgeColor);
+  m_edgeRenderer.render(renderBatch, params);
 
   // we tell the shader that we're rendering on top (no depth test/write)
-  // and it can discard vertices
-  m_edgeRenderer.renderOnTop(renderBatch); //, m_occludedEdgeColor);
+  // and it can discard vertices  
+  params.onTop = true;
+  params.offset = 0.2f;
+  m_edgeRenderer.render(renderBatch, params);
 }
 
 void BrushRenderer::validate() {

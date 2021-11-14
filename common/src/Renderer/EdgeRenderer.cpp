@@ -191,29 +191,6 @@ void DirectEdgeRenderer::doRender(RenderBatch& renderBatch, const EdgeRenderer::
 
 // BrushEdgeRenderer
 
-BrushEdgeRenderer::Params::Params(const float i_width, const double i_offset, const bool i_onTop)
-  : width(i_width)
-  , offset(i_offset)
-  , onTop(i_onTop)
-  , useColor(false) {}
-
-BrushEdgeRenderer::Params::Params(
-  const float i_width, const double i_offset, const bool i_onTop, const Color& i_color)
-  : width(i_width)
-  , offset(i_offset)
-  , onTop(i_onTop)
-  , useColor(true)
-  , color(i_color) {}
-
-BrushEdgeRenderer::Params::Params(
-  const float i_width, const double i_offset, const bool i_onTop, const bool i_useColor,
-  const Color& i_color)
-  : width(i_width)
-  , offset(i_offset)
-  , onTop(i_onTop)
-  , useColor(i_useColor)
-  , color(i_color) {}
-
 BrushEdgeRenderer::RenderBase::RenderBase(const Params& params)
   : m_params(params) {}
 
@@ -235,6 +212,10 @@ void BrushEdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext) {
       shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
       shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
       shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
+      shader.set("ShouldOverrideEdgeColor", m_params.shouldOverrideEdgeColor);
+      shader.set("OverrideEdgeColor", m_params.overrideEdgeColor.xyz());
+      shader.set("LockedEdgeColor", m_params.lockedEdgeColor.xyz());
+      shader.set("SelectedEdgeColor", m_params.selectedEdgeColor.xyz());
       shader.set(
         "SoftMapBoundsColor",
         vm::vec4f(
@@ -255,41 +236,8 @@ void BrushEdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext) {
 
 BrushEdgeRenderer::~BrushEdgeRenderer() {}
 
-void BrushEdgeRenderer::render(RenderBatch& renderBatch, const float width, const double offset) {
-  doRender(renderBatch, Params(width, offset, false));
-}
-
-void BrushEdgeRenderer::render(
-  RenderBatch& renderBatch, const Color& color, const float width, const double offset) {
-  doRender(renderBatch, Params(width, offset, false, color));
-}
-
-void BrushEdgeRenderer::render(
-  RenderBatch& renderBatch, const bool useColor, const Color& color, const float width,
-  const double offset) {
-  doRender(renderBatch, Params(width, offset, false, useColor, color));
-}
-
-void BrushEdgeRenderer::renderOnTop(
-  RenderBatch& renderBatch, const float width, const double offset) {
-  doRender(renderBatch, Params(width, offset, true));
-}
-
-void BrushEdgeRenderer::renderOnTop(
-  RenderBatch& renderBatch, const Color& color, const float width, const double offset) {
-  doRender(renderBatch, Params(width, offset, true, color));
-}
-
-void BrushEdgeRenderer::renderOnTop(
-  RenderBatch& renderBatch, const bool useColor, const Color& color, const float width,
-  const double offset) {
-  doRender(renderBatch, Params(width, offset, true, useColor, color));
-}
-
-void BrushEdgeRenderer::render(
-  RenderBatch& renderBatch, const bool useColor, const Color& color, const bool onTop,
-  const float width, const double offset) {
-  doRender(renderBatch, Params(width, offset, onTop, useColor, color));
+void BrushEdgeRenderer::render(RenderBatch& renderBatch, const Params& params) {
+  doRender(renderBatch, params);
 }
 
 // DirectBrushEdgeRenderer::Render

@@ -31,6 +31,10 @@ varying vec3 vertexColor;
  * and once with them disabled and this set to true.
  */
 uniform bool OnTop;
+uniform bool ShouldOverrideEdgeColor;
+uniform vec3 OverrideEdgeColor;
+uniform vec3 LockedEdgeColor;
+uniform vec3 SelectedEdgeColor;
 
 struct flagsStruct {
     bool hidden;
@@ -60,12 +64,15 @@ void main(void) {
     }
 
     // set the line color
-
-    if (edgeFlags.locked) {
-        vertexColor = vec3(0.0, 0.0, 1.0);
-    } else if (edgeFlags.selected) {
-        vertexColor = vec3(1.0, 0.0, 0.0);
+    if (ShouldOverrideEdgeColor) {
+        vertexColor = OverrideEdgeColor;
     } else {
-        vertexColor = defaultColor;
+        if (edgeFlags.locked) {
+            vertexColor = LockedEdgeColor;
+        } else if (edgeFlags.selected) {
+            vertexColor = SelectedEdgeColor;
+        } else {
+            vertexColor = defaultColor;
+        }
     }
 }

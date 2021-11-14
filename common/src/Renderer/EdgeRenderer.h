@@ -121,14 +121,13 @@ private:
 class BrushEdgeRenderer {
 public:
   struct Params {
-    float width;
-    double offset;
-    bool onTop;
-    bool useColor;
-    Color color;
-    Params(float i_width, double i_offset, bool i_onTop);
-    Params(float i_width, double i_offset, bool i_onTop, const Color& i_color);
-    Params(float i_width, double i_offset, bool i_onTop, bool i_useColor, const Color& i_color);
+    float width = 1.0f;
+    double offset = 0.0f;
+    bool onTop = false;
+    bool shouldOverrideEdgeColor = false;
+    Color overrideEdgeColor;
+    Color lockedEdgeColor;
+    Color selectedEdgeColor;
   };
 
   class RenderBase {
@@ -149,21 +148,7 @@ public:
 public:
   virtual ~BrushEdgeRenderer();
 
-  void render(RenderBatch& renderBatch, float width = 1.0f, double offset = 0.0);
-  void render(
-    RenderBatch& renderBatch, const Color& color, float width = 1.0f, double offset = 0.0);
-  void render(
-    RenderBatch& renderBatch, bool useColor, const Color& color, float width = 1.0f,
-    double offset = 0.0);
-  void renderOnTop(RenderBatch& renderBatch, float width = 1.0f, double offset = 0.2);
-  void renderOnTop(
-    RenderBatch& renderBatch, const Color& color, float width = 1.0f, double offset = 0.2);
-  void renderOnTop(
-    RenderBatch& renderBatch, bool useColor, const Color& color, float width = 1.0f,
-    double offset = 0.2);
-  void render(
-    RenderBatch& renderBatch, bool useColor, const Color& color, bool onTop, float width,
-    double offset);
+  void render(RenderBatch& renderBatch, const Params& params);  
 
 private:
   virtual void doRender(RenderBatch& renderBatch, const Params& params) = 0;
