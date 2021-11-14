@@ -25,6 +25,7 @@
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
 #include "Model/NodeContents.h"
+#include "Model/PointTrace.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "View/CachingLogger.h"
@@ -63,7 +64,7 @@ class Game;
 class Issue;
 enum class MapFormat;
 class PickResult;
-class PointFile;
+class PointTrace;
 class PortalFile;
 class SmartTag;
 class TagManager;
@@ -84,6 +85,11 @@ class UndoableCommand;
 class ViewEffectsService;
 enum class MapTextEncoding;
 
+struct PointFile {
+  Model::PointTrace trace;
+  IO::Path path;
+};
+
 class MapDocument : public Model::MapFacade, public CachingLogger {
 public:
   static const vm::bbox3 DefaultWorldBounds;
@@ -94,9 +100,8 @@ protected:
   std::shared_ptr<Model::Game> m_game;
   std::unique_ptr<Model::WorldNode> m_world;
 
-  std::unique_ptr<Model::PointFile> m_pointFile;
+  std::optional<PointFile> m_pointFile;
   std::unique_ptr<Model::PortalFile> m_portalFile;
-  IO::Path m_pointFilePath;
   IO::Path m_portalFilePath;
 
   std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
@@ -241,7 +246,7 @@ public:
 
   Grid& grid() const;
 
-  Model::PointFile* pointFile() const;
+  std::optional<PointFile>& pointFile();
   Model::PortalFile* portalFile() const;
 
   void setViewEffectsService(ViewEffectsService* viewEffectsService);

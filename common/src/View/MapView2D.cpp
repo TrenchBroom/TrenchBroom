@@ -32,7 +32,7 @@
 #include "Model/HitFilter.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
-#include "Model/PointFile.h"
+#include "Model/PointTrace.h"
 #include "Renderer/Compass2D.h"
 #include "Renderer/GridRenderer.h"
 #include "Renderer/MapRenderer.h"
@@ -233,13 +233,11 @@ void MapView2D::animateCamera(
 
 void MapView2D::doMoveCameraToCurrentTracePoint() {
   auto document = kdl::mem_lock(m_document);
-
   assert(document->isPointFileLoaded());
-  auto* pointFile = document->pointFile();
-  assert(pointFile->hasNextPoint());
 
-  const auto position = vm::vec3(pointFile->currentPoint());
-  moveCameraToPosition(position, true);
+  if (const auto& pointFile = document->pointFile()) {
+    moveCameraToPosition(vm::vec3{pointFile->trace.currentPoint()}, true);
+  }
 }
 
 vm::vec3 MapView2D::doGetMoveDirection(const vm::direction direction) const {

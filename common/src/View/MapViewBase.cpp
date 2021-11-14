@@ -38,7 +38,7 @@
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
-#include "Model/PointFile.h"
+#include "Model/PointTrace.h"
 #include "Model/PortalFile.h"
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
@@ -930,11 +930,10 @@ void MapViewBase::renderSoftMapBounds(
 void MapViewBase::renderPointFile(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
   auto document = kdl::mem_lock(m_document);
-  Model::PointFile* pointFile = document->pointFile();
-  if (pointFile != nullptr) {
+  if (const auto& pointFile = document->pointFile()) {
     Renderer::RenderService renderService(renderContext, renderBatch);
     renderService.setForegroundColor(pref(Preferences::PointFileColor));
-    renderService.renderLineStrip(pointFile->points());
+    renderService.renderLineStrip(pointFile->trace.points());
   }
 }
 
