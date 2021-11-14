@@ -32,14 +32,12 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom::View {
 WelcomeWindow::WelcomeWindow()
-  : QMainWindow(nullptr, Qt::Dialog)
-  , // Qt::Dialog window flag causes the window to be centered on Ubuntu
-  m_recentDocumentListBox(nullptr)
-  , m_createNewDocumentButton(nullptr)
-  , m_openOtherDocumentButton(nullptr) {
+  : QMainWindow{nullptr, Qt::Dialog} // Qt::Dialog flag centers window on Ubuntu
+  , m_recentDocumentListBox{nullptr}
+  , m_createNewDocumentButton{nullptr}
+  , m_openOtherDocumentButton{nullptr} {
   createGui();
 }
 
@@ -47,7 +45,7 @@ void WelcomeWindow::createGui() {
   setWindowIconTB(this);
   setWindowTitle("Welcome to TrenchBroom");
 
-  m_recentDocumentListBox = new RecentDocumentListBox();
+  m_recentDocumentListBox = new RecentDocumentListBox{};
   m_recentDocumentListBox->setToolTip("Double click on a file to open it");
   m_recentDocumentListBox->setFixedWidth(300);
   m_recentDocumentListBox->setSizePolicy(
@@ -57,19 +55,19 @@ void WelcomeWindow::createGui() {
     m_recentDocumentListBox, &RecentDocumentListBox::loadRecentDocument, this,
     &WelcomeWindow::openDocument);
 
-  auto* innerLayout = new QHBoxLayout();
-  innerLayout->setContentsMargins(QMargins());
+  auto* innerLayout = new QHBoxLayout{};
+  innerLayout->setContentsMargins(QMargins{});
   innerLayout->setSpacing(0);
 
   auto* appPanel = createAppPanel();
 
   innerLayout->addWidget(appPanel, 0, Qt::AlignTop);
-  innerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0);
+  innerLayout->addWidget(new BorderLine{BorderLine::Direction::Vertical}, 0);
   innerLayout->addWidget(m_recentDocumentListBox, 1);
 
-  auto* container = new QWidget();
-  auto* outerLayout = new QVBoxLayout();
-  outerLayout->setContentsMargins(QMargins());
+  auto* container = new QWidget{};
+  auto* outerLayout = new QVBoxLayout{};
+  outerLayout->setContentsMargins(QMargins{});
   outerLayout->setSpacing(0);
 
   outerLayout->addLayout(innerLayout);
@@ -82,12 +80,12 @@ void WelcomeWindow::createGui() {
 }
 
 QWidget* WelcomeWindow::createAppPanel() {
-  auto* appPanel = new QWidget();
-  auto* infoPanel = new AppInfoPanel(appPanel);
+  auto* appPanel = new QWidget{};
+  auto* infoPanel = new AppInfoPanel{appPanel};
 
-  m_createNewDocumentButton = new QPushButton("New map...");
+  m_createNewDocumentButton = new QPushButton{"New map..."};
   m_createNewDocumentButton->setToolTip("Create a new map document");
-  m_openOtherDocumentButton = new QPushButton("Browse...");
+  m_openOtherDocumentButton = new QPushButton{"Browse..."};
   m_openOtherDocumentButton->setToolTip("Open an existing map document");
 
   connect(
@@ -95,7 +93,7 @@ QWidget* WelcomeWindow::createAppPanel() {
   connect(
     m_openOtherDocumentButton, &QPushButton::clicked, this, &WelcomeWindow::openOtherDocument);
 
-  auto* buttonLayout = new QHBoxLayout();
+  auto* buttonLayout = new QHBoxLayout{};
   buttonLayout->setContentsMargins(0, 0, 0, 0);
   buttonLayout->setSpacing(LayoutConstants::WideHMargin);
   buttonLayout->addStretch();
@@ -103,7 +101,7 @@ QWidget* WelcomeWindow::createAppPanel() {
   buttonLayout->addWidget(m_openOtherDocumentButton);
   buttonLayout->addStretch();
 
-  auto* outerLayout = new QVBoxLayout();
+  auto* outerLayout = new QVBoxLayout{};
   outerLayout->setContentsMargins(0, 0, 0, 0);
   outerLayout->setSpacing(0);
   outerLayout->addWidget(infoPanel, 0, Qt::AlignHCenter);
@@ -116,14 +114,14 @@ QWidget* WelcomeWindow::createAppPanel() {
 }
 
 void WelcomeWindow::createNewDocument() {
-  TrenchBroomApp& app = TrenchBroomApp::instance();
+  auto& app = TrenchBroomApp::instance();
   if (!app.newDocument()) {
     show();
   }
 }
 
 void WelcomeWindow::openOtherDocument() {
-  const QString pathStr = QFileDialog::getOpenFileName(
+  const auto pathStr = QFileDialog::getOpenFileName(
     nullptr, tr("Open Map"), fileDialogDefaultDirectory(FileDialogDir::Map),
     "Map files (*.map);;Any files (*.*)");
   const auto path = IO::pathFromQString(pathStr);
@@ -135,10 +133,9 @@ void WelcomeWindow::openOtherDocument() {
 }
 
 void WelcomeWindow::openDocument(const IO::Path& path) {
-  TrenchBroomApp& app = TrenchBroomApp::instance();
+  auto& app = TrenchBroomApp::instance();
   if (!app.openDocument(path)) {
     show();
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View
