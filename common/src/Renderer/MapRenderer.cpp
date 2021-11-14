@@ -51,8 +51,6 @@
 #include <set>
 #include <vector>
 
-#include <QDebug>
-
 namespace TrenchBroom {
 namespace Renderer {
 MapRenderer::MapRenderer(std::weak_ptr<View::MapDocument> document)
@@ -447,46 +445,17 @@ void MapRenderer::connectObservers() {
     prefs.preferenceDidChangeNotifier.connect(this, &MapRenderer::preferenceDidChange);
 }
 
-static void debugLog(const char* functionName) {
-  qDebug() << functionName;
-}
-
-static void debugLog(const char* functionName, const std::vector<Model::Node*>& nodes) {
-  qDebug() << functionName << nodes.size() << "nodes";
-}
-
-static void debugLog(const char* functionName, const Model::Node*) {
-  qDebug() << functionName << "1 node";
-}
-
-static void debugLog(const char* functionName, const std::vector<Model::BrushFaceHandle>& faces) {
-  qDebug() << functionName << faces.size() << "face handles";
-}
-
-static void debugLog(const char* functionName, const View::Selection& selection) {
-  qDebug() << functionName
-           << QString::fromLatin1(
-                "%1/%2 nodes selected/deselected, %3/%4 faces selected/deselected")
-                .arg(selection.selectedNodes().size())
-                .arg(selection.deselectedNodes().size())
-                .arg(selection.selectedBrushFaces().size())
-                .arg(selection.deselectedBrushFaces().size());
-}
-
 void MapRenderer::documentWasCleared(View::MapDocument*) {
-  debugLog(__func__);
   clear();
 }
 
 void MapRenderer::documentWasNewedOrLoaded(View::MapDocument*) {
-  debugLog(__func__);
   clear();
   updateAllNodes();
   invalidateEntityLinkRenderer();
 }
 
 void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes) {
-  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     // The nodes passed in don't include recursive children, so we need to visit them ourselves.
     updateAndInvalidateNodeRecursive(node);
@@ -496,7 +465,6 @@ void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes) {
 }
 
 void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes) {
-  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     // The nodes passed in don't include recursive children, so we need to visit them ourselves.
     // Otherwise deleting a group doesn't delete the brushes within.
@@ -507,7 +475,6 @@ void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes) {
 }
 
 void MapRenderer::nodesDidChange(const std::vector<Model::Node*>& nodes) {
-  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     // nodesDidChange() will report ancestors changing, e.g. the world and layer are reported as
     // changing when a brush is dragged. So, don't update recursively here as it would cause
@@ -519,7 +486,6 @@ void MapRenderer::nodesDidChange(const std::vector<Model::Node*>& nodes) {
 }
 
 void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes) {
-  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     updateAndInvalidateNodeRecursive(node);
   }
@@ -527,35 +493,29 @@ void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes
 }
 
 void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>& nodes) {
-  debugLog(__func__, nodes);
   for (auto* node : nodes) {
     updateAndInvalidateNodeRecursive(node);
   }
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasOpened(Model::GroupNode* group) {
-  debugLog(__func__, group);
+void MapRenderer::groupWasOpened(Model::GroupNode*) {
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasClosed(Model::GroupNode* group) {
-  debugLog(__func__, group);
+void MapRenderer::groupWasClosed(Model::GroupNode*) {
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
 }
 
 void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces) {
-  debugLog(__func__, faces);
   for (const auto& face : faces) {
     updateAndInvalidateNode(face.node());
   }
 }
 
 void MapRenderer::selectionDidChange(const View::Selection& selection) {
-  debugLog(__func__, selection);
-
   for (const auto& face : selection.deselectedBrushFaces()) {
     updateAndInvalidateNode(face.node());
   }
@@ -575,7 +535,6 @@ void MapRenderer::selectionDidChange(const View::Selection& selection) {
 }
 
 void MapRenderer::textureCollectionsWillChange() {
-  debugLog(__func__);
   invalidateRenderers();
 }
 
