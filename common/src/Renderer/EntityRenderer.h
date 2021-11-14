@@ -47,6 +47,10 @@ class EntityNode;
 namespace Renderer {
 class AttrString;
 
+/**
+ * TODO: Selected nodes render occluded bounds edges at pref(Preferences::OccludedSelectedEdgeAlpha) opacity
+ * (otherwise, don't render occluded lines)
+ */
 class EntityRenderer {
 private:
   class EntityClassnameAnchor;
@@ -68,10 +72,6 @@ private:
   bool m_showOccludedOverlays;
   bool m_tint;
   Color m_tintColor;
-  bool m_overrideBoundsColor;
-  Color m_boundsColor;
-  bool m_showOccludedBounds;
-  Color m_occludedBoundsColor;
   bool m_showAngles;
   Color m_angleColor;
   bool m_showHiddenEntities;
@@ -110,14 +110,8 @@ public:
   void setOverlayBackgroundColor(RenderType type, const Color& overlayBackgroundColor);
   void setShowOccludedOverlays(bool showOccludedOverlays);
 
-  // void setTint(bool tint);
-  // void setTintColor(const Color& tintColor);
-
-  void setOverrideBoundsColor(bool overrideBoundsColor);
-  void setBoundsColor(const Color& boundsColor);
-
-  void setShowOccludedBounds(bool showOccludedBounds);
-  void setOccludedBoundsColor(const Color& occludedBoundsColor);
+  void setTint(bool tint);
+  void setTintColor(const Color& tintColor);
 
   void setShowAngles(bool showAngles);
   void setAngleColor(const Color& angleColor);
@@ -145,7 +139,7 @@ private:
   void validateBounds();
 
   AttrString entityString(const Model::EntityNode* entityNode) const;
-  const Color& boundsColor(const Model::EntityNode* entityNode) const;
+  Color boundsColor(const Model::EntityNode* entityNode) const;
 };
 } // namespace Renderer
 } // namespace TrenchBroom

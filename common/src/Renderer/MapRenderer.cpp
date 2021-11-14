@@ -177,10 +177,8 @@ void MapRenderer::setupDefaultRenderer() {
 #if 0            
             renderer.setTint(false);
             renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
-
-            renderer.setGroupBoundsColor(pref(Preferences::DefaultGroupColor));
-            renderer.setEntityBoundsColor(pref(Preferences::UndefinedEntityColor));
 #endif
+
   m_brushRenderer->setFaceColor(
     pref(Preferences::FaceColor)); // Selected/Locked also use this color
   m_patchRenderer->setDefaultColor(
@@ -200,16 +198,9 @@ void MapRenderer::setupSelectionRenderer() {
     RenderType::Selected, pref(Preferences::SelectedInfoOverlayBackgroundColor));
 #if 0                        
             renderer.setShowBrushEdges(true);
-            renderer.setShowOccludedObjects(true);
-            renderer.setOccludedEdgeColor(Color(pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
             renderer.setTint(true);
             renderer.setTintColor(pref(Preferences::SelectedFaceColor));
-
-            renderer.setOverrideGroupColors(true);
-            renderer.setGroupBoundsColor(pref(Preferences::SelectedEdgeColor));
-
-            renderer.setOverrideEntityBoundsColor(true);
-            renderer.setEntityBoundsColor(pref(Preferences::SelectedEdgeColor));
+            
             renderer.setShowEntityAngles(true);
             renderer.setEntityAngleColor(pref(Preferences::AngleIndicatorColor));
 #endif
@@ -227,16 +218,10 @@ void MapRenderer::setupLockedRenderer() {
   m_groupRenderer->setOverlayBackgroundColor(
     RenderType::Locked, pref(Preferences::LockedInfoOverlayBackgroundColor));
 #if 0                        
-            renderer.setShowOccludedObjects(false);
             renderer.setTint(true);
             renderer.setTintColor(pref(Preferences::LockedFaceColor));
             renderer.setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
 
-            renderer.setOverrideGroupColors(true);
-            renderer.setGroupBoundsColor(pref(Preferences::LockedEdgeColor));
-
-            renderer.setOverrideEntityBoundsColor(true);
-            renderer.setEntityBoundsColor(pref(Preferences::LockedEdgeColor));
             renderer.setShowEntityAngles(false);
 #endif
   m_brushRenderer->setEdgeColor(RenderType::Locked, pref(Preferences::LockedEdgeColor));
