@@ -84,10 +84,10 @@ Model::BrushNode* MapDocumentTest::createBrushNode(
 
 Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureName) const {
   // clang-format off
-            return new Model::PatchNode{Model::BezierPatch{3, 3, {
-                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, textureName}};
+  return new Model::PatchNode{Model::BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, textureName}};
   // clang-format on
 }
 
@@ -176,15 +176,15 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection") {
     using T = std::vector<Model::NodePath>;
 
     // clang-format off
-                const auto 
-                paths = GENERATE_COPY(values<T>({
-                {},
-                {getPath(brushNodeInDefaultLayer)},
-                {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer)},
-                {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer), getPath(brushNodeInEntity)},
-                {getPath(brushNodeInGroup)},
-                {getPath(brushNodeInGroup), getPath(brushNodeInNestedGroup)},
-                }));
+    const auto 
+    paths = GENERATE_COPY(values<T>({
+    {},
+    {getPath(brushNodeInDefaultLayer)},
+    {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer)},
+    {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer), getPath(brushNodeInEntity)},
+    {getPath(brushNodeInGroup)},
+    {getPath(brushNodeInGroup), getPath(brushNodeInNestedGroup)},
+    }));
     // clang-format on
 
     const auto nodes = resolvePaths(paths);
@@ -199,18 +199,18 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection") {
     using T = std::tuple<std::vector<Model::NodePath>, bool>;
 
     // clang-format off
-                const auto 
-                [pathsToSelect,                      expectedResult] = GENERATE_COPY(values<T>({
-                {std::vector<Model::NodePath>{},     false},
-                {{getPath(pointEntityNode)},         false},
-                {{getPath(brushEntityNode)},         true},
-                {{getPath(outerGroupNode)},          true},
-                {{getPath(brushNodeInDefaultLayer)}, true},
-                {{getPath(brushNodeInCustomLayer)},  true},
-                {{getPath(brushNodeInEntity)},       true},
-                {{getPath(brushNodeInGroup)},        true},
-                {{getPath(brushNodeInNestedGroup)},  true},
-                }));
+    const auto 
+    [pathsToSelect,                      expectedResult] = GENERATE_COPY(values<T>({
+    {std::vector<Model::NodePath>{},     false},
+    {{getPath(pointEntityNode)},         false},
+    {{getPath(brushEntityNode)},         true},
+    {{getPath(outerGroupNode)},          true},
+    {{getPath(brushNodeInDefaultLayer)}, true},
+    {{getPath(brushNodeInCustomLayer)},  true},
+    {{getPath(brushNodeInEntity)},       true},
+    {{getPath(brushNodeInGroup)},        true},
+    {{getPath(brushNodeInNestedGroup)},  true},
+    }));
     // clang-format on
 
     CAPTURE(pathsToSelect);

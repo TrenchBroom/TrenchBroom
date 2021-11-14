@@ -160,11 +160,11 @@ TEST_CASE("BrushNodeTest.containsPatchNode", "[BrushNodeTest]") {
 
   // a half cylinder that, at this position, just sticks out of the brush
   // clang-format off
-            auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
-                { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
-                  {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
-                  {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
-            }, "some_texture"}};
+  auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
+    { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
+      {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
+      {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
+  }, "some_texture"}};
   // clang-format on
 
   CHECK_FALSE(brushNode.contains(&patchNode));
@@ -186,11 +186,11 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode", "[BrushNodeTest]") {
 
   // a half cylinder that, at this position, just sticks out of the brush
   // clang-format off
-            auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
-                { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
-                  {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
-                  {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
-            }, "some_texture"}};
+  auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
+    { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
+      {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
+      {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
+  }, "some_texture"}};
   // clang-format on
 
   CHECK(brushNode.intersects(&patchNode));

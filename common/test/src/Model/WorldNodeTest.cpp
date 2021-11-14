@@ -56,10 +56,10 @@ TEST_CASE("WorldNodeTest.canAddChild") {
     BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
-            auto patchNode = PatchNode{BezierPatch{3, 3, {
-                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+  auto patchNode = PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
   // clang-format on
 
   CHECK_FALSE(worldNode.canAddChild(&worldNode));
@@ -82,10 +82,10 @@ TEST_CASE("WorldNodeTest.canRemoveChild") {
     BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
-            auto patchNode = PatchNode{BezierPatch{3, 3, {
-                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+  auto patchNode = PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
   // clang-format on
 
   CHECK_FALSE(worldNode.canRemoveChild(&worldNode));
@@ -109,10 +109,10 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
     new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
-            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
   // clang-format on
 
   const auto& nodeTree = worldNode.nodeTree();
@@ -238,10 +238,10 @@ TEST_CASE("WorldNodeTest.rebuildNodeTree") {
     new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
-            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
   // clang-format on
 
   worldNode.addChild(layerNode);
@@ -278,10 +278,10 @@ TEST_CASE("WorldNodeTest.disableNodeTreeUpdates") {
     new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
-            auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-                {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
   // clang-format on
 
   worldNode.disableNodeTreeUpdates();

@@ -1133,12 +1133,12 @@ TEST_CASE("NodeWriterTest.quoteTextureNamesIfNecessary", "[NodeWriterTest]") {
   using NameInfo = std::tuple<std::string, std::string>;
 
   // clang-format off
-            const auto [textureName, expectedName] = GENERATE(values<NameInfo>({
-            { R"(some_name)", R"(some_name)" },
-            { R"(some name)", R"("some name")" },
-            { R"(some\name)", R"("some\\name")" },
-            { R"(some"name)", R"("some\"name")" },
-            }));
+  const auto [textureName, expectedName] = GENERATE(values<NameInfo>({
+  { R"(some_name)", R"(some_name)" },
+  { R"(some name)", R"("some name")" },
+  { R"(some\name)", R"("some\\name")" },
+  { R"(some"name)", R"("some\"name")" },
+  }));
   // clang-format on
 
   CAPTURE(textureName, expectedName);
