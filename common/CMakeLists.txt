@@ -165,6 +165,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/PickResult.cpp
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/PointFile.cpp
+        ${COMMON_SOURCE_DIR}/Model/PointTrace.cpp
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Instantiation.cpp
         ${COMMON_SOURCE_DIR}/Model/PortalFile.cpp
         ${COMMON_SOURCE_DIR}/Model/PropertyKeyWithDoubleQuotationMarksIssueGenerator.cpp
@@ -659,6 +660,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/PickResult.h
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/PointFile.h
+        ${COMMON_SOURCE_DIR}/Model/PointTrace.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron3.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_BrushGeometryPayload.h
