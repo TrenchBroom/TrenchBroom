@@ -43,7 +43,7 @@ std::string typeName(const ValueType type) {
       return "Null";
     case ValueType::Undefined:
       return "Undefined";
-      switchDefault()
+      switchDefault();
   }
 }
 

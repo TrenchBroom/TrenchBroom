@@ -151,7 +151,7 @@ QString EntityPropertyEditor::optionDescriptions(const Assets::PropertyDefinitio
     case Assets::PropertyDefinitionType::TargetSourceProperty:
     case Assets::PropertyDefinitionType::TargetDestinationProperty:
       return QString();
-      switchDefault()
+      switchDefault();
   }
 }
 

@@ -84,9 +84,11 @@ public:
   explicit MapRenderer(std::weak_ptr<View::MapDocument> document);
   ~MapRenderer();
 
-  deleteCopyAndMove(MapRenderer) private
-    : static std::unique_ptr<ObjectRenderer> createDefaultRenderer(
-        std::weak_ptr<View::MapDocument> document);
+  deleteCopyAndMove(MapRenderer);
+
+private:
+  static std::unique_ptr<ObjectRenderer> createDefaultRenderer(
+    std::weak_ptr<View::MapDocument> document);
   static std::unique_ptr<ObjectRenderer> createSelectionRenderer(
     std::weak_ptr<View::MapDocument> document);
   static std::unique_ptr<ObjectRenderer> createLockRenderer(

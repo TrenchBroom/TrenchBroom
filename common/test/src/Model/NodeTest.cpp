@@ -530,7 +530,7 @@ enum class Visited
       return str << "Brush";
     case Visited::Patch:
       return str << "Patch";
-      switchDefault()
+      switchDefault();
   }
 }
 

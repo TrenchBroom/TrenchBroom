@@ -50,11 +50,11 @@ vm::vec3f gridColorForTexture(const Assets::Texture* texture) {
 }
 
 void glSetEdgeOffset(const double f) {
-  glAssert(glDepthRange(0.0, 1.0 - EdgeOffset * f))
+  glAssert(glDepthRange(0.0, 1.0 - EdgeOffset * f));
 }
 
 void glResetEdgeOffset() {
-  glAssert(glDepthRange(EdgeOffset, 1.0))
+  glAssert(glDepthRange(EdgeOffset, 1.0));
 }
 
 void coordinateSystemVerticesX(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end) {

@@ -47,7 +47,7 @@ public:
 private:
   std::vector<LinkRenderer::LineVertex> getLinks() override;
 
-  deleteCopy(EntityLinkRenderer)
+  deleteCopy(EntityLinkRenderer);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

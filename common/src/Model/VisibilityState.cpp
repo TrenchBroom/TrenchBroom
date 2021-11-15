@@ -36,7 +36,7 @@ std::ostream& operator<<(std::ostream& str, const VisibilityState state) {
     case VisibilityState::Shown:
       str << "Shown";
       break;
-      switchDefault()
+      switchDefault();
   }
   return str;
 }

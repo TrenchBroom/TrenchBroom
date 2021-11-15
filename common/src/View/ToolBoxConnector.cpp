@@ -208,7 +208,7 @@ void ToolBoxConnector::processEvent(const MouseEvent& event) {
     case MouseEvent::Type::DragEnd:
       processDragEnd(event);
       break;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -313,7 +313,7 @@ MouseButtonState ToolBoxConnector::mouseButton(const MouseEvent& event) {
     case MouseEvent::Button::Aux2:
     case MouseEvent::Button::None:
       return MouseButtons::MBNone;
-      switchDefault()
+      switchDefault();
   }
 }
 

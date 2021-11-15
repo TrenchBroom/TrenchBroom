@@ -49,10 +49,10 @@ public:
     unsigned char firstChar, unsigned char charCount);
   ~TextureFont();
 
-  deleteCopyAndMove(TextureFont)
+  deleteCopyAndMove(TextureFont);
 
-    std::vector<vm::vec2f> quads(
-      const AttrString& string, bool clockwise, const vm::vec2f& offset = vm::vec2f::zero()) const;
+  std::vector<vm::vec2f> quads(
+    const AttrString& string, bool clockwise, const vm::vec2f& offset = vm::vec2f::zero()) const;
   vm::vec2f measure(const AttrString& string) const;
 
   std::vector<vm::vec2f> quads(

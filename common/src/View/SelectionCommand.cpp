@@ -121,7 +121,7 @@ std::string SelectionCommand::makeName(
       break;
     case Action::DeselectAll:
       return "Select None";
-      switchDefault()
+      switchDefault();
   }
   return result.str();
 }

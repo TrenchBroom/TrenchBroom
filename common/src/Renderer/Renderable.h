@@ -36,7 +36,7 @@ public:
 private:
   virtual void doRender(RenderContext& renderContext) = 0;
 
-  defineCopyAndMove(Renderable)
+  defineCopyAndMove(Renderable);
 };
 
 class DirectRenderable : public Renderable {
@@ -49,7 +49,7 @@ public:
 private:
   virtual void doPrepareVertices(VboManager& vboManager) = 0;
 
-  defineCopyAndMove(DirectRenderable)
+  defineCopyAndMove(DirectRenderable);
 };
 
 class IndexedRenderable : public Renderable {
@@ -59,7 +59,7 @@ public:
 
   virtual void prepareVerticesAndIndices(VboManager& vboManager) = 0;
 
-  defineCopyAndMove(IndexedRenderable)
+  defineCopyAndMove(IndexedRenderable);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

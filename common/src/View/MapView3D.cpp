@@ -416,7 +416,7 @@ vm::vec3 MapView3D::doGetMoveDirection(const vm::direction direction) const {
       return vm::vec3::pos_z();
     case vm::direction::down:
       return vm::vec3::neg_z();
-      switchDefault()
+      switchDefault();
   }
 }
 

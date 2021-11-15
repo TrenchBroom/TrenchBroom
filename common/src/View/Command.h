@@ -78,7 +78,7 @@ public:
 private:
   virtual std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) = 0;
 
-  deleteCopyAndMove(Command)
+  deleteCopyAndMove(Command);
 };
 } // namespace View
 } // namespace TrenchBroom

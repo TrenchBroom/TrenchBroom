@@ -101,7 +101,7 @@ bool InputState::checkModifierKey(ModifierKeyPressed state, ModifierKeyState key
       return !modifierKeysDown(key);
     case MK_DontCare:
       return true;
-      switchDefault()
+      switchDefault();
   }
 }
 

@@ -166,7 +166,7 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 
 private:
-  deleteCopyAndMove(GroupNode)
+  deleteCopyAndMove(GroupNode);
 };
 } // namespace Model
 } // namespace TrenchBroom

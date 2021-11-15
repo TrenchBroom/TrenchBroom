@@ -145,7 +145,7 @@ private: // implement MapView interface
 private: // implement ViewEffectsService interface
   void doFlashSelection() override;
 
-  deleteCopyAndMove(SwitchableMapViewContainer)
+  deleteCopyAndMove(SwitchableMapViewContainer);
 };
 } // namespace View
 } // namespace TrenchBroom

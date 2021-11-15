@@ -119,7 +119,7 @@ private:
   virtual Model::PickResult doPick(const vm::ray3& pickRay) const = 0;
   virtual void doShowPopupMenu();
 
-  deleteCopyAndMove(ToolBoxConnector)
+  deleteCopyAndMove(ToolBoxConnector);
 };
 } // namespace View
 } // namespace TrenchBroom

@@ -93,7 +93,7 @@ std::string SetLockStateCommand::makeName(const Model::LockState state) {
       return "Lock Objects";
     case Model::LockState::Unlocked:
       return "Unlock Objects";
-      switchDefault()
+      switchDefault();
   }
 }
 

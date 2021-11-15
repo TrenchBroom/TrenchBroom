@@ -112,7 +112,7 @@ private:
     const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2,
     const BrushFaceAttributes& attribs) const override;
 
-  deleteCopyAndMove(ParallelTexCoordSystem)
+  deleteCopyAndMove(ParallelTexCoordSystem);
 };
 } // namespace Model
 } // namespace TrenchBroom

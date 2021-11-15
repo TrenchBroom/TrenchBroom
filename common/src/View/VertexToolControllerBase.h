@@ -285,7 +285,7 @@ protected:
           return DragStatus::Deny;
         case T::MoveResult::Cancel:
           return DragStatus::End;
-          switchDefault()
+          switchDefault();
       }
     }
 

@@ -145,7 +145,7 @@ std::vector<vm::vec3> computeGridNormals(
               const auto right = gridPoint(row, col + 1u);
               return vm::cross(right - point, above - point);
             }
-              switchDefault()
+              switchDefault();
           }
         }
         case RowOffset::Below: {
@@ -162,10 +162,10 @@ std::vector<vm::vec3> computeGridNormals(
               const auto right = gridPoint(row, col + 1u);
               return vm::cross(below - point, right - point);
             }
-              switchDefault()
+              switchDefault();
           }
         }
-          switchDefault()
+          switchDefault();
       };
     };
 

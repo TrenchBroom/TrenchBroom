@@ -70,7 +70,7 @@ public:
   Assets::TextureCollection loadTextureCollection(const Path& path);
   void loadTextures(const std::vector<Path>& paths, Assets::TextureManager& textureManager);
 
-  deleteCopyAndMove(TextureLoader)
+  deleteCopyAndMove(TextureLoader);
 };
 } // namespace IO
 } // namespace TrenchBroom

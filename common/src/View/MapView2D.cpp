@@ -91,7 +91,7 @@ MapView2D::MapView2D(
     case ViewPlane_XZ:
       setObjectName("XZ View");
       break;
-      switchDefault()
+      switchDefault();
   }
 
   mapViewBaseVirtualInit();
@@ -257,7 +257,7 @@ vm::vec3 MapView2D::doGetMoveDirection(const vm::direction direction) const {
       return vm::vec3(-vm::get_abs_max_component_axis(m_camera->direction()));
     case vm::direction::down:
       return vm::vec3(vm::get_abs_max_component_axis(m_camera->direction()));
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -275,7 +275,7 @@ size_t MapView2D::doGetFlipAxis(const vm::direction direction) const {
     case vm::direction::down:
       // Vertical flip. In 2D views, this corresponds to the vertical axis of the viewport.
       return vm::find_abs_max_component(m_camera->up());
-      switchDefault()
+      switchDefault();
   }
 }
 

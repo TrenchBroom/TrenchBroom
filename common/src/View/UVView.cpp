@@ -187,14 +187,17 @@ void UVView::setupGL(Renderer::RenderContext& renderContext) {
   const int width = static_cast<int>(viewport.width * r);
   const int height = static_cast<int>(viewport.height * r);
 
-  glAssert(glViewport(x, y, width, height))
+  glAssert(glViewport(x, y, width, height));
 
-    if (pref(Preferences::EnableMSAA)) {
-    glAssert(glEnable(GL_MULTISAMPLE))
+  if (pref(Preferences::EnableMSAA)) {
+    glAssert(glEnable(GL_MULTISAMPLE));
+  } else {
+    glAssert(glDisable(GL_MULTISAMPLE));
   }
-  else {glAssert(glDisable(GL_MULTISAMPLE))} glAssert(glEnable(GL_BLEND))
-    glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)) glAssert(glShadeModel(GL_SMOOTH))
-      glAssert(glDisable(GL_DEPTH_TEST))
+  glAssert(glEnable(GL_BLEND));
+  glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+  glAssert(glShadeModel(GL_SMOOTH));
+  glAssert(glDisable(GL_DEPTH_TEST));
 }
 
 class UVView::RenderTexture : public Renderer::DirectRenderable {

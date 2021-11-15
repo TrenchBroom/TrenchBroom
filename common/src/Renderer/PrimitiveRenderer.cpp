@@ -123,13 +123,14 @@ bool PrimitiveRenderer::TriangleRenderAttributes::operator<(
 void PrimitiveRenderer::TriangleRenderAttributes::render(
   IndexRangeRenderer& renderer, ActiveShader& shader) const {
   if (m_cullingPolicy == PrimitiveRendererCullingPolicy::ShowBackfaces) {
-    glAssert(glPushAttrib(GL_POLYGON_BIT)) glAssert(glDisable(GL_CULL_FACE))
-      glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL))
+    glAssert(glPushAttrib(GL_POLYGON_BIT));
+    glAssert(glDisable(GL_CULL_FACE));
+    glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
   }
 
   // Disable depth writes if drawing something transparent
   if (m_color.a() < 1.0f) {
-    glAssert(glDepthMask(GL_FALSE))
+    glAssert(glDepthMask(GL_FALSE));
   }
 
   switch (m_occlusionPolicy) {
@@ -138,23 +139,27 @@ void PrimitiveRenderer::TriangleRenderAttributes::render(
       renderer.render();
       break;
     case PrimitiveRendererOcclusionPolicy::Show:
-      glAssert(glDisable(GL_DEPTH_TEST)) shader.set("Color", m_color);
+      glAssert(glDisable(GL_DEPTH_TEST));
+      shader.set("Color", m_color);
       renderer.render();
-      glAssert(glEnable(GL_DEPTH_TEST)) break;
+      glAssert(glEnable(GL_DEPTH_TEST));
+      break;
     case PrimitiveRendererOcclusionPolicy::Transparent:
-      glAssert(glDisable(GL_DEPTH_TEST)) shader.set("Color", Color(m_color, m_color.a() / 2.0f));
+      glAssert(glDisable(GL_DEPTH_TEST));
+      shader.set("Color", Color(m_color, m_color.a() / 2.0f));
       renderer.render();
-      glAssert(glEnable(GL_DEPTH_TEST)) shader.set("Color", m_color);
+      glAssert(glEnable(GL_DEPTH_TEST));
+      shader.set("Color", m_color);
       renderer.render();
       break;
   }
 
   if (m_color.a() < 1.0f) {
-    glAssert(glDepthMask(GL_TRUE))
+    glAssert(glDepthMask(GL_TRUE));
   }
 
   if (m_cullingPolicy == PrimitiveRendererCullingPolicy::ShowBackfaces) {
-    glAssert(glPopAttrib())
+    glAssert(glPopAttrib());
   }
 }
 
@@ -301,7 +306,7 @@ void PrimitiveRenderer::renderLines(RenderContext& renderContext) {
   for (auto& [attributes, renderer] : m_lineMeshRenderers) {
     attributes.render(renderer, shader);
   }
-  glAssert(glLineWidth(1.0f))
+  glAssert(glLineWidth(1.0f));
 }
 
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext) {

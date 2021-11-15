@@ -360,7 +360,7 @@ std::unique_ptr<Assets::EntityDefinition> EntityDefinitionParser::createDefiniti
         name, color, std::move(description), std::move(attributes));
     case EntityDefinitionClassType::BaseClass:
       return nullptr;
-      switchDefault()
+      switchDefault();
   };
 }
 

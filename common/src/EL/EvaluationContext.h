@@ -39,7 +39,7 @@ public:
   virtual Value variableValue(const std::string& name) const;
   virtual void declareVariable(const std::string& name, const Value& value);
 
-  deleteCopyAndMove(EvaluationContext)
+  deleteCopyAndMove(EvaluationContext);
 };
 
 class EvaluationStack : public EvaluationContext {
@@ -51,7 +51,7 @@ public:
 
   Value variableValue(const std::string& name) const override;
 
-  deleteCopyAndMove(EvaluationStack)
+  deleteCopyAndMove(EvaluationStack);
 };
 } // namespace EL
 } // namespace TrenchBroom

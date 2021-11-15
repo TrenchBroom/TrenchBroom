@@ -60,7 +60,7 @@ public:
   Renderer::FontManager& fontManager();
   Renderer::ShaderManager& shaderManager();
 
-  deleteCopyAndMove(GLContextManager)
+  deleteCopyAndMove(GLContextManager);
 };
 } // namespace View
 } // namespace TrenchBroom

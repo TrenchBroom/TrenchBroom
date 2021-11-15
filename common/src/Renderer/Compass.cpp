@@ -91,8 +91,10 @@ void Compass::doRender(RenderContext& renderContext) {
   const MultiplyModelMatrix compass(renderContext.transformation(), compassTransformation);
   const auto cameraTransformation = cameraRotationMatrix(camera);
 
-  glAssert(glClear(GL_DEPTH_BUFFER_BIT)) renderBackground(renderContext);
-  glAssert(glClear(GL_DEPTH_BUFFER_BIT)) doRenderCompass(renderContext, cameraTransformation);
+  glAssert(glClear(GL_DEPTH_BUFFER_BIT));
+  renderBackground(renderContext);
+  glAssert(glClear(GL_DEPTH_BUFFER_BIT));
+  doRenderCompass(renderContext, cameraTransformation);
 }
 
 void Compass::makeArrows() {
@@ -212,15 +214,17 @@ void Compass::renderSolidAxis(
 
 void Compass::renderAxisOutline(
   RenderContext& renderContext, const vm::mat4x4f& transformation, const Color& color) {
-  glAssert(glDepthMask(GL_FALSE)) glAssert(glLineWidth(3.0f))
-    glAssert(glPolygonMode(GL_FRONT, GL_LINE))
+  glAssert(glDepthMask(GL_FALSE));
+  glAssert(glLineWidth(3.0f));
+  glAssert(glPolygonMode(GL_FRONT, GL_LINE));
 
-      ActiveShader shader(renderContext.shaderManager(), Shaders::CompassOutlineShader);
+  ActiveShader shader(renderContext.shaderManager(), Shaders::CompassOutlineShader);
   shader.set("Color", color);
   renderAxis(renderContext, transformation);
 
-  glAssert(glDepthMask(GL_TRUE)) glAssert(glLineWidth(1.0f))
-    glAssert(glPolygonMode(GL_FRONT, GL_FILL))
+  glAssert(glDepthMask(GL_TRUE));
+  glAssert(glLineWidth(1.0f));
+  glAssert(glPolygonMode(GL_FRONT, GL_FILL));
 }
 
 void Compass::renderAxis(RenderContext& renderContext, const vm::mat4x4f& transformation) {

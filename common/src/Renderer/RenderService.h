@@ -63,9 +63,9 @@ public:
   RenderService(RenderContext& renderContext, RenderBatch& renderBatch);
   ~RenderService();
 
-  deleteCopyAndMove(RenderService)
+  deleteCopyAndMove(RenderService);
 
-    void setForegroundColor(const Color& foregroundColor);
+  void setForegroundColor(const Color& foregroundColor);
   void setBackgroundColor(const Color& backgroundColor);
   void setLineWidth(float lineWidth);
 

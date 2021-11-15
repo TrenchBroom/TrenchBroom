@@ -97,7 +97,7 @@ struct GLVertexType<AttrType, AttrTypeRest...> {
 
   // Non-instantiable
   GLVertexType() = delete;
-  deleteCopyAndMove(GLVertexType)
+  deleteCopyAndMove(GLVertexType);
 };
 
 /**
@@ -155,7 +155,7 @@ template <typename AttrType> struct GLVertexType<AttrType> {
 
   // Non-instantiable
   GLVertexType() = delete;
-  deleteCopyAndMove(GLVertexType)
+  deleteCopyAndMove(GLVertexType);
 };
 
 namespace GLVertexTypes {

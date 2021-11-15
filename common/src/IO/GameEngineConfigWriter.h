@@ -45,7 +45,7 @@ private:
   EL::Value writeProfiles(const Model::GameEngineConfig& config) const;
   EL::Value writeProfile(const Model::GameEngineProfile* profile) const;
 
-  deleteCopyAndMove(GameEngineConfigWriter)
+  deleteCopyAndMove(GameEngineConfigWriter);
 };
 } // namespace IO
 } // namespace TrenchBroom
