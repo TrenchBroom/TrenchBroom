@@ -128,6 +128,7 @@ public:
     Color overrideEdgeColor;
     Color lockedEdgeColor;
     Color selectedEdgeColor;
+    Color occludedSelectedEdgeColor;
   };
 
   class RenderBase {

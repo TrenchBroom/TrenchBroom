@@ -207,6 +207,8 @@ void BrushRenderer::renderEdges(RenderBatch& renderBatch) {
   BrushEdgeRenderer::Params params;
   params.lockedEdgeColor = pref(Preferences::LockedEdgeColor);
   params.selectedEdgeColor = pref(Preferences::SelectedEdgeColor);
+  params.occludedSelectedEdgeColor =
+    Color(pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha));
   m_edgeRenderer.render(renderBatch, params);
 
   // we tell the shader that we're rendering on top (no depth test/write)
@@ -383,9 +385,9 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush) {
       const auto flags = edgeRenderFlags(brushFlags, face1, face2);
 
       vertDest[i++] = BrushEdgeVertex(
-        pos1, vm::vec<uint8_t, 3>(color.xyz() * 255.0f), vm::vec<uint8_t, 1>(flags));
+        pos1, vm::vec<uint8_t, 4>(color * 255.0f), vm::vec<uint32_t, 1>(flags));
       vertDest[i++] = BrushEdgeVertex(
-        pos2, vm::vec<uint8_t, 3>(color.xyz() * 255.0f), vm::vec<uint8_t, 1>(flags));
+        pos2, vm::vec<uint8_t, 4>(color * 255.0f), vm::vec<uint32_t, 1>(flags));
     }
   }
 

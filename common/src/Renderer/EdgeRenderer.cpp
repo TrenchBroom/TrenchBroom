@@ -213,9 +213,10 @@ void BrushEdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext) {
       shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
       shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
       shader.set("ShouldOverrideEdgeColor", m_params.shouldOverrideEdgeColor);
-      shader.set("OverrideEdgeColor", m_params.overrideEdgeColor.xyz());
-      shader.set("LockedEdgeColor", m_params.lockedEdgeColor.xyz());
-      shader.set("SelectedEdgeColor", m_params.selectedEdgeColor.xyz());
+      shader.set("OverrideEdgeColor", m_params.overrideEdgeColor);
+      shader.set("LockedEdgeColor", m_params.lockedEdgeColor);
+      shader.set("SelectedEdgeColor", m_params.selectedEdgeColor);
+      shader.set("OccludedSelectedEdgeColor", m_params.occludedSelectedEdgeColor);
       shader.set(
         "SoftMapBoundsColor",
         vm::vec4f(

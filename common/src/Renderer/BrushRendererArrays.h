@@ -422,9 +422,9 @@ using BrushVertexArray = TrackedVertexArray<BrushFaceVertex>;
 
 using BrushEdgeVertex = GLVertexType<
   GLVertexAttributeUser<PositionName, GL_FLOAT, 3, false>,
-  GLVertexAttributeUser<DefaultColorName, GL_UNSIGNED_BYTE, 3, true>,
-  GLVertexAttributeUser<FlagsName, GL_UNSIGNED_BYTE, 1, false>>::Vertex;
-static_assert(sizeof(BrushEdgeVertex) == 16u);
+  GLVertexAttributeUser<DefaultColorName, GL_UNSIGNED_BYTE, 4, true>,
+  GLVertexAttributeUser<FlagsName, GL_UNSIGNED_INT, 1, false>>::Vertex;
+static_assert(sizeof(BrushEdgeVertex) == 20u);
 
 using BrushEdgeVertexArray = TrackedVertexArray<BrushEdgeVertex>;
 } // namespace Renderer

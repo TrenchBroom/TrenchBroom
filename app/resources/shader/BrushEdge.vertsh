@@ -20,11 +20,11 @@
  */
 
 attribute vec4 position;
-attribute vec3 defaultColor;
+attribute vec4 defaultColor;
 attribute float flags;
 
 varying vec4 worldCoordinates;
-varying vec3 vertexColor;
+varying vec4 vertexColor;
 
 /**
  * We draw all of the lines twice, once with depth test/depth write enabled,
@@ -32,9 +32,10 @@ varying vec3 vertexColor;
  */
 uniform bool OnTop;
 uniform bool ShouldOverrideEdgeColor;
-uniform vec3 OverrideEdgeColor;
-uniform vec3 LockedEdgeColor;
-uniform vec3 SelectedEdgeColor;
+uniform vec4 OverrideEdgeColor;
+uniform vec4 LockedEdgeColor;
+uniform vec4 SelectedEdgeColor;
+uniform vec4 OccludedSelectedEdgeColor;
 
 struct flagsStruct {
     bool hidden;
@@ -57,22 +58,26 @@ void main(void) {
     }
 
     // only selected edges get drawn on top
-    if (OnTop && !edgeFlags.selected) {
-        // We assume edgeFlags are the same for both ends of each line.
-        // Discard the edge by mapping both vertices to 0, 0, 0
-        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
-    }
+    if (OnTop) {
+        if (!edgeFlags.selected) {
+            // We assume edgeFlags are the same for both ends of each line.
+            // Discard the edge by mapping both vertices to 0, 0, 0
+            gl_Position = vec4(0.0, 0.0, 0.0, 0.0);
+        }
 
-    // set the line color
-    if (ShouldOverrideEdgeColor) {
-        vertexColor = OverrideEdgeColor;
+        vertexColor = OccludedSelectedEdgeColor;
     } else {
-        if (edgeFlags.locked) {
-            vertexColor = LockedEdgeColor;
-        } else if (edgeFlags.selected) {
-            vertexColor = SelectedEdgeColor;
+        // set the line color
+        if (ShouldOverrideEdgeColor) {
+            vertexColor = OverrideEdgeColor;
         } else {
-            vertexColor = defaultColor;
+            if (edgeFlags.locked) {
+                vertexColor = LockedEdgeColor;
+            } else if (edgeFlags.selected) {
+                vertexColor = SelectedEdgeColor;
+            } else {
+                vertexColor = defaultColor;
+            }
         }
     }
 }

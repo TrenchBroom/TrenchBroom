@@ -20,11 +20,11 @@
  */
 
 varying vec4 worldCoordinates;
-varying vec3 vertexColor;
+varying vec4 vertexColor;
 
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
 void main() {
-    gl_FragColor = vec4(vertexColor, 1.0);
+    gl_FragColor = vertexColor;
     gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, worldCoordinates.xyz);
 }
