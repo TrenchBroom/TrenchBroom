@@ -155,7 +155,7 @@ private:
                  ? s - static_cast<T>(actualSize())
                  : s;
       }
-        switchDefault()
+        switchDefault();
     }
   }
 

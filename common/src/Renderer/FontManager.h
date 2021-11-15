@@ -46,7 +46,7 @@ public:
     size_t minFontSize);
   void clearCache();
 
-  deleteCopyAndMove(FontManager)
+  deleteCopyAndMove(FontManager);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

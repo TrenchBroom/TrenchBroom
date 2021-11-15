@@ -287,9 +287,9 @@ void CellView::doRender() {
   const qreal r = devicePixelRatioF();
   const auto viewportWidth = static_cast<int>(width() * r);
   const auto viewportHeight = static_cast<int>(height() * r);
-  glAssert(glViewport(0, 0, viewportWidth, viewportHeight))
+  glAssert(glViewport(0, 0, viewportWidth, viewportHeight));
 
-    setupGL();
+  setupGL();
 
   // NOTE: These are in points, while the glViewport call above is
   // in pixels
@@ -302,13 +302,16 @@ void CellView::doRender() {
 
 void CellView::setupGL() {
   if (pref(Preferences::EnableMSAA)) {
-    glAssert(glEnable(GL_MULTISAMPLE))
+    glAssert(glEnable(GL_MULTISAMPLE));
   } else {
-    glAssert(glDisable(GL_MULTISAMPLE))
+    glAssert(glDisable(GL_MULTISAMPLE));
   }
-  glAssert(glEnable(GL_BLEND)) glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
-    glAssert(glEnable(GL_CULL_FACE)) glAssert(glEnable(GL_DEPTH_TEST))
-      glAssert(glDepthFunc(GL_LEQUAL)) glAssert(glShadeModel(GL_SMOOTH))
+  glAssert(glEnable(GL_BLEND));
+  glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+  glAssert(glEnable(GL_CULL_FACE));
+  glAssert(glEnable(GL_DEPTH_TEST));
+  glAssert(glDepthFunc(GL_LEQUAL));
+  glAssert(glShadeModel(GL_SMOOTH));
 }
 
 void CellView::doClear() {}

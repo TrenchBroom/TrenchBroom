@@ -3982,7 +3982,7 @@ void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds) {
       entity.removeProperty(
         m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds);
       break;
-      switchDefault()
+      switchDefault();
   }
   swapNodeContents("Set Soft Map Bounds", {{world(), Model::NodeContents(std::move(entity))}}, {});
 }

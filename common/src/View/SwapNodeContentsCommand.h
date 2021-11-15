@@ -58,7 +58,7 @@ public:
 
   bool doCollateWith(UndoableCommand* command) override;
 
-  deleteCopyAndMove(SwapNodeContentsCommand)
+  deleteCopyAndMove(SwapNodeContentsCommand);
 };
 } // namespace View
 } // namespace TrenchBroom

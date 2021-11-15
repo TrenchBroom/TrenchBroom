@@ -120,7 +120,7 @@ static QString fileDialogDirToString(const FileDialogDir dir) {
       return "EntityDefinition";
     case FileDialogDir::GamePath:
       return "GamePath";
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -509,7 +509,7 @@ static QTextCodec* codecForEncoding(const MapTextEncoding encoding) {
       return QTextCodec::codecForName("ISO 8859-1");
     case MapTextEncoding::Utf8:
       return QTextCodec::codecForName("UTF-8");
-      switchDefault()
+      switchDefault();
   }
 }
 

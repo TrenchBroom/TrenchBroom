@@ -143,7 +143,7 @@ std::optional<typename Polyhedron<T, FP, VP>::ClipResult::FailureReason> Polyhed
       case vm::plane_status::inside:
         ++inside;
         break;
-        switchDefault()
+        switchDefault();
     }
   }
 

@@ -51,7 +51,7 @@ private:
 
   std::string escape(const std::string& str) const;
 
-  deleteCopyAndMove(CompilationConfigWriter)
+  deleteCopyAndMove(CompilationConfigWriter);
 };
 } // namespace IO
 } // namespace TrenchBroom

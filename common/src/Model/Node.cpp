@@ -626,7 +626,7 @@ bool Node::visible() const {
       return false;
     case VisibilityState::Shown:
       return true;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -668,7 +668,7 @@ bool Node::editable() const {
       return false;
     case LockState::Unlocked:
       return true;
-      switchDefault()
+      switchDefault();
   }
 }
 

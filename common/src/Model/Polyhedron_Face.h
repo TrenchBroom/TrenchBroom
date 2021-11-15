@@ -264,7 +264,7 @@ T Polyhedron_Face<T, FP, VP>::intersectWithRay(
       return result.back() ? result.distance() : vm::nan<T>();
     case vm::side::both:
       return result.distance();
-      switchDefault()
+      switchDefault();
   }
 }
 

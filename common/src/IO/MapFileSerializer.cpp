@@ -232,7 +232,7 @@ std::unique_ptr<NodeSerializer> MapFileSerializer::create(
       return std::make_unique<Hexen2FileSerializer>(stream);
     case Model::MapFormat::Unknown:
       throw FileFormatException("Unknown map file format");
-      switchDefault()
+      switchDefault();
   }
 }
 

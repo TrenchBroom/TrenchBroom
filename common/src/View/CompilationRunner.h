@@ -64,7 +64,7 @@ private:
   virtual void doExecute() = 0;
   virtual void doTerminate() = 0;
 
-  deleteCopyAndMove(CompilationTaskRunner)
+  deleteCopyAndMove(CompilationTaskRunner);
 };
 
 class CompilationExportMapTaskRunner : public CompilationTaskRunner {
@@ -81,7 +81,7 @@ private:
   void doExecute() override;
   void doTerminate() override;
 
-  deleteCopyAndMove(CompilationExportMapTaskRunner)
+  deleteCopyAndMove(CompilationExportMapTaskRunner);
 };
 
 class CompilationCopyFilesTaskRunner : public CompilationTaskRunner {
@@ -98,7 +98,7 @@ private:
   void doExecute() override;
   void doTerminate() override;
 
-  deleteCopyAndMove(CompilationCopyFilesTaskRunner)
+  deleteCopyAndMove(CompilationCopyFilesTaskRunner);
 };
 
 class CompilationRunToolTaskRunner : public CompilationTaskRunner {
@@ -125,7 +125,7 @@ private slots:
   void processReadyReadStandardError();
   void processReadyReadStandardOutput();
 
-  deleteCopyAndMove(CompilationRunToolTaskRunner)
+  deleteCopyAndMove(CompilationRunToolTaskRunner);
 };
 
 class CompilationRunner : public QObject {
@@ -163,7 +163,7 @@ signals:
   void compilationStarted();
   void compilationEnded();
 
-  deleteCopyAndMove(CompilationRunner)
+  deleteCopyAndMove(CompilationRunner);
 };
 } // namespace View
 } // namespace TrenchBroom

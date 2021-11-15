@@ -38,7 +38,7 @@ void AttrString::LineFunc::process(const std::string& str, const Justify justify
     case Justify::Center:
       center(str);
       break;
-      switchDefault()
+      switchDefault();
   }
 }
 

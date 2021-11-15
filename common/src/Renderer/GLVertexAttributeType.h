@@ -49,23 +49,22 @@ public:
     ensure(program != nullptr, "must have a program bound to use generic attributes");
 
     const GLint attributeIndex = program->findAttributeLocation(A::name);
-    glAssert(glEnableVertexAttribArray(static_cast<GLuint>(attributeIndex)))
-      glAssert(glVertexAttribPointer(
-        static_cast<GLuint>(attributeIndex), static_cast<GLint>(S), D,
-        Normalize ? GL_TRUE : GL_FALSE, static_cast<GLsizei>(stride),
-        reinterpret_cast<GLvoid*>(offset)))
+    glAssert(glEnableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
+    glAssert(glVertexAttribPointer(
+      static_cast<GLuint>(attributeIndex), static_cast<GLint>(S), D, Normalize ? GL_TRUE : GL_FALSE,
+      static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
   }
 
   static void cleanup(ShaderProgram* program, const size_t /* index */) {
     ensure(program != nullptr, "must have a program bound to use generic attributes");
 
     const GLint attributeIndex = program->findAttributeLocation(A::name);
-    glAssert(glDisableVertexAttribArray(static_cast<GLuint>(attributeIndex)))
+    glAssert(glDisableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
   }
 
   // Non-instantiable
   GLVertexAttributeUser() = delete;
-  deleteCopyAndMove(GLVertexAttributeUser)
+  deleteCopyAndMove(GLVertexAttributeUser);
 };
 
 /**
@@ -83,16 +82,18 @@ public:
   static void setup(
     ShaderProgram* /* program */, const size_t /* index */, const size_t stride,
     const size_t offset) {
-    glAssert(glEnableClientState(GL_VERTEX_ARRAY)) glAssert(glVertexPointer(
-      static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
+    glAssert(glEnableClientState(GL_VERTEX_ARRAY));
+    glAssert(glVertexPointer(
+      static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
   }
 
-  static void cleanup(ShaderProgram* /* program */, const size_t /* index */){
-    glAssert(glDisableClientState(GL_VERTEX_ARRAY))}
+  static void cleanup(ShaderProgram* /* program */, const size_t /* index */) {
+    glAssert(glDisableClientState(GL_VERTEX_ARRAY));
+  }
 
   // Non-instantiable
   GLVertexAttributePosition() = delete;
-  deleteCopyAndMove(GLVertexAttributePosition)
+  deleteCopyAndMove(GLVertexAttributePosition);
 };
 
 /**
@@ -111,16 +112,17 @@ public:
     ShaderProgram* /* program */, const size_t /* index */, const size_t stride,
     const size_t offset) {
     assert(S == 3);
-    glAssert(glEnableClientState(GL_NORMAL_ARRAY))
-      glAssert(glNormalPointer(D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
+    glAssert(glEnableClientState(GL_NORMAL_ARRAY));
+    glAssert(glNormalPointer(D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
   }
 
-  static void cleanup(ShaderProgram* /* program */, const size_t /* index */){
-    glAssert(glDisableClientState(GL_NORMAL_ARRAY))}
+  static void cleanup(ShaderProgram* /* program */, const size_t /* index */) {
+    glAssert(glDisableClientState(GL_NORMAL_ARRAY));
+  }
 
   // Non-instantiable
   GLVertexAttributeNormal() = delete;
-  deleteCopyAndMove(GLVertexAttributeNormal)
+  deleteCopyAndMove(GLVertexAttributeNormal);
 };
 
 /**
@@ -138,16 +140,18 @@ public:
   static void setup(
     ShaderProgram* /* program */, const size_t /* index */, const size_t stride,
     const size_t offset) {
-    glAssert(glEnableClientState(GL_COLOR_ARRAY)) glAssert(glColorPointer(
-      static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
+    glAssert(glEnableClientState(GL_COLOR_ARRAY));
+    glAssert(glColorPointer(
+      static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
   }
 
-  static void cleanup(ShaderProgram* /* program */, const size_t /* index */){
-    glAssert(glDisableClientState(GL_COLOR_ARRAY))}
+  static void cleanup(ShaderProgram* /* program */, const size_t /* index */) {
+    glAssert(glDisableClientState(GL_COLOR_ARRAY));
+  }
 
   // Non-instantiable
   GLVertexAttributeColor() = delete;
-  deleteCopyAndMove(GLVertexAttributeColor)
+  deleteCopyAndMove(GLVertexAttributeColor);
 };
 
 /**
@@ -165,18 +169,20 @@ public:
   static void setup(
     ShaderProgram* /* program */, const size_t /* index */, const size_t stride,
     const size_t offset) {
-    glAssert(glClientActiveTexture(GL_TEXTURE0))
-      glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY)) glAssert(glTexCoordPointer(
-        static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
+    glAssert(glClientActiveTexture(GL_TEXTURE0));
+    glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
+    glAssert(glTexCoordPointer(
+      static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
   }
 
-  static void cleanup(ShaderProgram* /* program */, const size_t /* index */){
-    glAssert(glClientActiveTexture(GL_TEXTURE0))
-      glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY))}
+  static void cleanup(ShaderProgram* /* program */, const size_t /* index */) {
+    glAssert(glClientActiveTexture(GL_TEXTURE0));
+    glAssert(glDisableClientState(GL_TEXTURE_COORD_ARRAY));
+  }
 
   // Non-instantiable
   GLVertexAttributeTexCoord0() = delete;
-  deleteCopyAndMove(GLVertexAttributeTexCoord0)
+  deleteCopyAndMove(GLVertexAttributeTexCoord0);
 };
 
 namespace GLVertexAttributeTypes {

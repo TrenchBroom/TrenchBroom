@@ -107,7 +107,7 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
       m_mapView =
         new FourPaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
       break;
-      switchDefault()
+      switchDefault();
   }
 
   installActivationTracker(*m_activationTracker);

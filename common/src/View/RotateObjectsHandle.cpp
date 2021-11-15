@@ -232,7 +232,7 @@ void RotateObjectsHandle::Handle2D::renderHighlight(
       break;
     case HitArea::None:
       break;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -308,7 +308,7 @@ void RotateObjectsHandle::Handle3D::renderHighlight(
       break;
     case HitArea::None:
       break;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -370,7 +370,7 @@ vm::vec3 RotateObjectsHandle::rotationAxis(const HitArea area) const {
     case HitArea::None:
     case HitArea::Center:
       return vm::vec3::pos_z();
-      switchDefault()
+      switchDefault();
   }
 }
 

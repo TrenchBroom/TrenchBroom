@@ -211,7 +211,7 @@ private:
   void validatePreference(PreferenceBase&) override;
   void savePreference(PreferenceBase&) override;
 
-  deleteCopyAndMove(AppPreferenceManager)
+  deleteCopyAndMove(AppPreferenceManager);
 };
 
 template <typename T> const T& pref(Preference<T>& preference) {

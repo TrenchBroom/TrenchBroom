@@ -36,7 +36,7 @@ std::ostream& operator<<(std::ostream& str, const LockState state) {
     case LockState::Unlocked:
       str << "Unlocked";
       break;
-      switchDefault()
+      switchDefault();
   }
   return str;
 }

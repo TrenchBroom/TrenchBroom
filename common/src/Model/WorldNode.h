@@ -182,7 +182,7 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 
 private:
-  deleteCopyAndMove(WorldNode)
+  deleteCopyAndMove(WorldNode);
 };
 } // namespace Model
 } // namespace TrenchBroom

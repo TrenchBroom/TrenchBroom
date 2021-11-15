@@ -116,7 +116,7 @@ public:
     RenderSettings markFaces(const Model::BrushNode* brushNode) const override;
 
   private:
-    deleteCopyAndMove(NoFilter)
+    deleteCopyAndMove(NoFilter);
   };
 
 private:

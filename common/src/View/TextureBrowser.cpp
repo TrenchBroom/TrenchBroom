@@ -80,7 +80,7 @@ void TextureBrowser::setSortOrder(const TextureSortOrder sortOrder) {
     case TextureSortOrder::Usage:
       m_sortOrderChoice->setCurrentIndex(1);
       break;
-      switchDefault()
+      switchDefault();
   }
 }
 

@@ -64,7 +64,7 @@ std::string SetVisibilityCommand::makeName(const Action action) {
       return "Show Objects";
     case Action::Ensure:
       return "Ensure Objects Visible";
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -83,7 +83,7 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
     case Action::Ensure:
       m_oldState = document->setVisibilityEnsured(m_nodes);
       break;
-      switchDefault()
+      switchDefault();
   }
   return std::make_unique<CommandResult>(true);
 }

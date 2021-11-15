@@ -70,7 +70,7 @@ private:
 
   virtual std::vector<LinkRenderer::LineVertex> getLinks() = 0;
 
-  deleteCopy(LinkRenderer)
+  deleteCopy(LinkRenderer);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

@@ -52,7 +52,7 @@ public:
   friend bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
   friend std::ostream& operator<<(std::ostream& str, const GameEngineProfile& profile);
 
-  deleteCopyAndMove(GameEngineProfile)
+  deleteCopyAndMove(GameEngineProfile);
 };
 } // namespace Model
 } // namespace TrenchBroom

@@ -43,7 +43,7 @@ static T evaluateValueOp(
       return oldValue * newValue;
     case ChangeBrushFaceAttributesRequest::ValueOp_None:
       return oldValue;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -60,7 +60,7 @@ static std::optional<T> evaluateValueOp(
       return oldValue.value_or(oldValueFallback) * newValue.value_or(T{});
     case ChangeBrushFaceAttributesRequest::ValueOp_None:
       return oldValue;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -76,7 +76,7 @@ static T evaluateFlagOp(
       return oldValue & ~newValue;
     case ChangeBrushFaceAttributesRequest::FlagOp_None:
       return oldValue;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -93,7 +93,7 @@ static std::optional<T> evaluateFlagOp(
       return oldValue.value_or(oldValueFallback) & ~newValue.value_or(T{});
     case ChangeBrushFaceAttributesRequest::FlagOp_None:
       return oldValue;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -184,7 +184,7 @@ bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const {
       break;
     case AxisOp_ToParallel:
       break;
-      switchDefault()
+      switchDefault();
   }
 
   return result;

@@ -205,7 +205,7 @@ FREE_IMAGE_FORMAT ImageLoaderImpl::translateFormat(const ImageLoader::Format for
       return FIF_PCX;
     case ImageLoader::BMP:
       return FIF_BMP;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -215,7 +215,7 @@ size_t ImageLoaderImpl::pixelSize(const ImageLoader::PixelFormat format) {
       return 3;
     case ImageLoader::RGBA:
       return 4;
-      switchDefault()
+      switchDefault();
   }
 }
 } // namespace IO

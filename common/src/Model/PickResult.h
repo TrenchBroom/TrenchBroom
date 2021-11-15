@@ -43,9 +43,9 @@ public:
   PickResult(std::shared_ptr<CompareHits> compare);
   PickResult();
 
-  defineCopyAndMove(PickResult)
+  defineCopyAndMove(PickResult);
 
-    ~PickResult();
+  ~PickResult();
 
   static PickResult byDistance();
   static PickResult bySize(vm::axis::type axis);

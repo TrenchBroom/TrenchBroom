@@ -374,7 +374,7 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive) {
     case Model::MapFormat::Unknown:
       // cannot happen
       break;
-      switchDefault()
+      switchDefault();
   }
 }
 

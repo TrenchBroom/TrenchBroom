@@ -54,7 +54,7 @@ public:
   bool operator!=(const CompilationTask& other) const;
   virtual void appendToStream(std::ostream& str) const = 0;
 
-  deleteCopyAndMove(CompilationTask)
+  deleteCopyAndMove(CompilationTask);
 };
 
 std::ostream& operator<<(std::ostream& str, const CompilationTask& task);
@@ -79,7 +79,7 @@ public:
   bool operator==(const CompilationTask& other) const override;
   void appendToStream(std::ostream& str) const override;
 
-  deleteCopyAndMove(CompilationExportMap)
+  deleteCopyAndMove(CompilationExportMap);
 };
 
 class CompilationCopyFiles : public CompilationTask {
@@ -105,7 +105,7 @@ public:
   bool operator==(const CompilationTask& other) const override;
   void appendToStream(std::ostream& str) const override;
 
-  deleteCopyAndMove(CompilationCopyFiles)
+  deleteCopyAndMove(CompilationCopyFiles);
 };
 
 class CompilationRunTool : public CompilationTask {
@@ -131,7 +131,7 @@ public:
   bool operator==(const CompilationTask& other) const override;
   void appendToStream(std::ostream& str) const override;
 
-  deleteCopyAndMove(CompilationRunTool)
+  deleteCopyAndMove(CompilationRunTool);
 };
 
 class CompilationTaskVisitor {

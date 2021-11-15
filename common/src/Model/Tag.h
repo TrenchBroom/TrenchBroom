@@ -162,12 +162,12 @@ public:
    */
   explicit TagReference(const Tag& tag);
 
-  defineCopyAndMove(TagReference)
+  defineCopyAndMove(TagReference);
 
-    /**
-     * Returns the referenced tag.
-     */
-    const Tag& tag() const;
+  /**
+   * Returns the referenced tag.
+   */
+  const Tag& tag() const;
 
   friend bool operator==(const TagReference& lhs, const TagReference& rhs);
   friend bool operator!=(const TagReference& lhs, const TagReference& rhs);
@@ -188,9 +188,9 @@ public:
    * Creates a new instance.
    */
   Taggable();
-  defineCopyAndMove(Taggable)
+  defineCopyAndMove(Taggable);
 
-    friend void swap(Taggable& lhs, Taggable& rhs) noexcept;
+  friend void swap(Taggable& lhs, Taggable& rhs) noexcept;
 
   virtual ~Taggable();
 
