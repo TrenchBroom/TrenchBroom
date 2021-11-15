@@ -30,9 +30,9 @@ namespace TrenchBroom {
 namespace IO {
 class Path;
 
-FILE* openPathAsFILE(const IO::Path& path, const std::string& mode);
-std::ofstream openPathAsOutputStream(const IO::Path& path, std::ios::openmode mode = std::ios::out);
-std::ifstream openPathAsInputStream(const IO::Path& path, std::ios::openmode mode = std::ios::in);
+FILE* openPathAsFILE(const Path& path, const std::string& mode);
+std::ofstream openPathAsOutputStream(const Path& path, std::ios::openmode mode = std::ios::out);
+std::ifstream openPathAsInputStream(const Path& path, std::ios::openmode mode = std::ios::in);
 
 size_t fileSize(std::FILE* file);
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -22,38 +22,34 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <cstddef>
+#include <iosfwd>
+#include <optional>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
-class Path;
-}
-
-namespace Model {
-class PointFile {
+namespace TrenchBroom::Model {
+class PointTrace {
 private:
   std::vector<vm::vec3f> m_points;
   size_t m_current;
 
 public:
-  PointFile();
-  PointFile(const IO::Path& path);
+  explicit PointTrace(std::vector<vm::vec3f> points);
 
-  static bool canLoad(const IO::Path& path);
-
-  bool empty() const;
   bool hasNextPoint() const;
   bool hasPreviousPoint() const;
 
   const std::vector<vm::vec3f>& points() const;
   const vm::vec3f& currentPoint() const;
   const vm::vec3f currentDirection() const;
+
   void advance();
   void retreat();
 
-private:
-  void load(const IO::Path& path);
+  friend bool operator==(const PointTrace& lhs, const PointTrace& rhs);
+  friend bool operator!=(const PointTrace& lhs, const PointTrace& rhs);
+
+  friend std::ostream& operator<<(std::ostream& lhs, const PointTrace& rhs);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+std::optional<PointTrace> loadPointFile(std::istream& stream);
+} // namespace TrenchBroom::Model
