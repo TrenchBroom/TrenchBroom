@@ -201,9 +201,10 @@ void BrushEdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext) {
     glSetEdgeOffset(m_params.offset);
 
   if (m_params.width != 1.0f)
-    glAssert(glLineWidth(m_params.width))
+    glAssert(glLineWidth(m_params.width));
 
-      if (m_params.onTop) glAssert(glDisable(GL_DEPTH_TEST))
+  if (m_params.onTop)
+    glAssert(glDisable(GL_DEPTH_TEST));
 
     {
       PreferenceManager& prefs = PreferenceManager::instance();
@@ -228,11 +229,13 @@ void BrushEdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext) {
     }
 
   if (m_params.onTop)
-    glAssert(glEnable(GL_DEPTH_TEST))
+      glAssert(glEnable(GL_DEPTH_TEST));
 
-      if (m_params.width != 1.0f) glAssert(glLineWidth(1.0f))
+  if (m_params.width != 1.0f)
+    glAssert(glLineWidth(1.0f));
 
-        if (m_params.offset != 0.0) glResetEdgeOffset();
+  if (m_params.offset != 0.0)
+    glResetEdgeOffset();
 }
 
 BrushEdgeRenderer::~BrushEdgeRenderer() {}
