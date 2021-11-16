@@ -2837,7 +2837,7 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 [Quake Tools]: https://joshua.itch.io/quake-tools
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
 [FGD File Format]: http://developer.valvesoftware.com/wiki/FGD
-[Tutorials by dumptruck_ds]: https://www.youtube.com/watch?v=gONePWocbqA
+[Tutorials by dumptruck_ds]: https://www.youtube.com/playlist?list=PLgDKRPte5Y0AZ_K_PZbWbgBAEt5xf74aE
 [Quake Level Design Starter Kit]: https://github.com/jonathanlinat/quake-leveldesign-starterkit
 [Quake Mapping Discord]: https://discordapp.com/invite/f5Y99aM
 [FreeImage Library]: http://freeimage.sourceforge.net/
