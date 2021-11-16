@@ -33,7 +33,7 @@
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
-#include "Model/PointFile.h"
+#include "Model/PointTrace.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/BoundsGuideRenderer.h"
@@ -377,14 +377,13 @@ void MapView3D::animateCamera(
 
 void MapView3D::doMoveCameraToCurrentTracePoint() {
   auto document = kdl::mem_lock(m_document);
-
   assert(document->isPointFileLoaded());
-  Model::PointFile* pointFile = document->pointFile();
-  assert(pointFile->hasNextPoint());
 
-  const vm::vec3f position = pointFile->currentPoint() + vm::vec3f(0.0f, 0.0f, 16.0f);
-  const vm::vec3f direction = pointFile->currentDirection();
-  animateCamera(position, direction, vm::vec3f::pos_z());
+  if (const auto& pointFile = document->pointFile()) {
+    const auto position = pointFile->trace.currentPoint() + vm::vec3f{0.0f, 0.0f, 16.0f};
+    const auto direction = pointFile->trace.currentDirection();
+    animateCamera(position, direction, vm::vec3f::pos_z());
+  }
 }
 
 vm::vec3 MapView3D::doGetMoveDirection(const vm::direction direction) const {
@@ -417,7 +416,7 @@ vm::vec3 MapView3D::doGetMoveDirection(const vm::direction direction) const {
       return vm::vec3::pos_z();
     case vm::direction::down:
       return vm::vec3::neg_z();
-      switchDefault()
+      switchDefault();
   }
 }
 

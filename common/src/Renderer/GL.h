@@ -40,23 +40,25 @@ std::string glGetEnumName(GLenum _enum);
 #if !defined(NDEBUG) && defined(GL_DEBUG) // in debug mode
 #if defined(GL_LOG)
 #define glAssert(C)                                                                                \
-  {                                                                                                \
+  do {                                                                                             \
     std::cout << #C << std::endl;                                                                  \
     glCheckError("before " #C);                                                                    \
     (C);                                                                                           \
     glCheckError("after " #C);                                                                     \
-  }
+  } while (0)
 #else
 #define glAssert(C)                                                                                \
-  {                                                                                                \
+  do {                                                                                             \
     glCheckError("before " #C);                                                                    \
     (C);                                                                                           \
     glCheckError("after " #C);                                                                     \
-  }
+  } while (0)
 #endif
 #else
 #define glAssert(C)                                                                                \
-  { (C); }
+  do {                                                                                             \
+    (C);                                                                                           \
+  } while (0)
 #endif
 
 template <GLenum T> struct GLType { using Type = GLvoid; };

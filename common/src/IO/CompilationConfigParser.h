@@ -54,7 +54,7 @@ private:
   std::unique_ptr<Model::CompilationTask> parseCopyTask(const EL::Value& value) const;
   std::unique_ptr<Model::CompilationTask> parseToolTask(const EL::Value& value) const;
 
-  deleteCopyAndMove(CompilationConfigParser)
+  deleteCopyAndMove(CompilationConfigParser);
 };
 } // namespace IO
 } // namespace TrenchBroom

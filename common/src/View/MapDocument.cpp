@@ -33,6 +33,7 @@
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
 #include "IO/GameConfigParser.h"
+#include "IO/IOUtils.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "Model/BezierPatch.h"
@@ -71,7 +72,6 @@
 #include "Model/NonIntegerVerticesIssueGenerator.h"
 #include "Model/PatchNode.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
-#include "Model/PointFile.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
 #include "Model/PortalFile.h"
@@ -339,7 +339,6 @@ const std::string MapDocument::DefaultDocumentName("unnamed.map");
 MapDocument::MapDocument()
   : m_worldBounds(DefaultWorldBounds)
   , m_world(nullptr)
-  , m_pointFile(nullptr)
   , m_portalFile(nullptr)
   , m_entityDefinitionManager(std::make_unique<Assets::EntityDefinitionManager>())
   , m_entityModelManager(std::make_unique<Assets::EntityModelManager>(
@@ -482,8 +481,8 @@ Grid& MapDocument::grid() const {
   return *m_grid;
 }
 
-Model::PointFile* MapDocument::pointFile() const {
-  return m_pointFile.get();
+std::optional<PointFile>& MapDocument::pointFile() {
+  return m_pointFile;
 }
 
 Model::PortalFile* MapDocument::portalFile() const {
@@ -746,40 +745,38 @@ void MapDocument::loadPointFile(const IO::Path path) {
     !std::is_reference<decltype(path)>::value,
     "path must be passed by value because reloadPointFile() passes m_pointFilePath");
 
-  if (!Model::PointFile::canLoad(path)) {
-    return;
-  }
-
   if (isPointFileLoaded()) {
     unloadPointFile();
   }
 
-  m_pointFilePath = path;
-  m_pointFile = std::make_unique<Model::PointFile>(m_pointFilePath);
-
-  info("Loaded point file " + m_pointFilePath.asString());
-  pointFileWasLoadedNotifier();
+  auto file = IO::openPathAsInputStream(path);
+  if (auto trace = Model::loadPointFile(file)) {
+    m_pointFile = PointFile{*trace, path};
+    info() << "Loaded point file " << path;
+    pointFileWasLoadedNotifier();
+  } else {
+    warn() << "Failed to load point file " << path;
+  }
 }
 
 bool MapDocument::isPointFileLoaded() const {
-  return m_pointFile != nullptr;
+  return m_pointFile != std::nullopt;
 }
 
 bool MapDocument::canReloadPointFile() const {
-  return m_pointFile != nullptr && Model::PointFile::canLoad(m_pointFilePath);
+  return isPointFileLoaded();
 }
 
 void MapDocument::reloadPointFile() {
   assert(isPointFileLoaded());
-  loadPointFile(m_pointFilePath);
+  loadPointFile(m_pointFile->path);
 }
 
 void MapDocument::unloadPointFile() {
   assert(isPointFileLoaded());
-  m_pointFile = nullptr;
-  m_pointFilePath = IO::Path();
+  m_pointFile = std::nullopt;
 
-  info("Unloaded point file");
+  info() << "Unloaded point file";
   pointFileWasUnloadedNotifier();
 }
 
@@ -3982,7 +3979,7 @@ void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds) {
       entity.removeProperty(
         m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds);
       break;
-      switchDefault()
+      switchDefault();
   }
   swapNodeContents("Set Soft Map Bounds", {{world(), Model::NodeContents(std::move(entity))}}, {});
 }

@@ -38,7 +38,7 @@
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
-#include "Model/PointFile.h"
+#include "Model/PointTrace.h"
 #include "Model/PortalFile.h"
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
@@ -403,7 +403,7 @@ vm::vec3 MapViewBase::rotationAxis(const vm::rotation_axis axisSpec, const bool 
     case vm::rotation_axis::yaw:
       axis = moveDirection(vm::direction::up);
       break;
-      switchDefault()
+      switchDefault();
   }
 
   if (clockwise)
@@ -456,7 +456,7 @@ vm::vec2f MapViewBase::moveTextureOffset(
     case vm::direction::forward:
     case vm::direction::backward:
       return vm::vec2f();
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -902,13 +902,16 @@ void MapViewBase::setupGL(Renderer::RenderContext& context) {
   const int y = static_cast<int>(viewport.y * r);
   const int width = static_cast<int>(viewport.width * r);
   const int height = static_cast<int>(viewport.height * r);
-  glAssert(glViewport(x, y, width, height))
+  glAssert(glViewport(x, y, width, height));
 
-    if (pref(Preferences::EnableMSAA)) {
-    glAssert(glEnable(GL_MULTISAMPLE))
+  if (pref(Preferences::EnableMSAA)) {
+    glAssert(glEnable(GL_MULTISAMPLE));
+  } else {
+    glAssert(glDisable(GL_MULTISAMPLE));
   }
-  else {glAssert(glDisable(GL_MULTISAMPLE))} glAssert(glEnable(GL_BLEND))
-    glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)) glAssert(glShadeModel(GL_SMOOTH))
+  glAssert(glEnable(GL_BLEND));
+  glAssert(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+  glAssert(glShadeModel(GL_SMOOTH));
 }
 
 void MapViewBase::renderCoordinateSystem(
@@ -930,11 +933,10 @@ void MapViewBase::renderSoftMapBounds(
 void MapViewBase::renderPointFile(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
   auto document = kdl::mem_lock(m_document);
-  Model::PointFile* pointFile = document->pointFile();
-  if (pointFile != nullptr) {
+  if (const auto& pointFile = document->pointFile()) {
     Renderer::RenderService renderService(renderContext, renderBatch);
     renderService.setForegroundColor(pref(Preferences::PointFileColor));
-    renderService.renderLineStrip(pointFile->points());
+    renderService.renderLineStrip(pointFile->trace.points());
   }
 }
 

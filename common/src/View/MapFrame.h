@@ -185,6 +185,8 @@ private: // notification handlers
   void groupWasClosed(Model::GroupNode* group);
   void nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes);
   void editorContextDidChange();
+  void pointFileDidChange();
+  void portalFileDidChange();
 
 private: // menu event handlers
   void bindEvents();

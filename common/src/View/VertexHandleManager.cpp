@@ -60,7 +60,7 @@ void VertexHandleManager::addHandles(const Model::BrushNode* brushNode) {
 void VertexHandleManager::removeHandles(const Model::BrushNode* brushNode) {
   const Model::Brush& brush = brushNode->brush();
   for (const Model::BrushVertex* vertex : brush.vertices()) {
-    assertResult(remove(vertex->position()))
+    assertResult(remove(vertex->position()));
   }
 }
 
@@ -120,7 +120,7 @@ void EdgeHandleManager::removeHandles(const Model::BrushNode* brushNode) {
   const Model::Brush& brush = brushNode->brush();
   for (const Model::BrushEdge* edge : brush.edges()) {
     assertResult(
-      remove(vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position())))
+      remove(vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position())));
   }
 }
 
@@ -184,7 +184,7 @@ void FaceHandleManager::addHandles(const Model::BrushNode* brushNode) {
 void FaceHandleManager::removeHandles(const Model::BrushNode* brushNode) {
   const Model::Brush& brush = brushNode->brush();
   for (const Model::BrushFace& face : brush.faces()) {
-    assertResult(remove(face.polygon()))
+    assertResult(remove(face.polygon()));
   }
 }
 

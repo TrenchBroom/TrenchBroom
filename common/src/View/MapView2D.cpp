@@ -32,7 +32,7 @@
 #include "Model/HitFilter.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
-#include "Model/PointFile.h"
+#include "Model/PointTrace.h"
 #include "Renderer/Compass2D.h"
 #include "Renderer/GridRenderer.h"
 #include "Renderer/MapRenderer.h"
@@ -91,7 +91,7 @@ MapView2D::MapView2D(
     case ViewPlane_XZ:
       setObjectName("XZ View");
       break;
-      switchDefault()
+      switchDefault();
   }
 
   mapViewBaseVirtualInit();
@@ -233,13 +233,11 @@ void MapView2D::animateCamera(
 
 void MapView2D::doMoveCameraToCurrentTracePoint() {
   auto document = kdl::mem_lock(m_document);
-
   assert(document->isPointFileLoaded());
-  auto* pointFile = document->pointFile();
-  assert(pointFile->hasNextPoint());
 
-  const auto position = vm::vec3(pointFile->currentPoint());
-  moveCameraToPosition(position, true);
+  if (const auto& pointFile = document->pointFile()) {
+    moveCameraToPosition(vm::vec3{pointFile->trace.currentPoint()}, true);
+  }
 }
 
 vm::vec3 MapView2D::doGetMoveDirection(const vm::direction direction) const {
@@ -259,7 +257,7 @@ vm::vec3 MapView2D::doGetMoveDirection(const vm::direction direction) const {
       return vm::vec3(-vm::get_abs_max_component_axis(m_camera->direction()));
     case vm::direction::down:
       return vm::vec3(vm::get_abs_max_component_axis(m_camera->direction()));
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -277,7 +275,7 @@ size_t MapView2D::doGetFlipAxis(const vm::direction direction) const {
     case vm::direction::down:
       // Vertical flip. In 2D views, this corresponds to the vertical axis of the viewport.
       return vm::find_abs_max_component(m_camera->up());
-      switchDefault()
+      switchDefault();
   }
 }
 

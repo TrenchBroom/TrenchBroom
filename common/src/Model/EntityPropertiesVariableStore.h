@@ -44,7 +44,7 @@ private:
   void doDeclare(const std::string& name, const EL::Value& value) override;
   void doAssign(const std::string& name, const EL::Value& value) override;
 
-  deleteCopyAndMove(EntityPropertiesVariableStore)
+  deleteCopyAndMove(EntityPropertiesVariableStore);
 };
 } // namespace Model
 } // namespace TrenchBroom

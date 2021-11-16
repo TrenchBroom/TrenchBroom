@@ -46,7 +46,7 @@ unsigned int toGL(const PrimType primType) {
       return GL_QUAD_STRIP;
     case PrimType::Polygon:
       return GL_POLYGON;
-      switchDefault()
+      switchDefault();
   }
 }
 } // namespace Renderer

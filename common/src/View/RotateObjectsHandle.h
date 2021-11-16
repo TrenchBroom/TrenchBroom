@@ -93,7 +93,7 @@ private:
     Model::Hit pickRotateHandle(
       const vm::ray3& pickRay, const Renderer::Camera& camera, HitArea area) const override;
 
-    deleteCopyAndMove(Handle2D)
+    deleteCopyAndMove(Handle2D);
   };
 
   class Handle3D : public Handle {
@@ -111,7 +111,7 @@ private:
     Model::Hit pickRotateHandle(
       const vm::ray3& pickRay, const Renderer::Camera& camera, HitArea area) const override;
 
-    deleteCopyAndMove(Handle3D)
+    deleteCopyAndMove(Handle3D);
   };
 
 private:

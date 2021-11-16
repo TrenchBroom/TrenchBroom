@@ -68,7 +68,7 @@ protected:
 private:
   virtual void doBrushWasCreated();
 
-  deleteCopyAndMove(CreateBrushToolBase)
+  deleteCopyAndMove(CreateBrushToolBase);
 };
 } // namespace View
 } // namespace TrenchBroom

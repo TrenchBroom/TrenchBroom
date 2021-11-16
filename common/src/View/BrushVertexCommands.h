@@ -60,7 +60,7 @@ public:
   virtual void selectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const;
   virtual void selectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const;
 
-  deleteCopyAndMove(BrushVertexCommandBase)
+  deleteCopyAndMove(BrushVertexCommandBase);
 };
 
 class BrushVertexCommandResult : public CommandResult {
@@ -97,7 +97,7 @@ private:
   void selectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const override;
   void selectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const override;
 
-  deleteCopyAndMove(BrushVertexCommand)
+  deleteCopyAndMove(BrushVertexCommand);
 };
 
 class BrushEdgeCommand : public BrushVertexCommandBase {
@@ -121,7 +121,7 @@ private:
   void selectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
   void selectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
 
-  deleteCopyAndMove(BrushEdgeCommand)
+  deleteCopyAndMove(BrushEdgeCommand);
 };
 
 class BrushFaceCommand : public BrushVertexCommandBase {
@@ -145,7 +145,7 @@ private:
   void selectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
   void selectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
 
-  deleteCopyAndMove(BrushFaceCommand)
+  deleteCopyAndMove(BrushFaceCommand);
 };
 } // namespace View
 } // namespace TrenchBroom

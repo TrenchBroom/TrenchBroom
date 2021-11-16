@@ -168,7 +168,7 @@ private:
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 
 private:
-  deleteCopyAndMove(BrushNode)
+  deleteCopyAndMove(BrushNode);
 };
 
 bool operator==(const BrushNode& lhs, const BrushNode& rhs);

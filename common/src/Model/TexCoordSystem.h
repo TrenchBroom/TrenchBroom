@@ -163,7 +163,7 @@ protected:
     return axis / safeScale(T1(factor));
   }
 
-  deleteCopyAndMove(TexCoordSystem)
+  deleteCopyAndMove(TexCoordSystem);
 };
 } // namespace Model
 } // namespace TrenchBroom

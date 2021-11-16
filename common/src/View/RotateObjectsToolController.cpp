@@ -69,19 +69,21 @@ private:
   }
 
   void doRender(Renderer::RenderContext& renderContext) override {
-    glAssert(glDisable(GL_DEPTH_TEST))
+    glAssert(glDisable(GL_DEPTH_TEST));
 
-      glAssert(glPushAttrib(GL_POLYGON_BIT)) glAssert(glDisable(GL_CULL_FACE))
-        glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL))
+    glAssert(glPushAttrib(GL_POLYGON_BIT));
+    glAssert(glDisable(GL_CULL_FACE));
+    glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
 
-          auto translation = Renderer::MultiplyModelMatrix{
-            renderContext.transformation(), vm::translation_matrix(vm::vec3f{m_position})};
+    auto translation = Renderer::MultiplyModelMatrix{
+      renderContext.transformation(), vm::translation_matrix(vm::vec3f{m_position})};
     auto shader = Renderer::ActiveShader{
       renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
     shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
     m_circle.render();
 
-    glAssert(glEnable(GL_DEPTH_TEST)) glAssert(glPopAttrib())
+    glAssert(glEnable(GL_DEPTH_TEST));
+    glAssert(glPopAttrib());
   }
 };
 

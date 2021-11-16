@@ -54,7 +54,7 @@ public:
     virtual std::string doGetTextureName(
       const std::string& textureName, const Path& path) const = 0;
 
-    deleteCopyAndMove(NameStrategy)
+    deleteCopyAndMove(NameStrategy);
   };
 
   class TextureNameStrategy : public NameStrategy {
@@ -65,7 +65,7 @@ public:
     NameStrategy* doClone() const override;
     std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
 
-    deleteCopyAndMove(TextureNameStrategy)
+    deleteCopyAndMove(TextureNameStrategy);
   };
 
   /**
@@ -92,7 +92,7 @@ public:
     NameStrategy* doClone() const override;
     std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
 
-    deleteCopyAndMove(PathSuffixNameStrategy)
+    deleteCopyAndMove(PathSuffixNameStrategy);
   };
 
   class StaticNameStrategy : public NameStrategy {
@@ -106,7 +106,7 @@ public:
     NameStrategy* doClone() const override;
     std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
 
-    deleteCopyAndMove(StaticNameStrategy)
+    deleteCopyAndMove(StaticNameStrategy);
   };
 
 private:
@@ -152,7 +152,7 @@ protected:
 public:
   static size_t mipSize(size_t width, size_t height, size_t mipLevel);
 
-  deleteCopyAndMove(TextureReader)
+  deleteCopyAndMove(TextureReader);
 };
 } // namespace IO
 } // namespace TrenchBroom

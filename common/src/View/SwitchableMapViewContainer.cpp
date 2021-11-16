@@ -20,7 +20,7 @@
 #include "SwitchableMapViewContainer.h"
 
 #include "FloatType.h"
-#include "Model/PointFile.h"
+#include "Model/PointTrace.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/MapRenderer.h"
@@ -107,7 +107,7 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
       m_mapView =
         new FourPaneMapView(m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
       break;
-      switchDefault()
+      switchDefault();
   }
 
   installActivationTracker(*m_activationTracker);
@@ -255,40 +255,38 @@ MapViewToolBox& SwitchableMapViewContainer::mapViewToolBox() {
 
 bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {
   auto document = kdl::mem_lock(m_document);
-  if (!document->isPointFileLoaded())
-    return false;
-
-  Model::PointFile* pointFile = document->pointFile();
-  return pointFile->hasNextPoint();
+  if (const auto& pointFile = document->pointFile()) {
+    return pointFile->trace.hasNextPoint();
+  }
+  return false;
 }
 
 bool SwitchableMapViewContainer::canMoveCameraToPreviousTracePoint() const {
   auto document = kdl::mem_lock(m_document);
-  if (!document->isPointFileLoaded())
-    return false;
-
-  Model::PointFile* pointFile = document->pointFile();
-  return pointFile->hasPreviousPoint();
+  if (const auto& pointFile = document->pointFile()) {
+    return pointFile->trace.hasPreviousPoint();
+  }
+  return false;
 }
 
 void SwitchableMapViewContainer::moveCameraToNextTracePoint() {
   auto document = kdl::mem_lock(m_document);
   assert(document->isPointFileLoaded());
 
-  m_mapView->moveCameraToCurrentTracePoint();
-
-  Model::PointFile* pointFile = document->pointFile();
-  pointFile->advance();
+  if (auto& pointFile = document->pointFile()) {
+    pointFile->trace.advance();
+    m_mapView->moveCameraToCurrentTracePoint();
+  }
 }
 
 void SwitchableMapViewContainer::moveCameraToPreviousTracePoint() {
   auto document = kdl::mem_lock(m_document);
   assert(document->isPointFileLoaded());
 
-  Model::PointFile* pointFile = document->pointFile();
-  pointFile->retreat();
-
-  m_mapView->moveCameraToCurrentTracePoint();
+  if (auto& pointFile = document->pointFile()) {
+    pointFile->trace.retreat();
+    m_mapView->moveCameraToCurrentTracePoint();
+  }
 }
 
 bool SwitchableMapViewContainer::canMaximizeCurrentView() const {

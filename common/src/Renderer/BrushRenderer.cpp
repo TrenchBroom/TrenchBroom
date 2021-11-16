@@ -363,7 +363,7 @@ static inline bool shouldRenderEdge(
       return (edge.face1 && edge.face1->isMarked()) && (edge.face2 && edge.face2->isMarked());
     case EdgeRenderPolicy::RenderNone:
       return false;
-      switchDefault()
+      switchDefault();
   }
 }
 

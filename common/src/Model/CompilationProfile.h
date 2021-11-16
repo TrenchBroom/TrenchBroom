@@ -74,7 +74,7 @@ public:
   void accept(const CompilationTaskConstVisitor& visitor);
   void accept(const ConstCompilationTaskConstVisitor& visitor) const;
 
-  deleteCopyAndMove(CompilationProfile)
+  deleteCopyAndMove(CompilationProfile);
 };
 } // namespace Model
 } // namespace TrenchBroom

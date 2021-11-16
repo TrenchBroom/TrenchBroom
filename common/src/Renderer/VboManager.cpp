@@ -36,7 +36,7 @@ static GLenum typeToOpenGL(const VboType type) {
       return GL_ARRAY_BUFFER;
     case VboType::ElementArrayBuffer:
       return GL_ELEMENT_ARRAY_BUFFER;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -46,7 +46,7 @@ static GLenum usageToOpenGL(const VboUsage usage) {
       return GL_STATIC_DRAW;
     case VboUsage::DynamicDraw:
       return GL_DYNAMIC_DRAW;
-      switchDefault()
+      switchDefault();
   }
 }
 

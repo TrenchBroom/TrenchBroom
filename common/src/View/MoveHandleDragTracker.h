@@ -399,7 +399,7 @@ private:
       case MoveMode::Default:
         return makeDefaultDragHandlePicker(
           inputState, dragState.currentHandlePosition, dragState.handleOffset);
-        switchDefault()
+        switchDefault();
     }
   }
 

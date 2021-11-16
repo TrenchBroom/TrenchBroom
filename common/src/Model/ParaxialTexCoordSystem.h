@@ -105,7 +105,7 @@ public:
     const BrushFaceAttributes& attribs, const vm::vec3& xAxis, const vm::vec3& yAxis);
 
 private:
-  deleteCopyAndMove(ParaxialTexCoordSystem)
+  deleteCopyAndMove(ParaxialTexCoordSystem);
 };
 } // namespace Model
 } // namespace TrenchBroom

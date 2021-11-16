@@ -696,6 +696,14 @@ void MapFrame::connectObservers() {
     m_document->nodeVisibilityDidChangeNotifier.connect(this, &MapFrame::nodeVisibilityDidChange);
   m_notifierConnection +=
     m_document->editorContextDidChangeNotifier.connect(this, &MapFrame::editorContextDidChange);
+  m_notifierConnection +=
+    m_document->pointFileWasLoadedNotifier.connect(this, &MapFrame::pointFileDidChange);
+  m_notifierConnection +=
+    m_document->pointFileWasUnloadedNotifier.connect(this, &MapFrame::pointFileDidChange);
+  m_notifierConnection +=
+    m_document->portalFileWasLoadedNotifier.connect(this, &MapFrame::portalFileDidChange);
+  m_notifierConnection +=
+    m_document->portalFileWasUnloadedNotifier.connect(this, &MapFrame::portalFileDidChange);
 
   Grid& grid = m_document->grid();
   m_notifierConnection += grid.gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
@@ -793,6 +801,14 @@ void MapFrame::nodeVisibilityDidChange(const std::vector<Model::Node*>&) {
 void MapFrame::editorContextDidChange() {
   // e.g. changing the view filters may cause the number of hidden brushes/entities to change
   updateStatusBarDelayed();
+}
+
+void MapFrame::pointFileDidChange() {
+  updateActionStateDelayed();
+}
+
+void MapFrame::portalFileDidChange() {
+  updateActionStateDelayed();
 }
 
 void MapFrame::bindEvents() {

@@ -196,7 +196,7 @@ public:
     m_expectedCalls.emplace_back(DoCollateWith{returnCanCollate, expectedOtherCommand});
   }
 
-  deleteCopyAndMove(TestCommand)
+  deleteCopyAndMove(TestCommand);
 };
 
 const Command::CommandType TestCommand::Type = Command::freeType();

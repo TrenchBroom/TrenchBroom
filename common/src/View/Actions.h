@@ -94,10 +94,10 @@ public:
 
   const QString& statusTip() const;
 
-  deleteCopy(Action)
+  deleteCopy(Action);
 
-    Action(Action&& other) =
-      default; // cannot be noexcept because it will call QKeySequence's copy constructor
+  Action(Action&& other) =
+    default; // cannot be noexcept because it will call QKeySequence's copy constructor
   Action& operator=(Action&& other) = default;
 };
 
@@ -179,7 +179,7 @@ public:
 
   MenuEntryType entryType() const;
 
-  deleteCopyAndMove(MenuEntry)
+  deleteCopyAndMove(MenuEntry);
 };
 
 class MenuSeparatorItem : public MenuEntry {
@@ -187,7 +187,7 @@ public:
   MenuSeparatorItem();
   void accept(MenuVisitor& visitor) const override;
 
-  deleteCopyAndMove(MenuSeparatorItem)
+  deleteCopyAndMove(MenuSeparatorItem);
 };
 
 class MenuActionItem : public MenuEntry {
@@ -202,7 +202,7 @@ public:
 
   void accept(MenuVisitor& visitor) const override;
 
-  deleteCopyAndMove(MenuActionItem)
+  deleteCopyAndMove(MenuActionItem);
 };
 
 class Menu : public MenuEntry {
@@ -222,7 +222,7 @@ public:
   void accept(MenuVisitor& visitor) const override;
   void visitEntries(MenuVisitor& visitor) const;
 
-  deleteCopyAndMove(Menu)
+  deleteCopyAndMove(Menu);
 };
 
 using ActionVisitor = std::function<void(const Action&)>;
@@ -251,9 +251,9 @@ private:
   ActionManager();
 
 public:
-  deleteCopyAndMove(ActionManager)
+  deleteCopyAndMove(ActionManager);
 
-    static const ActionManager& instance();
+  static const ActionManager& instance();
 
   /**
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.

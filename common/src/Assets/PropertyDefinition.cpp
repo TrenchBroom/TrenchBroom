@@ -121,7 +121,7 @@ std::string PropertyDefinition::defaultValue(const PropertyDefinition& definitio
     case PropertyDefinitionType::TargetSourceProperty:
     case PropertyDefinitionType::TargetDestinationProperty:
       return "";
-      switchDefault()
+      switchDefault();
   }
 }
 

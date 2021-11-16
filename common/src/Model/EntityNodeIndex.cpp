@@ -64,7 +64,7 @@ std::set<EntityNodeBase*> EntityNodeIndexQuery::execute(const EntityNodeStringIn
       break;
     case Type_Any:
       break;
-      switchDefault()
+      switchDefault();
   }
   return result;
 }
@@ -79,7 +79,7 @@ bool EntityNodeIndexQuery::execute(const EntityNodeBase* node, const std::string
       return node->entity().hasNumberedProperty(m_pattern, value);
     case Type_Any:
       return true;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -94,7 +94,7 @@ std::vector<Model::EntityProperty> EntityNodeIndexQuery::execute(const EntityNod
       return entity.numberedProperties(m_pattern);
     case Type_Any:
       return entity.properties();
-      switchDefault()
+      switchDefault();
   }
 }
 

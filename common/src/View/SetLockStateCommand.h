@@ -58,7 +58,7 @@ private:
 
   bool doCollateWith(UndoableCommand* command) override;
 
-  deleteCopyAndMove(SetLockStateCommand)
+  deleteCopyAndMove(SetLockStateCommand);
 };
 } // namespace View
 } // namespace TrenchBroom

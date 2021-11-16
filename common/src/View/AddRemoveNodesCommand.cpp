@@ -80,7 +80,7 @@ AddRemoveNodesCommand::AddRemoveNodesCommand(
     case Action::Remove:
       m_nodesToRemove = nodes;
       break;
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -90,7 +90,7 @@ std::string AddRemoveNodesCommand::makeName(const Action action) {
       return "Add Objects";
     case Action::Remove:
       return "Remove Objects";
-      switchDefault()
+      switchDefault();
   }
 }
 

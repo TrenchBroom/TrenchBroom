@@ -47,7 +47,7 @@ private:
     const EL::Value& value) const;
   std::unique_ptr<Model::GameEngineProfile> parseProfile(const EL::Value& value) const;
 
-  deleteCopyAndMove(GameEngineConfigParser)
+  deleteCopyAndMove(GameEngineConfigParser);
 };
 } // namespace IO
 } // namespace TrenchBroom

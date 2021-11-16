@@ -209,7 +209,7 @@ std::unique_ptr<CommandResult> CommandProcessor::redo() {
     auto command = popFromRedoStack();
     auto result = executeCommand(command.get());
     if (result->success()) {
-      assertResult(pushToUndoStack(std::move(command), false))
+      assertResult(pushToUndoStack(std::move(command), false));
     }
     return result;
   }

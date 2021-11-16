@@ -49,7 +49,7 @@ private:
 
   bool doCollateWith(UndoableCommand* command) override;
 
-  deleteCopyAndMove(CurrentGroupCommand)
+  deleteCopyAndMove(CurrentGroupCommand);
 };
 } // namespace View
 } // namespace TrenchBroom

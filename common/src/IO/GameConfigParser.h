@@ -76,7 +76,7 @@ private:
   int parseFlagValue(const EL::Value& value, const Model::FlagsConfig& flags) const;
   std::vector<Model::TagAttribute> parseTagAttributes(const EL::Value& values) const;
 
-  deleteCopyAndMove(GameConfigParser)
+  deleteCopyAndMove(GameConfigParser);
 };
 
 std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string);

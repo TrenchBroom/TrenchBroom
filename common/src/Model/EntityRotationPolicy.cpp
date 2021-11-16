@@ -107,7 +107,7 @@ vm::mat4x4 EntityRotationPolicy::getRotation(const Entity& entity) {
     }
     case RotationType::None:
       return vm::mat4x4::identity();
-      switchDefault()
+      switchDefault();
   }
 }
 
@@ -161,7 +161,7 @@ void EntityRotationPolicy::applyRotation(
     }
     case RotationType::None:
       break;
-      switchDefault()
+      switchDefault();
   }
 }
 
