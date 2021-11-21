@@ -58,17 +58,17 @@ class Selection;
  * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the drag.
  * We need this to be able to make decisions about the drag before reverting the transaction.
  */
-struct DragHandle {
+struct ResizeDragHandle {
   Model::BrushNode* node;
   Model::Brush brushAtDragStart;
   size_t faceIndex;
 
-  explicit DragHandle(const Model::BrushFaceHandle& handle);
+  explicit ResizeDragHandle(const Model::BrushFaceHandle& handle);
 
   const Model::BrushFace& faceAtDragStart() const;
   vm::vec3 faceNormal() const;
 
-  kdl_reflect_decl(DragHandle, node, faceIndex);
+  kdl_reflect_decl(ResizeDragHandle, node, faceIndex);
 };
 
 /**
@@ -101,14 +101,14 @@ private:
   /**
    * Propsed drag handles for the next drag. Should only be accessed when m_dragging is false.
    */
-  std::vector<DragHandle> m_proposedDragHandles;
+  std::vector<ResizeDragHandle> m_proposedDragHandles;
   bool m_dragging;
 
   NotifierConnection m_notifierConnection;
 
 private: // drag state - should only be accessed when m_dragging is true
   std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
-  std::vector<DragHandle> m_dragHandlesAtDragStart;
+  std::vector<ResizeDragHandle> m_dragHandlesAtDragStart;
   vm::vec3 m_dragOrigin;
   /**
    * This is temporarily set to true when a drag is started with Ctrl,
@@ -138,8 +138,8 @@ public:
   void updateProposedDragHandles(const Model::PickResult& pickResult);
 
 private:
-  std::vector<DragHandle> getDragHandles(const Model::Hit& hit) const;
-  std::vector<DragHandle> collectDragHandles(const Model::Hit& hit) const;
+  std::vector<ResizeDragHandle> getDragHandles(const Model::Hit& hit) const;
+  std::vector<ResizeDragHandle> collectDragHandles(const Model::Hit& hit) const;
   std::vector<Model::BrushFaceHandle> collectDragFaces(
     const Model::BrushFaceHandle& faceHandle) const;
 

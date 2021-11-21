@@ -65,20 +65,20 @@ const Model::HitType::Type ResizeBrushesTool::Resize3DHitType = Model::HitType::
 
 // DragHandle
 
-DragHandle::DragHandle(const Model::BrushFaceHandle& handle)
+ResizeDragHandle::ResizeDragHandle(const Model::BrushFaceHandle& handle)
   : node{handle.node()}
   , brushAtDragStart{handle.node()->brush()}
   , faceIndex{handle.faceIndex()} {}
 
-const Model::BrushFace& DragHandle::faceAtDragStart() const {
+const Model::BrushFace& ResizeDragHandle::faceAtDragStart() const {
   return brushAtDragStart.face(faceIndex);
 }
 
-vm::vec3 DragHandle::faceNormal() const {
+vm::vec3 ResizeDragHandle::faceNormal() const {
   return faceAtDragStart().normal();
 }
 
-kdl_reflect_impl(DragHandle);
+kdl_reflect_impl(ResizeDragHandle);
 
 // ResizeBrushesTool
 
@@ -198,7 +198,7 @@ std::vector<Model::BrushFaceHandle> ResizeBrushesTool::visualHandles() const {
     return m_currentDragVisualHandles;
   }
 
-  return kdl::vec_transform(m_proposedDragHandles, [](const DragHandle& handle) {
+  return kdl::vec_transform(m_proposedDragHandles, [](const ResizeDragHandle& handle) {
     return Model::BrushFaceHandle{handle.node, handle.faceIndex};
   });
 }
@@ -224,15 +224,15 @@ void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickR
   m_proposedDragHandles = newDragHandles;
 }
 
-std::vector<DragHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
+std::vector<ResizeDragHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
   if (hit.isMatch()) {
     return collectDragHandles(hit);
   } else {
-    return std::vector<DragHandle>{};
+    return std::vector<ResizeDragHandle>{};
   }
 }
 
-std::vector<DragHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& hit) const {
+std::vector<ResizeDragHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& hit) const {
   assert(hit.isMatch());
   assert(hit.type() == Resize2DHitType || hit.type() == Resize3DHitType);
 
@@ -251,7 +251,7 @@ std::vector<DragHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& 
   }
 
   return kdl::vec_transform(result, [](const auto& handle) {
-    return DragHandle{handle};
+    return ResizeDragHandle{handle};
   });
 }
 
