@@ -85,6 +85,13 @@ bool operator!=(const DragHandle& lhs, const DragHandle& rhs) {
   return !(lhs == rhs);
 }
 
+std::ostream& operator<<(std::ostream& lhs, const DragHandle& rhs) {
+  lhs << "DragHandle{";
+  lhs << "node: " << rhs.node << ", ";
+  lhs << "faceIndex: " << rhs.faceIndex << "}";
+  return lhs;
+}
+
 // ResizeBrushesTool
 
 ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document)

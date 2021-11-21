@@ -69,6 +69,7 @@ struct DragHandle {
 
 bool operator==(const DragHandle& lhs, const DragHandle& rhs);
 bool operator!=(const DragHandle& lhs, const DragHandle& rhs);
+std::ostream& operator<<(std::ostream& lhs, const DragHandle& rhs);
 
 /**
  * Tool for extruding faces along their normals (Shift+LMB Drag).
