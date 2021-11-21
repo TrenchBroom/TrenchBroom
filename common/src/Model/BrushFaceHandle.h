@@ -19,6 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <iosfwd>
 #include <vector>
 
 namespace TrenchBroom {
@@ -71,6 +72,8 @@ public:
    * Returns true if the given handles do not represent the same face.
    */
   friend bool operator!=(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs);
+
+  friend std::ostream& operator<<(std::ostream& lhs, const BrushFaceHandle& rhs);
 };
 
 /**
