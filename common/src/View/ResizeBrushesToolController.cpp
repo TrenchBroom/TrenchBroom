@@ -36,8 +36,7 @@
 #include "View/InputState.h"
 #include "View/ResizeBrushesTool.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom::View {
 ResizeBrushesToolController::ResizeBrushesToolController(ResizeBrushesTool& tool)
   : m_tool{tool} {}
 
@@ -89,6 +88,12 @@ Renderer::DirectEdgeRenderer buildEdgeRenderer(
 
   return Renderer::DirectEdgeRenderer{
     Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines};
+}
+
+Renderer::DirectEdgeRenderer buildEdgeRenderer(const std::vector<ResizeDragHandle>& dragHandles) {
+  return buildEdgeRenderer(kdl::vec_transform(dragHandles, [](const auto& h) {
+    return h.faceHandle;
+  }));
 }
 
 class ResizeToolDragTracker : public DragTracker {
@@ -162,23 +167,6 @@ std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
   return nullptr;
 }
 
-static Renderer::DirectEdgeRenderer buildEdgeRenderer(
-  const std::vector<ResizeDragHandle>& dragHandles) {
-  using Vertex = Renderer::GLVertexTypes::P3::Vertex;
-  auto vertices = std::vector<Vertex>{};
-
-  for (const auto& dragHandle : dragHandles) {
-    const auto& dragFace = dragHandle.node->brush().face(dragHandle.faceIndex);
-    for (const auto* edge : dragFace.edges()) {
-      vertices.emplace_back(vm::vec3f{edge->firstVertex()->position()});
-      vertices.emplace_back(vm::vec3f{edge->secondVertex()->position()});
-    }
-  }
-
-  return Renderer::DirectEdgeRenderer{
-    Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines};
-}
-
 void ResizeBrushesToolController::render(
   const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
   const auto proposedDragHandles = m_tool.proposedDragHandles();
@@ -224,5 +212,4 @@ bool ResizeBrushesToolController3D::doHandleInput(const InputState& inputState) 
     inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
     inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd));
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

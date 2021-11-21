@@ -67,13 +67,12 @@ const Model::HitType::Type ResizeBrushesTool::Resize3DHitType = Model::HitType::
 
 // DragHandle
 
-ResizeDragHandle::ResizeDragHandle(const Model::BrushFaceHandle& handle)
-  : node{handle.node()}
-  , brushAtDragStart{handle.node()->brush()}
-  , faceIndex{handle.faceIndex()} {}
+ResizeDragHandle::ResizeDragHandle(Model::BrushFaceHandle i_faceHandle)
+  : faceHandle{std::move(i_faceHandle)}
+  , brushAtDragStart{faceHandle.node()->brush()} {}
 
 const Model::BrushFace& ResizeDragHandle::faceAtDragStart() const {
-  return brushAtDragStart.face(faceIndex);
+  return brushAtDragStart.face(faceHandle.faceIndex());
 }
 
 vm::vec3 ResizeDragHandle::faceNormal() const {
@@ -287,9 +286,9 @@ std::vector<Model::BrushFaceHandle> getDragFaces(const std::vector<ResizeDragHan
   dragFaces.reserve(dragHandles.size());
 
   for (const auto& dragHandle : dragHandles) {
-    const auto& brush = dragHandle.node->brush();
+    const auto& brush = dragHandle.faceHandle.node()->brush();
     if (const auto faceIndex = brush.findFace(dragHandle.faceNormal())) {
-      dragFaces.emplace_back(dragHandle.node, *faceIndex);
+      dragFaces.emplace_back(dragHandle.faceHandle.node(), *faceIndex);
     }
   }
 
@@ -353,10 +352,10 @@ bool splitBrushesOutward(MapDocument& document, const vm::vec3& delta, ResizeDra
   return kdl::for_each_result(
            dragState.initialDragHandles,
            [&](const auto& dragHandle) {
-             auto* brushNode = dragHandle.node;
+             auto* brushNode = dragHandle.faceHandle.node();
 
              const auto& oldBrush = dragHandle.brushAtDragStart;
-             const auto dragFaceIndex = dragHandle.faceIndex;
+             const auto dragFaceIndex = dragHandle.faceHandle.faceIndex();
              const auto newDragFaceNormal = dragHandle.faceNormal();
 
              auto newBrush = oldBrush;
@@ -426,13 +425,13 @@ bool splitBrushesInward(MapDocument& document, const vm::vec3& delta, ResizeDrag
   auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
 
   for (const auto& dragHandle : dragState.initialDragHandles) {
-    auto* brushNode = dragHandle.node;
+    auto* brushNode = dragHandle.faceHandle.node();
 
     // "Front" means the part closer to the drag handles at the drag start
     auto frontBrush = dragHandle.brushAtDragStart;
     auto backBrush = dragHandle.brushAtDragStart;
 
-    auto clipFace = frontBrush.face(dragHandle.faceIndex);
+    auto clipFace = frontBrush.face(dragHandle.faceHandle.faceIndex());
 
     if (clipFace.transform(vm::translation_matrix(delta), lockTextures).is_error()) {
       document.error() << "Could not extrude inwards: Error transforming face";
@@ -486,7 +485,7 @@ bool splitBrushesInward(MapDocument& document, const vm::vec3& delta, ResizeDrag
 
 std::vector<vm::polygon3> getPolygons(const std::vector<ResizeDragHandle>& dragHandles) {
   return kdl::vec_transform(dragHandles, [](const auto& dragHandle) {
-    return dragHandle.brushAtDragStart.face(dragHandle.faceIndex).polygon();
+    return dragHandle.brushAtDragStart.face(dragHandle.faceHandle.faceIndex()).polygon();
   });
 }
 } // namespace

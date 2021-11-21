@@ -21,6 +21,7 @@
 
 #include "FloatType.h"
 #include "Model/Brush.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/HitType.h"
 #include "NotifierConnection.h"
 #include "View/Tool.h"
@@ -39,7 +40,6 @@ namespace TrenchBroom {
 namespace Model {
 class Brush;
 class BrushFace;
-class BrushFaceHandle;
 class BrushNode;
 class Hit;
 class Node;
@@ -59,16 +59,15 @@ class Selection;
  * We need this to be able to make decisions about the drag before reverting the transaction.
  */
 struct ResizeDragHandle {
-  Model::BrushNode* node;
+  Model::BrushFaceHandle faceHandle;
   Model::Brush brushAtDragStart;
-  size_t faceIndex;
 
-  explicit ResizeDragHandle(const Model::BrushFaceHandle& handle);
+  explicit ResizeDragHandle(Model::BrushFaceHandle faceHandle);
 
   const Model::BrushFace& faceAtDragStart() const;
   vm::vec3 faceNormal() const;
 
-  kdl_reflect_decl(ResizeDragHandle, node, faceIndex);
+  kdl_reflect_decl(ResizeDragHandle, faceHandle);
 };
 
 struct ResizeDragState {
