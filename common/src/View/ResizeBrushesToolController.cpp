@@ -19,9 +19,11 @@
 
 #include "ResizeBrushesToolController.h"
 
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
+#include "Model/BrushNode.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
@@ -72,22 +74,41 @@ void ResizeBrushesToolController::mouseMove(const InputState& inputState) {
 }
 
 namespace {
+Renderer::DirectEdgeRenderer buildEdgeRenderer(
+  const std::vector<Model::BrushFaceHandle>& dragHandles) {
+  using Vertex = Renderer::GLVertexTypes::P3::Vertex;
+  auto vertices = std::vector<Vertex>{};
+
+  for (const auto& dragHandle : dragHandles) {
+    const auto& dragFace = dragHandle.face();
+    for (const auto* edge : dragFace.edges()) {
+      vertices.emplace_back(vm::vec3f{edge->firstVertex()->position()});
+      vertices.emplace_back(vm::vec3f{edge->secondVertex()->position()});
+    }
+  }
+
+  return Renderer::DirectEdgeRenderer{
+    Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines};
+}
+
 class ResizeToolDragTracker : public DragTracker {
 private:
-  using DragFunction = std::function<bool(const InputState&)>;
+  using DragFunction = std::function<bool(const InputState&, ResizeDragState& dragState)>;
 
   ResizeBrushesTool& m_tool;
+  ResizeDragState m_dragState;
   DragFunction m_drag;
 
 public:
-  ResizeToolDragTracker(ResizeBrushesTool& tool, DragFunction drag)
+  ResizeToolDragTracker(ResizeBrushesTool& tool, ResizeDragState dragState, DragFunction drag)
     : m_tool{tool}
+    , m_dragState{std::move(dragState)}
     , m_drag{std::move(drag)} {}
 
-  bool drag(const InputState& inputState) override { return m_drag(inputState); }
+  bool drag(const InputState& inputState) override { return m_drag(inputState, m_dragState); }
 
   void end(const InputState& inputState) override {
-    m_tool.commit();
+    m_tool.commit(m_dragState);
     m_tool.updateProposedDragHandles(inputState.pickResult());
   }
 
@@ -95,6 +116,12 @@ public:
 
   void setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
     renderContext.setForceShowSelectionGuide();
+  }
+
+  void render(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+    const override {
+    auto edgeRenderer = buildEdgeRenderer(m_dragState.currentDragFaces);
+    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
   }
 };
 } // namespace
@@ -113,18 +140,22 @@ std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
   m_tool.updateProposedDragHandles(inputState.pickResult());
   if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
     // move mode
-    if (m_tool.beginMove(inputState.pickResult())) {
-      return std::make_unique<ResizeToolDragTracker>(m_tool, [&](const InputState& inputState_) {
-        return m_tool.move(inputState_.pickRay(), inputState_.camera());
-      });
+    if (auto dragState = m_tool.beginMove(inputState.pickResult())) {
+      return std::make_unique<ResizeToolDragTracker>(
+        m_tool, std::move(*dragState),
+        [&](const InputState& inputState_, ResizeDragState& dragState_) {
+          return m_tool.move(inputState_.pickRay(), inputState_.camera(), dragState_);
+        });
     }
   } else {
     // resize mode
     const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-    if (m_tool.beginResize(inputState.pickResult(), split)) {
-      return std::make_unique<ResizeToolDragTracker>(m_tool, [&](const InputState& inputState_) {
-        return m_tool.resize(inputState_.pickRay(), inputState_.camera());
-      });
+    if (auto dragState = m_tool.beginResize(inputState.pickResult(), split)) {
+      return std::make_unique<ResizeToolDragTracker>(
+        m_tool, std::move(*dragState),
+        [&](const InputState& inputState_, ResizeDragState& dragState_) {
+          return m_tool.resize(inputState_.pickRay(), inputState_.camera(), dragState_);
+        });
     }
   }
 
@@ -132,26 +163,27 @@ std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
 }
 
 static Renderer::DirectEdgeRenderer buildEdgeRenderer(
-  const std::vector<Model::BrushFaceHandle>& visualHandles) {
+  const std::vector<ResizeDragHandle>& dragHandles) {
   using Vertex = Renderer::GLVertexTypes::P3::Vertex;
   auto vertices = std::vector<Vertex>{};
 
-  for (const auto& dragFaceHandle : visualHandles) {
-    const auto& dragFace = dragFaceHandle.face();
+  for (const auto& dragHandle : dragHandles) {
+    const auto& dragFace = dragHandle.node->brush().face(dragHandle.faceIndex);
     for (const auto* edge : dragFace.edges()) {
       vertices.emplace_back(vm::vec3f{edge->firstVertex()->position()});
       vertices.emplace_back(vm::vec3f{edge->secondVertex()->position()});
     }
   }
 
-  return Renderer::DirectEdgeRenderer(
-    Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines);
+  return Renderer::DirectEdgeRenderer{
+    Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines};
 }
 
 void ResizeBrushesToolController::render(
-  const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-  if (m_tool.hasVisualHandles()) {
-    Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer(m_tool.visualHandles());
+  const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+  const auto proposedDragHandles = m_tool.proposedDragHandles();
+  if (!inputState.anyToolDragging() && !proposedDragHandles.empty()) {
+    auto edgeRenderer = buildEdgeRenderer(proposedDragHandles);
     edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
   }
 }

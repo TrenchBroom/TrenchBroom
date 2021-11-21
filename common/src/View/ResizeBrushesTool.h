@@ -71,22 +71,29 @@ struct ResizeDragHandle {
   kdl_reflect_decl(ResizeDragHandle, node, faceIndex);
 };
 
+struct ResizeDragState {
+  /** The position at which the drag initiated. */
+  vm::vec3 dragOrigin;
+  /** The drag handles when the drag started. */
+  std::vector<ResizeDragHandle> initialDragHandles;
+  /** The faces being dragged. */
+  std::vector<Model::BrushFaceHandle> currentDragFaces;
+
+  /** Whether or not to create new brushes by splitting the selected brushes. */
+  bool splitBrushes;
+  /** The total drag distance so far. */
+  vm::vec3 totalDelta;
+
+  kdl_reflect_decl(
+    ResizeDragState, dragOrigin, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
+};
+
 /**
  * Tool for extruding faces along their normals (Shift+LMB Drag).
  *
  * Also:
  *  - split brushes outward/inward (Ctrl+Shift+LMB Drag)
  *  - move faces (Alt+Shift+LMB Drag, 2D views only)
- *
- * Terminology:
- *  - "Drag handle": for calculating the brush modifications.
- *    Instance of DragHandle. Always based on the brush
- *    state at the start of the drag.
- *
- *  - "Visual handle": specifies which faces to render highlighted.
- *    Based on the current document state, so needs to be updated
- *    after each modification or roll back. May be fewer than the number
- *    of Drag handles if faces are clipped away by the drag.
  */
 class ResizeBrushesTool : public Tool {
 public:
@@ -100,26 +107,13 @@ private:
   std::weak_ptr<MapDocument> m_document;
   /**
    * Propsed drag handles for the next drag. Should only be accessed when m_dragging is false.
+   * This needs to be cached here so that it is shared between multiple views. Otherwise, we cannot
+   * show the proposed drag handles in all views.
    */
   std::vector<ResizeDragHandle> m_proposedDragHandles;
   bool m_dragging;
 
   NotifierConnection m_notifierConnection;
-
-private: // drag state - should only be accessed when m_dragging is true
-  std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
-  std::vector<ResizeDragHandle> m_dragHandlesAtDragStart;
-  vm::vec3 m_dragOrigin;
-  /**
-   * This is temporarily set to true when a drag is started with Ctrl,
-   * to signal that new brushes need to be split off. After the split brushes have been
-   * created, it's set back to false, in `resize()`.
-   */
-  bool m_splitBrushes;
-  /**
-   * How much drag is currently applied to the document.
-   */
-  vm::vec3 m_totalDelta;
 
 public:
   explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
@@ -133,8 +127,14 @@ private:
   Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
 
 public:
-  bool hasVisualHandles() const;
-  std::vector<Model::BrushFaceHandle> visualHandles() const;
+  /**
+   * Returns the current proposed drag handles as per the last call to updateProposedDragHandles.
+   */
+  const std::vector<ResizeDragHandle>& proposedDragHandles() const;
+
+  /**
+   * Updates the proposed drag handles according to the given picking result.
+   */
   void updateProposedDragHandles(const Model::PickResult& pickResult);
 
 private:
@@ -144,20 +144,18 @@ private:
     const Model::BrushFaceHandle& faceHandle) const;
 
 public:
-  bool beginResize(const Model::PickResult& pickResult, bool split);
-  bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
+  std::optional<ResizeDragState> beginResize(const Model::PickResult& pickResult, bool split);
+  bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera, ResizeDragState& dragState);
 
-  bool beginMove(const Model::PickResult& pickResult);
-  bool move(const vm::ray3& pickRay, const Renderer::Camera& camera);
+  std::optional<ResizeDragState> beginMove(const Model::PickResult& pickResult);
+  bool move(const vm::ray3& pickRay, const Renderer::Camera& camera, ResizeDragState& dragState);
 
-  void commit();
+  void commit(const ResizeDragState& dragState);
   void cancel();
 
 private:
-  bool splitBrushesOutward(const vm::vec3& delta);
-  bool splitBrushesInward(const vm::vec3& delta);
-  std::vector<vm::polygon3> polygonsAtDragStart() const;
-  void updateCurrentDragVisualHandles();
+  bool splitBrushesOutward(const vm::vec3& delta, ResizeDragState& dragState);
+  bool splitBrushesInward(const vm::vec3& delta, ResizeDragState& dragState);
 
 private:
   void connectObservers();
