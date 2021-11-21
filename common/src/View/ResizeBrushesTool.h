@@ -123,10 +123,6 @@ public:
   Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
   Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
 
-private:
-  Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
-
-public:
   /**
    * Returns the current proposed drag handles as per the last call to updateProposedDragHandles.
    */
@@ -137,13 +133,6 @@ public:
    */
   void updateProposedDragHandles(const Model::PickResult& pickResult);
 
-private:
-  std::vector<ResizeDragHandle> getDragHandles(const Model::Hit& hit) const;
-  std::vector<ResizeDragHandle> collectDragHandles(const Model::Hit& hit) const;
-  std::vector<Model::BrushFaceHandle> collectDragFaces(
-    const Model::BrushFaceHandle& faceHandle) const;
-
-public:
   std::optional<ResizeDragState> beginResize(const Model::PickResult& pickResult, bool split);
   bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera, ResizeDragState& dragState);
 
@@ -152,10 +141,6 @@ public:
 
   void commit(const ResizeDragState& dragState);
   void cancel();
-
-private:
-  bool splitBrushesOutward(const vm::vec3& delta, ResizeDragState& dragState);
-  bool splitBrushesInward(const vm::vec3& delta, ResizeDragState& dragState);
 
 private:
   void connectObservers();

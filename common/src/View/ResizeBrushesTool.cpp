@@ -98,35 +98,10 @@ bool ResizeBrushesTool::applies() const {
   return document->selectedNodes().hasBrushes();
 }
 
-Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
-  using namespace Model::HitFilters;
-
-  auto document = kdl::mem_lock(m_document);
-  const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && selected());
-  if (hit.isMatch()) {
-    return Model::Hit::NoHit;
-  } else {
-    return pickProximateFace(Resize2DHitType, pickRay);
-  }
-}
-
-Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
-  using namespace Model::HitFilters;
-
-  auto document = kdl::mem_lock(m_document);
-  const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && selected());
-  if (const auto faceHandle = hitToFaceHandle(hit)) {
-    return Model::Hit{Resize3DHitType, hit.distance(), hit.hitPoint(), *faceHandle};
-  } else {
-    return pickProximateFace(Resize3DHitType, pickRay);
-  }
-}
-
-Model::Hit ResizeBrushesTool::pickProximateFace(
-  const Model::HitType::Type hitType, const vm::ray3& pickRay) const {
-  auto document = kdl::mem_lock(m_document);
-  const auto& nodes = document->selectedNodes().nodes();
-
+namespace {
+Model::Hit pickProximateFace(
+  const std::vector<Model::Node*>& nodes, const Model::HitType::Type hitType,
+  const vm::ray3& pickRay) {
   auto closestDistance = std::numeric_limits<FloatType>::max();
   auto hit = Model::Hit::NoHit;
 
@@ -157,7 +132,7 @@ Model::Hit ResizeBrushesTool::pickProximateFace(
               closestDistance = result.distance;
               const auto hitPoint = vm::point_at_distance(pickRay, result.position1);
               if (hitType == ResizeBrushesTool::Resize2DHitType) {
-                auto data = Resize2DHitData{};
+                auto data = ResizeBrushesTool::Resize2DHitData{};
                 if (vm::is_zero(leftDot, vm::C::almost_zero())) {
                   data.push_back(leftFaceHandle);
                 } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
@@ -184,68 +159,42 @@ Model::Hit ResizeBrushesTool::pickProximateFace(
 
   return hit;
 }
+} // namespace
+
+Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
+  using namespace Model::HitFilters;
+
+  auto document = kdl::mem_lock(m_document);
+  const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && selected());
+  if (hit.isMatch()) {
+    return Model::Hit::NoHit;
+  } else {
+    const auto& nodes = document->selectedNodes().nodes();
+    return pickProximateFace(nodes, Resize2DHitType, pickRay);
+  }
+}
+
+Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
+  using namespace Model::HitFilters;
+
+  auto document = kdl::mem_lock(m_document);
+  const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && selected());
+  if (const auto faceHandle = hitToFaceHandle(hit)) {
+    return Model::Hit{Resize3DHitType, hit.distance(), hit.hitPoint(), *faceHandle};
+  } else {
+    const auto& nodes = document->selectedNodes().nodes();
+    return pickProximateFace(nodes, Resize3DHitType, pickRay);
+  }
+}
 
 const std::vector<ResizeDragHandle>& ResizeBrushesTool::proposedDragHandles() const {
   return m_proposedDragHandles;
 }
 
-void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickResult) {
-  using namespace Model::HitFilters;
-
-  if (m_dragging) {
-    // FIXME: this should be turned into an ensure failure, but it's easy to make it fail
-    // currently by spamming drags/modifiers.
-    // Indicates a bug in ResizeBrushesToolController thinking we are not dragging when we actually
-    // still are.
-    kdl::mem_lock(m_document)->error() << "updateProposedDragHandles called during a drag";
-    return;
-  }
-
-  const auto& hit = pickResult.first(type(Resize2DHitType | Resize3DHitType));
-  auto newDragHandles = getDragHandles(hit);
-  if (newDragHandles != m_proposedDragHandles) {
-    m_proposedDragHandles = newDragHandles;
-    refreshViews();
-  }
-}
-
-std::vector<ResizeDragHandle> ResizeBrushesTool::getDragHandles(const Model::Hit& hit) const {
-  if (hit.isMatch()) {
-    return collectDragHandles(hit);
-  } else {
-    return std::vector<ResizeDragHandle>{};
-  }
-}
-
-std::vector<ResizeDragHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& hit) const {
-  assert(hit.isMatch());
-  assert(hit.type() == Resize2DHitType || hit.type() == Resize3DHitType);
-
+namespace {
+std::vector<Model::BrushFaceHandle> collectDragFaces(
+  const std::vector<Model::Node*>& nodes, const Model::BrushFaceHandle& faceHandle) {
   auto result = std::vector<Model::BrushFaceHandle>{};
-  if (hit.type() == Resize2DHitType) {
-    const auto& data = hit.target<const Resize2DHitData&>();
-    assert(!data.empty());
-    result = kdl::vec_concat(std::move(result), data, collectDragFaces(data[0]));
-    if (data.size() > 1) {
-      result = kdl::vec_concat(std::move(result), collectDragFaces(data[1]));
-    }
-  } else {
-    const auto& data = hit.target<const Resize3DHitData&>();
-    result.push_back(data);
-    result = kdl::vec_concat(std::move(result), collectDragFaces(data));
-  }
-
-  return kdl::vec_transform(result, [](const auto& handle) {
-    return ResizeDragHandle{handle};
-  });
-}
-
-std::vector<Model::BrushFaceHandle> ResizeBrushesTool::collectDragFaces(
-  const Model::BrushFaceHandle& faceHandle) const {
-  auto result = std::vector<Model::BrushFaceHandle>{};
-
-  auto document = kdl::mem_lock(m_document);
-  const auto& nodes = document->selectedNodes().nodes();
 
   const auto& referenceFace = faceHandle.face();
   for (auto* node : nodes) {
@@ -273,8 +222,67 @@ std::vector<Model::BrushFaceHandle> ResizeBrushesTool::collectDragFaces(
   return result;
 }
 
-static std::vector<Model::BrushFaceHandle> getDragFaces(
-  const std::vector<ResizeDragHandle>& dragHandles) {
+std::vector<ResizeDragHandle> collectDragHandles(
+  const std::vector<Model::Node*>& nodes, const Model::Hit& hit) {
+  assert(hit.isMatch());
+  assert(
+    hit.type() == ResizeBrushesTool::Resize2DHitType ||
+    hit.type() == ResizeBrushesTool::Resize3DHitType);
+
+  auto result = std::vector<Model::BrushFaceHandle>{};
+  if (hit.type() == ResizeBrushesTool::Resize2DHitType) {
+    const auto& data = hit.target<const ResizeBrushesTool::Resize2DHitData&>();
+    assert(!data.empty());
+    result = kdl::vec_concat(std::move(result), data, collectDragFaces(nodes, data[0]));
+    if (data.size() > 1) {
+      result = kdl::vec_concat(std::move(result), collectDragFaces(nodes, data[1]));
+    }
+  } else {
+    const auto& data = hit.target<const ResizeBrushesTool::Resize3DHitData&>();
+    result.push_back(data);
+    result = kdl::vec_concat(std::move(result), collectDragFaces(nodes, data));
+  }
+
+  return kdl::vec_transform(result, [](const auto& handle) {
+    return ResizeDragHandle{handle};
+  });
+}
+
+std::vector<ResizeDragHandle> getDragHandles(
+  const std::vector<Model::Node*>& nodes, const Model::Hit& hit) {
+  if (hit.isMatch()) {
+    return collectDragHandles(nodes, hit);
+  } else {
+    return std::vector<ResizeDragHandle>{};
+  }
+}
+} // namespace
+
+void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickResult) {
+  using namespace Model::HitFilters;
+
+  auto document = kdl::mem_lock(m_document);
+  if (m_dragging) {
+    // FIXME: this should be turned into an ensure failure, but it's easy to make it fail
+    // currently by spamming drags/modifiers.
+    // Indicates a bug in ResizeBrushesToolController thinking we are not dragging when we actually
+    // still are.
+    document->error() << "updateProposedDragHandles called during a drag";
+    return;
+  }
+
+  const auto& hit = pickResult.first(type(Resize2DHitType | Resize3DHitType));
+  const auto& nodes = document->selectedNodes().nodes();
+
+  auto newDragHandles = getDragHandles(nodes, hit);
+  if (newDragHandles != m_proposedDragHandles) {
+    m_proposedDragHandles = std::move(newDragHandles);
+    refreshViews();
+  }
+}
+
+namespace {
+std::vector<Model::BrushFaceHandle> getDragFaces(const std::vector<ResizeDragHandle>& dragHandles) {
   auto dragFaces = std::vector<Model::BrushFaceHandle>{};
   dragFaces.reserve(dragHandles.size());
 
@@ -287,6 +295,7 @@ static std::vector<Model::BrushFaceHandle> getDragFaces(
 
   return dragFaces;
 }
+} // namespace
 
 /**
  * Starts resizing the faces determined by the previous call to updateProposedDragHandles
@@ -312,11 +321,175 @@ std::optional<ResizeDragState> ResizeBrushesTool::beginResize(
     vm::vec3::zero()};
 }
 
-static std::vector<vm::polygon3> getPolygons(const std::vector<ResizeDragHandle>& dragHandles) {
+namespace {
+
+/**
+ * Splits off new brush "outward" from the drag handles.
+ *
+ * Returns false if the given delta isn't suitable for splitting "outward".
+ *
+ * Otherwise:
+ * - rolls back the transaction
+ * - applies a split outward with the given delta
+ * - sets m_totalDelta to the given delta
+ * - returns true
+ */
+bool splitBrushesOutward(MapDocument& document, const vm::vec3& delta, ResizeDragState& dragState) {
+  const auto& worldBounds = document.worldBounds();
+  const bool lockTextures = pref(Preferences::TextureLock);
+
+  // First ensure that the drag can be applied at all. For this, check whether each drag handle is
+  // moved "up" along its normal.
+  for (const auto& dragHandle : dragState.initialDragHandles) {
+    const auto& normal = dragHandle.faceNormal();
+    if (vm::dot(normal, delta) <= FloatType{0}) {
+      return false;
+    }
+  }
+
+  auto newDragFaces = std::vector<Model::BrushFaceHandle>{};
+  auto newNodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
+
+  return kdl::for_each_result(
+           dragState.initialDragHandles,
+           [&](const auto& dragHandle) {
+             auto* brushNode = dragHandle.node;
+
+             const auto& oldBrush = dragHandle.brushAtDragStart;
+             const auto dragFaceIndex = dragHandle.faceIndex;
+             const auto newDragFaceNormal = dragHandle.faceNormal();
+
+             auto newBrush = oldBrush;
+             return newBrush.moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
+               .and_then([&]() {
+                 auto clipFace = oldBrush.face(dragFaceIndex);
+                 clipFace.invert();
+                 return newBrush.clip(worldBounds, std::move(clipFace));
+               })
+               .and_then([&]() {
+                 auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                 newNodes[brushNode->parent()].push_back(newBrushNode);
+
+                 // Look up the new face index of the new drag handle
+                 if (
+                   const auto newDragFaceIndex =
+                     newBrushNode->brush().findFace(newDragFaceNormal)) {
+                   newDragFaces.push_back(Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
+                 }
+               });
+           })
+    .and_then([&]() {
+      // Apply the changes calculated above
+      document.rollbackTransaction();
+
+      document.deselectAll();
+      const auto addedNodes = document.addNodes(newNodes);
+      document.select(addedNodes);
+      dragState.currentDragFaces = std::move(newDragFaces);
+      dragState.totalDelta = delta;
+    })
+    .handle_errors([&](const Model::BrushError e) {
+      document.error() << "Could not extrude brush: " << e;
+      kdl::map_clear_and_delete(newNodes);
+    });
+}
+
+/**
+ * Splits brushes "inwards" effectively clipping the selected brushes into two halves.
+ *
+ * Returns false if the given delta isn't suitable for splitting inward.
+ *
+ * Otherwise:
+ * - rolls back the transaction
+ * - applies a split inward with the given delta
+ * - sets m_totalDelta to the given delta
+ * - returns true
+ */
+bool splitBrushesInward(MapDocument& document, const vm::vec3& delta, ResizeDragState& dragState) {
+  const auto& worldBounds = document.worldBounds();
+  const bool lockTextures = pref(Preferences::TextureLock);
+
+  // First ensure that the drag can be applied at all. For this, check whether each drag handle is
+  // moved "down" along its normal.
+  for (const auto& dragHandle : dragState.initialDragHandles) {
+    const auto& normal = dragHandle.faceNormal();
+    if (vm::dot(normal, delta) > FloatType{0}) {
+      return false;
+    }
+  }
+
+  auto newDragFaces = std::vector<Model::BrushFaceHandle>{};
+  // This map is to handle the case when the brushes being
+  // extruded have different parents (e.g. different brush entities),
+  // so each newly created brush should be made a sibling of the brush it was cloned from.
+  auto newNodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
+  auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+
+  for (const auto& dragHandle : dragState.initialDragHandles) {
+    auto* brushNode = dragHandle.node;
+
+    // "Front" means the part closer to the drag handles at the drag start
+    auto frontBrush = dragHandle.brushAtDragStart;
+    auto backBrush = dragHandle.brushAtDragStart;
+
+    auto clipFace = frontBrush.face(dragHandle.faceIndex);
+
+    if (clipFace.transform(vm::translation_matrix(delta), lockTextures).is_error()) {
+      document.error() << "Could not extrude inwards: Error transforming face";
+      kdl::map_clear_and_delete(newNodes);
+      return false;
+    }
+
+    auto clipFaceInverted = clipFace;
+    clipFaceInverted.invert();
+
+    // Front brush should always be valid
+    if (frontBrush.clip(worldBounds, clipFaceInverted).is_error()) {
+      document.error() << "Could not extrude inwards: Front brush is empty";
+      kdl::map_clear_and_delete(newNodes);
+      return false;
+    }
+
+    nodesToUpdate.emplace_back(brushNode, std::move(frontBrush));
+
+    // Back brush
+    if (backBrush.clip(worldBounds, clipFace).is_success()) {
+      auto* newBrushNode = new Model::BrushNode(std::move(backBrush));
+      newNodes[brushNode->parent()].push_back(newBrushNode);
+
+      // Look up the new face index of the new drag handle
+      if (const auto newDragFaceIndex = newBrushNode->brush().findFace(clipFace.normal())) {
+        newDragFaces.push_back(Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
+      }
+    }
+  }
+
+  // Apply changes calculated above
+
+  dragState.currentDragFaces.clear();
+  document.rollbackTransaction();
+
+  // FIXME: deal with linked group update failure (needed for #3647)
+  const bool success = document.swapNodeContents("Resize Brushes", nodesToUpdate);
+  unused(success);
+
+  // Add the newly split off brushes and select them (keeping the original brushes selected).
+  // FIXME: deal with linked group update failure (needed for #3647)
+  const auto addedNodes = document.addNodes(std::move(newNodes));
+  document.select(addedNodes);
+
+  dragState.currentDragFaces = std::move(newDragFaces);
+  dragState.totalDelta = delta;
+
+  return true;
+}
+
+std::vector<vm::polygon3> getPolygons(const std::vector<ResizeDragHandle>& dragHandles) {
   return kdl::vec_transform(dragHandles, [](const auto& dragHandle) {
     return dragHandle.brushAtDragStart.face(dragHandle.faceIndex).polygon();
   });
 }
+} // namespace
 
 bool ResizeBrushesTool::resize(
   const vm::ray3& pickRay, const Renderer::Camera& /* camera */, ResizeDragState& dragState) {
@@ -347,7 +520,9 @@ bool ResizeBrushesTool::resize(
   }
 
   if (dragState.splitBrushes) {
-    if (splitBrushesOutward(faceDelta, dragState) || splitBrushesInward(faceDelta, dragState)) {
+    if (
+      splitBrushesOutward(*document, faceDelta, dragState) ||
+      splitBrushesInward(*document, faceDelta, dragState)) {
       return true;
     }
   } else {
@@ -438,172 +613,6 @@ void ResizeBrushesTool::cancel() {
   document->cancelTransaction();
   m_proposedDragHandles.clear();
   m_dragging = false;
-}
-
-/**
- * Splits off new brush "outward" from the drag handles.
- *
- * Returns false if the given delta isn't suitable for splitting "outward".
- *
- * Otherwise:
- * - rolls back the transaction
- * - applies a split outward with the given delta
- * - sets m_totalDelta to the given delta
- * - returns true
- */
-bool ResizeBrushesTool::splitBrushesOutward(const vm::vec3& delta, ResizeDragState& dragState) {
-  ensure(m_dragging, "may only be called during a drag");
-  auto document = kdl::mem_lock(m_document);
-
-  const auto& worldBounds = document->worldBounds();
-  const bool lockTextures = pref(Preferences::TextureLock);
-
-  // First ensure that the drag can be applied at all. For this, check whether each drag handle is
-  // moved "up" along its normal.
-  for (const auto& dragHandle : dragState.initialDragHandles) {
-    const auto& normal = dragHandle.faceNormal();
-    if (vm::dot(normal, delta) <= FloatType{0}) {
-      return false;
-    }
-  }
-
-  auto newDragFaces = std::vector<Model::BrushFaceHandle>{};
-  auto newNodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
-
-  return kdl::for_each_result(
-           dragState.initialDragHandles,
-           [&](const auto& dragHandle) {
-             auto* brushNode = dragHandle.node;
-
-             const auto& oldBrush = dragHandle.brushAtDragStart;
-             const auto dragFaceIndex = dragHandle.faceIndex;
-             const auto newDragFaceNormal = dragHandle.faceNormal();
-
-             auto newBrush = oldBrush;
-             return newBrush.moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
-               .and_then([&]() {
-                 auto clipFace = oldBrush.face(dragFaceIndex);
-                 clipFace.invert();
-                 return newBrush.clip(worldBounds, std::move(clipFace));
-               })
-               .and_then([&]() {
-                 auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
-                 newNodes[brushNode->parent()].push_back(newBrushNode);
-
-                 // Look up the new face index of the new drag handle
-                 if (
-                   const auto newDragFaceIndex =
-                     newBrushNode->brush().findFace(newDragFaceNormal)) {
-                   newDragFaces.push_back(Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
-                 }
-               });
-           })
-    .and_then([&]() {
-      // Apply the changes calculated above
-      document->rollbackTransaction();
-
-      document->deselectAll();
-      const auto addedNodes = document->addNodes(newNodes);
-      document->select(addedNodes);
-      dragState.currentDragFaces = std::move(newDragFaces);
-      dragState.totalDelta = delta;
-    })
-    .handle_errors([&](const Model::BrushError e) {
-      document->error() << "Could not extrude brush: " << e;
-      kdl::map_clear_and_delete(newNodes);
-    });
-}
-
-/**
- * Splits brushes "inwards" effectively clipping the selected brushes into two halves.
- *
- * Returns false if the given delta isn't suitable for splitting inward.
- *
- * Otherwise:
- * - rolls back the transaction
- * - applies a split inward with the given delta
- * - sets m_totalDelta to the given delta
- * - returns true
- */
-bool ResizeBrushesTool::splitBrushesInward(const vm::vec3& delta, ResizeDragState& dragState) {
-  ensure(m_dragging, "may only be called during a drag");
-  auto document = kdl::mem_lock(m_document);
-  const auto& worldBounds = document->worldBounds();
-  const bool lockTextures = pref(Preferences::TextureLock);
-
-  // First ensure that the drag can be applied at all. For this, check whether each drag handle is
-  // moved "down" along its normal.
-  for (const auto& dragHandle : dragState.initialDragHandles) {
-    const auto& normal = dragHandle.faceNormal();
-    if (vm::dot(normal, delta) > FloatType{0}) {
-      return false;
-    }
-  }
-
-  auto newDragFaces = std::vector<Model::BrushFaceHandle>{};
-  // This map is to handle the case when the brushes being
-  // extruded have different parents (e.g. different brush entities),
-  // so each newly created brush should be made a sibling of the brush it was cloned from.
-  auto newNodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
-  auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
-
-  for (const auto& dragHandle : dragState.initialDragHandles) {
-    auto* brushNode = dragHandle.node;
-
-    // "Front" means the part closer to the drag handles at the drag start
-    auto frontBrush = dragHandle.brushAtDragStart;
-    auto backBrush = dragHandle.brushAtDragStart;
-
-    auto clipFace = frontBrush.face(dragHandle.faceIndex);
-
-    if (clipFace.transform(vm::translation_matrix(delta), lockTextures).is_error()) {
-      document->error() << "Could not extrude inwards: Error transforming face";
-      kdl::map_clear_and_delete(newNodes);
-      return false;
-    }
-
-    auto clipFaceInverted = clipFace;
-    clipFaceInverted.invert();
-
-    // Front brush should always be valid
-    if (frontBrush.clip(worldBounds, clipFaceInverted).is_error()) {
-      document->error() << "Could not extrude inwards: Front brush is empty";
-      kdl::map_clear_and_delete(newNodes);
-      return false;
-    }
-
-    nodesToUpdate.emplace_back(brushNode, std::move(frontBrush));
-
-    // Back brush
-    if (backBrush.clip(worldBounds, clipFace).is_success()) {
-      auto* newBrushNode = new Model::BrushNode(std::move(backBrush));
-      newNodes[brushNode->parent()].push_back(newBrushNode);
-
-      // Look up the new face index of the new drag handle
-      if (const auto newDragFaceIndex = newBrushNode->brush().findFace(clipFace.normal())) {
-        newDragFaces.push_back(Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
-      }
-    }
-  }
-
-  // Apply changes calculated above
-
-  dragState.currentDragFaces.clear();
-  document->rollbackTransaction();
-
-  // FIXME: deal with linked group update failure (needed for #3647)
-  const bool success = document->swapNodeContents("Resize Brushes", nodesToUpdate);
-  unused(success);
-
-  // Add the newly split off brushes and select them (keeping the original brushes selected).
-  // FIXME: deal with linked group update failure (needed for #3647)
-  const auto addedNodes = document->addNodes(std::move(newNodes));
-  document->select(addedNodes);
-
-  dragState.currentDragFaces = std::move(newDragFaces);
-  dragState.totalDelta = delta;
-
-  return true;
 }
 
 void ResizeBrushesTool::connectObservers() {
