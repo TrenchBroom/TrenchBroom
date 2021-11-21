@@ -65,10 +65,10 @@ struct DragHandle {
 
   const Model::BrushFace& faceAtDragStart() const;
   vm::vec3 faceNormal() const;
-
-  bool operator==(const DragHandle& other) const;
-  bool operator!=(const DragHandle& other) const;
 };
+
+bool operator==(const DragHandle& lhs, const DragHandle& rhs);
+bool operator!=(const DragHandle& lhs, const DragHandle& rhs);
 
 /**
  * Tool for extruding faces along their normals (Shift+LMB Drag).

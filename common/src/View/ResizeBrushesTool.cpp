@@ -77,12 +77,12 @@ vm::vec3 DragHandle::faceNormal() const {
   return faceAtDragStart().normal();
 }
 
-bool DragHandle::operator==(const DragHandle& other) const {
-  return node == other.node && faceIndex == other.faceIndex;
+bool operator==(const DragHandle& lhs, const DragHandle& rhs) {
+  return lhs.node == rhs.node && lhs.faceIndex == rhs.faceIndex;
 }
 
-bool DragHandle::operator!=(const DragHandle& other) const {
-  return !(*this == other);
+bool operator!=(const DragHandle& lhs, const DragHandle& rhs) {
+  return !(lhs == rhs);
 }
 
 // ResizeBrushesTool
