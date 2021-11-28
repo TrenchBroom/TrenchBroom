@@ -20,12 +20,13 @@
 #include "CrashDialog.h"
 
 #include "IO/PathQt.h"
+#include "View/DialogHeader.h"
+#include "View/FormWithSectionsLayout.h"
 #include "View/GetVersion.h"
 #include "View/QtUtils.h"
 
 #include <QDesktopServices>
 #include <QDialogButtonBox>
-#include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QUrl>
@@ -41,46 +42,35 @@ void CrashDialog::createGui(
   const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath) {
   setWindowTitle(tr("Crash"));
 
-  auto* header = makeHeader(new QLabel{tr("Crash Report")});
+  auto* header = new DialogHeader{"Crash Report"};
 
   auto* text1 =
-    new QLabel{tr("TrenchBroom has crashed, but was able to save a crash report,\n"
+    new QLabel{tr("TrenchBroom has crashed, but was able to save a crash report,"
                   "a log file and the current state of the map to the following locations.\n\n"
                   "Please create an issue report and upload all three files.")};
+  text1->setWordWrap(true);
 
-  auto* reportLabel = makeEmphasized(new QLabel{tr("Report")});
   auto* reportPathText = new QLabel{IO::pathAsQString(reportPath)};
-
-  auto* mapLabel = makeEmphasized(new QLabel{tr("Map")});
   auto* mapPathText = new QLabel{IO::pathAsQString(mapPath)};
-
-  auto* logLabel = makeEmphasized(new QLabel{tr("Log")});
   auto* logPathText = new QLabel{IO::pathAsQString(logPath)};
-
-  auto* versionLabel = makeEmphasized(new QLabel{tr("Version")});
   auto* versionText = new QLabel{getBuildVersion()};
-
-  auto* buildLabel = makeEmphasized(new QLabel{tr("Build")});
   auto* buildText = new QLabel{getBuildIdStr()};
 
-  auto* reportLayout = new QGridLayout{};
-  reportLayout->addWidget(text1, 0, 0, 1, 2);
-  reportLayout->setRowMinimumHeight(1, 20);
-  reportLayout->addWidget(reportLabel, 2, 0, 1, 1, Qt::AlignVCenter);
-  reportLayout->addWidget(reportPathText, 2, 1, 1, 1, Qt::AlignVCenter);
-  reportLayout->addWidget(mapLabel, 3, 0, 1, 1, Qt::AlignVCenter);
-  reportLayout->addWidget(mapPathText, 3, 1, 1, 1, Qt::AlignVCenter);
-  reportLayout->addWidget(logLabel, 4, 0, 1, 1, Qt::AlignVCenter);
-  reportLayout->addWidget(logPathText, 4, 1, 1, 1, Qt::AlignVCenter);
-  reportLayout->setRowMinimumHeight(5, 20);
-  reportLayout->addWidget(versionLabel, 6, 0, 1, 1, Qt::AlignVCenter);
-  reportLayout->addWidget(versionText, 6, 1, 1, 1, Qt::AlignVCenter);
-  reportLayout->addWidget(buildLabel, 7, 0, 1, 1, Qt::AlignVCenter);
-  reportLayout->addWidget(buildText, 7, 1, 1, 1, Qt::AlignVCenter);
+  auto* reportLayout = new FormWithSectionsLayout{};
+  reportLayout->setContentsMargins(
+    0, LayoutConstants::MediumVMargin, 0, LayoutConstants::MediumVMargin);
+  reportLayout->setVerticalSpacing(2);
 
-  auto* reportPanel = new QWidget{};
-  setBaseWindowColor(reportPanel);
-  reportPanel->setLayout(reportLayout);
+  reportLayout->addRow(text1);
+
+  reportLayout->addSection("Info");
+  reportLayout->addRow("Version", versionText);
+  reportLayout->addRow("Build", buildText);
+
+  reportLayout->addSection("Files");
+  reportLayout->addRow("Crash Report", reportPathText);
+  reportLayout->addRow("Map File", mapPathText);
+  reportLayout->addRow("Log File", logPathText);
 
   auto* buttonBox = new QDialogButtonBox{};
   buttonBox->addButton(QDialogButtonBox::Close);
@@ -95,11 +85,9 @@ void CrashDialog::createGui(
   outerLayout->setSizeConstraint(QLayout::SetFixedSize);
   outerLayout->setContentsMargins(0, 0, 0, 0);
   outerLayout->addWidget(header);
-  outerLayout->addWidget(reportPanel, 1);
-  outerLayout->addWidget(buttonBox);
+  outerLayout->addLayout(reportLayout, 1);
+  outerLayout->addLayout(wrapDialogButtonBox(buttonBox));
 
   setLayout(outerLayout);
-
-  // TODO: needs spacing tweaks
 }
 } // namespace TrenchBroom::View
