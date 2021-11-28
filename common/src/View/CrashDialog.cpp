@@ -33,13 +33,15 @@
 
 namespace TrenchBroom::View {
 CrashDialog::CrashDialog(
-  const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath)
+  const std::string& reason, const IO::Path& reportPath, const IO::Path& mapPath,
+  const IO::Path& logPath)
   : QDialog{} {
-  createGui(reportPath, mapPath, logPath);
+  createGui(reason, reportPath, mapPath, logPath);
 }
 
 void CrashDialog::createGui(
-  const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath) {
+  const std::string& reason, const IO::Path& reportPath, const IO::Path& mapPath,
+  const IO::Path& logPath) {
   setWindowTitle(tr("Crash"));
 
   auto* header = new DialogHeader{"Crash Report"};
@@ -50,6 +52,7 @@ void CrashDialog::createGui(
                   "Please create an issue report and upload all three files.")};
   text1->setWordWrap(true);
 
+  auto* reasonText = new QLabel{QString::fromStdString(reason)};
   auto* reportPathText = new QLabel{IO::pathAsQString(reportPath)};
   auto* mapPathText = new QLabel{IO::pathAsQString(mapPath)};
   auto* logPathText = new QLabel{IO::pathAsQString(logPath)};
@@ -64,6 +67,7 @@ void CrashDialog::createGui(
   reportLayout->addRow(text1);
 
   reportLayout->addSection("Info");
+  reportLayout->addRow("Reason", reasonText);
   reportLayout->addRow("Version", versionText);
   reportLayout->addRow("Build", buildText);
 
@@ -89,5 +93,7 @@ void CrashDialog::createGui(
   outerLayout->addLayout(wrapDialogButtonBox(buttonBox));
 
   setLayout(outerLayout);
+
+  // TODO: needs spacing tweaks
 }
 } // namespace TrenchBroom::View
