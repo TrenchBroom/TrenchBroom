@@ -36,7 +36,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 	- Displays 3D models in the editor (supports mdl, md2, md3, bsp, dkm)
 	- Smart entity property editors
 
-## About This Document
+## About this Document
 
 This document is intended to help you learn to use the TrenchBroom editor. It is not intended to teach you how to map, and it isn't a tutorial either. If you are having technical problems with your maps, or need information on how to create particular effects or setups for the particular game you are mapping for, you should ask other mappers for help (see [References and Links](#references_and_links) to find mapping communities and such). This document will only teach you how to use this editor.
 
@@ -324,7 +324,7 @@ Quake 2   `<MOD>/textures`  `baseq2/textures`
 Daikatana `<MOD>/textures`  `data/textures`
 Generic   `<MOD>/textures`  `<GamePath>/textures`
 
-## Interacting With the Editor
+## Interacting with the Editor
 
 Before we delve into specific editing operations such as creating new objects, you should learn some basics about how to interact with the editor itself. In particular, it is important to understand the concept of tools in TrenchBroom and how mouse input is mapped to 3D coordinates.
 
