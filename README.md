@@ -5,9 +5,9 @@
 TrenchBroom is a modern cross-platform level editor for Quake-engine based games.
 
 - Trailer:   https://www.youtube.com/watch?v=shcAvnYp9ow
-- Website:   http://github.com/TrenchBroom/TrenchBroom
+- Website:   https://github.com/TrenchBroom/TrenchBroom
 - Discord:   https://discord.gg/WGf9uve
-- Tutorial:  https://www.youtube.com/watch?v=gONePWocbqA
+- Video Tutorial Series:  https://www.youtube.com/playlist?list=PLgDKRPte5Y0AZ_K_PZbWbgBAEt5xf74aE
 - Manual:    https://trenchbroom.github.io/manual/latest
 
 ## Features
@@ -60,8 +60,8 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 # Credits
 - [Qt](https://www.qt.io/)
 - [FreeType](https://www.freetype.org/)
-- [FreeImage](http://freeimage.sourceforge.net/)
-- [GLEW](http://glew.sourceforge.net/)
+- [FreeImage](https://freeimage.sourceforge.io/)
+- [GLEW](https://github.com/nigels-com/glew)
 - [Catch2](https://github.com/catchorg/Catch2)
 - [CMake](https://cmake.org/)
 - [Pandoc](https://www.pandoc.org/)

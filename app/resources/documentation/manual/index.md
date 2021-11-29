@@ -36,7 +36,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 	- Displays 3D models in the editor (supports mdl, md2, md3, bsp, dkm)
 	- Smart entity property editors
 
-## About This Document
+## About this Document
 
 This document is intended to help you learn to use the TrenchBroom editor. It is not intended to teach you how to map, and it isn't a tutorial either. If you are having technical problems with your maps, or need information on how to create particular effects or setups for the particular game you are mapping for, you should ask other mappers for help (see [References and Links](#references_and_links) to find mapping communities and such). This document will only teach you how to use this editor.
 
@@ -324,7 +324,7 @@ Quake 2   `<MOD>/textures`  `baseq2/textures`
 Daikatana `<MOD>/textures`  `data/textures`
 Generic   `<MOD>/textures`  `<GamePath>/textures`
 
-## Interacting With the Editor
+## Interacting with the Editor
 
 Before we delve into specific editing operations such as creating new objects, you should learn some basics about how to interact with the editor itself. In particular, it is important to understand the concept of tools in TrenchBroom and how mouse input is mapped to 3D coordinates.
 
@@ -2830,14 +2830,14 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 - [Quake Mapping Discord] - Quake Mapping Discord
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
-[TrenchBroom on GitHub]: http://github.com/TrenchBroom/TrenchBroom/
-[TrenchBroom issue tracker]: http://github.com/TrenchBroom/TrenchBroom/issues/
+[TrenchBroom on GitHub]: https://github.com/TrenchBroom/TrenchBroom/
+[TrenchBroom issue tracker]: https://github.com/TrenchBroom/TrenchBroom/issues/
 [TrenchBroom Discord]: https://discord.gg/WGf9uve
-[func_msgboard]: http://celephais.net/board/
+[func_msgboard]: https://celephais.net/board/
 [Quake Tools]: https://joshua.itch.io/quake-tools
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
-[FGD File Format]: http://developer.valvesoftware.com/wiki/FGD
-[Tutorials by dumptruck_ds]: https://www.youtube.com/watch?v=gONePWocbqA
+[FGD File Format]: https://developer.valvesoftware.com/wiki/FGD
+[Tutorials by dumptruck_ds]: https://www.youtube.com/playlist?list=PLgDKRPte5Y0AZ_K_PZbWbgBAEt5xf74aE
 [Quake Level Design Starter Kit]: https://github.com/jonathanlinat/quake-leveldesign-starterkit
 [Quake Mapping Discord]: https://discordapp.com/invite/f5Y99aM
-[FreeImage Library]: http://freeimage.sourceforge.net/
+[FreeImage Library]: https://freeimage.sourceforge.io/
