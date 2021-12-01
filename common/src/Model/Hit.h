@@ -51,15 +51,6 @@ public:
     , m_target(std::move(target))
     , m_error(error) {}
 
-  // TODO: rename to create
-  template <typename T>
-  static Hit hit(
-    const HitType::Type type, const FloatType distance, const vm::vec3& hitPoint, T target,
-    const FloatType error = 0.0) {
-    unused(error);
-    return Hit(type, distance, hitPoint, std::move(target));
-  }
-
   bool isMatch() const;
   HitType::Type type() const;
   bool hasType(HitType::Type typeMask) const;

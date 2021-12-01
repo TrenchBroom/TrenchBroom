@@ -45,7 +45,7 @@ void VertexHandleManager::pick(
     if (!vm::is_nan(distance)) {
       const auto hitPoint = vm::point_at_distance(pickRay, distance);
       const auto error = vm::squared_distance(pickRay, position).distance;
-      pickResult.addHit(Model::Hit::hit(HandleHitType, distance, hitPoint, position, error));
+      pickResult.addHit(Model::Hit(HandleHitType, distance, hitPoint, position, error));
     }
   }
 }
@@ -89,7 +89,7 @@ void EdgeHandleManager::pickGridHandle(
       if (!vm::is_nan(pointDist)) {
         const vm::vec3 hitPoint = vm::point_at_distance(pickRay, pointDist);
         pickResult.addHit(
-          Model::Hit::hit(HandleHitType, pointDist, hitPoint, HitType(position, pointHandle)));
+          Model::Hit(HandleHitType, pointDist, hitPoint, HitType(position, pointHandle)));
       }
     }
   }
@@ -104,7 +104,7 @@ void EdgeHandleManager::pickCenterHandle(
       pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
     if (!vm::is_nan(pointDist)) {
       const vm::vec3 hitPoint = vm::point_at_distance(pickRay, pointDist);
-      pickResult.addHit(Model::Hit::hit(HandleHitType, pointDist, hitPoint, position));
+      pickResult.addHit(Model::Hit(HandleHitType, pointDist, hitPoint, position));
     }
   }
 }
@@ -154,7 +154,7 @@ void FaceHandleManager::pickGridHandle(
       if (!vm::is_nan(pointDist)) {
         const auto hitPoint = vm::point_at_distance(pickRay, pointDist);
         pickResult.addHit(
-          Model::Hit::hit(HandleHitType, pointDist, hitPoint, HitType(position, pointHandle)));
+          Model::Hit(HandleHitType, pointDist, hitPoint, HitType(position, pointHandle)));
       }
     }
   }
@@ -169,7 +169,7 @@ void FaceHandleManager::pickCenterHandle(
       pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
     if (!vm::is_nan(pointDist)) {
       const auto hitPoint = vm::point_at_distance(pickRay, pointDist);
-      pickResult.addHit(Model::Hit::hit(HandleHitType, pointDist, hitPoint, position));
+      pickResult.addHit(Model::Hit(HandleHitType, pointDist, hitPoint, position));
     }
   }
 }
