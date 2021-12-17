@@ -73,8 +73,8 @@ void PatchRenderer::setShowEdges(const bool showEdges) {
   m_showEdges = showEdges;
 }
 
-void PatchRenderer::setEdgeColor(const Color& edgeColor) {
-  m_edgeColor = edgeColor;
+void PatchRenderer::setEdgeColor(const RenderType type, const Color& edgeColor) {
+  m_edgeColor[type] = edgeColor;
 }
 
 void PatchRenderer::setShowOccludedEdges(const bool showOccludedEdges) {
@@ -124,7 +124,8 @@ void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatc
     if (m_showOccludedEdges) {
       m_edgeRenderer.renderOnTop(renderBatch, m_occludedEdgeColor);
     }
-    m_edgeRenderer.render(renderBatch, m_edgeColor);
+    // FIXME: handle all colors
+    m_edgeRenderer.render(renderBatch, m_edgeColor[RenderType::Default]);
   }
 }
 
@@ -284,6 +285,7 @@ struct RenderFunc : public TextureRenderFunc {
 } // namespace
 
 void PatchRenderer::doRender(RenderContext& context) {
+  return; // FIXME:
   ShaderManager& shaderManager = context.shaderManager();
   ActiveShader shader(shaderManager, Shaders::FaceShader);
   PreferenceManager& prefs = PreferenceManager::instance();

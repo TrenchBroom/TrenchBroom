@@ -23,7 +23,7 @@
 #include "NotifierConnection.h"
 
 #include <memory>
-#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -40,6 +40,7 @@ class Selection;
 } // namespace View
 
 namespace Model {
+class EntityNode;
 class BrushNode;
 class BrushFaceHandle;
 class GroupNode;
@@ -48,35 +49,27 @@ class Node;
 } // namespace Model
 
 namespace Renderer {
+class EntityRenderer;
+class GroupRenderer;
+class BrushRenderer;
 class EntityLinkRenderer;
 class GroupLinkRenderer;
-class ObjectRenderer;
+class PatchRenderer;
 class RenderBatch;
 class RenderContext;
 
 class MapRenderer {
 private:
-  class SelectedBrushRendererFilter;
-  class LockedBrushRendererFilter;
-  class UnselectedBrushRendererFilter;
-
   std::weak_ptr<View::MapDocument> m_document;
 
-  std::unique_ptr<ObjectRenderer> m_defaultRenderer;
-  std::unique_ptr<ObjectRenderer> m_selectionRenderer;
-  std::unique_ptr<ObjectRenderer> m_lockedRenderer;
+  std::unique_ptr<GroupRenderer> m_groupRenderer;
+  std::unique_ptr<EntityRenderer> m_entityRenderer;
   std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
+  std::unique_ptr<BrushRenderer> m_brushRenderer;
+  std::unique_ptr<PatchRenderer> m_patchRenderer;
   std::unique_ptr<GroupLinkRenderer> m_groupLinkRenderer;
 
-  typedef enum
-  {
-    Renderer_Default = 1,
-    Renderer_Selection = 2,
-    Renderer_Locked = 4,
-    Renderer_All = Renderer_Default | Renderer_Selection | Renderer_Locked
-  } Renderer;
-
-  std::unordered_map<Model::Node*, Renderer> m_trackedNodes;
+  std::unordered_set<Model::Node*> m_trackedNodes;
 
   NotifierConnection m_notifierConnection;
 
@@ -85,14 +78,8 @@ public:
   ~MapRenderer();
 
   deleteCopyAndMove(MapRenderer);
-
+  
 private:
-  static std::unique_ptr<ObjectRenderer> createDefaultRenderer(
-    std::weak_ptr<View::MapDocument> document);
-  static std::unique_ptr<ObjectRenderer> createSelectionRenderer(
-    std::weak_ptr<View::MapDocument> document);
-  static std::unique_ptr<ObjectRenderer> createLockRenderer(
-    std::weak_ptr<View::MapDocument> document);
   void clear();
 
 public: // color config
@@ -105,28 +92,24 @@ public: // rendering
 private:
   void commitPendingChanges();
   void setupGL(RenderBatch& renderBatch);
-  void renderDefaultOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
-  void renderDefaultTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
-  void renderSelectionOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
-  void renderSelectionTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
-  void renderLockedOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
-  void renderLockedTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderGroupLinks(RenderContext& renderContext, RenderBatch& renderBatch);
 
   void setupRenderers();
-  void setupDefaultRenderer(ObjectRenderer& renderer);
-  void setupSelectionRenderer(ObjectRenderer& renderer);
-  void setupLockedRenderer(ObjectRenderer& renderer);
+  void setupEntityLinkRenderer();
+  void setupDefaultRenderer();
+  void setupSelectionRenderer();
+  void setupLockedRenderer();
 
-  static Renderer determineDesiredRenderers(Model::Node* node);
   void updateAndInvalidateNode(Model::Node* node);
   void updateAndInvalidateNodeRecursive(Model::Node* node);
   void removeNode(Model::Node* node);
   void removeNodeRecursive(Model::Node* node);
   void updateAllNodes();
 
-  void invalidateRenderers(Renderer renderers);
+  void invalidateRenderers();
   void invalidateEntityLinkRenderer();
   void invalidateGroupLinkRenderer();
   void reloadEntityModels();

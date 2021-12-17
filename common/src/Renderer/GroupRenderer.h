@@ -22,7 +22,9 @@
 #include "AttrString.h"
 #include "Color.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/RenderType.h"
 
+#include <kdl/enum_array.h>
 #include <kdl/vector_set.h>
 
 #include <vector>
@@ -37,6 +39,12 @@ namespace Renderer {
 class RenderBatch;
 class RenderContext;
 
+/**
+ * Render group outlines/labels.
+ * 
+ * TODO: Selected nodes render occluded bounds edges at pref(Preferences::OccludedSelectedEdgeAlpha) opacity
+ * (otherwise, don't render occluded lines)
+ */
 class GroupRenderer {
 private:
   class GroupNameAnchor;
@@ -47,14 +55,10 @@ private:
   DirectEdgeRenderer m_boundsRenderer;
   bool m_boundsValid;
 
-  bool m_overrideColors;
   bool m_showOverlays;
-  Color m_overlayTextColor;
-  Color m_overlayBackgroundColor;
+  kdl::enum_array<Color, RenderType, RenderTypeSize> m_overlayTextColor;
+  kdl::enum_array<Color, RenderType, RenderTypeSize> m_overlayBackgroundColor;
   bool m_showOccludedOverlays;
-  Color m_boundsColor;
-  bool m_showOccludedBounds;
-  Color m_occludedBoundsColor;
 
 public:
   GroupRenderer(const Model::EditorContext& editorContext);
@@ -82,17 +86,10 @@ public:
    */
   void invalidateGroup(const Model::GroupNode* group);
 
-  void setOverrideColors(bool overrideColors);
-
   void setShowOverlays(bool showOverlays);
-  void setOverlayTextColor(const Color& overlayTextColor);
-  void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
+  void setOverlayTextColor(RenderType type, const Color& overlayTextColor);
+  void setOverlayBackgroundColor(RenderType type, const Color& overlayBackgroundColor);
   void setShowOccludedOverlays(bool showOccludedOverlays);
-
-  void setBoundsColor(const Color& boundsColor);
-
-  void setShowOccludedBounds(bool showOccludedBounds);
-  void setOccludedBoundsColor(const Color& occludedBoundsColor);
 
 public: // rendering
   void render(RenderContext& renderContext, RenderBatch& renderBatch);

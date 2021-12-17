@@ -151,6 +151,11 @@ public:
     return m_snapshot.data() + offsetWithinBlock;
   }
 
+  void zeroRange(const size_t offsetWithinBlock, const size_t count) {
+    T* dest = getPointerToWriteElementsTo(offsetWithinBlock, count);
+    std::memset(dest, 0, count * sizeof(T));
+  }
+
   bool prepared() const {
     // NOTE: this returns true if the capacity is 0
     return m_dirtyRange.clean();
@@ -212,7 +217,6 @@ public:
    * NOTE: This destructively moves the contents of `elements` into the Holder.
    */
   explicit IndexHolder(std::vector<Index>& elements);
-  void zeroRange(size_t offsetWithinBlock, size_t count);
   void render(PrimType primType, size_t offset, size_t count) const;
 
   static std::shared_ptr<IndexHolder> swap(std::vector<Index>& elements);
@@ -295,6 +299,10 @@ public:
     VboHolder<V>::m_vbo->unbind();
   }
 
+  void render(const PrimType primType, const GLint index, const GLsizei count) {
+    glAssert(glDrawArrays(toGL(primType), index, count));
+  }
+
   static std::shared_ptr<VertexHolder<V>> swap(std::vector<V>& elements) {
     return std::make_shared<VertexHolder<V>>(elements);
   }
@@ -304,16 +312,21 @@ public:
  * Same as BrushIndexArray but for vertices instead of indices.
  * The only difference is deleteVerticesWithKey() doesn't need to zero out
  * the deleted memory in the VBO, while BrushIndexArray's does.
+ *
+ * @tparam V vertex class
  */
-class BrushVertexArray {
-private:
-  using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
+template <class V> class TrackedVertexArray {
+public:
+  using Vertex = V;
 
+private:
   VertexHolder<Vertex> m_vertexHolder;
   AllocationTracker m_allocationTracker;
 
 public:
-  BrushVertexArray();
+  TrackedVertexArray()
+    : m_vertexHolder()
+    , m_allocationTracker(0) {}
 
   /**
    * Call this to request writing the given number of vertices.
@@ -324,17 +337,95 @@ public:
    * deleteVerticesWithKey(), and also a Vertex pointer where the caller should write `elementCount`
    * Vertex objects.
    */
-  std::pair<AllocationTracker::Block*, Vertex*> getPointerToInsertVerticesAt(size_t vertexCount);
+  std::pair<AllocationTracker::Block*, Vertex*> getPointerToInsertVerticesAt(
+    const size_t vertexCount) {
+    auto block = m_allocationTracker.allocate(vertexCount);
+    if (block != nullptr) {
+      Vertex* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
+      return {block, dest};
+    }
 
-  void deleteVerticesWithKey(AllocationTracker::Block* key);
+    // retry
+    const size_t newSize =
+      std::max(2 * m_allocationTracker.capacity(), m_allocationTracker.capacity() + vertexCount);
+    m_allocationTracker.expand(newSize);
+    m_vertexHolder.resize(newSize);
+
+    // insert again
+    block = m_allocationTracker.allocate(vertexCount);
+    assert(block != nullptr);
+
+    Vertex* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
+    return {block, dest};
+  }
+
+  void deleteVerticesWithKey(AllocationTracker::Block* key, const bool zeroRange) {
+    const auto pos = key->pos;
+    const auto size = key->size;
+
+    m_allocationTracker.free(key);
+
+    // there's no need to actually delete the vertices from the VBO.
+    // because we only ever do indexed drawing from it.
+    // Marking the space free in m_allocationTracker will allow
+    // us to re-use the space later
+    if (zeroRange) {
+      m_vertexHolder.zeroRange(pos, size);
+    }
+  }
 
   // setting up GL attributes
-  bool setupVertices();
-  void cleanupVertices();
+  bool setupVertices() { return m_vertexHolder.setupVertices(); }
+  void cleanupVertices() { m_vertexHolder.cleanupVertices(); }
 
   // uploading the VBO
-  bool prepared() const;
-  void prepare(VboManager& vboManager);
+  bool prepared() const { return m_vertexHolder.prepared(); }
+  void prepare(VboManager& vboManager) {
+    m_vertexHolder.prepare(vboManager);
+    assert(m_vertexHolder.prepared());
+  }
+
+  bool empty() const { return m_vertexHolder.size() == 0u; }
+
+  void render(const PrimType primType) {
+    const GLsizei vertexCount = static_cast<GLsizei>(m_vertexHolder.size());
+    m_vertexHolder.render(primType, 0, vertexCount);
+  }
 };
+
+struct PositionName {
+  static inline const std::string name{"position"};
+};
+struct TexCoordName {
+  static inline const std::string name{"texCoord"};
+};
+struct DefaultColorName {
+  static inline const std::string name{"defaultColor"};
+};
+struct FlagsName {
+  static inline const std::string name{"flags"};
+};
+struct NormalName {
+  static inline const std::string name{"normal"};
+};
+
+using BrushFaceVertex = GLVertexType<
+  GLVertexAttributeUser<PositionName, GL_FLOAT, 3, false>,
+  GLVertexAttributeUser<TexCoordName, GL_FLOAT, 2, false>,
+  GLVertexAttributeUser<NormalName, GL_BYTE, 3, true>,
+  GLVertexAttributeUser<FlagsName, GL_UNSIGNED_BYTE, 1, false>>::Vertex;
+static_assert(sizeof(BrushFaceVertex) == 24u);
+
+using BrushVertexArray = TrackedVertexArray<BrushFaceVertex>;
+
+// edge
+
+using BrushEdgeVertex = GLVertexType<
+  GLVertexAttributeUser<PositionName, GL_FLOAT, 3, false>,
+  GLVertexAttributeUser<DefaultColorName, GL_UNSIGNED_BYTE, 4, true>,
+  GLVertexAttributeUser<FlagsName, GL_UNSIGNED_INT, 1, false>>::Vertex;
+static_assert(sizeof(BrushEdgeVertex) == 20u);
+
+using BrushEdgeVertexArray = TrackedVertexArray<BrushEdgeVertex>;
 } // namespace Renderer
 } // namespace TrenchBroom

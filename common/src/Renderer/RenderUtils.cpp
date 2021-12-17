@@ -20,6 +20,7 @@
 #include "RenderUtils.h"
 
 #include "Assets/Texture.h"
+#include "Model/Node.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/bbox.h>
@@ -503,6 +504,10 @@ VertsAndNormals cone3D(const float radius, const float length, const size_t segm
     a += d;
   }
   return result;
+}
+
+bool selected(const Model::Node* node) {
+  return node->selected() || node->descendantSelected() || node->parentSelected();
 }
 } // namespace Renderer
 } // namespace TrenchBroom

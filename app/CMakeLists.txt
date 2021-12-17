@@ -3,9 +3,15 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateManual.cmake)
 set(APP_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(APP_RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
 
+# Collect all shaders
+file(GLOB_RECURSE SHADER_FILES
+    "${APP_RESOURCE_DIR}/shader/*.fragsh"
+    "${APP_RESOURCE_DIR}/shader/*.vertsh")
+
 set(APP_SOURCE
     "${APP_SOURCE_DIR}/Main.cpp"
-    "${APP_RESOURCE_DIR}/qrc/resources.qrc")
+    "${APP_RESOURCE_DIR}/qrc/resources.qrc"
+    ${SHADER_FILES})
 
 # OS X app bundle configuration, must happen before the executable is added
 if(APPLE)
@@ -65,12 +71,7 @@ if(APPLE)
     endif()
 
     # Configure shaders
-    # Collect all shaders
-    file(GLOB_RECURSE MACOSX_SHADER_FILES
-            "${APP_RESOURCE_DIR}/shader/*.fragsh"
-            "${APP_RESOURCE_DIR}/shader/*.vertsh")
-    set_source_files_properties(${MACOSX_SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
-    set(APP_SOURCE ${APP_SOURCE} ${MACOSX_SHADER_FILES})
+    set_source_files_properties(${SHADER_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/shader)
 
     # Configure Qt stylesheets
     file (GLOB_RECURSE MACOSX_STYLESHEET_FILES

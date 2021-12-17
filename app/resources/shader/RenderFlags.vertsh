@@ -1,0 +1,47 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2017 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+struct flagsStruct {
+    bool hidden;
+    bool selected;
+    bool locked;
+};
+
+flagsStruct parseFlags(float v_float) {
+    const int Flag_Locked   = 4;
+    const int Flag_Selected = 2;
+    const int Flag_Hidden   = 1;
+
+    int v = int(v_float + 0.5);
+
+    flagsStruct result;
+
+    // These must be handled in descending order for this to work
+    result.locked   = (v >= Flag_Locked);
+    v -= result.locked ? Flag_Locked : 0;
+
+    result.selected = (v >= Flag_Selected);
+    v -= result.selected ? Flag_Selected : 0;
+
+    result.hidden   = (v >= Flag_Hidden);
+
+    return result;
+}

@@ -136,9 +136,10 @@ void FaceRenderer::doRender(RenderContext& context) {
   if (m_indexArrayMap->empty())
     return;
 
+  ShaderManager& shaderManager = context.shaderManager();
+  ActiveShader shader(shaderManager, Shaders::FaceShader);
+
   if (m_vertexArray->setupVertices()) {
-    ShaderManager& shaderManager = context.shaderManager();
-    ActiveShader shader(shaderManager, Shaders::FaceShader);
     PreferenceManager& prefs = PreferenceManager::instance();
 
     const bool applyTexture = context.showTextures();
@@ -153,10 +154,10 @@ void FaceRenderer::doRender(RenderContext& context) {
     shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
     shader.set("ApplyTexture", applyTexture);
     shader.set("Texture", 0);
-    shader.set("ApplyTinting", m_tint);
-    if (m_tint)
-      shader.set("TintColor", m_tintColor);
-    shader.set("GrayScale", m_grayscale);
+    // shader.set("ApplyTinting", m_tint);
+    // if (m_tint)
+    //     shader.set("TintColor", m_tintColor);
+    // shader.set("GrayScale", m_grayscale);
     shader.set("CameraPosition", context.camera().position());
     shader.set("ShadeFaces", shadeFaces);
     shader.set("ShowFog", showFog);

@@ -32,7 +32,6 @@
 
 #include <vecmath/forward.h>
 
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -40,10 +39,6 @@
 namespace TrenchBroom {
 namespace Assets {
 class Texture;
-}
-
-namespace Renderer {
-class BrushRendererBrushCache;
 }
 
 namespace Model {
@@ -62,14 +57,11 @@ public:
   using EdgeList = BrushEdgeList;
 
 private:
-  mutable std::unique_ptr<Renderer::BrushRendererBrushCache>
-    m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
-  Brush m_brush;               // must be destroyed before the brush renderer cache
+  Brush m_brush; // must be destroyed before the brush renderer cache
   size_t m_selectedFaceCount = 0u;
 
 public:
   explicit BrushNode(Brush brush);
-  ~BrushNode() override;
 
 public:
   BrushNode* clone(const vm::bbox3& worldBounds) const;
@@ -126,13 +118,6 @@ private: // implement Object interface
   Node* doGetContainer() override;
   LayerNode* doGetContainingLayer() override;
   GroupNode* doGetContainingGroup() override;
-
-public: // renderer cache
-  /**
-   * Only exposed to be called by BrushFace
-   */
-  void invalidateVertexCache();
-  Renderer::BrushRendererBrushCache& brushRendererBrushCache() const;
 
 private: // implement Taggable interface
 public:

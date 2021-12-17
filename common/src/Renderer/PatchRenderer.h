@@ -21,9 +21,11 @@
 
 #include "Color.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/RenderType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/TexturedIndexArrayRenderer.h"
 
+#include <kdl/enum_array.h>
 #include <kdl/vector_set.h>
 
 #include <vector>
@@ -53,7 +55,7 @@ private:
   float m_alpha;
 
   bool m_showEdges;
-  Color m_edgeColor;
+  kdl::enum_array<Color, RenderType, RenderTypeSize> m_edgeColor;
   bool m_showOccludedEdges;
   Color m_occludedEdgeColor;
 
@@ -74,7 +76,7 @@ public:
   /**
    * The color to render patch edges with.
    */
-  void setEdgeColor(const Color& edgeColor);
+  void setEdgeColor(RenderType type, const Color& edgeColor);
 
   /**
    * Specifies whether or not occluded edges should be visible.

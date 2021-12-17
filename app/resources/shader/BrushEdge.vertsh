@@ -1,0 +1,83 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2017 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+attribute vec4 position;
+attribute vec4 defaultColor;
+attribute float flags;
+
+varying vec4 worldCoordinates;
+varying vec4 vertexColor;
+
+/**
+ * We draw all of the lines twice, once with depth test/depth write enabled,
+ * and once with them disabled and this set to true.
+ */
+uniform bool OnTop;
+uniform bool ShouldOverrideEdgeColor;
+uniform vec4 OverrideEdgeColor;
+uniform vec4 LockedEdgeColor;
+uniform vec4 SelectedEdgeColor;
+uniform vec4 OccludedSelectedEdgeColor;
+
+struct flagsStruct {
+    bool hidden;
+    bool selected;
+    bool locked;
+};
+
+flagsStruct parseFlags(float v_float);
+
+void main(void) {
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * position;
+    
+    // Brushes are assumed to be in world space already (BrushFace.vertsh also assumes this)
+    worldCoordinates = position;
+
+    flagsStruct edgeFlags = parseFlags(flags);
+
+    if (edgeFlags.hidden) {
+        gl_Position = vec4(0.0, 0.0, 0.0, 0.0);
+    }
+
+    // only selected edges get drawn on top
+    if (OnTop) {
+        if (!edgeFlags.selected) {
+            // We assume edgeFlags are the same for both ends of each line.
+            // Discard the edge by mapping both vertices to 0, 0, 0
+            gl_Position = vec4(0.0, 0.0, 0.0, 0.0);
+        }
+
+        vertexColor = OccludedSelectedEdgeColor;
+    } else {
+        // set the line color
+        if (ShouldOverrideEdgeColor) {
+            vertexColor = OverrideEdgeColor;
+        } else {
+            if (edgeFlags.locked) {
+                vertexColor = LockedEdgeColor;
+            } else if (edgeFlags.selected) {
+                vertexColor = SelectedEdgeColor;
+            } else {
+                vertexColor = defaultColor;
+            }
+        }
+    }
+}

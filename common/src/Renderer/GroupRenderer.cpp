@@ -28,6 +28,7 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/TextAnchor.h"
 
 #include <vector>
@@ -56,10 +57,8 @@ private:
 GroupRenderer::GroupRenderer(const Model::EditorContext& editorContext)
   : m_editorContext(editorContext)
   , m_boundsValid(false)
-  , m_overrideColors(false)
   , m_showOverlays(true)
-  , m_showOccludedOverlays(false)
-  , m_showOccludedBounds(false) {}
+  , m_showOccludedOverlays(false) {}
 
 void GroupRenderer::invalidate() {
   invalidateBounds();
@@ -87,36 +86,21 @@ void GroupRenderer::invalidateGroup(const Model::GroupNode*) {
   invalidate();
 }
 
-void GroupRenderer::setOverrideColors(const bool overrideColors) {
-  m_overrideColors = overrideColors;
-}
-
 void GroupRenderer::setShowOverlays(const bool showOverlays) {
   m_showOverlays = showOverlays;
 }
 
-void GroupRenderer::setOverlayTextColor(const Color& overlayTextColor) {
-  m_overlayTextColor = overlayTextColor;
+void GroupRenderer::setOverlayTextColor(const RenderType type, const Color& overlayTextColor) {
+  m_overlayTextColor[type] = overlayTextColor;
 }
 
-void GroupRenderer::setOverlayBackgroundColor(const Color& overlayBackgroundColor) {
-  m_overlayBackgroundColor = overlayBackgroundColor;
+void GroupRenderer::setOverlayBackgroundColor(
+  const RenderType type, const Color& overlayBackgroundColor) {
+  m_overlayBackgroundColor[type] = overlayBackgroundColor;
 }
 
 void GroupRenderer::setShowOccludedOverlays(const bool showOccludedOverlays) {
   m_showOccludedOverlays = showOccludedOverlays;
-}
-
-void GroupRenderer::setBoundsColor(const Color& boundsColor) {
-  m_boundsColor = boundsColor;
-}
-
-void GroupRenderer::setShowOccludedBounds(const bool showOccludedBounds) {
-  m_showOccludedBounds = showOccludedBounds;
-}
-
-void GroupRenderer::setOccludedBoundsColor(const Color& occludedBoundsColor) {
-  m_occludedBoundsColor = occludedBoundsColor;
 }
 
 void GroupRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -133,25 +117,32 @@ void GroupRenderer::renderBounds(RenderContext&, RenderBatch& renderBatch) {
     validateBounds();
   }
 
-  if (m_showOccludedBounds) {
-    m_boundsRenderer.renderOnTop(renderBatch, m_overrideColors, m_occludedBoundsColor);
-  }
+  m_boundsRenderer.renderOnTop(renderBatch);
+  m_boundsRenderer.render(renderBatch);
+}
 
-  m_boundsRenderer.render(renderBatch, m_overrideColors, m_boundsColor);
+static RenderType renderType(const Model::GroupNode* group) {
+  if (group->locked()) {
+    return RenderType::Locked;
+  } else if (selected(group) || group->opened()) {
+    return RenderType::Selected;
+  } else {
+    return RenderType::Default;
+  }
 }
 
 void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& renderBatch) {
   if (m_showOverlays) {
     Renderer::RenderService renderService(renderContext, renderBatch);
-    renderService.setBackgroundColor(m_overlayBackgroundColor);
-
-    if (m_overrideColors) {
-      renderService.setForegroundColor(m_overlayTextColor);
-    }
-
     for (const auto* group : m_groups) {
+      const auto type = renderType(group);
+
+      renderService.setBackgroundColor(m_overlayBackgroundColor[type]);
+
       if (shouldRenderGroup(group)) {
-        if (!m_overrideColors) {
+        if (type != RenderType::Default) {
+          renderService.setForegroundColor(m_overlayTextColor[type]);
+        } else {
           renderService.setForegroundColor(groupColor(group));
         }
 
@@ -172,36 +163,20 @@ void GroupRenderer::invalidateBounds() {
 }
 
 void GroupRenderer::validateBounds() {
-  if (m_overrideColors) {
-    std::vector<GLVertexTypes::P3::Vertex> vertices;
-    vertices.reserve(24 * m_groups.size());
+  std::vector<GLVertexTypes::P3C4::Vertex> vertices;
+  vertices.reserve(24 * m_groups.size());
 
-    for (const Model::GroupNode* group : m_groups) {
-      if (shouldRenderGroup(group)) {
-        group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
-          vertices.emplace_back(vm::vec3f(v1));
-          vertices.emplace_back(vm::vec3f(v2));
-        });
-      }
+  for (const Model::GroupNode* group : m_groups) {
+    if (shouldRenderGroup(group)) {
+      const auto color = groupColor(group);
+      group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
+        vertices.emplace_back(vm::vec3f(v1), color);
+        vertices.emplace_back(vm::vec3f(v2), color);
+      });
     }
-
-    m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), PrimType::Lines);
-  } else {
-    std::vector<GLVertexTypes::P3C4::Vertex> vertices;
-    vertices.reserve(24 * m_groups.size());
-
-    for (const Model::GroupNode* group : m_groups) {
-      if (shouldRenderGroup(group)) {
-        const auto color = groupColor(group);
-        group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
-          vertices.emplace_back(vm::vec3f(v1), color);
-          vertices.emplace_back(vm::vec3f(v2), color);
-        });
-      }
-    }
-
-    m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), PrimType::Lines);
   }
+
+  m_boundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(vertices)), PrimType::Lines);
 
   m_boundsValid = true;
 }
@@ -221,6 +196,13 @@ AttrString GroupRenderer::groupString(const Model::GroupNode* groupNode) const {
 }
 
 Color GroupRenderer::groupColor(const Model::GroupNode* groupNode) const {
+  const auto type = renderType(groupNode);
+  if (type == RenderType::Locked) {
+    return pref(Preferences::LockedEdgeColor);
+  } else if (type == RenderType::Selected) {
+    return pref(Preferences::SelectedEdgeColor);
+  }
+
   return groupNode->group().linkedGroupId() ? pref(Preferences::LinkedGroupColor)
                                             : pref(Preferences::DefaultGroupColor);
 }

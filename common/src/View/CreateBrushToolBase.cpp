@@ -75,7 +75,8 @@ void CreateBrushToolBase::renderBrush(
   ensure(m_brush != nullptr, "brush is null");
 
   m_brushRenderer->setFaceColor(pref(Preferences::FaceColor));
-  m_brushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
+  m_brushRenderer->setEdgeColor(
+    Renderer::RenderType::Default, pref(Preferences::SelectedEdgeColor));
   m_brushRenderer->setShowEdges(true);
   m_brushRenderer->setShowOccludedEdges(true);
   m_brushRenderer->setOccludedEdgeColor(
