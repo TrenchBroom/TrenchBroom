@@ -116,7 +116,8 @@ ChangeBrushFaceAttributesRequest::ChangeBrushFaceAttributesRequest()
   , m_surfaceFlagsOp(FlagOp_None)
   , m_contentFlagsOp(FlagOp_None)
   , m_surfaceValueOp(ValueOp_None)
-  , m_colorValueOp(ValueOp_None) {}
+  , m_colorValueOp(ValueOp_None)
+  , m_justifyOp(JustifyOp_None) {}
 
 void ChangeBrushFaceAttributesRequest::clear() {
   m_textureName = "";
@@ -133,6 +134,7 @@ void ChangeBrushFaceAttributesRequest::clear() {
   m_surfaceFlagsOp = m_contentFlagsOp = FlagOp_None;
   m_surfaceValueOp = ValueOp_None;
   m_colorValueOp = ValueOp_None;
+  m_justifyOp = JustifyOp_None;
 }
 
 const std::string ChangeBrushFaceAttributesRequest::name() const {
@@ -203,6 +205,10 @@ void ChangeBrushFaceAttributesRequest::resetAllToParaxial(
   setOffset(vm::vec2f::zero());
   setRotation(0.0f);
   setScale(defaultFaceAttributes.scale());
+}
+
+void ChangeBrushFaceAttributesRequest::setJustifyOperation(const JustifyOp justifyOp) {
+  m_justifyOp = justifyOp;
 }
 
 void ChangeBrushFaceAttributesRequest::setTextureName(const std::string& textureName) {

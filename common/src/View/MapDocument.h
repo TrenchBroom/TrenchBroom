@@ -572,6 +572,8 @@ public:
     const vm::vec3f& cameraUp, const vm::vec3f& cameraRight,
     vm::direction cameraRelativeFlipDirection);
 
+  bool justifySelectedFaces(int justifyOp, bool treatAsOne = false);
+
 public: // modifying vertices, declared in MapFacade interface
   bool snapVertices(FloatType snapTo) override;
 

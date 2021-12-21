@@ -78,6 +78,15 @@ private:
   QLineEdit* m_colorEditor;
   QAbstractButton* m_colorUnsetButton;
 
+  QAbstractButton* m_fitHTextureButton;
+  QAbstractButton* m_fitVTextureButton;
+
+  QAbstractButton* m_centerTextureButton;
+  QAbstractButton* m_topTextureButton;
+  QAbstractButton* m_leftTextureButton;
+  QAbstractButton* m_rightTextureButton;
+  QAbstractButton* m_bottomTextureButton;
+
   SignalDelayer* m_updateControlsSignalDelayer;
 
   NotifierConnection m_notifierConnection;
@@ -99,6 +108,7 @@ private:
   void contentFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
   void surfaceValueChanged(double value);
   void colorValueChanged(const QString& text);
+  void justifyPressed(int justifyOp);
   void surfaceFlagsUnset();
   void contentFlagsUnset();
   void surfaceValueUnset();

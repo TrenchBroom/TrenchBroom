@@ -118,6 +118,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <Model/TexCoordSystem.h>
 #include <algorithm>
 #include <cassert>
 #include <cstdlib> // for std::abs
@@ -3070,6 +3071,72 @@ bool MapDocument::flipTextures(
       face.flipTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
       return true;
     });
+}
+
+bool MapDocument::justifySelectedFaces(int justifyOp, bool treatAsOne) {
+  return applyAndSwap(*this, "Justify Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+    auto textureDimensions = face.textureSize();
+    auto bounds = treatAsOne ? m_selectionBounds : face.getBounds();
+
+    const auto& textCoordSystem = face.texCoordSystem();
+    const vm::mat4x4 worldToTex = textCoordSystem.toMatrix(vm::vec2f::zero(), vm::vec2f::one());
+
+    const vm::vec3 projMinAxis = (worldToTex * vm::vec4d(bounds.min, 0)).xyz();
+    const vm::vec3 projMaxAxis = (worldToTex * vm::vec4d(bounds.max, 0)).xyz();
+
+    const auto boundsXSize = std::fabs(projMaxAxis.x() - projMinAxis.x());
+    const auto boundsYSize = std::fabs(projMaxAxis.y() - projMinAxis.y());
+
+    Model::ChangeBrushFaceAttributesRequest request;
+
+    switch (justifyOp) {
+      case Model::ChangeBrushFaceAttributesRequest::JustifyOp_FitH: {
+        request.resetTextureAxesToParaxial();
+        float scaleX = boundsXSize / textureDimensions.x();
+        request.setXScale(scaleX);
+        request.setXOffset(-projMinAxis.x() / scaleX);
+        break;
+      }
+      case Model::ChangeBrushFaceAttributesRequest::JustifyOp_FitV: {
+        request.resetTextureAxesToParaxial();
+        float scaleY = boundsYSize / textureDimensions.y();
+        request.setYScale(scaleY);
+        request.setYOffset(-projMinAxis.y() / scaleY);
+        break;
+      }
+      case Model::ChangeBrushFaceAttributesRequest::JustifyOp_Top: {
+        request.setYOffset(-projMaxAxis.y() + textureDimensions.y());
+        break;
+      }
+      case Model::ChangeBrushFaceAttributesRequest::JustifyOp_Bottom: {
+        request.setYOffset(-projMinAxis.y());
+        break;
+      }
+      case Model::ChangeBrushFaceAttributesRequest::JustifyOp_Left: {
+        float scaleX = boundsXSize / textureDimensions.x();
+        float scaleY = boundsYSize / textureDimensions.y();
+        request.setXOffset(-projMinAxis.x());
+        break;
+      }
+      case Model::ChangeBrushFaceAttributesRequest::JustifyOp_Right: {
+        float scaleX = boundsXSize / textureDimensions.x();
+        float scaleY = boundsYSize / textureDimensions.y();
+        request.setXOffset(-projMaxAxis.x() + textureDimensions.x());
+        break;
+      }
+      case Model::ChangeBrushFaceAttributesRequest::JustifyOp_Center: {
+        float deltaU = (projMaxAxis.x() - projMinAxis.x()) / 2.0f;
+        float deltaV = (projMaxAxis.y() - projMinAxis.y()) / 2.0f;
+
+        request.setXOffset(-deltaU + textureDimensions.x() / 2.0f);
+        request.setYOffset(-deltaV + textureDimensions.y() / 2.0f);
+        break;
+      }
+    }
+
+    request.evaluate(face);
+    return true;
+  });
 }
 
 bool MapDocument::snapVertices(const FloatType snapTo) {

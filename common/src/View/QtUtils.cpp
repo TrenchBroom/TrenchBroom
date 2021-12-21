@@ -325,6 +325,14 @@ QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, Q
   return button;
 }
 
+QAbstractButton* createButton(const QString& text, const QString& tooltip, QWidget* parent) {
+  auto* button = new QToolButton(parent);
+  button->setText(text);
+  button->setToolTip(tooltip);
+
+  return button;
+}
+
 QAbstractButton* createBitmapToggleButton(
   const std::string& image, const QString& tooltip, QWidget* parent) {
   auto* button = createBitmapButton(image, tooltip, parent);

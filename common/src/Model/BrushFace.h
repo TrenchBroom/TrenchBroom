@@ -170,6 +170,7 @@ public:
   const vm::plane3& boundary() const;
   const vm::vec3& normal() const;
   vm::vec3 center() const;
+  vm::bbox3 getBounds() const;
   vm::vec3 boundsCenter() const;
   FloatType projectedArea(vm::axis::type axis) const;
   FloatType area() const;

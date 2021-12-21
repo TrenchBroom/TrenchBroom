@@ -85,6 +85,13 @@ FaceAttribsEditor::FaceAttribsEditor(
   , m_colorEditorLayout(nullptr)
   , m_colorEditor(nullptr)
   , m_colorUnsetButton(nullptr)
+  , m_fitHTextureButton(nullptr)
+  , m_fitVTextureButton(nullptr)
+  , m_centerTextureButton(nullptr)
+  , m_topTextureButton(nullptr)
+  , m_leftTextureButton(nullptr)
+  , m_rightTextureButton(nullptr)
+  , m_bottomTextureButton(nullptr)
   , m_updateControlsSignalDelayer{new SignalDelayer{this}} {
   createGui(contextManager);
   bindEvents();
@@ -234,6 +241,15 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */) {
   }
 }
 
+void FaceAttribsEditor::justifyPressed(int justifyOp) {
+  auto document = kdl::mem_lock(m_document);
+  if (!document->hasAnySelectedBrushFaces()) {
+    return;
+  }
+
+  document->justifySelectedFaces(justifyOp);
+}
+
 void FaceAttribsEditor::surfaceFlagsUnset() {
   auto document = kdl::mem_lock(m_document);
   if (!document->hasAnySelectedBrushFaces()) {
@@ -380,6 +396,15 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
   makeEmphasized(m_colorLabel);
   m_colorEditor = new QLineEdit();
   m_colorUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset color"));
+
+  m_fitHTextureButton = createButton("FitH", tr("Fits the texture horizontally to the face"), this);
+  m_fitVTextureButton = createButton("FitV", tr("Fits the texture vertically to the face"), this);
+  m_centerTextureButton = createButton("C", tr("Aligns texture to center"), this);
+  m_topTextureButton = createButton("T", tr("Aligns texture to top"), this);
+  m_leftTextureButton = createButton("L", tr("Aligns texture to left"), this);
+  m_rightTextureButton = createButton("R", tr("Aligns texture to right"), this);
+  m_bottomTextureButton = createButton("B", tr("Aligns texture to bottom"), this);
+
   m_colorEditorLayout = createUnsetButtonLayout(m_colorEditor, m_colorUnsetButton);
 
   const Qt::Alignment LabelFlags = Qt::AlignVCenter | Qt::AlignRight;
@@ -441,12 +466,31 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
   faceAttribsLayout->setColumnStretch(1, 1);
   faceAttribsLayout->setColumnStretch(3, 1);
 
+  auto* justifyAttribsLayout = new QGridLayout();
+  justifyAttribsLayout->setContentsMargins(
+    LayoutConstants::NarrowHMargin, LayoutConstants::MediumVMargin, LayoutConstants::NarrowHMargin,
+    LayoutConstants::MediumVMargin);
+  justifyAttribsLayout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
+  justifyAttribsLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
+
+  justifyAttribsLayout->addWidget(m_fitHTextureButton, 0, 0);
+  justifyAttribsLayout->addWidget(m_topTextureButton, 0, 1);
+  justifyAttribsLayout->addWidget(m_fitVTextureButton, 0, 2);
+
+  justifyAttribsLayout->addWidget(m_leftTextureButton, 1, 0);
+  justifyAttribsLayout->addWidget(m_centerTextureButton, 1, 1);
+  justifyAttribsLayout->addWidget(m_rightTextureButton, 1, 2);
+
+  justifyAttribsLayout->addWidget(m_bottomTextureButton, 2, 1);
+
   auto* outerLayout = new QVBoxLayout();
   outerLayout->setContentsMargins(0, 0, 0, 0);
   outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
   outerLayout->addWidget(m_uvEditor, 1);
   outerLayout->addWidget(new BorderLine());
   outerLayout->addLayout(faceAttribsLayout);
+  outerLayout->addWidget(new BorderLine());
+  outerLayout->addLayout(justifyAttribsLayout);
 
   setLayout(outerLayout);
 }
@@ -490,6 +534,28 @@ void FaceAttribsEditor::bindEvents() {
   connect(
     m_updateControlsSignalDelayer, &SignalDelayer::processSignal, this,
     &FaceAttribsEditor::updateControls);
+
+  connect(m_fitHTextureButton, &QAbstractButton::clicked, this, [&] {
+    justifyPressed(Model::ChangeBrushFaceAttributesRequest::JustifyOp_FitH);
+  });
+  connect(m_fitVTextureButton, &QAbstractButton::clicked, this, [&] {
+    justifyPressed(Model::ChangeBrushFaceAttributesRequest::JustifyOp_FitV);
+  });
+  connect(m_centerTextureButton, &QAbstractButton::clicked, this, [&] {
+    justifyPressed(Model::ChangeBrushFaceAttributesRequest::JustifyOp_Center);
+  });
+  connect(m_leftTextureButton, &QAbstractButton::clicked, this, [&] {
+    justifyPressed(Model::ChangeBrushFaceAttributesRequest::JustifyOp_Left);
+  });
+  connect(m_rightTextureButton, &QAbstractButton::clicked, this, [&] {
+    justifyPressed(Model::ChangeBrushFaceAttributesRequest::JustifyOp_Right);
+  });
+  connect(m_topTextureButton, &QAbstractButton::clicked, this, [&] {
+    justifyPressed(Model::ChangeBrushFaceAttributesRequest::JustifyOp_Top);
+  });
+  connect(m_bottomTextureButton, &QAbstractButton::clicked, this, [&] {
+    justifyPressed(Model::ChangeBrushFaceAttributesRequest::JustifyOp_Bottom);
+  });
 }
 
 void FaceAttribsEditor::connectObservers() {

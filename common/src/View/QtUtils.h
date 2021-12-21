@@ -135,6 +135,9 @@ QAbstractButton* createBitmapButton(
 QAbstractButton* createBitmapToggleButton(
   const std::string& image, const QString& tooltip, QWidget* parent = nullptr);
 
+QAbstractButton* createButton(
+  const QString& text, const QString& tooltip, QWidget* parent = nullptr);
+
 QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
 QSlider* createSlider(int min, int max);
 

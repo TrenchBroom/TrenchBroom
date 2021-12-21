@@ -69,6 +69,19 @@ public:
     TextureOp_Set
   } TextureOp;
 
+  // TODO: replace with class based enum
+  typedef enum
+  {
+    JustifyOp_None,
+    JustifyOp_FitH,
+    JustifyOp_FitV,
+    JustifyOp_Center,
+    JustifyOp_Top,
+    JustifyOp_Left,
+    JustifyOp_Right,
+    JustifyOp_Bottom,
+  } JustifyOp;
+
 private:
   std::string m_textureName;
   float m_xOffset;
@@ -92,6 +105,7 @@ private:
   FlagOp m_contentFlagsOp;
   ValueOp m_surfaceValueOp;
   ValueOp m_colorValueOp;
+  JustifyOp m_justifyOp;
 
 public:
   ChangeBrushFaceAttributesRequest();
@@ -103,6 +117,8 @@ public:
 
   void resetAll(const BrushFaceAttributes& defaultFaceAttributes);
   void resetAllToParaxial(const BrushFaceAttributes& defaultFaceAttributes);
+
+  void setJustifyOperation(const JustifyOp justifyOp);
 
   void setTextureName(const std::string& textureName);
 

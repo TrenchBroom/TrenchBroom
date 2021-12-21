@@ -248,7 +248,7 @@ void ParaxialTexCoordSystem::doTransform(
   const vm::vec2f newInvariantTexCoords = computeTexCoords(newInvariant, newScale);
 
   // since the center should be invariant, the offsets are determined by the difference of the
-  // current and the original texture coordiknates of the center
+  // current and the original texture coordinates of the center
   const vm::vec2f newOffset =
     correct(attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords, textureSize), 4);
 
