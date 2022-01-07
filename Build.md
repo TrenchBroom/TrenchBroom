@@ -41,7 +41,7 @@ You'll also need to install these dependencies using Visual Studio Installer (in
   - **Important**: You have to create a personal account
   - Minimum required version is `5.12`
 - Download and install latest version of [CMake](http://www.cmake.org) for Windows
-  - Make sure to add `cmake` as [global or user environment variable](https://support.shotgunsoftware.com/hc/en-us/articles/114094235653-Setting-global-environment-variables-on-Windows)
+  - Make sure to add `cmake` as [global or user environment variable](https://knowledge.autodesk.com/support/shotgrid/learn-explore/caas/CloudHelp/cloudhelp/ENU/SG-RV/files/rv-knowledge-base/SG-RV-rv-knowledge-base-rv-setting-global-variables-windows-html-html.html)
 - Download and install latest version of [pandoc](http://www.pandoc.org)
 
 ### Project configuration with cmake
