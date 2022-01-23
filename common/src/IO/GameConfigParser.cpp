@@ -191,10 +191,12 @@ Model::EntityConfig GameConfigParser::parseEntityConfig(const EL::Value& value) 
     "{'scale': '*'}" // scale is an expression
     "]");
 
+  // writeDefaultProperties is optional, since only Half-Life seems to need it so far,
+  // no need to change all other game configs
   return Model::EntityConfig{
     Path::asPaths(value["definitions"].asStringList()), value["modelformats"].asStringSet(),
     Color::parse(value["defaultcolor"].stringValue()).value_or(Color()),
-    value["scale"].expression()};
+    value["scale"].expression(), value["writedefaultproperties"].booleanValue()};
 }
 
 Model::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(const EL::Value& value) const {

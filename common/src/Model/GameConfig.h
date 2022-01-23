@@ -105,6 +105,7 @@ struct EntityConfig {
   std::vector<std::string> modelFormats;
   Color defaultColor;
   std::optional<EL::Expression> scaleExpression;
+  bool writeDefaultProperties;
 };
 
 bool operator==(const EntityConfig& lhs, const EntityConfig& rhs);

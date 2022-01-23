@@ -155,7 +155,8 @@ std::ostream& operator<<(std::ostream& str, const TextureConfig& config) {
 
 bool operator==(const EntityConfig& lhs, const EntityConfig& rhs) {
   return lhs.defFilePaths == rhs.defFilePaths && lhs.modelFormats == rhs.modelFormats &&
-         lhs.defaultColor == rhs.defaultColor && lhs.scaleExpression == rhs.scaleExpression;
+         lhs.defaultColor == rhs.defaultColor && lhs.scaleExpression == rhs.scaleExpression &&
+         lhs.writeDefaultProperties == rhs.writeDefaultProperties;
 }
 
 bool operator!=(const EntityConfig& lhs, const EntityConfig& rhs) {
@@ -167,7 +168,8 @@ std::ostream& operator<<(std::ostream& str, const EntityConfig& config) {
       << "defFilePaths: [" << kdl::str_join(config.defFilePaths) << "], "
       << "modelFormats: [" << kdl::str_join(config.modelFormats) << "], "
       << "defaultColor: " << config.defaultColor << ", "
-      << "scaleExpression: " << kdl::opt_to_string(config.scaleExpression) << "}";
+      << "scaleExpression: " << kdl::opt_to_string(config.scaleExpression) << ", "
+      << "writeDefaultProperties: " << config.writeDefaultProperties << "}";
   return str;
 }
 
