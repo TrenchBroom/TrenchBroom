@@ -22,6 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Assets/ModelDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Model/EntityProperties.h"
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotationPolicy.h"
@@ -63,6 +64,24 @@ Entity::Entity(
 
 const std::vector<EntityProperty>& Entity::properties() const {
   return m_properties;
+}
+
+std::vector<EntityProperty> Entity::propertiesWithDefaults() const {
+  auto properties = m_properties;
+
+  // Check if each property definition is already defined in our properties. If not, add it
+  for (const auto& propertyDefinitionPtr : m_definition.get()->propertyDefinitions()) {
+    auto propertyDefinition = propertyDefinitionPtr.get();
+    std::string keyName = propertyDefinition->key();
+    std::string defaultValue = Assets::PropertyDefinition::defaultValue(*propertyDefinition);
+
+    // It'd be very redundant to add an empty default value
+    if (!hasProperty(keyName) && defaultValue != EntityPropertyValues::DefaultValue) {
+      properties.push_back(EntityProperty(keyName, defaultValue));
+    }
+  }
+
+  return properties;
 }
 
 Entity::Entity(const Entity& other) = default;

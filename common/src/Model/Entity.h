@@ -108,6 +108,7 @@ public:
   ~Entity();
 
   const std::vector<EntityProperty>& properties() const;
+  std::vector<EntityProperty> propertiesWithDefaults() const;
   void setProperties(
     const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties);
 
