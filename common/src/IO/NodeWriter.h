@@ -43,6 +43,7 @@ private:
 
   const Model::WorldNode& m_world;
   std::unique_ptr<NodeSerializer> m_serializer;
+  bool m_writeDefaultProperties{false};
 
 public:
   NodeWriter(const Model::WorldNode& world, std::ostream& stream);
@@ -50,6 +51,7 @@ public:
   ~NodeWriter();
 
   void setExporting(bool exporting);
+  void setWriteDefaultProperties(bool writeDefaults);
   void writeMap();
 
 private:

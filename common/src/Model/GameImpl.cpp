@@ -219,6 +219,7 @@ void GameImpl::doWriteMap(WorldNode& world, const IO::Path& path, const bool exp
 
   IO::NodeWriter writer(world, file);
   writer.setExporting(exporting);
+  writer.setWriteDefaultProperties(exporting && m_config.entityConfig.writeDefaultProperties);
   writer.writeMap();
 }
 

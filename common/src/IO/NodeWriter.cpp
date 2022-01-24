@@ -39,9 +39,16 @@
 
 namespace TrenchBroom {
 namespace IO {
+// Performance concern?
+static const auto getEntityProperties(const Model::Entity& entity, bool writeDefaultProperties) {
+  if (writeDefaultProperties)
+    return entity.propertiesWithDefaults();
+  return entity.properties();
+};
+
 static void doWriteNodes(
   NodeSerializer& serializer, const std::vector<Model::Node*>& nodes,
-  const Model::Node* parent = nullptr) {
+  const bool& writeDefaultProperties, const Model::Node* parent = nullptr) {
   auto parentStack = std::vector<const Model::Node*>{parent};
   const auto parentProperties = [&]() {
     assert(!parentStack.empty());
@@ -70,8 +77,10 @@ static void doWriteNodes(
             Model::EntityPropertyKeys::ProtectedEntityProperties,
             kdl::str_join(escapedProperties, ";"));
         }
+
         serializer.entity(
-          entityNode, entityNode->entity().properties(), extraProperties, entityNode);
+          entityNode, getEntityProperties(entityNode->entity(), writeDefaultProperties), 
+            extraProperties, entityNode);
       },
       [](const Model::BrushNode*) {}, [](const Model::PatchNode*) {}));
   }
@@ -91,6 +100,10 @@ void NodeWriter::setExporting(const bool exporting) {
   m_serializer->setExporting(exporting);
 }
 
+void NodeWriter::setWriteDefaultProperties(bool writeDefaults) {
+  m_writeDefaultProperties = writeDefaults;
+}
+
 void NodeWriter::writeMap() {
   m_serializer->beginFile({&m_world});
   writeDefaultLayer();
@@ -102,7 +115,7 @@ void NodeWriter::writeDefaultLayer() {
   m_serializer->defaultLayer(m_world);
 
   if (!(m_serializer->exporting() && m_world.defaultLayer()->layer().omitFromExport())) {
-    doWriteNodes(*m_serializer, m_world.defaultLayer()->children());
+    doWriteNodes(*m_serializer, m_world.defaultLayer()->children(), m_writeDefaultProperties);
   }
 }
 
@@ -116,7 +129,7 @@ void NodeWriter::writeCustomLayers() {
 void NodeWriter::writeCustomLayer(const Model::LayerNode* layerNode) {
   if (!(m_serializer->exporting() && layerNode->layer().omitFromExport())) {
     m_serializer->customLayer(layerNode);
-    doWriteNodes(*m_serializer, layerNode->children(), layerNode);
+    doWriteNodes(*m_serializer, layerNode->children(), m_writeDefaultProperties, layerNode);
   }
 }
 
@@ -152,21 +165,22 @@ void NodeWriter::writeNodes(const std::vector<Model::Node*>& nodes) {
   writeWorldBrushes(worldBrushes);
   writeEntityBrushes(entityBrushes);
 
-  doWriteNodes(*m_serializer, groups);
-  doWriteNodes(*m_serializer, entities);
+  doWriteNodes(*m_serializer, groups, m_writeDefaultProperties);
+  doWriteNodes(*m_serializer, entities, m_writeDefaultProperties);
 
   m_serializer->endFile();
 }
 
 void NodeWriter::writeWorldBrushes(const std::vector<Model::BrushNode*>& brushes) {
   if (!brushes.empty()) {
-    m_serializer->entity(&m_world, m_world.entity().properties(), {}, brushes);
+    m_serializer->entity(&m_world, getEntityProperties(m_world.entity(), m_writeDefaultProperties), {}, brushes);
   }
 }
 
 void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
   for (const auto& [entityNode, brushes] : entityBrushes) {
-    m_serializer->entity(entityNode, entityNode->entity().properties(), {}, brushes);
+    m_serializer->entity(
+      entityNode, getEntityProperties(entityNode->entity(), m_writeDefaultProperties), {}, brushes);
   }
 }
 
