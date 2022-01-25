@@ -497,7 +497,9 @@
 	saturation(float) : "Global light saturation, a single positive scalar value" : "1"
 	contrast(float) : "Global light contrast, a single positive scalar value" : "1"
 	radiosity(float) : "Global indirect light scale, a single positive scalar value" : "1"
-	patch_size(float) : "Surface light patch size" : "64"
+	luxel_size(integer) : "Lightmap pixel size in world units" : 4
+	patch_size(integer) : "Surface light patch size in world units" : 64
+	caustics(float) : "Global caustics effects scale, a single positive scalar value" : "1"
 	weather(choices) : "Weather effects" : "none" =
 	[
 		"none" : "None"
