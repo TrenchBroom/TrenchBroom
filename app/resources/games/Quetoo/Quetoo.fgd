@@ -506,17 +506,9 @@
 		"rain" : "Rain"
 		"snow" : "Snow"
 	]
-	fog_absorption(float) : "Global fog light absorption, or how much light color it absorbs" : ".125"
 	fog_color(color1) : "Global fog color, as 3 decimal values from 0.0 - 1.0" : "0 0 0"
 	fog_density(float) : "Global fog density, a single positive scalar value" : "0"
-	fog_noise(float) : "Global fog noise, a single positive scalar value" : "0"
-	fog_frequency(float) : "The global fog simplex noise frequency - effectively the scale of the noise texture" : "32"
-	fog_amplitude(float) : "The global fog simplex noise amplitude - effectively the upper limit of noise values" : "1"
-	fog_lacunarity(float) : "The global fog simplex noise lacunarity - multiplier per-octave of frequency" : "2"
-	fog_persistence(float) : "The global fog simplex noise persistence - multiplier per-octave of amplitude" : ".5"
-	fog_octaves(float) : "The number of octaves to sample for global fog" : "5"
-	fog_seed(float) : "The global fog simplex noise permutation vector seed" : "0"
-	fog_offset(vector) : "An offset added to the global fog noise calculation" : "0 0 0"
+	fog_depth_range(string) : "Global fog depth range, in world units" : "128 2048"
 	gravity(integer) : "Gravity" : 800
 	gameplay(choices) : "Weather effects" : "deathmatch" =
 	[
