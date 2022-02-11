@@ -287,7 +287,7 @@
 	radius(float) : "The flame radius" : "16"
 ]
 
-@SolidClass color(230 230 230) = misc_fog : "Fog volumes. When compiled, fog brushes are merged into the world. Fog volumes are processed during the lighting compile phase. These are typically contents atmospheric, but can be contents water, etc."
+@SolidClass color(230 230 230) = misc_fog : "Fog volumes. When compiled, fog brushes are merged into the world. Fog volumes are processed during the lighting compile phase. These are typically contents atmospheric, but can be contents water, etc. Omit _color to use the material color."
 [
 	_color(string) : "The sprite HSVA color as 4 decimal values" : "0 0 1 1"
 	absorption(float) : "The fog absorption, or how much light color it absorbs" : ".125"
