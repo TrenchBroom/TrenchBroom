@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <QDialog>
 
 namespace TrenchBroom {
@@ -30,10 +32,14 @@ namespace View {
 class CrashDialog : public QDialog {
   Q_OBJECT
 public:
-  CrashDialog(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
+  CrashDialog(
+    const std::string& reason, const IO::Path& reportPath, const IO::Path& mapPath,
+    const IO::Path& logPath);
 
 private:
-  void createGui(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
+  void createGui(
+    const std::string& reason, const IO::Path& reportPath, const IO::Path& mapPath,
+    const IO::Path& logPath);
 };
 } // namespace View
 } // namespace TrenchBroom
