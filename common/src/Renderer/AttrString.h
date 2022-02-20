@@ -26,8 +26,7 @@ namespace TrenchBroom {
 namespace Renderer {
 class AttrString {
 private:
-  enum class Justify
-  {
+  enum class Justify {
     Left,
     Right,
     Center

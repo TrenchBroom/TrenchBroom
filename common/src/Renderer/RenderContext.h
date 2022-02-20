@@ -30,16 +30,14 @@ class Camera;
 class FontManager;
 class ShaderManager;
 
-enum class RenderMode
-{
+enum class RenderMode {
   Render3D,
   Render2D
 };
 
 class RenderContext {
 private:
-  enum class ShowSelectionGuide
-  {
+  enum class ShowSelectionGuide {
     Show,
     Hide,
     ForceShow,

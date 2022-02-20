@@ -50,8 +50,7 @@ private:
   friend class ParaxialTexCoordSystem;
 };
 
-enum class WrapStyle
-{
+enum class WrapStyle {
   Projection,
   Rotation
 };

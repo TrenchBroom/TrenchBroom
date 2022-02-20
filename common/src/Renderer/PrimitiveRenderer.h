@@ -32,15 +32,13 @@ class ActiveShader;
 template <typename VertexSpec> class IndexRangeMapBuilder;
 class IndexRangeRenderer;
 
-enum class PrimitiveRendererOcclusionPolicy
-{
+enum class PrimitiveRendererOcclusionPolicy {
   Hide,
   Show,
   Transparent
 };
 
-enum class PrimitiveRendererCullingPolicy
-{
+enum class PrimitiveRendererCullingPolicy {
   CullBackfaces,
   ShowBackfaces
 };

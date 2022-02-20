@@ -36,14 +36,12 @@ class PropertyDefinition;
 class FlagsPropertyDefinition;
 class FlagsPropertyOption;
 
-enum class EntityDefinitionType
-{
+enum class EntityDefinitionType {
   PointEntity,
   BrushEntity
 };
 
-enum class EntityDefinitionSortOrder
-{
+enum class EntityDefinitionSortOrder {
   Name,
   Usage
 };

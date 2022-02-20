@@ -35,8 +35,7 @@ bool operator==(const MapExportOptions& lhs, const MapExportOptions& rhs);
 bool operator!=(const MapExportOptions& lhs, const MapExportOptions& rhs);
 std::ostream& operator<<(std::ostream& lhs, const MapExportOptions& rhs);
 
-enum class ObjMtlPathMode
-{
+enum class ObjMtlPathMode {
   RelativeToGamePath,
   RelativeToExportPath
 };

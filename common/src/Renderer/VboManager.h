@@ -28,14 +28,12 @@ namespace Renderer {
 class Vbo;
 class ShaderManager;
 
-enum class VboType
-{
+enum class VboType {
   ArrayBuffer,
   ElementArrayBuffer
 };
 
-enum class VboUsage
-{
+enum class VboUsage {
   StaticDraw,
   DynamicDraw
 };

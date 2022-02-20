@@ -39,8 +39,7 @@
 
 namespace TrenchBroom {
 namespace View {
-enum class SnapMode
-{
+enum class SnapMode {
   /** Snap the delta between a previous and the proposed handle position. */
   Relative,
   /** Snap the proposed handle position to absolute values. */
@@ -182,8 +181,7 @@ private:
     "Delegate must extend MoveHandleDragTrackerDelegate");
 
   /** The different modes of moving. */
-  enum class MoveMode
-  {
+  enum class MoveMode {
     /** A vertical move (3D views only) */
     Vertical,
     /** A constricted move (move along only one axis of a horizontal plane) */

@@ -38,8 +38,7 @@ protected:
   ResizeBrushesTool& m_tool;
 
 private:
-  enum class Mode
-  {
+  enum class Mode {
     Resize,
     MoveFace
   };

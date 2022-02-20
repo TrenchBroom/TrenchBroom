@@ -106,8 +106,7 @@ public: // Snap scalars.
   }
 
 private:
-  typedef enum
-  {
+  typedef enum {
     /**
      * Snap to nearest grid increment (rounding away from 0 if the input is half way between two
      * multiples of the grid size).

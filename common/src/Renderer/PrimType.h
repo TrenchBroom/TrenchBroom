@@ -23,8 +23,7 @@
 
 namespace TrenchBroom {
 namespace Renderer {
-enum class PrimType
-{
+enum class PrimType {
   Points,
   Lines,
   Triangles,

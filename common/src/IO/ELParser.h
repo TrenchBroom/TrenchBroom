@@ -100,8 +100,7 @@ private:
 
 class ELParser : public Parser<ELToken::Type> {
 public:
-  enum class Mode
-  {
+  enum class Mode {
     Strict,
     Lenient
   };

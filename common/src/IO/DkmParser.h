@@ -74,8 +74,7 @@ private:
   using DkmMeshVertexList = std::vector<DkmMeshVertex>;
 
   struct DkmMesh {
-    enum Type
-    {
+    enum Type {
       Fan,
       Strip
     };

@@ -48,8 +48,7 @@ bool actionContextMatches(
 
 std::string actionContextName(ActionContext::Type actionContext);
 
-typedef enum
-{
+typedef enum {
   ActionView_Map2D = 0,
   ActionView_Map3D = 1
 } ActionView;

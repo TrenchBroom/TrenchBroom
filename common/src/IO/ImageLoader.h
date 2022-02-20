@@ -29,14 +29,12 @@ class Path;
 
 class ImageLoader {
 public:
-  enum Format
-  {
+  enum Format {
     PCX,
     BMP
   };
 
-  enum PixelFormat
-  {
+  enum PixelFormat {
     RGB,
     RGBA
   };

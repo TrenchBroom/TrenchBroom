@@ -36,8 +36,7 @@ struct EntityPropertyConfig;
 
 class EntityRotationPolicy {
 private:
-  enum class RotationType
-  {
+  enum class RotationType {
     None,
     Angle,
     AngleUpDown,
@@ -45,8 +44,7 @@ private:
     Euler_PositivePitchDown,
     Mangle
   };
-  enum class RotationUsage
-  {
+  enum class RotationUsage {
     Allowed,
     BlockRotation
   };

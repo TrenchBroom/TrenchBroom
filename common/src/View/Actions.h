@@ -156,8 +156,7 @@ public:
   virtual void visit(const MenuActionItem& item) = 0;
 };
 
-enum class MenuEntryType
-{
+enum class MenuEntryType {
   Menu_RecentDocuments,
   Menu_Undo,
   Menu_Redo,
