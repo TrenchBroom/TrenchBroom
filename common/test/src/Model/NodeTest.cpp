@@ -506,8 +506,7 @@ TEST_CASE("NodeTest.isDescendantOf", "[NodeTest]") {
     std::vector<Node*>{&root, child1, child2, grandChild1_1, grandChild1_2}));
 }
 
-enum class Visited
-{
+enum class Visited {
   World,
   Layer,
   Group,

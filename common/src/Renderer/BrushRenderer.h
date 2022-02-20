@@ -43,14 +43,12 @@ class BrushRenderer {
 public:
   class Filter {
   public:
-    enum class FaceRenderPolicy
-    {
+    enum class FaceRenderPolicy {
       RenderMarked,
       RenderNone
     };
 
-    enum class EdgeRenderPolicy
-    {
+    enum class EdgeRenderPolicy {
       RenderAll,
       RenderIfEitherFaceMarked,
       RenderIfBothFacesMarked,

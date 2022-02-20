@@ -35,8 +35,7 @@ using EntityNodeStringIndex = kdl::compact_trie<EntityNodeBase*>;
 
 class EntityNodeIndexQuery {
 public:
-  typedef enum
-  {
+  typedef enum {
     Type_Exact,
     Type_Prefix,
     Type_Numbered,

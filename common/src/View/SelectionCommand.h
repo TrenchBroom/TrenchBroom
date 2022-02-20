@@ -43,8 +43,7 @@ public:
   static const CommandType Type;
 
 private:
-  enum class Action
-  {
+  enum class Action {
     SelectNodes,
     SelectFaces,
     SelectAllNodes,

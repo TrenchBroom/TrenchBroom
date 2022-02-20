@@ -26,8 +26,7 @@ namespace View {
 class BorderPanel : public QWidget {
   Q_OBJECT
 public:
-  enum Sides
-  {
+  enum Sides {
     TopSide = 1,
     RightSide = 2,
     BottomSide = 4,

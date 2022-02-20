@@ -26,8 +26,7 @@ namespace View {
 class BorderLine : public QFrame {
   Q_OBJECT
 public:
-  enum class Direction
-  {
+  enum class Direction {
     Horizontal,
     Vertical
   };

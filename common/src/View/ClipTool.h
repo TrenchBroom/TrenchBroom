@@ -54,8 +54,7 @@ public:
   static const Model::HitType::Type PointHitType;
 
 private:
-  enum ClipSide
-  {
+  enum ClipSide {
     ClipSide_Front,
     ClipSide_Both,
     ClipSide_Back

@@ -125,8 +125,7 @@ private:
   void appendToStream(std::ostream& str) const override;
 };
 
-enum class UnaryOperator
-{
+enum class UnaryOperator {
   Plus,
   Minus,
   LogicalNegation,
@@ -152,8 +151,7 @@ private:
   void appendToStream(std::ostream& str) const override;
 };
 
-enum class BinaryOperator
-{
+enum class BinaryOperator {
   Addition,
   Subtraction,
   Multiplication,

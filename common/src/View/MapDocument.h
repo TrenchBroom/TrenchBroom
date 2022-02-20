@@ -473,8 +473,7 @@ public: // layer management
   void renameLayer(Model::LayerNode* layer, const std::string& name);
 
 private:
-  enum class MoveDirection
-  {
+  enum class MoveDirection {
     Up,
     Down
   };

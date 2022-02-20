@@ -36,8 +36,7 @@ class BrushFaceAttributes;
 class ChangeBrushFaceAttributesRequest {
 public:
   // TODO: replace with class based enum
-  typedef enum
-  {
+  typedef enum {
     AxisOp_None,
     AxisOp_Reset,
     AxisOp_ToParaxial,
@@ -45,8 +44,7 @@ public:
   } AxisOp;
 
   // TODO: replace with class based enum
-  typedef enum
-  {
+  typedef enum {
     ValueOp_None,
     ValueOp_Set,
     ValueOp_Add,
@@ -54,8 +52,7 @@ public:
   } ValueOp;
 
   // TODO: replace with class based enum
-  typedef enum
-  {
+  typedef enum {
     FlagOp_None,
     FlagOp_Replace,
     FlagOp_Set,   // TODO: rename to SetBits
@@ -63,8 +60,7 @@ public:
   } FlagOp;
 
   // TODO: replace with class based enum
-  typedef enum
-  {
+  typedef enum {
     TextureOp_None,
     TextureOp_Set
   } TextureOp;

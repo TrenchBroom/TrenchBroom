@@ -1929,8 +1929,7 @@ public: // Clipping
    */
   class ClipResult {
   public:
-    enum class FailureReason
-    {
+    enum class FailureReason {
       /**
        * Clipping did not change this polyhedron.
        */

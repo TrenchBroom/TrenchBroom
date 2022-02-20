@@ -24,8 +24,7 @@
 
 namespace TrenchBroom {
 namespace Model {
-enum class MapFormat
-{
+enum class MapFormat {
   /**
    * Unknown map format.
    */

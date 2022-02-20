@@ -80,8 +80,7 @@ private:
   mutable vm::mat4x4f m_inverseMatrix;
 
 protected:
-  typedef enum
-  {
+  typedef enum {
     Projection_Orthographic,
     Projection_Perspective
   } ProjectionType;

@@ -52,8 +52,7 @@ struct TextureCellData {
   Renderer::FontDescriptor subTitleFont;
 };
 
-enum class TextureSortOrder
-{
+enum class TextureSortOrder {
   Name,
   Usage
 };

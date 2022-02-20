@@ -45,8 +45,7 @@ namespace View {
 class MapView2D : public MapViewBase {
   Q_OBJECT
 public:
-  typedef enum
-  {
+  typedef enum {
     ViewPlane_XY,
     ViewPlane_XZ,
     ViewPlane_YZ
