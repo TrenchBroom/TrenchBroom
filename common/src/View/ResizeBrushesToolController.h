@@ -37,13 +37,6 @@ class ResizeBrushesToolController : public ToolController {
 protected:
   ResizeBrushesTool& m_tool;
 
-private:
-  enum class Mode {
-    Resize,
-    MoveFace
-  };
-  Mode m_mode;
-
 protected:
   explicit ResizeBrushesToolController(ResizeBrushesTool& tool);
 

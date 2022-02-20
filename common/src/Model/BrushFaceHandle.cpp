@@ -25,6 +25,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <kdl/vector_utils.h>
 
+#include <ostream>
+
 namespace TrenchBroom {
 namespace Model {
 BrushFaceHandle::BrushFaceHandle(BrushNode* node, const size_t faceIndex)
@@ -52,6 +54,13 @@ bool operator==(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs) {
 
 bool operator!=(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs) {
   return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const BrushFaceHandle& rhs) {
+  lhs << "BrushFaceHandle{";
+  lhs << "node: " << rhs.m_node << ", ";
+  lhs << "faceIndex: " << rhs.m_faceIndex << ";";
+  return lhs;
 }
 
 std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles) {
