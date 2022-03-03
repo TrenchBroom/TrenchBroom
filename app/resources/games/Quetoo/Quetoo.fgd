@@ -1,5 +1,9 @@
 // Quetoo Forge Game Data File (.fgd)
 
+@BaseClass = Phong [
+	phong(integer) : "The Phong shading threshold for this model, in degrees" : 0
+]
+
 @BaseClass = Targetname [ 
 	targetname(target_source) : "The target name of this entity if it is to be triggered" 
 ]
@@ -60,7 +64,7 @@
 @PointClass base(Ammo) color(0 0 200) studio("") = ammo_slugs : "Slugs for the Railgun" []
 @PointClass base(Ammo) color(80 255 40) studio("") = ammo_nukes : "Nukes for the BFG10K" []
 
-@SolidClass base(Target, Targetname) color(0 255 255) = func_button : "When a button is touched by a player, it moves in the direction set by the 'angle' key, triggers all its targets, stays pressed by the amount of time set by the 'wait' key, then returns to its original position where it can be operated again."
+@SolidClass base(Phong, Target, Targetname) color(0 255 255) = func_button : "When a button is touched by a player, it moves in the direction set by the 'angle' key, triggers all its targets, stays pressed by the amount of time set by the 'wait' key, then returns to its original position where it can be operated again."
 [
 	angle(angle) : "Determines the direction in which the button will move (up = -1, down = -2)"
 	target(target_destination) : "All entities with a matching target name will be triggered"
@@ -71,7 +75,7 @@
 	health(integer) : "If set, the button must be killed instead of touched to use"
 ]
 
-@SolidClass base(Targetname) color(0 255 255) = func_conveyor : "Conveyors are stationary brushes that move what's on them. The brush should be have a surface with at least one current content enabled."
+@SolidClass base(Phong, Targetname) color(0 255 255) = func_conveyor : "Conveyors are stationary brushes that move what's on them. The brush should be have a surface with at least one current content enabled."
 [
 	spawnflags(Flags) =
 	[
@@ -81,7 +85,7 @@
 	speed(integer) : "The speed at which objects on the conveyor are moved" : 100
 ]
 
-@SolidClass base(Targetname) color(0 255 255) = func_door : "A sliding door. By default, doors open when a player walks close to them."
+@SolidClass base(Phong, Targetname) color(0 255 255) = func_door : "A sliding door. By default, doors open when a player walks close to them."
 [
 	spawnflags(Flags) =
 	[
@@ -98,7 +102,7 @@
 	sounds(integer) : "The sound set for the door (0 metal, 1 stone, -1 silent)" : 0
 ]
 
-@SolidClass base(Targetname) color(0 255 255) = func_door_rotating : "A door which rotates about an origin on its Z axis. By default, doors open when a player walks close to them."
+@SolidClass base(Phong, Targetname) color(0 255 255) = func_door_rotating : "A door which rotates about an origin on its Z axis. By default, doors open when a player walks close to them."
 [
 	spawnflags(Flags) =
 	[
@@ -117,7 +121,7 @@
 	sounds(integer) : "The sound set for the door (0 metal, 1 stone, -1 silent)" : 0
 ]
 
-@SolidClass base(Targetname) color(0 255 255) = func_door_secret : "A secret door which opens when shot, or when targeted. The door first slides back, and then to the side."
+@SolidClass base(Phong, Targetname) color(0 255 255) = func_door_secret : "A secret door which opens when shot, or when targeted. The door first slides back, and then to the side."
 [
 	spawnflags(Flags) =
 	[
@@ -133,9 +137,9 @@
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 ]
 
-@SolidClass color(0 255 180) = func_group : "Groups brushes together in Trenchbroom for convenience. When the map is compiled, these entities are merged back into worldspawn." []
+@SolidClass base(Phong) color(0 255 180) = func_group : "Groups brushes together in Trenchbroom for convenience. When the map is compiled, these entities are merged back into worldspawn." []
 
-@SolidClass base(Targetname) color(0 255 255) = func_plat : "Rising platform the player can ride to reach higher places. Platforms must be placed in the raised position, so they will operate and be lit correctly, but they spawn in the lowered position. If the platform is the target of a trigger or button, it will start out disabled and in the extended position."
+@SolidClass base(Phong, Targetname) color(0 255 255) = func_plat : "Rising platform the player can ride to reach higher places. Platforms must be placed in the raised position, so they will operate and be lit correctly, but they spawn in the lowered position. If the platform is the target of a trigger or button, it will start out disabled and in the extended position."
 [
 	spawnflags(Flags) =
 	[
@@ -174,7 +178,7 @@
 	delay(integer) : "Additional delay before the first firing when start_on" : 0
 ]
 
-@SolidClass base(Targetname) color(0 255 255) = func_train : "Trains are moving solids that players can ride along a series of path_corners. The origin of each corner specifies the lower bounding point of the train at that corner. If the train is the target of a button or trigger, it will not begin moving until activated."
+@SolidClass base(Phong, Targetname) color(0 255 255) = func_train : "Trains are moving solids that players can ride along a series of path_corners. The origin of each corner specifies the lower bounding point of the train at that corner. If the train is the target of a button or trigger, it will not begin moving until activated."
 [
 	spawnflags(Flags) =
 	[
@@ -187,7 +191,7 @@
 	sound(string) : "The looping sound to play while the train is in motion"
 ]
 
-@SolidClass base(Targetname) color(0 255 255) = func_wall : "A solid that may spawn into existence via trigger."
+@SolidClass base(Phong, Targetname) color(0 255 255) = func_wall : "A solid that may spawn into existence via trigger."
 [
 	spawnflags(Flags) =
 	[
@@ -197,7 +201,7 @@
 	]
 ]
 
-@SolidClass base(Targetname) color(0 255 255) = func_water : "A movable water brush, which must be targeted to operate."
+@SolidClass base(Phong, Targetname) color(0 255 255) = func_water : "A movable water brush, which must be targeted to operate."
 [
 	spawnflags(Flags) =
 	[
@@ -455,7 +459,7 @@
 	delay(integer) : "Time before triggering"
 ]
 
-@SolidClass base(Targetname) color(128 128 128) = trigger_hurt : "A trigger that inflicts damage when touched."
+@SolidClass base(Phong, Targetname) color(128 128 128) = trigger_hurt : "A trigger that inflicts damage when touched."
 [
 	spawnflags(Flags) =
 	[
@@ -474,7 +478,7 @@
 	delay(integer) : "The delay in seconds between activation and execution of the commands."
 ]
 
-@SolidClass color(180 120 64) = trigger_push : "Pushes the player in any direction. These are commonly used to make jump pads to send the player upwards. Using the angles key, you can project the player in any direction using 'pitch yaw roll.'"
+@SolidClass base(Phong) color(180 120 64) = trigger_push : "Pushes the player in any direction. These are commonly used to make jump pads to send the player upwards. Using the angles key, you can project the player in any direction using 'pitch yaw roll.'"
 [
 	spawnflags(Flags) =
 	[
@@ -486,9 +490,9 @@
 	speed(integer) : "The speed with which to push the player" : 100
 ]
 
-@SolidClass base(Target) color(200 200 40) = trigger_teleporter : "Touching this will warp players to the targeted misc_teleporter_dest entity. This is the brush form of misc_teleporter." []
+@SolidClass base(Phong, Target) color(200 200 40) = trigger_teleporter : "Touching this will warp players to the targeted misc_teleporter_dest entity. This is the brush form of misc_teleporter." []
 
-@SolidClass = worldspawn : "The worldspawn entity defines global conditions and behavior for the entire level. All brushes not belonging to an explicit entity implicitly belong to worldspawn."
+@SolidClass base(Phong) = worldspawn : "The worldspawn entity defines global conditions and behavior for the entire level. All brushes not belonging to an explicit entity implicitly belong to worldspawn."
 [
 	message(string) : "The map title"
 	sky(string) : "The sky environment map" : "unit1_"
