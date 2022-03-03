@@ -28,8 +28,7 @@
 
 namespace TrenchBroom {
 namespace Assets {
-enum class PropertyDefinitionType
-{
+enum class PropertyDefinitionType {
   TargetSourceProperty,
   TargetDestinationProperty,
   StringProperty,

@@ -64,8 +64,7 @@ bool operator!=(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs);
 
 class Quake3Shader {
 public:
-  enum class Culling
-  {
+  enum class Culling {
     Front,
     Back,
     None

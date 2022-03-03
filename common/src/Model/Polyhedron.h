@@ -372,8 +372,7 @@ private:
    plane.
    *
    * The newly created vertices' position will be the point at which the line segment defined by
-   this
-   * edge's vertices' positions intersects the given plane.
+   * this edge's vertices' positions intersects the given plane.
 
    * This function assumes that the vertices of this edge are on opposite sides of the given plane.
    *
@@ -396,7 +395,7 @@ private:
    * Before calling this function, this edge looks as follows
    *
    * /\------------old1st----------->/\
-   * \/<-----------new2nd------------\/
+   * \/<-----------old2nd------------\/
    * |                               |
    * 1st vertex                      2nd vertex
    *
@@ -1929,8 +1928,7 @@ public: // Clipping
    */
   class ClipResult {
   public:
-    enum class FailureReason
-    {
+    enum class FailureReason {
       /**
        * Clipping did not change this polyhedron.
        */

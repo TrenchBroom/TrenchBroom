@@ -78,8 +78,7 @@ kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroup
  */
 class GroupNode : public Node, public Object {
 private:
-  enum class EditState
-  {
+  enum class EditState {
     Open,
     Closed,
     DescendantOpen

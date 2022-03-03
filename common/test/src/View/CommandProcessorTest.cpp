@@ -34,8 +34,7 @@
 
 namespace TrenchBroom {
 namespace View {
-enum class CommandNotif
-{
+enum class CommandNotif {
   CommandDo,
   CommandDone,
   CommandDoFailed,

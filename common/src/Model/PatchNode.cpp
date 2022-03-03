@@ -103,13 +103,11 @@ std::vector<vm::vec3> computeGridNormals(
     return patchGrid[index(row, col)].xyz();
   };
 
-  enum class RowOffset
-  {
+  enum class RowOffset {
     Above,
     Below
   };
-  enum class ColOffset
-  {
+  enum class ColOffset {
     Left,
     Right
   };

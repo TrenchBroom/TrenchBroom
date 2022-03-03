@@ -30,8 +30,7 @@ namespace TrenchBroom {
 namespace Assets {
 class EntityDefinitionFileSpec {
 private:
-  enum class Type
-  {
+  enum class Type {
     Builtin,
     External,
     Unset

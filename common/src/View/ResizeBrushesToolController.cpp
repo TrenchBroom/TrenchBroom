@@ -37,8 +37,7 @@
 namespace TrenchBroom {
 namespace View {
 ResizeBrushesToolController::ResizeBrushesToolController(ResizeBrushesTool& tool)
-  : m_tool{tool}
-  , m_mode{Mode::Resize} {}
+  : m_tool{tool} {}
 
 ResizeBrushesToolController::~ResizeBrushesToolController() = default;
 
@@ -112,18 +111,19 @@ std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
   }
 
   m_tool.updateProposedDragHandles(inputState.pickResult());
-  m_mode = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? Mode::MoveFace : Mode::Resize;
-  if (m_mode == Mode::Resize) {
+  if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
+    // move mode
+    if (m_tool.beginMove(inputState.pickResult())) {
+      return std::make_unique<ResizeToolDragTracker>(m_tool, [&](const InputState& inputState_) {
+        return m_tool.move(inputState_.pickRay(), inputState_.camera());
+      });
+    }
+  } else {
+    // resize mode
     const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
     if (m_tool.beginResize(inputState.pickResult(), split)) {
       return std::make_unique<ResizeToolDragTracker>(m_tool, [&](const InputState& inputState_) {
         return m_tool.resize(inputState_.pickRay(), inputState_.camera());
-      });
-    }
-  } else {
-    if (m_tool.beginMove(inputState.pickResult())) {
-      return std::make_unique<ResizeToolDragTracker>(m_tool, [&](const InputState& inputState_) {
-        return m_tool.move(inputState_.pickRay(), inputState_.camera());
       });
     }
   }

@@ -260,28 +260,26 @@ vm::vec3 Grid::moveDelta(const vm::vec3& delta) const {
 }
 
 vm::vec3 Grid::moveDelta(const Model::BrushFace& face, const vm::vec3& delta) const {
-  const auto dist = dot(delta, face.boundary().normal);
+  const auto dist = vm::dot(delta, face.boundary().normal);
   if (vm::is_zero(dist, vm::C::almost_zero())) {
     return vm::vec3::zero();
   }
 
   // the edge rays indicate the direction into which each vertex of the given face moves if the face
   // is dragged
-  std::vector<vm::ray3> edgeRays;
+  auto edgeRays = std::vector<vm::ray3>{};
 
-  for (const Model::BrushVertex* vertex : face.vertices()) {
-    const Model::BrushHalfEdge* firstEdge = vertex->leaving();
-    const Model::BrushHalfEdge* curEdge = firstEdge;
+  for (const auto* vertex : face.vertices()) {
+    const auto* firstEdge = vertex->leaving();
+    const auto* curEdge = firstEdge;
     do {
-      vm::ray3 ray(vertex->position(), vm::normalize(curEdge->vector()));
-
-      // depending on the direction of the drag vector, the rays must be inverted to reflect the
-      // actual movement of the vertices
-      if (dot(delta, ray.direction) < 0.0) {
-        ray.direction = -ray.direction;
+      auto direction = vm::normalize(curEdge->vector());
+      if (vm::dot(delta, direction) < 0.0) {
+        // depending on the direction of the drag vector, the rays must be inverted to reflect the
+        // actual movement of the vertices
+        direction = -direction;
       }
-
-      edgeRays.push_back(ray);
+      edgeRays.emplace_back(vertex->position(), direction);
 
       curEdge = curEdge->twin()->next();
     } while (curEdge != firstEdge);
@@ -291,7 +289,7 @@ vm::vec3 Grid::moveDelta(const Model::BrushFace& face, const vm::vec3& delta) co
   /**
    * Scalar projection of normDelta onto the nearest axial normal vector.
    */
-  const auto normDeltaScalarProj = dot(normDelta, vm::get_abs_max_component_axis(normDelta));
+  const auto normDeltaScalarProj = vm::dot(normDelta, vm::get_abs_max_component_axis(normDelta));
 
   auto gridSkip = static_cast<size_t>(normDeltaScalarProj / actualSize());
   if (gridSkip > 0) {
@@ -314,7 +312,7 @@ vm::vec3 Grid::moveDelta(const Model::BrushFace& face, const vm::vec3& delta) co
       const auto& ray = edgeRays[i];
       const auto vertexDist = intersectWithRay(ray, gridSkip);
       const auto vertexDelta = ray.direction * vertexDist;
-      const auto vertexNormDist = dot(vertexDelta, face.boundary().normal);
+      const auto vertexNormDist = vm::dot(vertexDelta, face.boundary().normal);
 
       const auto normDistDelta = vm::abs(vertexNormDist - dist);
       if (normDistDelta < minDistDelta) {
@@ -326,8 +324,8 @@ vm::vec3 Grid::moveDelta(const Model::BrushFace& face, const vm::vec3& delta) co
   } while (actualDist == std::numeric_limits<FloatType>::max());
 
   normDelta = face.boundary().normal * actualDist;
-  const auto deltaNormalized = normalize(delta);
-  return deltaNormalized * dot(normDelta, deltaNormalized);
+  const auto deltaNormalized = vm::normalize(delta);
+  return deltaNormalized * vm::dot(normDelta, deltaNormalized);
 }
 
 vm::vec3 Grid::combineDeltas(const vm::vec3& delta1, const vm::vec3& delta2) const {

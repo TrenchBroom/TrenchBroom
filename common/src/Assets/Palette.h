@@ -37,8 +37,7 @@ namespace Assets {
 struct PaletteData;
 class TextureBuffer;
 
-enum class PaletteTransparency
-{
+enum class PaletteTransparency {
   Opaque,
   Index255Transparent
 };

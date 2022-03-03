@@ -36,8 +36,7 @@ class PreferencePane;
 class PreferenceDialog : public QDialog {
   Q_OBJECT
 private:
-  typedef enum
-  {
+  typedef enum {
     PrefPane_First = 0,
     PrefPane_Games = 0,
     PrefPane_View = 1,

@@ -21,8 +21,7 @@
 
 namespace TrenchBroom {
 namespace View {
-enum class MapTextEncoding
-{
+enum class MapTextEncoding {
   Quake,
   Iso88591,
   Utf8

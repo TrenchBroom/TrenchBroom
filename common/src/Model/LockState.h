@@ -23,8 +23,7 @@
 
 namespace TrenchBroom {
 namespace Model {
-enum class LockState
-{
+enum class LockState {
   Inherited = 1,
   Locked = 2,
   Unlocked = 4

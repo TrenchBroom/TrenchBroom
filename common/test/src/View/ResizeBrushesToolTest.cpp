@@ -50,28 +50,27 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-static const auto PickRay =
-  vm::ray3(vm::vec3(0.0, -100.0, 0.0), vm::normalize(vm::vec3(-1.0, 1.0, 0)));
+namespace TrenchBroom::View {
+
+static const auto PickRay = vm::ray3{vm::vec3{0, -100, 0}, vm::normalize(vm::vec3{-1, 1, 0})};
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pickBrush") {
-  ResizeBrushesTool tool(document);
+  auto tool = ResizeBrushesTool{document};
 
   const auto bboxMax = GENERATE(vm::vec3::fill(0.01), vm::vec3::fill(8.0));
 
-  Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-  Model::BrushNode* brushNode1 = new Model::BrushNode(
-    builder.createCuboid(vm::bbox3(vm::vec3::fill(0.0), bboxMax), "texture").value());
+  auto builder = Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  auto* brushNode1 = new Model::BrushNode{
+    builder.createCuboid(vm::bbox3(vm::vec3::fill(0.0), bboxMax), "texture").value()};
 
   addNode(*document, document->currentLayer(), brushNode1);
   document->select(brushNode1);
 
-  const Model::Hit hit = tool.pick3D(PickRay, Model::PickResult());
+  const auto hit = tool.pick3D(PickRay, Model::PickResult{});
   CHECK(hit.isMatch());
   CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
-  CHECK(!vm::is_nan(hit.hitPoint()));
-  CHECK(!vm::is_nan(hit.distance()));
+  CHECK_FALSE(vm::is_nan(hit.hitPoint()));
+  CHECK_FALSE(vm::is_nan(hit.distance()));
 
   const auto hitHandle = hit.target<ResizeBrushesTool::Resize3DHitData>();
   CHECK(hitHandle.node() == brushNode1);
@@ -82,18 +81,18 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pickBrush") {
  * Boilerplate to perform picking
  */
 static Model::PickResult performPick(
-  std::shared_ptr<View::MapDocument> document, ResizeBrushesTool& tool, const vm::ray3& pickRay) {
-  Model::PickResult pickResult = Model::PickResult::byDistance();
-  document->pick(pickRay, pickResult); // populate pickResult
+  View::MapDocument& document, ResizeBrushesTool& tool, const vm::ray3& pickRay) {
+  auto pickResult = Model::PickResult::byDistance();
+  document.pick(pickRay, pickResult); // populate pickResult
 
-  const Model::Hit hit = tool.pick3D(pickRay, pickResult);
+  const auto hit = tool.pick3D(pickRay, pickResult);
   CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
-  CHECK(!vm::is_nan(hit.hitPoint()));
+  CHECK_FALSE(vm::is_nan(hit.hitPoint()));
 
   REQUIRE(hit.isMatch());
   pickResult.addHit(hit);
 
-  REQUIRE(!tool.hasVisualHandles());
+  REQUIRE_FALSE(tool.hasVisualHandles());
   tool.updateProposedDragHandles(pickResult);
   REQUIRE(tool.hasVisualHandles());
 
@@ -104,20 +103,17 @@ static Model::PickResult performPick(
  * Test for https://github.com/TrenchBroom/TrenchBroom/issues/3726
  */
 TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
-  struct TestCase {
-    IO::Path mapName;
-    std::vector<std::string> expectedDragFaceTextureNames;
-  };
+  using T = std::tuple<IO::Path, std::vector<std::string>>;
 
   // clang-format off
   const auto 
-  [mapName,                                        expectedDragFaceTextureNames] = GENERATE(values<TestCase>({
-  {IO::Path("findDragFaces_noCoplanarFaces.map"),  {"larger_top_face"}},
-  {IO::Path("findDragFaces_twoCoplanarFaces.map"), {"larger_top_face", "smaller_top_face"}}
+  [mapName,                                        expectedDragFaceTextureNames] = GENERATE(values<T>({
+  {IO::Path{"findDragFaces_noCoplanarFaces.map"},  {"larger_top_face"}},
+  {IO::Path{"findDragFaces_twoCoplanarFaces.map"}, {"larger_top_face", "smaller_top_face"}}
   }));
   // clang-format on
 
-  const auto mapPath = IO::Path("fixture/test/View/ResizeBrushesToolTest") + mapName;
+  const auto mapPath = IO::Path{"fixture/test/View/ResizeBrushesToolTest"} + mapName;
   auto [document, game, gameConfig] =
     View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
 
@@ -133,35 +129,34 @@ TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
   REQUIRE(brushIt != std::end(brushes));
 
   const auto* brushNode = *brushIt;
-  const Model::BrushFace& largerTopFace =
+  const auto& largerTopFace =
     brushNode->brush().face(brushNode->brush().findFace("larger_top_face").value());
 
   // Find the entity defining the camera position for our test
-  Model::EntityNode* cameraEntity =
-    kdl::vec_filter(document->selectedNodes().entities(), [](const Model::EntityNode* node) {
-      return node->entity().classname() == "trigger_relay";
-    }).at(0);
+  auto* cameraEntity = kdl::vec_filter(document->selectedNodes().entities(), [](const auto* e) {
+                         return e->entity().classname() == "trigger_relay";
+                       }).front();
 
   // Fire a pick ray at largerTopFace
-  const auto pickRay = vm::ray3(
+  const auto pickRay = vm::ray3{
     cameraEntity->entity().origin(),
-    vm::normalize(largerTopFace.center() - cameraEntity->entity().origin()));
+    vm::normalize(largerTopFace.center() - cameraEntity->entity().origin())};
 
-  auto tool = ResizeBrushesTool(document);
+  auto tool = ResizeBrushesTool{document};
 
-  Model::PickResult pickResult = performPick(document, tool, pickRay);
+  const auto pickResult = performPick(*document, tool, pickRay);
   REQUIRE(pickResult.all().front().target<Model::BrushFaceHandle>().face() == largerTopFace);
 
   const std::vector<std::string> dragFaces =
-    kdl::vec_transform(tool.visualHandles(), [](const Model::BrushFaceHandle& handle) {
-      return handle.face().attributes().textureName();
+    kdl::vec_transform(tool.visualHandles(), [](const auto& h) {
+      return h.face().attributes().textureName();
     });
   CHECK_THAT(dragFaces, Catch::UnorderedEquals(expectedDragFaceTextureNames));
 }
 
 TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/ResizeBrushesToolTest/splitBrushes.map"), "Quake",
+    IO::Path{"fixture/test/View/ResizeBrushesToolTest/splitBrushes.map"}, "Quake",
     Model::MapFormat::Valve);
 
   document->selectAllNodes();
@@ -170,37 +165,37 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
   REQUIRE(brushes.size() == 2);
 
   // Find the entity defining the camera position for our test
-  Model::EntityNode* cameraEntity =
-    kdl::vec_filter(document->selectedNodes().entities(), [](const Model::EntityNode* node) {
+  const auto* cameraEntity =
+    kdl::vec_filter(document->selectedNodes().entities(), [](const auto* node) {
       return node->entity().classname() == "trigger_relay";
-    }).at(0);
+    }).front();
 
-  Model::EntityNode* cameraTarget =
-    kdl::vec_filter(document->selectedNodes().entities(), [](const Model::EntityNode* node) {
+  const auto* cameraTarget =
+    kdl::vec_filter(document->selectedNodes().entities(), [](const auto* node) {
       return node->entity().classname() == "info_null";
-    }).at(0);
+    }).front();
 
-  Model::EntityNode* funcDetailNode =
+  const auto* funcDetailNode =
     kdl::vec_filter(
       Model::filterEntityNodes(Model::collectDescendants({document->world()})),
-      [](const Model::EntityNode* node) {
+      [](const auto* node) {
         return node->entity().classname() == "func_detail";
       })
-      .at(0);
+      .front();
 
   // Fire a pick ray at cameraTarget
   const auto pickRay = vm::ray3(
     cameraEntity->entity().origin(),
     vm::normalize(cameraTarget->entity().origin() - cameraEntity->entity().origin()));
 
-  auto tool = ResizeBrushesTool(document);
+  auto tool = ResizeBrushesTool{document};
 
-  const Model::PickResult pickResult = performPick(document, tool, pickRay);
+  const auto pickResult = performPick(*document, tool, pickRay);
 
   // We are going to drag the 2 faces with +Y normals
-  REQUIRE(tool.visualHandles().size() == 2);
-  CHECK(tool.visualHandles().at(0).face().normal() == vm::vec3::pos_y());
-  CHECK(tool.visualHandles().at(1).face().normal() == vm::vec3::pos_y());
+  CHECK(kdl::vec_transform(tool.visualHandles(), [](const auto& h) {
+          return h.face().normal();
+        }) == std::vector<vm::vec3>{vm::vec3::pos_y(), vm::vec3::pos_y()});
 
   SECTION("split brushes inwards 32 units towards -Y") {
     const auto delta = vm::vec3(0, -32, 0);
@@ -208,14 +203,14 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     REQUIRE(tool.beginResize(pickResult, true));
     REQUIRE(tool.resize(
       vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera()));
+      Renderer::PerspectiveCamera{}));
     tool.commit();
 
     CHECK(document->selectedNodes().brushes().size() == 4);
 
     SECTION("check 2 resulting worldspawn brushes") {
       const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
-      const auto bounds = kdl::vec_transform(nodes, [](auto* node) {
+      const auto bounds = kdl::vec_transform(nodes, [](const auto* node) {
         return node->logicalBounds();
       });
       const auto expectedBounds =
@@ -225,7 +220,7 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
 
     SECTION("check 2 resulting func_detail brushes") {
       const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
-      const auto bounds = kdl::vec_transform(nodes, [](auto* node) {
+      const auto bounds = kdl::vec_transform(nodes, [](const auto* node) {
         return node->logicalBounds();
       });
       const auto expectedBounds =
@@ -240,14 +235,14 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     REQUIRE(tool.beginResize(pickResult, true));
     REQUIRE(tool.resize(
       vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera()));
+      Renderer::PerspectiveCamera{}));
     tool.commit();
 
     CHECK(document->selectedNodes().brushes().size() == 3);
 
     SECTION("check 2 resulting worldspawn brushes") {
       const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
-      const auto bounds = kdl::vec_transform(nodes, [](auto* node) {
+      const auto bounds = kdl::vec_transform(nodes, [](const auto* node) {
         return node->logicalBounds();
       });
       const auto expectedBounds =
@@ -257,7 +252,7 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
 
     SECTION("check 1 resulting func_detail brush") {
       const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
-      const auto bounds = kdl::vec_transform(nodes, [](auto* node) {
+      const auto bounds = kdl::vec_transform(nodes, [](const auto* node) {
         return node->logicalBounds();
       });
       const auto expectedBounds = std::vector<vm::bbox3>{{{-16, 176, 16}, {16, 224, 32}}};
@@ -266,19 +261,19 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
   }
 
   SECTION("resize inwards 32 units towards -Y") {
-    const auto delta = vm::vec3(0, -32, 0);
+    const auto delta = vm::vec3{0, -32, 0};
 
     REQUIRE(tool.beginResize(pickResult, false));
     REQUIRE(tool.resize(
       vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera()));
+      Renderer::PerspectiveCamera{}));
     tool.commit();
 
     CHECK(document->selectedNodes().brushes().size() == 2);
 
     SECTION("check 1 resulting worldspawn brushes") {
       const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
-      const auto bounds = kdl::vec_transform(nodes, [](auto* node) {
+      const auto bounds = kdl::vec_transform(nodes, [](const auto* node) {
         return node->logicalBounds();
       });
       const auto expectedBounds = std::vector<vm::bbox3>{
@@ -289,7 +284,7 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
 
     SECTION("check 1 resulting func_detail brush") {
       const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
-      const auto bounds = kdl::vec_transform(nodes, [](auto* node) {
+      const auto bounds = kdl::vec_transform(nodes, [](const auto* node) {
         return node->logicalBounds();
       });
       const auto expectedBounds = std::vector<vm::bbox3>{{{-16, 176, 16}, {16, 192, 32}}};
@@ -298,23 +293,23 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
   }
 
   SECTION("split brushes outwards 16 units towards +Y") {
-    const auto delta = vm::vec3(0, 16, 0);
+    const auto delta = vm::vec3{0, 16, 0};
 
     REQUIRE(tool.beginResize(pickResult, true));
     REQUIRE(tool.resize(
       vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera()));
+      Renderer::PerspectiveCamera{}));
     tool.commit();
 
     CHECK(document->selectedNodes().brushes().size() == 2);
 
     SECTION("check 1 resulting worldspawn brush") {
       auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
-      nodes = kdl::vec_filter(std::move(nodes), [](auto* node) {
+      nodes = kdl::vec_filter(std::move(nodes), [](const auto* node) {
         return node->selected();
       });
 
-      const auto bounds = kdl::vec_transform(nodes, [](auto* node) {
+      const auto bounds = kdl::vec_transform(nodes, [](const auto* node) {
         return node->logicalBounds();
       });
       const auto expectedBounds = std::vector<vm::bbox3>{
@@ -325,11 +320,11 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
 
     SECTION("check 1 resulting func_detail brush") {
       auto nodes = Model::filterBrushNodes(funcDetailNode->children());
-      nodes = kdl::vec_filter(std::move(nodes), [](auto* node) {
+      nodes = kdl::vec_filter(std::move(nodes), [](const auto* node) {
         return node->selected();
       });
 
-      const auto bounds = kdl::vec_transform(nodes, [](auto* node) {
+      const auto bounds = kdl::vec_transform(nodes, [](const auto* node) {
         return node->logicalBounds();
       });
       const auto expectedBounds = std::vector<vm::bbox3>{{{-16, 224, 16}, {16, 240, 32}}};
@@ -337,5 +332,4 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     }
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

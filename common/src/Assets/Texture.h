@@ -37,8 +37,7 @@ namespace TrenchBroom {
 namespace Assets {
 class TextureCollection;
 
-enum class TextureType
-{
+enum class TextureType {
   Opaque,
   /**
    * Modifies texture uploading to support mask textures.
@@ -46,8 +45,7 @@ enum class TextureType
   Masked
 };
 
-enum class TextureCulling
-{
+enum class TextureCulling {
   CullDefault,
   CullNone,
   CullFront,
@@ -56,8 +54,7 @@ enum class TextureCulling
 };
 
 struct TextureBlendFunc {
-  enum class Enable
-  {
+  enum class Enable {
     /**
      * Don't change GL_BLEND and don't change the blend function.
      */

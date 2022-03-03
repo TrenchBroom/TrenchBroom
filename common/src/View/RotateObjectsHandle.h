@@ -41,8 +41,7 @@ class RotateObjectsHandle {
 public:
   static const Model::HitType::Type HandleHitType;
 
-  enum class HitArea
-  {
+  enum class HitArea {
     None = 0,
     Center = 1,
     XAxis = 2,

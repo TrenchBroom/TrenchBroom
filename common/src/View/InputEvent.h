@@ -80,8 +80,7 @@ public:
  */
 class KeyEvent : public InputEvent {
 public:
-  enum class Type
-  {
+  enum class Type {
     /**
      * A key was pressed.
      */
@@ -128,8 +127,7 @@ public:
  */
 class MouseEvent : public InputEvent {
 public:
-  enum class Type
-  {
+  enum class Type {
     /**
      * A button was pressed.
      */
@@ -167,8 +165,7 @@ public:
      */
     DragEnd
   };
-  enum class Button
-  {
+  enum class Button {
     None,
     Left,
     Middle,
@@ -176,8 +173,7 @@ public:
     Aux1,
     Aux2
   };
-  enum class WheelAxis
-  {
+  enum class WheelAxis {
     None,
     Vertical,
     Horizontal

@@ -23,8 +23,7 @@
 
 namespace TrenchBroom {
 namespace Model {
-enum class BrushError
-{
+enum class BrushError {
   EmptyBrush,
   IncompleteBrush,
   InvalidBrush,

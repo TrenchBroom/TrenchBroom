@@ -538,7 +538,7 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   std::cerr << report << std::endl;
 
   if (crashReportGuiEnabled) {
-    CrashDialog dialog(reportPath, mapPath, logPath);
+    CrashDialog dialog(reason, reportPath, mapPath, logPath);
     dialog.exec();
   }
 
@@ -630,7 +630,7 @@ void TrenchBroomApp::debugShowCrashReportDialog() {
   const IO::Path mapPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.map"));
   const IO::Path logPath(IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.log"));
 
-  CrashDialog dialog(reportPath, mapPath, logPath);
+  CrashDialog dialog("Debug crash", reportPath, mapPath, logPath);
   dialog.exec();
 }
 

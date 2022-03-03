@@ -37,8 +37,7 @@ class PropertyDefinition;
 }
 
 namespace IO {
-enum class EntityDefinitionClassType
-{
+enum class EntityDefinitionClassType {
   PointClass,
   BrushClass,
   BaseClass

@@ -23,8 +23,7 @@
 
 namespace TrenchBroom {
 namespace Model {
-enum class VisibilityState
-{
+enum class VisibilityState {
   Inherited = 1,
   Hidden = 2,
   Shown = 4

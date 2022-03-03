@@ -38,8 +38,7 @@ static const ModifierKeyState MKAlt = 1 << 2;
 static const ModifierKeyState MKDontCare = 1 << 3;
 } // namespace ModifierKeys
 
-typedef enum
-{
+typedef enum {
   MK_Yes,
   MK_No,
   MK_DontCare
