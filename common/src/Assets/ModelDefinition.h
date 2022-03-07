@@ -23,6 +23,7 @@
 #include "FloatType.h"
 #include "IO/Path.h"
 
+#include <kdl/reflection_decl.h>
 #include <vecmath/vec.h>
 
 #include <iosfwd>
@@ -38,16 +39,8 @@ struct ModelSpecification {
   ModelSpecification();
   ModelSpecification(const IO::Path& path, size_t skinIndex, size_t frameIndex);
 
-  bool operator<(const ModelSpecification& rhs) const;
-  bool operator>(const ModelSpecification& rhs) const;
-  bool operator<=(const ModelSpecification& rhs) const;
-  bool operator>=(const ModelSpecification& rhs) const;
-  bool operator==(const ModelSpecification& rhs) const;
-  bool operator!=(const ModelSpecification& rhs) const;
-  int compare(const ModelSpecification& other) const;
+  kdl_reflect_decl(ModelSpecification, path, skinIndex, frameIndex);
 };
-
-std::ostream& operator<<(std::ostream& stream, const ModelSpecification& spec);
 
 class ModelDefinition {
 private:
@@ -57,10 +50,6 @@ public:
   ModelDefinition();
   ModelDefinition(size_t line, size_t column);
   explicit ModelDefinition(const EL::Expression& expression);
-
-  friend bool operator==(const ModelDefinition& lhs, const ModelDefinition& rhs);
-  friend bool operator!=(const ModelDefinition& lhs, const ModelDefinition& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const ModelDefinition& def);
 
   void append(const ModelDefinition& other);
 
@@ -93,6 +82,8 @@ public:
   vm::vec3 scale(
     const EL::VariableStore& variableStore,
     const std::optional<EL::Expression>& defaultScaleExpression) const;
+
+  kdl_reflect_decl(ModelDefinition, m_expression);
 };
 
 /**
