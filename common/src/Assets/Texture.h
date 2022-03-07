@@ -26,6 +26,8 @@
 
 #include <vecmath/forward.h>
 
+#include <kdl/reflection_decl.h>
+
 #include <atomic>
 #include <iosfwd>
 #include <set>
@@ -79,10 +81,8 @@ struct Q2Data {
   int contents;
   int value;
 
-  bool operator==(const Q2Data& other) const;
-  bool operator!=(const Q2Data& other) const;
+  kdl_reflect_decl(Q2Data, flags, contents, value);
 };
-std::ostream& operator<<(std::ostream& str, const Q2Data& data);
 
 using GameData = std::variant<std::monostate, Q2Data>;
 
