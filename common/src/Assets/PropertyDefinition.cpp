@@ -21,6 +21,8 @@
 
 #include "Macros.h"
 
+#include <kdl/reflection_impl.h>
+
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -205,6 +207,8 @@ const std::string& ChoicePropertyOption::description() const {
   return m_description;
 }
 
+kdl_reflect_impl(ChoicePropertyOption);
+
 ChoicePropertyDefinition::ChoicePropertyDefinition(
   const std::string& key, const std::string& shortDescription, const std::string& longDescription,
   const ChoicePropertyOption::List& options, const bool readOnly,
@@ -216,21 +220,6 @@ ChoicePropertyDefinition::ChoicePropertyDefinition(
 
 const ChoicePropertyOption::List& ChoicePropertyDefinition::options() const {
   return m_options;
-}
-
-bool operator==(const ChoicePropertyOption& lhs, const ChoicePropertyOption& rhs) {
-  return lhs.value() == rhs.value() && lhs.description() == rhs.description();
-}
-
-bool operator!=(const ChoicePropertyOption& lhs, const ChoicePropertyOption& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const ChoicePropertyOption& opt) {
-  str << "ChoicePropertyOption{"
-      << "value: " << opt.value() << ", "
-      << "description: '" << opt.description() << "}";
-  return str;
 }
 
 bool ChoicePropertyDefinition::doEquals(const PropertyDefinition* other) const {
@@ -268,23 +257,7 @@ bool FlagsPropertyOption::isDefault() const {
   return m_isDefault;
 }
 
-bool operator==(const FlagsPropertyOption& lhs, const FlagsPropertyOption& rhs) {
-  return lhs.value() == rhs.value() && lhs.shortDescription() == rhs.shortDescription() &&
-         lhs.longDescription() == rhs.longDescription() && lhs.isDefault() == rhs.isDefault();
-}
-
-bool operator!=(const FlagsPropertyOption& lhs, const FlagsPropertyOption& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const FlagsPropertyOption& opt) {
-  str << "FlagPropertyOption{"
-      << "value: " << opt.value() << ", "
-      << "shortDescription: '" << opt.shortDescription() << "', "
-      << "longDescription: '" << opt.longDescription() << "', "
-      << "isDefault: " << opt.isDefault() << "}";
-  return str;
-}
+kdl_reflect_impl(FlagsPropertyOption);
 
 FlagsPropertyDefinition::FlagsPropertyDefinition(const std::string& key)
   : PropertyDefinition(key, PropertyDefinitionType::FlagsProperty, "", "", false) {}
