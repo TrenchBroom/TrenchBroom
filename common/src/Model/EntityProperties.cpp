@@ -21,7 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 
-#include <kdl/opt_utils.h>
+#include <kdl/optional_io.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_set.h>
 
@@ -89,7 +89,7 @@ bool operator!=(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs
 
 std::ostream& operator<<(std::ostream& lhs, const EntityPropertyConfig& rhs) {
   lhs << "EntityPropertyConfig{";
-  lhs << "defaultModelScaleExpression=" << kdl::opt_to_string(rhs.defaultModelScaleExpression);
+  lhs << "defaultModelScaleExpression=" << kdl::make_streamable(rhs.defaultModelScaleExpression);
   lhs << "}";
   return lhs;
 }

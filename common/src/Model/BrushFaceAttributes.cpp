@@ -23,7 +23,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
-#include <kdl/opt_utils.h>
+#include <kdl/optional_io.h>
 
 #include <ostream>
 #include <string>
@@ -83,10 +83,10 @@ std::ostream& operator<<(std::ostream& str, const BrushFaceAttributes& attrs) {
       << "offset: " << attrs.m_offset << ", "
       << "scale: " << attrs.m_scale << ", "
       << "rotation: " << attrs.m_rotation << ", "
-      << "surfaceContents: " << kdl::opt_to_string(attrs.m_surfaceContents) << ", "
-      << "surfaceFlags: " << kdl::opt_to_string(attrs.m_surfaceFlags) << ", "
-      << "surfaceValue: " << kdl::opt_to_string(attrs.m_surfaceValue) << ", "
-      << "color: " << kdl::opt_to_string(attrs.m_color) << "}";
+      << "surfaceContents: " << kdl::make_streamable(attrs.m_surfaceContents) << ", "
+      << "surfaceFlags: " << kdl::make_streamable(attrs.m_surfaceFlags) << ", "
+      << "surfaceValue: " << kdl::make_streamable(attrs.m_surfaceValue) << ", "
+      << "color: " << kdl::make_streamable(attrs.m_color) << "}";
   return str;
 }
 

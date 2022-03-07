@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 
-#include <kdl/opt_utils.h>
+#include <kdl/optional_io.h>
 #include <kdl/overload.h>
 #include <kdl/string_utils.h>
 
@@ -167,7 +167,7 @@ std::ostream& operator<<(std::ostream& str, const EntityConfig& config) {
       << "defFilePaths: [" << kdl::str_join(config.defFilePaths) << "], "
       << "modelFormats: [" << kdl::str_join(config.modelFormats) << "], "
       << "defaultColor: " << config.defaultColor << ", "
-      << "scaleExpression: " << kdl::opt_to_string(config.scaleExpression) << "}";
+      << "scaleExpression: " << kdl::make_streamable(config.scaleExpression) << "}";
   return str;
 }
 
@@ -310,7 +310,7 @@ std::ostream& operator<<(std::ostream& str, const GameConfig& config) {
       << "  compilationConfig: " << config.compilationConfig << ",\n"
       << "  gameEngineConfig: " << config.gameEngineConfig << ",\n"
       << "  maxPropertyLength: " << config.maxPropertyLength << ",\n"
-      << "  softMapBounds: " << kdl::opt_to_string(config.softMapBounds) << ",\n"
+      << "  softMapBounds: " << kdl::make_streamable(config.softMapBounds) << ",\n"
       << "  compilationTools: [" << kdl::str_join(config.compilationTools) << "]}\n";
   return str;
 }

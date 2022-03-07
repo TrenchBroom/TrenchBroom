@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "Model/EntityProperties.h"
 
-#include <kdl/opt_utils.h>
+#include <kdl/optional_io.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/bbox_io.h>
@@ -82,10 +82,10 @@ std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassInfo& cla
       << "line: " << classInfo.line << ", "
       << "column: " << classInfo.column << ", "
       << "name: " << classInfo.name << ", "
-      << "description: " << kdl::opt_to_string(classInfo.description) << ", "
-      << "color: " << kdl::opt_to_string(classInfo.color) << ", "
-      << "size: " << kdl::opt_to_string(classInfo.size) << ", "
-      << "modelDefinition: " << kdl::opt_to_string(classInfo.modelDefinition) << ", "
+      << "description: " << kdl::make_streamable(classInfo.description) << ", "
+      << "color: " << kdl::make_streamable(classInfo.color) << ", "
+      << "size: " << kdl::make_streamable(classInfo.size) << ", "
+      << "modelDefinition: " << kdl::make_streamable(classInfo.modelDefinition) << ", "
       << "propertyDefinnitions: {";
   for (const auto& propertyDefinition : classInfo.propertyDefinitions) {
     str << "'" << propertyDefinition->key() << "', ";
