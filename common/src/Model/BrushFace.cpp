@@ -33,6 +33,7 @@
 #include "Polyhedron.h"
 
 #include <kdl/overload.h>
+#include <kdl/reflection_impl.h>
 #include <kdl/result.h>
 #include <kdl/string_utils.h>
 
@@ -40,6 +41,7 @@
 #include <vecmath/intersection.h>
 #include <vecmath/mat.h>
 #include <vecmath/plane.h>
+#include <vecmath/plane_io.h>
 #include <vecmath/polygon.h>
 #include <vecmath/scalar.h>
 #include <vecmath/util.h>
@@ -109,6 +111,8 @@ void swap(BrushFace& lhs, BrushFace& rhs) noexcept {
 }
 
 BrushFace::~BrushFace() = default;
+
+kdl_reflect_impl(BrushFace);
 
 kdl::result<BrushFace, BrushError> BrushFace::create(
   const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2,
@@ -190,22 +194,6 @@ BrushFace::BrushFace(
   , m_selected(false)
   , m_markedToRenderFace(false) {
   ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
-}
-
-bool operator==(const BrushFace& lhs, const BrushFace& rhs) {
-  return lhs.m_points == rhs.m_points && lhs.m_boundary == rhs.m_boundary &&
-         lhs.m_attributes == rhs.m_attributes && *lhs.m_texCoordSystem == *rhs.m_texCoordSystem &&
-         lhs.m_lineNumber == rhs.m_lineNumber && lhs.m_lineCount == rhs.m_lineCount &&
-         lhs.m_selected == rhs.m_selected;
-}
-
-bool operator!=(const BrushFace& lhs, const BrushFace& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const BrushFace& face) {
-  str << "{ " << face.m_points[0] << ", " << face.m_points[1] << ", " << face.m_points[2] << " }";
-  return str;
 }
 
 void BrushFace::sortFaces(std::vector<BrushFace>& faces) {

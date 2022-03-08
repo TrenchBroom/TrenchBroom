@@ -26,6 +26,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/Tag.h" // BrushFace inherits from Taggable
 
+#include <kdl/reflection_decl.h>
 #include <kdl/result_forward.h>
 #include <kdl/transform_range.h>
 
@@ -34,7 +35,6 @@
 #include <vecmath/vec.h>
 
 #include <array>
-#include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>
@@ -109,13 +109,15 @@ public:
 
   ~BrushFace();
 
+  kdl_reflect_decl(BrushFace, m_points, m_boundary, m_attributes, m_textureReference);
+
   /**
    * Creates a face using TB's default texture projection for the given map format and the given
    * plane.
    *
    * Used when creating new faces when we don't have a particular texture alignment to request.
-   * On Valve format maps, this differs from createFromStandard() by creating a face-aligned texture
-   * projection, whereas createFromStandard() creates an axis-aligned texture projection.
+   * On Valve format maps, this differs from createFromStandard() by creating a face-aligned
+   * texture projection, whereas createFromStandard() creates an axis-aligned texture projection.
    *
    * The returned face has a TexCoordSystem matching the given format.
    */
@@ -153,10 +155,6 @@ public:
   BrushFace(
     const BrushFace::Points& points, const vm::plane3& boundary,
     const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
-
-  friend bool operator==(const BrushFace& lhs, const BrushFace& rhs);
-  friend bool operator!=(const BrushFace& lhs, const BrushFace& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const BrushFace& face);
 
   static void sortFaces(std::vector<BrushFace>& faces);
 
@@ -263,5 +261,6 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(TagVisitor& visitor) override;
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 };
+
 } // namespace Model
 } // namespace TrenchBroom
