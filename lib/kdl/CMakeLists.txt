@@ -49,6 +49,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/string_compare.h"
     "${KDL_INCLUDE_DIR}/kdl/string_format.h"
     "${KDL_INCLUDE_DIR}/kdl/string_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/traits.h"
     "${KDL_INCLUDE_DIR}/kdl/transform_range.h"
     "${KDL_INCLUDE_DIR}/kdl/tuple_io.h"
     "${KDL_INCLUDE_DIR}/kdl/tuple_utils.h"
