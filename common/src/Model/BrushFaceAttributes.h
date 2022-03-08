@@ -23,7 +23,8 @@
 
 #include <vecmath/forward.h>
 
-#include <iosfwd>
+#include <kdl/reflection_decl.h>
+
 #include <optional>
 #include <string>
 #include <string_view>
@@ -34,6 +35,7 @@ class Texture;
 }
 
 namespace Model {
+
 class BrushFaceAttributes {
 public:
   static const std::string NoTextureName;
@@ -58,9 +60,10 @@ public:
 
   BrushFaceAttributes& operator=(BrushFaceAttributes other);
 
-  friend bool operator==(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs);
-  friend bool operator!=(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const BrushFaceAttributes& attrs);
+  kdl_reflect_decl(
+    BrushFaceAttributes, m_textureName, m_offset, m_scale, m_rotation, m_surfaceContents,
+    m_surfaceFlags, m_surfaceValue, m_color);
+
   friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
 
   const std::string& textureName() const;
@@ -99,5 +102,6 @@ public:
   bool setSurfaceValue(const std::optional<float>& surfaceValue);
   bool setColor(const std::optional<Color>& color);
 };
+
 } // namespace Model
 } // namespace TrenchBroom
