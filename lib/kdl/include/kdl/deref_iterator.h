@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <iterator>
 
 namespace kdl {
@@ -141,6 +142,14 @@ public:
 
 template <typename R> deref_range(R) -> deref_range<R>;
 
+template <typename R> bool operator==(const deref_range<R>& lhs, const deref_range<R>& rhs) {
+  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+
+template <typename R> bool operator!=(const deref_range<R>& lhs, const deref_range<R>& rhs) {
+  return !(lhs == rhs);
+}
+
 template <typename R> class const_deref_range {
 private:
   const R& m_range;
@@ -175,4 +184,14 @@ public:
 };
 
 template <typename R> const_deref_range(R) -> const_deref_range<R>;
+
+template <typename R>
+bool operator==(const const_deref_range<R>& lhs, const const_deref_range<R>& rhs) {
+  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+
+template <typename R>
+bool operator!=(const const_deref_range<R>& lhs, const const_deref_range<R>& rhs) {
+  return !(lhs == rhs);
+}
 } // namespace kdl
