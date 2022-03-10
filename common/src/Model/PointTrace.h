@@ -22,7 +22,8 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <iosfwd>
+#include <kdl/reflection_decl.h>
+
 #include <optional>
 #include <vector>
 
@@ -45,10 +46,7 @@ public:
   void advance();
   void retreat();
 
-  friend bool operator==(const PointTrace& lhs, const PointTrace& rhs);
-  friend bool operator!=(const PointTrace& lhs, const PointTrace& rhs);
-
-  friend std::ostream& operator<<(std::ostream& lhs, const PointTrace& rhs);
+  kdl_reflect_decl(PointTrace, m_points, m_current);
 };
 
 std::optional<PointTrace> loadPointFile(std::istream& stream);
