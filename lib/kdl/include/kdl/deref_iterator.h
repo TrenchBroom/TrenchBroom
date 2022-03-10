@@ -61,6 +61,34 @@ public:
   friend bool operator!=(const deref_iterator& lhs, const I& rhs) { return lhs.m_it != rhs; }
   friend bool operator!=(const I& lhs, const deref_iterator& rhs) { return lhs != rhs.m_it; }
 
+  friend deref_iterator operator+(const deref_iterator& lhs, const difference_type rhs) {
+    return deref_iterator{lhs.m_it + rhs};
+  }
+
+  friend deref_iterator operator+(const difference_type& lhs, const deref_iterator rhs) {
+    return rhs + lhs;
+  }
+
+  friend deref_iterator& operator+=(deref_iterator& lhs, const difference_type rhs) {
+    lhs.m_it += rhs;
+    return lhs;
+  }
+
+  friend difference_type operator-(const deref_iterator& lhs, const deref_iterator& rhs) {
+    return lhs.m_it - rhs.m_it;
+  }
+
+  friend deref_iterator operator-(const deref_iterator& lhs, const difference_type rhs) {
+    return deref_iterator{lhs.m_it - rhs};
+  }
+
+  friend deref_iterator& operator-=(deref_iterator& lhs, const difference_type rhs) {
+    lhs.m_it -= rhs;
+    return lhs;
+  }
+
+  reference operator[](const difference_type n) const { return *m_it[n]; }
+
   deref_iterator& operator++() {
     m_it++;
     return *this;
