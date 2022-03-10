@@ -28,8 +28,9 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <kdl/reflection_decl.h>
+
 #include <functional>
-#include <iosfwd>
 #include <memory>
 #include <optional>
 #include <type_traits>
@@ -45,11 +46,9 @@ struct DragState {
   vm::vec3 initialHandlePosition;
   vm::vec3 currentHandlePosition;
   vm::vec3 handleOffset;
-};
 
-bool operator==(const DragState& lhs, const DragState& rhs);
-bool operator!=(const DragState& lhs, const DragState& rhs);
-std::ostream& operator<<(std::ostream& str, const DragState& dragState);
+  kdl_reflect_decl(DragState, initialHandlePosition, currentHandlePosition, handleOffset);
+};
 
 /**
  * Maps the input state and the drag state to a new proposed handle position.
