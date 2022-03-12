@@ -18,6 +18,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/string_compare_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/string_format_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/string_utils_test.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/struct_io_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/set_temp_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/test_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/transform_range_test.cpp"
