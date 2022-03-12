@@ -239,10 +239,10 @@
 
 @PointClass base(Target) color(200 255 255) size(-6 -6 -6, 6 6 6) = light_spot : "Point light source with attenuation cone."
 [
+	angle(angle) : "Spotlight direction (up = -1, down = -2, yaw = positive value)"
 	light(integer) : "Light radius" : 300
 	_color(color1) : "Light color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
 	_cone(integer) : "Spotlight attenuation cone width, in degrees" : 22
-	_angle(angle) : "Spotlight direction (up = -1, down = -2, yaw = positive value)"
 	_size(integer) : "Spotlight size, to simulate area lights and cast penumbrae" : 16
 ]
 
@@ -329,7 +329,7 @@
 
 @PointClass base(Target) color(220 200 20) size(-4 -4 -4, 4 4 4) = misc_sparks : "Client-side emission of spark effects."
 [
-	_angle(angle) : "Sparks direction (up = -1, down = -2, yaw = positive value)"
+	angle(angle) : "Sparks direction (up = -1, down = -2, yaw = positive value)"
 	drift(float) : "The factor of randomized drift applied to the emission rate"
 	hz(float) : "The emission rate, in events-per-second" : "0"
 	target(target_source) : "The name of the entity to target to resolve the sparks direction."
