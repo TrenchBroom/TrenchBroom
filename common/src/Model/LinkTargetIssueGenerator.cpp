@@ -79,7 +79,7 @@ private:
 };
 
 LinkTargetIssueGenerator::LinkTargetIssueGenerator()
-  : IssueGenerator(LinkTargetIssue::Type, "Missing entity link source") {
+  : IssueGenerator(LinkTargetIssue::Type, "Missing entity link target") {
   addQuickFix(new LinkTargetIssueQuickFix());
 }
 
