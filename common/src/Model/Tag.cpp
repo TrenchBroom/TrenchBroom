@@ -23,6 +23,7 @@
 #include "Model/TagManager.h"
 
 #include <kdl/string_utils.h>
+#include <kdl/struct_io.h>
 
 #include <cassert>
 #include <ostream>
@@ -56,7 +57,9 @@ bool operator<(const TagAttribute& lhs, const TagAttribute& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& str, const TagAttribute& attr) {
-  return str << "TagAttribute{type: " << attr.m_type << ", name: " << attr.m_name << "}";
+  kdl::struct_stream{str} << "TagAttribute"
+                          << "m_type" << attr.m_type << "m_name" << attr.m_name;
+  return str;
 }
 
 Tag::Tag(const size_t index, const std::string& name, std::vector<TagAttribute> attributes)
@@ -108,10 +111,9 @@ bool operator<(const Tag& lhs, const Tag& rhs) {
 }
 
 void Tag::appendToStream(std::ostream& str) const {
-  str << "Tag{"
-      << "index: " << m_index << ", "
-      << "name: " << m_name << ", "
-      << "attributes: " << kdl::str_join(m_attributes) << "}";
+  kdl::struct_stream{str} << "Tag"
+                          << "m_index" << m_index << "m_name" << m_name << "m_attributes"
+                          << m_attributes;
 }
 
 std::ostream& operator<<(std::ostream& str, const Tag& tag) {
@@ -302,11 +304,9 @@ bool SmartTag::canDisable() const {
 }
 
 void SmartTag::appendToStream(std::ostream& str) const {
-  str << "SmartTag{"
-      << "index: " << m_index << ", "
-      << "name: " << m_name << ", "
-      << "attributes: " << kdl::str_join(m_attributes) << ", "
-      << "matcher: " << *m_matcher << "}";
+  kdl::struct_stream{str} << "SmartTag"
+                          << "m_index" << m_index << "m_name" << m_name << "m_attributes"
+                          << m_attributes << "m_matcher" << *m_matcher;
 }
 } // namespace Model
 } // namespace TrenchBroom

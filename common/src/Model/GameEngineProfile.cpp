@@ -19,6 +19,8 @@
 
 #include "GameEngineProfile.h"
 
+#include <kdl/reflection_impl.h>
+
 #include <memory>
 #include <ostream>
 #include <string>
@@ -59,21 +61,7 @@ void GameEngineProfile::setParameterSpec(const std::string& parameterSpec) {
   m_parameterSpec = parameterSpec;
 }
 
-bool operator==(const GameEngineProfile& lhs, const GameEngineProfile& rhs) {
-  return lhs.m_name == rhs.m_name && lhs.m_path == rhs.m_path &&
-         lhs.m_parameterSpec == rhs.m_parameterSpec;
-}
+kdl_reflect_impl(GameEngineProfile);
 
-bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const GameEngineProfile& profile) {
-  str << "GameEngineProfile{"
-      << "name: " << profile.m_name << ", "
-      << "path: " << profile.m_path << ", "
-      << "parameterSpec: " << profile.m_parameterSpec << "}";
-  return str;
-}
 } // namespace Model
 } // namespace TrenchBroom

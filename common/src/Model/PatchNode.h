@@ -24,7 +24,11 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 
-#include <iosfwd>
+#include <vecmath/bbox.h>
+#include <vecmath/vec.h>
+
+#include <kdl/reflection_decl.h>
+
 #include <optional>
 
 namespace TrenchBroom {
@@ -40,6 +44,8 @@ struct PatchGrid {
     vm::vec3 position;
     vm::vec2 texCoords;
     vm::vec3 normal;
+
+    kdl_reflect_decl(Point, position, texCoords, normal);
   };
 
   size_t pointRowCount;
@@ -51,6 +57,8 @@ struct PatchGrid {
 
   size_t quadRowCount() const;
   size_t quadColumnCount() const;
+
+  kdl_reflect_decl(PatchGrid, pointRowCount, pointColumnCount, points, bounds);
 };
 
 // public for testing
@@ -60,10 +68,6 @@ std::vector<vm::vec3> computeGridNormals(
 
 // public for testing
 PatchGrid makePatchGrid(const BezierPatch& patch, size_t subdivisionsPerSurface);
-
-bool operator==(const PatchGrid::Point& lhs, const PatchGrid::Point& rhs);
-bool operator!=(const PatchGrid::Point& lhs, const PatchGrid::Point& rhs);
-std::ostream& operator<<(std::ostream& str, const PatchGrid::Point& p);
 
 class PatchNode : public Node, public Object {
 public:

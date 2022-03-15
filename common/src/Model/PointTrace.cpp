@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 
+#include <kdl/reflection_impl.h>
 #include <kdl/string_utils.h>
 
 #include <vecmath/distance.h>
@@ -129,21 +130,7 @@ static std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& poi
   return segmentizedPoints;
 }
 
-bool operator==(const PointTrace& lhs, const PointTrace& rhs) {
-  return lhs.m_points == rhs.m_points && lhs.m_current == rhs.m_current;
-}
-
-bool operator!=(const PointTrace& lhs, const PointTrace& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& lhs, const PointTrace& rhs) {
-  lhs << "PointTrace{";
-  lhs << "points: [" << kdl::str_join(rhs.m_points) << "], ";
-  lhs << "current: " << rhs.m_current;
-  lhs << "}";
-  return lhs;
-}
+kdl_reflect_impl(PointTrace);
 
 std::optional<PointTrace> loadPointFile(std::istream& stream) {
   const auto str = std::string{std::istreambuf_iterator<char>{stream}, {}};

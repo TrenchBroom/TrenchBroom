@@ -21,8 +21,9 @@
 
 #include <QKeyEvent>
 
+#include <kdl/reflection_decl.h>
+
 #include <chrono>
-#include <iosfwd>
 #include <memory>
 #include <vector>
 
@@ -110,16 +111,10 @@ public:
    */
   void processWith(InputEventProcessor& processor) const override;
 
-  /**
-   * Indicates whether the given two key events are equal.
-   */
-  friend bool operator==(const KeyEvent& lhs, const KeyEvent& rhs);
-
-  /**
-   * Prints a textual representation of the given event to the given output stream.
-   */
-  friend std::ostream& operator<<(std::ostream& out, const KeyEvent& event);
+  kdl_reflect_decl(KeyEvent, type);
 };
+
+std::ostream& operator<<(std::ostream& lhs, const KeyEvent::Type& rhs);
 
 /**
  * A mouse event. Supports several event types such as button down and button up, up to five mouse
@@ -220,16 +215,12 @@ public:
    */
   void processWith(InputEventProcessor& processor) const override;
 
-  /**
-   * Indicates whether the given two mouse events are equal.
-   */
-  friend bool operator==(const MouseEvent& lhs, const MouseEvent& rhs);
-
-  /**
-   * Prints a textual representation of the given event to the given output stream.
-   */
-  friend std::ostream& operator<<(std::ostream& out, const MouseEvent& event);
+  kdl_reflect_decl(MouseEvent, type, button, wheelAxis, posX, posY, scrollDistance);
 };
+
+std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Type& rhs);
+std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Button& rhs);
+std::ostream& operator<<(std::ostream& lhs, const MouseEvent::WheelAxis& rhs);
 
 /**
  * Event to signal that a mouse drag was cancelled by the windowing system, e.g. when the window
@@ -244,15 +235,7 @@ public:
    */
   void processWith(InputEventProcessor& processor) const override;
 
-  /**
-   * Indicates whether the given two cancel events are equal.
-   */
-  friend bool operator==(const CancelEvent&, const CancelEvent&);
-
-  /**
-   * Prints a textual representation of the given event to the given output stream.
-   */
-  friend std::ostream& operator<<(std::ostream& out, const CancelEvent& event);
+  kdl_reflect_decl_empty(CancelEvent);
 };
 
 /**

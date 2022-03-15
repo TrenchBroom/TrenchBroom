@@ -60,6 +60,35 @@ TEST_CASE("deref_iterator type members") {
   }
 }
 
+TEST_CASE("deref_iterator.operator+/-") {
+  const int a = 1;
+  const int b = 2;
+  const int c = 3;
+
+  const auto v = std::vector<const int*>{&a, &b, &c};
+
+  const auto d = GENERATE(0, 1, 2, 3);
+  SECTION("operator+") {
+    CHECK(deref_iterator{v.begin()} + d == deref_iterator{v.begin() + d});
+    CHECK(d + deref_iterator{v.begin()} == deref_iterator{v.begin()} + d);
+  }
+
+  SECTION("operator+=") {
+    auto i = deref_iterator{v.begin()};
+    CHECK((i += d) == deref_iterator{v.begin()} + d);
+  }
+
+  SECTION("operator-") {
+    CHECK(deref_iterator{v.end()} - d == deref_iterator{v.end() - d});
+    CHECK(deref_iterator{v.begin()} + d - deref_iterator{v.begin()} == d);
+  }
+
+  SECTION("operator-=") {
+    auto i = deref_iterator{v.end()};
+    CHECK((i -= d) == deref_iterator{v.end()} - d);
+  }
+}
+
 TEST_CASE("deref_iterator.operator*") {
   int a = 1;
   int b = 2;

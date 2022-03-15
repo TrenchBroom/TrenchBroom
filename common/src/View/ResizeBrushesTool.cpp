@@ -42,6 +42,7 @@
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
 #include <kdl/overload.h>
+#include <kdl/reflection_impl.h>
 #include <kdl/result.h>
 #include <kdl/result_for_each.h>
 #include <kdl/vector_utils.h>
@@ -77,20 +78,7 @@ vm::vec3 DragHandle::faceNormal() const {
   return faceAtDragStart().normal();
 }
 
-bool operator==(const DragHandle& lhs, const DragHandle& rhs) {
-  return lhs.node == rhs.node && lhs.faceIndex == rhs.faceIndex;
-}
-
-bool operator!=(const DragHandle& lhs, const DragHandle& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& lhs, const DragHandle& rhs) {
-  lhs << "DragHandle{";
-  lhs << "node: " << rhs.node << ", ";
-  lhs << "faceIndex: " << rhs.faceIndex << "}";
-  return lhs;
-}
+kdl_reflect_impl(DragHandle);
 
 // ResizeBrushesTool
 

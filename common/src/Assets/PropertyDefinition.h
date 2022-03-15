@@ -21,7 +21,8 @@
 
 #include "Ensure.h"
 
-#include <iosfwd>
+#include <kdl/reflection_decl.h>
+
 #include <optional>
 #include <string>
 #include <vector>
@@ -156,11 +157,9 @@ public:
   ChoicePropertyOption(const std::string& value, const std::string& description);
   const std::string& value() const;
   const std::string& description() const;
-};
 
-bool operator==(const ChoicePropertyOption& lhs, const ChoicePropertyOption& rhs);
-bool operator!=(const ChoicePropertyOption& lhs, const ChoicePropertyOption& rhs);
-std::ostream& operator<<(std::ostream& str, const ChoicePropertyOption& opt);
+  kdl_reflect_decl(ChoicePropertyOption, m_value, m_description);
+};
 
 class ChoicePropertyDefinition : public PropertyDefinitionWithDefaultValue<std::string> {
 private:
@@ -198,11 +197,9 @@ public:
   const std::string& shortDescription() const;
   const std::string& longDescription() const;
   bool isDefault() const;
-};
 
-bool operator==(const FlagsPropertyOption& lhs, const FlagsPropertyOption& rhs);
-bool operator!=(const FlagsPropertyOption& lhs, const FlagsPropertyOption& rhs);
-std::ostream& operator<<(std::ostream& str, const FlagsPropertyOption& opt);
+  kdl_reflect_decl(FlagsPropertyOption, m_shortDescription, m_longDescription, m_isDefault);
+};
 
 class FlagsPropertyDefinition : public PropertyDefinition {
 private:

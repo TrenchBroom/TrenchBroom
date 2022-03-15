@@ -22,25 +22,14 @@
 #include "Macros.h"
 
 #include <kdl/overload.h>
+#include <kdl/reflection_impl.h>
 
 #include <ostream>
 
 namespace TrenchBroom {
 namespace IO {
-bool operator==(const MapExportOptions& lhs, const MapExportOptions& rhs) {
-  return lhs.exportPath == rhs.exportPath;
-}
 
-bool operator!=(const MapExportOptions& lhs, const MapExportOptions& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& lhs, const MapExportOptions& rhs) {
-  lhs << "MapExportOptions{";
-  lhs << "exportPath: " << rhs.exportPath;
-  lhs << "}";
-  return lhs;
-}
+kdl_reflect_impl(MapExportOptions);
 
 std::ostream& operator<<(std::ostream& lhs, const ObjMtlPathMode rhs) {
   switch (rhs) {
@@ -55,21 +44,7 @@ std::ostream& operator<<(std::ostream& lhs, const ObjMtlPathMode rhs) {
   return lhs;
 }
 
-bool operator==(const ObjExportOptions& lhs, const ObjExportOptions& rhs) {
-  return lhs.exportPath == rhs.exportPath && lhs.mtlPathMode == rhs.mtlPathMode;
-}
-
-bool operator!=(const ObjExportOptions& lhs, const ObjExportOptions& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& lhs, const ObjExportOptions& rhs) {
-  lhs << "ObjExportOptions{";
-  lhs << "exportPath: " << rhs.exportPath << ", ";
-  lhs << "mtlPathMode: " << rhs.mtlPathMode;
-  lhs << "}";
-  return lhs;
-}
+kdl_reflect_impl(ObjExportOptions);
 
 std::ostream& operator<<(std::ostream& lhs, const ExportOptions& rhs) {
   std::visit(

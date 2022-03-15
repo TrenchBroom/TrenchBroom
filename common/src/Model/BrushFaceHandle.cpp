@@ -23,9 +23,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
 
+#include <kdl/reflection_impl.h>
 #include <kdl/vector_utils.h>
-
-#include <ostream>
 
 namespace TrenchBroom {
 namespace Model {
@@ -48,20 +47,7 @@ const BrushFace& BrushFaceHandle::face() const {
   return m_node->brush().face(m_faceIndex);
 }
 
-bool operator==(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs) {
-  return lhs.m_node == rhs.m_node && lhs.m_faceIndex == rhs.m_faceIndex;
-}
-
-bool operator!=(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& lhs, const BrushFaceHandle& rhs) {
-  lhs << "BrushFaceHandle{";
-  lhs << "node: " << rhs.m_node << ", ";
-  lhs << "faceIndex: " << rhs.m_faceIndex << ";";
-  return lhs;
-}
+kdl_reflect_impl(BrushFaceHandle);
 
 std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles) {
   return kdl::vec_transform(handles, [](const auto& handle) {

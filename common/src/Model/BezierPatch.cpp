@@ -22,11 +22,13 @@
 #include "Assets/Texture.h"
 #include "Ensure.h"
 
+#include <vecmath/bbox_io.h>
 #include <vecmath/bezier_surface.h>
 #include <vecmath/vec_io.h>
 
+#include <kdl/reflection_impl.h>
+
 #include <cassert>
-#include <iostream>
 
 namespace TrenchBroom {
 namespace Model {
@@ -275,29 +277,7 @@ std::vector<BezierPatch::Point> BezierPatch::evaluate(const size_t subdivisionsP
   return grid;
 }
 
-std::ostream& operator<<(std::ostream& str, const BezierPatch& patch) {
-  str << "BezierPatch{rowCount: " << patch.pointRowCount()
-      << ", columnCount: " << patch.pointColumnCount() << ", controlPoints: {";
+kdl_reflect_impl(BezierPatch);
 
-  const auto& controlPoints = patch.controlPoints();
-  for (size_t i = 0; i < controlPoints.size(); ++i) {
-    str << "{" << controlPoints[i] << "}";
-    if (i < controlPoints.size() - 1u) {
-      str << ", ";
-    }
-  }
-  str << "}}";
-  return str;
-}
-
-bool operator==(const BezierPatch& lhs, const BezierPatch& rhs) {
-  return lhs.pointRowCount() == rhs.pointRowCount() &&
-         lhs.pointColumnCount() == rhs.pointColumnCount() &&
-         lhs.controlPoints() == rhs.controlPoints();
-}
-
-bool operator!=(const BezierPatch& lhs, const BezierPatch& rhs) {
-  return !(lhs == rhs);
-}
 } // namespace Model
 } // namespace TrenchBroom

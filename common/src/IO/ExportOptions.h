@@ -22,18 +22,17 @@
 
 #include "IO/Path.h"
 
-#include <iosfwd>
+#include <kdl/reflection_decl.h>
+
 #include <variant>
 
 namespace TrenchBroom {
 namespace IO {
 struct MapExportOptions {
   Path exportPath;
-};
 
-bool operator==(const MapExportOptions& lhs, const MapExportOptions& rhs);
-bool operator!=(const MapExportOptions& lhs, const MapExportOptions& rhs);
-std::ostream& operator<<(std::ostream& lhs, const MapExportOptions& rhs);
+  kdl_reflect_decl(MapExportOptions, exportPath);
+};
 
 enum class ObjMtlPathMode {
   RelativeToGamePath,
@@ -45,11 +44,9 @@ std::ostream& operator<<(std::ostream& lhs, ObjMtlPathMode rhs);
 struct ObjExportOptions {
   Path exportPath;
   ObjMtlPathMode mtlPathMode;
-};
 
-bool operator==(const ObjExportOptions& lhs, const ObjExportOptions& rhs);
-bool operator!=(const ObjExportOptions& lhs, const ObjExportOptions& rhs);
-std::ostream& operator<<(std::ostream& lhs, const ObjExportOptions& rhs);
+  kdl_reflect_decl(ObjExportOptions, exportPath, mtlPathMode);
+};
 
 using ExportOptions = std::variant<MapExportOptions, ObjExportOptions>;
 

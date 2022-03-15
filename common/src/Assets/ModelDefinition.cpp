@@ -26,6 +26,7 @@
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
 
+#include <kdl/reflection_impl.h>
 #include <kdl/string_compare.h>
 
 #include <vecmath/scalar.h>
@@ -46,49 +47,7 @@ ModelSpecification::ModelSpecification(
   , skinIndex{i_skinIndex}
   , frameIndex{i_frameIndex} {}
 
-bool ModelSpecification::operator<(const ModelSpecification& rhs) const {
-  return compare(rhs) < 0;
-}
-
-bool ModelSpecification::operator>(const ModelSpecification& rhs) const {
-  return compare(rhs) > 0;
-}
-
-bool ModelSpecification::operator<=(const ModelSpecification& rhs) const {
-  return compare(rhs) <= 0;
-}
-
-bool ModelSpecification::operator>=(const ModelSpecification& rhs) const {
-  return compare(rhs) >= 0;
-}
-
-bool ModelSpecification::operator==(const ModelSpecification& rhs) const {
-  return compare(rhs) == 0;
-}
-
-bool ModelSpecification::operator!=(const ModelSpecification& rhs) const {
-  return compare(rhs) != 0;
-}
-
-int ModelSpecification::compare(const ModelSpecification& other) const {
-  const int pathCmp = path.compare(other.path);
-  if (pathCmp != 0) {
-    return pathCmp;
-  }
-  if (skinIndex != other.skinIndex) {
-    return static_cast<int>(skinIndex) - static_cast<int>(other.skinIndex);
-  }
-  if (frameIndex != other.frameIndex) {
-    return static_cast<int>(frameIndex) - static_cast<int>(other.frameIndex);
-  }
-  return 0;
-}
-
-std::ostream& operator<<(std::ostream& stream, const ModelSpecification& spec) {
-  stream << "ModelSpecification{path: " << spec.path << ", skinIndex: " << spec.skinIndex
-         << ", frameIndex: " << spec.frameIndex << "}";
-  return stream;
-}
+kdl_reflect_impl(ModelSpecification);
 
 ModelDefinition::ModelDefinition()
   : m_expression{EL::LiteralExpression{EL::Value::Undefined}, 0, 0} {}
@@ -98,19 +57,6 @@ ModelDefinition::ModelDefinition(const size_t line, const size_t column)
 
 ModelDefinition::ModelDefinition(const EL::Expression& expression)
   : m_expression{expression} {}
-
-bool operator==(const ModelDefinition& lhs, const ModelDefinition& rhs) {
-  return lhs.m_expression.asString() == rhs.m_expression.asString();
-}
-
-bool operator!=(const ModelDefinition& lhs, const ModelDefinition& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const ModelDefinition& def) {
-  str << "ModelDefinition{ " << def.m_expression << " }";
-  return str;
-}
 
 void ModelDefinition::append(const ModelDefinition& other) {
   const size_t line = m_expression.line();
@@ -230,6 +176,8 @@ vm::vec3 ModelDefinition::scale(
 
   return vm::vec3{1, 1, 1};
 }
+
+kdl_reflect_impl(ModelDefinition);
 
 vm::vec3 safeGetModelScale(
   const ModelDefinition& definition, const EL::VariableStore& variableStore,

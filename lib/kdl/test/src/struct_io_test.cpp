@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright 2022 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -16,20 +16,32 @@
  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
  OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#pragma once
+
+#include "kdl/struct_io.h"
+#include <kdl/string_utils.h>
 
 #include <optional>
 #include <sstream>
-#include <string>
+#include <tuple>
+#include <vector>
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
-template <typename T> std::string opt_to_string(const std::optional<T>& opt) {
-  std::stringstream str;
-  if (opt.has_value()) {
-    str << *opt;
-  } else {
-    str << "nullopt";
-  }
+
+template <typename... Args> std::string build_string(const Args&... args) {
+  auto str = std::stringstream{};
+  (struct_stream{str} << ... << args);
   return str.str();
+}
+
+TEST_CASE("streamable_struct") {
+  CHECK(build_string("type") == "type{}");
+  CHECK(build_string("type", "a", "x") == "type{a: x}");
+  CHECK(build_string("type", "a", "x", "b", "y") == "type{a: x, b: y}");
+
+  CHECK(build_string("type", "a", std::vector<int>{1, 2, 3}) == "type{a: [1,2,3]}");
+  CHECK(build_string("type", "a", std::optional<int>{1}) == "type{a: 1}");
+  CHECK(build_string("type", "a", std::tuple<int, std::string>{1, "asdf"}) == "type{a: {1, asdf}}");
 }
 } // namespace kdl
