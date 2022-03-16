@@ -17,8 +17,8 @@
  OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "kdl/string_utils.h"
 #include "kdl/struct_io.h"
-#include <kdl/string_utils.h>
 
 #include <optional>
 #include <sstream>

@@ -17,8 +17,8 @@
  OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include "kdl/string_utils.h"
 #include "kdl/tuple_io.h"
-#include <kdl/string_utils.h>
 
 #include <sstream>
 #include <tuple>
