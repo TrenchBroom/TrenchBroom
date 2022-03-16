@@ -25,6 +25,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/transform_range_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tuple_io_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tuple_utils_test.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/variant_io_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/vector_set_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/vector_utils_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/zip_iterator_test.cpp"
