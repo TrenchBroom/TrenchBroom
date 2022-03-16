@@ -43,12 +43,10 @@ template <typename T> using is_iterable = decltype(detail::is_iterable<T>(0));
 template <typename T> inline constexpr bool is_iterable_v = is_iterable<T>::value;
 
 namespace detail {
-template <typename...> using void_t = void;
-
 template <typename T, typename S, typename = void> struct can_print : std::false_type {};
 
 template <typename T, typename S>
-struct can_print<T, S, void_t<decltype(std::declval<S&>() << std::declval<const T&>())>>
+struct can_print<T, S, std::void_t<decltype(std::declval<S&>() << std::declval<const T&>())>>
   : std::true_type {};
 
 } // namespace detail

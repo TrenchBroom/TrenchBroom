@@ -17,28 +17,27 @@
  OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/string_utils.h"
-#include "kdl/tuple_io.h"
+#pragma once
 
-#include <sstream>
-#include <tuple>
-
-#include <catch2/catch.hpp>
+#include <iostream>
+#include <variant>
 
 namespace kdl {
 
-TEST_CASE("tuple IO") {
-  CHECK(str_to_string(make_streamable(std::tuple<int>{0})) == "{0}");
-  CHECK(str_to_string(make_streamable(std::tuple<int, std::string>{0, "asdf"})) == "{0, asdf}");
+template <typename... T> struct streamable_variant_wrapper { const std::variant<T...>& variant; };
+
+template <typename... T>
+streamable_variant_wrapper<T...> make_streamable(const std::variant<T...>& variant) {
+  return streamable_variant_wrapper<T...>{variant};
 }
 
+template <typename... T>
+std::ostream& operator<<(std::ostream& lhs, const streamable_variant_wrapper<T...>& rhs) {
+  std::visit(
+    [&](const auto& x) {
+      lhs << x;
+    },
+    rhs.variant);
+  return lhs;
+}
 } // namespace kdl
-
-namespace sibling {
-
-TEST_CASE("tuple IO - ADL from sibling namespace") {
-  auto str = std::stringstream{};
-  str << kdl::make_streamable(std::tuple<int>{0});
-}
-
-} // namespace sibling

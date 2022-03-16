@@ -18,27 +18,28 @@
 */
 
 #include "kdl/string_utils.h"
-#include "kdl/tuple_io.h"
+#include "kdl/variant_io.h"
 
 #include <sstream>
-#include <tuple>
+#include <string>
+#include <variant>
 
 #include <catch2/catch.hpp>
 
 namespace kdl {
 
-TEST_CASE("tuple IO") {
-  CHECK(str_to_string(make_streamable(std::tuple<int>{0})) == "{0}");
-  CHECK(str_to_string(make_streamable(std::tuple<int, std::string>{0, "asdf"})) == "{0, asdf}");
+TEST_CASE("variant IO") {
+  CHECK(str_to_string(make_streamable(std::variant<int, std::string>{0})) == "0");
+  CHECK(str_to_string(make_streamable(std::variant<int, std::string>{"asdf"})) == "asdf");
 }
 
 } // namespace kdl
 
 namespace sibling {
 
-TEST_CASE("tuple IO - ADL from sibling namespace") {
+TEST_CASE("variant IO - ADL from sibling namespace") {
   auto str = std::stringstream{};
-  str << kdl::make_streamable(std::tuple<int>{0});
+  str << kdl::make_streamable(std::variant<int, std::string>{0});
 }
 
 } // namespace sibling

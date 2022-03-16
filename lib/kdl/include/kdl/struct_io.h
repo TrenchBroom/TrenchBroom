@@ -28,6 +28,18 @@
 #include <string_view>
 
 namespace kdl {
+namespace detail {
+template <typename T, typename = void> struct can_make_streamable : std::false_type {};
+
+template <typename T>
+struct can_make_streamable<T, std::void_t<decltype(kdl::make_streamable(std::declval<const T&>()))>>
+  : std::true_type {};
+
+template <typename T = std::ostream>
+inline constexpr bool can_make_streamable_v = can_make_streamable<T>::value;
+
+} // namespace detail
+
 class struct_stream {
 private:
   enum class expected {
@@ -62,7 +74,9 @@ private:
     lhs << rhs;
   }
 
-  template <typename T, typename std::enable_if<!can_print_v<T>, bool>::type = true>
+  template <
+    typename T,
+    typename std::enable_if<!can_print_v<T> && detail::can_make_streamable_v<T>, bool>::type = true>
   static void append_to_stream(std::ostream& lhs, const T& rhs) {
     lhs << make_streamable(rhs);
   }

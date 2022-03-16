@@ -18,7 +18,7 @@
 */
 
 #include "kdl/optional_io.h"
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
 #include <optional>
 #include <sstream>
