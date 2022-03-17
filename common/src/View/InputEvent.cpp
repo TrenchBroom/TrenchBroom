@@ -21,6 +21,8 @@
 
 #include <QApplication>
 
+#include <kdl/reflection_impl.h>
+
 #include <iostream>
 #include <string_view>
 
@@ -47,20 +49,18 @@ void KeyEvent::processWith(InputEventProcessor& processor) const {
   processor.processEvent(*this);
 }
 
-bool operator==(const KeyEvent& lhs, const KeyEvent& rhs) {
-  return lhs.type == rhs.type;
-}
+kdl_reflect_impl(KeyEvent);
 
-std::ostream& operator<<(std::ostream& out, const KeyEvent& event) {
-  switch (event.type) {
+std::ostream& operator<<(std::ostream& lhs, const KeyEvent::Type& rhs) {
+  switch (rhs) {
     case KeyEvent::Type::Down:
-      out << "KeyEvent { type=Down }";
+      lhs << "KeyEvent { type=Down }";
       break;
     case KeyEvent::Type::Up:
-      out << "KeyEVent { type=Up }";
+      lhs << "KeyEVent { type=Up }";
       break;
   }
-  return out;
+  return lhs;
 }
 
 MouseEvent::MouseEvent(
@@ -96,101 +96,85 @@ void MouseEvent::processWith(InputEventProcessor& processor) const {
   processor.processEvent(*this);
 }
 
-bool operator==(const MouseEvent& lhs, const MouseEvent& rhs) {
-  return lhs.type == rhs.type && lhs.button == rhs.button && lhs.wheelAxis == rhs.wheelAxis &&
-         lhs.posX == rhs.posX && lhs.posY == rhs.posY && lhs.scrollDistance == rhs.scrollDistance;
-}
+kdl_reflect_impl(MouseEvent);
 
-std::ostream& operator<<(std::ostream& out, const MouseEvent& event) {
-  std::string_view typeName;
-  switch (event.type) {
+std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Type& rhs) {
+  switch (rhs) {
     case MouseEvent::Type::Down:
-      typeName = "Down";
+      lhs << "Down";
       break;
     case MouseEvent::Type::Up:
-      typeName = "Up";
+      lhs << "Up";
       break;
     case MouseEvent::Type::Click:
-      typeName = "Click";
+      lhs << "Click";
       break;
     case MouseEvent::Type::DoubleClick:
-      typeName = "DoubleClick";
+      lhs << "DoubleClick";
       break;
     case MouseEvent::Type::Motion:
-      typeName = "Motion";
+      lhs << "Motion";
       break;
     case MouseEvent::Type::Scroll:
-      typeName = "Scroll";
+      lhs << "Scroll";
       break;
     case MouseEvent::Type::DragStart:
-      typeName = "DragStart";
+      lhs << "DragStart";
       break;
     case MouseEvent::Type::Drag:
-      typeName = "Drag";
+      lhs << "Drag";
       break;
     case MouseEvent::Type::DragEnd:
-      typeName = "DragEnd";
+      lhs << "DragEnd";
       break;
   }
+  return lhs;
+}
 
-  std::string_view buttonName;
-  switch (event.button) {
+std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Button& rhs) {
+  switch (rhs) {
     case MouseEvent::Button::None:
-      buttonName = "None";
+      lhs << "None";
       break;
     case MouseEvent::Button::Left:
-      buttonName = "Left";
+      lhs << "Left";
       break;
     case MouseEvent::Button::Middle:
-      buttonName = "Middle";
+      lhs << "Middle";
       break;
     case MouseEvent::Button::Right:
-      buttonName = "Right";
+      lhs << "Right";
       break;
     case MouseEvent::Button::Aux1:
-      buttonName = "Aux1";
+      lhs << "Aux1";
       break;
     case MouseEvent::Button::Aux2:
-      buttonName = "Aux2";
+      lhs << "Aux2";
       break;
   }
+  return lhs;
+}
 
-  std::string_view wheelAxisName;
-  switch (event.wheelAxis) {
+std::ostream& operator<<(std::ostream& lhs, const MouseEvent::WheelAxis& rhs) {
+  switch (rhs) {
     case MouseEvent::WheelAxis::None:
-      wheelAxisName = "None";
+      lhs << "None";
       break;
     case MouseEvent::WheelAxis::Horizontal:
-      wheelAxisName = "Horizontal";
+      lhs << "Horizontal";
       break;
     case MouseEvent::WheelAxis::Vertical:
-      wheelAxisName = "Vertical";
+      lhs << "Vertical";
       break;
   }
-
-  out << "MouseEvent { ";
-  out << " type=" << typeName;
-  out << ", button=" << buttonName;
-  out << ", wheelAxis=" << wheelAxisName;
-  out << ", posX=" << event.posX;
-  out << ", posY=" << event.posY;
-  out << ", scrollDistance=" << event.scrollDistance;
-  out << " }";
-
-  return out;
+  return lhs;
 }
 
 void CancelEvent::processWith(InputEventProcessor& processor) const {
   processor.processEvent(*this);
 }
 
-bool operator==(const CancelEvent&, const CancelEvent&) {
-  return true;
-}
-
-std::ostream& operator<<(std::ostream& out, const CancelEvent&) {
-  return out << "CancelEvent {}";
-}
+kdl_reflect_impl(CancelEvent);
 
 void InputEventQueue::processEvents(InputEventProcessor& processor) {
   // Swap out the queue before processing it, because if processing an event blocks (e.g. a popup

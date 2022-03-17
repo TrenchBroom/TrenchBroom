@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <iterator>
 
 namespace kdl {
@@ -60,6 +61,34 @@ public:
   }
   friend bool operator!=(const deref_iterator& lhs, const I& rhs) { return lhs.m_it != rhs; }
   friend bool operator!=(const I& lhs, const deref_iterator& rhs) { return lhs != rhs.m_it; }
+
+  friend deref_iterator operator+(const deref_iterator& lhs, const difference_type rhs) {
+    return deref_iterator{lhs.m_it + rhs};
+  }
+
+  friend deref_iterator operator+(const difference_type& lhs, const deref_iterator rhs) {
+    return rhs + lhs;
+  }
+
+  friend deref_iterator& operator+=(deref_iterator& lhs, const difference_type rhs) {
+    lhs.m_it += rhs;
+    return lhs;
+  }
+
+  friend difference_type operator-(const deref_iterator& lhs, const deref_iterator& rhs) {
+    return lhs.m_it - rhs.m_it;
+  }
+
+  friend deref_iterator operator-(const deref_iterator& lhs, const difference_type rhs) {
+    return deref_iterator{lhs.m_it - rhs};
+  }
+
+  friend deref_iterator& operator-=(deref_iterator& lhs, const difference_type rhs) {
+    lhs.m_it -= rhs;
+    return lhs;
+  }
+
+  reference operator[](const difference_type n) const { return *m_it[n]; }
 
   deref_iterator& operator++() {
     m_it++;
@@ -113,6 +142,14 @@ public:
 
 template <typename R> deref_range(R) -> deref_range<R>;
 
+template <typename R> bool operator==(const deref_range<R>& lhs, const deref_range<R>& rhs) {
+  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+
+template <typename R> bool operator!=(const deref_range<R>& lhs, const deref_range<R>& rhs) {
+  return !(lhs == rhs);
+}
+
 template <typename R> class const_deref_range {
 private:
   const R& m_range;
@@ -147,4 +184,14 @@ public:
 };
 
 template <typename R> const_deref_range(R) -> const_deref_range<R>;
+
+template <typename R>
+bool operator==(const const_deref_range<R>& lhs, const const_deref_range<R>& rhs) {
+  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+}
+
+template <typename R>
+bool operator!=(const const_deref_range<R>& lhs, const const_deref_range<R>& rhs) {
+  return !(lhs == rhs);
+}
 } // namespace kdl

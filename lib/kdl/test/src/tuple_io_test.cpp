@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright 2022 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -16,20 +16,29 @@
  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
  OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#pragma once
 
-#include <optional>
+#include "kdl/string_utils.h"
+#include "kdl/tuple_io.h"
+
 #include <sstream>
-#include <string>
+#include <tuple>
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
-template <typename T> std::string opt_to_string(const std::optional<T>& opt) {
-  std::stringstream str;
-  if (opt.has_value()) {
-    str << *opt;
-  } else {
-    str << "nullopt";
-  }
-  return str.str();
+
+TEST_CASE("tuple IO") {
+  CHECK(str_to_string(make_streamable(std::tuple<int>{0})) == "{0}");
+  CHECK(str_to_string(make_streamable(std::tuple<int, std::string>{0, "asdf"})) == "{0, asdf}");
 }
+
 } // namespace kdl
+
+namespace sibling {
+
+TEST_CASE("tuple IO - ADL from sibling namespace") {
+  auto str = std::stringstream{};
+  str << kdl::make_streamable(std::tuple<int>{0});
+}
+
+} // namespace sibling

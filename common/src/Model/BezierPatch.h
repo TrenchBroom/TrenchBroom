@@ -26,7 +26,8 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <iosfwd>
+#include <kdl/reflection_decl.h>
+
 #include <string>
 #include <vector>
 
@@ -85,11 +86,10 @@ public:
   void transform(const vm::mat4x4& transformation);
 
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
+
+  kdl_reflect_decl(
+    BezierPatch, m_pointRowCount, m_pointColumnCount, m_bounds, m_controlPoints, m_textureName);
 };
 
-std::ostream& operator<<(std::ostream& str, const BezierPatch& patch);
-
-bool operator==(const BezierPatch& lhs, const BezierPatch& rhs);
-bool operator!=(const BezierPatch& lhs, const BezierPatch& rhs);
 } // namespace Model
 } // namespace TrenchBroom

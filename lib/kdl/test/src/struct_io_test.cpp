@@ -1,5 +1,5 @@
 /*
- Copyright 2020 Kristian Duske
+ Copyright 2022 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -17,40 +17,31 @@
  OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "kdl/string_utils.h"
+#include "kdl/struct_io.h"
 
-#include <iostream>
+#include <optional>
+#include <sstream>
 #include <tuple>
+#include <vector>
+
+#include <catch2/catch.hpp>
 
 namespace kdl {
 
-namespace detail {
-template <typename T, size_t Idx> void print_tuple_element(std::ostream& str, const T& t) {
-  str << std::get<Idx>(t) << ", ";
+template <typename... Args> std::string build_string(const Args&... args) {
+  auto str = std::stringstream{};
+  (struct_stream{str} << ... << args);
+  return str.str();
 }
 
-template <typename T, size_t... Idx>
-void print_tuple(std::ostream& str, const T& t, std::index_sequence<Idx...>) {
-  (..., print_tuple_element<T, Idx>(str, t));
-}
-} // namespace detail
+TEST_CASE("streamable_struct") {
+  CHECK(build_string("type") == "type{}");
+  CHECK(build_string("type", "a", "x") == "type{a: x}");
+  CHECK(build_string("type", "a", "x", "b", "y") == "type{a: x, b: y}");
 
-template <typename... T> struct streamable_tuple_wrapper { const std::tuple<T...>& tuple; };
-
-template <typename... T>
-streamable_tuple_wrapper<T...> make_streamable(const std::tuple<T...>& tuple) {
-  return streamable_tuple_wrapper<T...>{tuple};
-}
-
-template <typename... T>
-std::ostream& operator<<(std::ostream& lhs, const streamable_tuple_wrapper<T...>& rhs) {
-  lhs << "{";
-  constexpr auto size = std::tuple_size_v<std::tuple<T...>>;
-  if constexpr (size > 0u) {
-    kdl::detail::print_tuple(lhs, rhs.tuple, std::make_index_sequence<size - 1u>{});
-    lhs << std::get<size - 1u>(rhs.tuple);
-  }
-  lhs << "}";
-  return lhs;
+  CHECK(build_string("type", "a", std::vector<int>{1, 2, 3}) == "type{a: [1,2,3]}");
+  CHECK(build_string("type", "a", std::optional<int>{1}) == "type{a: 1}");
+  CHECK(build_string("type", "a", std::tuple<int, std::string>{1, "asdf"}) == "type{a: {1, asdf}}");
 }
 } // namespace kdl

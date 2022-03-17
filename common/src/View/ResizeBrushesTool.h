@@ -29,6 +29,8 @@
 #include <vecmath/polygon.h>
 #include <vecmath/vec.h>
 
+#include <kdl/reflection_decl.h>
+
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -65,11 +67,9 @@ struct DragHandle {
 
   const Model::BrushFace& faceAtDragStart() const;
   vm::vec3 faceNormal() const;
-};
 
-bool operator==(const DragHandle& lhs, const DragHandle& rhs);
-bool operator!=(const DragHandle& lhs, const DragHandle& rhs);
-std::ostream& operator<<(std::ostream& lhs, const DragHandle& rhs);
+  kdl_reflect_decl(DragHandle, node, faceIndex);
+};
 
 /**
  * Tool for extruding faces along their normals (Shift+LMB Drag).

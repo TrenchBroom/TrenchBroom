@@ -25,6 +25,8 @@
 
 #include <vecmath/bbox.h>
 
+#include <kdl/reflection_decl.h>
+
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -58,15 +60,15 @@ struct EntityDefinitionClassInfo {
 
   std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
   std::vector<std::string> superClasses;
+
+  kdl_reflect_decl(
+    EntityDefinitionClassInfo, type, line, column, name, description, color, size, modelDefinition,
+    propertyDefinitions, superClasses);
 };
 
 bool addPropertyDefinition(
   std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions,
   std::shared_ptr<Assets::PropertyDefinition> propertyDefinition);
 
-bool operator==(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
-bool operator!=(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
-
-std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassInfo& classInfo);
 } // namespace IO
 } // namespace TrenchBroom

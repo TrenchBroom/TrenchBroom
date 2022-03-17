@@ -22,7 +22,8 @@
 #include "IO/Path.h"
 #include "Macros.h"
 
-#include <iosfwd>
+#include <kdl/reflection_decl.h>
+
 #include <memory>
 #include <string>
 
@@ -48,9 +49,7 @@ public:
   void setPath(const IO::Path& path);
   void setParameterSpec(const std::string& parameterSpec);
 
-  friend bool operator==(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
-  friend bool operator!=(const GameEngineProfile& lhs, const GameEngineProfile& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const GameEngineProfile& profile);
+  kdl_reflect_decl(GameEngineProfile, m_name, m_path, m_parameterSpec);
 
   deleteCopyAndMove(GameEngineProfile);
 };

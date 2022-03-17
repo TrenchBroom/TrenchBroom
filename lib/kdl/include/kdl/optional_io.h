@@ -1,5 +1,5 @@
 /*
- Copyright 2020 Kristian Duske
+ Copyright 2022 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -19,38 +19,25 @@
 
 #pragma once
 
-#include <iostream>
-#include <tuple>
+#include <optional>
+#include <ostream>
 
 namespace kdl {
 
-namespace detail {
-template <typename T, size_t Idx> void print_tuple_element(std::ostream& str, const T& t) {
-  str << std::get<Idx>(t) << ", ";
+template <typename T> struct streamable_optional_wrapper { const std::optional<T>& opt; };
+
+template <typename T> streamable_optional_wrapper<T> make_streamable(const std::optional<T>& opt) {
+  return streamable_optional_wrapper<T>{opt};
 }
 
-template <typename T, size_t... Idx>
-void print_tuple(std::ostream& str, const T& t, std::index_sequence<Idx...>) {
-  (..., print_tuple_element<T, Idx>(str, t));
-}
-} // namespace detail
-
-template <typename... T> struct streamable_tuple_wrapper { const std::tuple<T...>& tuple; };
-
-template <typename... T>
-streamable_tuple_wrapper<T...> make_streamable(const std::tuple<T...>& tuple) {
-  return streamable_tuple_wrapper<T...>{tuple};
-}
-
-template <typename... T>
-std::ostream& operator<<(std::ostream& lhs, const streamable_tuple_wrapper<T...>& rhs) {
-  lhs << "{";
-  constexpr auto size = std::tuple_size_v<std::tuple<T...>>;
-  if constexpr (size > 0u) {
-    kdl::detail::print_tuple(lhs, rhs.tuple, std::make_index_sequence<size - 1u>{});
-    lhs << std::get<size - 1u>(rhs.tuple);
+template <typename T>
+std::ostream& operator<<(std::ostream& lhs, const streamable_optional_wrapper<T>& rhs) {
+  if (rhs.opt.has_value()) {
+    lhs << *rhs.opt;
+  } else {
+    lhs << "nullopt";
   }
-  lhs << "}";
   return lhs;
 }
+
 } // namespace kdl
