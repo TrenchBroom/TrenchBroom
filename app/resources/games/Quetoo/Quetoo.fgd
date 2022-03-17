@@ -1,7 +1,7 @@
 // Quetoo Forge Game Data File (.fgd)
 
 @BaseClass = Phong [
-	phong(integer) : "The Phong shading threshold for this model, in degrees" : 0
+	phong(integer) : "The Phong shading threshold for this model, in degrees" : 60
 ]
 
 @BaseClass = Targetname [ 
