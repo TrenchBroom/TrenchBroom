@@ -4,12 +4,12 @@
 [submodule "lib/Catch2"]
 	path = lib/Catch2
 	url = https://github.com/catchorg/Catch2
-[submodule "lib/freetype/freetype-windows-binaries"]
-	path = lib/freetype/freetype-windows-binaries
-	url = https://github.com/ubawurinna/freetype-windows-binaries
 [submodule "lib/fmt"]
 	path = lib/fmt
 	url = https://github.com/fmtlib/fmt
 [submodule "lib/FreeImage"]
 	path = lib/FreeImage
 	url = https://github.com/TrenchBroom/FreeImage-Cmake.git
+[submodule "lib/freetype"]
+	path = lib/freetype
+	url = https://github.com/TrenchBroom/freetype.git
