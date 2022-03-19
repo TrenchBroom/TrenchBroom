@@ -58,7 +58,7 @@ jobs:
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo add-apt-repository ppa:beineri/opt-qt-5.11.3-bionic
           sudo apt update
-          sudo apt install ${{ matrix.gcc-package }} qt511base qt511svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+          sudo apt install ${{ matrix.gcc-package }} qt511base qt511svg build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb rpm
 
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
