@@ -2,8 +2,6 @@
 
 set -o verbose
 
-brew install cmake p7zip pandoc qt5 ninja
-
 # Check versions
 qmake -v
 cmake --version
