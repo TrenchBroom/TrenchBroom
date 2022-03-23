@@ -54,3 +54,6 @@ cpack || exit 1
 
 echo "Shared libraries used:"
 otool -L ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
+
+echo "Binary type:"
+file ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
