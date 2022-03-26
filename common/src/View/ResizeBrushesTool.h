@@ -51,6 +51,7 @@ class Camera;
 }
 
 namespace View {
+class Grid;
 class MapDocument;
 class Selection;
 
@@ -119,6 +120,8 @@ public:
 
   bool applies() const;
 
+  const Grid& grid() const;
+
   Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
   Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
 
@@ -133,10 +136,10 @@ public:
   void updateProposedDragHandles(const Model::PickResult& pickResult);
 
   std::optional<ResizeDragState> beginResize(const Model::PickResult& pickResult, bool split);
-  bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera, ResizeDragState& dragState);
+  bool resize(const vm::vec3& faceDelta, ResizeDragState& dragState);
 
   std::optional<ResizeDragState> beginMove(const Model::PickResult& pickResult);
-  bool move(const vm::ray3& pickRay, const Renderer::Camera& camera, ResizeDragState& dragState);
+  bool move(const vm::vec3& delta, ResizeDragState& dragState);
 
   void commit(const ResizeDragState& dragState);
   void cancel();

@@ -34,8 +34,6 @@
 #include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
-#include "View/Grid.h"
 #include "View/MapDocument.h"
 
 #include <kdl/collection_utils.h>
@@ -49,10 +47,6 @@
 #include <kdl/vector_utils.h>
 
 #include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/line.h>
-#include <vecmath/plane.h>
-#include <vecmath/scalar.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
@@ -95,6 +89,10 @@ ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document)
 bool ResizeBrushesTool::applies() const {
   auto document = kdl::mem_lock(m_document);
   return document->selectedNodes().hasBrushes();
+}
+
+const Grid& ResizeBrushesTool::grid() const {
+  return kdl::mem_lock(m_document)->grid();
 }
 
 namespace {
@@ -490,33 +488,10 @@ std::vector<vm::polygon3> getPolygons(const std::vector<ResizeDragHandle>& dragH
 }
 } // namespace
 
-bool ResizeBrushesTool::resize(
-  const vm::ray3& pickRay, const Renderer::Camera& /* camera */, ResizeDragState& dragState) {
+bool ResizeBrushesTool::resize(const vm::vec3& faceDelta, ResizeDragState& dragState) {
   ensure(m_dragging, "may only be called during a drag");
 
-  const auto& dragFaceHandle = dragState.initialDragHandles.at(0);
-  const auto& dragFace = dragFaceHandle.faceAtDragStart();
-  const auto& faceNormal = dragFace.boundary().normal;
-
   auto document = kdl::mem_lock(m_document);
-  const auto& grid = document->grid();
-
-  auto dragDistToSnappedDelta = [&](const FloatType dist) -> vm::vec3 {
-    const auto unsnappedDelta = faceNormal * dist;
-    return grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
-  };
-
-  const auto dist = vm::distance(pickRay, vm::line3{dragState.dragOrigin, faceNormal});
-  if (dist.parallel) {
-    return true;
-  }
-
-  const auto dragDist = dist.position2;
-  const auto faceDelta = dragDistToSnappedDelta(dragDist);
-
-  if (vm::is_equal(faceDelta, dragState.totalDelta, vm::C::almost_zero())) {
-    return true;
-  }
 
   if (dragState.splitBrushes) {
     if (
@@ -560,24 +535,10 @@ std::optional<ResizeDragState> ResizeBrushesTool::beginMove(const Model::PickRes
     vm::vec3::zero()};
 }
 
-bool ResizeBrushesTool::move(
-  const vm::ray3& pickRay, const Renderer::Camera& camera, ResizeDragState& dragState) {
+bool ResizeBrushesTool::move(const vm::vec3& delta, ResizeDragState& dragState) {
   ensure(m_dragging, "may only be called during a drag");
 
-  const auto dragPlane = vm::plane3{dragState.dragOrigin, vm::vec3{camera.direction()}};
-  const auto hitDist = vm::intersect_ray_plane(pickRay, dragPlane);
-  if (vm::is_nan(hitDist)) {
-    return true;
-  }
-
-  const auto hitPoint = vm::point_at_distance(pickRay, hitDist);
-
   auto document = kdl::mem_lock(m_document);
-  const auto& grid = document->grid();
-  const auto delta = grid.snap(hitPoint - dragState.dragOrigin);
-  if (vm::is_zero(delta, vm::C::almost_zero())) {
-    return true;
-  }
 
   document->rollbackTransaction();
   if (document->moveFaces(getPolygons(dragState.initialDragHandles), delta)) {

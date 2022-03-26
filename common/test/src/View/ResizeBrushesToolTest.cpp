@@ -205,9 +205,7 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     auto dragState = tool.beginResize(pickResult, true);
     REQUIRE(dragState != std::nullopt);
 
-    REQUIRE(tool.resize(
-      vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera{}, *dragState));
+    REQUIRE(tool.resize(delta, *dragState));
     tool.commit(*dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 4);
@@ -239,9 +237,7 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     auto dragState = tool.beginResize(pickResult, true);
     REQUIRE(dragState != std::nullopt);
 
-    REQUIRE(tool.resize(
-      vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera{}, *dragState));
+    REQUIRE(tool.resize(delta, *dragState));
     tool.commit(*dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 3);
@@ -272,9 +268,7 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     auto dragState = tool.beginResize(pickResult, false);
     REQUIRE(dragState != std::nullopt);
 
-    REQUIRE(tool.resize(
-      vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera{}, *dragState));
+    REQUIRE(tool.resize(delta, *dragState));
     tool.commit(*dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 2);
@@ -306,9 +300,7 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     auto dragState = tool.beginResize(pickResult, true);
     REQUIRE(dragState != std::nullopt);
 
-    REQUIRE(tool.resize(
-      vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera{}, *dragState));
+    REQUIRE(tool.resize(delta, *dragState));
     tool.commit(*dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 2);

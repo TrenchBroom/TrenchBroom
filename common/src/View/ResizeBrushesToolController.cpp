@@ -28,13 +28,21 @@
 #include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/Camera.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
 #include "View/DragTracker.h"
+#include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/ResizeBrushesTool.h"
+
+#include <vecmath/distance.h>
+#include <vecmath/intersection.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
+#include <vecmath/scalar.h>
 
 namespace TrenchBroom::View {
 ResizeBrushesToolController::ResizeBrushesToolController(ResizeBrushesTool& tool)
@@ -134,7 +142,22 @@ auto makeMoveDragTracker(ResizeBrushesTool& tool, ResizeDragState initialDragSta
   return std::make_unique<ResizeToolDragTracker>(
     tool, std::move(initialDragState),
     [&](const InputState& inputState, ResizeDragState& dragState) {
-      return tool.move(inputState.pickRay(), inputState.camera(), dragState);
+      const auto dragPlane =
+        vm::plane3{dragState.dragOrigin, vm::vec3{inputState.camera().direction()}};
+      const auto hitDist = vm::intersect_ray_plane(inputState.pickRay(), dragPlane);
+      if (vm::is_nan(hitDist)) {
+        return true;
+      }
+
+      const auto hitPoint = vm::point_at_distance(inputState.pickRay(), hitDist);
+
+      const auto& grid = tool.grid();
+      const auto delta = grid.snap(hitPoint - dragState.dragOrigin);
+      if (vm::is_zero(delta, vm::C::almost_zero())) {
+        return true;
+      }
+
+      return tool.move(delta, dragState);
     });
 }
 
@@ -142,7 +165,31 @@ auto makeResizeDragTracker(ResizeBrushesTool& tool, ResizeDragState initialDragS
   return std::make_unique<ResizeToolDragTracker>(
     tool, std::move(initialDragState),
     [&](const InputState& inputState, ResizeDragState& dragState) {
-      return tool.resize(inputState.pickRay(), inputState.camera(), dragState);
+      const auto& dragFaceHandle = dragState.initialDragHandles.at(0);
+      const auto& dragFace = dragFaceHandle.faceAtDragStart();
+      const auto& faceNormal = dragFace.boundary().normal;
+
+      const auto& grid = tool.grid();
+
+      auto dragDistToSnappedDelta = [&](const FloatType dist) -> vm::vec3 {
+        const auto unsnappedDelta = faceNormal * dist;
+        return grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
+      };
+
+      const auto dist =
+        vm::distance(inputState.pickRay(), vm::line3{dragState.dragOrigin, faceNormal});
+      if (dist.parallel) {
+        return true;
+      }
+
+      const auto dragDist = dist.position2;
+      const auto faceDelta = dragDistToSnappedDelta(dragDist);
+
+      if (vm::is_equal(faceDelta, dragState.totalDelta, vm::C::almost_zero())) {
+        return true;
+      }
+
+      return tool.resize(faceDelta, dragState);
     });
 }
 } // namespace
