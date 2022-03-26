@@ -138,7 +138,13 @@ public:
   }
 };
 
-auto makeMoveDragTracker(ResizeBrushesTool& tool, ResizeDragState initialDragState) {
+auto makeMoveDragTracker(ResizeBrushesTool& tool, const vm::vec3& initialHitPoint) {
+  const auto& dragHandles = tool.proposedDragHandles();
+  auto dragFaces = ResizeBrushesTool::getDragFaces(dragHandles);
+
+  auto initialDragState =
+    ResizeDragState{initialHitPoint, dragHandles, std::move(dragFaces), false, vm::vec3::zero()};
+
   return std::make_unique<ResizeToolDragTracker>(
     tool, std::move(initialDragState),
     [&](const InputState& inputState, ResizeDragState& dragState) {
@@ -161,7 +167,14 @@ auto makeMoveDragTracker(ResizeBrushesTool& tool, ResizeDragState initialDragSta
     });
 }
 
-auto makeResizeDragTracker(ResizeBrushesTool& tool, ResizeDragState initialDragState) {
+auto makeResizeDragTracker(
+  ResizeBrushesTool& tool, const vm::vec3& initialHitPoint, const bool split) {
+  const auto& dragHandles = tool.proposedDragHandles();
+  auto dragFaces = ResizeBrushesTool::getDragFaces(dragHandles);
+
+  auto initialDragState =
+    ResizeDragState{initialHitPoint, dragHandles, std::move(dragFaces), split, vm::vec3::zero()};
+
   return std::make_unique<ResizeToolDragTracker>(
     tool, std::move(initialDragState),
     [&](const InputState& inputState, ResizeDragState& dragState) {
@@ -196,6 +209,8 @@ auto makeResizeDragTracker(ResizeBrushesTool& tool, ResizeDragState initialDragS
 
 std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
   const InputState& inputState) {
+  using namespace Model::HitFilters;
+
   if (!handleInput(inputState)) {
     return nullptr;
   }
@@ -207,13 +222,18 @@ std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
 
   m_tool.updateProposedDragHandles(inputState.pickResult());
   if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
-    if (auto dragState = m_tool.beginMove(inputState.pickResult())) {
-      return makeMoveDragTracker(m_tool, std::move(*dragState));
+    const auto& hit = inputState.pickResult().first(type(ResizeBrushesTool::Resize2DHitType));
+    if (hit.isMatch()) {
+      m_tool.beginMove();
+      return makeMoveDragTracker(m_tool, hit.hitPoint());
     }
   } else {
-    const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-    if (auto dragState = m_tool.beginResize(inputState.pickResult(), split)) {
-      return makeResizeDragTracker(m_tool, std::move(*dragState));
+    const auto& hit = inputState.pickResult().first(
+      type(ResizeBrushesTool::Resize2DHitType | ResizeBrushesTool::Resize3DHitType));
+    if (hit.isMatch()) {
+      const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+      m_tool.beginResize();
+      return makeResizeDragTracker(m_tool, hit.hitPoint(), split);
     }
   }
 

@@ -135,10 +135,13 @@ public:
    */
   void updateProposedDragHandles(const Model::PickResult& pickResult);
 
-  std::optional<ResizeDragState> beginResize(const Model::PickResult& pickResult, bool split);
+  static std::vector<Model::BrushFaceHandle> getDragFaces(
+    const std::vector<ResizeDragHandle>& dragHandles);
+
+  void beginResize();
   bool resize(const vm::vec3& faceDelta, ResizeDragState& dragState);
 
-  std::optional<ResizeDragState> beginMove(const Model::PickResult& pickResult);
+  void beginMove();
   bool move(const vm::vec3& delta, ResizeDragState& dragState);
 
   void commit(const ResizeDragState& dragState);

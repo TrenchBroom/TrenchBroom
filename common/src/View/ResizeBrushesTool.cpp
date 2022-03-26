@@ -278,8 +278,8 @@ void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickR
   }
 }
 
-namespace {
-std::vector<Model::BrushFaceHandle> getDragFaces(const std::vector<ResizeDragHandle>& dragHandles) {
+std::vector<Model::BrushFaceHandle> ResizeBrushesTool::getDragFaces(
+  const std::vector<ResizeDragHandle>& dragHandles) {
   auto dragFaces = std::vector<Model::BrushFaceHandle>{};
   dragFaces.reserve(dragHandles.size());
 
@@ -292,30 +292,14 @@ std::vector<Model::BrushFaceHandle> getDragFaces(const std::vector<ResizeDragHan
 
   return dragFaces;
 }
-} // namespace
 
 /**
  * Starts resizing the faces determined by the previous call to updateProposedDragHandles
  */
-std::optional<ResizeDragState> ResizeBrushesTool::beginResize(
-  const Model::PickResult& pickResult, const bool split) {
-  using namespace Model::HitFilters;
-
+void ResizeBrushesTool::beginResize() {
   ensure(!m_dragging, "may not be called during a drag");
-
-  const auto& hit = pickResult.first(type(Resize2DHitType | Resize3DHitType));
-  if (!hit.isMatch()) {
-    return std::nullopt;
-  }
-
   m_dragging = true;
-
-  auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Resize Brushes");
-
-  return ResizeDragState{
-    hit.hitPoint(), m_proposedDragHandles, getDragFaces(m_proposedDragHandles), split,
-    vm::vec3::zero()};
+  kdl::mem_lock(m_document)->startTransaction("Resize Brushes");
 }
 
 namespace {
@@ -515,24 +499,10 @@ bool ResizeBrushesTool::resize(const vm::vec3& faceDelta, ResizeDragState& dragS
   return true;
 }
 
-std::optional<ResizeDragState> ResizeBrushesTool::beginMove(const Model::PickResult& pickResult) {
-  using namespace Model::HitFilters;
-
+void ResizeBrushesTool::beginMove() {
   ensure(!m_dragging, "may not be called during a drag");
-
-  const auto& hit = pickResult.first(type(Resize2DHitType));
-  if (!hit.isMatch()) {
-    return std::nullopt;
-  }
-
   m_dragging = true;
-
-  auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Move Faces");
-
-  return ResizeDragState{
-    hit.hitPoint(), m_proposedDragHandles, getDragFaces(m_proposedDragHandles), false,
-    vm::vec3::zero()};
+  kdl::mem_lock(m_document)->startTransaction("Move Faces");
 }
 
 bool ResizeBrushesTool::move(const vm::vec3& delta, ResizeDragState& dragState) {
