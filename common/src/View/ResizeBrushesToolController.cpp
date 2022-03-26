@@ -129,6 +129,22 @@ public:
     edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
   }
 };
+
+auto makeMoveDragTracker(ResizeBrushesTool& tool, ResizeDragState initialDragState) {
+  return std::make_unique<ResizeToolDragTracker>(
+    tool, std::move(initialDragState),
+    [&](const InputState& inputState, ResizeDragState& dragState) {
+      return tool.move(inputState.pickRay(), inputState.camera(), dragState);
+    });
+}
+
+auto makeResizeDragTracker(ResizeBrushesTool& tool, ResizeDragState initialDragState) {
+  return std::make_unique<ResizeToolDragTracker>(
+    tool, std::move(initialDragState),
+    [&](const InputState& inputState, ResizeDragState& dragState) {
+      return tool.resize(inputState.pickRay(), inputState.camera(), dragState);
+    });
+}
 } // namespace
 
 std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
@@ -144,23 +160,13 @@ std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
 
   m_tool.updateProposedDragHandles(inputState.pickResult());
   if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
-    // move mode
     if (auto dragState = m_tool.beginMove(inputState.pickResult())) {
-      return std::make_unique<ResizeToolDragTracker>(
-        m_tool, std::move(*dragState),
-        [&](const InputState& inputState_, ResizeDragState& dragState_) {
-          return m_tool.move(inputState_.pickRay(), inputState_.camera(), dragState_);
-        });
+      return makeMoveDragTracker(m_tool, std::move(*dragState));
     }
   } else {
-    // resize mode
     const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
     if (auto dragState = m_tool.beginResize(inputState.pickResult(), split)) {
-      return std::make_unique<ResizeToolDragTracker>(
-        m_tool, std::move(*dragState),
-        [&](const InputState& inputState_, ResizeDragState& dragState_) {
-          return m_tool.resize(inputState_.pickRay(), inputState_.camera(), dragState_);
-        });
+      return makeResizeDragTracker(m_tool, std::move(*dragState));
     }
   }
 
