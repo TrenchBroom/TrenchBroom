@@ -35,6 +35,7 @@
 #include "Renderer/VertexArray.h"
 #include "View/DragTracker.h"
 #include "View/Grid.h"
+#include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/ResizeBrushesTool.h"
 
@@ -134,6 +135,67 @@ public:
   void render(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
     const override {
     auto edgeRenderer = buildEdgeRenderer(m_dragState.currentDragFaces);
+    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
+  }
+};
+
+struct ResizeDragDelegate : public HandleDragTrackerDelegate {
+  ResizeBrushesTool& m_tool;
+  ResizeDragState m_resizeDragState;
+
+  ResizeDragDelegate(ResizeBrushesTool& tool, ResizeDragState resizeDragState)
+    : m_tool{tool}
+    , m_resizeDragState{std::move(resizeDragState)} {}
+
+  HandlePositionProposer start(
+    const InputState&, const vm::vec3&, const vm::vec3& handleOffset) override {
+    const auto& dragFaceHandle = m_resizeDragState.initialDragHandles.at(0);
+    const auto& dragFace = dragFaceHandle.faceAtDragStart();
+    const auto& faceNormal = dragFace.boundary().normal;
+
+    auto picker =
+      makeLineHandlePicker(vm::line3{m_resizeDragState.dragOrigin, faceNormal}, handleOffset);
+
+    auto snapper =
+      [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
+        auto& grid = m_tool.grid();
+        if (!grid.snap()) {
+          return proposedHandlePosition;
+        }
+
+        const auto totalFaceDelta = proposedHandlePosition - dragState.initialHandlePosition;
+        const auto snappedFaceDelta = grid.moveDelta(dragFace, totalFaceDelta);
+        return dragState.initialHandlePosition + snappedFaceDelta;
+      };
+
+    return makeHandlePositionProposer(std::move(picker), std::move(snapper));
+  }
+
+  DragStatus drag(
+    const InputState&, const DragState& dragState,
+    const vm::vec3& proposedHandlePosition) override {
+    const auto faceDelta = proposedHandlePosition - dragState.initialHandlePosition;
+    if (m_tool.resize(faceDelta, m_resizeDragState)) {
+      return DragStatus::Continue;
+    }
+    return DragStatus::Deny;
+  }
+
+  void end(const InputState& inputState, const DragState&) override {
+    m_tool.commit(m_resizeDragState);
+    m_tool.updateProposedDragHandles(inputState.pickResult());
+  }
+
+  void cancel(const DragState&) override { m_tool.cancel(); }
+
+  void setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
+    renderContext.setForceShowSelectionGuide();
+  }
+
+  void render(
+    const InputState&, const DragState&, Renderer::RenderContext&,
+    Renderer::RenderBatch& renderBatch) const override {
+    auto edgeRenderer = buildEdgeRenderer(m_resizeDragState.currentDragFaces);
     edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
   }
 };
