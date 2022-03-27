@@ -200,6 +200,64 @@ struct ResizeDragDelegate : public HandleDragTrackerDelegate {
   }
 };
 
+struct MoveDragDelegate : public HandleDragTrackerDelegate {
+  ResizeBrushesTool& m_tool;
+  ResizeDragState m_resizeDragState;
+
+  MoveDragDelegate(ResizeBrushesTool& tool, ResizeDragState resizeDragState)
+    : m_tool{tool}
+    , m_resizeDragState{std::move(resizeDragState)} {}
+
+  HandlePositionProposer start(
+    const InputState& inputState, const vm::vec3&, const vm::vec3& handleOffset) override {
+    auto picker = makePlaneHandlePicker(
+      vm::plane3{m_resizeDragState.dragOrigin, vm::vec3{inputState.camera().direction()}},
+      handleOffset);
+
+    auto snapper =
+      [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
+        auto& grid = m_tool.grid();
+        if (!grid.snap()) {
+          return proposedHandlePosition;
+        }
+
+        const auto totalDelta = proposedHandlePosition - dragState.initialHandlePosition;
+        const auto snappedDelta = grid.snap(totalDelta);
+        return dragState.initialHandlePosition + snappedDelta;
+      };
+
+    return makeHandlePositionProposer(std::move(picker), std::move(snapper));
+  }
+
+  DragStatus drag(
+    const InputState&, const DragState& dragState,
+    const vm::vec3& proposedHandlePosition) override {
+    const auto delta = proposedHandlePosition - dragState.initialHandlePosition;
+    if (m_tool.move(delta, m_resizeDragState)) {
+      return DragStatus::Continue;
+    }
+    return DragStatus::Deny;
+  }
+
+  void end(const InputState& inputState, const DragState&) override {
+    m_tool.commit(m_resizeDragState);
+    m_tool.updateProposedDragHandles(inputState.pickResult());
+  }
+
+  void cancel(const DragState&) override { m_tool.cancel(); }
+
+  void setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
+    renderContext.setForceShowSelectionGuide();
+  }
+
+  void render(
+    const InputState&, const DragState&, Renderer::RenderContext&,
+    Renderer::RenderBatch& renderBatch) const override {
+    auto edgeRenderer = buildEdgeRenderer(m_resizeDragState.currentDragFaces);
+    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
+  }
+};
+
 auto makeMoveDragTracker(ResizeBrushesTool& tool, const vm::vec3& initialHitPoint) {
   const auto& dragHandles = tool.proposedDragHandles();
   auto dragFaces = ResizeBrushesTool::getDragFaces(dragHandles);
