@@ -258,33 +258,15 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
   }
 };
 
-auto makeMoveDragTracker(ResizeBrushesTool& tool, const vm::vec3& initialHitPoint) {
-  const auto& dragHandles = tool.proposedDragHandles();
-  auto dragFaces = ResizeBrushesTool::getDragFaces(dragHandles);
-
-  auto initialDragState =
-    ResizeDragState{initialHitPoint, dragHandles, std::move(dragFaces), false, vm::vec3::zero()};
-
-  return std::make_unique<ResizeToolDragTracker>(
-    tool, std::move(initialDragState),
-    [&](const InputState& inputState, ResizeDragState& dragState) {
-      const auto dragPlane =
-        vm::plane3{dragState.dragOrigin, vm::vec3{inputState.camera().direction()}};
-      const auto hitDist = vm::intersect_ray_plane(inputState.pickRay(), dragPlane);
-      if (vm::is_nan(hitDist)) {
-        return true;
-      }
-
-      const auto hitPoint = vm::point_at_distance(inputState.pickRay(), hitDist);
-
-      const auto& grid = tool.grid();
-      const auto delta = grid.snap(hitPoint - dragState.dragOrigin);
-      if (vm::is_zero(delta, vm::C::almost_zero())) {
-        return true;
-      }
-
-      return tool.move(delta, dragState);
-    });
+auto makeMoveDragTracker(
+  ResizeBrushesTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint) {
+  // todo: compute handle offset correctly
+  return createHandleDragTracker(
+    MoveDragDelegate{
+      tool,
+      {initialHitPoint, tool.proposedDragHandles(),
+       ResizeBrushesTool::getDragFaces(tool.proposedDragHandles()), false, vm::vec3::zero()}},
+    inputState, initialHitPoint, vm::vec3::zero());
 }
 
 auto makeResizeDragTracker(
@@ -318,7 +300,7 @@ std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
     const auto& hit = inputState.pickResult().first(type(ResizeBrushesTool::Resize2DHitType));
     if (hit.isMatch()) {
       m_tool.beginMove();
-      return makeMoveDragTracker(m_tool, hit.hitPoint());
+      return makeMoveDragTracker(m_tool, inputState, hit.hitPoint());
     }
   } else {
     const auto& hit = inputState.pickResult().first(
