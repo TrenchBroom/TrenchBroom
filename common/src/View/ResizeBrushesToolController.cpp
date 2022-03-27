@@ -230,42 +230,15 @@ auto makeMoveDragTracker(ResizeBrushesTool& tool, const vm::vec3& initialHitPoin
 }
 
 auto makeResizeDragTracker(
-  ResizeBrushesTool& tool, const vm::vec3& initialHitPoint, const bool split) {
-  const auto& dragHandles = tool.proposedDragHandles();
-  auto dragFaces = ResizeBrushesTool::getDragFaces(dragHandles);
-
-  auto initialDragState =
-    ResizeDragState{initialHitPoint, dragHandles, std::move(dragFaces), split, vm::vec3::zero()};
-
-  return std::make_unique<ResizeToolDragTracker>(
-    tool, std::move(initialDragState),
-    [&](const InputState& inputState, ResizeDragState& dragState) {
-      const auto& dragFaceHandle = dragState.initialDragHandles.at(0);
-      const auto& dragFace = dragFaceHandle.faceAtDragStart();
-      const auto& faceNormal = dragFace.boundary().normal;
-
-      const auto& grid = tool.grid();
-
-      auto dragDistToSnappedDelta = [&](const FloatType dist) -> vm::vec3 {
-        const auto unsnappedDelta = faceNormal * dist;
-        return grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
-      };
-
-      const auto dist =
-        vm::distance(inputState.pickRay(), vm::line3{dragState.dragOrigin, faceNormal});
-      if (dist.parallel) {
-        return true;
-      }
-
-      const auto dragDist = dist.position2;
-      const auto faceDelta = dragDistToSnappedDelta(dragDist);
-
-      if (vm::is_equal(faceDelta, dragState.totalDelta, vm::C::almost_zero())) {
-        return true;
-      }
-
-      return tool.resize(faceDelta, dragState);
-    });
+  ResizeBrushesTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint,
+  const bool split) {
+  // todo: compute handle offset correctly
+  return createHandleDragTracker(
+    ResizeDragDelegate{
+      tool,
+      {initialHitPoint, tool.proposedDragHandles(),
+       ResizeBrushesTool::getDragFaces(tool.proposedDragHandles()), split, vm::vec3::zero()}},
+    inputState, initialHitPoint, vm::vec3::zero());
 }
 } // namespace
 
@@ -295,7 +268,7 @@ std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
     if (hit.isMatch()) {
       const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
       m_tool.beginResize();
-      return makeResizeDragTracker(m_tool, hit.hitPoint(), split);
+      return makeResizeDragTracker(m_tool, inputState, hit.hitPoint(), split);
     }
   }
 
