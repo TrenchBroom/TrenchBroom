@@ -21,8 +21,10 @@ pandoc --version
 
 # Build TB
 
+# Don't change the build directory without adapting the library cache in ci.yml!
 mkdir build
 cd build
+
 cmake .. -GNinja -DCMAKE_PREFIX_PATH=/opt/qt511 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" -DTB_SUPPRESS_PCH=1 || exit 1
 cmake --build . --config Release || exit 1
 

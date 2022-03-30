@@ -86,6 +86,16 @@ jobs:
           version: '5.15.2'
           arch: 'win32_msvc2019'
 
+      # Restore cached binaries for libraries
+
+      - name: Cache libraries
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-libraries
+        with:
+          path: ./build/lib
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('/build/lib/**/*.*') }}
+
       # Run build script
 
       - name: Linux build (GCC8)
