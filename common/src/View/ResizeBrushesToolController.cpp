@@ -105,40 +105,6 @@ Renderer::DirectEdgeRenderer buildEdgeRenderer(const std::vector<ResizeDragHandl
   }));
 }
 
-class ResizeToolDragTracker : public DragTracker {
-private:
-  using DragFunction = std::function<bool(const InputState&, ResizeDragState& dragState)>;
-
-  ResizeBrushesTool& m_tool;
-  ResizeDragState m_dragState;
-  DragFunction m_drag;
-
-public:
-  ResizeToolDragTracker(ResizeBrushesTool& tool, ResizeDragState dragState, DragFunction drag)
-    : m_tool{tool}
-    , m_dragState{std::move(dragState)}
-    , m_drag{std::move(drag)} {}
-
-  bool drag(const InputState& inputState) override { return m_drag(inputState, m_dragState); }
-
-  void end(const InputState& inputState) override {
-    m_tool.commit(m_dragState);
-    m_tool.updateProposedDragHandles(inputState.pickResult());
-  }
-
-  void cancel() override { m_tool.cancel(); }
-
-  void setRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
-    renderContext.setForceShowSelectionGuide();
-  }
-
-  void render(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
-    const override {
-    auto edgeRenderer = buildEdgeRenderer(m_dragState.currentDragFaces);
-    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
-  }
-};
-
 struct ResizeDragDelegate : public HandleDragTrackerDelegate {
   ResizeBrushesTool& m_tool;
   ResizeDragState m_resizeDragState;
