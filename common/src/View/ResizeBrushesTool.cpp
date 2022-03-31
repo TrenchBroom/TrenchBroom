@@ -118,9 +118,6 @@ Model::Hit pickProximateFace(
           const auto leftDot = vm::dot(leftFace.boundary().normal, pickRay.direction);
           const auto rightDot = vm::dot(rightFace.boundary().normal, pickRay.direction);
 
-          const auto leftFaceHandle = Model::BrushFaceHandle{brushNode, *leftFaceIndex};
-          const auto rightFaceHandle = Model::BrushFaceHandle{brushNode, *rightFaceIndex};
-
           if ((leftDot > 0.0) != (rightDot > 0.0)) {
             const auto result = vm::distance(
               pickRay,
@@ -128,6 +125,10 @@ Model::Hit pickProximateFace(
             if (!vm::is_nan(result.distance) && result.distance < closestDistance) {
               closestDistance = result.distance;
               const auto hitPoint = vm::point_at_distance(pickRay, result.position1);
+
+              const auto leftFaceHandle = Model::BrushFaceHandle{brushNode, *leftFaceIndex};
+              const auto rightFaceHandle = Model::BrushFaceHandle{brushNode, *rightFaceIndex};
+
               if (hitType == ResizeBrushesTool::Resize2DHitType) {
                 auto data = ResizeBrushesTool::Resize2DHitData{};
                 if (vm::is_zero(leftDot, vm::C::almost_zero())) {
