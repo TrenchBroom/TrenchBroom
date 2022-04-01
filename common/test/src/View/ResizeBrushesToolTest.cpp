@@ -92,9 +92,9 @@ static Model::PickResult performPick(
   REQUIRE(hit.isMatch());
   pickResult.addHit(hit);
 
-  REQUIRE_FALSE(tool.hasVisualHandles());
+  REQUIRE(tool.proposedDragHandles().empty());
   tool.updateProposedDragHandles(pickResult);
-  REQUIRE(tool.hasVisualHandles());
+  REQUIRE_FALSE(tool.proposedDragHandles().empty());
 
   return pickResult;
 }
@@ -147,14 +147,18 @@ TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
   const auto pickResult = performPick(*document, tool, pickRay);
   REQUIRE(pickResult.all().front().target<Model::BrushFaceHandle>().face() == largerTopFace);
 
-  const std::vector<std::string> dragFaces =
-    kdl::vec_transform(tool.visualHandles(), [](const auto& h) {
-      return h.face().attributes().textureName();
-    });
-  CHECK_THAT(dragFaces, Catch::UnorderedEquals(expectedDragFaceTextureNames));
+  CHECK_THAT(
+    kdl::vec_transform(
+      tool.proposedDragHandles(),
+      [](const auto& h) {
+        return h.faceAtDragStart().attributes().textureName();
+      }),
+    Catch::UnorderedEquals(expectedDragFaceTextureNames));
 }
 
 TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
+  using namespace Model::HitFilters;
+
   auto [document, game, gameConfig] = View::loadMapDocument(
     IO::Path{"fixture/test/View/ResizeBrushesToolTest/splitBrushes.map"}, "Quake",
     Model::MapFormat::Valve);
@@ -193,18 +197,24 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
   const auto pickResult = performPick(*document, tool, pickRay);
 
   // We are going to drag the 2 faces with +Y normals
-  CHECK(kdl::vec_transform(tool.visualHandles(), [](const auto& h) {
-          return h.face().normal();
+  CHECK(kdl::vec_transform(tool.proposedDragHandles(), [](const auto& h) {
+          return h.faceAtDragStart().normal();
         }) == std::vector<vm::vec3>{vm::vec3::pos_y(), vm::vec3::pos_y()});
+
+  const auto hit =
+    pickResult.first(type(ResizeBrushesTool::Resize2DHitType | ResizeBrushesTool::Resize3DHitType));
+  auto dragState = ResizeDragState{
+    hit.hitPoint(), tool.proposedDragHandles(),
+    ResizeBrushesTool::getDragFaces(tool.proposedDragHandles()), false, vm::vec3::zero()};
 
   SECTION("split brushes inwards 32 units towards -Y") {
     const auto delta = vm::vec3(0, -32, 0);
 
-    REQUIRE(tool.beginResize(pickResult, true));
-    REQUIRE(tool.resize(
-      vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera{}));
-    tool.commit();
+    dragState.splitBrushes = true;
+    tool.beginResize();
+
+    REQUIRE(tool.resize(delta, dragState));
+    tool.commit(dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 4);
 
@@ -232,11 +242,11 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
   SECTION("split brushes inwards 48 units towards -Y") {
     const auto delta = vm::vec3(0, -48, 0);
 
-    REQUIRE(tool.beginResize(pickResult, true));
-    REQUIRE(tool.resize(
-      vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera{}));
-    tool.commit();
+    dragState.splitBrushes = true;
+    tool.beginResize();
+
+    REQUIRE(tool.resize(delta, dragState));
+    tool.commit(dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 3);
 
@@ -263,11 +273,11 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
   SECTION("resize inwards 32 units towards -Y") {
     const auto delta = vm::vec3{0, -32, 0};
 
-    REQUIRE(tool.beginResize(pickResult, false));
-    REQUIRE(tool.resize(
-      vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera{}));
-    tool.commit();
+    dragState.splitBrushes = false;
+    tool.beginResize();
+
+    REQUIRE(tool.resize(delta, dragState));
+    tool.commit(dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 2);
 
@@ -295,11 +305,11 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
   SECTION("split brushes outwards 16 units towards +Y") {
     const auto delta = vm::vec3{0, 16, 0};
 
-    REQUIRE(tool.beginResize(pickResult, true));
-    REQUIRE(tool.resize(
-      vm::ray3{cameraEntity->entity().origin() + delta, pickRay.direction},
-      Renderer::PerspectiveCamera{}));
-    tool.commit();
+    dragState.splitBrushes = true;
+    tool.beginResize();
+
+    REQUIRE(tool.resize(delta, dragState));
+    tool.commit(dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 2);
 

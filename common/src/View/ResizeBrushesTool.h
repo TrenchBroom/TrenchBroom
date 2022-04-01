@@ -21,6 +21,7 @@
 
 #include "FloatType.h"
 #include "Model/Brush.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/HitType.h"
 #include "NotifierConnection.h"
 #include "View/Tool.h"
@@ -39,7 +40,6 @@ namespace TrenchBroom {
 namespace Model {
 class Brush;
 class BrushFace;
-class BrushFaceHandle;
 class BrushNode;
 class Hit;
 class Node;
@@ -51,6 +51,7 @@ class Camera;
 }
 
 namespace View {
+class Grid;
 class MapDocument;
 class Selection;
 
@@ -58,17 +59,33 @@ class Selection;
  * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the drag.
  * We need this to be able to make decisions about the drag before reverting the transaction.
  */
-struct DragHandle {
-  Model::BrushNode* node;
+struct ResizeDragHandle {
+  Model::BrushFaceHandle faceHandle;
   Model::Brush brushAtDragStart;
-  size_t faceIndex;
 
-  explicit DragHandle(const Model::BrushFaceHandle& handle);
+  explicit ResizeDragHandle(Model::BrushFaceHandle faceHandle);
 
   const Model::BrushFace& faceAtDragStart() const;
   vm::vec3 faceNormal() const;
 
-  kdl_reflect_decl(DragHandle, node, faceIndex);
+  kdl_reflect_decl(ResizeDragHandle, faceHandle);
+};
+
+struct ResizeDragState {
+  /** The position at which the drag initiated. */
+  vm::vec3 dragOrigin;
+  /** The drag handles when the drag started. */
+  std::vector<ResizeDragHandle> initialDragHandles;
+  /** The faces being dragged. */
+  std::vector<Model::BrushFaceHandle> currentDragFaces;
+
+  /** Whether or not to create new brushes by splitting the selected brushes. */
+  bool splitBrushes;
+  /** The total drag distance so far. */
+  vm::vec3 totalDelta;
+
+  kdl_reflect_decl(
+    ResizeDragState, dragOrigin, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
 };
 
 /**
@@ -77,16 +94,6 @@ struct DragHandle {
  * Also:
  *  - split brushes outward/inward (Ctrl+Shift+LMB Drag)
  *  - move faces (Alt+Shift+LMB Drag, 2D views only)
- *
- * Terminology:
- *  - "Drag handle": for calculating the brush modifications.
- *    Instance of DragHandle. Always based on the brush
- *    state at the start of the drag.
- *
- *  - "Visual handle": specifies which faces to render highlighted.
- *    Based on the current document state, so needs to be updated
- *    after each modification or roll back. May be fewer than the number
- *    of Drag handles if faces are clipped away by the drag.
  */
 class ResizeBrushesTool : public Tool {
 public:
@@ -100,64 +107,45 @@ private:
   std::weak_ptr<MapDocument> m_document;
   /**
    * Propsed drag handles for the next drag. Should only be accessed when m_dragging is false.
+   * This needs to be cached here so that it is shared between multiple views. Otherwise, we cannot
+   * show the proposed drag handles in all views.
    */
-  std::vector<DragHandle> m_proposedDragHandles;
+  std::vector<ResizeDragHandle> m_proposedDragHandles;
   bool m_dragging;
 
   NotifierConnection m_notifierConnection;
-
-private: // drag state - should only be accessed when m_dragging is true
-  std::vector<Model::BrushFaceHandle> m_currentDragVisualHandles;
-  std::vector<DragHandle> m_dragHandlesAtDragStart;
-  vm::vec3 m_dragOrigin;
-  /**
-   * This is temporarily set to true when a drag is started with Ctrl,
-   * to signal that new brushes need to be split off. After the split brushes have been
-   * created, it's set back to false, in `resize()`.
-   */
-  bool m_splitBrushes;
-  /**
-   * How much drag is currently applied to the document.
-   */
-  vm::vec3 m_totalDelta;
 
 public:
   explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
 
   bool applies() const;
 
+  const Grid& grid() const;
+
   Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
   Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
 
-private:
-  Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
+  /**
+   * Returns the current proposed drag handles as per the last call to updateProposedDragHandles.
+   */
+  const std::vector<ResizeDragHandle>& proposedDragHandles() const;
 
-public:
-  bool hasVisualHandles() const;
-  std::vector<Model::BrushFaceHandle> visualHandles() const;
+  /**
+   * Updates the proposed drag handles according to the given picking result.
+   */
   void updateProposedDragHandles(const Model::PickResult& pickResult);
 
-private:
-  std::vector<DragHandle> getDragHandles(const Model::Hit& hit) const;
-  std::vector<DragHandle> collectDragHandles(const Model::Hit& hit) const;
-  std::vector<Model::BrushFaceHandle> collectDragFaces(
-    const Model::BrushFaceHandle& faceHandle) const;
+  static std::vector<Model::BrushFaceHandle> getDragFaces(
+    const std::vector<ResizeDragHandle>& dragHandles);
 
-public:
-  bool beginResize(const Model::PickResult& pickResult, bool split);
-  bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
+  void beginResize();
+  bool resize(const vm::vec3& faceDelta, ResizeDragState& dragState);
 
-  bool beginMove(const Model::PickResult& pickResult);
-  bool move(const vm::ray3& pickRay, const Renderer::Camera& camera);
+  void beginMove();
+  bool move(const vm::vec3& delta, ResizeDragState& dragState);
 
-  void commit();
+  void commit(const ResizeDragState& dragState);
   void cancel();
-
-private:
-  bool splitBrushesOutward(const vm::vec3& delta);
-  bool splitBrushesInward(const vm::vec3& delta);
-  std::vector<vm::polygon3> polygonsAtDragStart() const;
-  void updateCurrentDragVisualHandles();
 
 private:
   void connectObservers();
