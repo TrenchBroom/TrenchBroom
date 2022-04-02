@@ -119,9 +119,7 @@ Model::Hit pickProximateFace(
           const auto rightDot = vm::dot(rightFace.boundary().normal, pickRay.direction);
 
           if ((leftDot > 0.0) != (rightDot > 0.0)) {
-            const auto result = vm::distance(
-              pickRay,
-              vm::segment3{edge->firstVertex()->position(), edge->secondVertex()->position()});
+            const auto result = vm::distance(pickRay, edge->segment());
             if (!vm::is_nan(result.distance) && result.distance < closestDistance) {
               closestDistance = result.distance;
               const auto hitPoint = vm::point_at_distance(pickRay, result.position1);

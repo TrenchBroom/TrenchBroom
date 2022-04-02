@@ -179,11 +179,7 @@ std::vector<const Model::BrushFace*> selectIncidentFaces(
   FloatType closestEdgeDistance = MaxDistance;
   const Model::BrushEdge* closestEdge = nullptr;
   for (const auto* edge : face.edges()) {
-    const auto distance = vm::distance(
-                            vm::segment<FloatType, 3>(
-                              edge->firstVertex()->position(), edge->secondVertex()->position()),
-                            hitPoint)
-                            .distance;
+    const auto distance = vm::distance(edge->segment(), hitPoint).distance;
     if (distance < closestEdgeDistance) {
       closestEdge = edge;
       closestEdgeDistance = distance;
