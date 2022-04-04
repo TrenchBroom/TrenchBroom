@@ -56,9 +56,6 @@
 
 namespace TrenchBroom::View {
 
-const Model::HitType::Type ResizeBrushesTool::Resize2DHitType = Model::HitType::freeType();
-const Model::HitType::Type ResizeBrushesTool::Resize3DHitType = Model::HitType::freeType();
-
 // DragHandle
 
 ResizeDragHandle::ResizeDragHandle(Model::BrushFaceHandle i_faceHandle)
@@ -78,6 +75,9 @@ kdl_reflect_impl(ResizeDragHandle);
 kdl_reflect_impl(ResizeDragState);
 
 // ResizeBrushesTool
+
+const Model::HitType::Type ResizeBrushesTool::Resize2DHitType = Model::HitType::freeType();
+const Model::HitType::Type ResizeBrushesTool::Resize3DHitType = Model::HitType::freeType();
 
 ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document)
   : Tool{true}
