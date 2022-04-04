@@ -234,6 +234,7 @@
 [
 	light(integer) : "Light radius" : 300
 	_color(color1) : "Light color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
+	_intensity(float) : "Light intensity as a scalar from 0.1 - 2.0": "1"
 	_size(integer) : "Light size, to simulate area lights and cast penumbrae" : 16
 ]
 
@@ -243,13 +244,14 @@
 	light(integer) : "Light radius" : 300
 	_color(color1) : "Light color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
 	_cone(integer) : "Spotlight attenuation cone width, in degrees" : 22
+	_intensity(float) : "Spotlight intensity as a scalar from 0.1 - 2.0": "1"
 	_size(integer) : "Spotlight size, to simulate area lights and cast penumbrae" : 16
 ]
 
 @PointClass base(Target) color(255 255 0) size(-16 -16 -16, 16 16 16) = light_sun : "Directional sun light source."
 [
-	light(integer) : "Sun light as an integer value from 0 - 255" : 255
 	_color(color1) : "Sun color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
+	_intensity(float) : "Sun intensity as a scalar from 0.1 - 2.0": "1"
 	_size(integer) : "Sun size, to simulate area lights and cast penumbrae" : 256
 ]
 
