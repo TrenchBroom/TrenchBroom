@@ -27,20 +27,16 @@
 #include "View/Tool.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/polygon.h>
 #include <vecmath/vec.h>
 
 #include <kdl/reflection_decl.h>
 
 #include <memory>
-#include <tuple>
 #include <vector>
 
 namespace TrenchBroom {
 namespace Model {
-class Brush;
 class BrushFace;
-class BrushNode;
 class Hit;
 class Node;
 class PickResult;
@@ -59,23 +55,21 @@ class Selection;
  * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the drag.
  * We need this to be able to make decisions about the drag before reverting the transaction.
  */
-struct ResizeDragHandle {
+struct ExtrudeDragHandle {
   Model::BrushFaceHandle faceHandle;
   Model::Brush brushAtDragStart;
 
-  explicit ResizeDragHandle(Model::BrushFaceHandle faceHandle);
+  explicit ExtrudeDragHandle(Model::BrushFaceHandle faceHandle);
 
   const Model::BrushFace& faceAtDragStart() const;
   vm::vec3 faceNormal() const;
 
-  kdl_reflect_decl(ResizeDragHandle, faceHandle);
+  kdl_reflect_decl(ExtrudeDragHandle, faceHandle);
 };
 
-struct ResizeDragState {
-  /** The position at which the drag initiated. */
-  vm::vec3 dragOrigin;
+struct ExtrudeDragState {
   /** The drag handles when the drag started. */
-  std::vector<ResizeDragHandle> initialDragHandles;
+  std::vector<ExtrudeDragHandle> initialDragHandles;
   /** The faces being dragged. */
   std::vector<Model::BrushFaceHandle> currentDragFaces;
 
@@ -85,7 +79,7 @@ struct ResizeDragState {
   vm::vec3 totalDelta;
 
   kdl_reflect_decl(
-    ResizeDragState, dragOrigin, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
+    ExtrudeDragState, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
 };
 
 /**
@@ -95,13 +89,11 @@ struct ResizeDragState {
  *  - split brushes outward/inward (Ctrl+Shift+LMB Drag)
  *  - move faces (Alt+Shift+LMB Drag, 2D views only)
  */
-class ResizeBrushesTool : public Tool {
+class ExtrudeTool : public Tool {
 public:
-  static const Model::HitType::Type Resize3DHitType;
-  static const Model::HitType::Type Resize2DHitType;
+  static const Model::HitType::Type ExtrudeHitType;
 
-  using Resize2DHitData = std::vector<Model::BrushFaceHandle>;
-  using Resize3DHitData = Model::BrushFaceHandle;
+  using ExtrudeHitData = std::vector<Model::BrushFaceHandle>;
 
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -110,25 +102,25 @@ private:
    * This needs to be cached here so that it is shared between multiple views. Otherwise, we cannot
    * show the proposed drag handles in all views.
    */
-  std::vector<ResizeDragHandle> m_proposedDragHandles;
+  std::vector<ExtrudeDragHandle> m_proposedDragHandles;
   bool m_dragging;
 
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
+  explicit ExtrudeTool(std::weak_ptr<MapDocument> document);
 
   bool applies() const;
 
   const Grid& grid() const;
 
-  Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
-  Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
+  Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) const;
+  Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) const;
 
   /**
    * Returns the current proposed drag handles as per the last call to updateProposedDragHandles.
    */
-  const std::vector<ResizeDragHandle>& proposedDragHandles() const;
+  const std::vector<ExtrudeDragHandle>& proposedDragHandles() const;
 
   /**
    * Updates the proposed drag handles according to the given picking result.
@@ -136,15 +128,15 @@ public:
   void updateProposedDragHandles(const Model::PickResult& pickResult);
 
   static std::vector<Model::BrushFaceHandle> getDragFaces(
-    const std::vector<ResizeDragHandle>& dragHandles);
+    const std::vector<ExtrudeDragHandle>& dragHandles);
 
-  void beginResize();
-  bool resize(const vm::vec3& faceDelta, ResizeDragState& dragState);
+  void beginExtrude();
+  bool extrude(const vm::vec3& faceDelta, ExtrudeDragState& dragState);
 
   void beginMove();
-  bool move(const vm::vec3& delta, ResizeDragState& dragState);
+  bool move(const vm::vec3& delta, ExtrudeDragState& dragState);
 
-  void commit(const ResizeDragState& dragState);
+  void commit(const ExtrudeDragState& dragState);
   void cancel();
 
 private:

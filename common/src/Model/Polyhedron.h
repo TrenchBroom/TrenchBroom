@@ -26,6 +26,7 @@
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
 #include <vecmath/plane.h>
+#include <vecmath/segment.h>
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
 
@@ -281,6 +282,12 @@ public:
    * The behavior is unspecified if this edge is not fully specified.
    */
   vm::vec<T, 3> vector() const;
+
+  /**
+   * Returns the segment between the positions of the vertices.
+   * The behavior is unspecified if this edge is not fully specified.
+   */
+  vm::segment<T, 3> segment() const;
 
   /**
    * Returns the center between the position of the first vertex and the position of the second

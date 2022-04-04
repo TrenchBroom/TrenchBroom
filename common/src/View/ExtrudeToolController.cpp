@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ResizeBrushesToolController.h"
+#include "ExtrudeToolController.h"
 
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -34,10 +34,10 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
 #include "View/DragTracker.h"
+#include "View/ExtrudeTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
-#include "View/ResizeBrushesTool.h"
 
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
@@ -46,21 +46,20 @@
 #include <vecmath/scalar.h>
 
 namespace TrenchBroom::View {
-ResizeBrushesToolController::ResizeBrushesToolController(ResizeBrushesTool& tool)
+ExtrudeToolController::ExtrudeToolController(ExtrudeTool& tool)
   : m_tool{tool} {}
 
-ResizeBrushesToolController::~ResizeBrushesToolController() = default;
+ExtrudeToolController::~ExtrudeToolController() = default;
 
-Tool& ResizeBrushesToolController::tool() {
+Tool& ExtrudeToolController::tool() {
   return m_tool;
 }
 
-const Tool& ResizeBrushesToolController::tool() const {
+const Tool& ExtrudeToolController::tool() const {
   return m_tool;
 }
 
-void ResizeBrushesToolController::pick(
-  const InputState& inputState, Model::PickResult& pickResult) {
+void ExtrudeToolController::pick(const InputState& inputState, Model::PickResult& pickResult) {
   if (handleInput(inputState)) {
     const Model::Hit hit = doPick(inputState.pickRay(), pickResult);
     if (hit.isMatch()) {
@@ -69,13 +68,13 @@ void ResizeBrushesToolController::pick(
   }
 }
 
-void ResizeBrushesToolController::modifierKeyChange(const InputState& inputState) {
+void ExtrudeToolController::modifierKeyChange(const InputState& inputState) {
   if (!anyToolDragging(inputState)) {
     m_tool.updateProposedDragHandles(inputState.pickResult());
   }
 }
 
-void ResizeBrushesToolController::mouseMove(const InputState& inputState) {
+void ExtrudeToolController::mouseMove(const InputState& inputState) {
   if (handleInput(inputState) && !anyToolDragging(inputState)) {
     m_tool.updateProposedDragHandles(inputState.pickResult());
   }
@@ -99,28 +98,28 @@ Renderer::DirectEdgeRenderer buildEdgeRenderer(
     Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines};
 }
 
-Renderer::DirectEdgeRenderer buildEdgeRenderer(const std::vector<ResizeDragHandle>& dragHandles) {
+Renderer::DirectEdgeRenderer buildEdgeRenderer(const std::vector<ExtrudeDragHandle>& dragHandles) {
   return buildEdgeRenderer(kdl::vec_transform(dragHandles, [](const auto& h) {
     return h.faceHandle;
   }));
 }
 
-struct ResizeDragDelegate : public HandleDragTrackerDelegate {
-  ResizeBrushesTool& m_tool;
-  ResizeDragState m_resizeDragState;
+struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
+  ExtrudeTool& m_tool;
+  ExtrudeDragState m_extrudeDragState;
 
-  ResizeDragDelegate(ResizeBrushesTool& tool, ResizeDragState resizeDragState)
+  ExtrudeDragDelegate(ExtrudeTool& tool, ExtrudeDragState extrudeDragState)
     : m_tool{tool}
-    , m_resizeDragState{std::move(resizeDragState)} {}
+    , m_extrudeDragState{std::move(extrudeDragState)} {}
 
   HandlePositionProposer start(
-    const InputState&, const vm::vec3&, const vm::vec3& handleOffset) override {
-    const auto& dragFaceHandle = m_resizeDragState.initialDragHandles.at(0);
+    const InputState&, const vm::vec3& initialHandlePosition,
+    const vm::vec3& handleOffset) override {
+    const auto& dragFaceHandle = m_extrudeDragState.initialDragHandles.at(0);
     const auto& dragFace = dragFaceHandle.faceAtDragStart();
     const auto& faceNormal = dragFace.boundary().normal;
 
-    auto picker =
-      makeLineHandlePicker(vm::line3{m_resizeDragState.dragOrigin, faceNormal}, handleOffset);
+    auto picker = makeLineHandlePicker(vm::line3{initialHandlePosition, faceNormal}, handleOffset);
 
     auto snapper =
       [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
@@ -141,14 +140,14 @@ struct ResizeDragDelegate : public HandleDragTrackerDelegate {
     const InputState&, const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override {
     const auto faceDelta = proposedHandlePosition - dragState.initialHandlePosition;
-    if (m_tool.resize(faceDelta, m_resizeDragState)) {
+    if (m_tool.extrude(faceDelta, m_extrudeDragState)) {
       return DragStatus::Continue;
     }
     return DragStatus::Deny;
   }
 
   void end(const InputState& inputState, const DragState&) override {
-    m_tool.commit(m_resizeDragState);
+    m_tool.commit(m_extrudeDragState);
     m_tool.updateProposedDragHandles(inputState.pickResult());
   }
 
@@ -161,24 +160,36 @@ struct ResizeDragDelegate : public HandleDragTrackerDelegate {
   void render(
     const InputState&, const DragState&, Renderer::RenderContext&,
     Renderer::RenderBatch& renderBatch) const override {
-    auto edgeRenderer = buildEdgeRenderer(m_resizeDragState.currentDragFaces);
-    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
+    auto edgeRenderer = buildEdgeRenderer(m_extrudeDragState.currentDragFaces);
+    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ExtrudeHandleColor));
   }
 };
 
-struct MoveDragDelegate : public HandleDragTrackerDelegate {
-  ResizeBrushesTool& m_tool;
-  ResizeDragState m_resizeDragState;
+auto makeExtrudeDragTracker(
+  ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint,
+  const bool split) {
+  // todo: compute handle offset correctly
+  return createHandleDragTracker(
+    ExtrudeDragDelegate{
+      tool,
+      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split,
+       vm::vec3::zero()}},
+    inputState, initialHitPoint, vm::vec3::zero());
+}
 
-  MoveDragDelegate(ResizeBrushesTool& tool, ResizeDragState resizeDragState)
+struct MoveDragDelegate : public HandleDragTrackerDelegate {
+  ExtrudeTool& m_tool;
+  ExtrudeDragState m_moveDragState;
+
+  MoveDragDelegate(ExtrudeTool& tool, ExtrudeDragState moveDragState)
     : m_tool{tool}
-    , m_resizeDragState{std::move(resizeDragState)} {}
+    , m_moveDragState{std::move(moveDragState)} {}
 
   HandlePositionProposer start(
-    const InputState& inputState, const vm::vec3&, const vm::vec3& handleOffset) override {
+    const InputState& inputState, const vm::vec3& initialHandlePosition,
+    const vm::vec3& handleOffset) override {
     auto picker = makePlaneHandlePicker(
-      vm::plane3{m_resizeDragState.dragOrigin, vm::vec3{inputState.camera().direction()}},
-      handleOffset);
+      vm::plane3{initialHandlePosition, vm::vec3{inputState.camera().direction()}}, handleOffset);
 
     auto snapper =
       [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
@@ -199,14 +210,14 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
     const InputState&, const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override {
     const auto delta = proposedHandlePosition - dragState.initialHandlePosition;
-    if (m_tool.move(delta, m_resizeDragState)) {
+    if (m_tool.move(delta, m_moveDragState)) {
       return DragStatus::Continue;
     }
     return DragStatus::Deny;
   }
 
   void end(const InputState& inputState, const DragState&) override {
-    m_tool.commit(m_resizeDragState);
+    m_tool.commit(m_moveDragState);
     m_tool.updateProposedDragHandles(inputState.pickResult());
   }
 
@@ -219,37 +230,24 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
   void render(
     const InputState&, const DragState&, Renderer::RenderContext&,
     Renderer::RenderBatch& renderBatch) const override {
-    auto edgeRenderer = buildEdgeRenderer(m_resizeDragState.currentDragFaces);
-    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
+    auto edgeRenderer = buildEdgeRenderer(m_moveDragState.currentDragFaces);
+    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ExtrudeHandleColor));
   }
 };
 
 auto makeMoveDragTracker(
-  ResizeBrushesTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint) {
+  ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint) {
   // todo: compute handle offset correctly
   return createHandleDragTracker(
     MoveDragDelegate{
       tool,
-      {initialHitPoint, tool.proposedDragHandles(),
-       ResizeBrushesTool::getDragFaces(tool.proposedDragHandles()), false, vm::vec3::zero()}},
-    inputState, initialHitPoint, vm::vec3::zero());
-}
-
-auto makeResizeDragTracker(
-  ResizeBrushesTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint,
-  const bool split) {
-  // todo: compute handle offset correctly
-  return createHandleDragTracker(
-    ResizeDragDelegate{
-      tool,
-      {initialHitPoint, tool.proposedDragHandles(),
-       ResizeBrushesTool::getDragFaces(tool.proposedDragHandles()), split, vm::vec3::zero()}},
+      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false,
+       vm::vec3::zero()}},
     inputState, initialHitPoint, vm::vec3::zero());
 }
 } // namespace
 
-std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
-  const InputState& inputState) {
+std::unique_ptr<DragTracker> ExtrudeToolController::acceptMouseDrag(const InputState& inputState) {
   using namespace Model::HitFilters;
 
   if (!handleInput(inputState)) {
@@ -262,66 +260,65 @@ std::unique_ptr<DragTracker> ResizeBrushesToolController::acceptMouseDrag(
   }
 
   m_tool.updateProposedDragHandles(inputState.pickResult());
-  if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
-    const auto& hit = inputState.pickResult().first(type(ResizeBrushesTool::Resize2DHitType));
-    if (hit.isMatch()) {
-      m_tool.beginMove();
-      return makeMoveDragTracker(m_tool, inputState, hit.hitPoint());
-    }
-  } else {
-    const auto& hit = inputState.pickResult().first(
-      type(ResizeBrushesTool::Resize2DHitType | ResizeBrushesTool::Resize3DHitType));
-    if (hit.isMatch()) {
+
+  const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
+  if (hit.isMatch()) {
+    if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
+      if (inputState.camera().orthographicProjection()) {
+        m_tool.beginMove();
+        return makeMoveDragTracker(m_tool, inputState, hit.hitPoint());
+      }
+    } else {
       const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-      m_tool.beginResize();
-      return makeResizeDragTracker(m_tool, inputState, hit.hitPoint(), split);
+      m_tool.beginExtrude();
+      return makeExtrudeDragTracker(m_tool, inputState, hit.hitPoint(), split);
     }
   }
 
   return nullptr;
 }
 
-void ResizeBrushesToolController::render(
+void ExtrudeToolController::render(
   const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
   const auto proposedDragHandles = m_tool.proposedDragHandles();
   if (!inputState.anyToolDragging() && !proposedDragHandles.empty()) {
     auto edgeRenderer = buildEdgeRenderer(proposedDragHandles);
-    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
+    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ExtrudeHandleColor));
   }
 }
 
-bool ResizeBrushesToolController::cancel() {
+bool ExtrudeToolController::cancel() {
   return false;
 }
 
-bool ResizeBrushesToolController::handleInput(const InputState& inputState) const {
+bool ExtrudeToolController::handleInput(const InputState& inputState) const {
   return (doHandleInput(inputState) && m_tool.applies());
 }
 
-ResizeBrushesToolController2D::ResizeBrushesToolController2D(ResizeBrushesTool& tool)
-  : ResizeBrushesToolController{tool} {}
+ExtrudeToolController2D::ExtrudeToolController2D(ExtrudeTool& tool)
+  : ExtrudeToolController{tool} {}
 
-Model::Hit ResizeBrushesToolController2D::doPick(
+Model::Hit ExtrudeToolController2D::doPick(
   const vm::ray3& pickRay, const Model::PickResult& pickResult) {
   return m_tool.pick2D(pickRay, pickResult);
 }
 
-bool ResizeBrushesToolController2D::doHandleInput(const InputState& inputState) const {
+bool ExtrudeToolController2D::doHandleInput(const InputState& inputState) const {
   return (
     inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
     inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd) ||
     inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKAlt));
 }
 
-ResizeBrushesToolController3D::ResizeBrushesToolController3D(ResizeBrushesTool& tool)
-  : ResizeBrushesToolController{tool} {}
+ExtrudeToolController3D::ExtrudeToolController3D(ExtrudeTool& tool)
+  : ExtrudeToolController{tool} {}
 
-Model::Hit ResizeBrushesToolController3D::doPick(
+Model::Hit ExtrudeToolController3D::doPick(
   const vm::ray3& pickRay, const Model::PickResult& pickResult) {
   return m_tool.pick3D(pickRay, pickResult);
 }
 
-bool ResizeBrushesToolController3D::doHandleInput(const InputState& inputState) const {
+bool ExtrudeToolController3D::doHandleInput(const InputState& inputState) const {
   return (
     inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
     inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd));

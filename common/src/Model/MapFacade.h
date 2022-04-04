@@ -146,8 +146,8 @@ public: // modifying entity properties
   virtual bool convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) = 0;
   virtual bool updateSpawnflag(const std::string& name, size_t flagIndex, bool setFlag) = 0;
 
-public: // brush resizing
-  virtual bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) = 0;
+public: // brush extrusion
+  virtual bool extrudeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) = 0;
 
 public: // modifying face attributes
   virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;

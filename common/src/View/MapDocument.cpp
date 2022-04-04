@@ -2968,7 +2968,7 @@ bool MapDocument::canClearProtectedProperties() const {
   }));
 }
 
-bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
+bool MapDocument::extrudeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
   const auto nodes = m_selectedNodes.nodes();
   return applyAndSwap(
     *this, "Resize Brushes", nodes, findContainingLinkedGroupsToUpdate(*m_world, nodes),

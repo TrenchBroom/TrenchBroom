@@ -97,7 +97,7 @@ extern Preference<Color> OccludedSelectedHandleColor;
 extern Preference<Color> ClipHandleColor;
 extern Preference<Color> ClipFaceColor;
 
-extern Preference<Color> ResizeHandleColor;
+extern Preference<Color> ExtrudeHandleColor;
 extern Preference<float> RotateHandleRadius;
 extern Preference<Color> RotateHandleColor;
 

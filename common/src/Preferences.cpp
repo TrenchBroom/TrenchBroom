@@ -140,7 +140,7 @@ Preference<Color> ClipHandleColor(
 Preference<Color> ClipFaceColor(
   IO::Path("Renderer/Colors/Clip face"), Color(0.6f, 0.4f, 0.0f, 0.35f));
 
-Preference<Color> ResizeHandleColor(
+Preference<Color> ExtrudeHandleColor(
   IO::Path("Renderer/Colors/Resize handle"), Color(248, 230, 60, 1.0f));
 Preference<float> RotateHandleRadius(IO::Path("Controls/Rotate handle radius"), 64.0f);
 Preference<Color> RotateHandleColor(
@@ -341,7 +341,7 @@ const std::vector<PreferenceBase*>& staticPreferences() {
     &OccludedSelectedHandleColor,
     &ClipHandleColor,
     &ClipFaceColor,
-    &ResizeHandleColor,
+    &ExtrudeHandleColor,
     &RotateHandleRadius,
     &RotateHandleColor,
     &ScaleHandleColor,
