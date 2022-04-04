@@ -234,24 +234,24 @@
 [
 	light(integer) : "Light radius" : 300
 	_color(color1) : "Light color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
-	_intensity(float) : "Light intensity as a scalar from 0.1 - 2.0": "1"
+	_intensity(float) : "Light intensity as a positive scalar value" : "1"
 	_size(integer) : "Light size, to simulate area lights and cast penumbrae" : 16
 ]
 
 @PointClass base(Target) color(200 255 255) size(-6 -6 -6, 6 6 6) = light_spot : "Point light source with attenuation cone."
 [
 	angle(angle) : "Spotlight direction (up = -1, down = -2, yaw = positive value)"
-	light(integer) : "Light radius" : 300
-	_color(color1) : "Light color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
+	light(integer) : "Spotlight radius" : 300
+	_color(color1) : "Spotlight color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
 	_cone(integer) : "Spotlight attenuation cone width, in degrees" : 22
-	_intensity(float) : "Spotlight intensity as a scalar from 0.1 - 2.0": "1"
+	_intensity(float) : "Spotlight intensity as a positive scalar value" : "1"
 	_size(integer) : "Spotlight size, to simulate area lights and cast penumbrae" : 16
 ]
 
 @PointClass base(Target) color(255 255 0) size(-16 -16 -16, 16 16 16) = light_sun : "Directional sun light source."
 [
 	_color(color1) : "Sun color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
-	_intensity(float) : "Sun intensity as a scalar from 0.1 - 2.0": "1"
+	_intensity(float) : "Sun intensity as a positive scalar value" : "1"
 	_size(integer) : "Sun size, to simulate area lights and cast penumbrae" : 256
 ]
 
@@ -503,7 +503,11 @@
 	brightness(float) : "Global light scale, a single positive scalar value" : "1"
 	saturation(float) : "Global light saturation, a single positive scalar value" : "1"
 	contrast(float) : "Global light contrast, a single positive scalar value" : "1"
-	radiosity(float) : "Global indirect light scale, a single positive scalar value" : "1"
+	ambient_intensity(float) : "Global ambient light intensity as a positive scalar value" : "1"
+	sun_intensity(float) : "Global sun light intensity as a positive scalar value" : "1"
+	light_intensity(float) : "Global point light intensity as a positive scalar value" : "1"
+	patch_intensity(float) : "Global patch light intensity as a positive scalar value" : "1"
+	indirect_intensity(float) : "Global indirect light intensity as a positive scalar value, a single positive scalar value" : "1"
 	luxel_size(integer) : "Lightmap pixel size in world units" : 4
 	patch_size(integer) : "Surface light patch size in world units" : 64
 	caustics(float) : "Global caustics effects scale, a single positive scalar value" : "1"
