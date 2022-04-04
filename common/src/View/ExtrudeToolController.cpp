@@ -165,6 +165,18 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
   }
 };
 
+auto makeExtrudeDragTracker(
+  ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint,
+  const bool split) {
+  // todo: compute handle offset correctly
+  return createHandleDragTracker(
+    ExtrudeDragDelegate{
+      tool,
+      {initialHitPoint, tool.proposedDragHandles(),
+       ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split, vm::vec3::zero()}},
+    inputState, initialHitPoint, vm::vec3::zero());
+}
+
 struct MoveDragDelegate : public HandleDragTrackerDelegate {
   ExtrudeTool& m_tool;
   ExtrudeDragState m_moveDragState;
@@ -231,18 +243,6 @@ auto makeMoveDragTracker(
       tool,
       {initialHitPoint, tool.proposedDragHandles(),
        ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false, vm::vec3::zero()}},
-    inputState, initialHitPoint, vm::vec3::zero());
-}
-
-auto makeExtrudeDragTracker(
-  ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint,
-  const bool split) {
-  // todo: compute handle offset correctly
-  return createHandleDragTracker(
-    ExtrudeDragDelegate{
-      tool,
-      {initialHitPoint, tool.proposedDragHandles(),
-       ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split, vm::vec3::zero()}},
     inputState, initialHitPoint, vm::vec3::zero());
 }
 } // namespace
