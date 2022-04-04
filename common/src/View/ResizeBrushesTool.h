@@ -122,8 +122,8 @@ public:
 
   const Grid& grid() const;
 
-  Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
-  Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
+  Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) const;
+  Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) const;
 
   /**
    * Returns the current proposed drag handles as per the last call to updateProposedDragHandles.

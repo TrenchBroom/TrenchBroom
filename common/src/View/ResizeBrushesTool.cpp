@@ -96,91 +96,131 @@ const Grid& ResizeBrushesTool::grid() const {
 }
 
 namespace {
-Model::Hit pickProximateFace(
-  const std::vector<Model::Node*>& nodes, const Model::HitType::Type hitType,
-  const vm::ray3& pickRay) {
-  auto closestDistance = std::numeric_limits<FloatType>::max();
-  auto hit = Model::Hit::NoHit;
+struct EdgeInfo {
+  Model::BrushFaceHandle leftFaceHandle;
+  Model::BrushFaceHandle rightFaceHandle;
+  FloatType leftDot;
+  FloatType rightDot;
+  vm::line_distance<FloatType> dist;
+};
 
+bool operator<(const std::optional<EdgeInfo>& lhs, const std::optional<EdgeInfo>& rhs) {
+  return lhs == std::nullopt   ? false
+         : rhs == std::nullopt ? true
+                               : lhs->dist.distance < rhs->dist.distance;
+}
+
+std::optional<EdgeInfo> getEdgeInfo(
+  const Model::BrushEdge* edge, Model::BrushNode* brushNode, const vm::ray3& pickRay) {
+
+  const auto dist = vm::distance(pickRay, edge->segment());
+  if (vm::is_nan(dist.distance)) {
+    return std::nullopt;
+  }
+
+  const auto leftFaceIndex = edge->firstFace()->payload();
+  const auto rightFaceIndex = edge->secondFace()->payload();
+  assert(leftFaceIndex && rightFaceIndex);
+
+  const auto& leftFace = brushNode->brush().face(*leftFaceIndex);
+  const auto& rightFace = brushNode->brush().face(*rightFaceIndex);
+
+  const auto leftDot = vm::dot(leftFace.boundary().normal, pickRay.direction);
+  const auto rightDot = vm::dot(rightFace.boundary().normal, pickRay.direction);
+
+  if ((leftDot < 0.0) == (rightDot < 0.0)) {
+    // either both faces visible or both faces invisible
+    return std::nullopt;
+  }
+
+  const auto leftFaceHandle = Model::BrushFaceHandle{brushNode, *leftFaceIndex};
+  const auto rightFaceHandle = Model::BrushFaceHandle{brushNode, *rightFaceIndex};
+
+  return {{leftFaceHandle, rightFaceHandle, leftDot, rightDot, dist}};
+}
+
+std::optional<EdgeInfo> findClosestHorizonEdge(
+  const std::vector<Model::Node*>& nodes, const vm::ray3& pickRay) {
+  auto result = std::optional<EdgeInfo>{};
   for (auto* node : nodes) {
     node->accept(kdl::overload(
       [](Model::WorldNode*) {}, [](Model::LayerNode*) {}, [](Model::GroupNode*) {},
       [](Model::EntityNode*) {},
       [&](Model::BrushNode* brushNode) {
-        const auto& brush = brushNode->brush();
-        for (const auto* edge : brush.edges()) {
-          const auto leftFaceIndex = edge->firstFace()->payload();
-          const auto rightFaceIndex = edge->secondFace()->payload();
-          assert(leftFaceIndex && rightFaceIndex);
-
-          const auto& leftFace = brush.face(*leftFaceIndex);
-          const auto& rightFace = brush.face(*rightFaceIndex);
-          const auto leftDot = vm::dot(leftFace.boundary().normal, pickRay.direction);
-          const auto rightDot = vm::dot(rightFace.boundary().normal, pickRay.direction);
-
-          if ((leftDot > 0.0) != (rightDot > 0.0)) {
-            const auto result = vm::distance(pickRay, edge->segment());
-            if (!vm::is_nan(result.distance) && result.distance < closestDistance) {
-              closestDistance = result.distance;
-              const auto hitPoint = vm::point_at_distance(pickRay, result.position1);
-
-              const auto leftFaceHandle = Model::BrushFaceHandle{brushNode, *leftFaceIndex};
-              const auto rightFaceHandle = Model::BrushFaceHandle{brushNode, *rightFaceIndex};
-
-              if (hitType == ResizeBrushesTool::Resize2DHitType) {
-                auto data = ResizeBrushesTool::Resize2DHitData{};
-                if (vm::is_zero(leftDot, vm::C::almost_zero())) {
-                  data.push_back(leftFaceHandle);
-                } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
-                  data.push_back(rightFaceHandle);
-                } else {
-                  if (vm::abs(leftDot) < 1.0) {
-                    data.push_back(leftFaceHandle);
-                  }
-                  if (vm::abs(rightDot) < 1.0) {
-                    data.push_back(rightFaceHandle);
-                  }
-                }
-                hit = Model::Hit{hitType, result.position1, hitPoint, data};
-              } else {
-                const auto faceHandle = leftDot > rightDot ? leftFaceHandle : rightFaceHandle;
-                hit = Model::Hit{hitType, result.position1, hitPoint, faceHandle};
-              }
-            }
-          }
+        for (const auto* edge : brushNode->brush().edges()) {
+          result = std::min(result, getEdgeInfo(edge, brushNode, pickRay));
         }
       },
       [](Model::PatchNode*) {}));
   }
-
-  return hit;
+  return result;
 }
 } // namespace
 
-Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
+Model::Hit ResizeBrushesTool::pick2D(
+  const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
   using namespace Model::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
   const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && selected());
   if (hit.isMatch()) {
     return Model::Hit::NoHit;
+  }
+
+  const auto edgeInfo = findClosestHorizonEdge(document->selectedNodes().nodes(), pickRay);
+  if (!edgeInfo) {
+    return Model::Hit::NoHit;
+  }
+
+  const auto [leftFaceHandle, rightFaceHandle, leftDot, rightDot, distance] = *edgeInfo;
+  const auto hitPoint = vm::point_at_distance(pickRay, distance.position1);
+
+  if (vm::is_zero(leftDot, vm::C::almost_zero())) {
+    return {
+      Resize2DHitType, distance.position1, hitPoint,
+      std::vector<Model::BrushFaceHandle>{leftFaceHandle}};
+  } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
+    return {
+      Resize2DHitType, distance.position1, hitPoint,
+      std::vector<Model::BrushFaceHandle>{rightFaceHandle}};
   } else {
-    const auto& nodes = document->selectedNodes().nodes();
-    return pickProximateFace(nodes, Resize2DHitType, pickRay);
+    auto data = std::vector<Model::BrushFaceHandle>{};
+    data.reserve(2);
+
+    // only include if face isn't perpendicular to view direction
+    if (vm::abs(leftDot) < 1.0) {
+      data.push_back(leftFaceHandle);
+    }
+    if (vm::abs(rightDot) < 1.0) {
+      data.push_back(rightFaceHandle);
+    }
+    return {Resize2DHitType, distance.position1, hitPoint, std::move(data)};
   }
 }
 
-Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
+Model::Hit ResizeBrushesTool::pick3D(
+  const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
   using namespace Model::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
+
   const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && selected());
   if (const auto faceHandle = hitToFaceHandle(hit)) {
-    return Model::Hit{Resize3DHitType, hit.distance(), hit.hitPoint(), *faceHandle};
-  } else {
-    const auto& nodes = document->selectedNodes().nodes();
-    return pickProximateFace(nodes, Resize3DHitType, pickRay);
+    return {Resize3DHitType, hit.distance(), hit.hitPoint(), *faceHandle};
   }
+
+  const auto edgeInfo = findClosestHorizonEdge(document->selectedNodes().nodes(), pickRay);
+  if (!edgeInfo) {
+    return Model::Hit::NoHit;
+  }
+
+  const auto [leftFaceHandle, rightFaceHandle, leftDot, rightDot, distance] = *edgeInfo;
+  const auto hitPoint = vm::point_at_distance(pickRay, distance.position1);
+
+  // choose the face that we are seeing from behind
+  return {
+    Resize3DHitType, distance.position1, hitPoint,
+    leftDot > rightDot ? leftFaceHandle : rightFaceHandle};
 }
 
 const std::vector<ResizeDragHandle>& ResizeBrushesTool::proposedDragHandles() const {
