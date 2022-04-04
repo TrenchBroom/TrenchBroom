@@ -21,10 +21,8 @@
 
 #include "Exceptions.h"
 #include "FloatType.h"
-#include "Model/Brush.h"
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
@@ -36,7 +34,6 @@
 #include "Preferences.h"
 #include "View/MapDocument.h"
 
-#include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
 #include <kdl/overload.h>
@@ -47,7 +44,6 @@
 #include <kdl/vector_utils.h>
 
 #include <vecmath/distance.h>
-#include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
 #include <limits>

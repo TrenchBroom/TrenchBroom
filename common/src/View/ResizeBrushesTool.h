@@ -27,20 +27,16 @@
 #include "View/Tool.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/polygon.h>
 #include <vecmath/vec.h>
 
 #include <kdl/reflection_decl.h>
 
 #include <memory>
-#include <tuple>
 #include <vector>
 
 namespace TrenchBroom {
 namespace Model {
-class Brush;
 class BrushFace;
-class BrushNode;
 class Hit;
 class Node;
 class PickResult;
