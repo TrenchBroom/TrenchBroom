@@ -18,7 +18,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "View/ResizeBrushesTool.h"
+#include "View/ExtrudeTool.h"
+
 #include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -54,10 +55,10 @@
 
 namespace TrenchBroom::View {
 
-TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pick2D") {
+TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D") {
   constexpr auto brushBounds = vm::bbox3{16.0};
 
-  auto tool = ResizeBrushesTool{document};
+  auto tool = ExtrudeTool{document};
 
   auto builder = Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
@@ -95,11 +96,11 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pick2D") {
     const auto hit = tool.pick2D(vm::ray3{origin, vm::normalize(direction)}, {});
 
     CHECK(hit.isMatch());
-    CHECK(hit.type() == ResizeBrushesTool::Resize2DHitType);
+    CHECK(hit.type() == ExtrudeTool::Extrude2DHitType);
     CHECK(hit.hitPoint() == expectedHitPoint);
     CHECK(hit.distance() == vm::approx{vm::length(expectedHitPoint - origin)});
 
-    const auto hitHandles = hit.target<ResizeBrushesTool::Resize2DHitData>();
+    const auto hitHandles = hit.target<ExtrudeTool::Extrude2DHitData>();
     const auto expectedHandles = kdl::vec_transform(expectedFaceNormals, [&](const auto& n) {
       return Model::BrushFaceHandle{brushNode1, *brushNode1->brush().findFace(n)};
     });
@@ -108,10 +109,10 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pick2D") {
   }
 }
 
-TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pick3D") {
+TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D") {
   constexpr auto brushBounds = vm::bbox3{16.0};
 
-  auto tool = ResizeBrushesTool{document};
+  auto tool = ExtrudeTool{document};
 
   auto builder = Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
@@ -130,12 +131,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pick3D") {
     const auto hit = tool.pick3D(pickRay, pickResult);
 
     CHECK(hit.isMatch());
-    CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
+    CHECK(hit.type() == ExtrudeTool::Extrude3DHitType);
     CHECK(hit.hitPoint() == vm::vec3{-8, 0, 16});
     CHECK(hit.distance() == vm::approx{vm::length(hit.hitPoint() - pickRay.origin)});
 
     CHECK(
-      hit.target<ResizeBrushesTool::Resize3DHitData>() ==
+      hit.target<ExtrudeTool::Extrude3DHitData>() ==
       Model::BrushFaceHandle{brushNode1, *brushNode1->brush().findFace(vm::vec3{0, 0, 1})});
   }
 
@@ -157,12 +158,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pick3D") {
     const auto hit = tool.pick3D(vm::ray3{origin, vm::normalize(direction)}, {});
 
     CHECK(hit.isMatch());
-    CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
+    CHECK(hit.type() == ExtrudeTool::Extrude3DHitType);
     CHECK(hit.hitPoint() == expectedHitPoint);
     CHECK(hit.distance() == vm::approx{vm::length(expectedHitPoint - origin)});
 
     CHECK(
-      hit.target<ResizeBrushesTool::Resize3DHitData>() ==
+      hit.target<ExtrudeTool::Extrude3DHitData>() ==
       Model::BrushFaceHandle{brushNode1, *brushNode1->brush().findFace(expectedFaceNormal)});
   }
 }
@@ -171,12 +172,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ResizeBrushesToolTest.pick3D") {
  * Boilerplate to perform picking
  */
 static Model::PickResult performPick(
-  View::MapDocument& document, ResizeBrushesTool& tool, const vm::ray3& pickRay) {
+  View::MapDocument& document, ExtrudeTool& tool, const vm::ray3& pickRay) {
   auto pickResult = Model::PickResult::byDistance();
   document.pick(pickRay, pickResult); // populate pickResult
 
   const auto hit = tool.pick3D(pickRay, pickResult);
-  CHECK(hit.type() == ResizeBrushesTool::Resize3DHitType);
+  CHECK(hit.type() == ExtrudeTool::Extrude3DHitType);
   CHECK_FALSE(vm::is_nan(hit.hitPoint()));
 
   REQUIRE(hit.isMatch());
@@ -192,7 +193,7 @@ static Model::PickResult performPick(
 /**
  * Test for https://github.com/TrenchBroom/TrenchBroom/issues/3726
  */
-TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
+TEST_CASE("ExtrudeToolTest.findDragFaces", "[ExtrudeToolTest]") {
   using T = std::tuple<IO::Path, std::vector<std::string>>;
 
   // clang-format off
@@ -203,7 +204,7 @@ TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
   }));
   // clang-format on
 
-  const auto mapPath = IO::Path{"fixture/test/View/ResizeBrushesToolTest"} + mapName;
+  const auto mapPath = IO::Path{"fixture/test/View/ExtrudeToolTest"} + mapName;
   auto [document, game, gameConfig] =
     View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
 
@@ -232,7 +233,7 @@ TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
     cameraEntity->entity().origin(),
     vm::normalize(largerTopFace.center() - cameraEntity->entity().origin())};
 
-  auto tool = ResizeBrushesTool{document};
+  auto tool = ExtrudeTool{document};
 
   const auto pickResult = performPick(*document, tool, pickRay);
   REQUIRE(pickResult.all().front().target<Model::BrushFaceHandle>().face() == largerTopFace);
@@ -246,11 +247,11 @@ TEST_CASE("ResizeBrushesToolTest.findDragFaces", "[ResizeBrushesToolTest]") {
     Catch::UnorderedEquals(expectedDragFaceTextureNames));
 }
 
-TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
+TEST_CASE("ExtrudeToolTest.splitBrushes", "[ExtrudeToolTest]") {
   using namespace Model::HitFilters;
 
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path{"fixture/test/View/ResizeBrushesToolTest/splitBrushes.map"}, "Quake",
+    IO::Path{"fixture/test/View/ExtrudeToolTest/splitBrushes.map"}, "Quake",
     Model::MapFormat::Valve);
 
   document->selectAllNodes();
@@ -282,7 +283,7 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     cameraEntity->entity().origin(),
     vm::normalize(cameraTarget->entity().origin() - cameraEntity->entity().origin()));
 
-  auto tool = ResizeBrushesTool{document};
+  auto tool = ExtrudeTool{document};
 
   const auto pickResult = performPick(*document, tool, pickRay);
 
@@ -292,18 +293,18 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
         }) == std::vector<vm::vec3>{vm::vec3::pos_y(), vm::vec3::pos_y()});
 
   const auto hit =
-    pickResult.first(type(ResizeBrushesTool::Resize2DHitType | ResizeBrushesTool::Resize3DHitType));
-  auto dragState = ResizeDragState{
+    pickResult.first(type(ExtrudeTool::Extrude2DHitType | ExtrudeTool::Extrude3DHitType));
+  auto dragState = ExtrudeDragState{
     hit.hitPoint(), tool.proposedDragHandles(),
-    ResizeBrushesTool::getDragFaces(tool.proposedDragHandles()), false, vm::vec3::zero()};
+    ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false, vm::vec3::zero()};
 
   SECTION("split brushes inwards 32 units towards -Y") {
     const auto delta = vm::vec3(0, -32, 0);
 
     dragState.splitBrushes = true;
-    tool.beginResize();
+    tool.beginExtrude();
 
-    REQUIRE(tool.resize(delta, dragState));
+    REQUIRE(tool.extrude(delta, dragState));
     tool.commit(dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 4);
@@ -333,9 +334,9 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     const auto delta = vm::vec3(0, -48, 0);
 
     dragState.splitBrushes = true;
-    tool.beginResize();
+    tool.beginExtrude();
 
-    REQUIRE(tool.resize(delta, dragState));
+    REQUIRE(tool.extrude(delta, dragState));
     tool.commit(dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 3);
@@ -360,13 +361,13 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     }
   }
 
-  SECTION("resize inwards 32 units towards -Y") {
+  SECTION("extrude inwards 32 units towards -Y") {
     const auto delta = vm::vec3{0, -32, 0};
 
     dragState.splitBrushes = false;
-    tool.beginResize();
+    tool.beginExtrude();
 
-    REQUIRE(tool.resize(delta, dragState));
+    REQUIRE(tool.extrude(delta, dragState));
     tool.commit(dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 2);
@@ -396,9 +397,9 @@ TEST_CASE("ResizeBrushesToolTest.splitBrushes", "[ResizeBrushesToolTest]") {
     const auto delta = vm::vec3{0, 16, 0};
 
     dragState.splitBrushes = true;
-    tool.beginResize();
+    tool.beginExtrude();
 
-    REQUIRE(tool.resize(delta, dragState));
+    REQUIRE(tool.extrude(delta, dragState));
     tool.commit(dragState);
 
     CHECK(document->selectedNodes().brushes().size() == 2);

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ResizeBrushesTool.h"
+#include "ExtrudeTool.h"
 
 #include "Exceptions.h"
 #include "FloatType.h"
@@ -54,40 +54,40 @@ namespace TrenchBroom::View {
 
 // DragHandle
 
-ResizeDragHandle::ResizeDragHandle(Model::BrushFaceHandle i_faceHandle)
+ExtrudeDragHandle::ExtrudeDragHandle(Model::BrushFaceHandle i_faceHandle)
   : faceHandle{std::move(i_faceHandle)}
   , brushAtDragStart{faceHandle.node()->brush()} {}
 
-const Model::BrushFace& ResizeDragHandle::faceAtDragStart() const {
+const Model::BrushFace& ExtrudeDragHandle::faceAtDragStart() const {
   return brushAtDragStart.face(faceHandle.faceIndex());
 }
 
-vm::vec3 ResizeDragHandle::faceNormal() const {
+vm::vec3 ExtrudeDragHandle::faceNormal() const {
   return faceAtDragStart().normal();
 }
 
-kdl_reflect_impl(ResizeDragHandle);
+kdl_reflect_impl(ExtrudeDragHandle);
 
-kdl_reflect_impl(ResizeDragState);
+kdl_reflect_impl(ExtrudeDragState);
 
-// ResizeBrushesTool
+// ExtrudeTool
 
-const Model::HitType::Type ResizeBrushesTool::Resize2DHitType = Model::HitType::freeType();
-const Model::HitType::Type ResizeBrushesTool::Resize3DHitType = Model::HitType::freeType();
+const Model::HitType::Type ExtrudeTool::Extrude2DHitType = Model::HitType::freeType();
+const Model::HitType::Type ExtrudeTool::Extrude3DHitType = Model::HitType::freeType();
 
-ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document)
+ExtrudeTool::ExtrudeTool(std::weak_ptr<MapDocument> document)
   : Tool{true}
   , m_document{std::move(document)}
   , m_dragging{false} {
   connectObservers();
 }
 
-bool ResizeBrushesTool::applies() const {
+bool ExtrudeTool::applies() const {
   auto document = kdl::mem_lock(m_document);
   return document->selectedNodes().hasBrushes();
 }
 
-const Grid& ResizeBrushesTool::grid() const {
+const Grid& ExtrudeTool::grid() const {
   return kdl::mem_lock(m_document)->grid();
 }
 
@@ -153,8 +153,7 @@ std::optional<EdgeInfo> findClosestHorizonEdge(
 }
 } // namespace
 
-Model::Hit ResizeBrushesTool::pick2D(
-  const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
+Model::Hit ExtrudeTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
   using namespace Model::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
@@ -173,11 +172,11 @@ Model::Hit ResizeBrushesTool::pick2D(
 
   if (vm::is_zero(leftDot, vm::C::almost_zero())) {
     return {
-      Resize2DHitType, distance.position1, hitPoint,
+      Extrude2DHitType, distance.position1, hitPoint,
       std::vector<Model::BrushFaceHandle>{leftFaceHandle}};
   } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
     return {
-      Resize2DHitType, distance.position1, hitPoint,
+      Extrude2DHitType, distance.position1, hitPoint,
       std::vector<Model::BrushFaceHandle>{rightFaceHandle}};
   } else {
     auto data = std::vector<Model::BrushFaceHandle>{};
@@ -190,19 +189,18 @@ Model::Hit ResizeBrushesTool::pick2D(
     if (vm::abs(rightDot) < 1.0) {
       data.push_back(rightFaceHandle);
     }
-    return {Resize2DHitType, distance.position1, hitPoint, std::move(data)};
+    return {Extrude2DHitType, distance.position1, hitPoint, std::move(data)};
   }
 }
 
-Model::Hit ResizeBrushesTool::pick3D(
-  const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
+Model::Hit ExtrudeTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) const {
   using namespace Model::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
 
   const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && selected());
   if (const auto faceHandle = hitToFaceHandle(hit)) {
-    return {Resize3DHitType, hit.distance(), hit.hitPoint(), *faceHandle};
+    return {Extrude3DHitType, hit.distance(), hit.hitPoint(), *faceHandle};
   }
 
   const auto edgeInfo = findClosestHorizonEdge(document->selectedNodes().nodes(), pickRay);
@@ -215,11 +213,11 @@ Model::Hit ResizeBrushesTool::pick3D(
 
   // choose the face that we are seeing from behind
   return {
-    Resize3DHitType, distance.position1, hitPoint,
+    Extrude3DHitType, distance.position1, hitPoint,
     leftDot > rightDot ? leftFaceHandle : rightFaceHandle};
 }
 
-const std::vector<ResizeDragHandle>& ResizeBrushesTool::proposedDragHandles() const {
+const std::vector<ExtrudeDragHandle>& ExtrudeTool::proposedDragHandles() const {
   return m_proposedDragHandles;
 }
 
@@ -254,56 +252,55 @@ std::vector<Model::BrushFaceHandle> collectDragFaces(
   return result;
 }
 
-std::vector<ResizeDragHandle> collectDragHandles(
+std::vector<ExtrudeDragHandle> collectDragHandles(
   const std::vector<Model::Node*>& nodes, const Model::Hit& hit) {
   assert(hit.isMatch());
   assert(
-    hit.type() == ResizeBrushesTool::Resize2DHitType ||
-    hit.type() == ResizeBrushesTool::Resize3DHitType);
+    hit.type() == ExtrudeTool::Extrude2DHitType || hit.type() == ExtrudeTool::Extrude3DHitType);
 
   auto result = std::vector<Model::BrushFaceHandle>{};
-  if (hit.type() == ResizeBrushesTool::Resize2DHitType) {
-    const auto& data = hit.target<const ResizeBrushesTool::Resize2DHitData&>();
+  if (hit.type() == ExtrudeTool::Extrude2DHitType) {
+    const auto& data = hit.target<const ExtrudeTool::Extrude2DHitData&>();
     assert(!data.empty());
     result = kdl::vec_concat(std::move(result), data, collectDragFaces(nodes, data[0]));
     if (data.size() > 1) {
       result = kdl::vec_concat(std::move(result), collectDragFaces(nodes, data[1]));
     }
   } else {
-    const auto& data = hit.target<const ResizeBrushesTool::Resize3DHitData&>();
+    const auto& data = hit.target<const ExtrudeTool::Extrude3DHitData&>();
     result.push_back(data);
     result = kdl::vec_concat(std::move(result), collectDragFaces(nodes, data));
   }
 
   return kdl::vec_transform(result, [](const auto& handle) {
-    return ResizeDragHandle{handle};
+    return ExtrudeDragHandle{handle};
   });
 }
 
-std::vector<ResizeDragHandle> getDragHandles(
+std::vector<ExtrudeDragHandle> getDragHandles(
   const std::vector<Model::Node*>& nodes, const Model::Hit& hit) {
   if (hit.isMatch()) {
     return collectDragHandles(nodes, hit);
   } else {
-    return std::vector<ResizeDragHandle>{};
+    return std::vector<ExtrudeDragHandle>{};
   }
 }
 } // namespace
 
-void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickResult) {
+void ExtrudeTool::updateProposedDragHandles(const Model::PickResult& pickResult) {
   using namespace Model::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
   if (m_dragging) {
     // FIXME: this should be turned into an ensure failure, but it's easy to make it fail
     // currently by spamming drags/modifiers.
-    // Indicates a bug in ResizeBrushesToolController thinking we are not dragging when we actually
+    // Indicates a bug in ExtrudeToolController thinking we are not dragging when we actually
     // still are.
     document->error() << "updateProposedDragHandles called during a drag";
     return;
   }
 
-  const auto& hit = pickResult.first(type(Resize2DHitType | Resize3DHitType));
+  const auto& hit = pickResult.first(type(Extrude2DHitType | Extrude3DHitType));
   const auto& nodes = document->selectedNodes().nodes();
 
   auto newDragHandles = getDragHandles(nodes, hit);
@@ -313,8 +310,8 @@ void ResizeBrushesTool::updateProposedDragHandles(const Model::PickResult& pickR
   }
 }
 
-std::vector<Model::BrushFaceHandle> ResizeBrushesTool::getDragFaces(
-  const std::vector<ResizeDragHandle>& dragHandles) {
+std::vector<Model::BrushFaceHandle> ExtrudeTool::getDragFaces(
+  const std::vector<ExtrudeDragHandle>& dragHandles) {
   auto dragFaces = std::vector<Model::BrushFaceHandle>{};
   dragFaces.reserve(dragHandles.size());
 
@@ -331,7 +328,7 @@ std::vector<Model::BrushFaceHandle> ResizeBrushesTool::getDragFaces(
 /**
  * Starts resizing the faces determined by the previous call to updateProposedDragHandles
  */
-void ResizeBrushesTool::beginResize() {
+void ExtrudeTool::beginExtrude() {
   ensure(!m_dragging, "may not be called during a drag");
   m_dragging = true;
   kdl::mem_lock(m_document)->startTransaction("Resize Brushes");
@@ -350,7 +347,8 @@ namespace {
  * - sets m_totalDelta to the given delta
  * - returns true
  */
-bool splitBrushesOutward(MapDocument& document, const vm::vec3& delta, ResizeDragState& dragState) {
+bool splitBrushesOutward(
+  MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState) {
   const auto& worldBounds = document.worldBounds();
   const bool lockTextures = pref(Preferences::TextureLock);
 
@@ -421,7 +419,7 @@ bool splitBrushesOutward(MapDocument& document, const vm::vec3& delta, ResizeDra
  * - sets m_totalDelta to the given delta
  * - returns true
  */
-bool splitBrushesInward(MapDocument& document, const vm::vec3& delta, ResizeDragState& dragState) {
+bool splitBrushesInward(MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState) {
   const auto& worldBounds = document.worldBounds();
   const bool lockTextures = pref(Preferences::TextureLock);
 
@@ -500,14 +498,14 @@ bool splitBrushesInward(MapDocument& document, const vm::vec3& delta, ResizeDrag
   return true;
 }
 
-std::vector<vm::polygon3> getPolygons(const std::vector<ResizeDragHandle>& dragHandles) {
+std::vector<vm::polygon3> getPolygons(const std::vector<ExtrudeDragHandle>& dragHandles) {
   return kdl::vec_transform(dragHandles, [](const auto& dragHandle) {
     return dragHandle.brushAtDragStart.face(dragHandle.faceHandle.faceIndex()).polygon();
   });
 }
 } // namespace
 
-bool ResizeBrushesTool::resize(const vm::vec3& faceDelta, ResizeDragState& dragState) {
+bool ExtrudeTool::extrude(const vm::vec3& faceDelta, ExtrudeDragState& dragState) {
   ensure(m_dragging, "may only be called during a drag");
 
   auto document = kdl::mem_lock(m_document);
@@ -520,12 +518,12 @@ bool ResizeBrushesTool::resize(const vm::vec3& faceDelta, ResizeDragState& dragS
     }
   } else {
     document->rollbackTransaction();
-    if (document->resizeBrushes(getPolygons(dragState.initialDragHandles), faceDelta)) {
+    if (document->extrudeBrushes(getPolygons(dragState.initialDragHandles), faceDelta)) {
       dragState.totalDelta = faceDelta;
     } else {
-      // resizeBrushes() fails if some brushes were completely clipped away.
+      // extrudeBrushes() fails if some brushes were completely clipped away.
       // In that case, restore the last m_totalDelta to be successfully applied.
-      document->resizeBrushes(getPolygons(dragState.initialDragHandles), dragState.totalDelta);
+      document->extrudeBrushes(getPolygons(dragState.initialDragHandles), dragState.totalDelta);
     }
   }
 
@@ -534,13 +532,13 @@ bool ResizeBrushesTool::resize(const vm::vec3& faceDelta, ResizeDragState& dragS
   return true;
 }
 
-void ResizeBrushesTool::beginMove() {
+void ExtrudeTool::beginMove() {
   ensure(!m_dragging, "may not be called during a drag");
   m_dragging = true;
   kdl::mem_lock(m_document)->startTransaction("Move Faces");
 }
 
-bool ResizeBrushesTool::move(const vm::vec3& delta, ResizeDragState& dragState) {
+bool ExtrudeTool::move(const vm::vec3& delta, ExtrudeDragState& dragState) {
   ensure(m_dragging, "may only be called during a drag");
 
   auto document = kdl::mem_lock(m_document);
@@ -558,7 +556,7 @@ bool ResizeBrushesTool::move(const vm::vec3& delta, ResizeDragState& dragState) 
   return true;
 }
 
-void ResizeBrushesTool::commit(const ResizeDragState& dragState) {
+void ExtrudeTool::commit(const ExtrudeDragState& dragState) {
   ensure(m_dragging, "may only be called during a drag");
 
   auto document = kdl::mem_lock(m_document);
@@ -571,7 +569,7 @@ void ResizeBrushesTool::commit(const ResizeDragState& dragState) {
   m_dragging = false;
 }
 
-void ResizeBrushesTool::cancel() {
+void ExtrudeTool::cancel() {
   ensure(m_dragging, "may only be called during a drag");
 
   auto document = kdl::mem_lock(m_document);
@@ -580,25 +578,25 @@ void ResizeBrushesTool::cancel() {
   m_dragging = false;
 }
 
-void ResizeBrushesTool::connectObservers() {
+void ExtrudeTool::connectObservers() {
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection +=
-    document->nodesWereAddedNotifier.connect(this, &ResizeBrushesTool::nodesDidChange);
+    document->nodesWereAddedNotifier.connect(this, &ExtrudeTool::nodesDidChange);
   m_notifierConnection +=
-    document->nodesWillChangeNotifier.connect(this, &ResizeBrushesTool::nodesDidChange);
+    document->nodesWillChangeNotifier.connect(this, &ExtrudeTool::nodesDidChange);
   m_notifierConnection +=
-    document->nodesWillBeRemovedNotifier.connect(this, &ResizeBrushesTool::nodesDidChange);
+    document->nodesWillBeRemovedNotifier.connect(this, &ExtrudeTool::nodesDidChange);
   m_notifierConnection +=
-    document->selectionDidChangeNotifier.connect(this, &ResizeBrushesTool::selectionDidChange);
+    document->selectionDidChangeNotifier.connect(this, &ExtrudeTool::selectionDidChange);
 }
 
-void ResizeBrushesTool::nodesDidChange(const std::vector<Model::Node*>&) {
+void ExtrudeTool::nodesDidChange(const std::vector<Model::Node*>&) {
   if (!m_dragging) {
     m_proposedDragHandles.clear();
   }
 }
 
-void ResizeBrushesTool::selectionDidChange(const Selection&) {
+void ExtrudeTool::selectionDidChange(const Selection&) {
   if (!m_dragging) {
     m_proposedDragHandles.clear();
   }

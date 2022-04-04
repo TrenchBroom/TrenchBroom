@@ -31,17 +31,17 @@ class RenderContext;
 
 namespace View {
 class DragTracker;
-class ResizeBrushesTool;
+class ExtrudeTool;
 
-class ResizeBrushesToolController : public ToolController {
+class ExtrudeToolController : public ToolController {
 protected:
-  ResizeBrushesTool& m_tool;
+  ExtrudeTool& m_tool;
 
 protected:
-  explicit ResizeBrushesToolController(ResizeBrushesTool& tool);
+  explicit ExtrudeToolController(ExtrudeTool& tool);
 
 public:
-  ~ResizeBrushesToolController() override;
+  ~ExtrudeToolController() override;
 
 private:
   Tool& tool() override;
@@ -68,18 +68,18 @@ private:
   virtual Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) = 0;
 };
 
-class ResizeBrushesToolController2D : public ResizeBrushesToolController {
+class ExtrudeToolController2D : public ExtrudeToolController {
 public:
-  explicit ResizeBrushesToolController2D(ResizeBrushesTool& tool);
+  explicit ExtrudeToolController2D(ExtrudeTool& tool);
 
 private:
   Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
   bool doHandleInput(const InputState& inputState) const override;
 };
 
-class ResizeBrushesToolController3D : public ResizeBrushesToolController {
+class ExtrudeToolController3D : public ExtrudeToolController {
 public:
-  explicit ResizeBrushesToolController3D(ResizeBrushesTool& tool);
+  explicit ExtrudeToolController3D(ExtrudeTool& tool);
 
 private:
   Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;

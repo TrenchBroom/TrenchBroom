@@ -553,7 +553,7 @@ public: // modifying entity properties, declared in MapFacade interface
   bool canClearProtectedProperties() const;
 
 public: // brush resizing, declared in MapFacade interface
-  bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
+  bool extrudeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
 
 public:
   bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
