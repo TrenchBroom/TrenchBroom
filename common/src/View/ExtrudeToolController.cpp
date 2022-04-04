@@ -113,13 +113,13 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
     , m_extrudeDragState{std::move(extrudeDragState)} {}
 
   HandlePositionProposer start(
-    const InputState&, const vm::vec3&, const vm::vec3& handleOffset) override {
+    const InputState&, const vm::vec3& initialHandlePosition,
+    const vm::vec3& handleOffset) override {
     const auto& dragFaceHandle = m_extrudeDragState.initialDragHandles.at(0);
     const auto& dragFace = dragFaceHandle.faceAtDragStart();
     const auto& faceNormal = dragFace.boundary().normal;
 
-    auto picker =
-      makeLineHandlePicker(vm::line3{m_extrudeDragState.dragOrigin, faceNormal}, handleOffset);
+    auto picker = makeLineHandlePicker(vm::line3{initialHandlePosition, faceNormal}, handleOffset);
 
     auto snapper =
       [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
@@ -172,8 +172,8 @@ auto makeExtrudeDragTracker(
   return createHandleDragTracker(
     ExtrudeDragDelegate{
       tool,
-      {initialHitPoint, tool.proposedDragHandles(),
-       ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split, vm::vec3::zero()}},
+      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split,
+       vm::vec3::zero()}},
     inputState, initialHitPoint, vm::vec3::zero());
 }
 
@@ -186,10 +186,10 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
     , m_moveDragState{std::move(moveDragState)} {}
 
   HandlePositionProposer start(
-    const InputState& inputState, const vm::vec3&, const vm::vec3& handleOffset) override {
+    const InputState& inputState, const vm::vec3& initialHandlePosition,
+    const vm::vec3& handleOffset) override {
     auto picker = makePlaneHandlePicker(
-      vm::plane3{m_moveDragState.dragOrigin, vm::vec3{inputState.camera().direction()}},
-      handleOffset);
+      vm::plane3{initialHandlePosition, vm::vec3{inputState.camera().direction()}}, handleOffset);
 
     auto snapper =
       [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
@@ -241,8 +241,8 @@ auto makeMoveDragTracker(
   return createHandleDragTracker(
     MoveDragDelegate{
       tool,
-      {initialHitPoint, tool.proposedDragHandles(),
-       ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false, vm::vec3::zero()}},
+      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false,
+       vm::vec3::zero()}},
     inputState, initialHitPoint, vm::vec3::zero());
 }
 } // namespace
@@ -260,6 +260,7 @@ std::unique_ptr<DragTracker> ExtrudeToolController::acceptMouseDrag(const InputS
   }
 
   m_tool.updateProposedDragHandles(inputState.pickResult());
+
   const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
   if (hit.isMatch()) {
     if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {

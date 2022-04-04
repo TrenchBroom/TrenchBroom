@@ -68,8 +68,6 @@ struct ExtrudeDragHandle {
 };
 
 struct ExtrudeDragState {
-  /** The position at which the drag initiated. */
-  vm::vec3 dragOrigin;
   /** The drag handles when the drag started. */
   std::vector<ExtrudeDragHandle> initialDragHandles;
   /** The faces being dragged. */
@@ -81,7 +79,7 @@ struct ExtrudeDragState {
   vm::vec3 totalDelta;
 
   kdl_reflect_decl(
-    ExtrudeDragState, dragOrigin, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
+    ExtrudeDragState, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
 };
 
 /**

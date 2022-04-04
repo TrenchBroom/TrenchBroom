@@ -296,8 +296,8 @@ TEST_CASE("ExtrudeToolTest.splitBrushes", "[ExtrudeToolTest]") {
 
   const auto hit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
   auto dragState = ExtrudeDragState{
-    hit.hitPoint(), tool.proposedDragHandles(),
-    ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false, vm::vec3::zero()};
+    tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false,
+    vm::vec3::zero()};
 
   SECTION("split brushes inwards 32 units towards -Y") {
     const auto delta = vm::vec3(0, -32, 0);
