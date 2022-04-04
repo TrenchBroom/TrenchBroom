@@ -96,8 +96,7 @@ public:
   static const Model::HitType::Type Extrude3DHitType;
   static const Model::HitType::Type Extrude2DHitType;
 
-  using Extrude2DHitData = std::vector<Model::BrushFaceHandle>;
-  using Extrude3DHitData = Model::BrushFaceHandle;
+  using ExtrudeHitData = std::vector<Model::BrushFaceHandle>;
 
 private:
   std::weak_ptr<MapDocument> m_document;

@@ -200,7 +200,9 @@ Model::Hit ExtrudeTool::pick3D(const vm::ray3& pickRay, const Model::PickResult&
 
   const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && selected());
   if (const auto faceHandle = hitToFaceHandle(hit)) {
-    return {Extrude3DHitType, hit.distance(), hit.hitPoint(), *faceHandle};
+    return {
+      Extrude3DHitType, hit.distance(), hit.hitPoint(),
+      std::vector<Model::BrushFaceHandle>{*faceHandle}};
   }
 
   const auto edgeInfo = findClosestHorizonEdge(document->selectedNodes().nodes(), pickRay);
@@ -214,7 +216,7 @@ Model::Hit ExtrudeTool::pick3D(const vm::ray3& pickRay, const Model::PickResult&
   // choose the face that we are seeing from behind
   return {
     Extrude3DHitType, distance.position1, hitPoint,
-    leftDot > rightDot ? leftFaceHandle : rightFaceHandle};
+    std::vector<Model::BrushFaceHandle>{leftDot > rightDot ? leftFaceHandle : rightFaceHandle}};
 }
 
 const std::vector<ExtrudeDragHandle>& ExtrudeTool::proposedDragHandles() const {
@@ -222,7 +224,7 @@ const std::vector<ExtrudeDragHandle>& ExtrudeTool::proposedDragHandles() const {
 }
 
 namespace {
-std::vector<Model::BrushFaceHandle> collectDragFaces(
+std::vector<Model::BrushFaceHandle> collectCoplanarFaces(
   const std::vector<Model::Node*>& nodes, const Model::BrushFaceHandle& faceHandle) {
   auto result = std::vector<Model::BrushFaceHandle>{};
 
@@ -235,10 +237,6 @@ std::vector<Model::BrushFaceHandle> collectDragFaces(
         const auto& brush = brushNode->brush();
         for (size_t i = 0; i < brush.faceCount(); ++i) {
           const auto& face = brush.face(i);
-          if (&face == &referenceFace) {
-            continue;
-          }
-
           if (!face.coplanarWith(referenceFace.boundary())) {
             continue;
           }
@@ -252,38 +250,23 @@ std::vector<Model::BrushFaceHandle> collectDragFaces(
   return result;
 }
 
-std::vector<ExtrudeDragHandle> collectDragHandles(
+std::vector<ExtrudeDragHandle> getDragHandles(
   const std::vector<Model::Node*>& nodes, const Model::Hit& hit) {
-  assert(hit.isMatch());
-  assert(
-    hit.type() == ExtrudeTool::Extrude2DHitType || hit.type() == ExtrudeTool::Extrude3DHitType);
+  if (!hit.isMatch()) {
+    return {};
+  }
 
+  assert(hit.hasType(ExtrudeTool::Extrude2DHitType | ExtrudeTool::Extrude3DHitType));
   auto result = std::vector<Model::BrushFaceHandle>{};
-  if (hit.type() == ExtrudeTool::Extrude2DHitType) {
-    const auto& data = hit.target<const ExtrudeTool::Extrude2DHitData&>();
-    assert(!data.empty());
-    result = kdl::vec_concat(std::move(result), data, collectDragFaces(nodes, data[0]));
-    if (data.size() > 1) {
-      result = kdl::vec_concat(std::move(result), collectDragFaces(nodes, data[1]));
-    }
-  } else {
-    const auto& data = hit.target<const ExtrudeTool::Extrude3DHitData&>();
-    result.push_back(data);
-    result = kdl::vec_concat(std::move(result), collectDragFaces(nodes, data));
+
+  const auto& faces = hit.target<const ExtrudeTool::ExtrudeHitData&>();
+  for (const auto& face : faces) {
+    result = kdl::vec_concat(std::move(result), collectCoplanarFaces(nodes, face));
   }
 
   return kdl::vec_transform(result, [](const auto& handle) {
     return ExtrudeDragHandle{handle};
   });
-}
-
-std::vector<ExtrudeDragHandle> getDragHandles(
-  const std::vector<Model::Node*>& nodes, const Model::Hit& hit) {
-  if (hit.isMatch()) {
-    return collectDragHandles(nodes, hit);
-  } else {
-    return std::vector<ExtrudeDragHandle>{};
-  }
 }
 } // namespace
 
