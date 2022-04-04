@@ -96,7 +96,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D") {
     const auto hit = tool.pick2D(vm::ray3{origin, vm::normalize(direction)}, {});
 
     CHECK(hit.isMatch());
-    CHECK(hit.type() == ExtrudeTool::Extrude2DHitType);
+    CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
     CHECK(hit.hitPoint() == expectedHitPoint);
     CHECK(hit.distance() == vm::approx{vm::length(expectedHitPoint - origin)});
 
@@ -131,7 +131,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D") {
     const auto hit = tool.pick3D(pickRay, pickResult);
 
     CHECK(hit.isMatch());
-    CHECK(hit.type() == ExtrudeTool::Extrude3DHitType);
+    CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
     CHECK(hit.hitPoint() == vm::vec3{-8, 0, 16});
     CHECK(hit.distance() == vm::approx{vm::length(hit.hitPoint() - pickRay.origin)});
 
@@ -159,7 +159,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D") {
     const auto hit = tool.pick3D(vm::ray3{origin, vm::normalize(direction)}, {});
 
     CHECK(hit.isMatch());
-    CHECK(hit.type() == ExtrudeTool::Extrude3DHitType);
+    CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
     CHECK(hit.hitPoint() == expectedHitPoint);
     CHECK(hit.distance() == vm::approx{vm::length(expectedHitPoint - origin)});
 
@@ -179,7 +179,7 @@ static Model::PickResult performPick(
   document.pick(pickRay, pickResult); // populate pickResult
 
   const auto hit = tool.pick3D(pickRay, pickResult);
-  CHECK(hit.type() == ExtrudeTool::Extrude3DHitType);
+  CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
   CHECK_FALSE(vm::is_nan(hit.hitPoint()));
 
   REQUIRE(hit.isMatch());
@@ -294,8 +294,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes", "[ExtrudeToolTest]") {
           return h.faceAtDragStart().normal();
         }) == std::vector<vm::vec3>{vm::vec3::pos_y(), vm::vec3::pos_y()});
 
-  const auto hit =
-    pickResult.first(type(ExtrudeTool::Extrude2DHitType | ExtrudeTool::Extrude3DHitType));
+  const auto hit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
   auto dragState = ExtrudeDragState{
     hit.hitPoint(), tool.proposedDragHandles(),
     ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false, vm::vec3::zero()};

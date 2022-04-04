@@ -260,16 +260,14 @@ std::unique_ptr<DragTracker> ExtrudeToolController::acceptMouseDrag(const InputS
   }
 
   m_tool.updateProposedDragHandles(inputState.pickResult());
-  if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
-    const auto& hit = inputState.pickResult().first(type(ExtrudeTool::Extrude2DHitType));
-    if (hit.isMatch()) {
-      m_tool.beginMove();
-      return makeMoveDragTracker(m_tool, inputState, hit.hitPoint());
-    }
-  } else {
-    const auto& hit = inputState.pickResult().first(
-      type(ExtrudeTool::Extrude2DHitType | ExtrudeTool::Extrude3DHitType));
-    if (hit.isMatch()) {
+  const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
+  if (hit.isMatch()) {
+    if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
+      if (inputState.camera().orthographicProjection()) {
+        m_tool.beginMove();
+        return makeMoveDragTracker(m_tool, inputState, hit.hitPoint());
+      }
+    } else {
       const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
       m_tool.beginExtrude();
       return makeExtrudeDragTracker(m_tool, inputState, hit.hitPoint(), split);

@@ -93,8 +93,7 @@ struct ExtrudeDragState {
  */
 class ExtrudeTool : public Tool {
 public:
-  static const Model::HitType::Type Extrude3DHitType;
-  static const Model::HitType::Type Extrude2DHitType;
+  static const Model::HitType::Type ExtrudeHitType;
 
   using ExtrudeHitData = std::vector<Model::BrushFaceHandle>;
 

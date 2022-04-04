@@ -72,8 +72,7 @@ kdl_reflect_impl(ExtrudeDragState);
 
 // ExtrudeTool
 
-const Model::HitType::Type ExtrudeTool::Extrude2DHitType = Model::HitType::freeType();
-const Model::HitType::Type ExtrudeTool::Extrude3DHitType = Model::HitType::freeType();
+const Model::HitType::Type ExtrudeTool::ExtrudeHitType = Model::HitType::freeType();
 
 ExtrudeTool::ExtrudeTool(std::weak_ptr<MapDocument> document)
   : Tool{true}
@@ -172,11 +171,11 @@ Model::Hit ExtrudeTool::pick2D(const vm::ray3& pickRay, const Model::PickResult&
 
   if (vm::is_zero(leftDot, vm::C::almost_zero())) {
     return {
-      Extrude2DHitType, distance.position1, hitPoint,
+      ExtrudeHitType, distance.position1, hitPoint,
       std::vector<Model::BrushFaceHandle>{leftFaceHandle}};
   } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
     return {
-      Extrude2DHitType, distance.position1, hitPoint,
+      ExtrudeHitType, distance.position1, hitPoint,
       std::vector<Model::BrushFaceHandle>{rightFaceHandle}};
   } else {
     auto data = std::vector<Model::BrushFaceHandle>{};
@@ -189,7 +188,7 @@ Model::Hit ExtrudeTool::pick2D(const vm::ray3& pickRay, const Model::PickResult&
     if (vm::abs(rightDot) < 1.0) {
       data.push_back(rightFaceHandle);
     }
-    return {Extrude2DHitType, distance.position1, hitPoint, std::move(data)};
+    return {ExtrudeHitType, distance.position1, hitPoint, std::move(data)};
   }
 }
 
@@ -201,7 +200,7 @@ Model::Hit ExtrudeTool::pick3D(const vm::ray3& pickRay, const Model::PickResult&
   const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && selected());
   if (const auto faceHandle = hitToFaceHandle(hit)) {
     return {
-      Extrude3DHitType, hit.distance(), hit.hitPoint(),
+      ExtrudeHitType, hit.distance(), hit.hitPoint(),
       std::vector<Model::BrushFaceHandle>{*faceHandle}};
   }
 
@@ -215,7 +214,7 @@ Model::Hit ExtrudeTool::pick3D(const vm::ray3& pickRay, const Model::PickResult&
 
   // choose the face that we are seeing from behind
   return {
-    Extrude3DHitType, distance.position1, hitPoint,
+    ExtrudeHitType, distance.position1, hitPoint,
     std::vector<Model::BrushFaceHandle>{leftDot > rightDot ? leftFaceHandle : rightFaceHandle}};
 }
 
@@ -256,7 +255,7 @@ std::vector<ExtrudeDragHandle> getDragHandles(
     return {};
   }
 
-  assert(hit.hasType(ExtrudeTool::Extrude2DHitType | ExtrudeTool::Extrude3DHitType));
+  assert(hit.hasType(ExtrudeTool::ExtrudeHitType));
   auto result = std::vector<Model::BrushFaceHandle>{};
 
   const auto& faces = hit.target<const ExtrudeTool::ExtrudeHitData&>();
@@ -283,7 +282,7 @@ void ExtrudeTool::updateProposedDragHandles(const Model::PickResult& pickResult)
     return;
   }
 
-  const auto& hit = pickResult.first(type(Extrude2DHitType | Extrude3DHitType));
+  const auto& hit = pickResult.first(type(ExtrudeHitType));
   const auto& nodes = document->selectedNodes().nodes();
 
   auto newDragHandles = getDragHandles(nodes, hit);
