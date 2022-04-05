@@ -167,13 +167,12 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
 
 auto createExtrudeDragTracker(
   ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint,
-  const bool split) {
-  // todo: compute handle offset correctly
+  const vm::vec3& initialHandlePosition, const bool split) {
   return createHandleDragTracker(
     ExtrudeDragDelegate{
       tool,
       {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split}},
-    inputState, initialHitPoint, vm::vec3::zero());
+    inputState, initialHandlePosition, initialHandlePosition - initialHitPoint);
 }
 
 struct MoveDragDelegate : public HandleDragTrackerDelegate {
@@ -235,12 +234,12 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
 };
 
 auto createMoveDragTracker(
-  ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint) {
-  // todo: compute handle offset correctly
+  ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint,
+  const vm::vec3& initialHandlePosition) {
   return createHandleDragTracker(
     MoveDragDelegate{
       tool, {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles())}},
-    inputState, initialHitPoint, vm::vec3::zero());
+    inputState, initialHandlePosition, initialHandlePosition - initialHitPoint);
 }
 } // namespace
 
@@ -260,15 +259,17 @@ std::unique_ptr<DragTracker> ExtrudeToolController::acceptMouseDrag(const InputS
 
   const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
   if (hit.isMatch()) {
+    const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
     if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
       if (inputState.camera().orthographicProjection()) {
         m_tool.beginMove();
-        return createMoveDragTracker(m_tool, inputState, hit.hitPoint());
+        return createMoveDragTracker(m_tool, inputState, hit.hitPoint(), initialHandlePosition);
       }
     } else {
       const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
       m_tool.beginExtrude();
-      return createExtrudeDragTracker(m_tool, inputState, hit.hitPoint(), split);
+      return createExtrudeDragTracker(
+        m_tool, inputState, hit.hitPoint(), initialHandlePosition, split);
     }
   }
 
