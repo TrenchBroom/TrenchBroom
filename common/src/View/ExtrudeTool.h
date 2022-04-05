@@ -74,9 +74,9 @@ struct ExtrudeDragState {
   std::vector<Model::BrushFaceHandle> currentDragFaces;
 
   /** Whether or not to create new brushes by splitting the selected brushes. */
-  bool splitBrushes;
+  bool splitBrushes = false;
   /** The total drag distance so far. */
-  vm::vec3 totalDelta;
+  vm::vec3 totalDelta = {0, 0, 0};
 
   kdl_reflect_decl(
     ExtrudeDragState, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);

@@ -172,8 +172,7 @@ auto createExtrudeDragTracker(
   return createHandleDragTracker(
     ExtrudeDragDelegate{
       tool,
-      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split,
-       vm::vec3::zero()}},
+      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split}},
     inputState, initialHitPoint, vm::vec3::zero());
 }
 
@@ -240,9 +239,7 @@ auto createMoveDragTracker(
   // todo: compute handle offset correctly
   return createHandleDragTracker(
     MoveDragDelegate{
-      tool,
-      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false,
-       vm::vec3::zero()}},
+      tool, {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles())}},
     inputState, initialHitPoint, vm::vec3::zero());
 }
 } // namespace
