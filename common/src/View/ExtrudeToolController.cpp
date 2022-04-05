@@ -165,7 +165,7 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
   }
 };
 
-auto makeExtrudeDragTracker(
+auto createExtrudeDragTracker(
   ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint,
   const bool split) {
   // todo: compute handle offset correctly
@@ -235,7 +235,7 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
   }
 };
 
-auto makeMoveDragTracker(
+auto createMoveDragTracker(
   ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint) {
   // todo: compute handle offset correctly
   return createHandleDragTracker(
@@ -266,12 +266,12 @@ std::unique_ptr<DragTracker> ExtrudeToolController::acceptMouseDrag(const InputS
     if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
       if (inputState.camera().orthographicProjection()) {
         m_tool.beginMove();
-        return makeMoveDragTracker(m_tool, inputState, hit.hitPoint());
+        return createMoveDragTracker(m_tool, inputState, hit.hitPoint());
       }
     } else {
       const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
       m_tool.beginExtrude();
-      return makeExtrudeDragTracker(m_tool, inputState, hit.hitPoint(), split);
+      return createExtrudeDragTracker(m_tool, inputState, hit.hitPoint(), split);
     }
   }
 
