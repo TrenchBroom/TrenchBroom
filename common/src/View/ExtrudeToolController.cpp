@@ -132,9 +132,6 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
 
   HandlePositionProposer start(
     const InputState& inputState, const vm::vec3&, const vm::vec3& handleOffset) override {
-    const auto& dragFaceHandle = m_extrudeDragState.initialDragHandles.at(0);
-    const auto& dragFace = dragFaceHandle.faceAtDragStart();
-
     auto picker = makePicker(inputState, handleOffset);
     auto snapper =
       [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
@@ -143,9 +140,9 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
           return proposedHandlePosition;
         }
 
-        const auto totalFaceDelta = proposedHandlePosition - dragState.initialHandlePosition;
-        const auto snappedFaceDelta = grid.moveDelta(dragFace, totalFaceDelta);
-        return dragState.initialHandlePosition + snappedFaceDelta;
+        const auto totalHandleDelta = proposedHandlePosition - dragState.initialHandlePosition;
+        const auto snappedHandleDelta = grid.snap(totalHandleDelta);
+        return dragState.initialHandlePosition + snappedHandleDelta;
       };
 
     return makeHandlePositionProposer(std::move(picker), std::move(snapper));
