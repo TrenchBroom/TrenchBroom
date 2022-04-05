@@ -79,15 +79,15 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D") {
   }
 
   SECTION("Pick ray does not hit brush directly") {
-    using T = std::tuple<vm::vec3, vm::vec3, std::vector<vm::vec3>, vm::vec3, vm::vec3>;
+    using T = std::tuple<vm::vec3, vm::vec3, std::vector<vm::vec3>, vm::vec3, vm::plane3>;
 
     // clang-format off
     const auto
-    [origin,     direction,     expectedFaceNormals,     expectedHitPoint, expectedHandlePosition] = GENERATE(values<T>({
+    [origin,     direction,     expectedFaceNormals,     expectedHitPoint, expectedDragReference] = GENERATE(values<T>({
     // shoot from above downwards just past the top west edge, picking the west face
-    {{-17, 0, 32}, { 0, 0, -1}, {{-1, 0, 0}},            {-17, 0, 16},     {-16, 0, 16}},
+    {{-17, 0, 32}, { 0, 0, -1}, {{-1, 0, 0}},            {-17, 0, 16},     {{-16, 0, 16}, {0, 0, -1}}},
     // shoot diagonally past the top west edge, picking both adjacent faces
-    {{ -1, 0, 33}, {-1, 0, -1}, {{-1, 0, 0}, {0, 0, 1}}, {-17, 0, 17},     {-16, 0, 16}},
+    {{ -1, 0, 33}, {-1, 0, -1}, {{-1, 0, 0}, {0, 0, 1}}, {-17, 0, 17},     {{-16, 0, 16}, vm::normalize(vm::vec3{-1, 0, -1})}},
     }));
     // clang-format on
 
@@ -108,7 +108,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D") {
           [&](const auto& n) {
             return Model::BrushFaceHandle{brushNode1, *brushNode1->brush().findFace(n)};
           }),
-        expectedHandlePosition});
+        expectedDragReference});
   }
 }
 
@@ -141,19 +141,20 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D") {
     CHECK(
       hit.target<ExtrudeHitData>() ==
       ExtrudeHitData{
-        {{brushNode1, *brushNode1->brush().findFace(vm::vec3{0, 0, 1})}}, hit.hitPoint()});
+        {{brushNode1, *brushNode1->brush().findFace(vm::vec3{0, 0, 1})}},
+        vm::line3{hit.hitPoint(), {0, 0, 1}}});
   }
 
   SECTION("Pick ray does not hit brush directly") {
-    using T = std::tuple<vm::vec3, vm::vec3, std::vector<vm::vec3>, vm::vec3, vm::vec3>;
+    using T = std::tuple<vm::vec3, vm::vec3, std::vector<vm::vec3>, vm::vec3, vm::plane3>;
 
     // clang-format off
     const auto
-    [origin,     direction,     expectedFaceNormals, expectedHitPoint, expectedHandlePosition] = GENERATE(values<T>({
+    [origin,     direction,     expectedFaceNormals, expectedHitPoint, expectedDragReference] = GENERATE(values<T>({
     // shoot from above downwards just past the top west edge, picking the west face
-    {{-17, 0, 32}, { 0, 0, -1}, {{-1, 0, 0}},        {-17, 0, 16},     {-16, 0, 16}},
+    {{-17, 0, 32}, { 0, 0, -1}, {{-1, 0, 0}},        {-17, 0, 16},     {{-16, 0, 16}, {0, 0, 1}}},
     // shoot diagonally past the top west edge, picking the west face
-    {{ -1, 0, 33}, {-1, 0, -1}, {{-1, 0, 0}},        {-17, 0, 17},     {-16, 0, 16}},
+    {{ -1, 0, 33}, {-1, 0, -1}, {{-1, 0, 0}},        {-17, 0, 17},     {{-16, 0, 16}, {0, 0, 1}}},
     }));
     // clang-format on
 
@@ -174,7 +175,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D") {
           [&](const auto& n) {
             return Model::BrushFaceHandle{brushNode1, *brushNode1->brush().findFace(n)};
           }),
-        expectedHandlePosition});
+        expectedDragReference});
   }
 }
 

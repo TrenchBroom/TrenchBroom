@@ -27,11 +27,14 @@
 #include "View/Tool.h"
 
 #include <vecmath/forward.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
 #include <vecmath/vec.h>
 
 #include <kdl/reflection_decl.h>
 
 #include <memory>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -84,9 +87,11 @@ struct ExtrudeDragState {
 
 struct ExtrudeHitData {
   std::vector<Model::BrushFaceHandle> faces;
-  vm::vec3 initialHandlePosition;
+  std::variant<vm::plane3, vm::line3> dragReference;
 
-  kdl_reflect_decl(ExtrudeHitData, faces, initialHandlePosition);
+  vm::vec3 initialHandlePosition() const;
+
+  kdl_reflect_decl(ExtrudeHitData, faces, dragReference);
 };
 
 /**
