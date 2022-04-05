@@ -82,6 +82,13 @@ struct ExtrudeDragState {
     ExtrudeDragState, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
 };
 
+struct ExtrudeHitData {
+  std::vector<Model::BrushFaceHandle> faces;
+  vm::vec3 initialHandlePosition;
+
+  kdl_reflect_decl(ExtrudeHitData, faces, initialHandlePosition);
+};
+
 /**
  * Tool for extruding faces along their normals (Shift+LMB Drag).
  *
@@ -92,8 +99,6 @@ struct ExtrudeDragState {
 class ExtrudeTool : public Tool {
 public:
   static const Model::HitType::Type ExtrudeHitType;
-
-  using ExtrudeHitData = std::vector<Model::BrushFaceHandle>;
 
 private:
   std::weak_ptr<MapDocument> m_document;
