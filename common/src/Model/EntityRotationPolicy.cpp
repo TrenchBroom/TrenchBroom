@@ -19,6 +19,7 @@
 
 #include "EntityRotationPolicy.h"
 
+#include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Macros.h"
 #include "Model/Entity.h"
@@ -79,6 +80,17 @@ std::ostream& operator<<(std::ostream& lhs, const EntityRotationUsage& rhs) {
 
 kdl_reflect_impl(EntityRotationInfo);
 
+namespace {
+bool hasPropertyOrDefinition(const Entity& entity, const std::string& propertyKey) {
+  if (entity.hasProperty(propertyKey)) {
+    return true;
+  }
+
+  const auto* definition = entity.definition();
+  return definition != nullptr && definition->propertyDefinition(propertyKey) != nullptr;
+}
+} // namespace
+
 EntityRotationInfo entityRotationInfo(const Entity& entity) {
   auto type = EntityRotationType::None;
   std::string propertyKey;
@@ -115,13 +127,13 @@ EntityRotationInfo entityRotationInfo(const Entity& entity) {
 
       if (!entity.pointEntity()) {
         // brush entity
-        if (entity.hasProperty(EntityPropertyKeys::Angles)) {
+        if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Angles)) {
           type = eulerType;
           propertyKey = EntityPropertyKeys::Angles;
-        } else if (entity.hasProperty(EntityPropertyKeys::Mangle)) {
+        } else if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Mangle)) {
           type = eulerType;
           propertyKey = EntityPropertyKeys::Mangle;
-        } else if (entity.hasProperty(EntityPropertyKeys::Angle)) {
+        } else if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Angle)) {
           type = EntityRotationType::AngleUpDown;
           propertyKey = EntityPropertyKeys::Angle;
         }
@@ -136,10 +148,10 @@ EntityRotationInfo entityRotationInfo(const Entity& entity) {
           usage = EntityRotationUsage::BlockRotation;
         }
 
-        if (entity.hasProperty(EntityPropertyKeys::Angles)) {
+        if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Angles)) {
           type = eulerType;
           propertyKey = EntityPropertyKeys::Angles;
-        } else if (entity.hasProperty(EntityPropertyKeys::Mangle)) {
+        } else if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Mangle)) {
           type = eulerType;
           propertyKey = EntityPropertyKeys::Mangle;
         } else {

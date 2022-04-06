@@ -92,6 +92,7 @@ TEST_CASE("EntityRotationPolicy.getYawPitchRoll_flip") {
 namespace {
 struct EntityDefinitionInfo {
   Assets::EntityDefinitionType type;
+  std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
   vm::bbox3 bounds = vm::bbox3{16.0};
 };
 
@@ -104,11 +105,10 @@ std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
   switch (info->type) {
     case Assets::EntityDefinitionType::PointEntity:
       return std::make_unique<Assets::PointEntityDefinition>(
-        "", Color{}, info->bounds, "", std::vector<std::shared_ptr<Assets::PropertyDefinition>>{},
-        Assets::ModelDefinition{});
+        "", Color{}, info->bounds, "", info->propertyDefinitions, Assets::ModelDefinition{});
     case Assets::EntityDefinitionType::BrushEntity:
       return std::make_unique<Assets::BrushEntityDefinition>(
-        "", Color{}, "", std::vector<std::shared_ptr<Assets::PropertyDefinition>>{});
+        "", Color{}, "", info->propertyDefinitions);
       switchDefault();
   }
 }
@@ -117,6 +117,7 @@ std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
 TEST_CASE("EntityRotationPolicy.entityRotationInfo") {
   using namespace Assets;
 
+  auto manglePropertyDef = std::make_shared<StringPropertyDefinition>("mangle", "", "", false);
   auto normalPitch = EntityModelLoadedFrame{0, "", {}, PitchType::Normal, Orientation::Oriented};
   auto invertedPitch =
     EntityModelLoadedFrame{0, "", {}, PitchType::MdlInverted, Orientation::Oriented};
@@ -189,6 +190,20 @@ TEST_CASE("EntityRotationPolicy.entityRotationInfo") {
   // non-light point entity with mangle key
   {{{"classname", "other"},
     {"mangle", "0 0 0"}},         true,  std::nullopt,                    nullptr,        {EntityRotationType::Euler_PositivePitchDown, "mangle", EntityRotationUsage::Allowed}},
+
+  // non-light point entity with mangle key and off-center definition bounds
+  {{{"classname", "other"},
+    {"mangle", "0 0 0"}},         true,  {{EntityDefinitionType::PointEntity, 
+                                           {}, 
+                                           {{0, 0, -16}, {16, 16, 16}}}}, nullptr,        {EntityRotationType::Euler_PositivePitchDown, "mangle", EntityRotationUsage::BlockRotation}},
+
+  // a property definition counts as a property even if the property isn't present
+  {{{"classname", "other"}},      true,  {{EntityDefinitionType::PointEntity, 
+                                           {manglePropertyDef}}},         nullptr,        {EntityRotationType::Euler_PositivePitchDown, "mangle", EntityRotationUsage::Allowed}},
+
+  // but not for light entities
+  {{{"classname", "light"}},      true,  {{EntityDefinitionType::PointEntity, 
+                                           {manglePropertyDef}}},         nullptr,        {EntityRotationType::Angle, "angle", EntityRotationUsage::Allowed}},
   }));
   // clang-format on
 
