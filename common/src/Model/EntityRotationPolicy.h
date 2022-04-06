@@ -23,6 +23,9 @@
 
 #include <vecmath/forward.h>
 
+#include <kdl/reflection_decl.h>
+
+#include <iosfwd>
 #include <string>
 
 namespace TrenchBroom {
@@ -43,15 +46,21 @@ enum class EntityRotationType {
   Mangle
 };
 
+std::ostream& operator<<(std::ostream& lhs, const EntityRotationType& rhs);
+
 enum class EntityRotationUsage {
   Allowed,
   BlockRotation
 };
 
+std::ostream& operator<<(std::ostream& lhs, const EntityRotationUsage& rhs);
+
 struct EntityRotationInfo {
   const EntityRotationType type;
   const std::string propertyKey;
   const EntityRotationUsage usage;
+
+  kdl_reflect_decl(EntityRotationInfo, type, propertyKey, usage);
 };
 
 EntityRotationInfo entityRotationInfo(const Entity& entity);

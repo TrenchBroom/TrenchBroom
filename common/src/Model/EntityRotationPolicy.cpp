@@ -24,6 +24,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 
+#include <kdl/reflection_impl.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_utils.h>
 
@@ -33,8 +34,50 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <ostream>
+
 namespace TrenchBroom {
 namespace Model {
+
+std::ostream& operator<<(std::ostream& lhs, const EntityRotationType& rhs) {
+  switch (rhs) {
+    case EntityRotationType::None:
+      lhs << "None";
+      break;
+    case EntityRotationType::Angle:
+      lhs << "Angle";
+      break;
+    case EntityRotationType::AngleUpDown:
+      lhs << "AngleUpDown";
+      break;
+    case EntityRotationType::Euler:
+      lhs << "Euler";
+      break;
+    case EntityRotationType::Euler_PositivePitchDown:
+      lhs << "Euler_PositivePitchDown";
+      break;
+    case EntityRotationType::Mangle:
+      lhs << "Mangle";
+      break;
+      switchDefault();
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const EntityRotationUsage& rhs) {
+  switch (rhs) {
+    case EntityRotationUsage::Allowed:
+      lhs << "Allowed";
+      break;
+    case EntityRotationUsage::BlockRotation:
+      lhs << "BlockRotation";
+      break;
+      switchDefault();
+  }
+  return lhs;
+}
+
+kdl_reflect_impl(EntityRotationInfo);
 
 EntityRotationInfo entityRotationInfo(const Entity& entity) {
   auto type = EntityRotationType::None;
