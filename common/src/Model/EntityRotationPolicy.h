@@ -34,42 +34,36 @@ namespace Model {
 class Entity;
 struct EntityPropertyConfig;
 
+enum class EntityRotationType {
+  None,
+  Angle,
+  AngleUpDown,
+  Euler,
+  Euler_PositivePitchDown,
+  Mangle
+};
+
+enum class EntityRotationUsage {
+  Allowed,
+  BlockRotation
+};
+
+struct EntityRotationInfo {
+  const EntityRotationType type;
+  const std::string propertyKey;
+  const EntityRotationUsage usage;
+};
+
+EntityRotationInfo entityRotationInfo(const Entity& entity);
+
 class EntityRotationPolicy {
 private:
-  enum class RotationType {
-    None,
-    Angle,
-    AngleUpDown,
-    Euler,
-    Euler_PositivePitchDown,
-    Mangle
-  };
-  enum class RotationUsage {
-    Allowed,
-    BlockRotation
-  };
-
-  struct RotationInfo {
-    const RotationType type;
-    const std::string propertyKey;
-    const RotationUsage usage;
-  };
-
 public:
   static vm::mat4x4 getRotation(const Entity& entity);
   static void applyRotation(
     Entity& entity, const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation);
   static std::string getPropertyKey(const Entity& entity);
 
-private:
-  static RotationInfo rotationInfo(const Entity& entity);
-  static void setAngle(
-    Entity& entity, const EntityPropertyConfig& propertyConfig, const std::string& propertyKey,
-    const vm::vec3& direction);
-
-  static FloatType getAngle(vm::vec3 direction);
-
-public:
   /**
    * Given an arbitrary transform and a rotation matrix, applies the transformation to the
    * rotation matrix and returns the result as euler angles in degrees.
