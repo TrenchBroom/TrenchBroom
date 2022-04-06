@@ -115,9 +115,11 @@ EntityRotationInfo entityRotationInfo(const Entity& entity) {
         if (entity.hasProperty(EntityPropertyKeys::Angles)) {
           type = eulerType;
           propertyKey = EntityPropertyKeys::Angles;
-        } else {
+        } else if (entity.hasProperty(EntityPropertyKeys::Angle)) {
           type = EntityRotationType::Angle;
           propertyKey = EntityPropertyKeys::Angle;
+        } else {
+          // not a spotlight, don't modify
         }
       } else {
         // spotlight with target, don't modify

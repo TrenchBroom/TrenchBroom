@@ -151,7 +151,7 @@ TEST_CASE("EntityRotationPolicy.entityRotationInfo") {
     {"angles",    "0 0 0"}},      true,  std::nullopt,                    &invertedPitch, {EntityRotationType::Euler, "angles", EntityRotationUsage::Allowed}},
 
   // a light without a target key and without an angles key
-  {{{"classname", "light"}},      true,  std::nullopt,                    nullptr,        {EntityRotationType::Angle, "angle", EntityRotationUsage::Allowed}},
+  {{{"classname", "light"}},      true,  std::nullopt,                    nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},
 
   // a light with a target key
   {{{"classname", "light"},
@@ -203,7 +203,7 @@ TEST_CASE("EntityRotationPolicy.entityRotationInfo") {
 
   // but not for light entities
   {{{"classname", "light"}},      true,  {{EntityDefinitionType::PointEntity, 
-                                           {manglePropertyDef}}},         nullptr,        {EntityRotationType::Angle, "angle", EntityRotationUsage::Allowed}},
+                                           {manglePropertyDef}}},         nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},
   }));
   // clang-format on
 
