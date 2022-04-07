@@ -350,6 +350,9 @@ bool Path::hasExtension(
 }
 
 Path Path::deleteExtension() const {
+  if (isEmpty()) {
+    return *this;
+  }
   return deleteLastComponent() + Path(basename());
 }
 
