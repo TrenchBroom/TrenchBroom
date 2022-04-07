@@ -248,7 +248,7 @@ TEST_CASE("CsgTest.csgSubtractFailure", "[MapDocumentTest]") {
   REQUIRE(subtrahend->brush().findFace("clip").has_value());
 
   // select the second object in the default layer (a clip brush) and subtract
-  document->selectNode(subtrahend);
+  document->selectNodes({subtrahend});
   CHECK(document->csgSubtract());
 
   REQUIRE(document->currentLayer()->childCount() == 1);
@@ -286,7 +286,7 @@ TEST_CASE("CsgTest.csgHollow", "[MapDocumentTest]") {
   }
   SECTION("If no brushes are hollowed, the transaction isn't committed") {
     auto* smallBrushNode = document->currentLayer()->children().at(0);
-    document->selectNode(smallBrushNode);
+    document->selectNodes({smallBrushNode});
 
     CHECK(!document->csgHollow());
     CHECK(document->currentLayer()->childCount() == 2);

@@ -48,7 +48,7 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes") {
     groupNode->addChild(brushNode);
     document->addNodes({{document->parentForNodes(), {groupNode}}});
 
-    document->selectNode(groupNode);
+    document->selectNodes({groupNode});
     auto* linkedGroupNode = document->createLinkedDuplicate();
     document->deselectAll();
 
@@ -100,11 +100,11 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups") {
   auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
-  document->selectNode(groupNode);
+  document->selectNodes({groupNode});
   auto* linkedGroupNode = document->createLinkedDuplicate();
   document->deselectAll();
 
-  document->selectNode(linkedGroupNode);
+  document->selectNodes({linkedGroupNode});
   document->translateObjects(vm::vec3(32.0, 0.0, 0.0));
   document->deselectAll();
 
@@ -134,12 +134,12 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails") {
   auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
-  document->selectNode(groupNode);
+  document->selectNodes({groupNode});
   auto* linkedGroupNode = document->createLinkedDuplicate();
   document->deselectAll();
 
   // adding a brush to the linked group node will fail because it will go out of world bounds
-  document->selectNode(linkedGroupNode);
+  document->selectNodes({linkedGroupNode});
   document->translateObjects(document->worldBounds().max);
   document->deselectAll();
 

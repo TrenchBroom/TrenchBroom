@@ -82,7 +82,7 @@ TEST_CASE_METHOD(
   CHECK(layerNode1->childCount() == 1);
 
   document->setCurrentLayer(layerNode2);
-  document->selectNode(entity);
+  document->selectNodes({entity});
   document->duplicateObjects(); // the duplicate should stay in layer1
 
   REQUIRE(document->selectedNodes().entityCount() == 1);
@@ -108,7 +108,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer", "
   CHECK(layerNode1->childCount() == 1);
 
   document->setCurrentLayer(layerNode2);
-  document->selectNode(entity);
+  document->selectNodes({entity});
   Model::GroupNode* newGroup =
     document->groupSelection("Group in Layer 1"); // the new group should stay in layer1
 
@@ -393,7 +393,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerN
     REQUIRE(Model::findContainingLayer(node) == defaultLayer);
 
     WHEN("The node is moved to another layer") {
-      document->selectNode(node);
+      document->selectNodes({node});
       document->moveSelectionToLayer(customLayer);
 
       THEN("The group node is in the target layer") {
@@ -438,10 +438,10 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerN
       // clang-format on
 
       if (selectChild1) {
-        document->selectNode(childNode1);
+        document->selectNodes({childNode1});
       }
       if (selectChild2) {
-        document->selectNode(childNode2);
+        document->selectNodes({childNode2});
       }
 
       const auto selectedNodes = document->selectedNodes().nodes();

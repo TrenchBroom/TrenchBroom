@@ -375,17 +375,14 @@ public: // selection
   void selectInverse() override;
   void selectNodesWithFilePosition(const std::vector<size_t>& positions) override;
   void selectNodes(const std::vector<Model::Node*>& nodes) override;
-  void selectNode(Model::Node* node) override;
   void selectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) override;
-  void selectBrushFace(const Model::BrushFaceHandle& handle) override;
   void convertToFaceSelection() override;
   void selectFacesWithTexture(const Assets::Texture* texture);
   void selectTall(vm::axis::type cameraAxis);
 
   void deselectAll() override;
-  void deselectNode(Model::Node* node) override;
   void deselectNodes(const std::vector<Model::Node*>& nodes) override;
-  void deselectBrushFace(const Model::BrushFaceHandle& handle) override;
+  void deselectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) override;
 
 protected:
   void updateLastSelectionBounds();

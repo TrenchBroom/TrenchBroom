@@ -1113,20 +1113,12 @@ void MapDocument::selectNodes(const std::vector<Model::Node*>& nodes) {
   executeAndStore(SelectionCommand::select(nodes));
 }
 
-void MapDocument::selectNode(Model::Node* node) {
-  m_repeatStack->clearOnNextPush();
-  executeAndStore(SelectionCommand::select(std::vector<Model::Node*>{node}));
-}
-
 void MapDocument::selectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) {
   m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::select(handles));
-}
-
-void MapDocument::selectBrushFace(const Model::BrushFaceHandle& handle) {
-  m_repeatStack->clearOnNextPush();
-  executeAndStore(SelectionCommand::select({handle}));
-  setCurrentTextureName(handle.face().attributes().textureName());
+  if (!handles.empty()) {
+    setCurrentTextureName(handles.back().face().attributes().textureName());
+  }
 }
 
 void MapDocument::convertToFaceSelection() {
@@ -1209,18 +1201,14 @@ void MapDocument::deselectAll() {
   }
 }
 
-void MapDocument::deselectNode(Model::Node* node) {
-  deselectNodes(std::vector<Model::Node*>{node});
-}
-
 void MapDocument::deselectNodes(const std::vector<Model::Node*>& nodes) {
   m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::deselect(nodes));
 }
 
-void MapDocument::deselectBrushFace(const Model::BrushFaceHandle& handle) {
+void MapDocument::deselectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) {
   m_repeatStack->clearOnNextPush();
-  executeAndStore(SelectionCommand::deselect({handle}));
+  executeAndStore(SelectionCommand::deselect(handles));
 }
 
 void MapDocument::updateLastSelectionBounds() {
@@ -1556,7 +1544,7 @@ Model::EntityNode* MapDocument::createPointEntity(
   const Transaction transaction(this, name.str());
   deselectAll();
   addNodes({{parentForNodes(), {entityNode}}});
-  selectNode(entityNode);
+  selectNodes({entityNode});
   translateObjects(delta);
 
   return entityNode;
@@ -1647,7 +1635,7 @@ Model::GroupNode* MapDocument::groupSelection(const std::string& name) {
   deselectAll();
   addNodes({{parentForNodes(nodes), {group}}});
   reparentNodes({{group, nodes}});
-  selectNode(group);
+  selectNodes({group});
 
   return group;
 }
@@ -1667,7 +1655,7 @@ void MapDocument::mergeSelectedGroupsWithGroup(Model::GroupNode* group) {
     const std::vector<Model::Node*> children = groupToMerge->children();
     reparentNodes({{group, children}});
   }
-  selectNode(group);
+  selectNodes({group});
 }
 
 void MapDocument::ungroupSelection() {
@@ -2476,7 +2464,7 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
       Transaction transaction(this, "Create Brush");
       deselectAll();
       addNodes({{parentForNodes(), {brushNode}}});
-      selectNode(brushNode);
+      selectNodes({brushNode});
     })
     .handle_errors([&](const Model::BrushError e) {
       error() << "Could not create brush: " << e;
@@ -2538,7 +2526,7 @@ bool MapDocument::csgConvexMerge() {
       deselectAll();
       addNodes({{parentNode, {brushNode}}});
       removeNodes(toRemove);
-      selectNode(brushNode);
+      selectNodes({brushNode});
     })
     .handle_errors([&](const Model::BrushError e) {
       error() << "Could not create brush: " << e;
@@ -2618,7 +2606,7 @@ bool MapDocument::csgIntersect() {
     Model::BrushNode* intersectionNode = new Model::BrushNode(std::move(intersection));
     addNodes({{parentForNodes(toRemove), {intersectionNode}}});
     removeNodes(toRemove);
-    selectNode(intersectionNode);
+    selectNodes({intersectionNode});
   } else {
     removeNodes(toRemove);
   }

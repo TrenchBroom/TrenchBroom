@@ -141,7 +141,7 @@ static void transferFaceAttributes(
   }
 
   document.deselectAll();
-  document.selectBrushFace(faceToSelectAfter);
+  document.selectBrushFaces({faceToSelectAfter});
 }
 
 namespace {

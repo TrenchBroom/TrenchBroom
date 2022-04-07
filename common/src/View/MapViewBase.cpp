@@ -1284,7 +1284,7 @@ void MapViewBase::addSelectedObjectsToGroup() {
   Transaction transaction(document, "Add Objects to Group");
   reparentNodes(nodes, newGroup, true);
   document->deselectAll();
-  document->selectNode(newGroup);
+  document->selectNodes({newGroup});
 }
 
 void MapViewBase::removeSelectedObjectsFromGroup() {

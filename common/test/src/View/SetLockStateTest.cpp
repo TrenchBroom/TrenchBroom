@@ -48,7 +48,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.lockStateChanges") {
   document->addNodes(
     {{document->parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
   document->deselectAll();
-  document->selectNode(entityNodeInGroup);
+  document->selectNodes({entityNodeInGroup});
 
   auto* groupNode = document->groupSelection("group");
   document->deselectAll();
@@ -92,7 +92,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.modificationCount") {
   document->addNodes(
     {{document->parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
   document->deselectAll();
-  document->selectNode(entityNodeInGroup);
+  document->selectNodes({entityNodeInGroup});
 
   auto* groupNode = document->groupSelection("group");
   document->deselectAll();

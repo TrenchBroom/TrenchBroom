@@ -149,17 +149,17 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   groupNode->addChild(brushNode);
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
-  document->selectNode(groupNode);
+  document->selectNodes({groupNode});
   auto* linkedGroupNode = document->createLinkedDuplicate();
   document->deselectAll();
 
-  document->selectNode(linkedGroupNode);
+  document->selectNodes({linkedGroupNode});
   document->translateObjects(vm::vec3(32.0, 0.0, 0.0));
   document->deselectAll();
 
   const auto originalBrushBounds = brushNode->physicalBounds();
 
-  document->selectNode(brushNode);
+  document->selectNodes({brushNode});
   document->translateObjects(vm::vec3(0.0, 16.0, 0.0));
 
   REQUIRE(brushNode->physicalBounds() == originalBrushBounds.translate(vm::vec3(0.0, 16.0, 0.0)));
@@ -188,19 +188,19 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   groupNode->addChild(brushNode);
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
-  document->selectNode(groupNode);
+  document->selectNodes({groupNode});
   auto* linkedGroupNode = document->createLinkedDuplicate();
   document->deselectAll();
 
   // moving the brush in linked group node will fail because it will go out of world bounds
-  document->selectNode(linkedGroupNode);
+  document->selectNodes({linkedGroupNode});
   REQUIRE(document->translateObjects(
     document->worldBounds().max - linkedGroupNode->physicalBounds().size()));
   document->deselectAll();
 
   const auto originalBrushBounds = brushNode->physicalBounds();
 
-  document->selectNode(brushNode);
+  document->selectNodes({brushNode});
   CHECK_FALSE(document->translateObjects(vm::vec3(0.0, 16.0, 0.0)));
 
   REQUIRE(brushNode->physicalBounds() == originalBrushBounds);

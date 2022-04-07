@@ -141,23 +141,23 @@ bool SelectionTool::mouseClick(const InputState& inputState) {
           const auto objects = document->hasSelectedNodes();
           if (objects) {
             if (brush->selected()) {
-              document->deselectBrushFace(*faceHandle);
+              document->deselectBrushFaces({*faceHandle});
             } else {
               auto transaction = Transaction{document, "Select Brush Face"};
               document->convertToFaceSelection();
-              document->selectBrushFace(*faceHandle);
+              document->selectBrushFaces({*faceHandle});
             }
           } else {
             if (face.selected()) {
-              document->deselectBrushFace(*faceHandle);
+              document->deselectBrushFaces({*faceHandle});
             } else {
-              document->selectBrushFace(*faceHandle);
+              document->selectBrushFaces({*faceHandle});
             }
           }
         } else {
           auto transaction = Transaction{document, "Select Brush Face"};
           document->deselectAll();
-          document->selectBrushFace(*faceHandle);
+          document->selectBrushFaces({*faceHandle});
         }
       }
     } else {
@@ -170,18 +170,18 @@ bool SelectionTool::mouseClick(const InputState& inputState) {
       if (editorContext.selectable(node)) {
         if (isMultiClick(inputState)) {
           if (node->selected()) {
-            document->deselectNode(node);
+            document->deselectNodes({node});
           } else {
             auto transaction = Transaction{document, "Select Object"};
             if (document->hasSelectedBrushFaces()) {
               document->deselectAll();
             }
-            document->selectNode(node);
+            document->selectNodes({node});
           }
         } else {
           auto transaction = Transaction{document, "Select Object"};
           document->deselectAll();
-          document->selectNode(node);
+          document->selectNodes({node});
         }
       }
     } else {
@@ -314,8 +314,8 @@ static void drillSelection(const InputState& inputState, MapDocument& document) 
 
   if (nextNode != nullptr) {
     auto transaction = Transaction{&document, "Drill Selection"};
-    document.deselectNode(selectedNode);
-    document.selectNode(nextNode);
+    document.deselectNodes({selectedNode});
+    document.selectNodes({nextNode});
   }
 }
 
@@ -346,7 +346,7 @@ public:
         const auto* brush = faceHandle->node();
         const auto& face = faceHandle->face();
         if (!face.selected() && editorContext.selectable(brush, face)) {
-          m_document->selectBrushFace(*faceHandle);
+          m_document->selectBrushFaces({*faceHandle});
         }
       }
     } else {
@@ -355,7 +355,7 @@ public:
       if (hit.isMatch()) {
         auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
         if (!node->selected() && editorContext.selectable(node)) {
-          m_document->selectNode(node);
+          m_document->selectNodes({node});
         }
       }
     }
@@ -387,7 +387,7 @@ std::unique_ptr<DragTracker> SelectionTool::acceptMouseDrag(const InputState& in
           document->deselectAll();
         }
         if (!face.selected()) {
-          document->selectBrushFace(*faceHandle);
+          document->selectBrushFaces({*faceHandle});
         }
 
         return std::make_unique<PaintSelectionDragTracker>(std::move(document));
@@ -406,7 +406,7 @@ std::unique_ptr<DragTracker> SelectionTool::acceptMouseDrag(const InputState& in
         document->deselectAll();
       }
       if (!node->selected()) {
-        document->selectNode(node);
+        document->selectNodes({node});
       }
 
       return std::make_unique<PaintSelectionDragTracker>(std::move(document));

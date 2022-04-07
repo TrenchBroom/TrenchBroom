@@ -45,7 +45,7 @@ TEST_CASE_METHOD(
   const vm::vec3 initialX = brushNode->brush().face(faceIndex).textureXAxis();
   const vm::vec3 initialY = brushNode->brush().face(faceIndex).textureYAxis();
 
-  document->selectBrushFace({brushNode, faceIndex});
+  document->selectBrushFaces({{brushNode, faceIndex}});
 
   Model::ChangeBrushFaceAttributesRequest rotate;
   rotate.addRotation(2.0);
@@ -93,7 +93,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
 
   requireTexture("original");
 
-  document->selectNode(brushNode);
+  document->selectNodes({brushNode});
 
   Model::ChangeBrushFaceAttributesRequest setTexture1;
   setTexture1.setTextureName("texture1");
@@ -121,7 +121,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
   const size_t thirdFaceIndex = 2u;
 
   document->deselectAll();
-  document->selectBrushFace({brushNode, firstFaceIndex});
+  document->selectBrushFaces({{brushNode, firstFaceIndex}});
   Model::ChangeBrushFaceAttributesRequest setFirstFace;
   setFirstFace.setTextureName("first");
   setFirstFace.setXOffset(32.0f);
@@ -151,7 +151,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
   }
 
   document->deselectAll();
-  document->selectBrushFace({brushNode, secondFaceIndex});
+  document->selectBrushFaces({{brushNode, secondFaceIndex}});
   Model::ChangeBrushFaceAttributesRequest setSecondFace;
   setSecondFace.setTextureName("second");
   setSecondFace.setXOffset(16.0f);
@@ -181,7 +181,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
   }
 
   document->deselectAll();
-  document->selectBrushFace({brushNode, thirdFaceIndex});
+  document->selectBrushFaces({{brushNode, thirdFaceIndex}});
   Model::ChangeBrushFaceAttributesRequest copySecondToThirdFace;
   copySecondToThirdFace.setAll(brushNode->brush().face(secondFaceIndex));
   document->setFaceAttributes(copySecondToThirdFace);
@@ -196,7 +196,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
     brushNode->brush().face(thirdFaceIndex).attributes().surfaceContents();
 
   document->deselectAll();
-  document->selectBrushFace({brushNode, secondFaceIndex});
+  document->selectBrushFaces({{brushNode, secondFaceIndex}});
   Model::ChangeBrushFaceAttributesRequest copyFirstToSecondFace;
   copyFirstToSecondFace.setAll(brushNode->brush().face(firstFaceIndex));
   document->setFaceAttributes(copyFirstToSecondFace);
@@ -208,7 +208,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
   }
 
   document->deselectAll();
-  document->selectBrushFace({brushNode, thirdFaceIndex});
+  document->selectBrushFaces({{brushNode, thirdFaceIndex}});
   Model::ChangeBrushFaceAttributesRequest copyFirstToThirdFaceNoContents;
   copyFirstToThirdFaceNoContents.setAllExceptContentFlags(brushNode->brush().face(firstFaceIndex));
   document->setFaceAttributes(copyFirstToThirdFaceNoContents);
@@ -234,7 +234,7 @@ TEST_CASE_METHOD(
   Model::BrushNode* brushNode = createBrushNode();
   addNode(*document, document->parentForNodes(), brushNode);
 
-  document->selectNode(brushNode);
+  document->selectNodes({brushNode});
   CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
 
   Model::ChangeBrushFaceAttributesRequest request;
@@ -269,7 +269,7 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest") {
     WaterFlag); // comes from the .wal texture
 
   SECTION("transfer face attributes except content flags from waterbrush to lavabrush") {
-    document->selectNode(lavabrush);
+    document->selectNodes({lavabrush});
     CHECK(document->setFaceAttributesExceptContentFlags(waterbrush->brush().face(0).attributes()));
 
     SECTION("check lavabrush is now inheriting the water content flags") {
@@ -282,7 +282,7 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest") {
   }
 
   SECTION("setting a content flag when the existing one is inherited keeps the existing one") {
-    document->selectNode(lavabrush);
+    document->selectNodes({lavabrush});
 
     Model::ChangeBrushFaceAttributesRequest request;
     request.setContentFlags(WaterFlag);

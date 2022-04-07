@@ -42,7 +42,7 @@ TEST_CASE_METHOD(MapDocumentTest, "IssueGeneratorTest.emptyProperty") {
   Model::EntityNode* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
 
   document->deselectAll();
-  document->selectNode(entityNode);
+  document->selectNodes({entityNode});
   document->setProperty("", "");
   REQUIRE(entityNode->entity().hasProperty(""));
 
