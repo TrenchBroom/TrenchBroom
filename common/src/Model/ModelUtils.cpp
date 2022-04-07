@@ -498,6 +498,36 @@ std::vector<BrushFaceHandle> collectBrushFaces(const std::vector<Node*>& nodes) 
   return faces;
 }
 
+std::vector<BrushFaceHandle> collectSelectedBrushFaces(const std::vector<Node*>& nodes) {
+  auto faces = std::vector<BrushFaceHandle>{};
+  for (auto* node : nodes) {
+    node->accept(kdl::overload(
+      [](auto&& thisLambda, WorldNode* world) {
+        world->visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, LayerNode* layer) {
+        layer->visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, GroupNode* group) {
+        group->visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, EntityNode* entity) {
+        entity->visitChildren(thisLambda);
+      },
+      [&](BrushNode* brushNode) {
+        const auto& brush = brushNode->brush();
+        for (size_t i = 0; i < brush.faceCount(); ++i) {
+          const auto& face = brush.face(i);
+          if (face.selected()) {
+            faces.emplace_back(brushNode, i);
+          }
+        }
+      },
+      [](PatchNode*) {}));
+  }
+  return faces;
+}
+
 std::vector<BrushFaceHandle> collectSelectableBrushFaces(
   const std::vector<Node*>& nodes, const EditorContext& editorContext) {
   auto faces = std::vector<BrushFaceHandle>{};

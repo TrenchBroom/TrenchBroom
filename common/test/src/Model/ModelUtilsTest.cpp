@@ -35,6 +35,7 @@
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
+#include "kdl/vector_utils.h"
 #include <kdl/result.h>
 #include <kdl/result_io.h>
 
@@ -644,6 +645,40 @@ TEST_CASE("ModelUtils.collectBrushFaces") {
 
   CHECK_THAT(
     collectBrushFaces({&worldNode}), Catch::Matchers::UnorderedEquals(toHandles(brushNode)));
+}
+
+TEST_CASE("ModelUtils.collectSelectedBrushFaces") {
+  constexpr auto worldBounds = vm::bbox3d{8192.0};
+  constexpr auto mapFormat = MapFormat::Quake3;
+
+  auto worldNode = WorldNode{{}, {}, mapFormat};
+
+  SECTION("Face selection") {
+    auto* brushNode =
+      new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+    worldNode.defaultLayer()->addChild(brushNode);
+    brushNode->selectFace(0);
+    brushNode->selectFace(1);
+
+    CHECK_THAT(
+      collectSelectedBrushFaces({&worldNode}),
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Model::BrushFaceHandle>{{brushNode, 0}, {brushNode, 1}}));
+  }
+
+  SECTION("Node selection") {
+    auto* selectedBrushNode =
+      new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    auto* unselectedBrushNode =
+      new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+    worldNode.defaultLayer()->addChild(selectedBrushNode);
+    worldNode.defaultLayer()->addChild(unselectedBrushNode);
+    selectedBrushNode->select();
+
+    CHECK(collectSelectedBrushFaces({&worldNode}).empty());
+  }
 }
 
 TEST_CASE("ModelUtils.collectSelectableBrushFaces") {
