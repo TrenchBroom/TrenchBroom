@@ -30,6 +30,7 @@
 #include "Model/GroupNode.h"
 #include "Model/Layer.h"
 #include "Model/LayerNode.h"
+#include "Model/LockState.h"
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
@@ -629,6 +630,41 @@ TEST_CASE("ModelUtils.collectSelectableNodes") {
   CHECK_THAT(
     collectSelectableNodes({&worldNode, innerGroupNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{outerGroupNode, entityNode, brushNode}));
+}
+
+TEST_CASE("ModelUtils.collectBrushFaces") {
+  constexpr auto worldBounds = vm::bbox3d{8192.0};
+  constexpr auto mapFormat = MapFormat::Quake3;
+
+  auto worldNode = WorldNode{{}, {}, mapFormat};
+  auto* brushNode =
+    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+  worldNode.defaultLayer()->addChild(brushNode);
+
+  CHECK_THAT(
+    collectBrushFaces({&worldNode}), Catch::Matchers::UnorderedEquals(toHandles(brushNode)));
+}
+
+TEST_CASE("ModelUtils.collectSelectableBrushFaces") {
+  constexpr auto worldBounds = vm::bbox3d{8192.0};
+  constexpr auto mapFormat = MapFormat::Quake3;
+
+  auto worldNode = WorldNode{{}, {}, mapFormat};
+  auto* selectableBrushNode =
+    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* unselectableBrushNode =
+    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+
+  worldNode.defaultLayer()->addChild(selectableBrushNode);
+  worldNode.defaultLayer()->addChild(unselectableBrushNode);
+  unselectableBrushNode->setLockState(LockState::Locked);
+
+  auto editorContext = EditorContext{};
+
+  CHECK_THAT(
+    collectSelectableBrushFaces({&worldNode}, editorContext),
+    Catch::Matchers::UnorderedEquals(toHandles(selectableBrushNode)));
 }
 
 TEST_CASE("ModelUtils.computeLogicalBounds") {
