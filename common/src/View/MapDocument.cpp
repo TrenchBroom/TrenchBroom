@@ -1005,7 +1005,7 @@ void MapDocument::selectSiblings() {
 
   for (auto* node : nodes) {
     auto* parent = node->parent();
-    if (!visited.insert(parent).second) {
+    if (visited.insert(parent).second) {
       nodesToSelect = kdl::vec_concat(
         std::move(nodesToSelect),
         Model::collectSelectableNodes(parent->children(), editorContext()));

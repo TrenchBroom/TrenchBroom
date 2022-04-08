@@ -438,6 +438,73 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingInsideNestedGroup
     Catch::UnorderedEquals(std::vector<Model::BrushNode*>{brushNode2}));
 }
 
+TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings") {
+  document->selectAllNodes();
+  document->deleteObjects();
+
+  const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+  const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+  auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+  addNode(*document, document->parentForNodes(), brushNode1);
+
+  auto* brushNode2 =
+    new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
+  addNode(*document, document->parentForNodes(), brushNode2);
+
+  auto* brushNode3 =
+    new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture").value());
+  addNode(*document, document->parentForNodes(), brushNode3);
+
+  auto* patchNode = createPatchNode();
+  addNode(*document, document->parentForNodes(), patchNode);
+
+  document->selectNodes({brushNode1, brushNode2});
+  document->createBrushEntity(m_brushEntityDef);
+
+  document->deselectAll();
+
+  // worldspawn {
+  //   brushEnt { brush1, brush2 },
+  //   brush3
+  //   patch
+  // }
+
+  SECTION("Brush in default layer") {
+    document->selectNodes({brushNode3});
+    REQUIRE_THAT(
+      document->selectedNodes().nodes(),
+      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode3}));
+
+    document->selectSiblings();
+    CHECK_THAT(
+      document->selectedNodes().nodes(), Catch::UnorderedEquals(std::vector<Model::Node*>{
+                                           brushNode1, brushNode2, brushNode3, patchNode}));
+
+    document->undoCommand();
+    CHECK_THAT(
+      document->selectedNodes().nodes(),
+      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode3}));
+  }
+
+  SECTION("Brush in brush entity") {
+    document->selectNodes({brushNode1});
+    REQUIRE_THAT(
+      document->selectedNodes().nodes(),
+      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode1}));
+
+    document->selectSiblings();
+    CHECK_THAT(
+      document->selectedNodes().nodes(),
+      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode1, brushNode2}));
+
+    document->undoCommand();
+    CHECK_THAT(
+      document->selectedNodes().nodes(),
+      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode1}));
+  }
+}
+
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds") {
   auto* entityNode = new Model::EntityNode({}, {{"classname", "point_entity"}});
   addNode(*document, document->parentForNodes(), entityNode);
