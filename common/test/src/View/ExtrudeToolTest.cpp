@@ -64,7 +64,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D") {
   auto* brushNode1 = new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
 
   addNode(*document, document->currentLayer(), brushNode1);
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
 
   SECTION("Pick ray hits brush directly") {
     constexpr auto pickRay = vm::ray3{{0, 0, 32}, {0, 0, -1}};
@@ -118,7 +118,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D") {
   auto* brushNode1 = new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
 
   addNode(*document, document->currentLayer(), brushNode1);
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
 
   SECTION("Pick ray hits brush directly") {
     const auto pickRay = vm::ray3{{0, 0, 24}, vm::normalize(vm::vec3{-1, 0, -1})};

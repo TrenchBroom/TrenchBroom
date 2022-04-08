@@ -47,7 +47,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat") {
   addNode(*document, document->parentForNodes(), entityNode);
   CHECK_FALSE(document->canRepeatCommands());
 
-  document->select(entityNode);
+  document->selectNode(entityNode);
   CHECK_FALSE(document->canRepeatCommands());
 
   document->duplicateObjects();
@@ -60,7 +60,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat") {
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTranslate") {
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   addNode(*document, document->parentForNodes(), entityNode);
-  document->select(entityNode);
+  document->selectNode(entityNode);
 
   REQUIRE_FALSE(document->canRepeatCommands());
   document->translateObjects(vm::vec3(1, 2, 3));
@@ -78,7 +78,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatRotate") {
   auto* entityNode = new Model::EntityNode(std::move(entity));
 
   addNode(*document, document->parentForNodes(), entityNode);
-  document->select(entityNode);
+  document->selectNode(entityNode);
 
   REQUIRE_FALSE(document->canRepeatCommands());
   document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), vm::to_radians(90.0));
@@ -97,7 +97,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithBBox") {
   auto* brushNode1 = createBrushNode();
 
   addNode(*document, document->parentForNodes(), brushNode1);
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
 
   REQUIRE_FALSE(document->canRepeatCommands());
   const auto oldBounds = brushNode1->logicalBounds();
@@ -107,7 +107,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithBBox") {
 
   auto* brushNode2 = createBrushNode();
   addNode(*document, document->parentForNodes(), brushNode2);
-  document->select(brushNode2);
+  document->selectNode(brushNode2);
 
   document->repeatCommands();
   CHECK(brushNode2->logicalBounds() == newBounds);
@@ -117,7 +117,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithFactors"
   auto* brushNode1 = createBrushNode();
 
   addNode(*document, document->parentForNodes(), brushNode1);
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
 
   REQUIRE_FALSE(document->canRepeatCommands());
   document->scaleObjects(brushNode1->logicalBounds().center(), vm::vec3(2, 2, 2));
@@ -126,7 +126,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithFactors"
   auto* brushNode2 = createBrushNode();
   addNode(*document, document->parentForNodes(), brushNode2);
   document->deselectAll();
-  document->select(brushNode2);
+  document->selectNode(brushNode2);
 
   document->repeatCommands();
   CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
@@ -137,7 +137,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.shearObjects") {
   const auto originalBounds = brushNode1->logicalBounds();
 
   addNode(*document, document->parentForNodes(), brushNode1);
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
 
   REQUIRE_FALSE(document->canRepeatCommands());
   document->shearObjects(originalBounds, vm::vec3::pos_z(), vm::vec3(32, 0, 0));
@@ -147,7 +147,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.shearObjects") {
   auto* brushNode2 = createBrushNode();
   addNode(*document, document->parentForNodes(), brushNode2);
   document->deselectAll();
-  document->select(brushNode2);
+  document->selectNode(brushNode2);
 
   document->repeatCommands();
   CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
@@ -158,7 +158,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.flipObjects") {
   const auto originalBounds = brushNode1->logicalBounds();
 
   addNode(*document, document->parentForNodes(), brushNode1);
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
 
   REQUIRE_FALSE(document->canRepeatCommands());
   document->flipObjects(originalBounds.max, vm::axis::z);
@@ -168,7 +168,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.flipObjects") {
   auto* brushNode2 = createBrushNode();
   addNode(*document, document->parentForNodes(), brushNode2);
   document->deselectAll();
-  document->select(brushNode2);
+  document->selectNode(brushNode2);
 
   document->repeatCommands();
   CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
@@ -181,14 +181,14 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.selectionClears") {
   auto* entityNode2 = new Model::EntityNode{Model::Entity{}};
   addNode(*document, document->parentForNodes(), entityNode2);
 
-  document->select(entityNode1);
+  document->selectNode(entityNode1);
 
   REQUIRE_FALSE(document->canRepeatCommands());
   document->translateObjects(vm::vec3(1, 2, 3));
   REQUIRE(document->canRepeatCommands());
 
   document->deselectAll();
-  document->select(entityNode2);
+  document->selectNode(entityNode2);
   CHECK(document->canRepeatCommands());
 
   // this command will not clear the repeat stack
@@ -200,13 +200,13 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.selectionClears") {
   CHECK(document->canRepeatCommands());
 
   document->deselectAll();
-  document->select(entityNode1);
+  document->selectNode(entityNode1);
 
   document->repeatCommands();
   CHECK(entityNode1->entity().origin() == vm::vec3::zero());
 
   document->deselectAll();
-  document->select(entityNode1);
+  document->selectNode(entityNode1);
   CHECK(document->canRepeatCommands());
 }
 
@@ -214,7 +214,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction") {
   auto* entityNode1 = new Model::EntityNode({});
   addNode(*document, document->parentForNodes(), entityNode1);
 
-  document->select(entityNode1);
+  document->selectNode(entityNode1);
   CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
 
   document->startTransaction();
@@ -232,7 +232,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction") {
   addNode(*document, document->parentForNodes(), entityNode2);
 
   document->deselectAll();
-  document->select(entityNode2);
+  document->selectNode(entityNode2);
   CHECK(entityNode2->entity().origin() == vm::vec3(0, 0, 0));
 
   CHECK(document->canRepeatCommands());
@@ -251,7 +251,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
   auto* entityNode1 = new Model::EntityNode({});
   addNode(*document, document->parentForNodes(), entityNode1);
 
-  document->select(entityNode1);
+  document->selectNode(entityNode1);
   CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
 
   SECTION("transaction containing a rollback") {
@@ -309,7 +309,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatUndo") {
   auto* entityNode1 = new Model::EntityNode({});
   addNode(*document, document->parentForNodes(), entityNode1);
 
-  document->select(entityNode1);
+  document->selectNode(entityNode1);
   CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
 
   document->translateObjects(vm::vec3(0, 0, 10));

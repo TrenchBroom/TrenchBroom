@@ -374,18 +374,18 @@ public: // selection
   void selectInside(bool del) override;
   void selectInverse() override;
   void selectNodesWithFilePosition(const std::vector<size_t>& positions) override;
-  void select(const std::vector<Model::Node*>& nodes) override;
-  void select(Model::Node* node) override;
-  void select(const std::vector<Model::BrushFaceHandle>& handles) override;
-  void select(const Model::BrushFaceHandle& handle) override;
+  void selectNodes(const std::vector<Model::Node*>& nodes) override;
+  void selectNode(Model::Node* node) override;
+  void selectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) override;
+  void selectBrushFace(const Model::BrushFaceHandle& handle) override;
   void convertToFaceSelection() override;
   void selectFacesWithTexture(const Assets::Texture* texture);
   void selectTall(vm::axis::type cameraAxis);
 
   void deselectAll() override;
-  void deselect(Model::Node* node) override;
-  void deselect(const std::vector<Model::Node*>& nodes) override;
-  void deselect(const Model::BrushFaceHandle& handle) override;
+  void deselectNode(Model::Node* node) override;
+  void deselectNodes(const std::vector<Model::Node*>& nodes) override;
+  void deselectBrushFace(const Model::BrushFaceHandle& handle) override;
 
 protected:
   void updateLastSelectionBounds();

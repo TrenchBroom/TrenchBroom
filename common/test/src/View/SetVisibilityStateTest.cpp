@@ -64,7 +64,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate") {
       REQUIRE(!nodeToIsolate->hidden());
 
       WHEN("The node is isolated") {
-        document->select(nodeToIsolate);
+        document->selectNode(nodeToIsolate);
 
         const auto selectedNodes = document->selectedNodes().nodes();
         document->isolate();
@@ -109,10 +109,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate") {
           std::make_tuple(true, true), std::make_tuple(true, false), std::make_tuple(false, true));
 
         if (selectChild1) {
-          document->select(childNode1);
+          document->selectNode(childNode1);
         }
         if (selectChild2) {
-          document->select(childNode2);
+          document->selectNode(childNode2);
         }
         REQUIRE_FALSE(entityNode->selected());
 

@@ -61,7 +61,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createGroupWithOneNode", "[Gro
 
   auto* node = createNode(*this);
   addNode(*document, document->parentForNodes(), node);
-  document->select(node);
+  document->selectNode(node);
 
   Model::GroupNode* group = document->groupSelection("test");
   CHECK(group != nullptr);
@@ -88,7 +88,7 @@ TEST_CASE_METHOD(
   addNode(*document, document->parentForNodes(), entity);
   reparentNodes(*document, entity, {child1, child2});
 
-  document->select(child1);
+  document->selectNode(child1);
 
   Model::GroupNode* group = document->groupSelection("test");
   CHECK(group != nullptr);
@@ -120,7 +120,7 @@ TEST_CASE_METHOD(
   addNode(*document, document->parentForNodes(), entity);
   reparentNodes(*document, entity, {child1, child2});
 
-  document->select(std::vector<Model::Node*>({child1, child2}));
+  document->selectNodes({child1, child2});
 
   Model::GroupNode* group = document->groupSelection("test");
   CHECK(group != nullptr);
@@ -162,7 +162,7 @@ TEST_CASE_METHOD(
   addNode(*document, document->parentForNodes(), entityNode);
   reparentNodes(*document, entityNode, {brush1});
 
-  document->select(brush1);
+  document->selectNode(brush1);
 
   Model::GroupNode* group = document->groupSelection("test");
   CHECK(group->selected());
@@ -187,7 +187,7 @@ TEST_CASE_METHOD(
   addNode(*document, document->parentForNodes(), entityNode);
   reparentNodes(*document, entityNode, {brush1});
 
-  document->select(brush1);
+  document->selectNode(brush1);
 
   Model::GroupNode* group = document->groupSelection("test");
   CHECK(group->selected());
@@ -204,7 +204,7 @@ TEST_CASE_METHOD(
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {
   Model::BrushNode* brush1 = createBrushNode();
   addNode(*document, document->parentForNodes(), brush1);
-  document->select(brush1);
+  document->selectNode(brush1);
 
   Model::GroupNode* group = document->groupSelection("test");
 
@@ -221,14 +221,14 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup", "[GroupNodesTest
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateNodeInGroup", "[GroupNodesTest]") {
   Model::BrushNode* brush = createBrushNode();
   addNode(*document, document->parentForNodes(), brush);
-  document->select(brush);
+  document->selectNode(brush);
 
   Model::GroupNode* group = document->groupSelection("test");
   REQUIRE(group != nullptr);
 
   document->openGroup(group);
 
-  document->select(brush);
+  document->selectNode(brush);
   document->duplicateObjects();
 
   Model::BrushNode* brushCopy = document->selectedNodes().brushes().at(0u);
@@ -244,14 +244,14 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupInnerGroup") {
 
   addNode(*document, document->parentForNodes(), innerEnt1);
   addNode(*document, document->parentForNodes(), innerEnt2);
-  document->select(std::vector<Model::Node*>{innerEnt1, innerEnt2});
+  document->selectNodes({innerEnt1, innerEnt2});
 
   Model::GroupNode* inner = document->groupSelection("Inner");
 
   document->deselectAll();
   addNode(*document, document->parentForNodes(), outerEnt1);
   addNode(*document, document->parentForNodes(), outerEnt2);
-  document->select(std::vector<Model::Node*>{inner, outerEnt1, outerEnt2});
+  document->selectNodes({inner, outerEnt1, outerEnt2});
 
   Model::GroupNode* outer = document->groupSelection("Outer");
   document->deselectAll();
@@ -281,7 +281,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupInnerGroup") {
 
   // open the outer group and ungroup the inner group
   document->openGroup(outer);
-  document->select(inner);
+  document->selectNode(inner);
   document->ungroupSelection();
   document->deselectAll();
 
@@ -293,7 +293,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesPointEntitySelect
   Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
 
   addNode(*document, document->parentForNodes(), ent1);
-  document->select(std::vector<Model::Node*>{ent1});
+  document->selectNodes({ent1});
 
   Model::GroupNode* group = document->groupSelection("Group");
   CHECK_THAT(document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group}));
@@ -311,7 +311,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   Model::BrushNode* brushNode1 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
   addNode(*document, ent1, brushNode1);
-  document->select(std::vector<Model::Node*>{ent1});
+  document->selectNodes({ent1});
   CHECK_THAT(
     document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{brushNode1}));
   CHECK_FALSE(ent1->selected());
@@ -339,10 +339,10 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity") {
 
   addNode(*document, document->parentForNodes(), ent1);
   addNode(*document, document->parentForNodes(), ent2);
-  document->select(std::vector<Model::Node*>{ent1});
+  document->selectNodes({ent1});
 
   auto* group = document->groupSelection("Group");
-  document->select(std::vector<Model::Node*>{ent2});
+  document->selectNodes({ent2});
   CHECK_THAT(
     document->selectedNodes().nodes(),
     Catch::UnorderedEquals(std::vector<Model::Node*>{group, ent2}));
@@ -360,20 +360,20 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups") {
   Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
   addNode(*document, document->parentForNodes(), ent1);
   document->deselectAll();
-  document->select(std::vector<Model::Node*>{ent1});
+  document->selectNodes({ent1});
   Model::GroupNode* group1 = document->groupSelection("group1");
 
   Model::EntityNode* ent2 = new Model::EntityNode{Model::Entity{}};
   addNode(*document, document->parentForNodes(), ent2);
   document->deselectAll();
-  document->select(std::vector<Model::Node*>{ent2});
+  document->selectNodes({ent2});
   Model::GroupNode* group2 = document->groupSelection("group2");
 
   CHECK_THAT(
     document->currentLayer()->children(),
     Catch::UnorderedEquals(std::vector<Model::Node*>{group1, group2}));
 
-  document->select(std::vector<Model::Node*>{group1, group2});
+  document->selectNodes({group1, group2});
   document->mergeSelectedGroupsWithGroup(group2);
 
   CHECK_THAT(document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group2}));
@@ -388,18 +388,18 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupN
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
-  document->select(brushNode);
+  document->selectNode(brushNode);
 
   auto* groupNode = document->groupSelection("test");
   REQUIRE(groupNode != nullptr);
 
   document->deselectAll();
-  document->select(groupNode);
+  document->selectNode(groupNode);
 
   auto* linkedGroupNode = document->createLinkedDuplicate();
 
   document->deselectAll();
-  document->select(linkedGroupNode);
+  document->selectNode(linkedGroupNode);
 
   auto* linkedGroupNode2 = document->createLinkedDuplicate();
 
@@ -410,7 +410,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupN
       std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
 
   SECTION("Given three linked groups, we ungroup one of them, the other two remain linked") {
-    document->select(linkedGroupNode2);
+    document->selectNode(linkedGroupNode2);
 
     auto* linkedBrushNode2 = linkedGroupNode2->children().front();
 
@@ -426,8 +426,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupN
 
   SECTION("Given three linked groups, we ungroup two of them, and the remaining one becomes a "
           "regular group") {
-    document->select(linkedGroupNode);
-    document->select(linkedGroupNode2);
+    document->selectNode(linkedGroupNode);
+    document->selectNode(linkedGroupNode2);
 
     auto* linkedBrushNode = linkedGroupNode->children().front();
     auto* linkedBrushNode2 = linkedGroupNode2->children().front();
@@ -441,9 +441,9 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupN
   }
 
   SECTION("Given three linked groups, we ungroup all of them") {
-    document->select(groupNode);
-    document->select(linkedGroupNode);
-    document->select(linkedGroupNode2);
+    document->selectNode(groupNode);
+    document->selectNode(linkedGroupNode);
+    document->selectNode(linkedGroupNode2);
 
     auto* linkedBrushNode = linkedGroupNode->children().front();
     auto* linkedBrushNode2 = linkedGroupNode2->children().front();
@@ -470,7 +470,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupN
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createLinkedDuplicate", "[GroupNodesTest]") {
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
-  document->select(brushNode);
+  document->selectNode(brushNode);
 
   auto* groupNode = document->groupSelection("test");
   REQUIRE(groupNode != nullptr);
@@ -480,7 +480,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createLinkedDuplicate", "[Grou
   CHECK_FALSE(document->canCreateLinkedDuplicate());
   CHECK(document->createLinkedDuplicate() == nullptr);
 
-  document->select(groupNode);
+  document->selectNode(groupNode);
   CHECK(document->canCreateLinkedDuplicate());
 
   auto* linkedGroupNode = document->createLinkedDuplicate();
@@ -494,7 +494,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNo
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
-  document->select(brushNode);
+  document->selectNode(brushNode);
 
   auto* groupNode = document->groupSelection("test");
   REQUIRE(groupNode != nullptr);
@@ -506,22 +506,22 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNo
 
   SECTION("Cannot select linked groups if selection contains non-groups") {
     document->deselectAll();
-    document->select(entityNode);
+    document->selectNode(entityNode);
     CHECK_FALSE(document->canSelectLinkedGroups());
-    document->select(groupNode);
+    document->selectNode(groupNode);
     CHECK_FALSE(document->canSelectLinkedGroups());
   }
 
   SECTION("Cannot select linked groups if selection contains unlinked groups") {
     document->deselectAll();
-    document->select(entityNode);
+    document->selectNode(entityNode);
 
     auto* unlinkedGroupNode = document->groupSelection("other");
     REQUIRE(unlinkedGroupNode != nullptr);
 
     CHECK_FALSE(document->canSelectLinkedGroups());
 
-    document->select(groupNode);
+    document->selectNode(groupNode);
     CHECK_FALSE(document->canSelectLinkedGroups());
   }
 
@@ -530,7 +530,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNo
     REQUIRE(linkedGroupNode != nullptr);
 
     document->deselectAll();
-    document->select(groupNode);
+    document->selectNode(groupNode);
 
     REQUIRE(document->canSelectLinkedGroups());
     document->selectLinkedGroups();
@@ -543,13 +543,13 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNo
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodesTest]") {
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
-  document->select(brushNode);
+  document->selectNode(brushNode);
 
   auto* groupNode = document->groupSelection("test");
   REQUIRE(groupNode != nullptr);
 
   document->deselectAll();
-  document->select(groupNode);
+  document->selectNode(groupNode);
 
   SECTION("Separating a group that isn't linked") {
     CHECK_FALSE(document->canSeparateLinkedGroups());
@@ -561,7 +561,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodes
     REQUIRE(groupNode->group().linkedGroupId() != std::nullopt);
     REQUIRE(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
 
-    document->select(std::vector<Model::Node*>{groupNode, linkedGroupNode});
+    document->selectNodes({groupNode, linkedGroupNode});
     CHECK_FALSE(document->canSeparateLinkedGroups());
   }
 
@@ -574,7 +574,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodes
     REQUIRE(linkedGroupNode->group().linkedGroupId() == originalLinkedGroupId);
 
     document->deselectAll();
-    document->select(linkedGroupNode);
+    document->selectNode(linkedGroupNode);
 
     CHECK(document->canSeparateLinkedGroups());
     document->separateLinkedGroups();
@@ -602,7 +602,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodes
     REQUIRE(linkedGroupNode3->group().linkedGroupId() == originalLinkedGroupId);
 
     document->deselectAll();
-    document->select(std::vector<Model::Node*>{linkedGroupNode2, linkedGroupNode3});
+    document->selectNodes({linkedGroupNode2, linkedGroupNode3});
     CHECK(document->canSeparateLinkedGroups());
 
     document->separateLinkedGroups();
@@ -627,7 +627,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodes
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.newWithGroupOpen") {
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
   addNode(*document, document->parentForNodes(), entity);
-  document->select(entity);
+  document->selectNode(entity);
   Model::GroupNode* group = document->groupSelection("my group");
   document->openGroup(group);
 
@@ -643,7 +643,7 @@ TEST_CASE_METHOD(
   MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLinkSet", "[GroupNodesTest]") {
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
-  document->select(brushNode);
+  document->selectNode(brushNode);
 
   auto* groupNode = document->groupSelection("test");
   REQUIRE(groupNode != nullptr);
@@ -656,7 +656,7 @@ TEST_CASE_METHOD(
   SECTION("Face selection locks other groups in link set") {
     CHECK(!linkedGroupNode->locked());
 
-    document->select({Model::BrushFaceHandle{brushNode, 0}});
+    document->selectBrushFaces({{brushNode, 0}});
     CHECK(linkedGroupNode->locked());
 
     document->deselectAll();
@@ -664,7 +664,7 @@ TEST_CASE_METHOD(
   }
 
   SECTION("Can select two linked groups and apply a texture") {
-    document->select(std::vector<Model::Node*>{groupNode, linkedGroupNode});
+    document->selectNodes({groupNode, linkedGroupNode});
 
     auto setTexture = Model::ChangeBrushFaceAttributesRequest{};
     setTexture.setTextureName("abc");
@@ -681,7 +681,7 @@ TEST_CASE_METHOD(
   }
 
   SECTION("Can't snap to grid with both groups selected") {
-    document->select(std::vector<Model::Node*>{groupNode, linkedGroupNode});
+    document->selectNodes({groupNode, linkedGroupNode});
 
     CHECK(document->transformObjects("", vm::translation_matrix(vm::vec3{0.5, 0.5, 0.0})));
 
@@ -698,7 +698,7 @@ TEST_CASE_METHOD(
   {
     auto* entityNode = new Model::EntityNode{Model::Entity{}};
     document->addNodes({{document->parentForNodes(), {entityNode}}});
-    document->select(entityNode);
+    document->selectNode(entityNode);
   }
 
   auto* groupNode = document->groupSelection("test");
@@ -712,7 +712,7 @@ TEST_CASE_METHOD(
   document->deselectAll();
 
   SECTION("Attempt to set a property with 2 out of 3 groups selected") {
-    document->select(std::vector<Model::Node*>{groupNode, linkedGroupNode1});
+    document->selectNodes({groupNode, linkedGroupNode1});
 
     // Current design is to reject this because it's modifying entities from multiple groups in a
     // link set. While in this case the change isn't conflicting, some entity changes are, e.g.

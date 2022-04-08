@@ -76,7 +76,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
     }
 
     WHEN("A top level brush node is selected") {
-      document->select(topLevelBrushNode);
+      document->selectNode(topLevelBrushNode);
 
       THEN("The world node is returned") {
         CHECK_THAT(
@@ -86,7 +86,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
     }
 
     WHEN("A top level patch node is selected") {
-      document->select(topLevelPatchNode);
+      document->selectNode(topLevelPatchNode);
 
       THEN("The world node is returned") {
         CHECK_THAT(
@@ -96,7 +96,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
     }
 
     WHEN("An empty group node is selected") {
-      document->select(emptyGroupNode);
+      document->selectNode(emptyGroupNode);
 
       THEN("An empty vector is returned") {
         CHECK_THAT(
@@ -106,7 +106,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
     }
 
     WHEN("A group node containing an entity node is selected") {
-      document->select(groupNodeWithEntity);
+      document->selectNode(groupNodeWithEntity);
 
       THEN("The grouped entity node is returned") {
         CHECK_THAT(
@@ -115,7 +115,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
       }
 
       AND_WHEN("A top level entity node is selected") {
-        document->select(topLevelEntityNode);
+        document->selectNode(topLevelEntityNode);
 
         THEN("The top level entity node and the grouped entity node are returned") {
           CHECK_THAT(
@@ -127,7 +127,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
     }
 
     WHEN("An empty top level entity node is selected") {
-      document->select(topLevelEntityNode);
+      document->selectNode(topLevelEntityNode);
 
       THEN("That entity node is returned") {
         CHECK_THAT(
@@ -153,7 +153,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
 
       CAPTURE(nodeToSelect->name(), otherNode->name());
 
-      document->select(nodeToSelect);
+      document->selectNode(nodeToSelect);
 
       THEN("The containing entity node is returned") {
         CHECK_THAT(
@@ -163,7 +163,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
       }
 
       AND_WHEN("Another node in the same entity node is selected") {
-        document->select(otherNode);
+        document->selectNode(otherNode);
 
         THEN("The containing entity node is returned only once") {
           CHECK_THAT(
@@ -174,7 +174,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes") {
       }
 
       AND_WHEN("A top level entity node is selected") {
-        document->select(topLevelEntityNode);
+        document->selectNode(topLevelEntityNode);
 
         THEN("The top level entity node and the brush entity node are returned") {
           CHECK_THAT(
@@ -208,7 +208,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching") {
   REQUIRE(!brushNode1->intersects(brushNode3));
   REQUIRE(!brushNode3->intersects(brushNode1));
 
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
   document->selectTouching(false);
 
   using Catch::Matchers::UnorderedEquals;
@@ -278,7 +278,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup") {
     new Model::BrushNode(builder.createCuboid(selectionBounds, "texture").value());
   addNode(*document, layer, selectionBrush);
 
-  document->select(selectionBrush);
+  document->selectNode(selectionBrush);
   document->selectTouching(true);
 
   CHECK(document->selectedNodes().nodeCount() == 1u);
@@ -308,7 +308,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup") {
     new Model::BrushNode(builder.createCuboid(selectionBounds, "texture").value());
   addNode(*document, layer, selectionBrush);
 
-  document->select(selectionBrush);
+  document->selectNode(selectionBrush);
   document->selectInside(true);
 
   CHECK(document->selectedNodes().nodeCount() == 1u);
@@ -334,7 +334,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall") {
   REQUIRE(!brushNode1->intersects(brushNode2));
   REQUIRE(!brushNode1->intersects(brushNode3));
 
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
 
   SECTION("z camera") {
     document->selectTall(vm::axis::z);
@@ -374,7 +374,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse") {
   auto* patchNode = createPatchNode();
   addNode(*document, document->parentForNodes(), patchNode);
 
-  document->select(std::vector<Model::Node*>{brushNode1, brushNode2});
+  document->selectNodes({brushNode1, brushNode2});
   Model::EntityNode* brushEnt = document->createBrushEntity(m_brushEntityDef);
 
   document->deselectAll();
@@ -385,7 +385,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse") {
   //   patch
   // }
 
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
   REQUIRE(brushNode1->selected());
   REQUIRE(!brushNode2->selected());
   REQUIRE(!brushNode3->selected());
@@ -429,7 +429,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingInsideNestedGroup
 
   outerGroup->open();
   innerGroup->open();
-  document->select(std::vector<Model::Node*>{brushNode1});
+  document->selectNodes({brushNode1});
 
   document->selectTouching(false);
 
@@ -455,7 +455,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds") {
   auto* brushNode = createBrushNode();
   addNode(*document, document->parentForNodes(), brushNode);
 
-  document->select(brushNode);
+  document->selectNode(brushNode);
   CHECK(document->lastSelectionBounds() == bounds);
 
   bounds = brushNode->logicalBounds();
@@ -474,17 +474,17 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionCommandTest.faceSelectionUndoAfterTr
   REQUIRE(topFaceIndex);
 
   // select the top face
-  document->select({brushNode, *topFaceIndex});
+  document->selectBrushFace({brushNode, *topFaceIndex});
   CHECK_THAT(
     document->selectedBrushFaces(),
     Catch::Equals(std::vector<Model::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 
   // deselect it
-  document->deselect({brushNode, *topFaceIndex});
+  document->deselectBrushFace({brushNode, *topFaceIndex});
   CHECK_THAT(document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
 
   // select the brush
-  document->select(brushNode);
+  document->selectNode(brushNode);
   CHECK_THAT(
     document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode*>{brushNode}));
 

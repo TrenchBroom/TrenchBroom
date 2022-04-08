@@ -1205,7 +1205,7 @@ void MapFrame::pasteAtCursorPosition() {
       m_document->hide(nodes);
       const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
       m_document->show(nodes);
-      m_document->select(nodes); // Hiding deselected the nodes, so reselect them
+      m_document->selectNodes(nodes); // Hiding deselected the nodes, so reselect them
       m_document->translateObjects(delta);
     }
   }

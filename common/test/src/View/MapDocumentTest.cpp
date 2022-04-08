@@ -190,7 +190,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection") {
     const auto nodes = resolvePaths(paths);
     const auto brushNodes = kdl::vec_element_cast<Model::BrushNode*>(nodes);
 
-    document->select(nodes);
+    document->selectNodes(nodes);
 
     CHECK_THAT(document->allSelectedBrushNodes(), Catch::Matchers::UnorderedEquals(brushNodes));
   }
@@ -216,7 +216,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection") {
     CAPTURE(pathsToSelect);
 
     const auto nodes = resolvePaths(pathsToSelect);
-    document->select(nodes);
+    document->selectNodes(nodes);
 
     CHECK(document->hasAnySelectedBrushNodes() == expectedResult);
   }

@@ -186,7 +186,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableTextureNameTag") {
   const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
-  document->select(faceHandle);
+  document->selectBrushFace(faceHandle);
 
   TestCallback callback(0);
   tag.enable(callback, *document);
@@ -241,7 +241,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceParmTag") {
   const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
-  document->select(faceHandle);
+  document->selectBrushFace(faceHandle);
 
   TestCallback callback(0);
   tag.enable(callback, *document);
@@ -290,7 +290,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableContentFlagsTag") {
   const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
-  document->select(faceHandle);
+  document->selectBrushFace(faceHandle);
 
   TestCallback callback(0);
   tag.enable(callback, *document);
@@ -315,7 +315,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableContentFlagsTag") 
   const auto faceHandle = Model::BrushFaceHandle(matchingBrushNode, 0u);
   CHECK(tag.matches(faceHandle.face()));
 
-  document->select(faceHandle);
+  document->selectBrushFace(faceHandle);
 
   TestCallback callback(0);
   tag.disable(callback, *document);
@@ -359,7 +359,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceFlagsTag") {
   const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
-  document->select(faceHandle);
+  document->selectBrushFace(faceHandle);
 
   TestCallback callback(0);
   tag.enable(callback, *document);
@@ -384,7 +384,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceFlagsTag") 
   const auto faceHandle = Model::BrushFaceHandle(matchingBrushNode, 0u);
   CHECK(tag.matches(faceHandle.face()));
 
-  document->select(faceHandle);
+  document->selectBrushFace(faceHandle);
 
   TestCallback callback(0);
   tag.disable(callback, *document);
@@ -418,7 +418,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTag"
 
   CHECK(tag.canEnable());
 
-  document->select(brushNode);
+  document->selectNode(brushNode);
 
   TestCallback callback(0);
   tag.enable(callback, *document);
@@ -435,7 +435,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTagR
   addNode(*document, oldEntity, brushNode);
 
   const auto& tag = document->smartTag("entity");
-  document->select(brushNode);
+  document->selectNode(brushNode);
 
   TestCallback callback(0);
   tag.enable(callback, *document);
@@ -462,7 +462,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag
 
   CHECK(tag.canDisable());
 
-  document->select(brushNode);
+  document->selectNode(brushNode);
 
   TestCallback callback(0);
   tag.disable(callback, *document);
@@ -534,7 +534,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterCh
   const auto& tag = document->smartTag("entity");
   CHECK_FALSE(brushNode->hasTag(tag));
 
-  document->select(lightEntityNode);
+  document->selectNode(lightEntityNode);
   document->setProperty("classname", "brush_entity");
   document->deselectAll();
 
@@ -545,7 +545,7 @@ TEST_CASE_METHOD(
   TagManagementTest, "TagManagementTest.tagInitializeBrushFaceTags", "[TagManagementTest]") {
   auto* brushNodeWithTags = createBrushNode("some_texture");
   addNode(*document, document->parentForNodes(), brushNodeWithTags);
-  document->select(brushNodeWithTags);
+  document->selectNode(brushNodeWithTags);
 
   SECTION("No modification to brush") {}
   SECTION("Vertex manipulation") {
@@ -590,7 +590,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushFaceTags") 
   Model::ChangeBrushFaceAttributesRequest request;
   request.setContentFlags(1);
 
-  document->select(faceHandle);
+  document->selectBrushFace(faceHandle);
   document->setFaceAttributes(request);
   document->deselectAll();
 

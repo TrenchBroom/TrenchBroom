@@ -55,7 +55,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest
   }
 
   SECTION("translate brush") {
-    document->select(brushNode);
+    document->selectNode(brushNode);
     document->translateObjects(vm::vec3(1, 1, 1));
     CHECK(texture->usageCount() == 6u);
 
@@ -64,7 +64,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest
   }
 
   SECTION("delete brush") {
-    document->select(brushNode);
+    document->selectNode(brushNode);
     document->deleteObjects();
     CHECK(texture->usageCount() == 0u);
 
@@ -76,7 +76,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest
     auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
     REQUIRE(topFaceIndex.has_value());
 
-    document->select(Model::BrushFaceHandle(brushNode, *topFaceIndex));
+    document->selectBrushFace({brushNode, *topFaceIndex});
 
     Model::ChangeBrushFaceAttributesRequest request;
     request.setXOffset(static_cast<float>(12.34f));
@@ -102,7 +102,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation", "[UndoTest]") {
   addNode(*document, document->parentForNodes(), entityNode);
   CHECK(!entityNode->entity().hasProperty("angle"));
 
-  document->select(entityNode);
+  document->selectNode(entityNode);
   document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), vm::to_radians(15.0));
   CHECK(entityNode->entity().hasProperty("angle"));
   CHECK(*entityNode->entity().property("angle") == "15");

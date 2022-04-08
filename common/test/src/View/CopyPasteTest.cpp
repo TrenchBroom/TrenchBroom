@@ -234,13 +234,13 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup") {
 
   auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
   addNode(*document, document->parentForNodes(), brushNode1);
-  document->select(brushNode1);
+  document->selectNode(brushNode1);
 
   const auto groupName = std::string("testGroup");
 
   auto* group = document->groupSelection(groupName);
   CHECK(group != nullptr);
-  document->select(group);
+  document->selectNode(group);
 
   const std::string copied = document->serializeSelectedNodes();
 
@@ -262,7 +262,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]
 
   Model::BrushNode* brush = createBrushNode();
   addNode(*document, document->parentForNodes(), brush);
-  document->select(brush);
+  document->selectNode(brush);
 
   Model::GroupNode* group = document->groupSelection("test");
   document->openGroup(group);
@@ -280,14 +280,14 @@ TEST_CASE_METHOD(
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  document->select(entityNode);
+  document->selectNode(entityNode);
   auto* groupNode = document->groupSelection("test");
 
   const auto persistentGroupId = groupNode->persistentId();
   REQUIRE(persistentGroupId.has_value());
 
   document->deselectAll();
-  document->select(groupNode);
+  document->selectNode(groupNode);
 
   const auto str = document->serializeSelectedNodes();
 

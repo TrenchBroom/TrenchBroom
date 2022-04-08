@@ -406,7 +406,7 @@ void EntityClassNameTagMatcher::disable(
   }
   facade.deselectAll();
   facade.reparentNodes({{facade.parentForNodes(selectedBrushes), detailBrushes}});
-  facade.select(std::vector<Node*>(std::begin(detailBrushes), std::end(detailBrushes)));
+  facade.selectNodes(std::vector<Node*>(std::begin(detailBrushes), std::end(detailBrushes)));
 }
 
 bool EntityClassNameTagMatcher::canEnable() const {

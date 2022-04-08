@@ -1284,7 +1284,7 @@ void MapViewBase::addSelectedObjectsToGroup() {
   Transaction transaction(document, "Add Objects to Group");
   reparentNodes(nodes, newGroup, true);
   document->deselectAll();
-  document->select(newGroup);
+  document->selectNode(newGroup);
 }
 
 void MapViewBase::removeSelectedObjectsFromGroup() {
@@ -1299,7 +1299,7 @@ void MapViewBase::removeSelectedObjectsFromGroup() {
   while (document->currentGroup() != nullptr) {
     document->closeGroup();
   }
-  document->select(nodes);
+  document->selectNodes(nodes);
 }
 
 Model::Node* MapViewBase::findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const {
@@ -1375,7 +1375,7 @@ void MapViewBase::moveSelectedBrushesToEntity() {
   reparentNodes(nodes, newParent, false);
 
   document->deselectAll();
-  document->select(nodes);
+  document->selectNodes(nodes);
 }
 
 Model::Node* MapViewBase::findNewParentEntityForBrushes(
@@ -1478,7 +1478,7 @@ void MapViewBase::reparentNodes(
   const Transaction transaction(document, name.str());
   document->deselectAll();
   document->reparentNodes({{newParent, reparentableNodes}});
-  document->select(reparentableNodes);
+  document->selectNodes(reparentableNodes);
 }
 
 std::vector<Model::Node*> MapViewBase::collectReparentableNodes(

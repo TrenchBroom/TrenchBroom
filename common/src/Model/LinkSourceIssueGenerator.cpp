@@ -62,7 +62,7 @@ private:
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->select(issue->node());
+    facade->selectNode(issue->node());
     facade->removeProperty(EntityPropertyKeys::Targetname);
   }
 };
