@@ -27,11 +27,14 @@
 #include "View/Tool.h"
 
 #include <vecmath/forward.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
 #include <vecmath/vec.h>
 
 #include <kdl/reflection_decl.h>
 
 #include <memory>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -74,12 +77,21 @@ struct ExtrudeDragState {
   std::vector<Model::BrushFaceHandle> currentDragFaces;
 
   /** Whether or not to create new brushes by splitting the selected brushes. */
-  bool splitBrushes;
+  bool splitBrushes = false;
   /** The total drag distance so far. */
-  vm::vec3 totalDelta;
+  vm::vec3 totalDelta = {0, 0, 0};
 
   kdl_reflect_decl(
     ExtrudeDragState, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
+};
+
+struct ExtrudeHitData {
+  std::vector<Model::BrushFaceHandle> faces;
+  std::variant<vm::plane3, vm::line3> dragReference;
+
+  vm::vec3 initialHandlePosition() const;
+
+  kdl_reflect_decl(ExtrudeHitData, faces, dragReference);
 };
 
 /**
@@ -92,8 +104,6 @@ struct ExtrudeDragState {
 class ExtrudeTool : public Tool {
 public:
   static const Model::HitType::Type ExtrudeHitType;
-
-  using ExtrudeHitData = std::vector<Model::BrushFaceHandle>;
 
 private:
   std::weak_ptr<MapDocument> m_document;

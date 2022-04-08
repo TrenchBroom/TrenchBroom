@@ -24,6 +24,7 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
+#include "Model/HitAdapter.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
@@ -111,16 +112,27 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
   ExtrudeDragDelegate(ExtrudeTool& tool, ExtrudeDragState extrudeDragState)
     : m_tool{tool}
     , m_extrudeDragState{std::move(extrudeDragState)} {}
+  auto makePicker(const InputState& inputState, const vm::vec3& handleOffset) {
+    using namespace Model::HitFilters;
+
+    const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
+    assert(hit.isMatch());
+
+    const auto& hitData = hit.target<ExtrudeHitData>();
+    return std::visit(
+      kdl::overload(
+        [&](const vm::line3& line) {
+          return makeLineHandlePicker(line, handleOffset);
+        },
+        [&](const vm::plane3& plane) {
+          return makePlaneHandlePicker(plane, handleOffset);
+        }),
+      hitData.dragReference);
+  }
 
   HandlePositionProposer start(
-    const InputState&, const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) override {
-    const auto& dragFaceHandle = m_extrudeDragState.initialDragHandles.at(0);
-    const auto& dragFace = dragFaceHandle.faceAtDragStart();
-    const auto& faceNormal = dragFace.boundary().normal;
-
-    auto picker = makeLineHandlePicker(vm::line3{initialHandlePosition, faceNormal}, handleOffset);
-
+    const InputState& inputState, const vm::vec3&, const vm::vec3& handleOffset) override {
+    auto picker = makePicker(inputState, handleOffset);
     auto snapper =
       [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
         auto& grid = m_tool.grid();
@@ -128,9 +140,9 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
           return proposedHandlePosition;
         }
 
-        const auto totalFaceDelta = proposedHandlePosition - dragState.initialHandlePosition;
-        const auto snappedFaceDelta = grid.moveDelta(dragFace, totalFaceDelta);
-        return dragState.initialHandlePosition + snappedFaceDelta;
+        const auto totalHandleDelta = proposedHandlePosition - dragState.initialHandlePosition;
+        const auto snappedHandleDelta = grid.snap(totalHandleDelta);
+        return dragState.initialHandlePosition + snappedHandleDelta;
       };
 
     return makeHandlePositionProposer(std::move(picker), std::move(snapper));
@@ -139,8 +151,8 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
   DragStatus drag(
     const InputState&, const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override {
-    const auto faceDelta = proposedHandlePosition - dragState.initialHandlePosition;
-    if (m_tool.extrude(faceDelta, m_extrudeDragState)) {
+    const auto handleDelta = proposedHandlePosition - dragState.initialHandlePosition;
+    if (m_tool.extrude(handleDelta, m_extrudeDragState)) {
       return DragStatus::Continue;
     }
     return DragStatus::Deny;
@@ -165,16 +177,16 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
   }
 };
 
-auto makeExtrudeDragTracker(
-  ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint,
-  const bool split) {
-  // todo: compute handle offset correctly
+auto createExtrudeDragTracker(
+  ExtrudeTool& tool, const InputState& inputState, const Model::Hit& hit, const bool split) {
+  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition();
+  const auto handleOffset = initialHandlePosition - hit.hitPoint();
+
   return createHandleDragTracker(
     ExtrudeDragDelegate{
       tool,
-      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split,
-       vm::vec3::zero()}},
-    inputState, initialHitPoint, vm::vec3::zero());
+      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split}},
+    inputState, initialHandlePosition, handleOffset);
 }
 
 struct MoveDragDelegate : public HandleDragTrackerDelegate {
@@ -235,15 +247,14 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
   }
 };
 
-auto makeMoveDragTracker(
-  ExtrudeTool& tool, const InputState& inputState, const vm::vec3& initialHitPoint) {
-  // todo: compute handle offset correctly
+auto createMoveDragTracker(ExtrudeTool& tool, const InputState& inputState, const Model::Hit& hit) {
+  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition();
+  const auto handleOffset = initialHandlePosition - hit.hitPoint();
+
   return createHandleDragTracker(
     MoveDragDelegate{
-      tool,
-      {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), false,
-       vm::vec3::zero()}},
-    inputState, initialHitPoint, vm::vec3::zero());
+      tool, {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles())}},
+    inputState, initialHandlePosition, handleOffset);
 }
 } // namespace
 
@@ -266,12 +277,12 @@ std::unique_ptr<DragTracker> ExtrudeToolController::acceptMouseDrag(const InputS
     if (inputState.modifierKeysDown(ModifierKeys::MKAlt)) {
       if (inputState.camera().orthographicProjection()) {
         m_tool.beginMove();
-        return makeMoveDragTracker(m_tool, inputState, hit.hitPoint());
+        return createMoveDragTracker(m_tool, inputState, hit);
       }
     } else {
       const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
       m_tool.beginExtrude();
-      return makeExtrudeDragTracker(m_tool, inputState, hit.hitPoint(), split);
+      return createExtrudeDragTracker(m_tool, inputState, hit, split);
     }
   }
 

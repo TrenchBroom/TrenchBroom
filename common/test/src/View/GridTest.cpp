@@ -199,45 +199,6 @@ TEST_CASE("GridTest.moveDeltaForPoint_SubInteger2", "[GridTest]") {
   CHECK(pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, inputDelta) == pointOnGrid);
 }
 
-static Model::Brush makeCube128() {
-  Assets::Texture texture("testTexture", 64, 64);
-  Model::WorldNode world({}, {}, Model::MapFormat::Standard);
-  Model::BrushBuilder builder(world.mapFormat(), worldBounds);
-  return builder.createCube(128.0, "").value();
-}
-
-TEST_CASE("GridTest.moveDeltaForFace", "[GridTest]") {
-  const auto grid16 = Grid(4);
-
-  const Model::Brush cube = makeCube128();
-  const auto topFaceIndex = cube.findFace(vm::vec3::pos_z());
-  REQUIRE(topFaceIndex);
-  const Model::BrushFace& topFace = cube.face(*topFaceIndex);
-
-  CHECK(topFace.boundsCenter().z() == vm::approx(64.0));
-
-  // try to move almost 4 grid increments up -> snaps to 3
-  CHECK(grid16.moveDelta(topFace, vm::vec3(0, 0, 63)) == vm::approx(vm::vec3(0, 0, 48)));
-  CHECK(grid16.moveDelta(topFace, vm::vec3(0, 0, 64)) == vm::approx(vm::vec3(0, 0, 64)));
-  CHECK(grid16.moveDelta(topFace, vm::vec3(0, 0, 65)) == vm::approx(vm::vec3(0, 0, 64)));
-}
-
-TEST_CASE("GridTest.moveDeltaForFace_SubInteger", "[GridTest]") {
-  const auto grid05 = Grid(-1);
-
-  const Model::Brush cube = makeCube128();
-  const auto topFaceIndex = cube.findFace(vm::vec3::pos_z());
-  REQUIRE(topFaceIndex);
-  const Model::BrushFace& topFace = cube.face(*topFaceIndex);
-
-  CHECK(topFace.boundsCenter().z() == vm::approx(64.0));
-
-  // try to move almost 4 grid increments up -> snaps to 3
-  CHECK(grid05.moveDelta(topFace, vm::vec3(0, 0, 1.9)) == vm::approx(vm::vec3(0, 0, 1.5)));
-  CHECK(grid05.moveDelta(topFace, vm::vec3(0, 0, 2)) == vm::approx(vm::vec3(0, 0, 2)));
-  CHECK(grid05.moveDelta(topFace, vm::vec3(0, 0, 2.1)) == vm::approx(vm::vec3(0, 0, 2)));
-}
-
 static vm::ray3 make_ray_from_to(const vm::vec3& from, const vm::vec3& to) {
   return vm::ray3(from, vm::normalize(to - from));
 }
