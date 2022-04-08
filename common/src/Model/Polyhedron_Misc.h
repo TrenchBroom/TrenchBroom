@@ -699,36 +699,17 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::healEdges(const T minLength) {
   const T minLength2 = minLength * minLength;
 
-  /*
-   We have to iterate over all edges while the list of edges is being modified, so we cannot use the
-   usual do / while iteration. Instead, we count the number of edges we have examined - but since
-   one or more edges can be removed in every iteration, we have to correct that number for the
-   decrease in the total number of edges of the brush - this is where sizeDelta comes in. If no
-   edges has been removed, it comes out as -1. If one edge has been removed, it comes out as 0, if
-   two edges have been removed, it comes out as +1, and so on.
-
-   Since sizeDelta is subtracted from the number of examined edges, it corrects exactly for the
-   change in the number of edges of the brush.
-   */
-
-  long examined = 0;
-  Edge* currentEdge = m_edges.front();
-  while (examined < static_cast<long>(m_edges.size()) && polyhedron()) {
-    const size_t oldSize = m_edges.size();
-
-    const T length2 = vm::squared_length(currentEdge->vector());
-    if (length2 < minLength2) {
-      currentEdge = removeEdge(currentEdge);
-      if (currentEdge == nullptr) {
-        return false;
+  const auto findShortEdge = [&]() -> typename Polyhedron<T, FP, VP>::Edge* {
+    for (auto edge : m_edges) {
+      if (vm::squared_length(edge->vector()) < minLength2) {
+        return edge;
       }
-    } else {
-      currentEdge = currentEdge->next();
     }
+    return nullptr;
+  };
 
-    const size_t newSize = m_edges.size();
-    const long sizeDelta = static_cast<long>(oldSize - newSize) - 1;
-    examined -= sizeDelta;
+  for (auto* edge = findShortEdge(); edge != nullptr && polyhedron(); edge = findShortEdge()) {
+    removeEdge(edge);
   }
 
   assert(!polyhedron() || checkEdgeLengths(minLength));
