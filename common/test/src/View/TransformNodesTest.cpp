@@ -106,7 +106,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip") {
   std::vector<Model::Node*> brushes;
   brushes.push_back(brushNode1);
   brushes.push_back(brushNode2);
-  document->select(brushes);
+  document->selectNodes({brushes});
 
   const vm::vec3 boundsCenter = document->selectionBounds().center();
   CHECK(boundsCenter == vm::approx(vm::vec3(15.5, 15.5, 15.5)));
@@ -161,7 +161,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transformObjects") {
     const auto transformation = vm::translation_matrix(vm::vec3d{1, 2, 3});
 
     WHEN("The node is transformed") {
-      document->select(node);
+      document->selectNodes({node});
       document->transformObjects("Transform Nodes", transformation);
 
       THEN("The transformation was applied to the node and its children") {
@@ -197,7 +197,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate") {
   std::vector<Model::Node*> brushes;
   brushes.push_back(brushNode1);
   brushes.push_back(brushNode2);
-  document->select(brushes);
+  document->selectNodes({brushes});
 
   vm::vec3 boundsCenter = document->selectionBounds().center();
   CHECK(boundsCenter == vm::vec3(15.5, 15.5, 15.5));
@@ -224,7 +224,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube") {
     new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
   addNode(*document, document->parentForNodes(), brushNode);
-  document->select(std::vector<Model::Node*>{brushNode});
+  document->selectNodes({std::vector<Model::Node*>{brushNode}});
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(), Catch::UnorderedEquals(std::vector<vm::vec3>{
@@ -266,7 +266,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar") {
     new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
   addNode(*document, document->parentForNodes(), brushNode);
-  document->select(std::vector<Model::Node*>{brushNode});
+  document->selectNodes({std::vector<Model::Node*>{brushNode}});
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(), Catch::UnorderedEquals(std::vector<vm::vec3>{
@@ -311,7 +311,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects") {
   const Model::Brush& brush = brushNode->brush();
 
   addNode(*document, document->parentForNodes(), brushNode);
-  document->select(std::vector<Model::Node*>{brushNode});
+  document->selectNodes({std::vector<Model::Node*>{brushNode}});
 
   CHECK(brushNode->logicalBounds().size() == vm::vec3(200, 200, 200));
   CHECK(
@@ -342,7 +342,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup") {
     new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
   addNode(*document, document->parentForNodes(), brushNode);
-  document->select(std::vector<Model::Node*>{brushNode});
+  document->selectNodes({std::vector<Model::Node*>{brushNode}});
   [[maybe_unused]] Model::GroupNode* group = document->groupSelection("my group");
 
   // attempting an invalid scale has no effect
@@ -362,7 +362,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsWithCenter") {
     new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
   addNode(*document, document->parentForNodes(), brushNode);
-  document->select(std::vector<Model::Node*>{brushNode});
+  document->selectNodes({std::vector<Model::Node*>{brushNode}});
 
   const vm::vec3 boundsCenter = initialBBox.center();
   CHECK(document->scaleObjects(boundsCenter, vm::vec3(2.0, 1.0, 1.0)));
@@ -380,14 +380,14 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup") {
 
   auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
   addNode(*document, document->parentForNodes(), brushNode1);
-  document->select(brushNode1);
+  document->selectNodes({brushNode1});
 
   auto* group = document->groupSelection("testGroup");
-  document->select(group);
+  document->selectNodes({group});
 
   auto* linkedGroup = document->createLinkedDuplicate();
   document->deselectAll();
-  document->select(linkedGroup);
+  document->selectNodes({linkedGroup});
   REQUIRE_THAT(
     document->selectedNodes().nodes(),
     Catch::UnorderedEquals(std::vector<Model::Node*>{linkedGroup}));

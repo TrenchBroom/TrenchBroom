@@ -56,7 +56,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes") {
     groupNode->addChildren({brushNode, nodeToRemove});
     document->addNodes({{document->parentForNodes(), {groupNode}}});
 
-    document->select(groupNode);
+    document->selectNodes({groupNode});
     auto* linkedGroupNode = document->createLinkedDuplicate();
     document->deselectAll();
 
@@ -152,7 +152,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.unlinkSingletonLinkedGroups")
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  document->select(entityNode);
+  document->selectNodes({entityNode});
   auto* groupNode = document->groupSelection("group");
   auto* linkedGroupNode = document->createLinkedDuplicate();
 

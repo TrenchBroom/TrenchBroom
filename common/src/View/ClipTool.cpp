@@ -633,7 +633,7 @@ void ClipTool::performClip() {
 
     document->deselectAll();
     document->removeNodes(toRemove);
-    document->select(addedNodes);
+    document->selectNodes(addedNodes);
 
     update();
   }

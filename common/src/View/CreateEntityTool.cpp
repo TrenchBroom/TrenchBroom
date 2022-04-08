@@ -67,7 +67,7 @@ bool CreateEntityTool::createEntity(const std::string& classname) {
   document->startTransaction("Create '" + definition->name() + "'");
   document->deselectAll();
   document->addNodes({{document->parentForNodes(), {m_entity}}});
-  document->select(m_entity);
+  document->selectNodes({m_entity});
 
   return true;
 }

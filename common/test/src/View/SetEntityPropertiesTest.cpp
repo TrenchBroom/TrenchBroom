@@ -56,7 +56,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
   REQUIRE(entityNode->entity().definition() == largeEntityDef);
 
   document->deselectAll();
-  document->select(entityNode);
+  document->selectNodes({entityNode});
   REQUIRE(document->selectionBounds().size() == largeEntityDef->bounds().size());
 
   document->setProperty("classname", "point_entity");
@@ -84,7 +84,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProp
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  document->select(entityNode);
+  document->selectNodes({entityNode});
 
   SECTION("Set protected property") {
     document->setProtectedProperty("some_key", true);
@@ -106,7 +106,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProp
 
     // Ensure that the consecutive SwapNodeContentsCommands are not collated
     document->deselectAll();
-    document->select(entityNode);
+    document->selectNodes({entityNode});
 
     document->setProtectedProperty("some_key", false);
     CHECK_THAT(
@@ -125,11 +125,11 @@ TEST_CASE_METHOD(
   auto* entityNode = new Model::EntityNode{{}, {{"some_key", "some_value"}}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  document->select(entityNode);
+  document->selectNodes({entityNode});
   auto* groupNode = document->groupSelection("test");
 
   document->deselectAll();
-  document->select(groupNode);
+  document->selectNodes({groupNode});
 
   auto* linkedGroupNode = document->createLinkedDuplicate();
   REQUIRE(linkedGroupNode->childCount() == 1u);
@@ -142,7 +142,7 @@ TEST_CASE_METHOD(
     Catch::UnorderedEquals(std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
 
   document->deselectAll();
-  document->select(linkedEntityNode);
+  document->selectNodes({linkedEntityNode});
 
   // set the property to protected in the linked entity and change its value
   document->setProtectedProperty("some_key", true);
@@ -173,7 +173,7 @@ TEST_CASE_METHOD(
   SECTION("When no corresponding entity with an unprotected property can be found") {
     // set the property to protected in the original entity too
     document->deselectAll();
-    document->select(entityNode);
+    document->selectNodes({entityNode});
     document->setProtectedProperty("some_key", true);
 
     linkedEntityNode = dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().front());
@@ -185,7 +185,7 @@ TEST_CASE_METHOD(
       Catch::UnorderedEquals(std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
 
     document->deselectAll();
-    document->select(linkedEntityNode);
+    document->selectNodes({linkedEntityNode});
     document->setProtectedProperty("some_key", false);
 
     entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
@@ -199,7 +199,7 @@ TEST_CASE_METHOD(
     SECTION(
       "Setting the property to unprotected in the original entity will fetch the new value now") {
       document->deselectAll();
-      document->select(entityNode);
+      document->selectNodes({entityNode});
       document->setProtectedProperty("some_key", false);
 
       linkedEntityNode = dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().front());
@@ -251,13 +251,13 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
 
   CHECK_FALSE(document->canClearProtectedProperties());
 
-  document->select(entityNode);
+  document->selectNodes({entityNode});
   CHECK(document->canClearProtectedProperties());
 
   auto* groupNode = document->groupSelection("test");
 
   document->deselectAll();
-  document->select(groupNode);
+  document->selectNodes({groupNode});
   CHECK(document->canClearProtectedProperties());
 
   auto* linkedGroupNode = document->createLinkedDuplicate();
@@ -268,7 +268,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
   REQUIRE(linkedEntityNode);
 
   document->deselectAll();
-  document->select(entityNode);
+  document->selectNodes({entityNode});
 
   // set the property "some_key" to protected in the original entity and change its value
   document->setProtectedProperty("some_key", true);
@@ -278,7 +278,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
   REQUIRE(linkedEntityNode);
 
   document->deselectAll();
-  document->select(linkedEntityNode);
+  document->selectNodes({linkedEntityNode});
 
   // set the property "another_key" to protected in the linked entity and change its value
   document->setProtectedProperty("another_key", true);
@@ -310,12 +310,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
       {"yet_another_key", "and_yet_another_value"}}));
 
   document->deselectAll();
-  document->select(groupNode);
-  document->select(linkedGroupNode);
+  document->selectNodes({groupNode});
+  document->selectNodes({linkedGroupNode});
 
   CHECK_FALSE(document->canClearProtectedProperties());
 
-  document->deselect(groupNode);
+  document->deselectNodes({groupNode});
 
   CHECK(document->canClearProtectedProperties());
   document->clearProtectedProperties();

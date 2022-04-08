@@ -412,7 +412,7 @@ bool splitBrushesOutward(
 
       document.deselectAll();
       const auto addedNodes = document.addNodes(newNodes);
-      document.select(addedNodes);
+      document.selectNodes(addedNodes);
       dragState.currentDragFaces = std::move(newDragFaces);
       dragState.totalDelta = delta;
     })
@@ -504,7 +504,7 @@ bool splitBrushesInward(MapDocument& document, const vm::vec3& delta, ExtrudeDra
   // Add the newly split off brushes and select them (keeping the original brushes selected).
   // FIXME: deal with linked group update failure (needed for #3647)
   const auto addedNodes = document.addNodes(std::move(newNodes));
-  document.select(addedNodes);
+  document.selectNodes(addedNodes);
 
   dragState.currentDragFaces = std::move(newDragFaces);
   dragState.totalDelta = delta;

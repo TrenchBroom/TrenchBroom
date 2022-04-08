@@ -49,7 +49,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeBrushes") {
   addNode(*document, document->parentForNodes(), brushNode2);
   CHECK(entity->children().size() == 1u);
 
-  document->select(std::vector<Model::Node*>{brushNode1, brushNode2});
+  document->selectNodes({brushNode1, brushNode2});
   CHECK(document->csgConvexMerge());
   CHECK(entity->children().size() == 1u); // added to the parent of the first brush
 
@@ -75,7 +75,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeFaces") {
   const auto& face1 = brushNode1->brush().face(faceIndex);
   const auto& face2 = brushNode2->brush().face(faceIndex);
 
-  document->select({{brushNode1, faceIndex}, {brushNode2, faceIndex}});
+  document->selectBrushFaces({{brushNode1, faceIndex}, {brushNode2, faceIndex}});
   CHECK(document->csgConvexMerge());
   CHECK(
     entity->children().size() ==
@@ -123,7 +123,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   addNode(*document, entity, brushNode2);
   CHECK(entity->children().size() == 2u);
 
-  document->select(std::vector<Model::Node*>{brushNode1, brushNode2});
+  document->selectNodes({brushNode1, brushNode2});
   CHECK(document->csgConvexMerge());
   CHECK(entity->children().size() == 1u);
 
@@ -159,7 +159,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   CHECK(entity->children().size() == 2u);
 
   // we want to compute brush1 - brush2
-  document->select(std::vector<Model::Node*>{brushNode2});
+  document->selectNodes({brushNode2});
   CHECK(document->csgSubtract());
   CHECK(entity->children().size() == 1u);
 
@@ -192,7 +192,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes") {
   CHECK(entity->children().size() == 3u);
 
   // we want to compute minuend - {subtrahend1, subtrahend2}
-  document->select(std::vector<Model::Node*>{subtrahend1, subtrahend2});
+  document->selectNodes({subtrahend1, subtrahend2});
   CHECK(document->csgSubtract());
   CHECK(entity->children().size() == 2u);
 
@@ -222,7 +222,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
   addNode(*document, entity, subtrahend1);
 
-  document->select(std::vector<Model::Node*>{subtrahend1});
+  document->selectNodes({subtrahend1});
   CHECK(document->csgSubtract());
   CHECK(entity->children().size() == 0u);
   CHECK(document->selectedNodes().empty());
@@ -248,7 +248,7 @@ TEST_CASE("CsgTest.csgSubtractFailure", "[MapDocumentTest]") {
   REQUIRE(subtrahend->brush().findFace("clip").has_value());
 
   // select the second object in the default layer (a clip brush) and subtract
-  document->select(subtrahend);
+  document->selectNodes({subtrahend});
   CHECK(document->csgSubtract());
 
   REQUIRE(document->currentLayer()->childCount() == 1);
@@ -286,7 +286,7 @@ TEST_CASE("CsgTest.csgHollow", "[MapDocumentTest]") {
   }
   SECTION("If no brushes are hollowed, the transaction isn't committed") {
     auto* smallBrushNode = document->currentLayer()->children().at(0);
-    document->select(smallBrushNode);
+    document->selectNodes({smallBrushNode});
 
     CHECK(!document->csgHollow());
     CHECK(document->currentLayer()->childCount() == 2);

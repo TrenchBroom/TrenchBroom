@@ -111,7 +111,7 @@ void IssueBrowserView::updateSelection() {
   }
 
   document->deselectAll();
-  document->select(nodes);
+  document->selectNodes(nodes);
 }
 
 void IssueBrowserView::updateIssues() {
