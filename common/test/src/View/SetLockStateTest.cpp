@@ -127,20 +127,43 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection") {
   document->addNodes(
     {{document->world()->defaultLayer(), {selectedBrushNode, unselectedBrushNode}}});
 
-  document->selectNodes({selectedBrushNode, unlockedBrushNode});
+  SECTION("Node selection") {
+    document->selectNodes({selectedBrushNode, unlockedBrushNode});
 
-  REQUIRE_THAT(
-    document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
-  document->lock({document->world()->defaultLayer()});
-  CHECK_THAT(
-    document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{unlockedBrushNode}));
+    REQUIRE_THAT(
+      document->selectedNodes().nodes(),
+      Catch::UnorderedEquals(std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
+    document->lock({document->world()->defaultLayer()});
+    CHECK_THAT(
+      document->selectedNodes().nodes(),
+      Catch::UnorderedEquals(std::vector<Model::Node*>{unlockedBrushNode}));
 
-  document->undoCommand();
-  CHECK_THAT(
-    document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
+    document->undoCommand();
+    CHECK_THAT(
+      document->selectedNodes().nodes(),
+      Catch::UnorderedEquals(std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
+  }
+
+  SECTION("Brush face selection") {
+    document->selectBrushFaces(
+      {{selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}});
+
+    REQUIRE_THAT(
+      document->selectedBrushFaces(),
+      Catch::UnorderedEquals(std::vector<Model::BrushFaceHandle>{
+        {selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}}));
+
+    document->lock({document->world()->defaultLayer()});
+    CHECK_THAT(
+      document->selectedBrushFaces(),
+      Catch::UnorderedEquals(std::vector<Model::BrushFaceHandle>{{unlockedBrushNode, 0}}));
+
+    document->undoCommand();
+    CHECK_THAT(
+      document->selectedBrushFaces(),
+      Catch::UnorderedEquals(std::vector<Model::BrushFaceHandle>{
+        {selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}}));
+  }
 }
 } // namespace View
 } // namespace TrenchBroom

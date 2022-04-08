@@ -2249,8 +2249,9 @@ void MapDocument::resetVisibility(const std::vector<Model::Node*>& nodes) {
 void MapDocument::lock(const std::vector<Model::Node*>& nodes) {
   const Transaction transaction(this, "Lock Objects");
 
-  // Deselect any selected nodes inside `nodes`
+  // Deselect any selected nodes or faces inside `nodes`
   deselectNodes(Model::collectSelectedNodes(nodes));
+  deselectBrushFaces(Model::collectSelectedBrushFaces(nodes));
 
   // Reset lock state of any forced unlocked children of `nodes`
   downgradeUnlockedToInherit(Model::collectDescendants(nodes));
