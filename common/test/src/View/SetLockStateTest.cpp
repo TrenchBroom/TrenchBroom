@@ -114,5 +114,33 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.modificationCount") {
   document->undoCommand();
   CHECK(document->modificationCount() == originalModificationCount);
 }
+
+TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection") {
+  auto* selectedBrushNode = createBrushNode();
+  auto* unselectedBrushNode = createBrushNode();
+  auto* unlockedBrushNode = createBrushNode();
+
+  auto* layerNode = new Model::LayerNode{Model::Layer{"layer"}};
+  document->addNodes({{document->world(), {layerNode}}});
+
+  document->addNodes({{layerNode, {unlockedBrushNode}}});
+  document->addNodes(
+    {{document->world()->defaultLayer(), {selectedBrushNode, unselectedBrushNode}}});
+
+  document->selectNodes({selectedBrushNode, unlockedBrushNode});
+
+  REQUIRE_THAT(
+    document->selectedNodes().nodes(),
+    Catch::UnorderedEquals(std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
+  document->lock({document->world()->defaultLayer()});
+  CHECK_THAT(
+    document->selectedNodes().nodes(),
+    Catch::UnorderedEquals(std::vector<Model::Node*>{unlockedBrushNode}));
+
+  document->undoCommand();
+  CHECK_THAT(
+    document->selectedNodes().nodes(),
+    Catch::UnorderedEquals(std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
+}
 } // namespace View
 } // namespace TrenchBroom
