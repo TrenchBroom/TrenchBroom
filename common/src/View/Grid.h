@@ -388,7 +388,6 @@ public:
     const vm::plane3& targetPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds,
     const vm::ray3& ray) const;
 
-  vm::vec3 combineDeltas(const vm::vec3& delta1, const vm::vec3& delta2) const;
   vm::vec3 referencePoint(const vm::bbox3& bounds) const;
 };
 } // namespace View

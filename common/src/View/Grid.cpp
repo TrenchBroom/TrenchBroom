@@ -204,14 +204,6 @@ vm::vec3 Grid::moveDeltaForBounds(
   return newMinPos - bounds.min;
 }
 
-vm::vec3 Grid::combineDeltas(const vm::vec3& delta1, const vm::vec3& delta2) const {
-  if (vm::squared_length(delta1) < vm::squared_length(delta2)) {
-    return delta1;
-  } else {
-    return delta2;
-  }
-}
-
 vm::vec3 Grid::referencePoint(const vm::bbox3& bounds) const {
   return snap(bounds.center());
 }
