@@ -308,14 +308,14 @@ void Entity::transform(
     if (origin() != newOrigin) {
       setOrigin(propertyConfig, transformedCenter - offset);
     }
+  }
 
-    // applying rotation has side effects (e.g. normalizing "angles")
-    // so only do it if there is actually some rotation.
-    const auto rotation = vm::strip_translation(transformation);
-    if (rotation != vm::mat4x4::identity()) {
-      // applyRotation does not read the origin, so it's ok that it's already updated now
-      applyRotation(propertyConfig, rotation);
-    }
+  // applying rotation has side effects (e.g. normalizing "angles")
+  // so only do it if there is actually some rotation.
+  const auto rotation = vm::strip_translation(transformation);
+  if (rotation != vm::mat4x4::identity()) {
+    // applyRotation does not read the origin, so it's ok that it's already updated now
+    applyRotation(propertyConfig, rotation);
   }
 }
 
