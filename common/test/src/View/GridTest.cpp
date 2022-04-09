@@ -271,5 +271,65 @@ TEST_CASE("GridTest.moveDeltaForBounds", "[GridTest]") {
       vm::approx(vm::vec3(16, 16, 16)));
   }
 }
+
+TEST_CASE("GridTest.snapToGridPlane") {
+  using T = std::tuple<vm::vec3, vm::vec3, FloatType, vm::vec3>;
+
+  // clang-format off
+  const auto
+  [origin,     direction, distance, expectedPoint] = GENERATE(values<T>({
+  {{ 8, 8, 8}, {0, 0, 1},  0,        {8, 8, 16}},
+  {{ 8, 8, 8}, {0, 0, 1},  4,        {8, 8, 16}},
+  {{ 8, 8, 8}, {0, 0, 1}, -2,        {8, 8, 0}},
+  {{ 0, 0, 0}, {0, 0, 1},  0,        {0, 0, 0}},
+  {{ 0, 0, 0}, {0, 0, 1},  2,        {0, 0, 0}},
+  {{ 0, 0, 0}, {0, 1, 1},  2,        {0, 0, 0}},
+  {{ 0, 0, 0}, {0, 1, 1},  12,       {0, 16, 16}},
+  {{ 0, 0, 0}, {1, 1, 1},  12,       {0, 0, 0}},
+  {{ 0, 0, 0}, {1, 1, 1},  14,       {16, 16, 16}},
+  {{ 2, 8, 0}, {1, 1, 0},  0,        {0, 6, 0}},
+  {{12, 8, 0}, {1, 1, 0},  0,        {16, 12, 0}},
+  {{ 5, 4, 0}, {1, 1, 0},  0,        {1, 0, 0}},
+  {{-5, 4, 0}, {1, 1, 0},  0,        {-9, 0, 0}},
+  {{-5, 6, 0}, {1, 1, 0},  0,        {0, 11, 0}},
+  }));
+  // clang-format on
+
+  CAPTURE(origin, direction, distance);
+
+  auto grid = Grid{4};
+  const auto line = vm::line3{origin, vm::normalize(direction)};
+  const auto snappedDistance = grid.snapToGridPlane(line, distance);
+
+  CHECK(vm::point_at_distance(line, snappedDistance) == vm::approx{expectedPoint});
+}
+
+TEST_CASE("GridTest.snapMoveDeltaForFace") {
+  using T = std::tuple<std::vector<vm::vec3>, vm::vec3, vm::vec3, vm::vec3>;
+
+  // clang-format off
+  const auto 
+  [points, faceNormal, moveDelta, expectedMoveDelta] = GENERATE(values<T>({
+  {{{-8, -8, +8}, {+8, -8, +8}, {+8, +8, +8}, {-8, +8, +8},
+    {-8, -8, -8}, {+8, -8, -8}, {+8, +8, -8}, {-8, +8, -8}},
+           {0, 0, 1},  {0, 0, 8}, {0, 0, 8}},
+  {{{-8, -8, +8}, {+8, -8, +8}, {+8, +8, +8}, {-8, +8, +8},
+    {-8, -8, -8}, {+8, -8, -8}, {+8, +8, -8}, {-8, +8, -8}},
+           {0, 0, 1},  {0, 0, 6}, {0, 0, 8}},
+  }));
+  // clang-format on
+
+  CAPTURE(points, faceNormal, moveDelta);
+
+  const auto grid = Grid{4};
+
+  const auto brushBuilder = Model::BrushBuilder{Model::MapFormat::Standard, worldBounds};
+  const auto brush = brushBuilder.createBrush(points, "texture").value();
+  const auto faceIndex = brush.findFace(faceNormal);
+  REQUIRE(faceIndex.has_value());
+
+  const auto& face = brush.face(*faceIndex);
+  CHECK(grid.snapMoveDeltaForFace(face, moveDelta) == expectedMoveDelta);
+}
 } // namespace View
 } // namespace TrenchBroom
