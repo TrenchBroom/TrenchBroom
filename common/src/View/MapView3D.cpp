@@ -51,6 +51,7 @@
 #include "View/CreateSimpleBrushToolController3D.h"
 #include "View/EdgeTool.h"
 #include "View/EdgeToolController.h"
+#include "View/ExtrudeToolController.h"
 #include "View/FaceTool.h"
 #include "View/FaceToolController.h"
 #include "View/FlyModeHelper.h"
@@ -59,7 +60,6 @@
 #include "View/MapViewToolBox.h"
 #include "View/MoveObjectsToolController.h"
 #include "View/QtUtils.h"
-#include "View/ResizeBrushesToolController.h"
 #include "View/RotateObjectsToolController.h"
 #include "View/ScaleObjectsToolController.h"
 #include "View/SelectionTool.h"
@@ -106,7 +106,7 @@ void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
   addTool(std::make_unique<RotateObjectsToolController3D>(toolBox.rotateObjectsTool()));
   addTool(std::make_unique<ScaleObjectsToolController3D>(toolBox.scaleObjectsTool(), m_document));
   addTool(std::make_unique<ShearObjectsToolController3D>(toolBox.shearObjectsTool(), m_document));
-  addTool(std::make_unique<ResizeBrushesToolController3D>(toolBox.resizeBrushesTool()));
+  addTool(std::make_unique<ExtrudeToolController3D>(toolBox.extrudeTool()));
   addTool(std::make_unique<CreateComplexBrushToolController3D>(toolBox.createComplexBrushTool()));
   addTool(std::make_unique<ClipToolController3D>(toolBox.clipTool()));
   addTool(std::make_unique<VertexToolController>(toolBox.vertexTool()));

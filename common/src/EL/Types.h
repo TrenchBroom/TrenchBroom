@@ -35,8 +35,7 @@ using ArrayType = std::vector<Value>;
 using MapType = std::map<std::string, Value>;
 using RangeType = std::vector<long>;
 
-enum class ValueType
-{
+enum class ValueType {
   Boolean,
   String,
   Number,

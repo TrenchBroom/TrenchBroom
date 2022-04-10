@@ -421,8 +421,7 @@ size_t Polyhedron_Face<T, FP, VP>::countSharedVertices(const Face* other) const 
 
 template <typename T, typename FP, typename VP> class Polyhedron_Face<T, FP, VP>::RayIntersection {
 private:
-  typedef enum
-  {
+  typedef enum {
     Type_Front = 1,
     Type_Back = 2,
     Type_None = 3

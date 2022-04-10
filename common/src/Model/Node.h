@@ -28,7 +28,8 @@
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
 
-#include <iosfwd>
+#include <kdl/reflection_decl.h>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -48,11 +49,9 @@ enum class VisibilityState;
 
 struct NodePath {
   std::vector<std::size_t> indices;
-};
 
-bool operator==(const NodePath& lhs, const NodePath& rhs);
-bool operator!=(const NodePath& lhs, const NodePath& rhs);
-std::ostream& operator<<(std::ostream& str, const NodePath& path);
+  kdl_reflect_decl(NodePath, indices);
+};
 
 class Node : public Taggable {
 private:

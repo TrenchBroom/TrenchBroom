@@ -75,7 +75,7 @@ private:
     request.setScale(vm::vec2f::one());
 
     facade->deselectAll();
-    facade->select(faceHandles);
+    facade->selectBrushFaces(faceHandles);
     facade->setFaceAttributes(request);
   }
 };

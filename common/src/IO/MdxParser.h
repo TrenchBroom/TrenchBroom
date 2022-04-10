@@ -73,8 +73,7 @@ private:
   using MdxMeshVertexList = std::vector<MdxMeshVertex>;
 
   struct MdxMesh {
-    enum Type
-    {
+    enum Type {
       Fan,
       Strip
     };

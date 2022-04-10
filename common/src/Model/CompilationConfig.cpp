@@ -23,7 +23,8 @@
 #include "Model/CompilationProfile.h"
 
 #include <kdl/deref_iterator.h>
-#include <kdl/string_utils.h>
+#include <kdl/reflection_impl.h>
+#include <kdl/struct_io.h>
 #include <kdl/vector_utils.h>
 
 #include <ostream>
@@ -57,15 +58,7 @@ void swap(CompilationConfig& lhs, CompilationConfig& rhs) {
 }
 
 bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs) {
-  if (lhs.m_profiles.size() != rhs.m_profiles.size()) {
-    return false;
-  }
-  for (size_t i = 0; i < lhs.m_profiles.size(); ++i) {
-    if (*lhs.m_profiles[i] != *rhs.m_profiles[i]) {
-      return false;
-    }
-  }
-  return true;
+  return kdl::const_deref_range{lhs.m_profiles} == kdl::const_deref_range{rhs.m_profiles};
 }
 
 bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs) {
@@ -73,8 +66,8 @@ bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& str, const CompilationConfig& config) {
-  str << "CompilationConfig{"
-      << "profiles: [" << kdl::str_join(kdl::const_deref_range{config.m_profiles}) << "]}";
+  kdl::struct_stream{str} << "CompilationConfig"
+                          << "m_profiles" << kdl::const_deref_range{config.m_profiles};
   return str;
 }
 

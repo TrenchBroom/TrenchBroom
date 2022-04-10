@@ -75,8 +75,7 @@ private:
   using Md2MeshVertexList = std::vector<Md2MeshVertex>;
 
   struct Md2Mesh {
-    enum Type
-    {
+    enum Type {
       Fan,
       Strip
     };

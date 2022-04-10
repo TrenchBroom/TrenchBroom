@@ -374,18 +374,15 @@ public: // selection
   void selectInside(bool del) override;
   void selectInverse() override;
   void selectNodesWithFilePosition(const std::vector<size_t>& positions) override;
-  void select(const std::vector<Model::Node*>& nodes) override;
-  void select(Model::Node* node) override;
-  void select(const std::vector<Model::BrushFaceHandle>& handles) override;
-  void select(const Model::BrushFaceHandle& handle) override;
+  void selectNodes(const std::vector<Model::Node*>& nodes) override;
+  void selectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) override;
   void convertToFaceSelection() override;
   void selectFacesWithTexture(const Assets::Texture* texture);
   void selectTall(vm::axis::type cameraAxis);
 
   void deselectAll() override;
-  void deselect(Model::Node* node) override;
-  void deselect(const std::vector<Model::Node*>& nodes) override;
-  void deselect(const Model::BrushFaceHandle& handle) override;
+  void deselectNodes(const std::vector<Model::Node*>& nodes) override;
+  void deselectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) override;
 
 protected:
   void updateLastSelectionBounds();
@@ -473,8 +470,7 @@ public: // layer management
   void renameLayer(Model::LayerNode* layer, const std::string& name);
 
 private:
-  enum class MoveDirection
-  {
+  enum class MoveDirection {
     Up,
     Down
   };
@@ -554,7 +550,7 @@ public: // modifying entity properties, declared in MapFacade interface
   bool canClearProtectedProperties() const;
 
 public: // brush resizing, declared in MapFacade interface
-  bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
+  bool extrudeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
 
 public:
   bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;

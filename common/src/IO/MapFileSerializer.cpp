@@ -99,7 +99,7 @@ protected:
 
     fmt::format_to(
       std::ostreambuf_iterator<char>(stream), " {} [ {} {} {} {} ] [ {} {} {} {} ] {} {} {}",
-      textureName,
+      shouldQuoteTextureName(textureName) ? quoteTextureName(textureName) : textureName,
 
       xAxis.x(), xAxis.y(), xAxis.z(), face.attributes().xOffset(),
 

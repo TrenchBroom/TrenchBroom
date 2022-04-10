@@ -57,8 +57,7 @@ class WorldNode;
 
 class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
 public:
-  enum class TexturePackageType
-  {
+  enum class TexturePackageType {
     File,
     Directory
   };
@@ -80,8 +79,7 @@ public:
 
   const std::vector<SmartTag>& smartTags() const;
 
-  enum class SoftMapBoundsType
-  {
+  enum class SoftMapBoundsType {
     Game,
     Map
   };

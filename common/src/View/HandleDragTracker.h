@@ -28,8 +28,9 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <kdl/reflection_decl.h>
+
 #include <functional>
-#include <iosfwd>
 #include <memory>
 #include <optional>
 #include <type_traits>
@@ -45,11 +46,9 @@ struct DragState {
   vm::vec3 initialHandlePosition;
   vm::vec3 currentHandlePosition;
   vm::vec3 handleOffset;
-};
 
-bool operator==(const DragState& lhs, const DragState& rhs);
-bool operator!=(const DragState& lhs, const DragState& rhs);
-std::ostream& operator<<(std::ostream& str, const DragState& dragState);
+  kdl_reflect_decl(DragState, initialHandlePosition, currentHandlePosition, handleOffset);
+};
 
 /**
  * Maps the input state and the drag state to a new proposed handle position.
@@ -63,8 +62,7 @@ using HandlePositionProposer =
 /**
  * Controls whether the initial handle position should be updated to the current handle position.
  */
-enum class ResetInitialHandlePosition
-{
+enum class ResetInitialHandlePosition {
   Keep,
   Reset
 };
@@ -83,8 +81,7 @@ struct UpdateDragConfig {
  * The status of a drag. This is returned from a handle drag tracker's delegate when it reacts to a
  * drag event.
  */
-enum class DragStatus
-{
+enum class DragStatus {
   /** The drag should continue. */
   Continue,
   /** The drag should continue, but the current event could not be applied to the object being
@@ -226,8 +223,7 @@ struct HandleDragTrackerDelegate {
  */
 template <typename Delegate> class HandleDragTracker : public DragTracker {
 private:
-  enum class IdenticalPositionPolicy
-  {
+  enum class IdenticalPositionPolicy {
     SkipDrag,
     ForceDrag
   };

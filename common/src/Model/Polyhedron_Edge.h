@@ -111,6 +111,12 @@ vm::vec<T, 3> Polyhedron_Edge<T, FP, VP>::vector() const {
 }
 
 template <typename T, typename FP, typename VP>
+vm::segment<T, 3> Polyhedron_Edge<T, FP, VP>::segment() const {
+  assert(fullySpecified());
+  return vm::segment<T, 3>{m_first->origin()->position(), m_second->origin()->position()};
+}
+
+template <typename T, typename FP, typename VP>
 vm::vec<T, 3> Polyhedron_Edge<T, FP, VP>::center() const {
   assert(fullySpecified());
   return (m_first->origin()->position() + m_second->origin()->position()) / static_cast<T>(2.0);

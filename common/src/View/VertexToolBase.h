@@ -75,8 +75,7 @@ class MapDocument;
 
 template <typename H> class VertexToolBase : public Tool {
 public:
-  enum class MoveResult
-  {
+  enum class MoveResult {
     Continue,
     Deny,
     Cancel

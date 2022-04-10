@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <kdl/reflection_impl.h>
+
 #include <utility>
 
 #pragma once
@@ -62,13 +64,7 @@ public:
 
   const T* get() const { return m_asset; }
 
-  friend bool operator==(const AssetReference& lhs, const AssetReference& rhs) {
-    return lhs.m_asset == rhs.m_asset;
-  }
-
-  friend bool operator!=(const AssetReference& lhs, const AssetReference& rhs) {
-    return !(lhs == rhs);
-  }
+  kdl_reflect_inline(AssetReference<T>, m_asset);
 };
 } // namespace Assets
 } // namespace TrenchBroom

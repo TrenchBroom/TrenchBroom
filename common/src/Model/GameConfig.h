@@ -30,7 +30,8 @@
 
 #include <vecmath/bbox.h>
 
-#include <iosfwd>
+#include <kdl/reflection_decl.h>
+
 #include <optional>
 #include <set>
 #include <string>
@@ -42,45 +43,35 @@ namespace Model {
 struct MapFormatConfig {
   std::string format;
   IO::Path initialMap;
-};
 
-bool operator==(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
-bool operator!=(const MapFormatConfig& lhs, const MapFormatConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const MapFormatConfig& config);
+  kdl_reflect_decl(MapFormatConfig, format, initialMap);
+};
 
 struct PackageFormatConfig {
   std::vector<std::string> extensions;
   std::string format;
-};
 
-bool operator==(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
-bool operator!=(const PackageFormatConfig& lhs, const PackageFormatConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const PackageFormatConfig& config);
+  kdl_reflect_decl(PackageFormatConfig, extensions, format);
+};
 
 struct FileSystemConfig {
   IO::Path searchPath;
   PackageFormatConfig packageFormat;
-};
 
-bool operator==(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
-bool operator!=(const FileSystemConfig& lhs, const FileSystemConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const FileSystemConfig& config);
+  kdl_reflect_decl(FileSystemConfig, searchPath, packageFormat);
+};
 
 struct TextureFilePackageConfig {
   PackageFormatConfig fileFormat;
-};
 
-bool operator==(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
-bool operator!=(const TextureFilePackageConfig& lhs, const TextureFilePackageConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const TextureFilePackageConfig& config);
+  kdl_reflect_decl(TextureFilePackageConfig, fileFormat);
+};
 
 struct TextureDirectoryPackageConfig {
   IO::Path rootDirectory;
-};
 
-bool operator==(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
-bool operator!=(const TextureDirectoryPackageConfig& lhs, const TextureDirectoryPackageConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const TextureDirectoryPackageConfig& config);
+  kdl_reflect_decl(TextureDirectoryPackageConfig, rootDirectory);
+};
 
 using TexturePackageConfig = std::variant<TextureFilePackageConfig, TextureDirectoryPackageConfig>;
 std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config);
@@ -94,63 +85,52 @@ struct TextureConfig {
   std::string property;
   IO::Path shaderSearchPath;
   std::vector<std::string> excludes; // Glob patterns used to match texture names for exclusion
-};
 
-bool operator==(const TextureConfig& lhs, const TextureConfig& rhs);
-bool operator!=(const TextureConfig& lhs, const TextureConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const TextureConfig& config);
+  kdl_reflect_decl(TextureConfig, package, format, palette, property, shaderSearchPath, excludes);
+};
 
 struct EntityConfig {
   std::vector<IO::Path> defFilePaths;
   std::vector<std::string> modelFormats;
   Color defaultColor;
   std::optional<EL::Expression> scaleExpression;
-};
 
-bool operator==(const EntityConfig& lhs, const EntityConfig& rhs);
-bool operator!=(const EntityConfig& lhs, const EntityConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const EntityConfig& config);
+  kdl_reflect_decl(EntityConfig, defFilePaths, modelFormats, defaultColor, scaleExpression);
+};
 
 struct FlagConfig {
   std::string name;
   std::string description;
   int value;
-};
 
-bool operator==(const FlagConfig& lhs, const FlagConfig& rhs);
-bool operator!=(const FlagConfig& lhs, const FlagConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const FlagConfig& config);
+  kdl_reflect_decl(FlagConfig, name, description, value);
+};
 
 struct FlagsConfig {
   std::vector<FlagConfig> flags;
+
+  kdl_reflect_decl(FlagsConfig, flags);
 
   int flagValue(const std::string& flagName) const;
   std::string flagName(size_t index) const;
   std::vector<std::string> flagNames(int mask = ~0) const;
 };
 
-bool operator==(const FlagsConfig& lhs, const FlagsConfig& rhs);
-bool operator!=(const FlagsConfig& lhs, const FlagsConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const FlagsConfig& config);
-
 struct FaceAttribsConfig {
   FlagsConfig surfaceFlags;
   FlagsConfig contentFlags;
+
+  kdl_reflect_decl(FaceAttribsConfig, surfaceFlags, contentFlags);
+
   BrushFaceAttributes defaults{BrushFaceAttributes::NoTextureName};
 };
-
-bool operator==(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
-bool operator!=(const FaceAttribsConfig& lhs, const FaceAttribsConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const FaceAttribsConfig& config);
 
 struct CompilationTool {
   std::string name;
   std::optional<std::string> description;
-};
 
-bool operator==(const CompilationTool& lhs, const CompilationTool& rhs);
-bool operator!=(const CompilationTool& lhs, const CompilationTool& rhs);
-std::ostream& operator<<(std::ostream& str, const CompilationTool& tool);
+  kdl_reflect_decl(CompilationTool, name, description);
+};
 
 struct GameConfig {
   std::string name;
@@ -173,12 +153,13 @@ struct GameConfig {
 
   size_t maxPropertyLength{1023};
 
+  kdl_reflect_decl(
+    GameConfig, name, path, icon, experimental, fileFormats, fileSystemConfig, textureConfig,
+    entityConfig, faceAttribsConfig, smartTags, softMapBounds, compilationTools, compilationConfig,
+    gameEngineConfig, compilationConfigParseFailed, gameEngineConfigParseFailed, maxPropertyLength);
+
   IO::Path findInitialMap(const std::string& formatName) const;
   IO::Path findConfigFile(const IO::Path& filePath) const;
 };
-
-bool operator==(const GameConfig& lhs, const GameConfig& rhs);
-bool operator!=(const GameConfig& lhs, const GameConfig& rhs);
-std::ostream& operator<<(std::ostream& str, const GameConfig& config);
 } // namespace Model
 } // namespace TrenchBroom

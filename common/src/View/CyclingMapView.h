@@ -43,8 +43,7 @@ class MapViewToolBox;
 class CyclingMapView : public MapViewContainer, public CameraLinkableView {
   Q_OBJECT
 public:
-  typedef enum
-  {
+  typedef enum {
     View_3D = 1,
     View_XY = 2,
     View_XZ = 4,

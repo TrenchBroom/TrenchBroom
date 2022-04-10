@@ -34,7 +34,7 @@ class CreateComplexBrushTool;
 class CreateEntityTool;
 class CreateSimpleBrushTool;
 class MoveObjectsTool;
-class ResizeBrushesTool;
+class ExtrudeTool;
 class RotateObjectsTool;
 class ScaleObjectsTool;
 class ShearObjectsTool;
@@ -52,7 +52,7 @@ private:
   std::unique_ptr<CreateEntityTool> m_createEntityTool;
   std::unique_ptr<CreateSimpleBrushTool> m_createSimpleBrushTool;
   std::unique_ptr<MoveObjectsTool> m_moveObjectsTool;
-  std::unique_ptr<ResizeBrushesTool> m_resizeBrushesTool;
+  std::unique_ptr<ExtrudeTool> m_extrudeTool;
   std::unique_ptr<RotateObjectsTool> m_rotateObjectsTool;
   std::unique_ptr<ScaleObjectsTool> m_scaleObjectsTool;
   std::unique_ptr<ShearObjectsTool> m_shearObjectsTool;
@@ -72,7 +72,7 @@ public: // tools
   CreateEntityTool& createEntityTool();
   CreateSimpleBrushTool& createSimpleBrushTool();
   MoveObjectsTool& moveObjectsTool();
-  ResizeBrushesTool& resizeBrushesTool();
+  ExtrudeTool& extrudeTool();
   RotateObjectsTool& rotateObjectsTool();
   ScaleObjectsTool& scaleObjectsTool();
   ShearObjectsTool& shearObjectsTool();

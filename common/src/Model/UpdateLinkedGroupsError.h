@@ -23,8 +23,7 @@
 
 namespace TrenchBroom {
 namespace Model {
-enum class UpdateLinkedGroupsError
-{
+enum class UpdateLinkedGroupsError {
   TransformIsNotInvertible,
   TransformFailed,
   UpdateExceedsWorldBounds,

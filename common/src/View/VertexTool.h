@@ -47,8 +47,7 @@ class Selection;
 
 class VertexTool : public VertexToolBase<vm::vec3> {
 private:
-  enum class Mode
-  {
+  enum class Mode {
     Move,
     SplitEdge,
     SplitFace

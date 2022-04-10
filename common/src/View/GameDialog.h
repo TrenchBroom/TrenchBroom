@@ -41,8 +41,7 @@ class GameListBox;
 class GameDialog : public QDialog {
   Q_OBJECT
 private:
-  enum class DialogType
-  {
+  enum class DialogType {
     Open,
     New
   };
