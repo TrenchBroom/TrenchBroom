@@ -50,6 +50,9 @@ cd "$BUILD_DIR"
 cpack || exit 1
 ./app/generate_checksum.sh
 
+echo "Deployment target (minos):"
+otool -l ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom | grep minos
+
 echo "Shared libraries used:"
 otool -L ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
 
