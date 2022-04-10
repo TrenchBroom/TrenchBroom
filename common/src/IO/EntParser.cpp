@@ -33,7 +33,7 @@
 
 #include <vecmath/vec_io.h>
 
-#include <tinyxml2/tinyxml2.h>
+#include <tinyxml2.h>
 
 #include <cstdlib>
 #include <memory>

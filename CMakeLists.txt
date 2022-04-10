@@ -113,6 +113,14 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 # Prevent gtest from being installed
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
+find_package(freeimage CONFIG REQUIRED)
+find_package(freetype CONFIG REQUIRED)
+find_package(Catch2 CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(miniz CONFIG REQUIRED)
+find_package(tinyxml2 CONFIG REQUIRED)
+
 # Find Qt and OpenGL
 find_package(OpenGL REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets Svg REQUIRED)

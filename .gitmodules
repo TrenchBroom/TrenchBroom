@@ -1,15 +1,6 @@
 [submodule "lib/vecmath"]
 	path = lib/vecmath
 	url = https://github.com/TrenchBroom/vecmath.git
-[submodule "lib/Catch2"]
-	path = lib/Catch2
-	url = https://github.com/catchorg/Catch2
-[submodule "lib/freetype/freetype-windows-binaries"]
-	path = lib/freetype/freetype-windows-binaries
-	url = https://github.com/ubawurinna/freetype-windows-binaries
-[submodule "lib/BinaryLibs"]
-	path = lib/BinaryLibs
-	url = https://github.com/TrenchBroom/BinaryLibs
-[submodule "lib/fmt"]
-	path = lib/fmt
-	url = https://github.com/fmtlib/fmt
+[submodule "vcpkg"]
+	path = vcpkg
+	url = https://github.com/Microsoft/vcpkg.git
