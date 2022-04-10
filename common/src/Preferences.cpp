@@ -176,7 +176,7 @@ Preference<Color> TextureSeamColor(
 
 Preference<float> Brightness(IO::Path("Renderer/Brightness"), 1.4f);
 Preference<float> GridAlpha(IO::Path("Renderer/Grid/Alpha"), 0.5f);
-Preference<Color> GridColor2D(IO::Path("Rendere/Grid/Color2D"), Color(0.8f, 0.8f, 0.8f, 0.8f));
+Preference<Color> GridColor2D(IO::Path("Renderer/Grid/Color2D"), Color(0.8f, 0.8f, 0.8f, 0.8f));
 
 Preference<int> TextureMinFilter(IO::Path("Renderer/Texture mode min filter"), 0x2700);
 Preference<int> TextureMagFilter(IO::Path("Renderer/Texture mode mag filter"), 0x2600);
