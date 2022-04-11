@@ -2331,6 +2331,15 @@ bool MapDocument::swapNodeContents(
 bool MapDocument::transformObjects(
   const std::string& commandName, const vm::mat4x4& transformation) {
   auto nodesToTransform = std::vector<Model::Node*>{};
+
+  const auto addEntity = [&](auto* node) {
+    if (auto* entity = node->entity()) {
+      if (entity->childSelectionCount() == entity->childCount()) {
+        nodesToTransform.push_back(entity);
+      }
+    }
+  };
+
   for (auto* node : m_selectedNodes) {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, Model::WorldNode* world) {
@@ -2352,11 +2361,16 @@ bool MapDocument::transformObjects(
       },
       [&](Model::BrushNode* brush) {
         nodesToTransform.push_back(brush);
+        addEntity(brush);
       },
       [&](Model::PatchNode* patch) {
         nodesToTransform.push_back(patch);
+        addEntity(patch);
       }));
   }
+
+  // brush entites can be added many times
+  nodesToTransform = kdl::vec_sort_and_remove_duplicates(std::move(nodesToTransform));
 
   using TransformResult =
     kdl::result<std::pair<Model::Node*, Model::NodeContents>, Model::BrushError>;

@@ -25,6 +25,7 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/PatchNode.h"
@@ -214,6 +215,38 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate") {
   // these should be exactly integral
   CHECK(brushNode1->logicalBounds() == brush1ExpectedBounds);
   CHECK(brushNode2->logicalBounds() == brush2ExpectedBounds);
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity") {
+  auto builder = Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  auto* brushNode1 = new Model::BrushNode{
+    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "texture").value()};
+  auto* brushNode2 = new Model::BrushNode{
+    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "texture").value()};
+
+  auto* entityNode =
+    new Model::EntityNode{Model::Entity{{}, {{"classname", "func_door"}, {"angle", "45"}}}};
+
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
+  document->addNodes({{entityNode, {brushNode1, brushNode2}}});
+
+  REQUIRE(*entityNode->entity().property("angle") == "45");
+
+  SECTION("Rotating some brushes, but not all") {
+    document->selectNodes({brushNode1});
+    document->rotateObjects(
+      document->selectionBounds().center(), vm::vec3::pos_z(), vm::to_radians(90.0));
+
+    CHECK(*entityNode->entity().property("angle") == "45");
+  }
+
+  SECTION("Rotating all brushes") {
+    document->selectNodes({brushNode1, brushNode2});
+    document->rotateObjects(
+      document->selectionBounds().center(), vm::vec3::pos_z(), vm::to_radians(90.0));
+
+    CHECK(*entityNode->entity().property("angle") == "135");
+  }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube") {
