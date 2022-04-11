@@ -158,7 +158,6 @@ set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 
 add_library(common-test-utils OBJECT ${COMMON_TEST_UTILS_SOURCE})
 set_compiler_config(common-test-utils)
-target_compile_features(common-test-utils PRIVATE cxx_std_17)
 target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2)
 
