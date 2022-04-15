@@ -499,7 +499,6 @@
 	message(string) : "The map title"
 	sky(string) : "The sky environment map" : "unit1_"
 	ambient(color1) : "The ambient light level" : "0 0 0"
-	bounce(integer) : "The number of indirect light passes" : 1
 	brightness(float) : "Global light scale, a single positive scalar value" : "1"
 	saturation(float) : "Global light saturation, a single positive scalar value" : "1"
 	contrast(float) : "Global light contrast, a single positive scalar value" : "1"
