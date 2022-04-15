@@ -387,16 +387,16 @@ public:
   vm::vec3 moveDeltaForBounds(
     const vm::plane3& targetPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds,
     const vm::ray3& ray) const;
-  vm::vec3 moveDelta(const vm::bbox3& bounds, const vm::vec3& delta) const;
-  vm::vec3 moveDelta(const vm::vec3& point, const vm::vec3& delta) const;
-  vm::vec3 moveDelta(const vm::vec3& delta) const;
+
   /**
-   * Given `delta`, a vector in the direction of the face's normal,
-   * returns a copy of it, also in the direction of the face's normal, that will try to keep the
-   * face on-grid.
+   * Given a line and a point X on the line (via the distance from the line's origin), returns the
+   * distance to a point Y on the line such that Y is on the intersection of the line with a grid
+   * plane, and the distance between X and Y is minimal among all such points.
    */
-  vm::vec3 moveDelta(const Model::BrushFace& face, const vm::vec3& delta) const;
-  vm::vec3 combineDeltas(const vm::vec3& delta1, const vm::vec3& delta2) const;
+  FloatType snapToGridPlane(const vm::line3& line, FloatType distance) const;
+
+  vm::vec3 snapMoveDeltaForFace(const Model::BrushFace& face, const vm::vec3& delta) const;
+
   vm::vec3 referencePoint(const vm::bbox3& bounds) const;
 };
 } // namespace View

@@ -322,6 +322,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/EntityPropertyItemDelegate.cpp
         ${COMMON_SOURCE_DIR}/View/EntityPropertyModel.cpp
         ${COMMON_SOURCE_DIR}/View/EntityPropertyTable.cpp
+        ${COMMON_SOURCE_DIR}/View/ExtrudeTool.cpp
+        ${COMMON_SOURCE_DIR}/View/ExtrudeToolController.cpp
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
         ${COMMON_SOURCE_DIR}/View/FaceTool.cpp
@@ -396,8 +398,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RepeatStack.cpp
         ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
-        ${COMMON_SOURCE_DIR}/View/ResizeBrushesTool.cpp
-        ${COMMON_SOURCE_DIR}/View/ResizeBrushesToolController.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.cpp
@@ -840,6 +840,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/EntityPropertyGrid.h
         ${COMMON_SOURCE_DIR}/View/EntityPropertyItemDelegate.h
         ${COMMON_SOURCE_DIR}/View/EntityPropertyModel.h
+        ${COMMON_SOURCE_DIR}/View/ExtrudeTool.h
+        ${COMMON_SOURCE_DIR}/View/ExtrudeToolController.h
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.h
         ${COMMON_SOURCE_DIR}/View/EntityPropertyTable.h
         ${COMMON_SOURCE_DIR}/View/FaceInspector.h
@@ -917,8 +919,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/RepeatStack.h
         ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.h
-        ${COMMON_SOURCE_DIR}/View/ResizeBrushesTool.h
-        ${COMMON_SOURCE_DIR}/View/ResizeBrushesToolController.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.h
@@ -1009,9 +1009,8 @@ set(COMMON_HEADER
 
 add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
-target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
-target_link_libraries(common PUBLIC tinyxml2 kdl vecmath glew miniz freeimage freetype OpenGL::GL Qt5::Widgets Qt5::Svg fmt::fmt)
+target_link_libraries(common PUBLIC tinyxml2::tinyxml2 kdl vecmath GLEW::GLEW miniz::miniz freeimage::FreeImage freetype OpenGL::GL Qt5::Widgets Qt5::Svg fmt::fmt)
 
 # use precompiled headers on CMake 3.16 or later
 if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")

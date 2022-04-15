@@ -10,7 +10,6 @@ endif()
 set(KDL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(kdl INTERFACE)
-target_compile_features(kdl INTERFACE cxx_std_17)
 target_include_directories(kdl INTERFACE
         $<BUILD_INTERFACE:${KDL_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:kdl/include/kdl>)
@@ -63,7 +62,6 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/zip_iterator.h"
 )
 
-target_compile_features(kdl INTERFACE cxx_std_17)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-exit-time-destructors)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

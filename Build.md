@@ -18,6 +18,17 @@ If you have an existing git clone, you can update submodules using:
 git submodule update --init --recursive
 ```
 
+## Dependencies
+
+TrenchBroom uses [vcpkg](https://vcpkg.io/) to manage build dependencies except for Qt. vcpkg is
+integrated into TrenchBroom's build system and will download and build all dependencies once during
+Cmake's configure phase. This is an automatic process, but it can take a little while when it
+happens for the first time.
+
+vcpkg is integrated into cmake by means of a toolchain file. This is a cmake file that is generated
+by vcpkg and must be passed to cmake via a commandline argument,
+`-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake` (see below).
+
 ---
 
 ## Windows
@@ -41,7 +52,7 @@ You'll also need to install these dependencies using Visual Studio Installer (in
   - **Important**: You have to create a personal account
   - Minimum required version is `5.12`
 - Download and install latest version of [CMake](http://www.cmake.org) for Windows
-  - Make sure to add `cmake` as [global or user environment variable](https://support.shotgunsoftware.com/hc/en-us/articles/114094235653-Setting-global-environment-variables-on-Windows)
+  - Make sure to add `cmake` as [global or user environment variable](https://knowledge.autodesk.com/support/shotgrid/learn-explore/caas/CloudHelp/cloudhelp/ENU/SG-RV/files/rv-knowledge-base/SG-RV-rv-knowledge-base-rv-setting-global-variables-windows-html-html.html)
 - Download and install latest version of [pandoc](http://www.pandoc.org)
 
 ### Project configuration with cmake
@@ -58,12 +69,12 @@ Then, execute this command to configure the project:
 
 - For 32-bit:
 ```bash
-cmake .. -G "Visual Studio 16 2019" -T v142 -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
+cmake .. -G "Visual Studio 16 2019" -T v142 -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017" -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
 ```
 
 - For 64-bit:
 ```bash
-cmake .. -G "Visual Studio 16 2019" -T v142 -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017_64"
+cmake .. -G "Visual Studio 16 2019" -T v142 -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017_64" -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
 ```
 
 > **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
@@ -84,22 +95,16 @@ In order to develop, debug and compile TrenchBroom, you need to install tools li
 
 TrenchBroom depends on:
 
-- g++ >= 7
-- Qt >= 5.9
-- FreeImage: libfreeimage-dev
-- OpenGL and GLU development headers (Mesa OpenGL development packages) freeglut3, freeglut3-dev, mesa-common-dev
-- X11 video mode extension library: libxxf86vm-dev
-
 If you have a debian-based distribution, open a command prompt and execute this command to install required dependencies:
 
 ```bash
-sudo apt-get install g++-7 qt5-default libqt5svg5-dev freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev libfreetype6-dev pandoc cmake p7zip-full ninja-build
+sudo apt-get install g++-7 qt5-default libqt5svg5-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxrandr-dev build-essential libglm-dev libxxf86vm-dev pandoc cmake p7zip-full ninja-build curl
 ```
 
 Or, on Fedora:
 
 ```bash
-sudo dnf install g++ cmake qt5-qtbase-devel qt5-qtsvg-devel ninja-build freetype-devel freeimage-devel pandoc mesa-libGLU-devel
+sudo dnf install g++ cmake qt5-qtbase-devel qt5-qtsvg-devel ninja-build pandoc mesa-libGLU-devel
 ```
 
 ### Build TrenchBroom
@@ -115,7 +120,7 @@ cd <path/to/TrenchBroom>/build
 Then, execute this command to configure the project:
 
 ```bash
-cmake .. -DCMAKE_BUILD_TYPE=Debug
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
 cmake --build . --target TrenchBroom
 ```
 
@@ -138,7 +143,7 @@ Download Xcode from the App Store.
 Open a command prompt and execute this command to install required dependencies:
 
 ```bash
-brew install cmake qt pandoc
+brew install cmake qt pandoc python pkg-config
 ```
 
 Finally, build the project:
@@ -146,7 +151,7 @@ Finally, build the project:
 ```bash
 mkdir build-xcode
 cd build-xcode
-cmake .. -GXcode -DCMAKE_PREFIX_PATH="$(brew --prefix qt)"
+cmake .. -GXcode -DCMAKE_PREFIX_PATH="$(brew --prefix qt)" -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
 open TrenchBroom.xcodeproj
 ```
 

@@ -60,7 +60,6 @@ struct EntityCellData {
   Assets::Orientation modelOrientation;
   Renderer::FontDescriptor fontDescriptor;
   vm::bbox3f bounds;
-  vm::vec3f modelScale;
 };
 
 class EntityBrowserView : public CellView {

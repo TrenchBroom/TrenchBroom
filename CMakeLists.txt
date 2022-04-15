@@ -18,6 +18,10 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Set TrenchBroom item as default single startup project (NOTE: CMake 3.6 and newer)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT TrenchBroom)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Using C and CXX because GLEW is C
 project(TrenchBroom C CXX)
 
@@ -47,11 +51,6 @@ if(TB_ENABLE_CCACHE)
         endif()
     endif(CCACHE_PATH)
 endif(TB_ENABLE_CCACHE)
-
-# Mac OS X specific configuration. In theory must be done before the PROJECT directive, but that doesn't actually work.
-# These settings are ignored on other platforms
-# We are using deployment target 10.14 because C++17 is only fully supported on that version and up.
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 
 # Compiler detection
 set(COMPILER_IS_CLANG FALSE)
@@ -113,6 +112,14 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 # Prevent gtest from being installed
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+
+find_package(freeimage CONFIG REQUIRED)
+find_package(freetype CONFIG REQUIRED)
+find_package(Catch2 CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(GLEW REQUIRED)
+find_package(miniz CONFIG REQUIRED)
+find_package(tinyxml2 CONFIG REQUIRED)
 
 # Find Qt and OpenGL
 find_package(OpenGL REQUIRED)

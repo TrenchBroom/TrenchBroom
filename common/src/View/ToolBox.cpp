@@ -145,12 +145,11 @@ bool ToolBox::dragging() const {
   return m_dragTracker != nullptr;
 }
 
-bool ToolBox::startMouseDrag(ToolChain* chain, const InputState& inputState) {
+void ToolBox::startMouseDrag(ToolChain* chain, const InputState& inputState) {
   if (!m_enabled) {
-    return false;
+    return;
   }
   m_dragTracker = chain->startMouseDrag(inputState);
-  return m_dragTracker != nullptr;
 }
 
 bool ToolBox::mouseDrag(const InputState& inputState) {

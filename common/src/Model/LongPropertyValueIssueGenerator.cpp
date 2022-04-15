@@ -79,7 +79,7 @@ private:
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->select(issue->node());
+    facade->selectNodes({issue->node()});
     facade->setProperty(propertyName, propertyValue.substr(0, m_maxLength));
   }
 };

@@ -1770,5 +1770,36 @@ TEST_CASE("BrushTest.findInitialEdgeFail", "[BrushTest]") {
                                },
                                0.001));
 }
+
+TEST_CASE("BrushTest.headEdgesFail", "[BrushTest]") {
+  // see https://github.com/TrenchBroom/TrenchBroom/issues/3886
+  // this test would previously fail due on an assertion error
+
+  const std::string brushString(R"({
+( 2176 -16 16 ) ( 2176 0 0 ) ( 2176 16 16 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( 2304 16 16 ) ( 2304 0 0 ) ( 2304 -16 16 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( 16 672 -16 ) ( 0 672 0 ) ( 16 672 16 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( 16 800 16 ) ( 0 800 0 ) ( 16 800 -16 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( -16 16 -64 ) ( 0 0 -64 ) ( 16 16 -64 ) custom/graphtallica/brick2 0 0 0 1 1 0 0 0
+( 16 16 128 ) ( 0 0 128 ) ( -16 16 128 ) custom/graphtallica/brick2 0 0 0 1 1 0 0 0
+( 256 -1312 -16 ) ( 0 -1568 0 ) ( 256 -1312 16 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( 256 -1184 16 ) ( 0 -1440 0 ) ( 256 -1184 -16 ) custom/graphtallica/brick2 -720 0 0 1.414214 1 0 0 0
+( 16 256 8239.985 ) ( 0 0 9055.983 ) ( -16 256 8335.985 ) custom/graphtallica/brick2 1429.894 -476.6323 0 1.378405 1.027402 0 0 0
+( -16 256 8143.985 ) ( 0 0 8863.983 ) ( 16 256 8047.985 ) custom/graphtallica/brick2 1399.579 -466.5271 0 1.378405 1.027402 0 0 0
+( 2250.667 16 256 ) ( 2293.333 0 0 ) ( 2250.667 -16 256 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( -16 256 2623.994 ) ( 0 0 4159.991 ) ( 16 256 2623.994 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( 2154.667 -16 256 ) ( 2197.333 0 0 ) ( 2154.667 16 256 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( 16 256 3199.994 ) ( 0 0 4735.992 ) ( -16 256 3199.994 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( 256 2784 16 ) ( 0 3040 0 ) ( 256 2784 -16 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+( 256 2656.005 -16 ) ( 0 2912.006 0 ) ( 256 2656.005 16 ) custom/graphtallica/brick2 -784 0 0 1.414214 1 0 0 0
+}
+)");
+
+  const auto worldBounds = vm::bbox3{8192.0};
+
+  auto status = IO::TestParserStatus{};
+  const auto nodes = IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
+  CHECK(nodes.size() == 1u);
+}
 } // namespace Model
 } // namespace TrenchBroom

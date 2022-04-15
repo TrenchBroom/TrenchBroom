@@ -76,7 +76,7 @@ private:
 
     facade->deselectAll();
     facade->reparentNodes(nodesToReparent);
-    facade->select(affectedNodes);
+    facade->selectNodes(affectedNodes);
   }
 };
 

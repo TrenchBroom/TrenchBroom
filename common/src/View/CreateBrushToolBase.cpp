@@ -52,7 +52,7 @@ void CreateBrushToolBase::createBrush() {
     const Transaction transaction(document, "Create Brush");
     document->deselectAll();
     document->addNodes({{document->parentForNodes(), {m_brush}}});
-    document->select(m_brush);
+    document->selectNodes({m_brush});
     m_brush = nullptr;
     doBrushWasCreated();
   }

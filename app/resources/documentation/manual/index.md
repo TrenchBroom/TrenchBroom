@@ -651,40 +651,40 @@ Deleting objects is as simple as selecting them and choosing #menu(Menu/Edit/Del
 
 ## Shaping Brushes
 
-TrenchBroom offers several tools to change the shapes of brushes. The most powerful of these tools, and also the one that requires the most care, is the vertex tool. Before we discuss this tool, we will introduce the clip tool with which you can chop parts off of brushes. But first, we introduce the resize tool which, as the name suggests, allows you to quickly change the size of brushes. Finally, we explain how you can shape brushes using TrenchBroom's CSG operations.
+TrenchBroom offers several tools to change the shapes of brushes. The most powerful of these tools, and also the one that requires the most care, is the vertex tool. Before we discuss this tool, we will introduce the clip tool with which you can chop parts off of brushes. But first, we introduce the extrude tool which, as the name suggests, allows you to quickly change the size of brushes. Finally, we explain how you can shape brushes using TrenchBroom's CSG operations.
 
-### Resizing
+### Extrusion
 
-Brushes can be resized using the resize tool by moving their faces along their respective normal vectors with the mouse. To resize a selected brush, hold #key(Shift) and move your mouse pointer onto or near the face you wish to move. You will notice that one of the brush's faces is highlighted with a yellow outline. Drag with your left mouse button while still holding #key(Shift) to move the highlighted face along its normal. Note that you can also move brush faces which are behind the brush as long as these faces have an edge that is visible from the camera.
+Brushes can be extruded using the extrude tool by moving their faces along their respective normal vectors with the mouse. To extrude a selected brush, hold #key(Shift) and move your mouse pointer onto or near the face you wish to move. You will notice that one of the brush's faces is highlighted with a yellow outline. Drag with your left mouse button while still holding #key(Shift) to move the highlighted face along its normal. Note that you can also move brush faces which are behind the brush as long as these faces have an edge that is visible from the camera.
 
-![Resizing a brush in the 3D viewport](images/ResizeTool3D.gif)
+![Extruding a brush in the 3D viewport](images/ExtrudeTool3D.gif)
 
-Note that you cannot change the number of faces of a brush by with the resize tool. This means that you cannot push a face back into a brush indefinitely. TrenchBroom will refuse to move it further as soon as that movement would make other faces disappear. The same applies to pulling a face out of a brush, which can make that face disappear. This is disallowed as well.
+Note that you cannot change the number of faces of a brush by with the extrude tool. This means that you cannot push a face back into a brush indefinitely. TrenchBroom will refuse to move it further as soon as that movement would make other faces disappear. The same applies to pulling a face out of a brush, which can make that face disappear. This is disallowed as well.
 
-If you hold #key(Ctrl) when you start dragging, the brush will not be resized. Instead, a new brush will be created. Both of the original and the new brush together will have the same shape that the original would have had if you had just resized it without holding #key(Ctrl), and the two brushes are split where the face you were dragging originally sat.
+If you hold #key(Ctrl) when you start dragging, the brush will not be extruded. Instead, a new brush will be created. Both of the original and the new brush together will have the same shape that the original would have had if you had just extruded it without holding #key(Ctrl), and the two brushes are split where the face you were dragging originally sat.
 
-![Splitting a brush in the 3D viewport](images/ResizeTool3DSplitMode.gif)
+![Splitting a brush in the 3D viewport](images/ExtrudeTool3DSplitMode.gif)
 
 When starting a drag with #key(Ctrl) you can also drag inward to split the original brush:
 
-![Splitting a brush inward in the 3D viewport](images/ResizeTool3DSplitInwardMode.gif)
+![Splitting a brush inward in the 3D viewport](images/ExtrudeTool3DSplitInwardMode.gif)
 
-You can also resize several brushes at the same time by moving their faces using the resize tool, but only if these faces line up perfectly. As the following animation illustrates, it's not enough that the faces are parallel - they have to be identical.
+You can also extrude several brushes at the same time by moving their faces using the extrude tool, but only if these faces line up perfectly. As the following animation illustrates, it's not enough that the faces are parallel - they have to be identical.
 
-![Resizing multiple brushes](images/ResizeTool3DMultipleBrushes.gif)
+![Extruding multiple brushes](images/ExtrudeTool3DMultipleBrushes.gif)
 
-The resize tool also works in the 2D viewports, of course, but the ability to move faces which are behind the selected brush is absent there. In both cases, TrenchBroom uses two methods to determine how to snap the distance by which you drag the face:
+The extrude tool also works in the 2D viewports, of course, but the ability to move faces which are behind the selected brush is absent there. In both cases, TrenchBroom uses two methods to determine how to snap the distance by which you drag the face:
 
 - The distance is snapped to the current grid size, i.e., if you drag a face by 17.5 units along its normal, it will be moved by 16.0 units if the current grid size is 16. This is useful if you are resizing brushes which are part of a curve because their faces will line up after the drag.
 - The vertices of the dragged faces are snapped to the grid planes, i.e., whenever at least one vertex component (X,Y, or Z) is a multiple of the current grid size, the face is snapped to that vertex. This makes it easy to align a face to other adjacent faces.
 
 Both snap modes are used simultaneously. There may be situations when you have to move the camera closer to a face in order to have sufficient precision when dragging the face.
 
-#### Moving Faces Instead of Resizing {#moving_faces}
+#### Moving Faces Instead of Extruding {#moving_faces}
 
-The brush resize tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(Alt) in addition to #key(Shift) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
+The brush extrude tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(Alt) in addition to #key(Shift) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
 
-![Moving faces](images/ResizeTool2DFaceMoving.gif)
+![Moving faces](images/ExtrudeTool2DFaceMoving.gif)
 
 The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane. The [UV Lock](#uv_lock) setting controls whether texture lock is used when dragging faces using this mode.
 

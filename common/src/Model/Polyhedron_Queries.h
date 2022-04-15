@@ -187,15 +187,15 @@ bool Polyhedron<T, FP, VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Poly
     return true;
   }
 
-  const auto& rhsStart = rhsEdge->firstVertex()->position();
-  const auto& rhsEnd = rhsEdge->secondVertex()->position();
-
   const auto lhsRay = vm::ray<T, 3>(lhsStart, normalize(lhsEnd - lhsStart));
-  const auto dist = vm::squared_distance(lhsRay, vm::segment<T, 3>(rhsStart, rhsEnd));
+  const auto dist = vm::squared_distance(lhsRay, rhsEdge->segment());
   const auto rayLen = vm::distance_to_projected_point(lhsRay, lhsEnd);
 
   if (dist.parallel) {
     if (dist.is_colinear()) {
+      const auto& rhsStart = rhsEdge->firstVertex()->position();
+      const auto& rhsEnd = rhsEdge->secondVertex()->position();
+
       const auto rhsStartDist = vm::distance_to_projected_point(lhsRay, rhsStart);
       const auto rhsEndDist = vm::distance_to_projected_point(lhsRay, rhsEnd);
 

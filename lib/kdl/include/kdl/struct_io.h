@@ -23,6 +23,7 @@
 #include <kdl/range_io.h>
 #include <kdl/traits.h>
 #include <kdl/tuple_io.h>
+#include <kdl/variant_io.h>
 
 #include <ostream>
 #include <string_view>

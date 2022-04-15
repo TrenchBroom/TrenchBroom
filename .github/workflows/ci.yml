@@ -47,6 +47,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           submodules: 'recursive'
 
       # Dependencies
@@ -57,7 +58,7 @@ jobs:
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo add-apt-repository ppa:beineri/opt-qt-5.11.3-bionic
           sudo apt update
-          sudo apt install ${{ matrix.gcc-package }} qt511base qt511svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+          sudo apt install ${{ matrix.gcc-package }} qt511base qt511svg build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb rpm
 
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
@@ -86,6 +87,38 @@ jobs:
           version: '5.15.2'
           arch: 'win32_msvc2019'
 
+      - name: Install macOS dependencies
+        if: ${{ matrix.os == 'macos-10.15' }}
+        run: |
+          brew install cmake p7zip pandoc qt5 ninja autoconf automake
+
+      # Restore from cache the previously built ports. If a "cache miss" occurs,
+      # then vcpkg is bootstrapped. Since a the vcpkg.json is being used later on
+      # to install the packages when `run-cmake` runs, no packages are installed at
+      # this time.
+      - name: Restore artifacts or setup vcpkg (do not install any package)
+        uses: lukka/run-vcpkg@v10
+        # with:
+          # This is the default location of the directory containing vcpkg sources.
+          # Change it to the right location if needed.
+          # vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+
+          # If not using a submodule for vcpkg sources, this specifies which commit
+          # id must be checkout from a Git repo. It must not set if using a submodule
+          # for vcpkg.
+          # vcpkgGitCommitId: '${{ matrix.vcpkgCommitId }}'
+
+          # This is the glob expression used to locate the vcpkg.json and add its
+          # hash to the cache key. Change it to match a single manifest file you want
+          # to use.
+          # vcpkgJsonGlob: '**/vcpkg.json'
+
+          # This is needed to run `vcpkg install` command (after vcpkg is built) in
+          # the directory where vcpkg.json has been located. Default is false,
+          # It is highly suggested to let `run-cmake` to run vcpkg (i.e. `false`)
+          # (i.e. let CMake run `vcpkg install`) using the vcpkg.cmake toolchain.
+          # runVcpkgInstall: 'true'
+          
       # Run build script
 
       - name: Linux build (GCC8)
