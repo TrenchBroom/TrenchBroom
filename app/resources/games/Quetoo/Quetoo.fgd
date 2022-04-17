@@ -291,6 +291,7 @@
  	drift(float) : "The factor of randomized drift applied to the emission rate"
 	hz(float) : "The emission rate, in events-per-second" : "10"
 	radius(float) : "The flame radius" : "16"
+	sound(sound) : "The looping sound to play, or 'none' to disable" : "world/fire"
 ]
 
 @SolidClass color(230 230 230) = misc_fog : "Fog volumes. When compiled, fog brushes are merged into the world. Fog volumes are processed during the lighting compile phase. These are typically contents atmospheric, but can be contents water, etc. Omit _color to use the material color."
@@ -369,6 +370,7 @@
 	hz(float) : "The emission rate, in events-per-second" : "10"
 	radius(float) : "The flame radius" : "16"
 	size(float) : "The initial sprite size" : "32"
+	sound(sound): "The looping sound to play, or 'none' to disable" : "world/steam"
 	target(target_source) : "The name of the entity to target to resolve the steam direction and velocity"
 	velocity(vector) : "The steam velocity (if not specified via target)" : "0 0 32"
 ]
