@@ -244,11 +244,11 @@ vm::vec3 Grid::snapMoveDeltaForFace(const Model::BrushFace& face, const vm::vec3
         const auto edgeDirection = vm::normalize(currentHalfEdge->vector());
         const auto distanceOnEdge = vm::dot(moveDelta, edgeDirection);
         const auto line = vm::line3{currentHalfEdge->origin()->position(), edgeDirection};
-        const auto snappedDistance = snapToGridPlane(line, distanceOnEdge);
+        const auto snappedDistanceOnEdge = snapToGridPlane(line, distanceOnEdge);
 
         // convert this to a movement along moveDirection and minimize the difference
-        const auto snappedDeltaEdge = snappedDistance * edgeDirection;
-        const auto snappedMoveDistance = vm::dot(snappedDeltaEdge, moveDirection);
+        const auto snappedMoveDistance =
+          snappedDistanceOnEdge / vm::dot(edgeDirection, moveDirection);
         difference = vm::abs_min(difference, snappedMoveDistance - moveDistance);
       }
       currentHalfEdge = currentHalfEdge->nextIncident();
