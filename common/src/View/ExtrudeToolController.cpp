@@ -144,10 +144,10 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
           return proposedHandlePosition;
         }
 
-        const auto moveDelta = proposedHandlePosition - dragState.currentHandlePosition;
-        const auto& face = m_extrudeDragState.currentDragFaces.front().face();
+        const auto moveDelta = proposedHandlePosition - dragState.initialHandlePosition;
+        const auto& face = m_extrudeDragState.initialDragHandles.front().faceAtDragStart();
         const auto snappedMoveDelta = grid.snapMoveDeltaForFace(face, moveDelta);
-        return dragState.currentHandlePosition + snappedMoveDelta;
+        return dragState.initialHandlePosition + snappedMoveDelta;
       };
 
     return makeHandlePositionProposer(std::move(picker), std::move(snapper));
