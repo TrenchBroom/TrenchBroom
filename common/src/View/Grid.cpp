@@ -205,8 +205,7 @@ vm::vec3 Grid::moveDeltaForBounds(
 }
 
 FloatType Grid::snapToGridPlane(const vm::line3& line, const FloatType distance) const {
-  // the difference between the distance to X and the distance to Y
-  auto difference = std::numeric_limits<FloatType>::max();
+  auto snappedDistance = std::numeric_limits<FloatType>::max();
 
   // x is a point on the line and it is located in one grid cube
   const auto x = vm::point_at_distance(line, distance);
@@ -218,13 +217,13 @@ FloatType Grid::snapToGridPlane(const vm::line3& line, const FloatType distance)
   for (size_t i = 0; i < 3; ++i) {
     const auto p = vm::plane3{c, vm::vec3::axis(i)};
     const auto y = vm::intersect_line_plane(line, p);
-    if (!vm::is_nan(y)) {
-      difference = vm::abs_min(difference, y - distance);
+    if (!vm::is_nan(y) && vm::abs(y - distance) < vm::abs(snappedDistance - distance)) {
+      snappedDistance = y;
     }
   }
 
-  assert(!vm::is_nan(difference));
-  return distance + difference;
+  assert(!vm::is_nan(snappedDistance));
+  return snappedDistance;
 }
 
 vm::vec3 Grid::snapMoveDeltaForFace(const Model::BrushFace& face, const vm::vec3& moveDelta) const {
@@ -234,7 +233,7 @@ vm::vec3 Grid::snapMoveDeltaForFace(const Model::BrushFace& face, const vm::vec3
 
   const auto moveDirection = vm::normalize(moveDelta);
   const auto moveDistance = vm::dot(moveDelta, moveDirection);
-  auto difference = std::numeric_limits<FloatType>::max();
+  auto snappedMoveDistance = std::numeric_limits<FloatType>::max();
 
   for (const auto* vertex : face.vertices()) {
     const auto* currentHalfEdge = vertex->leaving();
@@ -247,17 +246,19 @@ vm::vec3 Grid::snapMoveDeltaForFace(const Model::BrushFace& face, const vm::vec3
         const auto snappedDistanceOnEdge = snapToGridPlane(line, distanceOnEdge);
 
         // convert this to a movement along moveDirection and minimize the difference
-        const auto snappedMoveDistance =
-          snappedDistanceOnEdge / vm::dot(edgeDirection, moveDirection);
-        difference = vm::abs_min(difference, snappedMoveDistance - moveDistance);
+        const auto snappedMoveDistanceForEdge =
+          snappedDistanceOnEdge / vm::dot(moveDirection, edgeDirection);
+        if (
+          vm::abs(snappedMoveDistanceForEdge - moveDistance) <
+          vm::abs(snappedMoveDistance - moveDistance)) {
+          snappedMoveDistance = snappedMoveDistanceForEdge;
+        }
       }
       currentHalfEdge = currentHalfEdge->nextIncident();
     } while (currentHalfEdge != vertex->leaving());
   }
 
-  // difference is now minimal among all vertices and grid planes
-  // we correct the move delta so that a vertex lands on a grid plane
-  return moveDirection * (moveDistance + difference);
+  return moveDirection * snappedMoveDistance;
 }
 
 vm::vec3 Grid::referencePoint(const vm::bbox3& bounds) const {
