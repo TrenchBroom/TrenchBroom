@@ -112,6 +112,7 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
   ExtrudeDragDelegate(ExtrudeTool& tool, ExtrudeDragState extrudeDragState)
     : m_tool{tool}
     , m_extrudeDragState{std::move(extrudeDragState)} {}
+
   auto makePicker(const InputState& inputState, const vm::vec3& handleOffset) {
     using namespace Model::HitFilters;
 
