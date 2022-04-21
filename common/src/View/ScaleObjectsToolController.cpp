@@ -178,13 +178,10 @@ public:
 };
 } // namespace
 
-static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndOffset(
+static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
   const vm::bbox3& bboxAtDragStart, const Model::Hit& dragStartHit) {
   const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
-  const auto handlePosition = handleLine.get_origin();
-  const auto handleOffset = handlePosition - dragStartHit.hitPoint();
-
-  return {handlePosition, handleOffset};
+  return {handleLine.get_origin(), dragStartHit.hitPoint()};
 }
 
 std::unique_ptr<DragTracker> ScaleObjectsToolController::acceptMouseDrag(
@@ -209,10 +206,9 @@ std::unique_ptr<DragTracker> ScaleObjectsToolController::acceptMouseDrag(
 
   m_tool.startScaleWithHit(hit);
 
-  const auto [handlePosition, handleOffset] =
-    getInitialHandlePositionAndOffset(m_tool.bounds(), hit);
+  const auto [handlePosition, hitPoint] = getInitialHandlePositionAndHitPoint(m_tool.bounds(), hit);
   return createHandleDragTracker(
-    ScaleObjectsDragDelegate{m_tool}, inputState, handlePosition, handleOffset);
+    ScaleObjectsDragDelegate{m_tool}, inputState, handlePosition, hitPoint);
 }
 
 void ScaleObjectsToolController::setRenderOptions(

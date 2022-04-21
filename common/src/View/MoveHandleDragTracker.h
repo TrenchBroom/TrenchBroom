@@ -434,9 +434,10 @@ private:
 template <typename Delegate>
 std::unique_ptr<HandleDragTracker<MoveHandleDragDelegate<Delegate>>> createMoveHandleDragTracker(
   Delegate delegate, const InputState& inputState, const vm::vec3& initialHandlePosition,
-  const vm::vec3& handleOffset) {
+  const vm::vec3& initialHitPoint) {
   return std::make_unique<HandleDragTracker<MoveHandleDragDelegate<Delegate>>>(
-    MoveHandleDragDelegate{std::move(delegate)}, inputState, initialHandlePosition, handleOffset);
+    MoveHandleDragDelegate{std::move(delegate)}, inputState, initialHandlePosition,
+    initialHitPoint);
 }
 
 /**

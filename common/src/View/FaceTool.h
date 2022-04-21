@@ -55,7 +55,7 @@ public:
   const FaceHandleManager& handleManager() const override;
 
 public:
-  std::tuple<vm::vec3, vm::vec3> handlePositionAndOffset(
+  std::tuple<vm::vec3, vm::vec3> handlePositionAndHitPoint(
     const std::vector<Model::Hit>& hits) const override;
 
   MoveResult move(const vm::vec3& delta) override;

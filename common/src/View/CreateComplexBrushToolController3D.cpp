@@ -155,9 +155,9 @@ private:
 
     const auto initialHandlePosition = hit.hitPoint();
     const auto plane = faceHandle->face().boundary();
-    const auto handleOffset = vm::vec3::zero();
     return createHandleDragTracker(
-      DrawFaceDragDelegate{m_tool, plane}, inputState, initialHandlePosition, handleOffset);
+      DrawFaceDragDelegate{m_tool, plane}, inputState, initialHandlePosition,
+      initialHandlePosition);
   }
 
   bool cancel() override { return false; }
@@ -235,10 +235,10 @@ private:
     const vm::vec3 initialHandlePosition =
       vm::point_at_distance(inputState.pickRay(), hit.distance);
     const vm::vec3 normal = hit.face->normal();
-    const auto handleOffset = vm::vec3::zero();
 
     return createHandleDragTracker(
-      DuplicateFaceDragDelegate{m_tool, normal}, inputState, initialHandlePosition, handleOffset);
+      DuplicateFaceDragDelegate{m_tool, normal}, inputState, initialHandlePosition,
+      initialHandlePosition);
   }
   bool cancel() override { return false; }
 };

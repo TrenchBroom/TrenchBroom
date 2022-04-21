@@ -185,13 +185,12 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
 auto createExtrudeDragTracker(
   ExtrudeTool& tool, const InputState& inputState, const Model::Hit& hit, const bool split) {
   const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition();
-  const auto handleOffset = initialHandlePosition - hit.hitPoint();
 
   return createHandleDragTracker(
     ExtrudeDragDelegate{
       tool,
       {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split}},
-    inputState, initialHandlePosition, handleOffset);
+    inputState, initialHandlePosition, hit.hitPoint());
 }
 
 struct MoveDragDelegate : public HandleDragTrackerDelegate {
@@ -254,12 +253,11 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
 
 auto createMoveDragTracker(ExtrudeTool& tool, const InputState& inputState, const Model::Hit& hit) {
   const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition();
-  const auto handleOffset = initialHandlePosition - hit.hitPoint();
 
   return createHandleDragTracker(
     MoveDragDelegate{
       tool, {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles())}},
-    inputState, initialHandlePosition, handleOffset);
+    inputState, initialHandlePosition, hit.hitPoint());
 }
 } // namespace
 

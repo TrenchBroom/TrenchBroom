@@ -153,7 +153,8 @@ static auto makeInputState(
 
 TEST_CASE("MoveDragTracker.constructor") {
   constexpr auto initialHandlePosition = vm::vec3{0, 64, 0};
-  constexpr auto handleOffset = vm::vec3{0, 0, 0};
+  constexpr auto initialHitPoint = initialHandlePosition;
+  constexpr auto handleOffset = initialHandlePosition - initialHitPoint;
 
   GIVEN("A 3D camera") {
     auto camera3d = Renderer::PerspectiveCamera{};
@@ -161,7 +162,7 @@ TEST_CASE("MoveDragTracker.constructor") {
     WHEN("A tracker is created without any modifier keys pressed") {
       auto tracker = makeMoveTracker(
         makeInputState(vm::vec3{0, 0, 64}, vm::vec3{0, 1, -1}, camera3d), initialHandlePosition,
-        handleOffset);
+        initialHitPoint);
 
       THEN("The tracker has set the initial and current handle positions correctly") {
         CHECK(
@@ -182,7 +183,7 @@ TEST_CASE("MoveDragTracker.constructor") {
     WHEN("A tracker is created with the alt modifier pressed") {
       auto tracker = makeMoveTracker(
         makeInputState(vm::vec3{0, 0, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::MKAlt),
-        initialHandlePosition, handleOffset);
+        initialHandlePosition, initialHitPoint);
 
       THEN("The tracker is using a vertical hit finder") {
         // we check this indirectly by observing how the move handle position changes when dragging
@@ -202,7 +203,7 @@ TEST_CASE("MoveDragTracker.constructor") {
     WHEN("A tracker is created without any modifier keys pressed") {
       auto tracker = makeMoveTracker(
         makeInputState(vm::vec3{0, 64, 64}, vm::vec3{0, 0, -1}, camera2d), initialHandlePosition,
-        handleOffset);
+        initialHitPoint);
 
       THEN("The tracker has set the initial and current handle positions correctly") {
         CHECK(
@@ -223,7 +224,7 @@ TEST_CASE("MoveDragTracker.constructor") {
     WHEN("A tracker is created with the alt modifier pressed") {
       auto tracker = makeMoveTracker(
         makeInputState(vm::vec3{0, 0, 64}, vm::vec3{0, 1, -1}, camera2d, ModifierKeys::MKAlt),
-        initialHandlePosition, handleOffset);
+        initialHandlePosition, initialHitPoint);
 
       THEN("The tracker is using a default hit finder") {
         // we check this indirectly by observing how the move handle position changes when dragging
@@ -238,13 +239,14 @@ TEST_CASE("MoveDragTracker.constructor") {
 
 TEST_CASE("MoveDragTracker.modifierKeyChange") {
   constexpr auto initialHandlePosition = vm::vec3{0, 64, 0};
-  constexpr auto handleOffset = vm::vec3{0, 0, 0};
+  constexpr auto initialHitPoint = initialHandlePosition;
+  constexpr auto handleOffset = initialHandlePosition - initialHitPoint;
 
   GIVEN("A tracker created with a 3D camera") {
     auto camera3d = Renderer::PerspectiveCamera{};
     auto tracker = makeMoveTracker(
       makeInputState(vm::vec3{0, 0, 64}, vm::vec3{0, 1, -1}, camera3d), initialHandlePosition,
-      handleOffset);
+      initialHitPoint);
     REQUIRE(
       tracker.dragState() == DragState{initialHandlePosition, initialHandlePosition, handleOffset});
 
@@ -339,7 +341,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange") {
 
     auto tracker = makeMoveTracker(
       makeInputState(vm::vec3{0, 0, 64}, vm::vec3{0, 1, -1}, camera2d), initialHandlePosition,
-      handleOffset);
+      initialHitPoint);
     REQUIRE(
       tracker.dragState() == DragState{initialHandlePosition, initialHandlePosition, handleOffset});
 

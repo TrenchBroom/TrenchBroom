@@ -84,7 +84,7 @@ const VertexHandleManager& VertexTool::handleManager() const {
   return *m_vertexHandles;
 }
 
-std::tuple<vm::vec3, vm::vec3> VertexTool::handlePositionAndOffset(
+std::tuple<vm::vec3, vm::vec3> VertexTool::handlePositionAndHitPoint(
   const std::vector<Model::Hit>& hits) const {
   assert(!hits.empty());
 
@@ -98,7 +98,7 @@ std::tuple<vm::vec3, vm::vec3> VertexTool::handlePositionAndOffset(
                           ? std::get<1>(hit.target<EdgeHandleManager::HitType>())
                           : std::get<1>(hit.target<FaceHandleManager::HitType>());
 
-  return {position, hit.hitPoint() - position};
+  return {position, hit.hitPoint()};
 }
 
 bool VertexTool::startMove(const std::vector<Model::Hit>& hits) {
