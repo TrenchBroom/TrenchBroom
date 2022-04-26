@@ -226,13 +226,13 @@ FloatType Grid::snapToGridPlane(const vm::line3& line, const FloatType distance)
   return snappedDistance;
 }
 
-vm::vec3 Grid::snapMoveDeltaForFace(const Model::BrushFace& face, const vm::vec3& moveDelta) const {
+FloatType Grid::snapMoveDistanceForFace(
+  const Model::BrushFace& face, const FloatType moveDistance) const {
   const auto isBoundaryEdge = [&](const Model::BrushEdge* edge) {
     return edge->firstFace() == face.geometry() || edge->secondFace() == face.geometry();
   };
 
-  const auto moveDirection = vm::normalize(moveDelta);
-  const auto moveDistance = vm::dot(moveDelta, moveDirection);
+  const auto& moveDirection = face.normal();
   auto snappedMoveDistance = std::numeric_limits<FloatType>::max();
 
   for (const auto* vertex : face.vertices()) {
@@ -241,13 +241,13 @@ vm::vec3 Grid::snapMoveDeltaForFace(const Model::BrushFace& face, const vm::vec3
       if (!isBoundaryEdge(currentHalfEdge->edge())) {
         // compute how far the vertex has to move along its edge vector to hit a grid plane
         const auto edgeDirection = vm::normalize(currentHalfEdge->vector());
-        const auto distanceOnEdge = vm::dot(moveDelta, edgeDirection);
+        const auto distanceOnEdge = moveDistance / vm::dot(edgeDirection, moveDirection);
         const auto line = vm::line3{currentHalfEdge->origin()->position(), edgeDirection};
         const auto snappedDistanceOnEdge = snapToGridPlane(line, distanceOnEdge);
 
         // convert this to a movement along moveDirection and minimize the difference
         const auto snappedMoveDistanceForEdge =
-          snappedDistanceOnEdge / vm::dot(moveDirection, edgeDirection);
+          snappedDistanceOnEdge * vm::dot(edgeDirection, moveDirection);
         if (
           vm::abs(snappedMoveDistanceForEdge - moveDistance) <
           vm::abs(snappedMoveDistance - moveDistance)) {
@@ -258,7 +258,7 @@ vm::vec3 Grid::snapMoveDeltaForFace(const Model::BrushFace& face, const vm::vec3
     } while (currentHalfEdge != vertex->leaving());
   }
 
-  return moveDirection * snappedMoveDistance;
+  return snappedMoveDistance;
 }
 
 vm::vec3 Grid::referencePoint(const vm::bbox3& bounds) const {

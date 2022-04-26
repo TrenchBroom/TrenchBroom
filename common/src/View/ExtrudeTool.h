@@ -86,11 +86,11 @@ struct ExtrudeDragState {
 };
 
 struct ExtrudeHitData {
-  std::vector<Model::BrushFaceHandle> faces;
+  Model::BrushFaceHandle face;
   std::variant<vm::plane3, vm::line3> dragReference;
   vm::vec3 initialHandlePosition;
 
-  kdl_reflect_decl(ExtrudeHitData, faces, dragReference, initialHandlePosition);
+  kdl_reflect_decl(ExtrudeHitData, face, dragReference, initialHandlePosition);
 };
 
 /**

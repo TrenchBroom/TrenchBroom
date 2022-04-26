@@ -395,7 +395,7 @@ public:
    */
   FloatType snapToGridPlane(const vm::line3& line, FloatType distance) const;
 
-  vm::vec3 snapMoveDeltaForFace(const Model::BrushFace& face, const vm::vec3& delta) const;
+  FloatType snapMoveDistanceForFace(const Model::BrushFace& face, FloatType moveDistance) const;
 
   vm::vec3 referencePoint(const vm::bbox3& bounds) const;
 };

@@ -307,17 +307,17 @@ TEST_CASE("GridTest.snapToGridPlane") {
 //
 
 TEST_CASE("GridTest.snapMoveDeltaForFace") {
-  using T = std::tuple<std::vector<vm::vec3>, vm::vec3, vm::vec3, vm::vec3>;
+  using T = std::tuple<std::vector<vm::vec3>, vm::vec3, FloatType, FloatType>;
 
   // clang-format off
   const auto 
-  [points, faceNormal, moveDelta, expectedMoveDelta] = GENERATE(values<T>({
+  [points, faceNormal, moveDistance, expectedMoveDistance] = GENERATE(values<T>({
   {{{ -8,  -8,  +8}, { +8,  -8,  +8}, { +8,  +8,  +8}, { -8,  +8,  +8},
     { -8,  -8,  -8}, { +8,  -8,  -8}, { +8,  +8,  -8}, { -8,  +8,  -8}},
-           {0, 0, 1},  {0, 0, 8}, {0, 0, 8}},
+           {0, 0, 1},  8,            8},
   {{{ -8,  -8,  +8}, { +8,  -8,  +8}, { +8,  +8,  +8}, { -8,  +8,  +8},
     { -8,  -8,  -8}, { +8,  -8,  -8}, { +8,  +8,  -8}, { -8,  +8,  -8}},
-           {0, 0, 1},  {0, 0, 6}, {0, 0, 8}},
+           {0, 0, 1},  6,            8},
 
   /* A cuboid with an angled southern face
      ___________
@@ -330,23 +330,19 @@ TEST_CASE("GridTest.snapMoveDeltaForFace") {
   {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
     {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
            vm::normalize(vm::vec3{1, -4, 0}),  
-                       {256, -128, 0}, {256, -128, 0}},
+                       16, 15.5222800023},
   {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
     {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
            vm::normalize(vm::vec3{1, -4, 0}),  
-                       {256 * 0.99, -128 * 0.99, 0}, {256, -128, 0}},
+                       15, 15.5222800023},
   {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
     {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
            vm::normalize(vm::vec3{1, -4, 0}),  
-                       {256 * 0.9, -128 * 0.9, 0}, {224, -112, 0}},
-  {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
-    {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
-           vm::normalize(vm::vec3{1, -4, 0}),  
-                       {218.878, -8.15992, 0}, {224, -112, 0}},
+                       25, 31.0445600047},
   }));
   // clang-format on
 
-  CAPTURE(points, faceNormal, moveDelta);
+  CAPTURE(points, faceNormal, moveDistance);
 
   const auto grid = Grid{4};
 
@@ -356,7 +352,7 @@ TEST_CASE("GridTest.snapMoveDeltaForFace") {
   REQUIRE(faceIndex.has_value());
 
   const auto& face = brush.face(*faceIndex);
-  CHECK(grid.snapMoveDeltaForFace(face, moveDelta) == expectedMoveDelta);
+  CHECK(grid.snapMoveDistanceForFace(face, moveDistance) == vm::approx{expectedMoveDistance});
 }
 } // namespace View
 } // namespace TrenchBroom
