@@ -191,6 +191,8 @@ void EntityBrowserView::addEntityToLayout(
     });
 
     const auto* frame = m_entityModelManager.frame(spec);
+    const auto modelScale = vm::vec3f{Assets::safeGetModelScale(
+      definition->modelDefinition(), EL::NullVariableStore{}, m_defaultScaleModelExpression)};
 
     Renderer::TexturedRenderer* modelRenderer = nullptr;
     vm::bbox3f rotatedBounds;
@@ -214,7 +216,8 @@ void EntityBrowserView::addEntityToLayout(
 
     const auto boundsSize = rotatedBounds.size();
     layout.addItem(
-      EntityCellData{definition, modelRenderer, modelOrientation, actualFont, rotatedBounds},
+      EntityCellData{
+        definition, modelRenderer, modelOrientation, actualFont, rotatedBounds, modelScale},
       boundsSize.y(), boundsSize.z(), actualSize.x(), static_cast<float>(font.size()) + 2.0f);
   }
 }
@@ -457,12 +460,15 @@ vm::mat4x4f EntityBrowserView::itemTransformation(
     vm::vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
   const auto scaling = cell.scale();
   const auto& rotatedBounds = cellData.bounds;
+  const auto& modelScale = cellData.modelScale;
   const auto rotationOffset = vm::vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
   const auto boundsCenter = vm::vec3f(definition->bounds().center());
 
-  return vm::translation_matrix(offset) * vm::scaling_matrix(vm::vec3f::fill(scaling)) *
-         vm::translation_matrix(rotationOffset) * vm::translation_matrix(boundsCenter) *
-         vm::rotation_matrix(m_rotation) * vm::translation_matrix(-boundsCenter);
+  return (
+    vm::translation_matrix(offset) * vm::scaling_matrix(vm::vec3f::fill(scaling)) *
+    vm::translation_matrix(rotationOffset) * vm::translation_matrix(boundsCenter) *
+    vm::rotation_matrix(m_rotation) * vm::scaling_matrix(modelScale) *
+    vm::translation_matrix(-boundsCenter));
 }
 
 QString EntityBrowserView::tooltip(const Cell& cell) {
