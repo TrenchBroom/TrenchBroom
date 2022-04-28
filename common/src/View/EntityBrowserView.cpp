@@ -202,7 +202,7 @@ void EntityBrowserView::addEntityToLayout(
       const auto bounds = frame->bounds();
       const auto center = bounds.center();
       const auto transform = vm::translation_matrix(center) * vm::rotation_matrix(m_rotation) *
-                             vm::translation_matrix(-center);
+                             vm::scaling_matrix(modelScale) * vm::translation_matrix(-center);
       rotatedBounds = bounds.transform(transform);
       modelRenderer = m_entityModelManager.renderer(spec);
       modelOrientation = frame->orientation();
