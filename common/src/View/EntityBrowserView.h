@@ -130,7 +130,8 @@ private:
   void renderStrings(Layout& layout, float y, float height);
   StringMap collectStringVertices(Layout& layout, float y, float height);
 
-  vm::mat4x4f itemTransformation(const Cell& cell, float y, float height) const;
+  vm::mat4x4f itemTransformation(
+    const Cell& cell, float y, float height, bool applyModelScale) const;
 
   QString tooltip(const Cell& cell) override;
 
