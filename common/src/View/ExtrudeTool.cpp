@@ -72,18 +72,6 @@ kdl_reflect_impl(ExtrudeDragHandle);
 
 kdl_reflect_impl(ExtrudeDragState);
 
-vm::vec3 ExtrudeHitData::initialHandlePosition() const {
-  return std::visit(
-    kdl::overload(
-      [](const vm::line3& line) {
-        return line.point;
-      },
-      [](const vm::plane3& plane) {
-        return plane.anchor();
-      }),
-    dragReference);
-}
-
 kdl_reflect_impl(ExtrudeHitData);
 
 // ExtrudeTool
@@ -193,13 +181,13 @@ Model::Hit ExtrudeTool::pick2D(const vm::ray3& pickRay, const Model::PickResult&
       ExtrudeHitType, distance.position1, hitPoint,
       ExtrudeHitData{
         std::vector<Model::BrushFaceHandle>{leftFaceHandle},
-        vm::plane3{handlePosition, pickRay.direction}}};
+        vm::plane3{handlePosition, pickRay.direction}, handlePosition}};
   } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
     return {
       ExtrudeHitType, distance.position1, hitPoint,
       ExtrudeHitData{
         std::vector<Model::BrushFaceHandle>{rightFaceHandle},
-        vm::plane3{handlePosition, pickRay.direction}}};
+        vm::plane3{handlePosition, pickRay.direction}, handlePosition}};
   } else {
     auto data = std::vector<Model::BrushFaceHandle>{};
     data.reserve(2);
@@ -213,7 +201,8 @@ Model::Hit ExtrudeTool::pick2D(const vm::ray3& pickRay, const Model::PickResult&
     }
     return {
       ExtrudeHitType, distance.position1, hitPoint,
-      ExtrudeHitData{std::move(data), vm::plane3{handlePosition, pickRay.direction}}};
+      ExtrudeHitData{
+        std::move(data), vm::plane3{handlePosition, pickRay.direction}, handlePosition}};
   }
 }
 
@@ -228,7 +217,7 @@ Model::Hit ExtrudeTool::pick3D(const vm::ray3& pickRay, const Model::PickResult&
       ExtrudeHitType, hit.distance(), hit.hitPoint(),
       ExtrudeHitData{
         std::vector<Model::BrushFaceHandle>{*faceHandle},
-        vm::line3{hit.hitPoint(), faceHandle->face().normal()}}};
+        vm::line3{hit.hitPoint(), faceHandle->face().normal()}, hit.hitPoint()}};
   }
 
   const auto edgeInfo = findClosestHorizonEdge(document->selectedNodes().nodes(), pickRay);
@@ -247,7 +236,9 @@ Model::Hit ExtrudeTool::pick3D(const vm::ray3& pickRay, const Model::PickResult&
   return {
     ExtrudeHitType, distance.position1, hitPoint,
     ExtrudeHitData{
-      {dragFaceHandle}, vm::plane3{handlePosition, referenceFaceHandle.face().normal()}}};
+      {dragFaceHandle},
+      vm::plane3{handlePosition, referenceFaceHandle.face().normal()},
+      handlePosition}};
 }
 
 const std::vector<ExtrudeDragHandle>& ExtrudeTool::proposedDragHandles() const {

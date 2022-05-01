@@ -132,7 +132,8 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
   }
 
   HandlePositionProposer start(
-    const InputState& inputState, const vm::vec3&, const vm::vec3& handleOffset) override {
+    const InputState& inputState, const vm::vec3& initialHandlePosition,
+    const vm::vec3& handleOffset) override {
     auto picker = makePicker(inputState, handleOffset);
     auto snapper =
       [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
@@ -142,7 +143,7 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
         }
 
         if (m_extrudeDragState.currentDragFaces.empty()) {
-          return proposedHandlePosition;
+          return dragState.currentHandlePosition;
         }
 
         const auto moveDelta = proposedHandlePosition - dragState.initialHandlePosition;
@@ -185,7 +186,7 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
 
 auto createExtrudeDragTracker(
   ExtrudeTool& tool, const InputState& inputState, const Model::Hit& hit, const bool split) {
-  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition();
+  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
 
   return createHandleDragTracker(
     ExtrudeDragDelegate{
@@ -253,7 +254,7 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
 };
 
 auto createMoveDragTracker(ExtrudeTool& tool, const InputState& inputState, const Model::Hit& hit) {
-  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition();
+  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
 
   return createHandleDragTracker(
     MoveDragDelegate{
