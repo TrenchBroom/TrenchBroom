@@ -25,7 +25,7 @@
 #include "Assets/PropertyDefinition.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
-#include "Model/EntityRotationPolicy.h"
+#include "Model/EntityRotation.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/mat.h>
@@ -39,7 +39,7 @@
 
 namespace TrenchBroom {
 namespace Model {
-TEST_CASE("EntityRotationPolicy.entityYawPitchRoll") {
+TEST_CASE("EntityRotation.entityYawPitchRoll") {
   const auto roll = vm::to_radians(12.0);
   const auto pitch = vm::to_radians(13.0);
   const auto yaw = vm::to_radians(14.0);
@@ -50,7 +50,7 @@ TEST_CASE("EntityRotationPolicy.entityYawPitchRoll") {
   CHECK(yawPitchRoll == vm::approx(vm::vec3(14, 13, 12)));
 }
 
-TEST_CASE("EntityRotationPolicy.entityYawPitchRoll_uniformScale") {
+TEST_CASE("EntityRotation.entityYawPitchRoll_uniformScale") {
   const auto roll = vm::to_radians(12.0);
   const auto pitch = vm::to_radians(13.0);
   const auto yaw = vm::to_radians(14.0);
@@ -62,7 +62,7 @@ TEST_CASE("EntityRotationPolicy.entityYawPitchRoll_uniformScale") {
   CHECK(yawPitchRoll == vm::approx(vm::vec3(14, 13, 12)));
 }
 
-TEST_CASE("EntityRotationPolicy.entityYawPitchRoll_nonUniformScale") {
+TEST_CASE("EntityRotation.entityYawPitchRoll_nonUniformScale") {
   const auto roll = vm::to_radians(0.0);
   const auto pitch = vm::to_radians(45.0);
   const auto yaw = vm::to_radians(0.0);
@@ -76,7 +76,7 @@ TEST_CASE("EntityRotationPolicy.entityYawPitchRoll_nonUniformScale") {
   CHECK(yawPitchRoll == vm::approx(vm::vec3(0.0, expectedPitch, 0.0)));
 }
 
-TEST_CASE("EntityRotationPolicy.entityYawPitchRoll_flip") {
+TEST_CASE("EntityRotation.entityYawPitchRoll_flip") {
   const auto roll = vm::to_radians(10.0);
   const auto pitch = vm::to_radians(45.0);
   const auto yaw = vm::to_radians(0.0);
@@ -114,7 +114,7 @@ std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
 }
 } // namespace
 
-TEST_CASE("EntityRotationPolicy.entityRotationInfo") {
+TEST_CASE("EntityRotation.entityRotationInfo") {
   using namespace Assets;
 
   auto manglePropertyDef = std::make_shared<StringPropertyDefinition>("mangle", "", "", false);

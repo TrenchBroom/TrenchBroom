@@ -24,7 +24,7 @@
 #include "Assets/ModelDefinition.h"
 #include "Model/EntityProperties.h"
 #include "Model/EntityPropertiesVariableStore.h"
-#include "Model/EntityRotationPolicy.h"
+#include "Model/EntityRotation.h"
 
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -327,7 +327,7 @@ void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig) 
   const auto* classnameValue = property(EntityPropertyKeys::Classname);
   const auto* originValue = property(EntityPropertyKeys::Origin);
 
-  // order is important here because EntityRotationPolicy::getRotation accesses classname
+  // order is important here because EntityRotation::getRotation accesses classname
   m_cachedProperties.classname =
     classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
   m_cachedProperties.origin = originValue

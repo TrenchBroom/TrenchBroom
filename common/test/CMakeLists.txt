@@ -67,7 +67,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/EntityNodeIndexTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EntityNodeLinkTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EntityNodeTest.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/Model/EntityRotationPolicyTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/EntityRotationTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EntityTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/GameFactoryTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/GameTest.cpp"

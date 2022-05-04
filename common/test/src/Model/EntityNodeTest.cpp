@@ -26,7 +26,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
-#include "Model/EntityRotationPolicy.h"
+#include "Model/EntityRotation.h"
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/Layer.h"

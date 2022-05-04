@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityRotationPolicy.h"
+#include "EntityRotation.h"
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
