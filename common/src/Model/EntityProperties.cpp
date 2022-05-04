@@ -144,7 +144,8 @@ bool isLayer(const std::string& classname, const std::vector<EntityProperty>& pr
   if (classname != EntityPropertyValues::LayerClassname) {
     return false;
   } else {
-    const std::string& groupType = findProperty(properties, EntityPropertyKeys::GroupType);
+    const std::string& groupType =
+      findEntityPropertyOrDefault(properties, EntityPropertyKeys::GroupType);
     return groupType == EntityPropertyValues::GroupTypeLayer;
   }
 }
@@ -153,7 +154,8 @@ bool isGroup(const std::string& classname, const std::vector<EntityProperty>& pr
   if (classname != EntityPropertyValues::GroupClassname) {
     return false;
   } else {
-    const std::string& groupType = findProperty(properties, EntityPropertyKeys::GroupType);
+    const std::string& groupType =
+      findEntityPropertyOrDefault(properties, EntityPropertyKeys::GroupType);
     return groupType == EntityPropertyValues::GroupTypeGroup;
   }
 }
@@ -163,15 +165,25 @@ bool isWorldspawn(
   return classname == EntityPropertyValues::WorldspawnClassname;
 }
 
-const std::string& findProperty(
+std::vector<EntityProperty>::const_iterator findEntityProperty(
+  const std::vector<EntityProperty>& properties, const std::string& key) {
+  return std::find_if(std::begin(properties), std::end(properties), [&](const auto& property) {
+    return property.hasKey(key);
+  });
+}
+
+std::vector<EntityProperty>::iterator findEntityProperty(
+  std::vector<EntityProperty>& properties, const std::string& key) {
+  return std::find_if(std::begin(properties), std::end(properties), [&](const auto& property) {
+    return property.hasKey(key);
+  });
+}
+
+const std::string& findEntityPropertyOrDefault(
   const std::vector<EntityProperty>& properties, const std::string& key,
   const std::string& defaultValue) {
-  for (const EntityProperty& property : properties) {
-    if (key == property.key()) {
-      return property.value();
-    }
-  }
-  return defaultValue;
+  const auto it = findEntityProperty(properties, key);
+  return it != std::end(properties) ? it->value() : defaultValue;
 }
 
 } // namespace Model

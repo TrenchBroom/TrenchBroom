@@ -39,6 +39,7 @@ struct ModelSpecification;
 } // namespace Assets
 
 namespace Model {
+
 /**
  * An entity is essentially a collection of key / value pairs called properties. Properties can be
  * set, renamed or removed and accessed via the corresponding member functions.
@@ -173,9 +174,6 @@ private:
   void applyRotation(const EntityPropertyConfig& propertyConfig, const vm::mat4x4& rotation);
 
   void updateCachedProperties(const EntityPropertyConfig& propertyConfig);
-
-  std::vector<EntityProperty>::const_iterator findProperty(const std::string& property) const;
-  std::vector<EntityProperty>::iterator findProperty(const std::string& property);
 };
 
 bool operator==(const Entity& lhs, const Entity& rhs);

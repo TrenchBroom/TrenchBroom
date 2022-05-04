@@ -114,8 +114,15 @@ public:
 bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties);
 bool isGroup(const std::string& classname, const std::vector<EntityProperty>& properties);
 bool isWorldspawn(const std::string& classname, const std::vector<EntityProperty>& properties);
-const std::string& findProperty(
+
+std::vector<EntityProperty>::const_iterator findEntityProperty(
+  const std::vector<EntityProperty>& properties, const std::string& key);
+std::vector<EntityProperty>::iterator findEntityProperty(
+  std::vector<EntityProperty>& properties, const std::string& key);
+
+const std::string& findEntityPropertyOrDefault(
   const std::vector<EntityProperty>& properties, const std::string& key,
   const std::string& defaultValue = EntityPropertyValues::DefaultValue);
+
 } // namespace Model
 } // namespace TrenchBroom

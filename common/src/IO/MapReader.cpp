@@ -212,7 +212,8 @@ using CreateNodeResult = kdl::result<NodeInfo, NodeError>;
  */
 static std::optional<ContainerInfo> extractContainerInfo(
   const std::vector<Model::EntityProperty>& properties, std::vector<NodeIssue>& nodeIssues) {
-  const std::string& parentLayerIdStr = findProperty(properties, Model::EntityPropertyKeys::Layer);
+  const std::string& parentLayerIdStr =
+    findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::Layer);
   if (!kdl::str_is_blank(parentLayerIdStr)) {
     const auto rawParentLayerId = kdl::str_to_long(parentLayerIdStr);
     if (rawParentLayerId && *rawParentLayerId >= 0) {
@@ -224,7 +225,8 @@ static std::optional<ContainerInfo> extractContainerInfo(
     return std::nullopt;
   }
 
-  const std::string& parentGroupIdStr = findProperty(properties, Model::EntityPropertyKeys::Group);
+  const std::string& parentGroupIdStr =
+    findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::Group);
   if (!kdl::str_is_blank(parentGroupIdStr)) {
     const auto rawParentGroupId = kdl::str_to_long(parentGroupIdStr);
     if (rawParentGroupId && *rawParentGroupId >= 0) {
@@ -299,12 +301,14 @@ static CreateNodeResult createWorldNode(
 static CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo) {
   const auto& properties = entityInfo.properties;
 
-  const std::string& name = findProperty(properties, Model::EntityPropertyKeys::LayerName);
+  const std::string& name =
+    findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::LayerName);
   if (kdl::str_is_blank(name)) {
     return NodeError{entityInfo.startLine, "Skipping layer entity: missing name"};
   }
 
-  const std::string& idStr = findProperty(properties, Model::EntityPropertyKeys::LayerId);
+  const std::string& idStr =
+    findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::LayerId);
   if (kdl::str_is_blank(idStr)) {
     return NodeError{entityInfo.startLine, "Skipping layer entity: missing id"};
   }
@@ -319,13 +323,13 @@ static CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
   Model::Layer layer = Model::Layer(name);
   // This is optional (not present on maps saved in TB 2020.1 and earlier)
   if (
-    const auto layerSortIndex =
-      kdl::str_to_int(findProperty(properties, Model::EntityPropertyKeys::LayerSortIndex))) {
+    const auto layerSortIndex = kdl::str_to_int(
+      findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::LayerSortIndex))) {
     layer.setSortIndex(*layerSortIndex);
   }
 
   if (
-    findProperty(properties, Model::EntityPropertyKeys::LayerOmitFromExport) ==
+    findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::LayerOmitFromExport) ==
     Model::EntityPropertyValues::LayerOmitFromExportValue) {
     layer.setOmitFromExport(true);
   }
@@ -337,12 +341,12 @@ static CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
   layerNode->setPersistentId(layerId);
 
   if (
-    findProperty(properties, Model::EntityPropertyKeys::LayerLocked) ==
+    findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::LayerLocked) ==
     Model::EntityPropertyValues::LayerLockedValue) {
     layerNode->setLockState(Model::LockState::Locked);
   }
   if (
-    findProperty(properties, Model::EntityPropertyKeys::LayerHidden) ==
+    findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::LayerHidden) ==
     Model::EntityPropertyValues::LayerHiddenValue) {
     layerNode->setVisibilityState(Model::VisibilityState::Hidden);
   }
@@ -360,13 +364,13 @@ static CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
  */
 static CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo) {
   const std::string& name =
-    findProperty(entityInfo.properties, Model::EntityPropertyKeys::GroupName);
+    findEntityPropertyOrDefault(entityInfo.properties, Model::EntityPropertyKeys::GroupName);
   if (kdl::str_is_blank(name)) {
     return NodeError{entityInfo.startLine, "Skipping group entity: missing name"};
   }
 
   const std::string& idStr =
-    findProperty(entityInfo.properties, Model::EntityPropertyKeys::GroupId);
+    findEntityPropertyOrDefault(entityInfo.properties, Model::EntityPropertyKeys::GroupId);
   if (kdl::str_is_blank(idStr)) {
     return NodeError{entityInfo.startLine, "Skipping group entity: missing id"};
   }
@@ -382,10 +386,10 @@ static CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
   auto nodeIssues = std::vector<NodeIssue>{};
 
   const std::string& linkedGroupId =
-    findProperty(entityInfo.properties, Model::EntityPropertyKeys::LinkedGroupId);
+    findEntityPropertyOrDefault(entityInfo.properties, Model::EntityPropertyKeys::LinkedGroupId);
   if (!linkedGroupId.empty()) {
-    const std::string& transformationStr =
-      findProperty(entityInfo.properties, Model::EntityPropertyKeys::GroupTransformation);
+    const std::string& transformationStr = findEntityPropertyOrDefault(
+      entityInfo.properties, Model::EntityPropertyKeys::GroupTransformation);
     if (const auto transformation = vm::parse<FloatType, 4u, 4u>(transformationStr)) {
       group.setLinkedGroupId(linkedGroupId);
       group.setTransformation(*transformation);
@@ -446,7 +450,8 @@ static CreateNodeResult createEntityNode(
 static CreateNodeResult createNodeFromEntityInfo(
   const Model::EntityPropertyConfig& entityPropertyConfig, MapReader::EntityInfo entityInfo,
   const Model::MapFormat mapFormat) {
-  const auto& classname = findProperty(entityInfo.properties, Model::EntityPropertyKeys::Classname);
+  const auto& classname =
+    findEntityPropertyOrDefault(entityInfo.properties, Model::EntityPropertyKeys::Classname);
   if (isWorldspawn(classname, entityInfo.properties)) {
     return createWorldNode(std::move(entityInfo), entityPropertyConfig, mapFormat);
   } else if (isLayer(classname, entityInfo.properties)) {
