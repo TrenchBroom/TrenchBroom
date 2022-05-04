@@ -83,7 +83,6 @@ public:
   static vm::mat4x4 getRotation(const Entity& entity);
   static void applyRotation(
     Entity& entity, const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation);
-  static std::string getPropertyKey(const Entity& entity);
 };
 } // namespace Model
 } // namespace TrenchBroom
