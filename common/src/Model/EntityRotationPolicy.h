@@ -71,18 +71,15 @@ EntityRotationInfo entityRotationInfo(const Entity& entity);
 vm::mat4x4 entityRotation(
   const std::vector<EntityProperty>& properties, const EntityRotationInfo& info);
 
+vm::mat4x4 entityRotation(const Entity& entity);
+
 vm::vec3 entityYawPitchRoll(const vm::mat4x4& transformation, const vm::mat4x4& rotation);
 
 std::optional<EntityProperty> applyEntityRotation(
   const std::vector<EntityProperty>& properties, const EntityRotationInfo& info,
   const vm::mat4x4& transformation);
+void applyEntityRotation(
+  Entity& entity, const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation);
 
-class EntityRotationPolicy {
-private:
-public:
-  static vm::mat4x4 getRotation(const Entity& entity);
-  static void applyRotation(
-    Entity& entity, const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation);
-};
 } // namespace Model
 } // namespace TrenchBroom

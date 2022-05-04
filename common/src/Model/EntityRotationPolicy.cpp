@@ -243,6 +243,10 @@ vm::mat4x4 entityRotation(
   }
 }
 
+vm::mat4x4 entityRotation(const Entity& entity) {
+  return entityRotation(entity.properties(), entityRotationInfo(entity));
+}
+
 vm::vec3 entityYawPitchRoll(const vm::mat4x4& transformation, const vm::mat4x4& rotation) {
   const auto M = vm::strip_translation(transformation) * vm::strip_translation(rotation);
 
@@ -327,12 +331,7 @@ std::optional<EntityProperty> applyEntityRotation(
   }
 }
 
-vm::mat4x4 EntityRotationPolicy::getRotation(const Entity& entity) {
-  const EntityRotationInfo info = entityRotationInfo(entity);
-  return entityRotation(entity.properties(), info);
-}
-
-void EntityRotationPolicy::applyRotation(
+void applyEntityRotation(
   Entity& entity, const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation) {
   const auto info = entityRotationInfo(entity);
 

@@ -160,7 +160,7 @@ void Entity::unsetEntityDefinitionAndModel() {
 
   m_definition = Assets::AssetReference<Assets::EntityDefinition>{};
   m_model = nullptr;
-  m_cachedProperties.rotation = EntityRotationPolicy::getRotation(*this);
+  m_cachedProperties.rotation = entityRotation(*this);
   m_cachedProperties.modelTransformation = vm::mat4x4::identity();
 }
 
@@ -320,7 +320,7 @@ void Entity::transform(
 }
 
 void Entity::applyRotation(const EntityPropertyConfig& propertyConfig, const vm::mat4x4& rotation) {
-  EntityRotationPolicy::applyRotation(*this, propertyConfig, rotation);
+  applyEntityRotation(*this, propertyConfig, rotation);
 }
 
 void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig) {
@@ -333,7 +333,7 @@ void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig) 
   m_cachedProperties.origin = originValue
                                 ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero())
                                 : vm::vec3::zero();
-  m_cachedProperties.rotation = EntityRotationPolicy::getRotation(*this);
+  m_cachedProperties.rotation = entityRotation(*this);
 
   if (
     const auto* pointDefinition =
