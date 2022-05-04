@@ -117,39 +117,5 @@ bool isWorldspawn(const std::string& classname, const std::vector<EntityProperty
 const std::string& findProperty(
   const std::vector<EntityProperty>& properties, const std::string& key,
   const std::string& defaultValue = EntityPropertyValues::DefaultValue);
-
-class EntityProperties {
-private:
-  std::vector<EntityProperty> m_properties;
-
-public:
-  EntityProperties();
-  explicit EntityProperties(std::vector<EntityProperty> properties);
-
-  std::vector<EntityProperty> releaseProperties();
-  const std::vector<EntityProperty>& properties() const;
-  void setProperties(const std::vector<EntityProperty>& properties);
-
-  const EntityProperty& addOrUpdateProperty(const std::string& key, const std::string& value);
-  void renameProperty(const std::string& key, const std::string& newKey);
-  void removeProperty(const std::string& key);
-
-  bool hasProperty(const std::string& key) const;
-  bool hasProperty(const std::string& key, const std::string& value) const;
-  bool hasPropertyWithPrefix(const std::string& prefix, const std::string& value) const;
-  bool hasNumberedProperty(const std::string& prefix, const std::string& value) const;
-
-public:
-  std::vector<std::string> keys() const;
-  const std::string* properties(const std::string& key) const;
-
-  std::vector<EntityProperty> propertiesWithKey(const std::string& key) const;
-  std::vector<EntityProperty> propertiesWithPrefix(const std::string& prefix) const;
-  std::vector<EntityProperty> numberedProperties(const std::string& prefix) const;
-
-private:
-  std::vector<EntityProperty>::const_iterator findProperty(const std::string& key) const;
-  std::vector<EntityProperty>::iterator findProperty(const std::string& key);
-};
 } // namespace Model
 } // namespace TrenchBroom
