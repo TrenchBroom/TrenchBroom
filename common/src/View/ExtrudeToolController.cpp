@@ -112,7 +112,46 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
   ExtrudeDragDelegate(ExtrudeTool& tool, ExtrudeDragState extrudeDragState)
     : m_tool{tool}
     , m_extrudeDragState{std::move(extrudeDragState)} {}
-  auto makePicker(const InputState& inputState, const vm::vec3& handleOffset) {
+
+  vm::vec3 getAverageFaceNormal() {
+    auto result = vm::vec3{};
+    for (const auto& dragHandle : m_extrudeDragState.initialDragHandles) {
+      result = result + dragHandle.faceNormal();
+    }
+    return result / static_cast<FloatType>(m_extrudeDragState.initialDragHandles.size());
+  }
+
+  /**
+   * In 3D views or 2D views, we use a picking plane when the user picks a face by clicking outside
+   * of the brush. With this, we can make the drag feel as if the user is dragging the closest brush
+   * edge around because any movement that is orthogonal to the face normal is ignored.
+   *
+   * After picking a point on the plane, we project that point onto the face normal to make it
+   * canonical. In the end, we are only interested in picking a point on a line through the initial
+   * handle position. This allows us to ignore all drags that are snapped onto the same distance by
+   * the snapper.
+   *
+   * Why can't we just use this line for picking right away without picking a plane first? This
+   * would change the feeling of the drag significantly, particularly in 3D. It's difficult to put
+   * into words, but the user would no longer feel as if they are dragging the closest brush edge.
+   */
+  DragHandlePicker makeCanonicalHandlePicker(
+    const vm::plane3& plane, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) {
+    return [planeHandlePicker = makePlaneHandlePicker(plane, handleOffset),
+            faceNormal = m_extrudeDragState.initialDragHandles.front().faceNormal(),
+            initialHandlePosition](const InputState& inputState_) -> std::optional<vm::vec3> {
+      if (const auto pointOnPlane = planeHandlePicker(inputState_)) {
+        const auto moveDelta = *pointOnPlane - initialHandlePosition;
+        const auto canonicalMoveDistance = vm::dot(moveDelta, faceNormal);
+        return initialHandlePosition + canonicalMoveDistance * faceNormal;
+      }
+      return std::nullopt;
+    };
+  }
+
+  auto makePicker(
+    const InputState& inputState, const vm::vec3& initialHandlePosition,
+    const vm::vec3& handleOffset) {
     using namespace Model::HitFilters;
 
     const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
@@ -125,14 +164,15 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
           return makeLineHandlePicker(line, handleOffset);
         },
         [&](const vm::plane3& plane) {
-          return makePlaneHandlePicker(plane, handleOffset);
+          return makeCanonicalHandlePicker(plane, initialHandlePosition, handleOffset);
         }),
       hitData.dragReference);
   }
 
   HandlePositionProposer start(
-    const InputState& inputState, const vm::vec3&, const vm::vec3& handleOffset) override {
-    auto picker = makePicker(inputState, handleOffset);
+    const InputState& inputState, const vm::vec3& initialHandlePosition,
+    const vm::vec3& handleOffset) override {
+    auto picker = makePicker(inputState, initialHandlePosition, handleOffset);
     auto snapper =
       [&](const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
         auto& grid = m_tool.grid();
@@ -140,14 +180,25 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
           return proposedHandlePosition;
         }
 
-        if (m_extrudeDragState.currentDragFaces.empty()) {
-          return proposedHandlePosition;
+        const auto moveDelta = proposedHandlePosition - dragState.initialHandlePosition;
+        const auto moveDirection = vm::normalize(moveDelta);
+        const auto moveDistance = vm::dot(moveDelta, moveDirection);
+
+        auto snappedMoveDistance = std::numeric_limits<FloatType>::max();
+        for (const auto& dragHandle : m_extrudeDragState.initialDragHandles) {
+          const auto moveDistanceOnFaceNormal = vm::dot(moveDelta, dragHandle.faceNormal());
+          const auto snappedMoveDistanceOnFaceNormal =
+            grid.snapMoveDistanceForFace(dragHandle.faceAtDragStart(), moveDistanceOnFaceNormal);
+          const auto snappedMoveDistanceForFace =
+            snappedMoveDistanceOnFaceNormal / vm::dot(moveDirection, dragHandle.faceNormal());
+          if (
+            vm::abs(snappedMoveDistanceForFace - moveDistance) <
+            vm::abs(snappedMoveDistance - moveDistance)) {
+            snappedMoveDistance = snappedMoveDistanceForFace;
+          }
         }
 
-        const auto moveDelta = proposedHandlePosition - dragState.currentHandlePosition;
-        const auto& face = m_extrudeDragState.currentDragFaces.front().face();
-        const auto snappedMoveDelta = grid.snapMoveDeltaForFace(face, moveDelta);
-        return dragState.currentHandlePosition + snappedMoveDelta;
+        return dragState.initialHandlePosition + snappedMoveDistance * moveDirection;
       };
 
     return makeHandlePositionProposer(std::move(picker), std::move(snapper));
@@ -184,14 +235,13 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate {
 
 auto createExtrudeDragTracker(
   ExtrudeTool& tool, const InputState& inputState, const Model::Hit& hit, const bool split) {
-  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition();
-  const auto handleOffset = initialHandlePosition - hit.hitPoint();
+  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
 
   return createHandleDragTracker(
     ExtrudeDragDelegate{
       tool,
       {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles()), split}},
-    inputState, initialHandlePosition, handleOffset);
+    inputState, initialHandlePosition, hit.hitPoint());
 }
 
 struct MoveDragDelegate : public HandleDragTrackerDelegate {
@@ -253,13 +303,12 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate {
 };
 
 auto createMoveDragTracker(ExtrudeTool& tool, const InputState& inputState, const Model::Hit& hit) {
-  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition();
-  const auto handleOffset = initialHandlePosition - hit.hitPoint();
+  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
 
   return createHandleDragTracker(
     MoveDragDelegate{
       tool, {tool.proposedDragHandles(), ExtrudeTool::getDragFaces(tool.proposedDragHandles())}},
-    inputState, initialHandlePosition, handleOffset);
+    inputState, initialHandlePosition, hit.hitPoint());
 }
 } // namespace
 

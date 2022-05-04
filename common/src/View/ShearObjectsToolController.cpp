@@ -168,15 +168,13 @@ public:
 };
 } // namespace
 
-static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndOffset(
+static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
   const vm::bbox3& bounds, const Model::Hit& hit) {
   assert(hit.isMatch());
   assert(hit.hasType(ShearObjectsTool::ShearToolSideHitType));
 
   const BBoxSide side = hit.target<BBoxSide>();
-  const auto handlePosition = centerForBBoxSide(bounds, side);
-  const auto handleOffset = handlePosition - hit.hitPoint();
-  return {handlePosition, handleOffset};
+  return {centerForBBoxSide(bounds, side), hit.hitPoint()};
 }
 
 std::unique_ptr<DragTracker> ShearObjectsToolController::acceptMouseDrag(
@@ -206,10 +204,9 @@ std::unique_ptr<DragTracker> ShearObjectsToolController::acceptMouseDrag(
   m_tool.startShearWithHit(hit);
   m_tool.setConstrainVertical(vertical);
 
-  const auto [handlePosition, handleOffset] =
-    getInitialHandlePositionAndOffset(m_tool.bounds(), hit);
+  const auto [handlePosition, hitPoint] = getInitialHandlePositionAndHitPoint(m_tool.bounds(), hit);
   return createHandleDragTracker(
-    ShearObjectsDragDelegate{m_tool}, inputState, handlePosition, handleOffset);
+    ShearObjectsDragDelegate{m_tool}, inputState, handlePosition, hitPoint);
 }
 
 void ShearObjectsToolController::setRenderOptions(

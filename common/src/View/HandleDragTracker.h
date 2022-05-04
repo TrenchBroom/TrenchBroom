@@ -104,12 +104,12 @@ struct HandleDragTrackerDelegate {
    * @param inputState the current input state at the start of the drag
    * @param initialHandlePosition the initial handle position (as passed to the drag tracker's
    * constructor)
-   * @param handleOffset the handle offset (as passed to the drag tracker's constructor)
+   * @param initialHitPoint the hit point (as passed to the drag tracker's constructor)
    * @return a function that maps the input state and drag state to a handle position
    */
   virtual HandlePositionProposer start(
     const InputState& inputState, const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) = 0;
+    const vm::vec3& initialHitPoint) = 0;
 
   /**
    * Called every time when a new proposed handle position is computed by the drag tracker. This
@@ -208,9 +208,9 @@ struct HandleDragTrackerDelegate {
  * The drag tracker also keeps track of a handle offset. This corresponds to the distance between
  * the handle position and the hit point where the pick ray initially intersected the handle's
  * representation on the screen. In case of a point handle, the hit point is a point on the
- * spherical representation of the handle. It holds that handle position = hit point + handle
- * offset. The handle offset is passed to the HandlePositionProposer function that the tracker uses
- * to compute a new handle position from the current input state.
+ * spherical representation of the handle. It holds that handle offset = handle position - hit point
+ * The handle offset is passed to the HandlePositionProposer function that the tracker uses to
+ * compute a new handle position from the current input state.
  *
  * The current handle position updates in response to calls to drag() or a modifier key change.
  *
@@ -233,8 +233,8 @@ private:
     "Delegate must extend HandleDragTrackerDelegate");
   Delegate m_delegate;
 
-  HandlePositionProposer m_proposeHandlePosition;
   DragState m_dragState;
+  HandlePositionProposer m_proposeHandlePosition;
 
 public:
   /**
@@ -242,10 +242,11 @@ public:
    */
   HandleDragTracker(
     Delegate delegate, const InputState& inputState, const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset)
+    const vm::vec3& initialHitPoint)
     : m_delegate{std::move(delegate)}
-    , m_proposeHandlePosition{m_delegate.start(inputState, initialHandlePosition, handleOffset)}
-    , m_dragState{initialHandlePosition, initialHandlePosition, handleOffset} {}
+    , m_dragState{initialHandlePosition, initialHandlePosition, initialHandlePosition - initialHitPoint}
+    , m_proposeHandlePosition{m_delegate.start(
+        inputState, m_dragState.initialHandlePosition, m_dragState.handleOffset)} {}
 
   /**
    * Returns the current drag state. Exposed for testing.
@@ -354,14 +355,14 @@ private:
  * @param delegate the delegate to use
  * @param inputState the current input state
  * @param initialHandlePosition the initial handle position
- * @param handleOffset the handle offset
+ * @param initialHitPoint the initial hit point
  */
 template <typename Delegate>
 std::unique_ptr<HandleDragTracker<Delegate>> createHandleDragTracker(
   Delegate delegate, const InputState& inputState, const vm::vec3& initialHandlePosition,
-  const vm::vec3& handleOffset) {
+  const vm::vec3& initialHitPoint) {
   return std::make_unique<HandleDragTracker<Delegate>>(
-    std::move(delegate), inputState, initialHandlePosition, handleOffset);
+    std::move(delegate), inputState, initialHandlePosition, initialHitPoint);
 }
 
 /**

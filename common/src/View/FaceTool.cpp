@@ -47,15 +47,14 @@ const FaceHandleManager& FaceTool::handleManager() const {
   return *m_faceHandles;
 }
 
-std::tuple<vm::vec3, vm::vec3> FaceTool::handlePositionAndOffset(
+std::tuple<vm::vec3, vm::vec3> FaceTool::handlePositionAndHitPoint(
   const std::vector<Model::Hit>& hits) const {
   assert(!hits.empty());
 
   const auto& hit = hits.front();
   assert(hit.hasType(FaceHandleManager::HandleHitType));
 
-  const auto position = hit.target<vm::polygon3>().center();
-  return {position, hit.hitPoint() - position};
+  return {hit.target<vm::polygon3>().center(), hit.hitPoint()};
 }
 
 FaceTool::MoveResult FaceTool::move(const vm::vec3& delta) {

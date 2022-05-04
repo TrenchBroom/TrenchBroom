@@ -84,7 +84,7 @@ public:
   const VertexHandleManager& handleManager() const override;
 
 public: // Vertex moving
-  std::tuple<vm::vec3, vm::vec3> handlePositionAndOffset(
+  std::tuple<vm::vec3, vm::vec3> handlePositionAndHitPoint(
     const std::vector<Model::Hit>& hits) const override;
 
   bool startMove(const std::vector<Model::Hit>& hits) override;
