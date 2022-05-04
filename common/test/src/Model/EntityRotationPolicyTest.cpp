@@ -39,18 +39,18 @@
 
 namespace TrenchBroom {
 namespace Model {
-TEST_CASE("EntityRotationPolicy.getYawPitchRoll") {
+TEST_CASE("EntityRotationPolicy.entityYawPitchRoll") {
   const auto roll = vm::to_radians(12.0);
   const auto pitch = vm::to_radians(13.0);
   const auto yaw = vm::to_radians(14.0);
 
   const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
-  const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(vm::mat4x4::identity(), rotMat);
+  const auto yawPitchRoll = entityYawPitchRoll(vm::mat4x4::identity(), rotMat);
 
   CHECK(yawPitchRoll == vm::approx(vm::vec3(14, 13, 12)));
 }
 
-TEST_CASE("EntityRotationPolicy.getYawPitchRoll_uniformScale") {
+TEST_CASE("EntityRotationPolicy.entityYawPitchRoll_uniformScale") {
   const auto roll = vm::to_radians(12.0);
   const auto pitch = vm::to_radians(13.0);
   const auto yaw = vm::to_radians(14.0);
@@ -58,11 +58,11 @@ TEST_CASE("EntityRotationPolicy.getYawPitchRoll_uniformScale") {
   const auto scaleMat = vm::scaling_matrix(vm::vec3(2.0, 2.0, 2.0));
   const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
-  const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
+  const auto yawPitchRoll = entityYawPitchRoll(scaleMat, rotMat);
   CHECK(yawPitchRoll == vm::approx(vm::vec3(14, 13, 12)));
 }
 
-TEST_CASE("EntityRotationPolicy.getYawPitchRoll_nonUniformScale") {
+TEST_CASE("EntityRotationPolicy.entityYawPitchRoll_nonUniformScale") {
   const auto roll = vm::to_radians(0.0);
   const auto pitch = vm::to_radians(45.0);
   const auto yaw = vm::to_radians(0.0);
@@ -70,13 +70,13 @@ TEST_CASE("EntityRotationPolicy.getYawPitchRoll_nonUniformScale") {
   const auto scaleMat = vm::scaling_matrix(vm::vec3(2.0, 1.0, 1.0));
   const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
-  const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
+  const auto yawPitchRoll = entityYawPitchRoll(scaleMat, rotMat);
   const auto expectedPitch = vm::to_degrees(std::atan(0.5)); // ~= 26.57 degrees
 
   CHECK(yawPitchRoll == vm::approx(vm::vec3(0.0, expectedPitch, 0.0)));
 }
 
-TEST_CASE("EntityRotationPolicy.getYawPitchRoll_flip") {
+TEST_CASE("EntityRotationPolicy.entityYawPitchRoll_flip") {
   const auto roll = vm::to_radians(10.0);
   const auto pitch = vm::to_radians(45.0);
   const auto yaw = vm::to_radians(0.0);
@@ -84,7 +84,7 @@ TEST_CASE("EntityRotationPolicy.getYawPitchRoll_flip") {
   const auto scaleMat = vm::scaling_matrix(vm::vec3(-1.0, 1.0, 1.0));
   const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
 
-  const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
+  const auto yawPitchRoll = entityYawPitchRoll(scaleMat, rotMat);
 
   CHECK(yawPitchRoll == vm::approx(vm::vec3(180, 45, -10)));
 }
