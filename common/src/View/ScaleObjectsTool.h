@@ -87,8 +87,7 @@ public:
   bool operator==(const BBoxEdge& other) const;
 };
 
-enum class AnchorPos
-{
+enum class AnchorPos {
   Opposite,
   Center
 };

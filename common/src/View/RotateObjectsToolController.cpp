@@ -253,7 +253,7 @@ private:
     m_tool.beginRotation();
     return createHandleDragTracker(
       RotateObjectsDragDelegate{m_tool, area, std::move(renderHighlight)}, inputState,
-      initialHandlePosition, vm::vec3::zero());
+      initialHandlePosition, initialHandlePosition);
   }
 
   void render(
@@ -352,12 +352,9 @@ protected:
         doRenderHighlight(inputState_, renderContext, renderBatch, area_);
       };
 
-    const auto initialHandlePosition = m_tool.rotationCenter();
-    const auto handleOffset = initialHandlePosition - hit.hitPoint();
-
     return createMoveHandleDragTracker(
       MoveRotationCenterDragDelegate{m_tool, std::move(renderHighlight)}, inputState,
-      m_tool.rotationCenter(), handleOffset);
+      m_tool.rotationCenter(), hit.hitPoint());
   }
 
   void render(

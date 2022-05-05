@@ -96,7 +96,7 @@ public: // event handling
   void mouseMove(ToolChain* chain, const InputState& inputState);
 
   bool dragging() const;
-  bool startMouseDrag(ToolChain* chain, const InputState& inputState);
+  void startMouseDrag(ToolChain* chain, const InputState& inputState);
   bool mouseDrag(const InputState& inputState);
   void endMouseDrag(const InputState& inputState);
   void cancelMouseDrag();

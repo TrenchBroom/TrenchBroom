@@ -47,6 +47,7 @@
 #include "View/CreateSimpleBrushToolController2D.h"
 #include "View/EdgeTool.h"
 #include "View/EdgeToolController.h"
+#include "View/ExtrudeToolController.h"
 #include "View/FaceTool.h"
 #include "View/FaceToolController.h"
 #include "View/GLContextManager.h"
@@ -54,7 +55,6 @@
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
 #include "View/MoveObjectsToolController.h"
-#include "View/ResizeBrushesToolController.h"
 #include "View/RotateObjectsToolController.h"
 #include "View/ScaleObjectsToolController.h"
 #include "View/SelectionTool.h"
@@ -127,7 +127,7 @@ void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
   addTool(std::make_unique<RotateObjectsToolController2D>(toolBox.rotateObjectsTool()));
   addTool(std::make_unique<ScaleObjectsToolController2D>(toolBox.scaleObjectsTool(), m_document));
   addTool(std::make_unique<ShearObjectsToolController2D>(toolBox.shearObjectsTool(), m_document));
-  addTool(std::make_unique<ResizeBrushesToolController2D>(toolBox.resizeBrushesTool()));
+  addTool(std::make_unique<ExtrudeToolController2D>(toolBox.extrudeTool()));
   addTool(std::make_unique<ClipToolController2D>(toolBox.clipTool()));
   addTool(std::make_unique<VertexToolController>(toolBox.vertexTool()));
   addTool(std::make_unique<EdgeToolController>(toolBox.edgeTool()));

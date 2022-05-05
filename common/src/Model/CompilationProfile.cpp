@@ -23,7 +23,7 @@
 #include "Model/CompilationTask.h"
 
 #include <kdl/deref_iterator.h>
-#include <kdl/string_utils.h>
+#include <kdl/struct_io.h>
 #include <kdl/vector_utils.h>
 
 #include <ostream>
@@ -62,15 +62,7 @@ bool operator==(const CompilationProfile& lhs, const CompilationProfile& rhs) {
   if (lhs.m_workDirSpec != rhs.m_workDirSpec) {
     return false;
   }
-  if (lhs.m_tasks.size() != rhs.m_tasks.size()) {
-    return false;
-  }
-  for (size_t i = 0; i < lhs.m_tasks.size(); ++i) {
-    if (*lhs.m_tasks[i] != *rhs.m_tasks[i]) {
-      return false;
-    }
-  }
-  return true;
+  return kdl::const_deref_range{lhs.m_tasks} == kdl::const_deref_range{rhs.m_tasks};
 }
 
 bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs) {
@@ -78,10 +70,9 @@ bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& str, const CompilationProfile& profile) {
-  str << "CompilationProfile{"
-      << "name: " << profile.m_name << ", "
-      << "workDirSpec: " << profile.m_workDirSpec << ", "
-      << "tasks: [" << kdl::str_join(kdl::const_deref_range{profile.m_tasks}) << "]}";
+  kdl::struct_stream{str} << "CompilationProfile"
+                          << "m_name" << profile.m_name << "m_workDirSpec" << profile.m_workDirSpec
+                          << "m_tasks" << kdl::const_deref_range{profile.m_tasks};
   return str;
 }
 

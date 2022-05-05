@@ -183,8 +183,7 @@ public: // move, rotate, flip actions
   bool canFlipObjects() const;
 
 public: // texture actions
-  enum class TextureActionMode
-  {
+  enum class TextureActionMode {
     Normal,
     Coarse,
     Fine

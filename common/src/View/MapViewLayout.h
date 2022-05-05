@@ -21,8 +21,7 @@
 
 namespace TrenchBroom {
 namespace View {
-enum class MapViewLayout
-{
+enum class MapViewLayout {
   OnePane,
   TwoPanes,
   ThreePanes,

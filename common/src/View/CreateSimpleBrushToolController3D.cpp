@@ -196,7 +196,7 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController3D::acceptMouseDrag(
 
   return createHandleDragTracker(
     CreateSimpleBrushDragDelegate{m_tool, document->worldBounds()}, inputState,
-    initialHandlePosition, vm::vec3::zero());
+    initialHandlePosition, initialHandlePosition);
 }
 
 bool CreateSimpleBrushToolController3D::cancel() {

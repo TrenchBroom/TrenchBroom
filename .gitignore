@@ -3,6 +3,7 @@ Version.h
 Thumbs.db
 *.sublime-workspace
 .vscode
+.cache
 
 /cmake-build-*
 /build*

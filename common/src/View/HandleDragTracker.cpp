@@ -34,26 +34,14 @@
 #include <vecmath/quat.h>
 #include <vecmath/vec_io.h>
 
+#include <kdl/reflection_impl.h>
+
 #include <ostream>
 
 namespace TrenchBroom {
 namespace View {
-bool operator==(const DragState& lhs, const DragState& rhs) {
-  return lhs.initialHandlePosition == rhs.initialHandlePosition &&
-         lhs.currentHandlePosition == rhs.currentHandlePosition &&
-         lhs.handleOffset == rhs.handleOffset;
-}
 
-bool operator!=(const DragState& lhs, const DragState& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const DragState& dragState) {
-  str << "DragState{initialHandlePosition: " << dragState.initialHandlePosition
-      << ", currentHandlePosition: " << dragState.currentHandlePosition
-      << ", handleOffset: " << dragState.handleOffset << "}";
-  return str;
-}
+kdl_reflect_impl(DragState);
 
 std::optional<UpdateDragConfig> HandleDragTrackerDelegate::modifierKeyChange(
   const InputState&, const DragState&) {

@@ -83,6 +83,7 @@ std::vector<Node*> collectSelectableNodes(
   const std::vector<Node*>& nodes, const EditorContext& editorContext);
 
 std::vector<BrushFaceHandle> collectBrushFaces(const std::vector<Node*>& nodes);
+std::vector<BrushFaceHandle> collectSelectedBrushFaces(const std::vector<Node*>& nodes);
 std::vector<BrushFaceHandle> collectSelectableBrushFaces(
   const std::vector<Node*>& nodes, const EditorContext& editorContext);
 

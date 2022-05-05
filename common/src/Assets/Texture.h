@@ -26,6 +26,8 @@
 
 #include <vecmath/forward.h>
 
+#include <kdl/reflection_decl.h>
+
 #include <atomic>
 #include <iosfwd>
 #include <set>
@@ -37,8 +39,7 @@ namespace TrenchBroom {
 namespace Assets {
 class TextureCollection;
 
-enum class TextureType
-{
+enum class TextureType {
   Opaque,
   /**
    * Modifies texture uploading to support mask textures.
@@ -46,8 +47,7 @@ enum class TextureType
   Masked
 };
 
-enum class TextureCulling
-{
+enum class TextureCulling {
   CullDefault,
   CullNone,
   CullFront,
@@ -56,8 +56,7 @@ enum class TextureCulling
 };
 
 struct TextureBlendFunc {
-  enum class Enable
-  {
+  enum class Enable {
     /**
      * Don't change GL_BLEND and don't change the blend function.
      */
@@ -82,10 +81,8 @@ struct Q2Data {
   int contents;
   int value;
 
-  bool operator==(const Q2Data& other) const;
-  bool operator!=(const Q2Data& other) const;
+  kdl_reflect_decl(Q2Data, flags, contents, value);
 };
-std::ostream& operator<<(std::ostream& str, const Q2Data& data);
 
 using GameData = std::variant<std::monostate, Q2Data>;
 

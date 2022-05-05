@@ -58,8 +58,7 @@ public:
   using Type = int;
   static const Type NoType = -1;
 
-  enum class Curve
-  {
+  enum class Curve {
     Flat,
     EaseInEaseOut
   };

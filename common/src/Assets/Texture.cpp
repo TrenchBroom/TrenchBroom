@@ -23,25 +23,16 @@
 #include "Macros.h"
 #include "Renderer/GL.h"
 
+#include <kdl/reflection_impl.h>
+
 #include <algorithm> // for std::max
 #include <cassert>
 #include <ostream>
 
 namespace TrenchBroom {
 namespace Assets {
-bool Q2Data::operator==(const Q2Data& other) const {
-  return flags == other.flags && contents == other.contents && value == other.value;
-}
 
-bool Q2Data::operator!=(const Q2Data& other) const {
-  return !(*this == other);
-}
-
-std::ostream& operator<<(std::ostream& str, const Q2Data& data) {
-  str << "{flags: " << data.flags << ", contents: " << data.contents << ", value: " << data.value
-      << "}";
-  return str;
-}
+kdl_reflect_impl(Q2Data);
 
 Texture::Texture(
   const std::string& name, const size_t width, const size_t height, const Color& averageColor,

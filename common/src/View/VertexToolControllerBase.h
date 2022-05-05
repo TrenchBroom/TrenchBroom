@@ -196,7 +196,7 @@ protected:
         inputState.pickRay(), vm::intersect_ray_plane(inputState.pickRay(), plane));
 
       return createHandleDragTracker(
-        LassoDragDelegate{m_tool}, inputState, initialPoint, vm::vec3::zero());
+        LassoDragDelegate{m_tool}, inputState, initialPoint, initialPoint);
     }
 
     bool cancel() override { return m_tool.deselectAll(); }
@@ -342,10 +342,10 @@ protected:
         return nullptr;
       }
 
-      const auto [initialHandlePosition, handleOffset] = m_tool.handlePositionAndOffset(hits);
+      const auto [initialHandlePosition, hitPoint] = m_tool.handlePositionAndHitPoint(hits);
 
       return createMoveHandleDragTracker(
-        MoveDragDelegate{m_tool}, inputState, initialHandlePosition, handleOffset);
+        MoveDragDelegate{m_tool}, inputState, initialHandlePosition, hitPoint);
     }
 
     bool cancel() override { return m_tool.deselectAll(); }

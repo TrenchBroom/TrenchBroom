@@ -204,138 +204,61 @@ vm::vec3 Grid::moveDeltaForBounds(
   return newMinPos - bounds.min;
 }
 
-vm::vec3 Grid::moveDelta(const vm::bbox3& bounds, const vm::vec3& delta) const {
-  auto actualDelta = vm::vec3::zero();
+FloatType Grid::snapToGridPlane(const vm::line3& line, const FloatType distance) const {
+  auto snappedDistance = std::numeric_limits<FloatType>::max();
+
+  // x is a point on the line and it is located in one grid cube
+  const auto x = vm::point_at_distance(line, distance);
+
+  // find the corner of the grid that is closest to x:
+  const auto c = snap(x);
+
+  // intersect l with every grid plane that meets at that corner
   for (size_t i = 0; i < 3; ++i) {
-    if (!vm::is_zero(delta[i], vm::C::almost_zero())) {
-      const auto low = snap(bounds.min[i] + delta[i]) - bounds.min[i];
-      const auto high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
-
-      if (low != static_cast<FloatType>(0.0) && high != static_cast<FloatType>(0.0)) {
-        actualDelta[i] = std::abs(high) < std::abs(low) ? high : low;
-      } else if (low != static_cast<FloatType>(0.0)) {
-        actualDelta[i] = low;
-      } else if (high != static_cast<FloatType>(0.0)) {
-        actualDelta[i] = high;
-      } else {
-        actualDelta[i] = static_cast<FloatType>(0.0);
-      }
+    const auto p = vm::plane3{c, vm::vec3::axis(i)};
+    const auto y = vm::intersect_line_plane(line, p);
+    if (!vm::is_nan(y) && vm::abs(y - distance) < vm::abs(snappedDistance - distance)) {
+      snappedDistance = y;
     }
   }
 
-  if (vm::squared_length(delta) < vm::squared_length(delta - actualDelta)) {
-    actualDelta = vm::vec3::zero();
-  }
-  return actualDelta;
+  assert(!vm::is_nan(snappedDistance));
+  return snappedDistance;
 }
 
-vm::vec3 Grid::moveDelta(const vm::vec3& point, const vm::vec3& delta) const {
-  auto actualDelta = vm::vec3::zero();
-  for (size_t i = 0; i < 3; ++i) {
-    if (!vm::is_zero(delta[i], vm::C::almost_zero())) {
-      actualDelta[i] = snap(point[i] + delta[i]) - point[i];
-    }
-  }
+FloatType Grid::snapMoveDistanceForFace(
+  const Model::BrushFace& face, const FloatType moveDistance) const {
+  const auto isBoundaryEdge = [&](const Model::BrushEdge* edge) {
+    return edge->firstFace() == face.geometry() || edge->secondFace() == face.geometry();
+  };
 
-  if (vm::squared_length(delta) < vm::squared_length(delta - actualDelta)) {
-    actualDelta = vm::vec3::zero();
-  }
+  const auto& moveDirection = face.normal();
+  auto snappedMoveDistance = std::numeric_limits<FloatType>::max();
 
-  return actualDelta;
-}
-
-vm::vec3 Grid::moveDelta(const vm::vec3& delta) const {
-  auto actualDelta = vm::vec3::zero();
-  for (unsigned int i = 0; i < 3; i++) {
-    if (!vm::is_zero(delta[i], vm::C::almost_zero())) {
-      actualDelta[i] = snap(delta[i]);
-    }
-  }
-
-  if (vm::squared_length(delta) < vm::squared_length(delta - actualDelta)) {
-    actualDelta = vm::vec3::zero();
-  }
-
-  return actualDelta;
-}
-
-vm::vec3 Grid::moveDelta(const Model::BrushFace& face, const vm::vec3& delta) const {
-  const auto dist = dot(delta, face.boundary().normal);
-  if (vm::is_zero(dist, vm::C::almost_zero())) {
-    return vm::vec3::zero();
-  }
-
-  // the edge rays indicate the direction into which each vertex of the given face moves if the face
-  // is dragged
-  std::vector<vm::ray3> edgeRays;
-
-  for (const Model::BrushVertex* vertex : face.vertices()) {
-    const Model::BrushHalfEdge* firstEdge = vertex->leaving();
-    const Model::BrushHalfEdge* curEdge = firstEdge;
+  for (const auto* vertex : face.vertices()) {
+    const auto* currentHalfEdge = vertex->leaving();
     do {
-      vm::ray3 ray(vertex->position(), vm::normalize(curEdge->vector()));
+      if (!isBoundaryEdge(currentHalfEdge->edge())) {
+        // compute how far the vertex has to move along its edge vector to hit a grid plane
+        const auto edgeDirection = vm::normalize(currentHalfEdge->vector());
+        const auto distanceOnEdge = moveDistance / vm::dot(edgeDirection, moveDirection);
+        const auto line = vm::line3{currentHalfEdge->origin()->position(), edgeDirection};
+        const auto snappedDistanceOnEdge = snapToGridPlane(line, distanceOnEdge);
 
-      // depending on the direction of the drag vector, the rays must be inverted to reflect the
-      // actual movement of the vertices
-      if (dot(delta, ray.direction) < 0.0) {
-        ray.direction = -ray.direction;
+        // convert this to a movement along moveDirection and minimize the difference
+        const auto snappedMoveDistanceForEdge =
+          snappedDistanceOnEdge * vm::dot(edgeDirection, moveDirection);
+        if (
+          vm::abs(snappedMoveDistanceForEdge - moveDistance) <
+          vm::abs(snappedMoveDistance - moveDistance)) {
+          snappedMoveDistance = snappedMoveDistanceForEdge;
+        }
       }
-
-      edgeRays.push_back(ray);
-
-      curEdge = curEdge->twin()->next();
-    } while (curEdge != firstEdge);
+      currentHalfEdge = currentHalfEdge->nextIncident();
+    } while (currentHalfEdge != vertex->leaving());
   }
 
-  auto normDelta = face.boundary().normal * dist;
-  /**
-   * Scalar projection of normDelta onto the nearest axial normal vector.
-   */
-  const auto normDeltaScalarProj = dot(normDelta, vm::get_abs_max_component_axis(normDelta));
-
-  auto gridSkip = static_cast<size_t>(normDeltaScalarProj / actualSize());
-  if (gridSkip > 0) {
-    --gridSkip;
-  }
-  auto actualDist = std::numeric_limits<FloatType>::max();
-  auto minDistDelta = std::numeric_limits<FloatType>::max();
-
-  do {
-    // Find the smallest drag distance at which the face boundary is actually moved
-    // by intersecting the edge rays with the grid planes.
-    // The distance of the ray origin to the closest grid plane is then multiplied by the ray
-    // direction to yield the vector by which the vertex would be moved if the face was dragged
-    // and the drag would snap the vertex onto the previously selected grid plane.
-    // This vector is then projected onto the face normal to yield the distance by which the face
-    // must be dragged so that the vertex snaps to its closest grid plane.
-    // Then, test if the resulting drag distance is smaller than the current candidate.
-
-    for (size_t i = 0; i < edgeRays.size(); ++i) {
-      const auto& ray = edgeRays[i];
-      const auto vertexDist = intersectWithRay(ray, gridSkip);
-      const auto vertexDelta = ray.direction * vertexDist;
-      const auto vertexNormDist = dot(vertexDelta, face.boundary().normal);
-
-      const auto normDistDelta = vm::abs(vertexNormDist - dist);
-      if (normDistDelta < minDistDelta) {
-        actualDist = vertexNormDist;
-        minDistDelta = normDistDelta;
-      }
-    }
-    ++gridSkip;
-  } while (actualDist == std::numeric_limits<FloatType>::max());
-
-  normDelta = face.boundary().normal * actualDist;
-  const auto deltaNormalized = normalize(delta);
-  return deltaNormalized * dot(normDelta, deltaNormalized);
-}
-
-vm::vec3 Grid::combineDeltas(const vm::vec3& delta1, const vm::vec3& delta2) const {
-  if (vm::squared_length(delta1) < vm::squared_length(delta2)) {
-    return delta1;
-  } else {
-    return delta2;
-  }
+  return snappedMoveDistance;
 }
 
 vm::vec3 Grid::referencePoint(const vm::bbox3& bounds) const {

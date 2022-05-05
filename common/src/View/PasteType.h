@@ -21,8 +21,7 @@
 
 namespace TrenchBroom {
 namespace View {
-enum class PasteType
-{
+enum class PasteType {
   Node,
   BrushFace,
   Failed

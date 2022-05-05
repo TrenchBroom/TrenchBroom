@@ -21,7 +21,8 @@
 
 #include "EL/Expression.h"
 
-#include <iosfwd>
+#include <kdl/reflection_decl.h>
+
 #include <optional>
 #include <string>
 #include <vector>
@@ -78,12 +79,9 @@ extern const std::string LayerOmitFromExportValue;
 
 struct EntityPropertyConfig {
   std::optional<EL::Expression> defaultModelScaleExpression;
+
+  kdl_reflect_decl(EntityPropertyConfig, defaultModelScaleExpression);
 };
-
-bool operator==(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs);
-bool operator!=(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs);
-
-std::ostream& operator<<(std::ostream& lhs, const EntityPropertyConfig& rhs);
 
 bool isNumberedProperty(std::string_view prefix, std::string_view key);
 
@@ -96,7 +94,7 @@ public:
   EntityProperty();
   EntityProperty(const std::string& key, const std::string& value);
 
-  int compare(const EntityProperty& rhs) const;
+  kdl_reflect_decl(EntityProperty, m_key, m_value);
 
   const std::string& key() const;
   const std::string& value() const;
@@ -112,14 +110,6 @@ public:
   void setKey(const std::string& key);
   void setValue(const std::string& value);
 };
-
-bool operator<(const EntityProperty& lhs, const EntityProperty& rhs);
-bool operator<=(const EntityProperty& lhs, const EntityProperty& rhs);
-bool operator>(const EntityProperty& lhs, const EntityProperty& rhs);
-bool operator>=(const EntityProperty& lhs, const EntityProperty& rhs);
-bool operator==(const EntityProperty& lhs, const EntityProperty& rhs);
-bool operator!=(const EntityProperty& lhs, const EntityProperty& rhs);
-std::ostream& operator<<(std::ostream& str, const EntityProperty& prop);
 
 bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties);
 bool isGroup(const std::string& classname, const std::vector<EntityProperty>& properties);

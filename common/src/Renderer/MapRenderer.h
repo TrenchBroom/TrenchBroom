@@ -68,8 +68,7 @@ private:
   std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
   std::unique_ptr<GroupLinkRenderer> m_groupLinkRenderer;
 
-  typedef enum
-  {
+  typedef enum {
     Renderer_Default = 1,
     Renderer_Selection = 2,
     Renderer_Locked = 4,

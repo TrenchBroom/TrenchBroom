@@ -20,94 +20,80 @@
 #include "CrashDialog.h"
 
 #include "IO/PathQt.h"
+#include "View/DialogHeader.h"
+#include "View/FormWithSectionsLayout.h"
 #include "View/GetVersion.h"
 #include "View/QtUtils.h"
 
 #include <QDesktopServices>
 #include <QDialogButtonBox>
-#include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QUrl>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom::View {
 CrashDialog::CrashDialog(
-  const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath)
-  : QDialog() {
-  createGui(reportPath, mapPath, logPath);
+  const std::string& reason, const IO::Path& reportPath, const IO::Path& mapPath,
+  const IO::Path& logPath)
+  : QDialog{} {
+  createGui(reason, reportPath, mapPath, logPath);
 }
 
 void CrashDialog::createGui(
-  const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath) {
+  const std::string& reason, const IO::Path& reportPath, const IO::Path& mapPath,
+  const IO::Path& logPath) {
   setWindowTitle(tr("Crash"));
 
-  auto* header = new QLabel(tr("Crash Report"));
-  makeHeader(header);
+  auto* header = new DialogHeader{"Crash Report"};
 
   auto* text1 =
-    new QLabel(tr("TrenchBroom has crashed, but was able to save a crash report,\n"
+    new QLabel{tr("TrenchBroom has crashed, but was able to save a crash report,"
                   "a log file and the current state of the map to the following locations.\n\n"
-                  "Please create an issue report and upload all three files."));
+                  "Please create an issue report and upload all three files.")};
+  text1->setWordWrap(true);
 
-  auto* reportLabel = new QLabel(tr("Report"));
-  makeEmphasized(reportLabel);
-  auto* reportPathText = new QLabel(IO::pathAsQString(reportPath));
+  auto* reasonText = new QLabel{QString::fromStdString(reason)};
+  auto* reportPathText = new QLabel{IO::pathAsQString(reportPath)};
+  auto* mapPathText = new QLabel{IO::pathAsQString(mapPath)};
+  auto* logPathText = new QLabel{IO::pathAsQString(logPath)};
+  auto* versionText = new QLabel{getBuildVersion()};
+  auto* buildText = new QLabel{getBuildIdStr()};
 
-  auto* mapLabel = new QLabel(tr("Map"));
-  makeEmphasized(mapLabel);
-  auto* mapPathText = new QLabel(IO::pathAsQString(mapPath));
+  auto* reportLayout = new FormWithSectionsLayout{};
+  reportLayout->setContentsMargins(
+    0, LayoutConstants::MediumVMargin, 0, LayoutConstants::MediumVMargin);
+  reportLayout->setVerticalSpacing(2);
 
-  auto* logLabel = new QLabel(tr("Log"));
-  makeEmphasized(logLabel);
-  auto* logPathText = new QLabel(IO::pathAsQString(logPath));
+  reportLayout->addRow(text1);
 
-  auto* versionLabel = new QLabel(tr("Version"));
-  makeEmphasized(versionLabel);
-  auto* versionText = new QLabel(getBuildVersion());
+  reportLayout->addSection("Info");
+  reportLayout->addRow("Reason", reasonText);
+  reportLayout->addRow("Version", versionText);
+  reportLayout->addRow("Build", buildText);
 
-  auto* buildLabel = new QLabel(tr("Build"));
-  makeEmphasized(buildLabel);
-  auto* buildText = new QLabel(getBuildIdStr());
+  reportLayout->addSection("Files");
+  reportLayout->addRow("Crash Report", reportPathText);
+  reportLayout->addRow("Map File", mapPathText);
+  reportLayout->addRow("Log File", logPathText);
 
-  auto* reportPanelSizer = new QGridLayout();
-  reportPanelSizer->addWidget(text1, 0, 0, 1, 2);
-  reportPanelSizer->setRowMinimumHeight(1, 20);
-  reportPanelSizer->addWidget(reportLabel, 2, 0, 1, 1, Qt::AlignVCenter);
-  reportPanelSizer->addWidget(reportPathText, 2, 1, 1, 1, Qt::AlignVCenter);
-  reportPanelSizer->addWidget(mapLabel, 3, 0, 1, 1, Qt::AlignVCenter);
-  reportPanelSizer->addWidget(mapPathText, 3, 1, 1, 1, Qt::AlignVCenter);
-  reportPanelSizer->addWidget(logLabel, 4, 0, 1, 1, Qt::AlignVCenter);
-  reportPanelSizer->addWidget(logPathText, 4, 1, 1, 1, Qt::AlignVCenter);
-  reportPanelSizer->setRowMinimumHeight(5, 20);
-  reportPanelSizer->addWidget(versionLabel, 6, 0, 1, 1, Qt::AlignVCenter);
-  reportPanelSizer->addWidget(versionText, 6, 1, 1, 1, Qt::AlignVCenter);
-  reportPanelSizer->addWidget(buildLabel, 7, 0, 1, 1, Qt::AlignVCenter);
-  reportPanelSizer->addWidget(buildText, 7, 1, 1, 1, Qt::AlignVCenter);
-
-  auto* reportPanel = new QWidget();
-  setBaseWindowColor(reportPanel);
-  reportPanel->setLayout(reportPanelSizer);
-
-  auto* buttonBox = new QDialogButtonBox();
+  auto* buttonBox = new QDialogButtonBox{};
   buttonBox->addButton(QDialogButtonBox::Close);
   auto* reportButton = buttonBox->addButton(tr("Report"), QDialogButtonBox::AcceptRole);
 
   connect(reportButton, &QAbstractButton::clicked, this, []() {
-    QDesktopServices::openUrl(QUrl("https://github.com/TrenchBroom/TrenchBroom/issues/new"));
+    QDesktopServices::openUrl(QUrl{"https://github.com/TrenchBroom/TrenchBroom/issues/new"});
   });
   connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-  auto* outerSizer = new QVBoxLayout();
-  outerSizer->setSizeConstraint(QLayout::SetFixedSize);
-  outerSizer->setContentsMargins(0, 0, 0, 0);
-  outerSizer->addWidget(header);
-  outerSizer->addWidget(reportPanel, 1);
-  outerSizer->addWidget(buttonBox);
+  auto* outerLayout = new QVBoxLayout{};
+  outerLayout->setSizeConstraint(QLayout::SetFixedSize);
+  outerLayout->setContentsMargins(0, 0, 0, 0);
+  outerLayout->addWidget(header);
+  outerLayout->addLayout(reportLayout, 1);
+  outerLayout->addLayout(wrapDialogButtonBox(buttonBox));
 
-  setLayout(outerSizer);
+  setLayout(outerLayout);
 
   // TODO: needs spacing tweaks
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

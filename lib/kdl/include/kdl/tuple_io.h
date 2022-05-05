@@ -22,6 +22,8 @@
 #include <iostream>
 #include <tuple>
 
+namespace kdl {
+
 namespace detail {
 template <typename T, size_t Idx> void print_tuple_element(std::ostream& str, const T& t) {
   str << std::get<Idx>(t) << ", ";
@@ -33,13 +35,22 @@ void print_tuple(std::ostream& str, const T& t, std::index_sequence<Idx...>) {
 }
 } // namespace detail
 
-template <typename... T> std::ostream& operator<<(std::ostream& str, const std::tuple<T...>& t) {
-  str << "{ ";
+template <typename... T> struct streamable_tuple_wrapper { const std::tuple<T...>& tuple; };
+
+template <typename... T>
+streamable_tuple_wrapper<T...> make_streamable(const std::tuple<T...>& tuple) {
+  return streamable_tuple_wrapper<T...>{tuple};
+}
+
+template <typename... T>
+std::ostream& operator<<(std::ostream& lhs, const streamable_tuple_wrapper<T...>& rhs) {
+  lhs << "{";
   constexpr auto size = std::tuple_size_v<std::tuple<T...>>;
   if constexpr (size > 0u) {
-    detail::print_tuple(str, t, std::make_index_sequence<size - 1u>{});
-    str << std::get<size - 1u>(t);
+    kdl::detail::print_tuple(lhs, rhs.tuple, std::make_index_sequence<size - 1u>{});
+    lhs << std::get<size - 1u>(rhs.tuple);
   }
-  str << " }";
-  return str;
+  lhs << "}";
+  return lhs;
 }
+} // namespace kdl

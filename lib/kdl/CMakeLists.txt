@@ -10,7 +10,6 @@ endif()
 set(KDL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(kdl INTERFACE)
-target_compile_features(kdl INTERFACE cxx_std_17)
 target_include_directories(kdl INTERFACE
         $<BUILD_INTERFACE:${KDL_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:kdl/include/kdl>)
@@ -38,9 +37,12 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/map_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/memory_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/meta_utils.h"
-    "${KDL_INCLUDE_DIR}/kdl/opt_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/optional_io.h"
     "${KDL_INCLUDE_DIR}/kdl/overload.h"
     "${KDL_INCLUDE_DIR}/kdl/parallel.h"
+    "${KDL_INCLUDE_DIR}/kdl/range_io.h"
+    "${KDL_INCLUDE_DIR}/kdl/reflection_decl.h"
+    "${KDL_INCLUDE_DIR}/kdl/reflection_impl.h"
     "${KDL_INCLUDE_DIR}/kdl/set_adapter.h"
     "${KDL_INCLUDE_DIR}/kdl/set_temp.h"
     "${KDL_INCLUDE_DIR}/kdl/skip_iterator.h"
@@ -48,16 +50,18 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/string_compare.h"
     "${KDL_INCLUDE_DIR}/kdl/string_format.h"
     "${KDL_INCLUDE_DIR}/kdl/string_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/struct_io.h"
+    "${KDL_INCLUDE_DIR}/kdl/traits.h"
     "${KDL_INCLUDE_DIR}/kdl/transform_range.h"
     "${KDL_INCLUDE_DIR}/kdl/tuple_io.h"
     "${KDL_INCLUDE_DIR}/kdl/tuple_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/variant_io.h"
     "${KDL_INCLUDE_DIR}/kdl/vector_set_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/vector_set.h"
     "${KDL_INCLUDE_DIR}/kdl/vector_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/zip_iterator.h"
 )
 
-target_compile_features(kdl INTERFACE cxx_std_17)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-exit-time-destructors)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

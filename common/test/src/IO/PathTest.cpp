@@ -114,6 +114,14 @@ TEST_CASE("PathTest.getExtension", "[PathTest]") {
   CHECK(Path("c:\\").extension() == std::string(""));
 }
 
+TEST_CASE("PathTest.deleteExtension", "[PathTest]") {
+  CHECK(Path{}.deleteExtension() == Path{});
+  CHECK(Path{"asdf"}.deleteExtension() == Path{"asdf"});
+  CHECK(Path{"asdf.jpeg"}.deleteExtension() == Path{"asdf"});
+  CHECK(Path{"c:\\asdf.jpeg"}.deleteExtension() == Path{"c:\\asdf"});
+  CHECK(Path{"x\\asdf.jpeg"}.deleteExtension() == Path{"x\\asdf"});
+}
+
 TEST_CASE("PathTest.addExtension", "[PathTest]") {
   const auto test = Path("c:\\").addExtension("map").asString();
   const auto test2 = test;
@@ -271,6 +279,14 @@ TEST_CASE("PathTest.getExtension", "[PathTest]") {
   CHECK(Path("/this/is/a/path.map").extension() == std::string("map"));
   CHECK(Path("/this/is/a/path.map.textfile").extension() == std::string("textfile"));
   CHECK(Path("/").extension() == std::string(""));
+}
+
+TEST_CASE("PathTest.deleteExtension", "[PathTest]") {
+  CHECK(Path{}.deleteExtension() == Path{});
+  CHECK(Path{"asdf"}.deleteExtension() == Path{"asdf"});
+  CHECK(Path{"asdf.jpeg"}.deleteExtension() == Path{"asdf"});
+  CHECK(Path{"/asdf.jpeg"}.deleteExtension() == Path{"/asdf"});
+  CHECK(Path{"x/asdf.jpeg"}.deleteExtension() == Path{"x/asdf"});
 }
 
 TEST_CASE("PathTest.addExtension", "[PathTest]") {

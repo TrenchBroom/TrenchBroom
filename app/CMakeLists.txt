@@ -156,8 +156,12 @@ macro(configure_app_target APP_TARGET_NAME SHOULD_BUILD_MANUAL)
 
         # Copy DLLs to app directory
         add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage::FreeImage>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:tinyxml2::tinyxml2>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:miniz::miniz>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:fmt::fmt>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:GLEW::GLEW>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
@@ -278,14 +282,20 @@ if(WIN32)
     endif()
 
     install(TARGETS TrenchBroom RUNTIME DESTINATION . COMPONENT TrenchBroom)
-    install(FILES
-            $<TARGET_FILE:freeimage>
-            $<TARGET_FILE:freetype>
-            $<TARGET_FILE:Qt5::Widgets>
-            $<TARGET_FILE:Qt5::Gui>
-            $<TARGET_FILE:Qt5::Core>
-            $<TARGET_FILE:Qt5::Svg>
-            DESTINATION . COMPONENT TrenchBroom)
+    install(CODE [[
+        # The regexes are a workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/22431
+        file(GET_RUNTIME_DEPENDENCIES
+            RESOLVED_DEPENDENCIES_VAR RESOLVED_DLLS
+            PRE_EXCLUDE_REGEXES "api-ms-.*" "ext-ms-.*" "hvsifiletrust.dll"
+            POST_EXCLUDE_REGEXES ".*[Ss][Yy][Ss][Tt][Ee][Mm]32.*"
+            EXECUTABLES "$<TARGET_FILE:TrenchBroom>")
+
+        message("Packaging .DLL's:")
+        foreach(DLL ${RESOLVED_DLLS})
+            message("${DLL}")
+            file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}" FILES "${DLL}")
+        endforeach()
+    ]])
 
     #Qt plugins
     install(FILES

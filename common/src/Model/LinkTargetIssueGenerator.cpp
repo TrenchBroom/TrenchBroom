@@ -73,13 +73,13 @@ private:
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->select(issue->node());
+    facade->selectNodes({issue->node()});
     facade->removeProperty(propertyKey);
   }
 };
 
 LinkTargetIssueGenerator::LinkTargetIssueGenerator()
-  : IssueGenerator(LinkTargetIssue::Type, "Missing entity link source") {
+  : IssueGenerator(LinkTargetIssue::Type, "Missing entity link target") {
   addQuickFix(new LinkTargetIssueQuickFix());
 }
 

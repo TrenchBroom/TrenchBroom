@@ -35,8 +35,7 @@ class EntityNodeBase;
 namespace View {
 class MapDocument;
 
-enum class ValueType
-{
+enum class ValueType {
   /**
    * No entities have this key set; the provided value is the default from the entity definition
    */
@@ -55,8 +54,7 @@ enum class ValueType
   MultipleValues
 };
 
-enum class PropertyProtection
-{
+enum class PropertyProtection {
   NotProtectable,
   Protected,
   NotProtected,

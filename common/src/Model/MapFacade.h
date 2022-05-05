@@ -95,16 +95,13 @@ public: // selection
   virtual void selectInside(bool del) = 0;
   virtual void selectInverse() = 0;
   virtual void selectNodesWithFilePosition(const std::vector<size_t>& positions) = 0;
-  virtual void select(const std::vector<Node*>& nodes) = 0;
-  virtual void select(Node* node) = 0;
-  virtual void select(const std::vector<BrushFaceHandle>& handles) = 0;
-  virtual void select(const BrushFaceHandle& handle) = 0;
+  virtual void selectNodes(const std::vector<Node*>& nodes) = 0;
+  virtual void selectBrushFaces(const std::vector<BrushFaceHandle>& handles) = 0;
   virtual void convertToFaceSelection() = 0;
 
   virtual void deselectAll() = 0;
-  virtual void deselect(Node* node) = 0;
-  virtual void deselect(const std::vector<Node*>& nodes) = 0;
-  virtual void deselect(const BrushFaceHandle& handle) = 0;
+  virtual void deselectNodes(const std::vector<Node*>& nodes) = 0;
+  virtual void deselectBrushFaces(const std::vector<BrushFaceHandle>& handles) = 0;
 
 public: // adding, removing, reparenting, and duplicating nodes
   virtual std::vector<Node*> addNodes(const std::map<Node*, std::vector<Node*>>& nodes) = 0;
@@ -146,8 +143,8 @@ public: // modifying entity properties
   virtual bool convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) = 0;
   virtual bool updateSpawnflag(const std::string& name, size_t flagIndex, bool setFlag) = 0;
 
-public: // brush resizing
-  virtual bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) = 0;
+public: // brush extrusion
+  virtual bool extrudeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) = 0;
 
 public: // modifying face attributes
   virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;

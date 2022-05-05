@@ -27,6 +27,7 @@
 #include "Model/LockState.h"
 #include "Model/VisibilityState.h"
 
+#include <kdl/reflection_impl.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/bbox.h>
@@ -39,25 +40,8 @@
 
 namespace TrenchBroom {
 namespace Model {
-bool operator==(const NodePath& lhs, const NodePath& rhs) {
-  return lhs.indices == rhs.indices;
-}
 
-bool operator!=(const NodePath& lhs, const NodePath& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const NodePath& path) {
-  str << "NodePath{";
-  for (size_t i = 0u; i < path.indices.size(); ++i) {
-    str << i;
-    if (i < path.indices.size() - 1u) {
-      str << ", ";
-    }
-  }
-  str << "}";
-  return str;
-}
+kdl_reflect_impl(NodePath);
 
 Node::Node()
   : m_parent{nullptr}

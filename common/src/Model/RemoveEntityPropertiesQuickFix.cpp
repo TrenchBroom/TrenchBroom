@@ -37,7 +37,7 @@ void RemoveEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue* iss
   // the removeProperty call will correctly affect worldspawn either way.
 
   facade->deselectAll();
-  facade->select(issue->node());
+  facade->selectNodes({issue->node()});
   facade->removeProperty(propIssue->propertyKey());
 }
 } // namespace Model

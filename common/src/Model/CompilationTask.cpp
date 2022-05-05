@@ -19,7 +19,8 @@
 
 #include "CompilationTask.h"
 
-#include <ostream>
+#include <kdl/struct_io.h>
+
 #include <string>
 
 namespace TrenchBroom {
@@ -97,9 +98,8 @@ bool CompilationExportMap::operator==(const CompilationTask& other) const {
 }
 
 void CompilationExportMap::appendToStream(std::ostream& str) const {
-  str << "CompilationExportMap{"
-      << "enabled: " << m_enabled << ", "
-      << "targetSpec: " << m_targetSpec << "}";
+  kdl::struct_stream{str} << "CompilationExportMap"
+                          << "m_enabled" << m_enabled << "m_targetSpec" << m_targetSpec;
 }
 
 // CompilationCopyFiles
@@ -164,10 +164,9 @@ bool CompilationCopyFiles::operator==(const CompilationTask& other) const {
 }
 
 void CompilationCopyFiles::appendToStream(std::ostream& str) const {
-  str << "CompilationCopyFiles{"
-      << "enabled: " << m_enabled << ", "
-      << "sourceSpec: " << m_sourceSpec << ", "
-      << "targetSpec: " << m_targetSpec << "}";
+  kdl::struct_stream{str} << "CompilationCopyFiles"
+                          << "m_enabled" << m_enabled << "m_sourceSpec" << m_sourceSpec
+                          << "m_targetSpec" << m_targetSpec;
 }
 
 // CompilationRunTool
@@ -232,10 +231,9 @@ bool CompilationRunTool::operator==(const CompilationTask& other) const {
 }
 
 void CompilationRunTool::appendToStream(std::ostream& str) const {
-  str << "CompilationRunTool{"
-      << "enabled: " << m_enabled << ", "
-      << "toolSpec: " << m_toolSpec << ", "
-      << "parameterSpec: << " << m_parameterSpec << "}";
+  kdl::struct_stream{str} << "CompilationRunTool"
+                          << "m_enabled" << m_enabled << "m_toolSpec" << m_toolSpec
+                          << "m_parameterSpec" << m_parameterSpec;
 }
 
 CompilationTaskVisitor::~CompilationTaskVisitor() = default;

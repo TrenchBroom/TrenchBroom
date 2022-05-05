@@ -39,8 +39,7 @@
 
 namespace TrenchBroom {
 namespace View {
-enum class SnapMode
-{
+enum class SnapMode {
   /** Snap the delta between a previous and the proposed handle position. */
   Relative,
   /** Snap the proposed handle position to absolute values. */
@@ -182,8 +181,7 @@ private:
     "Delegate must extend MoveHandleDragTrackerDelegate");
 
   /** The different modes of moving. */
-  enum class MoveMode
-  {
+  enum class MoveMode {
     /** A vertical move (3D views only) */
     Vertical,
     /** A constricted move (move along only one axis of a horizontal plane) */
@@ -436,9 +434,10 @@ private:
 template <typename Delegate>
 std::unique_ptr<HandleDragTracker<MoveHandleDragDelegate<Delegate>>> createMoveHandleDragTracker(
   Delegate delegate, const InputState& inputState, const vm::vec3& initialHandlePosition,
-  const vm::vec3& handleOffset) {
+  const vm::vec3& initialHitPoint) {
   return std::make_unique<HandleDragTracker<MoveHandleDragDelegate<Delegate>>>(
-    MoveHandleDragDelegate{std::move(delegate)}, inputState, initialHandlePosition, handleOffset);
+    MoveHandleDragDelegate{std::move(delegate)}, inputState, initialHandlePosition,
+    initialHitPoint);
 }
 
 /**

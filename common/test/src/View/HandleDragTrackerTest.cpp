@@ -104,7 +104,8 @@ static auto makeHandleTracker(
 TEST_CASE("RestrictedDragTracker.constructor") {
   GIVEN("A delegate") {
     const auto initialHandlePosition = vm::vec3{1, 1, 1};
-    const auto handleOffset = vm::vec3{0, 0, 1};
+    const auto initialHitPoint = vm::vec3{1, 1, 0};
+    const auto handleOffset = initialHandlePosition - initialHitPoint;
 
     auto data = TestDelegateData{makeHandlePositionProposer(
       // always returns the same handle position
@@ -113,7 +114,7 @@ TEST_CASE("RestrictedDragTracker.constructor") {
       },
       makeIdentityHandleSnapper())};
 
-    auto tracker = makeHandleTracker(data, initialHandlePosition, handleOffset);
+    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
     THEN("The initial handle position was passed to initialize") {
       CHECK(
@@ -137,6 +138,7 @@ TEST_CASE("RestrictedDragTracker.constructor") {
 TEST_CASE("RestrictedDragTracker.drag") {
   GIVEN("A drag tracker") {
     const auto initialHandlePosition = vm::vec3{1, 1, 1};
+    const auto initialHitPoint = initialHandlePosition;
     auto handlePositionToReturn = vm::vec3{};
 
     auto data = TestDelegateData{makeHandlePositionProposer(
@@ -146,7 +148,7 @@ TEST_CASE("RestrictedDragTracker.drag") {
       },
       makeIdentityHandleSnapper())};
 
-    auto tracker = makeHandleTracker(data, initialHandlePosition, vm::vec3::zero());
+    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
     WHEN("drag is called for the first time after the drag started") {
       handlePositionToReturn = vm::vec3{2, 2, 2};
@@ -215,6 +217,7 @@ TEST_CASE("RestrictedDragTracker.drag") {
 
 TEST_CASE("RestrictedDragTracker.handlePositionComputations") {
   const auto initialHandlePosition = vm::vec3{1, 1, 1};
+  const auto initialHitPoint = vm::vec3{1, 1, 0};
 
   auto getHandlePositionArguments = std::vector<std::tuple<DragState, vm::vec3>>{};
   auto handlePositionToReturn = vm::vec3{};
@@ -231,7 +234,7 @@ TEST_CASE("RestrictedDragTracker.handlePositionComputations") {
         return proposedHandlePosition;
       })};
 
-    auto tracker = makeHandleTracker(data, initialHandlePosition, vm::vec3{0, 0, 1});
+    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
     WHEN("drag is called for the first time") {
       handlePositionToReturn = vm::vec3{2, 2, 2};
@@ -281,7 +284,7 @@ TEST_CASE("RestrictedDragTracker.handlePositionComputations") {
 
 TEST_CASE("RestrictedDragTracker.modifierKeyChange") {
   const auto initialHandlePosition = vm::vec3{1, 1, 1};
-  const auto handleOffset = vm::vec3{0, 0, 1};
+  const auto initialHitPoint = vm::vec3{1, 1, 0};
 
   auto initialGetHandlePositionArguments = std::vector<std::tuple<DragState, vm::vec3>>{};
 
@@ -297,7 +300,7 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange") {
         return proposedHandlePosition;
       })};
 
-    auto tracker = makeHandleTracker(data, initialHandlePosition, handleOffset);
+    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
     tracker.drag(InputState{});
     REQUIRE(initialGetHandlePositionArguments.size() == 1);
@@ -346,7 +349,7 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange") {
         }),
       ResetInitialHandlePosition::Keep};
 
-    auto tracker = makeHandleTracker(data, initialHandlePosition, vm::vec3{0, 0, 1});
+    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
     tracker.drag(InputState{});
     REQUIRE(initialGetHandlePositionArguments.size() == 1);

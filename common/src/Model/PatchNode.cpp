@@ -32,8 +32,10 @@
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
+#include <kdl/reflection_impl.h>
 #include <kdl/zip_iterator.h>
 
+#include <vecmath/bbox_io.h>
 #include <vecmath/intersection.h>
 #include <vecmath/vec_io.h>
 
@@ -45,24 +47,12 @@ namespace TrenchBroom {
 namespace Model {
 constexpr static size_t DefaultSubdivisionsPerSurface = 3u;
 
+kdl_reflect_impl(PatchGrid::Point);
+
 const PatchGrid::Point& PatchGrid::point(const size_t row, const size_t col) const {
   const auto index = row * pointColumnCount + col;
   assert(index < points.size());
   return points[index];
-}
-
-bool operator==(const PatchGrid::Point& lhs, const PatchGrid::Point& rhs) {
-  return lhs.position == rhs.position && lhs.texCoords == rhs.texCoords && lhs.normal == rhs.normal;
-}
-
-bool operator!=(const PatchGrid::Point& lhs, const PatchGrid::Point& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const PatchGrid::Point& p) {
-  str << "{ position: {" << p.position << "}, texCoords: {" << p.texCoords << "}, normal: {"
-      << p.normal << "} }";
-  return str;
 }
 
 size_t PatchGrid::quadRowCount() const {
@@ -72,6 +62,8 @@ size_t PatchGrid::quadRowCount() const {
 size_t PatchGrid::quadColumnCount() const {
   return pointColumnCount - 1u;
 }
+
+kdl_reflect_impl(PatchGrid);
 
 /**
  * Compute the normals for the given patch grid points.
@@ -103,13 +95,11 @@ std::vector<vm::vec3> computeGridNormals(
     return patchGrid[index(row, col)].xyz();
   };
 
-  enum class RowOffset
-  {
+  enum class RowOffset {
     Above,
     Below
   };
-  enum class ColOffset
-  {
+  enum class ColOffset {
     Left,
     Right
   };

@@ -75,8 +75,7 @@ class MapDocument;
 
 template <typename H> class VertexToolBase : public Tool {
 public:
-  enum class MoveResult
-  {
+  enum class MoveResult {
     Continue,
     Deny,
     Cancel
@@ -219,7 +218,7 @@ public:
   virtual const HandleManager& handleManager() const = 0;
 
 public: // performing moves
-  virtual std::tuple<vm::vec3, vm::vec3> handlePositionAndOffset(
+  virtual std::tuple<vm::vec3, vm::vec3> handlePositionAndHitPoint(
     const std::vector<Model::Hit>& hits) const = 0;
 
   virtual bool startMove(const std::vector<Model::Hit>& hits) {

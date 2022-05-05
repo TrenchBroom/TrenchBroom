@@ -23,7 +23,7 @@
 #include "Model/GameEngineProfile.h"
 
 #include <kdl/deref_iterator.h>
-#include <kdl/string_utils.h>
+#include <kdl/struct_io.h>
 #include <kdl/vector_utils.h>
 
 #include <ostream>
@@ -87,15 +87,7 @@ void GameEngineConfig::removeProfile(const size_t index) {
 }
 
 bool operator==(const GameEngineConfig& lhs, const GameEngineConfig& rhs) {
-  if (lhs.m_profiles.size() != rhs.m_profiles.size()) {
-    return false;
-  }
-  for (size_t i = 0; i < lhs.m_profiles.size(); ++i) {
-    if (*lhs.m_profiles[i] != *rhs.m_profiles[i]) {
-      return false;
-    }
-  }
-  return true;
+  return kdl::const_deref_range{lhs.m_profiles} == kdl::const_deref_range{rhs.m_profiles};
 }
 
 bool operator!=(const GameEngineConfig& lhs, const GameEngineConfig& rhs) {
@@ -103,8 +95,8 @@ bool operator!=(const GameEngineConfig& lhs, const GameEngineConfig& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& str, const GameEngineConfig& config) {
-  str << "GameEngineConfig{"
-      << "profiles: [" << kdl::str_join(kdl::const_deref_range{config.m_profiles}) << "]};";
+  kdl::struct_stream{str} << "GameEngineConfig"
+                          << "m_tasks" << kdl::const_deref_range{config.m_profiles};
   return str;
 }
 } // namespace Model

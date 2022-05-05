@@ -125,16 +125,14 @@ DocumentGameConfig loadMapDocument(
 DocumentGameConfig newMapDocument(const std::string& gameName, Model::MapFormat mapFormat);
 } // namespace View
 
-enum class Component
-{
+enum class Component {
   R,
   G,
   B,
   A
 };
 
-enum class ColorMatch
-{
+enum class ColorMatch {
   Exact,
   Approximate
 };

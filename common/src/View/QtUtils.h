@@ -80,8 +80,7 @@ public:
   bool eventFilter(QObject* target, QEvent* event) override;
 };
 
-enum class FileDialogDir
-{
+enum class FileDialogDir {
   Map,
   TextureCollection,
   CompileTool,

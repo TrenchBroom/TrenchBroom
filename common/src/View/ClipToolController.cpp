@@ -64,18 +64,18 @@ public:
   ClipTool& tool() const { return m_tool; }
 
   std::optional<std::tuple<vm::vec3, vm::vec3>> addClipPoint(const InputState& inputState) {
-    const auto positionAndOffset = doGetNewClipPointPositionAndOffset(inputState);
-    if (!positionAndOffset) {
+    const auto positionAndHitPoint = doGetNewClipPointPositionAndHitPoint(inputState);
+    if (!positionAndHitPoint) {
       return std::nullopt;
     }
 
-    const auto position = std::get<0>(*positionAndOffset);
+    const auto position = std::get<0>(*positionAndHitPoint);
     if (!m_tool.canAddPoint(position)) {
       return std::nullopt;
     }
 
     m_tool.addPoint(position, getHelpVectors(inputState, position));
-    return positionAndOffset;
+    return positionAndHitPoint;
   }
 
   bool setClipFace(const InputState& inputState) {
@@ -102,19 +102,19 @@ public:
       return;
     }
 
-    const auto positionAndOffset = doGetNewClipPointPositionAndOffset(inputState);
-    if (!positionAndOffset) {
+    const auto positionAndHitPoint = doGetNewClipPointPositionAndHitPoint(inputState);
+    if (!positionAndHitPoint) {
       return;
     }
 
-    const auto position = std::get<0>(*positionAndOffset);
+    const auto position = std::get<0>(*positionAndHitPoint);
     if (m_tool.canAddPoint(position)) {
       m_tool.renderFeedback(renderContext, renderBatch, position);
     }
   }
 
 private:
-  virtual std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndOffset(
+  virtual std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndHitPoint(
     const InputState& inputState) const = 0;
 };
 
@@ -137,7 +137,7 @@ public:
     return std::vector<vm::vec3>{vm::vec3(inputState.camera().direction())};
   }
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndOffset(
+  std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndHitPoint(
     const InputState& inputState) const override {
     const auto& camera = inputState.camera();
     const auto viewDir = vm::get_abs_max_component_axis(vm::vec3(camera.direction()));
@@ -151,7 +151,7 @@ public:
 
     const auto hitPoint = vm::point_at_distance(pickRay, distance);
     const auto position = m_tool.grid().snap(hitPoint);
-    return {{position, hitPoint - position}};
+    return {{position, hitPoint}};
   }
 };
 
@@ -179,11 +179,7 @@ std::vector<const Model::BrushFace*> selectIncidentFaces(
   FloatType closestEdgeDistance = MaxDistance;
   const Model::BrushEdge* closestEdge = nullptr;
   for (const auto* edge : face.edges()) {
-    const auto distance = vm::distance(
-                            vm::segment<FloatType, 3>(
-                              edge->firstVertex()->position(), edge->secondVertex()->position()),
-                            hitPoint)
-                            .distance;
+    const auto distance = vm::distance(edge->segment(), hitPoint).distance;
     if (distance < closestEdgeDistance) {
       closestEdge = edge;
       closestEdgeDistance = distance;
@@ -238,14 +234,14 @@ public:
     return selectHelpVectors(faceHandle->node(), faceHandle->face(), clipPoint);
   }
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndOffset(
+  std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndHitPoint(
     const InputState& inputState) const override {
     using namespace Model::HitFilters;
     const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
       const Grid& grid = m_tool.grid();
       const auto position = grid.snap(hit.hitPoint(), faceHandle->face().boundary());
-      return {{position, hit.hitPoint() - position}};
+      return {{position, hit.hitPoint()}};
     }
     return std::nullopt;
   }
@@ -349,14 +345,14 @@ private:
       return nullptr;
     }
 
-    const auto initialHandlePositionAndOffset = m_delegate->addClipPoint(inputState);
-    if (!initialHandlePositionAndOffset) {
+    const auto initialHandlePositionAndHitPoint = m_delegate->addClipPoint(inputState);
+    if (!initialHandlePositionAndHitPoint) {
       return nullptr;
     }
 
-    const auto [initialHandlePosition, handleOffset] = *initialHandlePositionAndOffset;
+    const auto [initialHandlePosition, hitPoint] = *initialHandlePositionAndHitPoint;
     return createHandleDragTracker(
-      AddClipPointDragDelegate{*m_delegate}, inputState, initialHandlePosition, handleOffset);
+      AddClipPointDragDelegate{*m_delegate}, inputState, initialHandlePosition, hitPoint);
   }
 
   void render(
@@ -415,13 +411,13 @@ private:
       return nullptr;
     }
 
-    const auto initialHandlePositionAndOffset =
+    const auto initialHandlePositionAndHitPoint =
       m_delegate->tool().beginDragPoint(inputState.pickResult());
-    if (!initialHandlePositionAndOffset) {
+    if (!initialHandlePositionAndHitPoint) {
       return nullptr;
     }
 
-    const auto [initialHandlePosition, handleOffset] = *initialHandlePositionAndOffset;
+    const auto [initialHandlePosition, handleOffset] = *initialHandlePositionAndHitPoint;
     return createHandleDragTracker(
       MoveClipPointDragDelegate{*m_delegate}, inputState, initialHandlePosition, handleOffset);
   }

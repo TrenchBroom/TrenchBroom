@@ -103,19 +103,20 @@ bool ToolBoxConnector::dragDrop(const float /* x */, const float /* y */, const 
 
 bool ToolBoxConnector::cancel() {
   ensure(m_toolBox != nullptr, "toolBox is null");
-  const bool result = m_toolBox->cancel(m_toolChain);
-  m_inputState.setAnyToolDragging(false);
-  return result;
+  m_inputState.setAnyToolDragging(m_toolBox->dragging());
+  return m_toolBox->cancel(m_toolChain);
 }
 
 void ToolBoxConnector::setRenderOptions(Renderer::RenderContext& renderContext) {
   ensure(m_toolBox != nullptr, "toolBox is null");
+  m_inputState.setAnyToolDragging(m_toolBox->dragging());
   m_toolBox->setRenderOptions(m_toolChain, m_inputState, renderContext);
 }
 
 void ToolBoxConnector::renderTools(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
   ensure(m_toolBox != nullptr, "toolBox is null");
+  m_inputState.setAnyToolDragging(m_toolBox->dragging());
   m_toolBox->renderTools(m_toolChain, m_inputState, renderContext, renderBatch);
 }
 
@@ -143,6 +144,8 @@ ModifierKeyState ToolBoxConnector::modifierKeys() {
  * Returns whether the TB modifier key state changed from its previously cached value.
  */
 bool ToolBoxConnector::setModifierKeys() {
+  m_inputState.setAnyToolDragging(m_toolBox->dragging());
+
   const ModifierKeyState keys = modifierKeys();
   if (keys != m_inputState.modifierKeys()) {
     m_inputState.setModifierKeys(keys);
@@ -153,6 +156,8 @@ bool ToolBoxConnector::setModifierKeys() {
 }
 
 bool ToolBoxConnector::clearModifierKeys() {
+  m_inputState.setAnyToolDragging(m_toolBox->dragging());
+
   if (m_inputState.modifierKeys() != ModifierKeys::MKNone) {
     m_inputState.setModifierKeys(ModifierKeys::MKNone);
     updatePickResult();
@@ -210,6 +215,7 @@ void ToolBoxConnector::processEvent(const MouseEvent& event) {
       break;
       switchDefault();
   }
+  m_inputState.setAnyToolDragging(m_toolBox->dragging());
 }
 
 void ToolBoxConnector::processEvent(const CancelEvent&) {
@@ -279,9 +285,7 @@ void ToolBoxConnector::processDragStart(const MouseEvent& event) {
   mouseMoved(event.posX, event.posY);
   updatePickResult();
 
-  if (m_toolBox->startMouseDrag(m_toolChain, m_inputState)) {
-    m_inputState.setAnyToolDragging(true);
-  }
+  m_toolBox->startMouseDrag(m_toolChain, m_inputState);
 }
 
 void ToolBoxConnector::processDrag(const MouseEvent& event) {
@@ -297,7 +301,6 @@ void ToolBoxConnector::processDrag(const MouseEvent& event) {
 void ToolBoxConnector::processDragEnd(const MouseEvent&) {
   if (m_toolBox->dragging()) {
     m_toolBox->endMouseDrag(m_inputState);
-    m_inputState.setAnyToolDragging(false);
   }
 }
 
@@ -328,7 +331,6 @@ void ToolBoxConnector::mouseMoved(const float x, const float y) {
 bool ToolBoxConnector::cancelDrag() {
   if (m_toolBox->dragging()) {
     m_toolBox->cancelMouseDrag();
-    m_inputState.setAnyToolDragging(false);
     return true;
   } else {
     return false;

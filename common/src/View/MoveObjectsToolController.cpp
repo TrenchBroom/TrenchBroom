@@ -107,7 +107,7 @@ std::unique_ptr<DragTracker> MoveObjectsToolController::acceptMouseDrag(
   }
 
   return createMoveHandleDragTracker(
-    MoveObjectsDragDelegate{m_tool}, inputState, hit.hitPoint(), vm::vec3::zero());
+    MoveObjectsDragDelegate{m_tool}, inputState, hit.hitPoint(), hit.hitPoint());
 }
 
 bool MoveObjectsToolController::cancel() {

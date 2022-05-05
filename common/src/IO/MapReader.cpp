@@ -152,8 +152,7 @@ void MapReader::onPatch(
 
 namespace {
 /** The type of a node's container. */
-enum class ContainerType
-{
+enum class ContainerType {
   Layer,
   Group,
 };

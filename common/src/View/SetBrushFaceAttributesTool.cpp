@@ -125,7 +125,7 @@ static void transferFaceAttributes(
 
   const Transaction transaction(&document, TransferFaceAttributesTransactionName);
   document.deselectAll();
-  document.select(targetFaceHandles);
+  document.selectBrushFaces(targetFaceHandles);
 
   if (copyTextureOnlyModifiersDown(inputState)) {
     Model::ChangeBrushFaceAttributesRequest request;
@@ -141,7 +141,7 @@ static void transferFaceAttributes(
   }
 
   document.deselectAll();
-  document.select(faceToSelectAfter);
+  document.selectBrushFaces({faceToSelectAfter});
 }
 
 namespace {

@@ -73,7 +73,7 @@ void ReplaceTextureDialog::accept() {
   request.setTextureName(replacement->name());
 
   Transaction transaction(document, "Replace Textures");
-  document->select(faces);
+  document->selectBrushFaces(faces);
   document->setFaceAttributes(request);
 
   std::stringstream msg;

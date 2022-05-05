@@ -21,11 +21,10 @@
 
 #include "Assets/EntityDefinition.h"
 
-#include <kdl/opt_utils.h>
+#include <kdl/reflection_impl.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_set.h>
 
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -79,20 +78,7 @@ const std::string LayerHiddenValue = "1";
 const std::string LayerOmitFromExportValue = "1";
 } // namespace EntityPropertyValues
 
-bool operator==(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs) {
-  return lhs.defaultModelScaleExpression == rhs.defaultModelScaleExpression;
-}
-
-bool operator!=(const EntityPropertyConfig& lhs, const EntityPropertyConfig& rhs) {
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& lhs, const EntityPropertyConfig& rhs) {
-  lhs << "EntityPropertyConfig{";
-  lhs << "defaultModelScaleExpression=" << kdl::opt_to_string(rhs.defaultModelScaleExpression);
-  lhs << "}";
-  return lhs;
-}
+kdl_reflect_impl(EntityPropertyConfig);
 
 bool isNumberedProperty(std::string_view prefix, std::string_view key) {
   // %* matches 0 or more digits
@@ -106,12 +92,7 @@ EntityProperty::EntityProperty(const std::string& key, const std::string& value)
   : m_key(key)
   , m_value(value) {}
 
-int EntityProperty::compare(const EntityProperty& rhs) const {
-  const int keyCmp = m_key.compare(rhs.m_key);
-  if (keyCmp != 0)
-    return keyCmp;
-  return m_value.compare(rhs.m_value);
-}
+kdl_reflect_impl(EntityProperty);
 
 const std::string& EntityProperty::key() const {
   return m_key;
@@ -157,35 +138,6 @@ void EntityProperty::setKey(const std::string& key) {
 
 void EntityProperty::setValue(const std::string& value) {
   m_value = value;
-}
-
-bool operator<(const EntityProperty& lhs, const EntityProperty& rhs) {
-  return lhs.compare(rhs) < 0;
-}
-
-bool operator<=(const EntityProperty& lhs, const EntityProperty& rhs) {
-  return lhs.compare(rhs) <= 0;
-}
-
-bool operator>(const EntityProperty& lhs, const EntityProperty& rhs) {
-  return lhs.compare(rhs) > 0;
-}
-
-bool operator>=(const EntityProperty& lhs, const EntityProperty& rhs) {
-  return lhs.compare(rhs) >= 0;
-}
-
-bool operator==(const EntityProperty& lhs, const EntityProperty& rhs) {
-  return lhs.compare(rhs) == 0;
-}
-
-bool operator!=(const EntityProperty& lhs, const EntityProperty& rhs) {
-  return lhs.compare(rhs) != 0;
-}
-
-std::ostream& operator<<(std::ostream& str, const EntityProperty& prop) {
-  str << "{ key: " << prop.key() << ", value: " << prop.value() << " }";
-  return str;
 }
 
 bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties) {

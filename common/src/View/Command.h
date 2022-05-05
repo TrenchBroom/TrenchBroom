@@ -43,8 +43,7 @@ class Command {
 public:
   using CommandType = size_t;
 
-  enum class CommandState
-  {
+  enum class CommandState {
     Default,
     Doing,
     Done,

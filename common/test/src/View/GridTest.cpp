@@ -199,45 +199,6 @@ TEST_CASE("GridTest.moveDeltaForPoint_SubInteger2", "[GridTest]") {
   CHECK(pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, inputDelta) == pointOnGrid);
 }
 
-static Model::Brush makeCube128() {
-  Assets::Texture texture("testTexture", 64, 64);
-  Model::WorldNode world({}, {}, Model::MapFormat::Standard);
-  Model::BrushBuilder builder(world.mapFormat(), worldBounds);
-  return builder.createCube(128.0, "").value();
-}
-
-TEST_CASE("GridTest.moveDeltaForFace", "[GridTest]") {
-  const auto grid16 = Grid(4);
-
-  const Model::Brush cube = makeCube128();
-  const auto topFaceIndex = cube.findFace(vm::vec3::pos_z());
-  REQUIRE(topFaceIndex);
-  const Model::BrushFace& topFace = cube.face(*topFaceIndex);
-
-  CHECK(topFace.boundsCenter().z() == vm::approx(64.0));
-
-  // try to move almost 4 grid increments up -> snaps to 3
-  CHECK(grid16.moveDelta(topFace, vm::vec3(0, 0, 63)) == vm::approx(vm::vec3(0, 0, 48)));
-  CHECK(grid16.moveDelta(topFace, vm::vec3(0, 0, 64)) == vm::approx(vm::vec3(0, 0, 64)));
-  CHECK(grid16.moveDelta(topFace, vm::vec3(0, 0, 65)) == vm::approx(vm::vec3(0, 0, 64)));
-}
-
-TEST_CASE("GridTest.moveDeltaForFace_SubInteger", "[GridTest]") {
-  const auto grid05 = Grid(-1);
-
-  const Model::Brush cube = makeCube128();
-  const auto topFaceIndex = cube.findFace(vm::vec3::pos_z());
-  REQUIRE(topFaceIndex);
-  const Model::BrushFace& topFace = cube.face(*topFaceIndex);
-
-  CHECK(topFace.boundsCenter().z() == vm::approx(64.0));
-
-  // try to move almost 4 grid increments up -> snaps to 3
-  CHECK(grid05.moveDelta(topFace, vm::vec3(0, 0, 1.9)) == vm::approx(vm::vec3(0, 0, 1.5)));
-  CHECK(grid05.moveDelta(topFace, vm::vec3(0, 0, 2)) == vm::approx(vm::vec3(0, 0, 2)));
-  CHECK(grid05.moveDelta(topFace, vm::vec3(0, 0, 2.1)) == vm::approx(vm::vec3(0, 0, 2)));
-}
-
 static vm::ray3 make_ray_from_to(const vm::vec3& from, const vm::vec3& to) {
   return vm::ray3(from, vm::normalize(to - from));
 }
@@ -309,6 +270,89 @@ TEST_CASE("GridTest.moveDeltaForBounds", "[GridTest]") {
       grid16.moveDeltaForBounds(slope, box, worldBounds, pickRay) ==
       vm::approx(vm::vec3(16, 16, 16)));
   }
+}
+
+TEST_CASE("GridTest.snapToGridPlane") {
+  using T = std::tuple<vm::vec3, vm::vec3, FloatType, vm::vec3>;
+
+  // clang-format off
+  const auto
+  [origin,     direction, distance, expectedPoint] = GENERATE(values<T>({
+  {{ 8, 8, 8}, {0, 0, 1},  0,        {8, 8, 16}},
+  {{ 8, 8, 8}, {0, 0, 1},  4,        {8, 8, 16}},
+  {{ 8, 8, 8}, {0, 0, 1}, -2,        {8, 8, 0}},
+  {{ 0, 0, 0}, {0, 0, 1},  0,        {0, 0, 0}},
+  {{ 0, 0, 0}, {0, 0, 1},  2,        {0, 0, 0}},
+  {{ 0, 0, 0}, {0, 1, 1},  2,        {0, 0, 0}},
+  {{ 0, 0, 0}, {0, 1, 1},  12,       {0, 16, 16}},
+  {{ 0, 0, 0}, {1, 1, 1},  12,       {0, 0, 0}},
+  {{ 0, 0, 0}, {1, 1, 1},  14,       {16, 16, 16}},
+  {{ 2, 8, 0}, {1, 1, 0},  0,        {0, 6, 0}},
+  {{12, 8, 0}, {1, 1, 0},  0,        {16, 12, 0}},
+  {{ 5, 4, 0}, {1, 1, 0},  0,        {1, 0, 0}},
+  {{-5, 4, 0}, {1, 1, 0},  0,        {-9, 0, 0}},
+  {{-5, 6, 0}, {1, 1, 0},  0,        {0, 11, 0}},
+  }));
+  // clang-format on
+
+  CAPTURE(origin, direction, distance);
+
+  auto grid = Grid{4};
+  const auto line = vm::line3{origin, vm::normalize(direction)};
+  const auto snappedDistance = grid.snapToGridPlane(line, distance);
+
+  CHECK(vm::point_at_distance(line, snappedDistance) == vm::approx{expectedPoint});
+}
+
+//
+
+TEST_CASE("GridTest.snapMoveDeltaForFace") {
+  using T = std::tuple<std::vector<vm::vec3>, vm::vec3, FloatType, FloatType>;
+
+  // clang-format off
+  const auto 
+  [points, faceNormal, moveDistance, expectedMoveDistance] = GENERATE(values<T>({
+  {{{ -8,  -8,  +8}, { +8,  -8,  +8}, { +8,  +8,  +8}, { -8,  +8,  +8},
+    { -8,  -8,  -8}, { +8,  -8,  -8}, { +8,  +8,  -8}, { -8,  +8,  -8}},
+           {0, 0, 1},  8,            8},
+  {{{ -8,  -8,  +8}, { +8,  -8,  +8}, { +8,  +8,  +8}, { -8,  +8,  +8},
+    { -8,  -8,  -8}, { +8,  -8,  -8}, { +8,  +8,  -8}, { -8,  +8,  -8}},
+           {0, 0, 1},  6,            8},
+
+  /* A cuboid with an angled southern face
+     ___________
+     |         |
+     |      ___|
+     |___---
+
+     When we snap a move delta for the souther face.
+  */
+  {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
+    {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
+           vm::normalize(vm::vec3{1, -4, 0}),  
+                       16, 15.5222800023},
+  {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
+    {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
+           vm::normalize(vm::vec3{1, -4, 0}),  
+                       15, 15.5222800023},
+  {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
+    {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
+           vm::normalize(vm::vec3{1, -4, 0}),  
+                       25, 31.0445600047},
+  }));
+  // clang-format on
+
+  CAPTURE(points, faceNormal, moveDistance);
+
+  const auto grid = Grid{4};
+
+  const auto brushBuilder = Model::BrushBuilder{Model::MapFormat::Standard, worldBounds};
+  const auto brush = brushBuilder.createBrush(points, "texture").value();
+  const auto faceIndex = brush.findFace(faceNormal);
+  REQUIRE(faceIndex.has_value());
+
+  const auto& face = brush.face(*faceIndex);
+  CHECK(grid.snapMoveDistanceForFace(face, moveDistance) == vm::approx{expectedMoveDistance});
 }
 } // namespace View
 } // namespace TrenchBroom

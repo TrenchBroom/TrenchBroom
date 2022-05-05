@@ -41,8 +41,7 @@ namespace Assets {
 class Texture;
 class TextureCollection;
 
-enum class PitchType
-{
+enum class PitchType {
   Normal,
   MdlInverted
 };
@@ -53,8 +52,7 @@ enum class PitchType
  * See
  * https://github.com/ericwa/Quakespasm/blob/7e7e13f9335697f8e94d1631fdf60ecdddb7498f/quakespasm/Quake/r_sprite.c#L82
  */
-enum class Orientation
-{
+enum class Orientation {
   /** Faces view plane, up is towards the heavens. */
   ViewPlaneParallelUpright,
   /** Faces camera origin, up is towards the heavens. */
