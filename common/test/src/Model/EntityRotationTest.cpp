@@ -232,14 +232,9 @@ TEST_CASE("applyEntityRotation") {
   {{{"angle", "45"}},         {ERT::Angle,                   "angle", ERU::BlockRotation}, vm::mat4x4::rot_90_z_ccw(),                           {}},
 
   {{{"angle", "45"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::mat4x4::rot_90_z_ccw(),                           {{"angle", "135"}}},
-  /* EXPECTED
   {{{"angle",  "0"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::rotation_matrix(0.0, vm::to_radians(-90.0), 0.0), {{"angle", "-1"}}},
   {{{"angle",  "0"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::rotation_matrix(0.0, vm::to_radians(90.0), 0.0),  {{"angle", "-2"}}},
-  ACTUAL */
-  {{{"angle",  "0"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::rotation_matrix(0.0, vm::to_radians(-90.0), 0.0), {{"angle", "1.0"}}},
-  {{{"angle",  "0"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::rotation_matrix(0.0, vm::to_radians(90.0), 0.0),  {{"angle", "-1.0"}}},
-  {{{"angle",  "0"}},         {ERT::AngleUpDown,             "angle", ERU::BlockRotation}, vm::mat4x4::rot_90_z_ccw(),                           {}},
-
+  
   {{{"angle",  "30 60 90"}},  {ERT::Euler,                   "angle", ERU::Allowed},       vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {{"angle", "0 0 0"}}},
   {{{"angle",  "30 60 90"}},  {ERT::Euler,                   "angle", ERU::BlockRotation}, vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {}},
 

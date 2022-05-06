@@ -302,10 +302,10 @@ std::optional<EntityProperty> applyEntityRotation(
     case EntityRotationType::AngleUpDown: {
       const auto direction = normalize(transformation * rotation * vm::vec3::pos_x());
       if (direction.z() > 0.9) {
-        return {{info.propertyKey, "1.0"}};
+        return {{info.propertyKey, "-1"}};
       }
       if (direction.z() < -0.9) {
-        return {{info.propertyKey, "-1.0"}};
+        return {{info.propertyKey, "-2"}};
       }
       return setEntityRotationAngle(info.propertyKey, direction);
     }
