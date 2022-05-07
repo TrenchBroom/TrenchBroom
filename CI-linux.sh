@@ -2,14 +2,6 @@
 
 set -o verbose
 
-if [[ $TB_GCC8 == "true" ]] ; then
-    export CC=gcc-8
-    export CXX=g++-8
-else
-    export CC=gcc-7
-    export CXX=g++-7
-fi
-
 # so CPack finds Qt
 export LD_LIBRARY_PATH=/opt/qt59/lib:${LD_LIBRARY_PATH}
 export PATH=/opt/qt59/bin:${PATH}
