@@ -2,10 +2,6 @@
 
 set -o verbose
 
-# so CPack finds Qt
-export LD_LIBRARY_PATH=/opt/qt59/lib:${LD_LIBRARY_PATH}
-export PATH=/opt/qt59/bin:${PATH}
-
 # Check versions
 qmake -v
 cmake --version
@@ -15,7 +11,7 @@ pandoc --version
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_PREFIX_PATH=/opt/qt59 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" -DTB_SUPPRESS_PCH=1 -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake || exit 1
+cmake .. -GNinja -DCMAKE_PREFIX_PATH="cmake/packages" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" -DTB_SUPPRESS_PCH=1 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" || exit 1
 cmake --build . --config Release || exit 1
 
 # Run tests (wxgtk needs an X server running for the app to initialize)
