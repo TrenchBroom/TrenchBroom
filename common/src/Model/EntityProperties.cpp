@@ -144,7 +144,8 @@ bool isLayer(const std::string& classname, const std::vector<EntityProperty>& pr
   if (classname != EntityPropertyValues::LayerClassname) {
     return false;
   } else {
-    const std::string& groupType = findProperty(properties, EntityPropertyKeys::GroupType);
+    const std::string& groupType =
+      findEntityPropertyOrDefault(properties, EntityPropertyKeys::GroupType);
     return groupType == EntityPropertyValues::GroupTypeLayer;
   }
 }
@@ -153,7 +154,8 @@ bool isGroup(const std::string& classname, const std::vector<EntityProperty>& pr
   if (classname != EntityPropertyValues::GroupClassname) {
     return false;
   } else {
-    const std::string& groupType = findProperty(properties, EntityPropertyKeys::GroupType);
+    const std::string& groupType =
+      findEntityPropertyOrDefault(properties, EntityPropertyKeys::GroupType);
     return groupType == EntityPropertyValues::GroupTypeGroup;
   }
 }
@@ -163,172 +165,26 @@ bool isWorldspawn(
   return classname == EntityPropertyValues::WorldspawnClassname;
 }
 
-const std::string& findProperty(
+std::vector<EntityProperty>::const_iterator findEntityProperty(
+  const std::vector<EntityProperty>& properties, const std::string& key) {
+  return std::find_if(std::begin(properties), std::end(properties), [&](const auto& property) {
+    return property.hasKey(key);
+  });
+}
+
+std::vector<EntityProperty>::iterator findEntityProperty(
+  std::vector<EntityProperty>& properties, const std::string& key) {
+  return std::find_if(std::begin(properties), std::end(properties), [&](const auto& property) {
+    return property.hasKey(key);
+  });
+}
+
+const std::string& findEntityPropertyOrDefault(
   const std::vector<EntityProperty>& properties, const std::string& key,
   const std::string& defaultValue) {
-  for (const EntityProperty& property : properties) {
-    if (key == property.key()) {
-      return property.value();
-    }
-  }
-  return defaultValue;
+  const auto it = findEntityProperty(properties, key);
+  return it != std::end(properties) ? it->value() : defaultValue;
 }
 
-// EntityProperties
-EntityProperties::EntityProperties() = default;
-
-EntityProperties::EntityProperties(std::vector<EntityProperty> properties)
-  : m_properties(std::move(properties)) {}
-
-std::vector<EntityProperty> EntityProperties::releaseProperties() {
-  return std::move(m_properties);
-}
-
-const std::vector<EntityProperty>& EntityProperties::properties() const {
-  return m_properties;
-}
-
-void EntityProperties::setProperties(const std::vector<EntityProperty>& properties) {
-  m_properties.clear();
-
-  // ensure that there are no duplicate keys
-  kdl::vector_set<std::string> keys(properties.size());
-  for (const auto& property : properties) {
-    if (keys.insert(property.key()).second) {
-      m_properties.push_back(property);
-    }
-  }
-}
-
-const EntityProperty& EntityProperties::addOrUpdateProperty(
-  const std::string& key, const std::string& value) {
-  auto it = findProperty(key);
-  if (it != std::end(m_properties)) {
-    it->setValue(value);
-    return *it;
-  } else {
-    m_properties.push_back(EntityProperty(key, value));
-    return m_properties.back();
-  }
-}
-
-void EntityProperties::renameProperty(const std::string& key, const std::string& newKey) {
-  if (!hasProperty(key)) {
-    return;
-  }
-
-  const std::string value = *properties(key);
-  removeProperty(key);
-  addOrUpdateProperty(newKey, value);
-}
-
-void EntityProperties::removeProperty(const std::string& key) {
-  auto it = findProperty(key);
-  if (it != std::end(m_properties)) {
-    m_properties.erase(it);
-  }
-}
-
-bool EntityProperties::hasProperty(const std::string& key) const {
-  return findProperty(key) != std::end(m_properties);
-}
-
-bool EntityProperties::hasProperty(const std::string& key, const std::string& value) const {
-  for (const auto& property : m_properties) {
-    if (property.hasKeyAndValue(key, value)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool EntityProperties::hasPropertyWithPrefix(
-  const std::string& prefix, const std::string& value) const {
-  for (const auto& property : m_properties) {
-    if (property.hasPrefixAndValue(prefix, value)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool EntityProperties::hasNumberedProperty(
-  const std::string& prefix, const std::string& value) const {
-  for (const auto& property : m_properties) {
-    if (property.hasNumberedPrefixAndValue(prefix, value)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-std::vector<std::string> EntityProperties::keys() const {
-  std::vector<std::string> result;
-  result.reserve(m_properties.size());
-
-  for (const EntityProperty& property : m_properties) {
-    result.push_back(property.key());
-  }
-  return result;
-}
-
-const std::string* EntityProperties::properties(const std::string& key) const {
-  auto it = findProperty(key);
-  if (it == std::end(m_properties)) {
-    return nullptr;
-  } else {
-    return &it->value();
-  }
-}
-
-std::vector<EntityProperty> EntityProperties::propertiesWithKey(const std::string& key) const {
-  std::vector<EntityProperty> result;
-  for (const auto& property : m_properties) {
-    if (property.hasKey(key)) {
-      result.push_back(property);
-    }
-  }
-  return result;
-}
-
-std::vector<EntityProperty> EntityProperties::propertiesWithPrefix(
-  const std::string& prefix) const {
-  std::vector<EntityProperty> result;
-  for (const auto& property : m_properties) {
-    if (property.hasPrefix(prefix)) {
-      result.push_back(property);
-    }
-  }
-  return result;
-}
-
-std::vector<EntityProperty> EntityProperties::numberedProperties(const std::string& prefix) const {
-  std::vector<EntityProperty> result;
-  for (const auto& property : m_properties) {
-    if (property.hasNumberedPrefix(prefix)) {
-      result.push_back(property);
-    }
-  }
-  return result;
-}
-
-std::vector<EntityProperty>::const_iterator EntityProperties::findProperty(
-  const std::string& key) const {
-  for (auto it = std::begin(m_properties), end = std::end(m_properties); it != end; ++it) {
-    if (it->hasKey(key)) {
-      return it;
-    }
-  }
-  return std::end(m_properties);
-}
-
-std::vector<EntityProperty>::iterator EntityProperties::findProperty(const std::string& key) {
-  for (auto it = std::begin(m_properties), end = std::end(m_properties); it != end; ++it) {
-    if (it->hasKey(key)) {
-      return it;
-    }
-  }
-  return std::end(m_properties);
-}
 } // namespace Model
 } // namespace TrenchBroom

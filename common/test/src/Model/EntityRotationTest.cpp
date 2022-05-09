@@ -25,7 +25,7 @@
 #include "Assets/PropertyDefinition.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
-#include "Model/EntityRotationPolicy.h"
+#include "Model/EntityRotation.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/mat.h>
@@ -39,56 +39,6 @@
 
 namespace TrenchBroom {
 namespace Model {
-TEST_CASE("EntityRotationPolicy.getYawPitchRoll") {
-  const auto roll = vm::to_radians(12.0);
-  const auto pitch = vm::to_radians(13.0);
-  const auto yaw = vm::to_radians(14.0);
-
-  const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
-  const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(vm::mat4x4::identity(), rotMat);
-
-  CHECK(yawPitchRoll == vm::approx(vm::vec3(14, 13, 12)));
-}
-
-TEST_CASE("EntityRotationPolicy.getYawPitchRoll_uniformScale") {
-  const auto roll = vm::to_radians(12.0);
-  const auto pitch = vm::to_radians(13.0);
-  const auto yaw = vm::to_radians(14.0);
-
-  const auto scaleMat = vm::scaling_matrix(vm::vec3(2.0, 2.0, 2.0));
-  const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
-
-  const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
-  CHECK(yawPitchRoll == vm::approx(vm::vec3(14, 13, 12)));
-}
-
-TEST_CASE("EntityRotationPolicy.getYawPitchRoll_nonUniformScale") {
-  const auto roll = vm::to_radians(0.0);
-  const auto pitch = vm::to_radians(45.0);
-  const auto yaw = vm::to_radians(0.0);
-
-  const auto scaleMat = vm::scaling_matrix(vm::vec3(2.0, 1.0, 1.0));
-  const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
-
-  const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
-  const auto expectedPitch = vm::to_degrees(std::atan(0.5)); // ~= 26.57 degrees
-
-  CHECK(yawPitchRoll == vm::approx(vm::vec3(0.0, expectedPitch, 0.0)));
-}
-
-TEST_CASE("EntityRotationPolicy.getYawPitchRoll_flip") {
-  const auto roll = vm::to_radians(10.0);
-  const auto pitch = vm::to_radians(45.0);
-  const auto yaw = vm::to_radians(0.0);
-
-  const auto scaleMat = vm::scaling_matrix(vm::vec3(-1.0, 1.0, 1.0));
-  const auto rotMat = vm::rotation_matrix(roll, pitch, yaw);
-
-  const auto yawPitchRoll = EntityRotationPolicy::getYawPitchRoll(scaleMat, rotMat);
-
-  CHECK(yawPitchRoll == vm::approx(vm::vec3(180, 45, -10)));
-}
-
 namespace {
 struct EntityDefinitionInfo {
   Assets::EntityDefinitionType type;
@@ -114,7 +64,7 @@ std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
 }
 } // namespace
 
-TEST_CASE("EntityRotationPolicy.entityRotationInfo") {
+TEST_CASE("entityRotationInfo") {
   using namespace Assets;
 
   auto manglePropertyDef = std::make_shared<StringPropertyDefinition>("mangle", "", "", false);
@@ -193,16 +143,16 @@ TEST_CASE("EntityRotationPolicy.entityRotationInfo") {
 
   // non-light point entity with mangle key and off-center definition bounds
   {{{"classname", "other"},
-    {"mangle", "0 0 0"}},         true,  {{EntityDefinitionType::PointEntity, 
-                                           {}, 
+    {"mangle", "0 0 0"}},         true,  {{EntityDefinitionType::PointEntity,
+                                           {},
                                            {{0, 0, -16}, {16, 16, 16}}}}, nullptr,        {EntityRotationType::Euler_PositivePitchDown, "mangle", EntityRotationUsage::BlockRotation}},
 
   // a property definition counts as a property even if the property isn't present
-  {{{"classname", "other"}},      true,  {{EntityDefinitionType::PointEntity, 
+  {{{"classname", "other"}},      true,  {{EntityDefinitionType::PointEntity,
                                            {manglePropertyDef}}},         nullptr,        {EntityRotationType::Euler_PositivePitchDown, "mangle", EntityRotationUsage::Allowed}},
 
   // but not for light entities
-  {{{"classname", "light"}},      true,  {{EntityDefinitionType::PointEntity, 
+  {{{"classname", "light"}},      true,  {{EntityDefinitionType::PointEntity,
                                            {manglePropertyDef}}},         nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},
   }));
   // clang-format on
@@ -217,5 +167,89 @@ TEST_CASE("EntityRotationPolicy.entityRotationInfo") {
 
   CHECK(entityRotationInfo(entity) == expectedRotationInfo);
 }
+
+TEST_CASE("entityRotation") {
+  using T = std::tuple<std::vector<EntityProperty>, EntityRotationInfo, vm::mat4x4>;
+  using ERT = EntityRotationType;
+  const auto usage = GENERATE(EntityRotationUsage::Allowed, EntityRotationUsage::BlockRotation);
+
+  // clang-format off
+  const auto
+  [properties,              info,                          expectedTransformation] = GENERATE_COPY(values<T>({
+  {{},                      {ERT::Angle,                   "angle", usage}, vm::mat4x4::identity()},
+  {{{"angle", "90"}},       {ERT::Angle,                   "angle", usage}, vm::mat4x4::rot_90_z_ccw()},
+  {{},                      {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4::identity()},
+  {{{"angle", "90"}},       {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4::rot_90_z_ccw()},
+  {{{"angle", "-1"}},       {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4::rot_90_y_cw()},
+  {{{"angle", "-2"}},       {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4::rot_90_y_ccw()},
+  {{},                      {ERT::Euler,                   "angle", usage}, vm::mat4x4::identity()},
+  {{{"angle", "30 60 90"}}, {ERT::Euler,                   "angle", usage}, vm::rotation_matrix(vm::to_radians(90.0), vm::to_radians(-30.0), vm::to_radians(60.0))},
+  {{},                      {ERT::Euler_PositivePitchDown, "angle", usage}, vm::mat4x4::identity()},
+  {{{"angle", "30 60 90"}}, {ERT::Euler_PositivePitchDown, "angle", usage}, vm::rotation_matrix(vm::to_radians(90.0), vm::to_radians(30.0), vm::to_radians(60.0))},
+  {{},                      {ERT::Mangle,                  "angle", usage}, vm::mat4x4::identity()},
+  {{{"angle", "30 60 90"}}, {ERT::Mangle,                  "angle", usage}, vm::rotation_matrix(vm::to_radians(90.0), vm::to_radians(-60.0), vm::to_radians(30.0))},
+  {{},                      {ERT::None,                    "angle", usage}, vm::mat4x4::identity()},
+  {{{"angle", "30 60 90"}}, {ERT::None,                    "angle", usage}, vm::mat4x4::identity()},
+  }));
+  // clang-format on
+
+  CAPTURE(properties, info);
+
+  CHECK(entityRotation(properties, info) == vm::approx{expectedTransformation});
+}
+
+TEST_CASE("entityYawPitchRoll") {
+  using T = std::tuple<double, double, double, vm::mat4x4d, vm::vec3d>;
+
+  // clang-format off
+  const auto
+  [roll, pitch, yaw, transformation, expectedYawPitchRoll] = GENERATE(values<T>({
+  {12.0, 13.0, 14.0, vm::mat4x4d::identity(),                 {14, 13, 12}},
+  {12.0, 13.0, 14.0, vm::scaling_matrix(vm::vec3d{ 2, 2, 2}), {14, 13, 12}},
+  {0.0,  45.0,  0.0, vm::scaling_matrix(vm::vec3d{ 2, 1, 1}), {0, vm::to_degrees(std::atan(0.5)), 0}},
+  {10.0, 45.0,  0.0, vm::scaling_matrix(vm::vec3d{-1, 1, 1}), {180, 45, -10}},
+  }));
+  // clang-format on
+
+  CAPTURE(roll, pitch, yaw, transformation);
+
+  const auto rotation =
+    vm::rotation_matrix(vm::to_radians(roll), vm::to_radians(pitch), vm::to_radians(yaw));
+
+  CHECK(entityYawPitchRoll(transformation, rotation) == vm::approx{expectedYawPitchRoll});
+}
+
+TEST_CASE("applyEntityRotation") {
+  using T = std::tuple<
+    std::vector<EntityProperty>, EntityRotationInfo, vm::mat4x4, std::optional<EntityProperty>>;
+  using ERT = EntityRotationType;
+  using ERU = EntityRotationUsage;
+
+  // clang-format off
+  const auto
+  [properties,        info,                                      transform, expectedProperty] = GENERATE_COPY(values<T>({
+  {{{"angle", "45"}},         {ERT::Angle,                   "angle", ERU::Allowed},       vm::mat4x4::rot_90_z_ccw(),                           {{"angle", "135"}}},
+  {{{"angle", "45"}},         {ERT::Angle,                   "angle", ERU::BlockRotation}, vm::mat4x4::rot_90_z_ccw(),                           {}},
+
+  {{{"angle", "45"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::mat4x4::rot_90_z_ccw(),                           {{"angle", "135"}}},
+  {{{"angle",  "0"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::rotation_matrix(0.0, vm::to_radians(-90.0), 0.0), {{"angle", "-1"}}},
+  {{{"angle",  "0"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::rotation_matrix(0.0, vm::to_radians(90.0), 0.0),  {{"angle", "-2"}}},
+  
+  {{{"angle",  "30 60 90"}},  {ERT::Euler,                   "angle", ERU::Allowed},       vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {{"angle", "0 0 0"}}},
+  {{{"angle",  "30 60 90"}},  {ERT::Euler,                   "angle", ERU::BlockRotation}, vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {}},
+
+  {{{"angle",  "-30 60 90"}}, {ERT::Euler_PositivePitchDown, "angle", ERU::Allowed},       vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {{"angle", "0 0 0"}}},
+  {{{"angle",  "-30 60 90"}}, {ERT::Euler_PositivePitchDown, "angle", ERU::BlockRotation}, vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {}},
+
+  {{{"angle",  "60 30 90"}}, {ERT::Mangle,                  "angle", ERU::Allowed},       vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {{"angle", "0 0 0"}}},
+  {{{"angle",  "60 30 90"}}, {ERT::Mangle,                  "angle", ERU::BlockRotation}, vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {}},
+  }));
+  // clang-format on
+
+  CAPTURE(properties, info, transform);
+
+  CHECK(applyEntityRotation(properties, info, transform) == expectedProperty);
+}
+
 } // namespace Model
 } // namespace TrenchBroom

@@ -26,7 +26,9 @@
 #include <kdl/reflection_decl.h>
 
 #include <iosfwd>
+#include <optional>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
 namespace Assets {
@@ -35,6 +37,7 @@ enum class PitchType;
 
 namespace Model {
 class Entity;
+class EntityProperty;
 struct EntityPropertyConfig;
 
 enum class EntityRotationType {
@@ -65,19 +68,18 @@ struct EntityRotationInfo {
 
 EntityRotationInfo entityRotationInfo(const Entity& entity);
 
-class EntityRotationPolicy {
-private:
-public:
-  static vm::mat4x4 getRotation(const Entity& entity);
-  static void applyRotation(
-    Entity& entity, const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation);
-  static std::string getPropertyKey(const Entity& entity);
+vm::mat4x4 entityRotation(
+  const std::vector<EntityProperty>& properties, const EntityRotationInfo& info);
 
-  /**
-   * Given an arbitrary transform and a rotation matrix, applies the transformation to the
-   * rotation matrix and returns the result as euler angles in degrees.
-   */
-  static vm::vec3 getYawPitchRoll(const vm::mat4x4& transformation, const vm::mat4x4& rotation);
-};
+vm::mat4x4 entityRotation(const Entity& entity);
+
+vm::vec3 entityYawPitchRoll(const vm::mat4x4& transformation, const vm::mat4x4& rotation);
+
+std::optional<EntityProperty> applyEntityRotation(
+  const std::vector<EntityProperty>& properties, const EntityRotationInfo& info,
+  const vm::mat4x4& transformation);
+void applyEntityRotation(
+  Entity& entity, const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation);
+
 } // namespace Model
 } // namespace TrenchBroom

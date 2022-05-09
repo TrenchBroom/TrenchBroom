@@ -24,7 +24,7 @@
 #include "Assets/ModelDefinition.h"
 #include "Model/EntityProperties.h"
 #include "Model/EntityPropertiesVariableStore.h"
-#include "Model/EntityRotationPolicy.h"
+#include "Model/EntityRotation.h"
 
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -160,14 +160,14 @@ void Entity::unsetEntityDefinitionAndModel() {
 
   m_definition = Assets::AssetReference<Assets::EntityDefinition>{};
   m_model = nullptr;
-  m_cachedProperties.rotation = EntityRotationPolicy::getRotation(*this);
+  m_cachedProperties.rotation = entityRotation(*this);
   m_cachedProperties.modelTransformation = vm::mat4x4::identity();
 }
 
 void Entity::addOrUpdateProperty(
   const EntityPropertyConfig& propertyConfig, std::string key, std::string value,
   const bool defaultToProtected) {
-  auto it = findProperty(key);
+  auto it = findEntityProperty(m_properties, key);
   if (it != std::end(m_properties)) {
     it->setValue(std::move(value));
   } else {
@@ -186,7 +186,7 @@ void Entity::renameProperty(
     return;
   }
 
-  const auto oldIt = findProperty(oldKey);
+  const auto oldIt = findEntityProperty(m_properties, oldKey);
   if (oldIt != std::end(m_properties)) {
     if (const auto protIt =
           std::find(std::begin(m_protectedProperties), std::end(m_protectedProperties), oldKey);
@@ -195,7 +195,7 @@ void Entity::renameProperty(
       m_protectedProperties.push_back(newKey);
     }
 
-    const auto newIt = findProperty(newKey);
+    const auto newIt = findEntityProperty(m_properties, newKey);
     if (newIt != std::end(m_properties)) {
       m_properties.erase(newIt);
     }
@@ -206,7 +206,7 @@ void Entity::renameProperty(
 }
 
 void Entity::removeProperty(const EntityPropertyConfig& propertyConfig, const std::string& key) {
-  const auto it = findProperty(key);
+  const auto it = findEntityProperty(m_properties, key);
   if (it != std::end(m_properties)) {
     m_properties.erase(it);
     updateCachedProperties(propertyConfig);
@@ -227,11 +227,11 @@ void Entity::removeNumberedProperty(
 }
 
 bool Entity::hasProperty(const std::string& key) const {
-  return findProperty(key) != std::end(m_properties);
+  return findEntityProperty(m_properties, key) != std::end(m_properties);
 }
 
 bool Entity::hasProperty(const std::string& key, const std::string& value) const {
-  const auto it = findProperty(key);
+  const auto it = findEntityProperty(m_properties, key);
   return it != std::end(m_properties) && it->hasValue(value);
 }
 
@@ -248,7 +248,7 @@ bool Entity::hasNumberedProperty(const std::string& prefix, const std::string& v
 }
 
 const std::string* Entity::property(const std::string& key) const {
-  const auto it = findProperty(key);
+  const auto it = findEntityProperty(m_properties, key);
   return it != std::end(m_properties) ? &it->value() : nullptr;
 }
 
@@ -320,20 +320,20 @@ void Entity::transform(
 }
 
 void Entity::applyRotation(const EntityPropertyConfig& propertyConfig, const vm::mat4x4& rotation) {
-  EntityRotationPolicy::applyRotation(*this, propertyConfig, rotation);
+  applyEntityRotation(*this, propertyConfig, rotation);
 }
 
 void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig) {
   const auto* classnameValue = property(EntityPropertyKeys::Classname);
   const auto* originValue = property(EntityPropertyKeys::Origin);
 
-  // order is important here because EntityRotationPolicy::getRotation accesses classname
+  // order is important here because EntityRotation::getRotation accesses classname
   m_cachedProperties.classname =
     classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
   m_cachedProperties.origin = originValue
                                 ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero())
                                 : vm::vec3::zero();
-  m_cachedProperties.rotation = EntityRotationPolicy::getRotation(*this);
+  m_cachedProperties.rotation = entityRotation(*this);
 
   if (
     const auto* pointDefinition =
@@ -347,18 +347,6 @@ void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig) 
   } else {
     m_cachedProperties.modelTransformation = vm::mat4x4::identity();
   }
-}
-
-std::vector<EntityProperty>::const_iterator Entity::findProperty(const std::string& key) const {
-  return std::find_if(std::begin(m_properties), std::end(m_properties), [&](const auto& property) {
-    return property.hasKey(key);
-  });
-}
-
-std::vector<EntityProperty>::iterator Entity::findProperty(const std::string& key) {
-  return std::find_if(std::begin(m_properties), std::end(m_properties), [&](const auto& property) {
-    return property.hasKey(key);
-  });
 }
 
 bool operator==(const Entity& lhs, const Entity& rhs) {
