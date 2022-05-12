@@ -120,7 +120,7 @@ cd <path/to/TrenchBroom>/build
 Then, execute this command to configure the project:
 
 ```bash
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="cmake/packages" -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
 cmake --build . --target TrenchBroom
 ```
 
