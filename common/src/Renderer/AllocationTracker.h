@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
 namespace TrenchBroom {
