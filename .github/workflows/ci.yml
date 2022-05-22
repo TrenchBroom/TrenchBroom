@@ -49,7 +49,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-20.04' }}
         run: |
           sudo apt update
-          sudo apt install qt5-default libqt5svg5-dev build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev libglew-dev libfreetype6-dev libfreeimage-dev libtinyxml2-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+          sudo apt install qt5-default libqt5svg5-dev build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb rpm
 
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2019' }}

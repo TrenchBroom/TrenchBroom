@@ -12,18 +12,15 @@
     },
     {
       "name": "freeimage",
-      "version>=": "3.18.0#22",
-      "platform": "!linux"
+      "version>=": "3.18.0#22"
     },
     {
       "name": "freetype",
-      "version>=": "2.11.1",
-      "platform": "!linux"
+      "version>=": "2.11.1"
     },
     {
       "name": "glew",
-      "version>=": "2.2.0",
-      "platform": "!linux"
+      "version>=": "2.2.0"
     },
     {
       "name": "miniz",
@@ -31,8 +28,7 @@
     },
     {
       "name": "tinyxml2",
-      "version>=": "9.0.0",
-      "platform": "!linux"
+      "version>=": "9.0.0"
     }
   ],
   "builtin-baseline": "a3df696929b28195b0d7a477ba6cd16dba48fa52"
