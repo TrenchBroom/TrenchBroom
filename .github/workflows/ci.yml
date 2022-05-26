@@ -19,7 +19,7 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-10.15, windows-2019]
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04, macos-10.15, windows-2019]
         tb-build-type: [release]
         tb-arch: [default-arch]
         exclude:
@@ -45,11 +45,23 @@ jobs:
 
       # Dependencies
 
-      - name: Install Linux dependencies
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+      - name: Install common Linux dependencies
+        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
         run: |
           sudo apt update
-          sudo apt install qt5-default libqt5svg5-dev build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev libglew-dev libfreetype6-dev libfreeimage-dev libtinyxml2-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+
+      - name: Install Qt5 on Ubuntu 22.04
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          sudo apt update
+          sudo apt install qtbase5-dev libqt5svg5-dev
+
+      - name: Install Qt5 on Ubuntu 20.04 and earlier
+        if: ${{ matrix.os == 'ubuntu-20.04' || matrix.os == 'ubuntu-18.04' }}
+        run: |
+          sudo apt update
+          sudo apt install qt5-default libqt5svg5-dev
 
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2019' }}
@@ -113,7 +125,7 @@ jobs:
       # Run build script
 
       - name: Linux build
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
         run: ./CI-linux.sh
 
       - name: macOS build
@@ -161,9 +173,9 @@ jobs:
             cmakebuild/*.7z.md5
 
       # Linux
-      - name: Upload Linux artifact
+      - name: Upload Linux artifacts
         uses: actions/upload-artifact@v2
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
+        if: ${{ matrix.os == 'ubuntu-18.04' }}
         with:
           name: linux
           path: |
