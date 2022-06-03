@@ -135,7 +135,6 @@ bool SelectionTool::mouseClick(const InputState& inputState) {
     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
       const auto* brush = faceHandle->node();
       const auto& face = faceHandle->face();
-      ;
       if (editorContext.selectable(brush, face)) {
         if (isMultiClick(inputState)) {
           const auto objects = document->hasSelectedNodes();
@@ -223,7 +222,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState) {
     const auto& hit = firstHit(inputState, Model::nodeHitType());
     if (hit.isMatch()) {
       const auto hitInGroup =
-        inGroup && hit.isMatch() && Model::hitToNode(hit)->isDescendantOf(document->currentGroup());
+        inGroup && Model::hitToNode(hit)->isDescendantOf(document->currentGroup());
       if (!inGroup || hitInGroup) {
         // If the hit node is inside a closed group, treat it as a hit on the group insted
         auto* group = findOutermostClosedGroup(Model::hitToNode(hit));
