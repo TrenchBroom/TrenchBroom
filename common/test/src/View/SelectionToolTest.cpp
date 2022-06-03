@@ -325,11 +325,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
 
           THEN("Nothing happens") {
             CHECK(document->selectedBrushFaces().empty());
-            /* EXPECTED:
             CHECK(document->selectedNodes().empty());
-            ACTUAL:
-            */
-            CHECK_FALSE(document->selectedNodes().empty());
           }
         }
       }
