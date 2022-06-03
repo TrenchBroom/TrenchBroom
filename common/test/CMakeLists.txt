@@ -114,6 +114,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/PickingTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ScaleObjectsToolTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SelectionTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/SelectionToolTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SetEntityPropertiesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SetLockStateTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SetVisibilityStateTest.cpp"
