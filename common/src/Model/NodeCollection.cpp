@@ -29,12 +29,22 @@
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
+#include <kdl/reflection_impl.h>
 
 #include <algorithm>
 #include <vector>
 
 namespace TrenchBroom {
 namespace Model {
+
+kdl_reflect_impl(NodeCollection);
+
+NodeCollection::NodeCollection() = default;
+
+NodeCollection::NodeCollection(const std::vector<Node*>& nodes) {
+  addNodes(nodes);
+}
+
 bool NodeCollection::empty() const {
   return m_nodes.empty();
 }

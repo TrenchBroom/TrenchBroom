@@ -53,7 +53,6 @@ private:
 public:
   explicit SelectionTool(std::weak_ptr<MapDocument> document);
 
-private:
   Tool& tool() override;
   const Tool& tool() const override;
 
