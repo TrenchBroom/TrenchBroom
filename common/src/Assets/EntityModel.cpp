@@ -480,6 +480,8 @@ EntityModelLoadedFrame& EntityModel::loadFrame(
 
   auto frame =
     std::make_unique<EntityModelLoadedFrame>(frameIndex, name, bounds, m_pitchType, m_orientation);
+  frame->setSkinOffset(m_frames[frameIndex]->skinOffset());
+
   auto& result = *frame;
   m_frames[frameIndex] = std::move(frame);
   return result;
