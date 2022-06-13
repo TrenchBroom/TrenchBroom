@@ -26,6 +26,8 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
 #include "Renderer/OrthographicCamera.h"
@@ -49,6 +51,57 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
     world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs()};
 
   auto tool = SelectionTool{document};
+
+  GIVEN("A group node") {
+    auto* brushNode = new Model::BrushNode{builder.createCube(32.0, "some_face").value()};
+    auto* entityNode = new Model::EntityNode{{}, {{"origin", "64 0 0"}}};
+    auto* groupNode = new Model::GroupNode(Model::Group{"some_group"});
+
+    document->addNodes({{document->parentForNodes(), {groupNode}}});
+    document->addNodes({{groupNode, {brushNode, entityNode}}});
+
+    auto camera = Renderer::OrthographicCamera{};
+
+    AND_GIVEN("A pick ray that points at the top face of the brush") {
+      camera.moveTo({0, 0, 32});
+      camera.setDirection({0, 0, -1}, {0, 1, 0});
+
+      const auto pickRay = vm::ray3{camera.pickRay({0, 0, 0})};
+
+      auto pickResult = Model::PickResult{};
+      document->pick(pickRay, pickResult);
+      REQUIRE(pickResult.all().size() == 1);
+
+      REQUIRE(document->selectedBrushFaces().empty());
+
+      auto inputState = InputState{};
+      inputState.setPickRequest({pickRay, camera});
+      inputState.setPickResult(std::move(pickResult));
+
+      WHEN("I click once") {
+        inputState.mouseDown(MouseButtons::MBLeft);
+        tool.mouseClick(inputState);
+        inputState.mouseUp(MouseButtons::MBLeft);
+
+        THEN("The group gets selected") {
+          CHECK(document->selectedBrushFaces().empty());
+          CHECK(document->selectedNodes() == Model::NodeCollection{{groupNode}});
+        }
+      }
+
+      WHEN("I double click") {
+        inputState.mouseDown(MouseButtons::MBLeft);
+        tool.mouseDoubleClick(inputState);
+        inputState.mouseUp(MouseButtons::MBLeft);
+
+        THEN("The group is opened") {
+          CHECK(document->selectedBrushFaces().empty());
+          CHECK(document->selectedNodes().empty());
+          CHECK(document->currentGroup() == groupNode);
+        }
+      }
+    }
+  }
 
   GIVEN("A brush node and an entity node") {
     auto brush =
