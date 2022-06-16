@@ -54,6 +54,7 @@ const GroupNode* findContainingLinkedGroup(const Node& node);
  * it if one is found, otherwise returns nullptr.
  */
 GroupNode* findOutermostClosedGroup(Node* node);
+const GroupNode* findOutermostClosedGroup(const Node* node);
 
 std::vector<Model::GroupNode*> findLinkedGroups(
   Model::WorldNode& worldNode, const std::string& linkedGroupId);

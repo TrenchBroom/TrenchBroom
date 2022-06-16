@@ -149,6 +149,10 @@ GroupNode* findOutermostClosedGroup(Node* node) {
     .value_or(nullptr);
 }
 
+const GroupNode* findOutermostClosedGroup(const Node* node) {
+  return findOutermostClosedGroup(const_cast<Node*>(node));
+}
+
 std::vector<Model::GroupNode*> findLinkedGroups(
   Model::WorldNode& worldNode, const std::string& linkedGroupId) {
   auto result = std::vector<Model::GroupNode*>{};

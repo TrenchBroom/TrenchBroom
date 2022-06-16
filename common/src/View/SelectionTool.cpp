@@ -59,6 +59,15 @@ static Model::Node* findOutermostClosedGroupOrNode(Model::Node* node) {
   return node;
 }
 
+static const Model::Node* findOutermostClosedGroupOrNode(const Model::Node* node) {
+  const Model::GroupNode* group = findOutermostClosedGroup(node);
+  if (group != nullptr) {
+    return group;
+  }
+
+  return node;
+}
+
 static Model::HitFilter isNodeSelectable(const Model::EditorContext& editorContext) {
   return [&](const auto& hit) {
     if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
@@ -67,7 +76,7 @@ static Model::HitFilter isNodeSelectable(const Model::EditorContext& editorConte
       }
     }
     if (const auto* node = Model::hitToNode(hit)) {
-      return editorContext.selectable(node);
+      return editorContext.selectable(findOutermostClosedGroupOrNode(node));
     }
     return false;
   };

@@ -33,15 +33,15 @@ std::ostream& operator<<(std::ostream& lhs, const streamable_range_wrapper<R>& a
   using std::begin;
   using std::end;
 
+  lhs << "[";
   auto cur = begin(adapter.range);
   if (cur != end(adapter.range)) {
-    lhs << "[";
     lhs << *cur++;
     while (cur != end(adapter.range)) {
       lhs << "," << *cur++;
     }
-    lhs << "]";
   }
+  lhs << "]";
   return lhs;
 }
 } // namespace kdl
