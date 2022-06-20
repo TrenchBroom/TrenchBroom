@@ -82,7 +82,14 @@ Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file
   const auto* end = reader.end();
   const auto imageSize = static_cast<size_t>(end - begin);
   auto* imageBegin = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
-  auto* imageMemory = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
+
+  return doReadTextureFromMemory(textureName(path), imageBegin, imageSize);
+}
+
+Assets::Texture FreeImageTextureReader::doReadTextureFromMemory(
+  std::string name, uint8_t* begin, size_t size) const {
+  InitFreeImage::initialize();
+  auto* imageMemory = FreeImage_OpenMemory(begin, static_cast<DWORD>(size));
   const auto imageFormat = FreeImage_GetFileTypeFromMemory(imageMemory);
   auto* image = FreeImage_LoadFromMemory(imageFormat, imageMemory);
 
@@ -138,8 +145,12 @@ Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file
   const Color averageColor = getAverageColor(buffers.at(0), format);
 
   return Assets::Texture(
-    textureName(path), imageWidth, imageHeight, averageColor, std::move(buffers), format,
-    textureType);
+    name, imageWidth, imageHeight, averageColor, std::move(buffers), format, textureType);
+}
+
+Assets::Texture FreeImageTextureReader::readTextureFromMemory(
+  std::string name, uint8_t* begin, size_t size) const {
+  return doReadTextureFromMemory(std::move(name), begin, size);
 }
 } // namespace IO
 } // namespace TrenchBroom

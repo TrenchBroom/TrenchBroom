@@ -34,9 +34,12 @@ class FreeImageTextureReader : public TextureReader {
 public:
   explicit FreeImageTextureReader(
     const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  // Used by Assimp parser.
+  Assets::Texture readTextureFromMemory(std::string name, uint8_t* begin, size_t size) const;
 
 private:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
+  Assets::Texture doReadTextureFromMemory(std::string name, uint8_t* begin, size_t size) const;
 };
 } // namespace IO
 } // namespace TrenchBroom
