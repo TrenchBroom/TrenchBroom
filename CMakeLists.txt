@@ -114,6 +114,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 # Prevent gtest from being installed
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
+find_package(assimp CONFIG REQUIRED)
 find_package(freeimage CONFIG REQUIRED)
 find_package(freetype CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
