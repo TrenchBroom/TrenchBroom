@@ -151,6 +151,11 @@ TEST_CASE("entityRotationInfo") {
   {{{"classname", "other"}},      true,  {{EntityDefinitionType::PointEntity,
                                            {manglePropertyDef}}},         nullptr,        {EntityRotationType::Euler_PositivePitchDown, "mangle", EntityRotationUsage::Allowed}},
 
+  // prefer actual existing properties over definitions when determining the rotation type
+  {{{"classname", "other"},
+    {"angle", "45"}},             true,  {{EntityDefinitionType::PointEntity,
+                                           {manglePropertyDef}}},         nullptr,        {EntityRotationType::AngleUpDown, "angle", EntityRotationUsage::Allowed}},
+
   // but not for light entities
   {{{"classname", "light"}},      true,  {{EntityDefinitionType::PointEntity,
                                            {manglePropertyDef}}},         nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},

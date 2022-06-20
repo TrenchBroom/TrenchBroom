@@ -81,13 +81,23 @@ std::ostream& operator<<(std::ostream& lhs, const EntityRotationUsage& rhs) {
 kdl_reflect_impl(EntityRotationInfo);
 
 namespace {
-bool hasPropertyOrDefinition(const Entity& entity, const std::string& propertyKey) {
-  if (entity.hasProperty(propertyKey)) {
-    return true;
+std::optional<std::tuple<std::string, EntityRotationType>> selectEntityRotationType(
+  const Entity& entity, const std::vector<std::tuple<std::string, EntityRotationType>>&
+                          propertyToEntityRotationTypeMapping) {
+  for (const auto& [propertyKey, entityRotationType] : propertyToEntityRotationTypeMapping) {
+    if (entity.hasProperty(propertyKey)) {
+      return {{propertyKey, entityRotationType}};
+    }
   }
 
-  const auto* definition = entity.definition();
-  return definition != nullptr && definition->propertyDefinition(propertyKey) != nullptr;
+  for (const auto& [propertyKey, entityRotationType] : propertyToEntityRotationTypeMapping) {
+    const auto* definition = entity.definition();
+    if (definition != nullptr && definition->propertyDefinition(propertyKey) != nullptr) {
+      return {{propertyKey, entityRotationType}};
+    }
+  }
+
+  return std::nullopt;
 }
 } // namespace
 
@@ -129,16 +139,12 @@ EntityRotationInfo entityRotationInfo(const Entity& entity) {
 
       if (!entity.pointEntity()) {
         // brush entity
-        if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Angles)) {
-          type = eulerType;
-          propertyKey = EntityPropertyKeys::Angles;
-        } else if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Mangle)) {
-          type = eulerType;
-          propertyKey = EntityPropertyKeys::Mangle;
-        } else if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Angle)) {
-          type = EntityRotationType::AngleUpDown;
-          propertyKey = EntityPropertyKeys::Angle;
-        }
+        std::tie(propertyKey, type) =
+          selectEntityRotationType(
+            entity, {{EntityPropertyKeys::Angles, eulerType},
+                     {EntityPropertyKeys::Mangle, eulerType},
+                     {EntityPropertyKeys::Angle, EntityRotationType::AngleUpDown}})
+            .value_or(std::make_tuple(propertyKey, type));
       } else {
         // point entity
 
@@ -150,16 +156,12 @@ EntityRotationInfo entityRotationInfo(const Entity& entity) {
           usage = EntityRotationUsage::BlockRotation;
         }
 
-        if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Angles)) {
-          type = eulerType;
-          propertyKey = EntityPropertyKeys::Angles;
-        } else if (hasPropertyOrDefinition(entity, EntityPropertyKeys::Mangle)) {
-          type = eulerType;
-          propertyKey = EntityPropertyKeys::Mangle;
-        } else {
-          type = EntityRotationType::AngleUpDown;
-          propertyKey = EntityPropertyKeys::Angle;
-        }
+        std::tie(propertyKey, type) =
+          selectEntityRotationType(
+            entity, {{EntityPropertyKeys::Angles, eulerType},
+                     {EntityPropertyKeys::Mangle, eulerType},
+                     {EntityPropertyKeys::Angle, EntityRotationType::AngleUpDown}})
+            .value_or(std::make_tuple(EntityPropertyKeys::Angle, EntityRotationType::AngleUpDown));
       }
     }
   }
