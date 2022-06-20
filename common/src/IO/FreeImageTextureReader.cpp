@@ -27,6 +27,8 @@
 #include "IO/File.h"
 #include "IO/ImageLoaderImpl.h"
 
+#include <kdl/invoke.h>
+
 #include <stdexcept>
 
 namespace TrenchBroom {
@@ -49,10 +51,6 @@ Color FreeImageTextureReader::getAverageColor(
   return average;
 }
 
-FreeImageTextureReader::FreeImageTextureReader(
-  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader(nameStrategy, fs, logger) {}
-
 /**
  * The byte order of a 32bpp FIBITMAP is defined by the macros FI_RGBA_RED,
  * FI_RGBA_GREEN, FI_RGBA_BLUE, FI_RGBA_ALPHA.
@@ -73,6 +71,73 @@ static constexpr GLenum freeImage32BPPFormatToGLFormat() {
   }
 }
 
+Assets::Texture FreeImageTextureReader::readTextureFromMemory(
+  const std::string& name, const uint8_t* begin, const size_t size) {
+  InitFreeImage::initialize();
+
+  auto* imageMemory = FreeImage_OpenMemory(const_cast<uint8_t*>(begin), static_cast<DWORD>(size));
+  auto memoryGuard = kdl::invoke_later{[&]() {
+    FreeImage_CloseMemory(imageMemory);
+  }};
+
+  const auto imageFormat = FreeImage_GetFileTypeFromMemory(imageMemory);
+  auto* image = FreeImage_LoadFromMemory(imageFormat, imageMemory);
+  auto imageGuard = kdl::invoke_later{[&]() {
+    FreeImage_Unload(image);
+  }};
+
+  if (image == nullptr) {
+    throw AssetException("FreeImage could not load image data");
+  }
+
+  const auto imageWidth = static_cast<size_t>(FreeImage_GetWidth(image));
+  const auto imageHeight = static_cast<size_t>(FreeImage_GetHeight(image));
+
+  if (!checkTextureDimensions(imageWidth, imageHeight)) {
+    throw AssetException("Invalid texture dimensions");
+  }
+
+  // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
+  const auto masked = FreeImage_IsTransparent(image);
+
+  constexpr auto mipCount = 1u;
+  constexpr auto format = freeImage32BPPFormatToGLFormat();
+
+  auto buffers = Assets::TextureBufferList{mipCount};
+  Assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
+
+  if (
+    FreeImage_GetColorType(image) != FIC_RGBALPHA ||
+    FreeImage_GetLine(image) / FreeImage_GetWidth(image) != 4) {
+    FreeImage_Unload(std::exchange(image, FreeImage_ConvertTo32Bits(image)));
+  }
+
+  if (image == nullptr) {
+    throw AssetException("Unsupported pixel format");
+  }
+
+  ensure(
+    FreeImage_GetLine(image) / FreeImage_GetWidth(image) == 4,
+    "expected to have converted image to 32-bit");
+
+  auto* outBytes = buffers.at(0).data();
+  const auto outBytesPerRow = static_cast<int>(imageWidth * 4);
+
+  FreeImage_ConvertToRawBits(
+    outBytes, image, outBytesPerRow, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK,
+    TRUE);
+
+  const auto textureType = Assets::Texture::selectTextureType(masked);
+  const Color averageColor = getAverageColor(buffers.at(0), format);
+
+  return Assets::Texture{name,   imageWidth, imageHeight, averageColor, std::move(buffers),
+                         format, textureType};
+}
+
+FreeImageTextureReader::FreeImageTextureReader(
+  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
+  : TextureReader(nameStrategy, fs, logger) {}
+
 Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
   auto reader = file->reader().buffer();
 
@@ -83,64 +148,8 @@ Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file
   const auto* end = reader.end();
   const auto imageSize = static_cast<size_t>(end - begin);
   auto* imageBegin = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
-  auto* imageMemory = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
-  const auto imageFormat = FreeImage_GetFileTypeFromMemory(imageMemory);
-  auto* image = FreeImage_LoadFromMemory(imageFormat, imageMemory);
 
-  if (image == nullptr) {
-    FreeImage_CloseMemory(imageMemory);
-    throw AssetException("FreeImage could not load image data");
-  }
-
-  const auto imageWidth = static_cast<size_t>(FreeImage_GetWidth(image));
-  const auto imageHeight = static_cast<size_t>(FreeImage_GetHeight(image));
-
-  if (!checkTextureDimensions(imageWidth, imageHeight)) {
-    FreeImage_CloseMemory(imageMemory);
-    throw AssetException("Invalid texture dimensions");
-  }
-
-  const auto imageColourType = FreeImage_GetColorType(image);
-
-  // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
-  const auto masked = FreeImage_IsTransparent(image);
-
-  const size_t mipCount = 1;
-  constexpr auto format = freeImage32BPPFormatToGLFormat();
-  Assets::TextureBufferList buffers(mipCount);
-  Assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
-
-  const auto inputBytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
-  if (imageColourType != FIC_RGBALPHA || inputBytesPerPixel != 4) {
-    FIBITMAP* tempImage = FreeImage_ConvertTo32Bits(image);
-    FreeImage_Unload(image);
-    image = tempImage;
-  }
-
-  if (image == nullptr) {
-    FreeImage_CloseMemory(imageMemory);
-    throw AssetException("Unsupported pixel format");
-  }
-
-  const auto bytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
-  ensure(bytesPerPixel == 4, "expected to have converted image to 32-bit");
-
-  auto* outBytes = buffers.at(0).data();
-  const auto outBytesPerRow = static_cast<int>(imageWidth * 4);
-
-  FreeImage_ConvertToRawBits(
-    outBytes, image, outBytesPerRow, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK,
-    TRUE);
-
-  FreeImage_Unload(image);
-  FreeImage_CloseMemory(imageMemory);
-
-  const auto textureType = Assets::Texture::selectTextureType(masked);
-  const Color averageColor = getAverageColor(buffers.at(0), format);
-
-  return Assets::Texture(
-    textureName(path), imageWidth, imageHeight, averageColor, std::move(buffers), format,
-    textureType);
+  return readTextureFromMemory(textureName(path), imageBegin, imageSize);
 }
 } // namespace IO
 } // namespace TrenchBroom
