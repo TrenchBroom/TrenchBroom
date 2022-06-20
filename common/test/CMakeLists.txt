@@ -24,6 +24,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/EL/ExpressionTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/InterpolatorTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/AseParserTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/AssimpParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/CompilationConfigParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/DefParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/DiskFileSystemTest.cpp"

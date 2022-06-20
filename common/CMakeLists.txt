@@ -25,6 +25,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/EL/Value.cpp
         ${COMMON_SOURCE_DIR}/EL/VariableStore.cpp
         ${COMMON_SOURCE_DIR}/IO/AseParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/AssimpParser.cpp
         ${COMMON_SOURCE_DIR}/IO/BrushFaceReader.cpp
         ${COMMON_SOURCE_DIR}/IO/Bsp29Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.cpp
@@ -510,6 +511,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/EL/Value.h
         ${COMMON_SOURCE_DIR}/EL/VariableStore.h
         ${COMMON_SOURCE_DIR}/IO/AseParser.h
+        ${COMMON_SOURCE_DIR}/IO/AssimpParser.h
         ${COMMON_SOURCE_DIR}/IO/BrushFaceReader.h
         ${COMMON_SOURCE_DIR}/IO/Bsp29Parser.h
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.h
