@@ -214,7 +214,7 @@ jobs:
 
       - name: Upload compiled manual
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-20.04' }}
+        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-18.04' }}
         with:
           # I've created a SSH key pair following https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-create-ssh-deploy-key
           # The TrenchBroom/TrenchBroom repo has a repository secret ACTIONS_DEPLOY_KEY set to the SSH private key
