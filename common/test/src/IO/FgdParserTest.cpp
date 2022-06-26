@@ -43,6 +43,8 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles", "[FgdParserTest]") {
     Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
 
   for (const Path& path : cfgFiles) {
+    CAPTURE(path);
+
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
 
@@ -50,7 +52,6 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles", "[FgdParserTest]") {
     FgdParser parser(reader.stringView(), defaultColor, path);
 
     TestParserStatus status;
-    UNSCOPED_INFO("Parsing FGD file " << path.asString() << " failed");
     CHECK_NOTHROW(parser.parseDefinitions(status));
 
     /* Disabled because our files are full of previously undetected problems

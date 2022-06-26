@@ -40,6 +40,8 @@ TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTes
     Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
 
   for (const Path& path : cfgFiles) {
+    CAPTURE(path);
+
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
 
