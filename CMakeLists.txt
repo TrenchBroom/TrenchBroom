@@ -5,13 +5,21 @@ cmake_minimum_required(VERSION 3.14)
 
 # Fix warning with Ninja and cotire (see https://github.com/sakra/cotire/issues/81)
 if(POLICY CMP0058)
-    cmake_policy(SET CMP0058 NEW)
+  cmake_policy(SET CMP0058 NEW)
 endif()
 
 # Instruct cmake not to set default warning levels for MSVC projects (cmake 3.15 or higher)
-if (POLICY CMP0092)
-    cmake_policy(SET CMP0092 NEW)
+if(POLICY CMP0092)
+  cmake_policy(SET CMP0092 NEW)
 endif()
+
+if(POLICY CMP0063)
+  cmake_policy(SET CMP0063 NEW)
+endif()
+
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
 # Enable the source_group command for creating IDE folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -28,29 +36,30 @@ project(TrenchBroom C CXX)
 
 # Configure CCache if available and requested
 if(TB_ENABLE_CCACHE)
-    find_program(CCACHE_PATH ccache)
-    if(CCACHE_PATH)
-        message(STATUS "Found ccache: ${CCACHE_PATH}")
+  find_program(CCACHE_PATH ccache)
 
-        # Set up wrapper scripts, see https://crascit.com/2016/04/09/using-ccache-with-cmake/
-        set(C_LAUNCHER   "${CCACHE_PATH}")
-        set(CXX_LAUNCHER "${CCACHE_PATH}")
-        configure_file(cmake/launch-c.in   launch-c)
-        configure_file(cmake/launch-cxx.in launch-cxx)
+  if(CCACHE_PATH)
+    message(STATUS "Found ccache: ${CCACHE_PATH}")
 
-        if(CMAKE_GENERATOR STREQUAL "Xcode")
-            # Set Xcode project attributes to route compilation and linking
-            # through our scripts
-            set(CMAKE_XCODE_ATTRIBUTE_CC         "${CMAKE_BINARY_DIR}/launch-c")
-            set(CMAKE_XCODE_ATTRIBUTE_CXX        "${CMAKE_BINARY_DIR}/launch-cxx")
-            set(CMAKE_XCODE_ATTRIBUTE_LD         "${CMAKE_BINARY_DIR}/launch-c")
-            set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS "${CMAKE_BINARY_DIR}/launch-cxx")
-        else()
-            # Support Unix Makefiles and Ninja
-            set(CMAKE_C_COMPILER_LAUNCHER   "${CMAKE_BINARY_DIR}/launch-c")
-            set(CMAKE_CXX_COMPILER_LAUNCHER "${CMAKE_BINARY_DIR}/launch-cxx")
-        endif()
-    endif(CCACHE_PATH)
+    # Set up wrapper scripts, see https://crascit.com/2016/04/09/using-ccache-with-cmake/
+    set(C_LAUNCHER "${CCACHE_PATH}")
+    set(CXX_LAUNCHER "${CCACHE_PATH}")
+    configure_file(cmake/launch-c.in launch-c)
+    configure_file(cmake/launch-cxx.in launch-cxx)
+
+    if(CMAKE_GENERATOR STREQUAL "Xcode")
+      # Set Xcode project attributes to route compilation and linking
+      # through our scripts
+      set(CMAKE_XCODE_ATTRIBUTE_CC "${CMAKE_BINARY_DIR}/launch-c")
+      set(CMAKE_XCODE_ATTRIBUTE_CXX "${CMAKE_BINARY_DIR}/launch-cxx")
+      set(CMAKE_XCODE_ATTRIBUTE_LD "${CMAKE_BINARY_DIR}/launch-c")
+      set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS "${CMAKE_BINARY_DIR}/launch-cxx")
+    else()
+      # Support Unix Makefiles and Ninja
+      set(CMAKE_C_COMPILER_LAUNCHER "${CMAKE_BINARY_DIR}/launch-c")
+      set(CMAKE_CXX_COMPILER_LAUNCHER "${CMAKE_BINARY_DIR}/launch-cxx")
+    endif()
+  endif(CCACHE_PATH)
 endif(TB_ENABLE_CCACHE)
 
 # Compiler detection
@@ -59,52 +68,55 @@ set(COMPILER_IS_GNU FALSE)
 set(COMPILER_IS_MSVC FALSE)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    set(COMPILER_IS_CLANG TRUE)
+  set(COMPILER_IS_CLANG TRUE)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(COMPILER_IS_GNU TRUE)
+  set(COMPILER_IS_GNU TRUE)
 elseif(MSVC EQUAL 1)
-    set(COMPILER_IS_MSVC TRUE)
+  set(COMPILER_IS_MSVC TRUE)
 else()
-    message(FATAL_ERROR "Unsupported compiler detected.")
+  message(FATAL_ERROR "Unsupported compiler detected.")
 endif()
 
 # Request 8MB stack on Windows. (NOTE: /STACK should be used on .exe targets only.)
 # Default is 1MB and we need more for our current AABB builder on large maps (https://github.com/TrenchBroom/TrenchBroom/issues/2803)
 if(COMPILER_IS_MSVC)
-    set(TB_STACK_SIZE 8388608)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${TB_STACK_SIZE}")
+  set(TB_STACK_SIZE 8388608)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${TB_STACK_SIZE}")
 
-    # This might work in CMake 3.13 and avoid a global setting, but we are on 3.12 for now
-    # target_link_options(common INTERFACE "/STACK:${TB_STACK_SIZE}")
+  # This might work in CMake 3.13 and avoid a global setting, but we are on 3.12 for now
+  # target_link_options(common INTERFACE "/STACK:${TB_STACK_SIZE}")
 endif()
 
 # Enable ASAN if possible and requested
 if(TB_ENABLE_ASAN)
-    message(STATUS "Enabling ASan")
-    if(COMPILER_IS_CLANG OR COMPILER_IS_GNU)
-        add_compile_options(-fsanitize=address)
-        add_link_options(-fsanitize=address)
-    else()
-        message(WARNING "TB isn't set up to enable ASan for compiler ${CMAKE_CXX_COMPILER_ID}")
-    endif()
+  message(STATUS "Enabling ASan")
+
+  if(COMPILER_IS_CLANG OR COMPILER_IS_GNU)
+    add_compile_options(-fsanitize=address)
+    add_link_options(-fsanitize=address)
+  else()
+    message(WARNING "TB isn't set up to enable ASan for compiler ${CMAKE_CXX_COMPILER_ID}")
+  endif()
 endif()
 
 include(cmake/Utils.cmake)
 
 # Find Git
 find_package(Git)
+
 if(NOT GIT_FOUND)
-    message(FATAL_ERROR "Could not find git")
+  message(FATAL_ERROR "Could not find git")
 endif()
 
 # Find Pandoc
-if (NOT PANDOC_PATH AND NOT PANDOC_PATH-NOTFOUND)
-    find_program(PANDOC_PATH NAMES "pandoc" DOC "Pandoc program location")
-    if(PANDOC_PATH-NOTFOUND)
-        message(FATAL_ERROR "Could not find pandoc")
-    else()
-        message(STATUS "Found Pandoc: ${PANDOC_PATH}")
-    endif()
+if(NOT PANDOC_PATH AND NOT PANDOC_PATH-NOTFOUND)
+  find_program(PANDOC_PATH NAMES "pandoc" DOC "Pandoc program location")
+
+  if(PANDOC_PATH-NOTFOUND)
+    message(FATAL_ERROR "Could not find pandoc")
+  else()
+    message(STATUS "Found Pandoc: ${PANDOC_PATH}")
+  endif()
 endif()
 
 # Prevent overriding the parent project's compiler/linker
@@ -125,6 +137,7 @@ find_package(tinyxml2 CONFIG REQUIRED)
 # Find Qt and OpenGL
 find_package(OpenGL REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets Svg REQUIRED)
+
 # Qt will warn about API's that were deprecated after 5.9.5.
 # Since we're not raising our minimum Qt version, and can't use the replacement
 # API's, disable these warnings.
