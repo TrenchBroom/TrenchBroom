@@ -23,11 +23,46 @@
 #include "EL/Value.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/string_utils.h>
 
+#include <algorithm>
+#include <ostream>
 #include <string>
 
 namespace TrenchBroom {
 namespace EL {
+
+void VariableStore::appendToStream(std::ostream& str) const {
+  str << "{\n";
+
+  const auto& allNames = names();
+  for (size_t i = 0; i < allNames.size(); ++i) {
+    const auto& name = allNames[i];
+    str << "  " << name << ": " << value(name);
+    if (i < allNames.size() - 1) {
+      str << ", ";
+    }
+  }
+
+  str << "}";
+}
+
+std::ostream& operator<<(std::ostream& lhs, const VariableStore& rhs) {
+  rhs.appendToStream(lhs);
+  return lhs;
+}
+
+bool operator==(const VariableStore& lhs, const VariableStore& rhs) {
+  const auto names = lhs.names();
+  return names == rhs.names() &&
+         std::all_of(std::begin(names), std::end(names), [&](const auto& name) {
+           return lhs.value(name) == rhs.value(name);
+         });
+}
+
+bool operator!=(const VariableStore& lhs, const VariableStore& rhs) {
+  return !(lhs == rhs);
+}
 
 VariableTable::VariableTable() = default;
 
