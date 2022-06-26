@@ -44,7 +44,7 @@ GameConfigParser::GameConfigParser(std::string_view str, const Path& path)
   , m_version(0) {}
 
 static void checkVersion(const EL::Value& version) {
-  const std::vector<EL::IntegerType> validVsns({3, 4});
+  const std::vector<EL::IntegerType> validVsns({3, 4, 5});
   const bool isNumVersion = version.convertibleTo(EL::ValueType::Number);
   const bool isValidVersion =
     isNumVersion &&
@@ -187,12 +187,12 @@ Model::EntityConfig GameConfigParser::parseEntityConfig(const EL::Value& value) 
   expectStructure(
     value,
     "["
-    "{'definitions': 'Array', 'modelformats': 'Array', 'defaultcolor': 'String'},"
-    "{'scale': '*'}" // scale is an expression
+    "{'definitions': 'Array', 'defaultcolor': 'String'},"
+    "{'modelformats': 'Array', 'scale': '*'}" // scale is an expression
     "]");
 
   return Model::EntityConfig{
-    Path::asPaths(value["definitions"].asStringList()), value["modelformats"].asStringSet(),
+    Path::asPaths(value["definitions"].asStringList()),
     Color::parse(value["defaultcolor"].stringValue()).value_or(Color()),
     value["scale"].expression()};
 }

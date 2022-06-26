@@ -91,11 +91,10 @@ struct TextureConfig {
 
 struct EntityConfig {
   std::vector<IO::Path> defFilePaths;
-  std::vector<std::string> modelFormats;
   Color defaultColor;
   std::optional<EL::Expression> scaleExpression;
 
-  kdl_reflect_decl(EntityConfig, defFilePaths, modelFormats, defaultColor, scaleExpression);
+  kdl_reflect_decl(EntityConfig, defFilePaths, defaultColor, scaleExpression);
 };
 
 struct FlagConfig {

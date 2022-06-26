@@ -2384,8 +2384,7 @@ Game configuration files need to specify the following information.
 * **Entities**
 	* The builtin **entity definition files**
 	* The **default color** to use in the UI
-	* The supported **model formats**, e.g. mdl
-    * A default **model scale expression**
+  * A default **model scale expression**
 * **Tags** to attach additional information to faces or brushes in the editor, e.g. whether a face is detail or hint. (optional)
 * **Face attributes** to specify which additional attributes to allow on brush faces (optional)
 * **Map bounds** to be displayed in the 2D viewports (optional)
@@ -2414,7 +2413,6 @@ The game configuration is an [expression language](#expression_language) map wit
         "entities": { // the builtin entity definition files for this game
             "definitions": [ "Quake2.fgd" ],
             "defaultcolor": "0.6 0.6 0.6 1.0",
-            "modelformats": [ "md2" ],
             "scale": [ modelscale, modelscale_vec ]
         },
         "tags": { // "smart tags" select or modify a brush/face based on its characteristics
@@ -2626,27 +2624,15 @@ The optional `excludes` key specifies a list of patterns matched against texture
 
 #### Entity Configuration {#game_configuration_files_entities}
 
-In the entity configuration section, you can specify which entity definition files come with your game configuration, which model formats are supported for rendering the entity models in the editor, a default color for entities and an expression that yields a default scale when evaluated against an entities' properties.
+In the entity configuration section, you can specify which entity definition files come with your game configuration, a default color for entities and an expression that yields a default scale when evaluated against an entities' properties.
 
   	"entities": { // the builtin entity definition files for this game
 		"definitions": [ "Quake2/Quake2.fgd" ],
     	"defaultcolor": "0.6 0.6 0.6 1.0",
-		"modelformats": [ "md2" ],
-        "scale": [ modelscale, modelscale_vec ]
+      "scale": [ modelscale, modelscale_vec ]
     },
 
 The `definitions` key provides a list of entity definition files. These files are specified by a path that is relative to the `games` directory where TrenchBroom searches for the game configurations.
-
-The `modelformats` key has a list of model formats used by this game. The following model formats are supported.
-
-Format       Description
-------       -----------
-mdl          Quake model format
-md2          Quake 2 model format
-md3          Quake 3 model format
-bsp        	 Compiled brush model, used by Quake and Hexen 2
-dkm          Daikatana model format
-
 
 The `scale` key has an expression that is evaluated against an entities' properties to determine the model scale. This expression can refer to any of the entities' properties, or it can provide fixed values.
 
