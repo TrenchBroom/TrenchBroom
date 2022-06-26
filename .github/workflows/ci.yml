@@ -194,7 +194,6 @@ jobs:
             build/*.md5
 
       # Create release
-
       # Official action upload-release-asset doesn't support uploading files
       # based on a glob, so use https://github.com/softprops/action-gh-release
       - name: Release
