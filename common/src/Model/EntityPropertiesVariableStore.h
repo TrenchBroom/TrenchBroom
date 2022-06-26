@@ -36,13 +36,12 @@ private:
 public:
   explicit EntityPropertiesVariableStore(const Entity& entity);
 
-private:
-  VariableStore* doClone() const override;
-  size_t doGetSize() const override;
-  EL::Value doGetValue(const std::string& name) const override;
-  std::vector<std::string> doGetNames() const override;
-  void doDeclare(const std::string& name, const EL::Value& value) override;
-  void doAssign(const std::string& name, const EL::Value& value) override;
+  VariableStore* clone() const override;
+  size_t size() const override;
+  EL::Value value(const std::string& name) const override;
+  std::vector<std::string> names() const override;
+  void declare(const std::string& name, const EL::Value& value) override;
+  void assign(const std::string& name, const EL::Value& value) override;
 
   deleteCopyAndMove(EntityPropertiesVariableStore);
 };

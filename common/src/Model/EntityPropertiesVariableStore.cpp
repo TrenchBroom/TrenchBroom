@@ -30,15 +30,15 @@ namespace Model {
 EntityPropertiesVariableStore::EntityPropertiesVariableStore(const Entity& entity)
   : m_entity(entity) {}
 
-EL::VariableStore* EntityPropertiesVariableStore::doClone() const {
+EL::VariableStore* EntityPropertiesVariableStore::clone() const {
   return new EntityPropertiesVariableStore(m_entity);
 }
 
-size_t EntityPropertiesVariableStore::doGetSize() const {
+size_t EntityPropertiesVariableStore::size() const {
   return m_entity.properties().size();
 }
 
-EL::Value EntityPropertiesVariableStore::doGetValue(const std::string& name) const {
+EL::Value EntityPropertiesVariableStore::value(const std::string& name) const {
   const std::string* value = m_entity.property(name);
   if (value == nullptr) {
     return EL::Value::Undefined;
@@ -47,16 +47,16 @@ EL::Value EntityPropertiesVariableStore::doGetValue(const std::string& name) con
   }
 }
 
-std::vector<std::string> EntityPropertiesVariableStore::doGetNames() const {
+std::vector<std::string> EntityPropertiesVariableStore::names() const {
   return m_entity.propertyKeys();
 }
 
-void EntityPropertiesVariableStore::doDeclare(
+void EntityPropertiesVariableStore::declare(
   const std::string& /* name */, const EL::Value& /* value */) {
   throw EL::EvaluationError("Declaring properties directly is unsafe");
 }
 
-void EntityPropertiesVariableStore::doAssign(
+void EntityPropertiesVariableStore::assign(
   const std::string& /* name */, const EL::Value& /* value */) {
   throw EL::EvaluationError("Changing properties directly is unsafe");
 }
