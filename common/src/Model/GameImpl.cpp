@@ -481,68 +481,82 @@ static bool isModelFormat(
   return candidate == extension && kdl::vec_contains(supported, candidate);
 }
 
+template <typename GetPalette, typename Function>
+static auto withEntityParser(
+  const GameFileSystem& fs, const IO::Path& path, const std::vector<std::string>& supported,
+  const GetPalette& getPalette, const Function& fun) {
+  auto file = fs.openFile(path);
+  ensure(file != nullptr, "file is null");
+
+  const auto modelName = path.lastComponent().asString();
+  const auto extension = kdl::str_to_lower(path.extension());
+
+  if (isModelFormat("mdl", extension, supported)) {
+    const auto palette = getPalette();
+    auto reader = file->reader().buffer();
+    auto parser = IO::MdlParser{modelName, std::begin(reader), std::end(reader), palette};
+    return fun(parser);
+  } else if (isModelFormat("md2", extension, supported)) {
+    const auto palette = getPalette();
+    auto reader = file->reader().buffer();
+    auto parser = IO::Md2Parser{modelName, std::begin(reader), std::end(reader), palette, fs};
+    return fun(parser);
+  } else if (isModelFormat("md3", extension, supported)) {
+    auto reader = file->reader().buffer();
+    auto parser = IO::Md3Parser{modelName, std::begin(reader), std::end(reader), fs};
+    return fun(parser);
+  } else if (isModelFormat("mdx", extension, supported)) {
+    auto reader = file->reader().buffer();
+    auto parser = IO::MdxParser{modelName, std::begin(reader), std::end(reader), fs};
+    return fun(parser);
+  } else if (isModelFormat("bsp", extension, supported)) {
+    const auto palette = getPalette();
+    auto reader = file->reader().buffer();
+    auto parser = IO::Bsp29Parser{modelName, std::begin(reader), std::end(reader), palette, fs};
+    return fun(parser);
+  } else if (isModelFormat("dkm", extension, supported)) {
+    auto reader = file->reader().buffer();
+    auto parser = IO::DkmParser{modelName, std::begin(reader), std::end(reader), fs};
+    return fun(parser);
+  } else if (isModelFormat("ase", extension, supported)) {
+    auto reader = file->reader().buffer();
+    auto parser = IO::AseParser{modelName, reader.stringView(), fs};
+    return fun(parser);
+  } else if (isModelFormat("obj", extension, supported)) {
+    auto reader = file->reader().buffer();
+    // has to be the whole path for implicit textures!
+    auto parser = IO::NvObjParser{path, std::begin(reader), std::end(reader), fs};
+    return fun(parser);
+  } else if (isModelFormat("png", extension, supported)) {
+    auto parser = IO::ImageSpriteParser{modelName, file, fs};
+    return fun(parser);
+  } else if (isModelFormat("spr", extension, supported)) {
+    const auto palette = getPalette();
+    auto reader = file->reader().buffer();
+    auto parser = IO::SprParser{modelName, std::begin(reader), std::end(reader), palette};
+    return fun(parser);
+  } else if (
+    kdl::vec_contains(IO::AssimpParser::supportedExtensions(), extension) &&
+    kdl::vec_contains(supported, "assimp")) {
+    auto parser = IO::AssimpParser{path, fs};
+    return fun(parser);
+  }
+  throw GameException("Unsupported model format '" + path.asString() + "'");
+}
+
 std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(
   const IO::Path& path, Logger& logger) const {
   try {
-    auto file = m_fs.openFile(path);
-    ensure(file != nullptr, "file is null");
+    const auto getPalette = [&]() {
+      return loadTexturePalette();
+    };
 
-    const auto modelName = path.lastComponent().asString();
-    const auto extension = kdl::str_to_lower(path.extension());
-    const auto supported = m_config.entityConfig.modelFormats;
+    const auto initializeModel = [&](auto& parser) {
+      return parser.initializeModel(logger);
+    };
 
-    if (isModelFormat("mdl", extension, supported)) {
-      const auto palette = loadTexturePalette();
-      auto reader = file->reader().buffer();
-      auto parser = IO::MdlParser{modelName, std::begin(reader), std::end(reader), palette};
-      return parser.initializeModel(logger);
-    } else if (isModelFormat("md2", extension, supported)) {
-      const auto palette = loadTexturePalette();
-      auto reader = file->reader().buffer();
-      auto parser = IO::Md2Parser{modelName, std::begin(reader), std::end(reader), palette, m_fs};
-      return parser.initializeModel(logger);
-    } else if (isModelFormat("md3", extension, supported)) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::Md3Parser{modelName, std::begin(reader), std::end(reader), m_fs};
-      return parser.initializeModel(logger);
-    } else if (isModelFormat("mdx", extension, supported)) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::MdxParser{modelName, std::begin(reader), std::end(reader), m_fs};
-      return parser.initializeModel(logger);
-    } else if (isModelFormat("bsp", extension, supported)) {
-      const auto palette = loadTexturePalette();
-      auto reader = file->reader().buffer();
-      auto parser = IO::Bsp29Parser{modelName, std::begin(reader), std::end(reader), palette, m_fs};
-      return parser.initializeModel(logger);
-    } else if (isModelFormat("dkm", extension, supported)) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::DkmParser{modelName, std::begin(reader), std::end(reader), m_fs};
-      return parser.initializeModel(logger);
-    } else if (isModelFormat("ase", extension, supported)) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::AseParser{modelName, reader.stringView(), m_fs};
-      return parser.initializeModel(logger);
-    } else if (isModelFormat("obj", extension, supported)) {
-      auto reader = file->reader().buffer();
-      // has to be the whole path for implicit textures!
-      auto parser = IO::NvObjParser{path, std::begin(reader), std::end(reader), m_fs};
-      return parser.initializeModel(logger);
-    } else if (isModelFormat("png", extension, supported)) {
-      auto parser = IO::ImageSpriteParser{modelName, file, m_fs};
-      return parser.initializeModel(logger);
-    } else if (isModelFormat("spr", extension, supported)) {
-      const auto palette = loadTexturePalette();
-      auto reader = file->reader().buffer();
-      auto parser = IO::SprParser{modelName, std::begin(reader), std::end(reader), palette};
-      return parser.initializeModel(logger);
-    } else if (
-      kdl::vec_contains(IO::AssimpParser::supportedExtensions(), extension) &&
-      kdl::vec_contains(supported, "assimp")) {
-      IO::AssimpParser parser(path, m_fs);
-      return parser.initializeModel(logger);
-    } else {
-      throw GameException("Unsupported model format '" + path.asString() + "'");
-    }
+    return withEntityParser(
+      m_fs, path, m_config.entityConfig.modelFormats, getPalette, initializeModel);
   } catch (const FileSystemException& e) {
     throw GameException("Could not load model " + path.asString() + ": " + std::string(e.what()));
   } catch (const AssetException& e) {
@@ -563,50 +577,16 @@ void GameImpl::doLoadFrame(
 
     const auto modelName = path.lastComponent().asString();
     const auto extension = kdl::str_to_lower(path.extension());
-    const auto supported = m_config.entityConfig.modelFormats;
 
-    if (isModelFormat("mdl", extension, supported)) {
-      const auto palette = loadTexturePalette();
-      auto reader = file->reader().buffer();
-      auto parser = IO::MdlParser{modelName, std::begin(reader), std::end(reader), palette};
-      parser.loadFrame(frameIndex, model, logger);
-    } else if (isModelFormat("md2", extension, supported)) {
-      const auto palette = loadTexturePalette();
-      auto reader = file->reader().buffer();
-      auto parser = IO::Md2Parser{modelName, std::begin(reader), std::end(reader), palette, m_fs};
-      parser.loadFrame(frameIndex, model, logger);
-    } else if (isModelFormat("md3", extension, supported)) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::Md3Parser{modelName, std::begin(reader), std::end(reader), m_fs};
-      parser.loadFrame(frameIndex, model, logger);
-    } else if (isModelFormat("mdx", extension, supported)) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::MdxParser{modelName, std::begin(reader), std::end(reader), m_fs};
-      parser.loadFrame(frameIndex, model, logger);
-    } else if (isModelFormat("bsp", extension, supported)) {
-      const auto palette = loadTexturePalette();
-      auto reader = file->reader().buffer();
-      auto parser = IO::Bsp29Parser{modelName, std::begin(reader), std::end(reader), palette, m_fs};
-      parser.loadFrame(frameIndex, model, logger);
-    } else if (isModelFormat("dkm", extension, supported)) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::DkmParser{modelName, std::begin(reader), std::end(reader), m_fs};
-      parser.loadFrame(frameIndex, model, logger);
-    } else if (isModelFormat("ase", extension, supported)) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::AseParser{modelName, reader.stringView(), m_fs};
-      parser.loadFrame(frameIndex, model, logger);
-    } else if (isModelFormat("obj", extension, supported)) {
-      auto reader = file->reader().buffer();
-      // has to be the whole path for implicit textures!
-      auto parser = IO::NvObjParser{path, std::begin(reader), std::end(reader), m_fs};
-      parser.loadFrame(frameIndex, model, logger);
-    } else if (isModelFormat("png", extension, supported)) {
-      auto parser = IO::ImageSpriteParser{modelName, file, m_fs};
-      parser.loadFrame(frameIndex, model, logger);
-    } else {
-      throw GameException("Unsupported model format '" + path.asString() + "'");
-    }
+    const auto getPalette = [&]() {
+      return loadTexturePalette();
+    };
+
+    const auto loadFrame = [&](auto& parser) {
+      return parser.loadFrame(frameIndex, model, logger);
+    };
+
+    return withEntityParser(m_fs, path, m_config.entityConfig.modelFormats, getPalette, loadFrame);
   } catch (FileSystemException& e) {
     throw GameException("Could not load model " + path.asString() + ": " + std::string(e.what()));
   } catch (AssetException& e) {
