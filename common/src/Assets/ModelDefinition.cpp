@@ -87,7 +87,9 @@ static size_t index(const EL::Value& value) {
 static ModelSpecification convertToModel(const EL::Value& value) {
   switch (value.type()) {
     case EL::ValueType::Map:
-      return ModelSpecification{path(value["path"]), index(value["skin"]), index(value["frame"])};
+      return ModelSpecification{
+        path(value[ModelSpecificationKeys::Path]), index(value[ModelSpecificationKeys::Skin]),
+        index(value[ModelSpecificationKeys::Frame])};
     case EL::ValueType::String:
       return ModelSpecification{path(value), 0, 0};
     case EL::ValueType::Boolean:
@@ -161,7 +163,7 @@ vm::vec3 ModelDefinition::scale(
 
   switch (value.type()) {
     case EL::ValueType::Map:
-      if (const auto scale = convertToScale(value["scale"])) {
+      if (const auto scale = convertToScale(value[ModelSpecificationKeys::Scale])) {
         return *scale;
       }
     case EL::ValueType::String:
