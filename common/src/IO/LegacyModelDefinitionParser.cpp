@@ -123,7 +123,7 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(ParserSta
   const size_t startColumn = token.column();
 
   EL::MapType map;
-  map["path"] = EL::Value(token.data());
+  map[Assets::ModelSpecificationKeys::Path] = EL::Value(token.data());
 
   std::vector<size_t> indices;
 
@@ -146,9 +146,9 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(ParserSta
   }
 
   if (!indices.empty()) {
-    map["skin"] = EL::Value(indices[0]);
+    map[Assets::ModelSpecificationKeys::Skin] = EL::Value(indices[0]);
     if (indices.size() > 1)
-      map["frame"] = EL::Value(indices[1]);
+      map[Assets::ModelSpecificationKeys::Frame] = EL::Value(indices[1]);
   }
 
   EL::Expression modelExpression =
@@ -203,16 +203,17 @@ EL::Expression LegacyModelDefinitionParser::parseDynamicModelDefinition(ParserSt
   const size_t line = token.line();
   const size_t column = token.column();
 
-  std::map<std::string, EL::Expression> map({{"path", parseNamedValue(status, "pathKey")}});
+  std::map<std::string, EL::Expression> map(
+    {{Assets::ModelSpecificationKeys::Path, parseNamedValue(status, "pathKey")}});
 
   expect(status, MdlToken::Word | MdlToken::CParenthesis, token = m_tokenizer.peekToken());
 
   if (!token.hasType(MdlToken::CParenthesis)) {
     do {
       if (kdl::ci::str_is_equal("skinKey", token.data())) {
-        map.insert({"skin", parseNamedValue(status, "skinKey")});
+        map.insert({Assets::ModelSpecificationKeys::Skin, parseNamedValue(status, "skinKey")});
       } else if (kdl::ci::str_is_equal("frameKey", token.data())) {
-        map.insert({"frame", parseNamedValue(status, "frameKey")});
+        map.insert({Assets::ModelSpecificationKeys::Frame, parseNamedValue(status, "frameKey")});
       } else {
         const std::string msg =
           "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";

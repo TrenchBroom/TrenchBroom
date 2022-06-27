@@ -155,7 +155,9 @@ Assets::ModelDefinition EntParser::parseModel(
   } catch (const ParserException&) {
     const auto lineNum = static_cast<size_t>(element.GetLineNum());
     auto expression = EL::Expression(
-      EL::LiteralExpression(EL::Value(EL::MapType({{"path", EL::Value{model}}}))), lineNum, 0);
+      EL::LiteralExpression(
+        EL::Value(EL::MapType({{Assets::ModelSpecificationKeys::Path, EL::Value{model}}}))),
+      lineNum, 0);
     return Assets::ModelDefinition(expression);
   }
 }

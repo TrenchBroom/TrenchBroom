@@ -31,6 +31,14 @@
 
 namespace TrenchBroom {
 namespace Assets {
+
+namespace ModelSpecificationKeys {
+constexpr auto Path = "path";
+constexpr auto Skin = "skin";
+constexpr auto Frame = "frame";
+constexpr auto Scale = "scale";
+} // namespace ModelSpecificationKeys
+
 struct ModelSpecification {
   IO::Path path;
   size_t skinIndex;
