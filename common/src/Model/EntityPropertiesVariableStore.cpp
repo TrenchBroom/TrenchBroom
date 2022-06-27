@@ -28,10 +28,10 @@
 namespace TrenchBroom {
 namespace Model {
 EntityPropertiesVariableStore::EntityPropertiesVariableStore(const Entity& entity)
-  : m_entity(entity) {}
+  : m_entity{entity} {}
 
 EL::VariableStore* EntityPropertiesVariableStore::clone() const {
-  return new EntityPropertiesVariableStore(m_entity);
+  return new EntityPropertiesVariableStore{m_entity};
 }
 
 size_t EntityPropertiesVariableStore::size() const {
@@ -39,11 +39,11 @@ size_t EntityPropertiesVariableStore::size() const {
 }
 
 EL::Value EntityPropertiesVariableStore::value(const std::string& name) const {
-  const std::string* value = m_entity.property(name);
+  const auto* value = m_entity.property(name);
   if (value == nullptr) {
     return EL::Value::Undefined;
   } else {
-    return EL::Value(*value);
+    return EL::Value{*value};
   }
 }
 
@@ -53,12 +53,12 @@ std::vector<std::string> EntityPropertiesVariableStore::names() const {
 
 void EntityPropertiesVariableStore::declare(
   const std::string& /* name */, const EL::Value& /* value */) {
-  throw EL::EvaluationError("Declaring properties directly is unsafe");
+  throw EL::EvaluationError{"Declaring properties directly is unsafe"};
 }
 
 void EntityPropertiesVariableStore::assign(
   const std::string& /* name */, const EL::Value& /* value */) {
-  throw EL::EvaluationError("Changing properties directly is unsafe");
+  throw EL::EvaluationError{"Changing properties directly is unsafe"};
 }
 } // namespace Model
 } // namespace TrenchBroom
