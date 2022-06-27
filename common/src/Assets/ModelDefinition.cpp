@@ -26,6 +26,7 @@
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
 
+#include "kdl/string_format.h"
 #include <kdl/reflection_impl.h>
 #include <kdl/string_compare.h>
 
@@ -121,7 +122,12 @@ static std::optional<vm::vec3> scaleValue(const EL::Value& value) {
     return std::nullopt;
   }
 
-  if (const auto scale = vm::parse<FloatType, 3>(value.stringValue())) {
+  const auto stringValue = value.stringValue();
+  if (kdl::str_is_blank(stringValue)) {
+    return std::nullopt;
+  }
+
+  if (const auto scale = vm::parse<FloatType, 3>(stringValue)) {
     return *scale;
   }
 

@@ -21,6 +21,7 @@
 #include "Assets/EntityDefinition.h"
 #include "EL/Expressions.h"
 #include "FloatType.h"
+#include "IO/ELParser.h"
 #include "Model/EntityProperties.h"
 
 #include <vecmath/approx.h>
@@ -95,6 +96,26 @@ TEST_CASE("EntityTest.setDefinition") {
     entity.setDefinition(config, &definition);
     CHECK(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{2, 2, 2}));
   }
+}
+
+TEST_CASE("EntityTest.modelSpecification") {
+  auto modelExpression = IO::ELParser::parseStrict(R"({{ 
+      spawnflags == 0 -> "maps/b_shell0.bsp",
+      spawnflags == 1 -> "maps/b_shell1.bsp",
+                         "maps/b_shell2.bsp"
+  }})");
+
+  auto definition = Assets::PointEntityDefinition{
+    "some_name", Color(), vm::bbox3(32.0), "", {}, Assets::ModelDefinition{modelExpression}};
+
+  auto entity = Entity{};
+  entity.setDefinition({}, &definition);
+  CHECK(
+    entity.modelSpecification() == Assets::ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0});
+
+  entity.addOrUpdateProperty({}, EntityPropertyKeys::Spawnflags, "1");
+  CHECK(
+    entity.modelSpecification() == Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 0, 0});
 }
 
 TEST_CASE("EntityTest.unsetEntityDefinitionAndModel") {

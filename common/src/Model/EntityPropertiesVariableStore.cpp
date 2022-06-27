@@ -40,11 +40,7 @@ size_t EntityPropertiesVariableStore::size() const {
 
 EL::Value EntityPropertiesVariableStore::value(const std::string& name) const {
   const auto* value = m_entity.property(name);
-  if (value == nullptr) {
-    return EL::Value::Undefined;
-  } else {
-    return EL::Value{*value};
-  }
+  return value ? EL::Value{*value} : EL::Value{""};
 }
 
 std::vector<std::string> EntityPropertiesVariableStore::names() const {
