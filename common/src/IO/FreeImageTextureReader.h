@@ -19,12 +19,18 @@
 
 #pragma once
 
+#include "Color.h"
 #include "IO/TextureReader.h"
+#include "Renderer/GL.h"
 
 #include <memory>
 
 namespace TrenchBroom {
 class Logger;
+
+namespace Assets {
+class TextureBuffer;
+}
 
 namespace IO {
 class File;
@@ -32,6 +38,8 @@ class FileSystem;
 
 class FreeImageTextureReader : public TextureReader {
 public:
+  static Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
+
   explicit FreeImageTextureReader(
     const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
 

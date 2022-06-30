@@ -21,7 +21,6 @@
 
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
-#include "Color.h"
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "FreeImage.h"
@@ -32,6 +31,24 @@
 
 namespace TrenchBroom {
 namespace IO {
+
+Color FreeImageTextureReader::getAverageColor(
+  const Assets::TextureBuffer& buffer, const GLenum format) {
+  ensure(format == GL_RGBA || format == GL_BGRA, "expected RGBA or BGRA");
+
+  const unsigned char* const data = buffer.data();
+  const std::size_t bufferSize = buffer.size();
+
+  Color average;
+  for (std::size_t i = 0; i < bufferSize; i += 4) {
+    average = average + Color(data[i], data[i + 1], data[i + 2], data[i + 3]);
+  }
+  const std::size_t numPixels = bufferSize / 4;
+  average = average / static_cast<float>(numPixels);
+
+  return average;
+}
+
 FreeImageTextureReader::FreeImageTextureReader(
   const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
   : TextureReader(nameStrategy, fs, logger) {}
@@ -54,22 +71,6 @@ static constexpr GLenum freeImage32BPPFormatToGLFormat() {
   } else {
     throw std::runtime_error("Expected FreeImage to use RGBA or BGRA");
   }
-}
-
-static Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format) {
-  ensure(format == GL_RGBA || format == GL_BGRA, "expected RGBA or BGRA");
-
-  const unsigned char* const data = buffer.data();
-  const std::size_t bufferSize = buffer.size();
-
-  Color average;
-  for (std::size_t i = 0; i < bufferSize; i += 4) {
-    average = average + Color(data[i], data[i + 1], data[i + 2], data[i + 3]);
-  }
-  const std::size_t numPixels = bufferSize / 4;
-  average = average / static_cast<float>(numPixels);
-
-  return average;
 }
 
 Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
