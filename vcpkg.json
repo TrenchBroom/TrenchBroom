@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "dependencies": [
     {
+      "name": "assimp",
+      "version>=": "5.0.1#5"
+    },
+    {
       "name": "catch2",
       "version>=": "2.13.8"
     },
