@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2022 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,38 +17,35 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "Color.h"
+#include "IO/AssimpParser.h"
+#include "Assets/EntityModel.h"
+#include "Assets/Texture.h"
+#include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
+#include "IO/File.h"
+#include "IO/Quake3ShaderFileSystem.h"
+#include "IO/Reader.h"
 #include "IO/TextureReader.h"
-#include "Renderer/GL.h"
+#include "Logger.h"
 
-#include <cstdint>
-#include <memory>
+#include "Catch2.h"
 
 namespace TrenchBroom {
-class Logger;
-
-namespace Assets {
-class TextureBuffer;
-}
-
 namespace IO {
-class File;
-class FileSystem;
+TEST_CASE("AssimpParserTest.loadBlenderModel") {
+  auto logger = NullLogger{};
 
-class FreeImageTextureReader : public TextureReader {
-public:
-  static Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
+  const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/assimp");
+  auto fs = std::make_shared<DiskFileSystem>(basePath);
 
-  static Assets::Texture readTextureFromMemory(
-    const std::string& name, const uint8_t* begin, size_t size);
+  auto assimpParser = AssimpParser{Path{"cube.dae"}, *fs};
 
-  explicit FreeImageTextureReader(
-    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  auto model = assimpParser.initializeModel(logger);
+  CHECK(model != nullptr);
 
-private:
-  Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
-};
+  CHECK(model->frameCount() == 1);
+  CHECK(model->surfaceCount() == 1);
+  CHECK(model->surface(0).skinCount() == 1);
+}
 } // namespace IO
 } // namespace TrenchBroom

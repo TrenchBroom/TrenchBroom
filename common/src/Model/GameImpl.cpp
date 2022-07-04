@@ -25,6 +25,7 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "IO/AseParser.h"
+#include "IO/AssimpParser.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
@@ -533,6 +534,11 @@ std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(
       const auto palette = loadTexturePalette();
       auto reader = file->reader().buffer();
       IO::SprParser parser{modelName, std::begin(reader), std::end(reader), palette};
+      return parser.initializeModel(logger);
+    } else if (
+      kdl::vec_contains(IO::AssimpParser::supportedExtensions(), extension) &&
+      kdl::vec_contains(supported, "assimp")) {
+      IO::AssimpParser parser(path, m_fs);
       return parser.initializeModel(logger);
     } else {
       throw GameException("Unsupported model format '" + path.asString() + "'");
