@@ -103,7 +103,10 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected) {
   const std::string newPropertyKey =
     PropertyRow::newPropertyKeyForEntityNodes(document->allSelectedEntityNodes());
 
-  document->setProperty(newPropertyKey, "", defaultToProtected);
+  if (!document->setProperty(newPropertyKey, "", defaultToProtected)) {
+    // Setting a property can fail if a linked group update would be inconsistent
+    return;
+  }
 
   // Force an immediate update to the table rows (by default, updates are delayed - see
   // EntityPropertyGrid::updateControls), so we can select the new row.
