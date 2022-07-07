@@ -1900,6 +1900,17 @@ bool MapDocument::canSeparateLinkedGroups() const {
     });
 }
 
+bool MapDocument::canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) const {
+  if (nodes.empty()) {
+    return false;
+  }
+
+  const auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(*m_world, nodes);
+  return checkLinkedGroupsToUpdate(kdl::vec_transform(linkedGroupsToUpdate, [](const auto& p) {
+    return p.first;
+  }));
+}
+
 void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups) {
   const auto selectedGroupsWithLinkGroupIds =
     kdl::vec_filter(m_selectedNodes.groups(), [](const auto& g) {
@@ -2965,10 +2976,7 @@ bool MapDocument::canClearProtectedProperties() const {
     return false;
   }
 
-  const auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(*m_world, entityNodes);
-  return checkLinkedGroupsToUpdate(kdl::vec_transform(linkedGroupsToUpdate, [](const auto& p) {
-    return p.first;
-  }));
+  return canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes));
 }
 
 bool MapDocument::extrudeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {

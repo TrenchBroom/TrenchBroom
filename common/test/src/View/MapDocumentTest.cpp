@@ -221,5 +221,36 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection") {
     CHECK(document->hasAnySelectedBrushNodes() == expectedResult);
   }
 }
+
+TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups") {
+  auto* innerGroupNode = new Model::GroupNode{Model::Group{"inner"}};
+  setLinkedGroupId(*innerGroupNode, "asdf");
+
+  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  innerGroupNode->addChild(entityNode);
+
+  auto* linkedInnerGroupNode =
+    static_cast<Model::GroupNode*>(innerGroupNode->cloneRecursively(document->worldBounds()));
+
+  auto* linkedEntityNode =
+    dynamic_cast<Model::EntityNode*>(linkedInnerGroupNode->children().front());
+  REQUIRE(linkedEntityNode != nullptr);
+
+  auto* outerGroupNode = new Model::GroupNode{Model::Group{"outer"}};
+  outerGroupNode->addChildren({innerGroupNode, linkedInnerGroupNode});
+
+  document->addNodes({{document->parentForNodes(), {outerGroupNode}}});
+  document->selectNodes({outerGroupNode});
+
+  const auto entityNodes = document->allSelectedEntityNodes();
+  REQUIRE_THAT(
+    entityNodes,
+    Catch::UnorderedEquals(std::vector<Model::EntityNodeBase*>{entityNode, linkedEntityNode}));
+
+  CHECK(document->canUpdateLinkedGroups({entityNode}));
+  CHECK(document->canUpdateLinkedGroups({linkedEntityNode}));
+  CHECK_FALSE(document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes)));
+}
+
 } // namespace View
 } // namespace TrenchBroom

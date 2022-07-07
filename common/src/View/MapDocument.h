@@ -463,6 +463,8 @@ public:
   void separateLinkedGroups();
   bool canSeparateLinkedGroups() const;
 
+  bool canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) const;
+
 private:
   void separateSelectedLinkedGroups(bool relinkGroups);
 
