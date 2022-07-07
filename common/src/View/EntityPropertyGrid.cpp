@@ -32,6 +32,7 @@
 #include <kdl/memory_utils.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_set.h>
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -382,7 +383,8 @@ void EntityPropertyGrid::updateControlsEnabled() {
   auto document = kdl::mem_lock(m_document);
   const auto nodes = document->allSelectedEntityNodes();
   m_table->setEnabled(!nodes.empty());
-  m_addPropertyButton->setEnabled(!nodes.empty());
+  m_addPropertyButton->setEnabled(
+    !nodes.empty() && document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(nodes)));
   m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedProperties());
   m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 }
