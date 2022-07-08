@@ -488,7 +488,7 @@ static auto withEntityParser(
   if (extension == "mdl") {
     const auto palette = getPalette();
     auto reader = file->reader().buffer();
-    auto parser = IO::MdlParser{modelName, std::begin(reader), std::end(reader), palette};
+    auto parser = IO::MdlParser{modelName, reader, palette};
     return fun(parser);
   } else if (extension == "md2") {
     const auto palette = getPalette();
