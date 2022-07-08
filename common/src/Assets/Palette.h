@@ -82,7 +82,7 @@ public:
    * @throws ReaderException if reader doesn't have pixelCount bytes available
    */
   bool indexedToRgba(
-    IO::BufferedReader& reader, size_t pixelCount, TextureBuffer& rgbaImage,
+    IO::Reader& reader, size_t pixelCount, TextureBuffer& rgbaImage,
     const PaletteTransparency transparency, Color& averageColor) const;
 };
 } // namespace Assets
