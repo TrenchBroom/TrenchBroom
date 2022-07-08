@@ -35,8 +35,9 @@ class QSortFilterProxyModel;
 
 namespace TrenchBroom {
 namespace Model {
+class EntityNode;
 class Node;
-}
+} // namespace Model
 
 namespace View {
 class EntityPropertyModel;

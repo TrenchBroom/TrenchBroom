@@ -32,6 +32,7 @@
 #include <kdl/memory_utils.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_set.h>
+#include <kdl/vector_utils.h>
 
 #include <vector>
 
@@ -103,7 +104,10 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected) {
   const std::string newPropertyKey =
     PropertyRow::newPropertyKeyForEntityNodes(document->allSelectedEntityNodes());
 
-  document->setProperty(newPropertyKey, "", defaultToProtected);
+  if (!document->setProperty(newPropertyKey, "", defaultToProtected)) {
+    // Setting a property can fail if a linked group update would be inconsistent
+    return;
+  }
 
   // Force an immediate update to the table rows (by default, updates are delayed - see
   // EntityPropertyGrid::updateControls), so we can select the new row.
@@ -379,7 +383,8 @@ void EntityPropertyGrid::updateControlsEnabled() {
   auto document = kdl::mem_lock(m_document);
   const auto nodes = document->allSelectedEntityNodes();
   m_table->setEnabled(!nodes.empty());
-  m_addPropertyButton->setEnabled(!nodes.empty());
+  m_addPropertyButton->setEnabled(
+    !nodes.empty() && document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(nodes)));
   m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedProperties());
   m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 }
