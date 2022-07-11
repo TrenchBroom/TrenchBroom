@@ -485,39 +485,32 @@ static auto withEntityParser(
   const auto modelName = path.lastComponent().asString();
   const auto extension = kdl::str_to_lower(path.extension());
 
+  auto reader = file->reader().buffer();
   if (extension == "mdl") {
     const auto palette = getPalette();
-    auto reader = file->reader().buffer();
     auto parser = IO::MdlParser{modelName, reader, palette};
     return fun(parser);
   } else if (extension == "md2") {
     const auto palette = getPalette();
-    auto reader = file->reader().buffer();
     auto parser = IO::Md2Parser{modelName, reader, palette, fs};
     return fun(parser);
   } else if (extension == "md3") {
-    auto reader = file->reader().buffer();
     auto parser = IO::Md3Parser{modelName, reader, fs};
     return fun(parser);
   } else if (extension == "mdx") {
-    auto reader = file->reader().buffer();
     auto parser = IO::MdxParser{modelName, reader, fs};
     return fun(parser);
   } else if (extension == "bsp") {
     const auto palette = getPalette();
-    auto reader = file->reader().buffer();
     auto parser = IO::Bsp29Parser{modelName, reader, palette, fs};
     return fun(parser);
   } else if (extension == "dkm") {
-    auto reader = file->reader().buffer();
     auto parser = IO::DkmParser{modelName, reader, fs};
     return fun(parser);
   } else if (extension == "ase") {
-    auto reader = file->reader().buffer();
     auto parser = IO::AseParser{modelName, reader.stringView(), fs};
     return fun(parser);
   } else if (extension == "obj") {
-    auto reader = file->reader().buffer();
     // has to be the whole path for implicit textures!
     auto parser = IO::NvObjParser{path, reader.stringView(), fs};
     return fun(parser);
@@ -526,7 +519,6 @@ static auto withEntityParser(
     return fun(parser);
   } else if (extension == "spr") {
     const auto palette = getPalette();
-    auto reader = file->reader().buffer();
     auto parser = IO::SprParser{modelName, reader, palette};
     return fun(parser);
   } else if (kdl::vec_contains(IO::AssimpParser::supportedExtensions(), extension)) {
