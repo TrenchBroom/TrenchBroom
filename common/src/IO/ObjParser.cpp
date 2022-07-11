@@ -80,9 +80,9 @@ struct ObjFace {
   std::vector<ObjVertexRef> m_vertices;
 };
 
-ObjParser::ObjParser(const std::string& name, const char* begin, const char* end)
+ObjParser::ObjParser(const std::string& name, const std::string_view text)
   : m_name(name)
-  , m_text(begin, end) {}
+  , m_text(text) {}
 
 std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger) {
   // Model construction prestart (skins are added to this mid-parse)
@@ -215,8 +215,8 @@ std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger
 
 // -- Neverball --
 
-NvObjParser::NvObjParser(const Path& path, const char* begin, const char* end, const FileSystem& fs)
-  : ObjParser(path.lastComponent().asString(), begin, end)
+NvObjParser::NvObjParser(const Path& path, const std::string_view text, const FileSystem& fs)
+  : ObjParser(path.lastComponent().asString(), text)
   , m_path(path)
   , m_fs(fs) {}
 

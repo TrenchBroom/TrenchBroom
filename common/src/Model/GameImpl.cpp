@@ -519,7 +519,7 @@ static auto withEntityParser(
   } else if (extension == "obj") {
     auto reader = file->reader().buffer();
     // has to be the whole path for implicit textures!
-    auto parser = IO::NvObjParser{path, std::begin(reader), std::end(reader), fs};
+    auto parser = IO::NvObjParser{path, reader.stringView(), fs};
     return fun(parser);
   } else if (extension == "png") {
     auto parser = IO::ImageSpriteParser{modelName, file, fs};
