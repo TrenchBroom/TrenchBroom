@@ -41,8 +41,7 @@ class Reader;
 class Md3Parser : public EntityModelParser {
 private:
   std::string m_name;
-  const char* m_begin;
-  const char* m_end;
+  const Reader& m_reader;
   const FileSystem& m_fs;
 
 private:
@@ -51,7 +50,7 @@ private:
   };
 
 public:
-  Md3Parser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
+  Md3Parser(const std::string& name, const Reader& reader, const FileSystem& fs);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

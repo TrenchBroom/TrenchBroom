@@ -497,7 +497,7 @@ static auto withEntityParser(
     return fun(parser);
   } else if (extension == "md3") {
     auto reader = file->reader().buffer();
-    auto parser = IO::Md3Parser{modelName, std::begin(reader), std::end(reader), fs};
+    auto parser = IO::Md3Parser{modelName, reader, fs};
     return fun(parser);
   } else if (extension == "mdx") {
     auto reader = file->reader().buffer();

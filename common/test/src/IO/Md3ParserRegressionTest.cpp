@@ -53,7 +53,7 @@ TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]") {
   REQUIRE(md3File != nullptr);
 
   auto reader = md3File->reader().buffer();
-  auto parser = Md3Parser("armor_red", std::begin(reader), std::end(reader), *fs);
+  auto parser = Md3Parser("armor_red", reader, *fs);
   auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
 
   CHECK(model != nullptr);

@@ -50,18 +50,13 @@ static const size_t VertexLength = 4 * sizeof(int16_t);
 static const float VertexScale = 1.0f / 64.0f;
 } // namespace Md3Layout
 
-Md3Parser::Md3Parser(
-  const std::string& name, const char* begin, const char* end, const FileSystem& fs)
+Md3Parser::Md3Parser(const std::string& name, const Reader& reader, const FileSystem& fs)
   : m_name(name)
-  , m_begin(begin)
-  , m_end(end)
-  , m_fs(fs) {
-  assert(m_begin < m_end);
-  unused(m_end);
-}
+  , m_reader(reader)
+  , m_fs(fs) {}
 
 std::unique_ptr<Assets::EntityModel> Md3Parser::doInitializeModel(Logger& logger) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
 
   const auto ident = reader.readInt<int32_t>();
   const auto version = reader.readInt<int32_t>();
@@ -98,7 +93,7 @@ std::unique_ptr<Assets::EntityModel> Md3Parser::doInitializeModel(Logger& logger
 
 void Md3Parser::doLoadFrame(
   const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
 
   const auto ident = reader.readInt<int32_t>();
   const auto version = reader.readInt<int32_t>();
