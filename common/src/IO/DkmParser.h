@@ -88,12 +88,11 @@ private:
   using DkmMeshList = std::vector<DkmMesh>;
 
   std::string m_name;
-  const char* m_begin;
-  const char* m_end;
+  const Reader& m_reader;
   const FileSystem& m_fs;
 
 public:
-  DkmParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
+  DkmParser(const std::string& name, const Reader& reader, const FileSystem& fs);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

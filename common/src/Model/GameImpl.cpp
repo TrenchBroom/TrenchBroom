@@ -510,7 +510,7 @@ static auto withEntityParser(
     return fun(parser);
   } else if (extension == "dkm") {
     auto reader = file->reader().buffer();
-    auto parser = IO::DkmParser{modelName, std::begin(reader), std::end(reader), fs};
+    auto parser = IO::DkmParser{modelName, reader, fs};
     return fun(parser);
   } else if (extension == "ase") {
     auto reader = file->reader().buffer();

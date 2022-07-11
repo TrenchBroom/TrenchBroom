@@ -146,16 +146,14 @@ DkmParser::DkmMesh::DkmMesh(const int i_vertexCount)
   , vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount))
   , vertices(vertexCount) {}
 
-DkmParser::DkmParser(
-  const std::string& name, const char* begin, const char* end, const FileSystem& fs)
+DkmParser::DkmParser(const std::string& name, const Reader& reader, const FileSystem& fs)
   : m_name(name)
-  , m_begin(begin)
-  , m_end(end)
+  , m_reader(reader)
   , m_fs(fs) {}
 
 // http://tfc.duke.free.fr/old/models/md2.htm
 std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
 
   const int ident = reader.readInt<int32_t>();
   const int version = reader.readInt<int32_t>();
@@ -196,7 +194,7 @@ std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger
 }
 
 void DkmParser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
   const int ident = reader.readInt<int32_t>();
   const int version = reader.readInt<int32_t>();
 
