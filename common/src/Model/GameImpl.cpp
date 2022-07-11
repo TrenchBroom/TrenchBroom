@@ -501,7 +501,7 @@ static auto withEntityParser(
     return fun(parser);
   } else if (extension == "mdx") {
     auto reader = file->reader().buffer();
-    auto parser = IO::MdxParser{modelName, std::begin(reader), std::end(reader), fs};
+    auto parser = IO::MdxParser{modelName, reader, fs};
     return fun(parser);
   } else if (extension == "bsp") {
     const auto palette = getPalette();
