@@ -527,7 +527,7 @@ static auto withEntityParser(
   } else if (extension == "spr") {
     const auto palette = getPalette();
     auto reader = file->reader().buffer();
-    auto parser = IO::SprParser{modelName, std::begin(reader), std::end(reader), palette};
+    auto parser = IO::SprParser{modelName, reader, palette};
     return fun(parser);
   } else if (kdl::vec_contains(IO::AssimpParser::supportedExtensions(), extension)) {
     auto parser = IO::AssimpParser{path, fs};

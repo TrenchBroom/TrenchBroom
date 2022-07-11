@@ -33,11 +33,9 @@
 
 namespace TrenchBroom {
 namespace IO {
-SprParser::SprParser(
-  std::string name, const char* begin, const char* end, const Assets::Palette& palette)
+SprParser::SprParser(std::string name, const Reader& reader, const Assets::Palette& palette)
   : m_name{std::move(name)}
-  , m_begin{begin}
-  , m_end{end}
+  , m_reader{reader}
   , m_palette{palette} {}
 
 struct SprPicture {
@@ -48,7 +46,7 @@ struct SprPicture {
   size_t height;
 };
 
-static SprPicture parsePicture(BufferedReader& reader, const Assets::Palette& palette) {
+static SprPicture parsePicture(Reader& reader, const Assets::Palette& palette) {
   const auto xOffset = reader.readInt<int32_t>();
   const auto yOffset = reader.readInt<int32_t>();
   const auto width = reader.readSize<int32_t>();
@@ -68,7 +66,7 @@ static SprPicture parsePicture(BufferedReader& reader, const Assets::Palette& pa
     height};
 }
 
-static void skipPicture(BufferedReader& reader) {
+static void skipPicture(Reader& reader) {
   /* const auto xOffset = */ reader.readInt<int32_t>();
   /* const auto yOffset = */ reader.readInt<int32_t>();
   const auto width = reader.readSize<int32_t>();
@@ -77,7 +75,7 @@ static void skipPicture(BufferedReader& reader) {
   reader.seekForward(width * height);
 }
 
-static SprPicture parsePictureFrame(BufferedReader& reader, const Assets::Palette& palette) {
+static SprPicture parsePictureFrame(Reader& reader, const Assets::Palette& palette) {
   const auto group = reader.readInt<int32_t>();
   if (group == 0) { // single picture frame
     return parsePicture(reader, palette);
@@ -95,7 +93,7 @@ static SprPicture parsePictureFrame(BufferedReader& reader, const Assets::Palett
   return picture;
 }
 
-static Assets::Orientation parseSpriteOrientationType(BufferedReader& reader) {
+static Assets::Orientation parseSpriteOrientationType(Reader& reader) {
   const auto type = reader.readInt<int32_t>();
   if (type < 0 || type > 4) {
     throw AssetException{"Unknown SPR type: " + std::to_string(type)};
@@ -107,7 +105,7 @@ static Assets::Orientation parseSpriteOrientationType(BufferedReader& reader) {
 std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* logger */) {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 
-  auto reader = Reader::from(m_begin, m_end).buffer();
+  auto reader = m_reader;
 
   const auto ident = reader.readString(4);
   if (ident != "IDSP") {
