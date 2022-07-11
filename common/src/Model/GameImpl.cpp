@@ -493,7 +493,7 @@ static auto withEntityParser(
   } else if (extension == "md2") {
     const auto palette = getPalette();
     auto reader = file->reader().buffer();
-    auto parser = IO::Md2Parser{modelName, std::begin(reader), std::end(reader), palette, fs};
+    auto parser = IO::Md2Parser{modelName, reader, palette, fs};
     return fun(parser);
   } else if (extension == "md3") {
     auto reader = file->reader().buffer();

@@ -89,14 +89,13 @@ private:
   using Md2MeshList = std::vector<Md2Mesh>;
 
   std::string m_name;
-  const char* m_begin;
-  const char* m_end;
+  const Reader& m_reader;
   const Assets::Palette& m_palette;
   const FileSystem& m_fs;
 
 public:
   Md2Parser(
-    const std::string& name, const char* begin, const char* end, const Assets::Palette& palette,
+    const std::string& name, const Reader& reader, const Assets::Palette& palette,
     const FileSystem& fs);
 
 private:

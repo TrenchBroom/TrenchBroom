@@ -141,17 +141,16 @@ Md2Parser::Md2Mesh::Md2Mesh(const int i_vertexCount)
   , vertices(vertexCount) {}
 
 Md2Parser::Md2Parser(
-  const std::string& name, const char* begin, const char* end, const Assets::Palette& palette,
+  const std::string& name, const Reader& reader, const Assets::Palette& palette,
   const FileSystem& fs)
   : m_name(name)
-  , m_begin(begin)
-  , m_end(end)
+  , m_reader(reader)
   , m_palette(palette)
   , m_fs(fs) {}
 
 // http://tfc.duke.free.fr/old/models/md2.htm
 std::unique_ptr<Assets::EntityModel> Md2Parser::doInitializeModel(Logger& logger) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
   const int ident = reader.readInt<int32_t>();
   const int version = reader.readInt<int32_t>();
 
@@ -190,7 +189,7 @@ std::unique_ptr<Assets::EntityModel> Md2Parser::doInitializeModel(Logger& logger
 }
 
 void Md2Parser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
   const auto ident = reader.readInt<int32_t>();
   const auto version = reader.readInt<int32_t>();
 
