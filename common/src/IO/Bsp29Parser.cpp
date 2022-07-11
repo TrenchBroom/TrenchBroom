@@ -72,16 +72,15 @@ static const size_t ModelFaceIndex = 0x38;
 } // namespace BspLayout
 
 Bsp29Parser::Bsp29Parser(
-  const std::string& name, const char* begin, const char* end, const Assets::Palette& palette,
+  const std::string& name, const Reader& reader, const Assets::Palette& palette,
   const FileSystem& fs)
   : m_name(name)
-  , m_begin(begin)
-  , m_end(end)
+  , m_reader(reader)
   , m_palette(palette)
   , m_fs(fs) {}
 
 std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
   const auto version = reader.readInt<int32_t>();
   if (version != 29) {
     throw AssetException("Unsupported BSP model version: " + std::to_string(version));
@@ -111,7 +110,7 @@ std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logg
 
 void Bsp29Parser::doLoadFrame(
   const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
   const auto version = reader.readInt<int32_t>();
   if (version != 29) {
     throw AssetException("Unsupported BSP model version: " + std::to_string(version));

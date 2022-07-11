@@ -506,7 +506,7 @@ static auto withEntityParser(
   } else if (extension == "bsp") {
     const auto palette = getPalette();
     auto reader = file->reader().buffer();
-    auto parser = IO::Bsp29Parser{modelName, std::begin(reader), std::end(reader), palette, fs};
+    auto parser = IO::Bsp29Parser{modelName, reader, palette, fs};
     return fun(parser);
   } else if (extension == "dkm") {
     auto reader = file->reader().buffer();
