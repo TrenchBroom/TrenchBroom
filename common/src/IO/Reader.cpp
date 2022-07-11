@@ -63,12 +63,16 @@ void Reader::Source::ensurePosition(const size_t position) const {
   }
 }
 
+std::unique_ptr<Reader::Source> Reader::Source::clone() const {
+  return subSource(position(), size() - position());
+}
+
 std::unique_ptr<Reader::Source> Reader::Source::subSource(size_t position, size_t length) const {
   ensurePosition(position + length);
   return doGetSubSource(position, length);
 }
 
-std::tuple<const char*, const char*, std::unique_ptr<char[]>> Reader::Source::buffer() const {
+std::unique_ptr<Reader::BufferSource> Reader::Source::buffer() const {
   return doBuffer();
 }
 
@@ -118,10 +122,17 @@ std::unique_ptr<Reader::Source> Reader::FileSource::doGetSubSource(
   return std::make_unique<FileSource>(m_file, m_offset + position, length);
 }
 
-std::tuple<const char*, const char*, std::unique_ptr<char[]>> Reader::FileSource::doBuffer() const {
+std::unique_ptr<Reader::BufferSource> Reader::FileSource::doBuffer() const {
   std::fseek(m_file, static_cast<long>(m_offset), SEEK_SET);
 
-  auto buffer = std::make_unique<char[]>(m_length);
+#if defined __APPLE__
+  // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
+  auto buffer = OwningBufferSource::BufferType{new char[m_length], std::default_delete<char[]>{}};
+#else
+  // G++ doesn't support using std::shared_ptr<T> to manage T[]
+  auto buffer = std::shared_ptr<char[]>{new char[m_length]};
+#endif
+
   const auto read = std::fread(buffer.get(), 1, m_length, m_file);
   if (read != m_length) {
     throwError("fread failed");
@@ -133,7 +144,7 @@ std::tuple<const char*, const char*, std::unique_ptr<char[]>> Reader::FileSource
 
   const char* begin = buffer.get();
   const char* end = begin + m_length;
-  return std::make_tuple(begin, end, std::move(buffer));
+  return std::make_unique<OwningBufferSource>(std::move(buffer), begin, end);
 }
 
 void Reader::FileSource::throwError(const std::string& msg) const {
@@ -183,15 +194,29 @@ std::unique_ptr<Reader::Source> Reader::BufferSource::doGetSubSource(
   return std::make_unique<BufferSource>(m_begin + position, m_begin + position + length);
 }
 
-std::tuple<const char*, const char*, std::unique_ptr<char[]>> Reader::BufferSource::doBuffer()
-  const {
-  return std::make_tuple(m_begin, m_end, nullptr);
+std::unique_ptr<Reader::BufferSource> Reader::BufferSource::doBuffer() const {
+  return std::make_unique<BufferSource>(m_begin, m_end);
+}
+
+Reader::OwningBufferSource::OwningBufferSource(
+  BufferType buffer, const char* begin, const char* end)
+  : BufferSource{begin, end}
+  , m_buffer{std::move(buffer)} {}
+
+std::unique_ptr<Reader::BufferSource> Reader::OwningBufferSource::doBuffer() const {
+  return std::make_unique<Reader::OwningBufferSource>(m_buffer, begin(), end());
 }
 
 Reader::Reader(std::unique_ptr<Source> source)
   : m_source(std::move(source)) {}
 
-Reader::~Reader() = default;
+Reader& Reader::operator=(const Reader& other) {
+  m_source = other.m_source->clone();
+  return *this;
+}
+
+Reader::Reader(const Reader& other)
+  : m_source{other.m_source->clone()} {}
 
 Reader Reader::from(std::FILE* file) {
   return Reader(std::make_unique<FileSource>(file, 0, fileSize(file)));
@@ -251,8 +276,7 @@ Reader Reader::subReaderFromCurrent(const size_t length) const {
 }
 
 BufferedReader Reader::buffer() const {
-  auto [begin, end, buffer] = m_source->buffer();
-  return BufferedReader(begin, end, std::move(buffer));
+  return BufferedReader{m_source->buffer()};
 }
 
 bool Reader::canRead(const size_t readSize) const {
@@ -275,20 +299,19 @@ std::string Reader::readString(const size_t size) {
   return std::string(buffer.data());
 }
 
-BufferedReader::BufferedReader(const char* begin, const char* end, std::unique_ptr<char[]> buffer)
-  : Reader(std::make_unique<BufferSource>(begin, end))
-  , m_buffer(std::move(buffer)) {}
+BufferedReader::BufferedReader(std::unique_ptr<BufferSource> source)
+  : Reader{std::move(source)} {}
 
 const char* BufferedReader::begin() const {
   // This cast is safe since this reader can only host a buffer source!
-  const auto* bufferSource = static_cast<const BufferSource*>(m_source.get());
-  return bufferSource->begin();
+  const auto& bufferSource = *static_cast<const BufferSource*>(m_source.get());
+  return bufferSource.begin();
 }
 
 const char* BufferedReader::end() const {
   // This cast is safe since this reader can only host a buffer source!
-  const auto* bufferSource = static_cast<const BufferSource*>(m_source.get());
-  return bufferSource->end();
+  const auto& bufferSource = *static_cast<const BufferSource*>(m_source.get());
+  return bufferSource.end();
 }
 
 std::string_view BufferedReader::stringView() const {
