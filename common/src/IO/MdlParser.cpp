@@ -138,6 +138,17 @@ MdlParser::MdlParser(const std::string& name, const Reader& reader, const Assets
   , m_reader{reader}
   , m_palette{palette} {}
 
+bool MdlParser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "mdl") {
+    return false;
+  }
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == MdlLayout::Ident && version == MdlLayout::Version6;
+}
+
 std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& /* logger */) {
   auto reader = m_reader;
 

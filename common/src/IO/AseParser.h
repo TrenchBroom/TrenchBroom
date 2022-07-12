@@ -114,6 +114,8 @@ public:
    */
   AseParser(const std::string& name, std::string_view str, const FileSystem& fs);
 
+  static bool canParse(const Path& path);
+
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
 

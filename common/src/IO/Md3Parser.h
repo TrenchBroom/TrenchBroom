@@ -52,6 +52,8 @@ private:
 public:
   Md3Parser(const std::string& name, const Reader& reader, const FileSystem& fs);
 
+  static bool canParse(const Path& path, Reader reader);
+
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
   void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;

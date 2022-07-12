@@ -220,6 +220,10 @@ NvObjParser::NvObjParser(const Path& path, const std::string_view text, const Fi
   , m_path(path)
   , m_fs(fs) {}
 
+bool NvObjParser::canParse(const Path& path) {
+  return kdl::str_to_lower(path.extension()) == "obj";
+}
+
 bool NvObjParser::transformObjCoordinateSet(
   std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) {
   for (vm::vec3f& pos : positions) {

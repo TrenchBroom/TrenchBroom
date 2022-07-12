@@ -32,6 +32,7 @@ class Palette;
 namespace IO {
 class File;
 class FileSystem;
+class Path;
 class Reader;
 
 class SprParser : public EntityModelParser {
@@ -42,6 +43,8 @@ private:
 
 public:
   SprParser(std::string name, const Reader& reader, const Assets::Palette& palette);
+
+  static bool canParse(const Path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

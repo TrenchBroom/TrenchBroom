@@ -29,6 +29,8 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include "kdl/string_format.h"
+
 #include <string>
 
 namespace TrenchBroom {
@@ -54,6 +56,17 @@ Md3Parser::Md3Parser(const std::string& name, const Reader& reader, const FileSy
   : m_name(name)
   , m_reader(reader)
   , m_fs(fs) {}
+
+bool Md3Parser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "md3") {
+    return false;
+  }
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == Md3Layout::Ident && version == Md3Layout::Version;
+}
 
 std::unique_ptr<Assets::EntityModel> Md3Parser::doInitializeModel(Logger& logger) {
   auto reader = m_reader;

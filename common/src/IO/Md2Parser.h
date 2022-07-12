@@ -35,6 +35,7 @@ class Palette;
 
 namespace IO {
 class FileSystem;
+class Path;
 class Reader;
 
 namespace Md2Layout {
@@ -97,6 +98,8 @@ public:
   Md2Parser(
     const std::string& name, const Reader& reader, const Assets::Palette& palette,
     const FileSystem& fs);
+
+  static bool canParse(const Path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

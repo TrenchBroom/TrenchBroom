@@ -69,7 +69,8 @@ private:
 
 public:
   AssimpParser(Path path, const FileSystem& fs);
-  static std::vector<std::string> supportedExtensions();
+
+  static bool canParse(const Path& path);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

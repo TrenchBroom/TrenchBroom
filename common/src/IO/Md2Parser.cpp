@@ -32,6 +32,8 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include "kdl/string_format.h"
+
 #include <string>
 
 namespace TrenchBroom {
@@ -147,6 +149,17 @@ Md2Parser::Md2Parser(
   , m_reader(reader)
   , m_palette(palette)
   , m_fs(fs) {}
+
+bool Md2Parser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "md2") {
+    return false;
+  }
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == Md2Layout::Ident && version == Md2Layout::Version;
+}
 
 // http://tfc.duke.free.fr/old/models/md2.htm
 std::unique_ptr<Assets::EntityModel> Md2Parser::doInitializeModel(Logger& logger) {

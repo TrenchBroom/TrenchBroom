@@ -30,6 +30,8 @@
 #include <vecmath/bbox.h>
 #include <vecmath/vec.h>
 
+#include <kdl/string_format.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,6 +41,10 @@ ImageSpriteParser::ImageSpriteParser(
   : m_name{std::move(name)}
   , m_file{std::move(file)}
   , m_fs{fs} {}
+
+bool ImageSpriteParser::canParse(const Path& path) {
+  return kdl::str_to_lower(path.extension()) == "png";
+}
 
 std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger& logger) {
   auto textureReader =

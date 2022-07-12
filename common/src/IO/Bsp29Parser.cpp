@@ -27,15 +27,16 @@
 #include "IO/IdMipTextureReader.h"
 #include "IO/MipTextureReader.h"
 #include "IO/Reader.h"
+#include "IO/ResourceUtils.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
+#include <kdl/string_format.h>
+
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "ResourceUtils.h"
 
 namespace TrenchBroom {
 namespace IO {
@@ -78,6 +79,15 @@ Bsp29Parser::Bsp29Parser(
   , m_reader(reader)
   , m_palette(palette)
   , m_fs(fs) {}
+
+bool Bsp29Parser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "bsp") {
+    return false;
+  }
+
+  const auto version = reader.readInt<int32_t>();
+  return version == 29;
+}
 
 std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger) {
   auto reader = m_reader;

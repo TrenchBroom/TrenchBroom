@@ -35,6 +35,7 @@ class Palette;
 
 namespace IO {
 class Reader;
+class Path;
 
 class MdlParser : public EntityModelParser {
 private:
@@ -62,6 +63,8 @@ private:
 
 public:
   MdlParser(const std::string& name, const Reader& reader, const Assets::Palette& palette);
+
+  static bool canParse(const Path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

@@ -31,6 +31,8 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include "kdl/string_format.h"
+
 #include <string>
 
 namespace TrenchBroom {
@@ -143,6 +145,17 @@ MdxParser::MdxParser(const std::string& name, const Reader& reader, const FileSy
   : m_name(name)
   , m_reader(reader)
   , m_fs(fs) {}
+
+bool MdxParser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "mdx") {
+    return false;
+  }
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == MdxLayout::Ident && version == MdxLayout::Version;
+}
 
 // http://tfc.duke.free.fr/old/models/md2.htm
 std::unique_ptr<Assets::EntityModel> MdxParser::doInitializeModel(Logger& logger) {

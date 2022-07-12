@@ -113,6 +113,10 @@ AseParser::AseParser(const std::string& name, std::string_view str, const FileSy
   , m_tokenizer(std::move(str))
   , m_fs(fs) {}
 
+bool AseParser::canParse(const Path& path) {
+  return kdl::str_to_lower(path.extension()) == "ase";
+}
+
 std::unique_ptr<Assets::EntityModel> AseParser::doInitializeModel(Logger& logger) {
   Scene scene;
   parseAseFile(logger, scene);

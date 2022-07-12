@@ -483,45 +483,44 @@ static auto withEntityParser(
   ensure(file != nullptr, "file is null");
 
   const auto modelName = path.lastComponent().asString();
-  const auto extension = kdl::str_to_lower(path.extension());
-
   auto reader = file->reader().buffer();
-  if (extension == "mdl") {
+
+  if (IO::MdlParser::canParse(path, reader)) {
     const auto palette = getPalette();
     auto parser = IO::MdlParser{modelName, reader, palette};
     return fun(parser);
-  } else if (extension == "md2") {
+  } else if (IO::Md2Parser::canParse(path, reader)) {
     const auto palette = getPalette();
     auto parser = IO::Md2Parser{modelName, reader, palette, fs};
     return fun(parser);
-  } else if (extension == "md3") {
+  } else if (IO::Md3Parser::canParse(path, reader)) {
     auto parser = IO::Md3Parser{modelName, reader, fs};
     return fun(parser);
-  } else if (extension == "mdx") {
+  } else if (IO::MdxParser::canParse(path, reader)) {
     auto parser = IO::MdxParser{modelName, reader, fs};
     return fun(parser);
-  } else if (extension == "bsp") {
+  } else if (IO::Bsp29Parser::canParse(path, reader)) {
     const auto palette = getPalette();
     auto parser = IO::Bsp29Parser{modelName, reader, palette, fs};
     return fun(parser);
-  } else if (extension == "dkm") {
+  } else if (IO::DkmParser::canParse(path, reader)) {
     auto parser = IO::DkmParser{modelName, reader, fs};
     return fun(parser);
-  } else if (extension == "ase") {
+  } else if (IO::AseParser::canParse(path)) {
     auto parser = IO::AseParser{modelName, reader.stringView(), fs};
     return fun(parser);
-  } else if (extension == "obj") {
+  } else if (IO::NvObjParser::canParse(path)) {
     // has to be the whole path for implicit textures!
     auto parser = IO::NvObjParser{path, reader.stringView(), fs};
     return fun(parser);
-  } else if (extension == "png") {
+  } else if (IO::ImageSpriteParser::canParse(path)) {
     auto parser = IO::ImageSpriteParser{modelName, file, fs};
     return fun(parser);
-  } else if (extension == "spr") {
+  } else if (IO::SprParser::canParse(path, reader)) {
     const auto palette = getPalette();
     auto parser = IO::SprParser{modelName, reader, palette};
     return fun(parser);
-  } else if (kdl::vec_contains(IO::AssimpParser::supportedExtensions(), extension)) {
+  } else if (IO::AssimpParser::canParse(path)) {
     auto parser = IO::AssimpParser{path, fs};
     return fun(parser);
   }

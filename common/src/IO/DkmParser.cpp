@@ -151,6 +151,18 @@ DkmParser::DkmParser(const std::string& name, const Reader& reader, const FileSy
   , m_reader(reader)
   , m_fs(fs) {}
 
+bool DkmParser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "dkm") {
+    return false;
+  }
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == DkmLayout::Ident &&
+         (version == DkmLayout::Version1 || version == DkmLayout::Version2);
+}
+
 // http://tfc.duke.free.fr/old/models/md2.htm
 std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger) {
   auto reader = m_reader;

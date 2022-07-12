@@ -28,6 +28,8 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include <kdl/string_format.h>
+
 #include <vecmath/bbox.h>
 #include <vecmath/vec.h>
 
@@ -37,6 +39,17 @@ SprParser::SprParser(std::string name, const Reader& reader, const Assets::Palet
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_palette{palette} {}
+
+bool SprParser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "spr") {
+    return false;
+  }
+
+  const auto ident = reader.readString(4);
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == "IDSP" && version == 1;
+}
 
 struct SprPicture {
   Assets::Texture texture;
