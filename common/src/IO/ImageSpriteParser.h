@@ -28,6 +28,7 @@ namespace TrenchBroom {
 namespace IO {
 class File;
 class FileSystem;
+class Path;
 
 class ImageSpriteParser : public EntityModelParser {
 private:
@@ -37,6 +38,8 @@ private:
 
 public:
   ImageSpriteParser(std::string name, std::shared_ptr<File> file, const FileSystem& fs);
+
+  static bool canParse(const Path& path);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

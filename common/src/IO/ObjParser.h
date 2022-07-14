@@ -42,7 +42,7 @@ class FileSystem;
 class ObjParser : public EntityModelParser {
 private:
   std::string m_name;
-  std::string m_text;
+  std::string_view m_text;
 
 public:
   /**
@@ -52,7 +52,7 @@ public:
    * @param begin the start of the text
    * @param end the end of the text
    */
-  ObjParser(const std::string& name, const char* begin, const char* end);
+  ObjParser(const std::string& name, std::string_view text);
 
   /**
    * Transforms the various sets of coordinates.
@@ -99,8 +99,11 @@ public:
    * @param end the end of the text
    * @param fs the filesystem used to lookup textures
    */
-  NvObjParser(const Path& path, const char* begin, const char* end, const FileSystem& fs);
+  NvObjParser(const Path& path, std::string_view text, const FileSystem& fs);
 
+  static bool canParse(const Path& path);
+
+private:
   bool transformObjCoordinateSet(
     std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) override;
   std::optional<Assets::Texture> loadMaterial(const std::string& name, Logger& logger) override;

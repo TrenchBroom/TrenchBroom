@@ -41,13 +41,14 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles", "[DefParserTest]") {
     Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
 
   for (const Path& path : cfgFiles) {
+    CAPTURE(path);
+
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
     const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
     DefParser parser(reader.stringView(), defaultColor);
 
     TestParserStatus status;
-    UNSCOPED_INFO("Parsing DEF file " << path.asString() << " failed");
     CHECK_NOTHROW(parser.parseDefinitions(status));
 
     /* Disabled because our files are full of previously undetected problems

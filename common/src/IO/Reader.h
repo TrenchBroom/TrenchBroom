@@ -36,7 +36,9 @@ class BufferedReader;
  * various types for easier use.
  */
 class Reader {
-private:
+protected:
+  class BufferSource;
+
   /**
    * Abstract base class for a reader source.
    */
@@ -81,6 +83,8 @@ private:
      */
     void seek(size_t position);
 
+    std::unique_ptr<Source> clone() const;
+
     /**
      * Returns a source for a sub region of this reader source.
      *
@@ -109,7 +113,7 @@ private:
      *
      * @throw ReaderException if reading fails
      */
-    std::tuple<const char*, const char*, std::unique_ptr<char[]>> buffer() const;
+    std::unique_ptr<BufferSource> buffer() const;
 
   private:
     void ensurePosition(size_t position) const;
@@ -119,7 +123,7 @@ private:
     virtual void doRead(char* val, size_t size) = 0;
     virtual void doSeek(size_t offset) = 0;
     virtual std::unique_ptr<Source> doGetSubSource(size_t offset, size_t length) const = 0;
-    virtual std::tuple<const char*, const char*, std::unique_ptr<char[]>> doBuffer() const = 0;
+    virtual std::unique_ptr<BufferSource> doBuffer() const = 0;
   };
 
   /**
@@ -150,13 +154,12 @@ private:
     void doRead(char* val, size_t size) override;
     void doSeek(size_t position) override;
     std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
-    std::tuple<const char*, const char*, std::unique_ptr<char[]>> doBuffer() const override;
+    virtual std::unique_ptr<BufferSource> doBuffer() const override;
 
   private:
     [[noreturn]] void throwError(const std::string& msg) const;
   };
 
-protected:
   /**
    * A reader source that reads from a memory region. Does not take ownership of the memory region
    * and will not deallocate it.
@@ -195,7 +198,26 @@ protected:
     void doRead(char* val, size_t size) override;
     void doSeek(size_t position) override;
     std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
-    std::tuple<const char*, const char*, std::unique_ptr<char[]>> doBuffer() const override;
+    virtual std::unique_ptr<BufferSource> doBuffer() const override;
+  };
+
+  class OwningBufferSource : public BufferSource {
+  public:
+#if defined __APPLE__
+    // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
+    using BufferType = std::shared_ptr<char>;
+#else
+    // G++ doesn't support using std::shared_ptr<T> to manage T[]
+    using BufferType = std::shared_ptr<char[]>;
+#endif
+  private:
+    BufferType m_buffer;
+
+  public:
+    OwningBufferSource(BufferType buffer, const char* begin, const char* end);
+
+  private:
+    virtual std::unique_ptr<BufferSource> doBuffer() const override;
   };
 
 protected:
@@ -208,13 +230,12 @@ protected:
   explicit Reader(std::unique_ptr<Source> source);
 
 public:
+  Reader(const Reader& other);
   Reader(Reader&& other) noexcept = default;
+
+  Reader& operator=(const Reader& other);
   Reader& operator=(Reader&& other) = default;
 
-public:
-  virtual ~Reader();
-
-public:
   /**
    * Creates a new reader that reads from the given file.
    *
@@ -516,10 +537,9 @@ public:
  * reader will be created when calling the Reader::buffer() method.
  */
 class BufferedReader : public Reader {
-private:
-  std::unique_ptr<char[]> m_buffer;
+protected:
+  friend class Reader;
 
-public:
   /**
    * Creates a new buffered reader for the given memory region. If the given buffer is not nullptr,
    * it will be moved into this object and it will be destroyed when this object is destroyed.
@@ -528,8 +548,9 @@ public:
    * @param end the end of the memory region (the position after the last byte)
    * @param buffer the buffer to intern into this object
    */
-  BufferedReader(const char* begin, const char* end, std::unique_ptr<char[]> buffer);
+  explicit BufferedReader(std::unique_ptr<BufferSource> source);
 
+public:
   /**
    * Returns the beginning of the underlying buffer memory region.
    */

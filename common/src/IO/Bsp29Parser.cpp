@@ -27,15 +27,16 @@
 #include "IO/IdMipTextureReader.h"
 #include "IO/MipTextureReader.h"
 #include "IO/Reader.h"
+#include "IO/ResourceUtils.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
+#include <kdl/string_format.h>
+
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "ResourceUtils.h"
 
 namespace TrenchBroom {
 namespace IO {
@@ -72,16 +73,24 @@ static const size_t ModelFaceIndex = 0x38;
 } // namespace BspLayout
 
 Bsp29Parser::Bsp29Parser(
-  const std::string& name, const char* begin, const char* end, const Assets::Palette& palette,
+  const std::string& name, const Reader& reader, const Assets::Palette& palette,
   const FileSystem& fs)
   : m_name(name)
-  , m_begin(begin)
-  , m_end(end)
+  , m_reader(reader)
   , m_palette(palette)
   , m_fs(fs) {}
 
+bool Bsp29Parser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "bsp") {
+    return false;
+  }
+
+  const auto version = reader.readInt<int32_t>();
+  return version == 29;
+}
+
 std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
   const auto version = reader.readInt<int32_t>();
   if (version != 29) {
     throw AssetException("Unsupported BSP model version: " + std::to_string(version));
@@ -111,7 +120,7 @@ std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logg
 
 void Bsp29Parser::doLoadFrame(
   const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
   const auto version = reader.readInt<int32_t>();
   if (version != 29) {
     throw AssetException("Unsupported BSP model version: " + std::to_string(version));

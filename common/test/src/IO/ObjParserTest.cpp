@@ -40,7 +40,7 @@ TEST_CASE("ObjParserTest.loadValidObj", "[ObjParserTest]") {
   REQUIRE(mdlFile != nullptr);
 
   auto reader = mdlFile->reader().buffer();
-  auto parser = NvObjParser(mdlPath, std::begin(reader), std::end(reader), fs);
+  auto parser = NvObjParser(mdlPath, reader.stringView(), fs);
   auto model = parser.initializeModel(logger);
   parser.loadFrame(0, *model, logger);
 

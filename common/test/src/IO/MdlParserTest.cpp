@@ -42,7 +42,7 @@ TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]") {
   REQUIRE(mdlFile != nullptr);
 
   auto reader = mdlFile->reader().buffer();
-  auto parser = MdlParser("armor", std::begin(reader), std::end(reader), palette);
+  auto parser = MdlParser("armor", reader, palette);
   auto model = parser.initializeModel(logger);
   parser.loadFrame(0, *model, logger);
 
@@ -68,7 +68,7 @@ TEST_CASE("MdlParserTest.loadInvalidMdl", "[MdlParserTest]") {
   REQUIRE(mdlFile != nullptr);
 
   auto reader = mdlFile->reader().buffer();
-  auto parser = MdlParser("armor", std::begin(reader), std::end(reader), palette);
+  auto parser = MdlParser("armor", reader, palette);
   CHECK_THROWS_AS(parser.initializeModel(logger), AssetException);
 }
 } // namespace IO

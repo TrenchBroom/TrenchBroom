@@ -31,6 +31,8 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include "kdl/string_format.h"
+
 #include <string>
 
 namespace TrenchBroom {
@@ -139,16 +141,25 @@ MdxParser::MdxMesh::MdxMesh(const int i_vertexCount)
   , vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount))
   , vertices(vertexCount) {}
 
-MdxParser::MdxParser(
-  const std::string& name, const char* begin, const char* end, const FileSystem& fs)
+MdxParser::MdxParser(const std::string& name, const Reader& reader, const FileSystem& fs)
   : m_name(name)
-  , m_begin(begin)
-  , m_end(end)
+  , m_reader(reader)
   , m_fs(fs) {}
+
+bool MdxParser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "mdx") {
+    return false;
+  }
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == MdxLayout::Ident && version == MdxLayout::Version;
+}
 
 // http://tfc.duke.free.fr/old/models/md2.htm
 std::unique_ptr<Assets::EntityModel> MdxParser::doInitializeModel(Logger& logger) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
   const int ident = reader.readInt<int32_t>();
   const int version = reader.readInt<int32_t>();
 
@@ -190,7 +201,7 @@ std::unique_ptr<Assets::EntityModel> MdxParser::doInitializeModel(Logger& logger
 }
 
 void MdxParser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
-  auto reader = Reader::from(m_begin, m_end);
+  auto reader = m_reader;
   const auto ident = reader.readInt<int32_t>();
   const auto version = reader.readInt<int32_t>();
 

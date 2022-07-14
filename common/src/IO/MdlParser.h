@@ -34,8 +34,8 @@ class Palette;
 }
 
 namespace IO {
-class BufferedReader;
 class Reader;
+class Path;
 
 class MdlParser : public EntityModelParser {
 private:
@@ -58,21 +58,21 @@ private:
   using PackedFrameVertexList = std::vector<PackedFrameVertex>;
 
   std::string m_name;
-  const char* m_begin;
-  const char* m_end;
+  const Reader& m_reader;
   const Assets::Palette& m_palette;
 
 public:
-  MdlParser(
-    const std::string& name, const char* begin, const char* end, const Assets::Palette& palette);
+  MdlParser(const std::string& name, const Reader& reader, const Assets::Palette& palette);
+
+  static bool canParse(const Path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
   void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
   void parseSkins(
-    BufferedReader& reader, Assets::EntityModelSurface& surface, size_t count, size_t width,
-    size_t height, int flags);
+    Reader& reader, Assets::EntityModelSurface& surface, size_t count, size_t width, size_t height,
+    int flags);
   void skipSkins(Reader& reader, size_t count, size_t width, size_t height, int flags);
 
   MdlSkinVertexList parseVertices(Reader& reader, size_t count);

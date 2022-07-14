@@ -133,18 +133,24 @@ const vm::vec3f MdlParser::Normals[] = {
 
 static const int MF_HOLEY = (1 << 14);
 
-MdlParser::MdlParser(
-  const std::string& name, const char* begin, const char* end, const Assets::Palette& palette)
-  : m_name(name)
-  , m_begin(begin)
-  , m_end(end)
-  , m_palette(palette) {
-  assert(m_begin < m_end);
-  unused(m_end);
+MdlParser::MdlParser(const std::string& name, const Reader& reader, const Assets::Palette& palette)
+  : m_name{name}
+  , m_reader{reader}
+  , m_palette{palette} {}
+
+bool MdlParser::canParse(const Path& path, Reader reader) {
+  if (kdl::str_to_lower(path.extension()) != "mdl") {
+    return false;
+  }
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == MdlLayout::Ident && version == MdlLayout::Version6;
 }
 
 std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& /* logger */) {
-  auto reader = Reader::from(m_begin, m_end).buffer();
+  auto reader = m_reader;
 
   const auto ident = reader.readInt<int32_t>();
   const auto version = reader.readInt<int32_t>();
@@ -185,7 +191,7 @@ std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& /* log
 
 void MdlParser::doLoadFrame(
   const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
-  auto reader = Reader::from(m_begin, m_end).buffer();
+  auto reader = m_reader;
 
   const auto ident = reader.readInt<int32_t>();
   const auto version = reader.readInt<int32_t>();
@@ -223,8 +229,8 @@ void MdlParser::doLoadFrame(
 }
 
 void MdlParser::parseSkins(
-  BufferedReader& reader, Assets::EntityModelSurface& surface, const size_t count,
-  const size_t width, const size_t height, const int flags) {
+  Reader& reader, Assets::EntityModelSurface& surface, const size_t count, const size_t width,
+  const size_t height, const int flags) {
   const auto size = width * height;
   const auto transparency = (flags & MF_HOLEY) ? Assets::PaletteTransparency::Index255Transparent
                                                : Assets::PaletteTransparency::Opaque;

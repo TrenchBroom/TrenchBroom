@@ -53,6 +53,8 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]") {
     Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
 
   for (const Path& path : cfgFiles) {
+    CAPTURE(path);
+
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
 
@@ -60,7 +62,6 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]") {
     EntParser parser(reader.stringView(), defaultColor);
 
     TestParserStatus status;
-    UNSCOPED_INFO("Parsing ENT file " << path.asString() << " failed");
     CHECK_NOTHROW(parser.parseDefinitions(status));
 
     /* Disabled because our files are full of previously undetected problems

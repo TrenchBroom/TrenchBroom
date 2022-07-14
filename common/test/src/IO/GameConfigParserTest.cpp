@@ -40,6 +40,8 @@ TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTes
     Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
 
   for (const Path& path : cfgFiles) {
+    CAPTURE(path);
+
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
 
@@ -143,7 +145,6 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]") {
         {}},
       Model::EntityConfig{
         {Path{"Quake.fgd"}, Path{"Quoth2.fgd"}, Path{"Rubicon2.def"}, Path{"Teamfortress.fgd"}},
-        {"bsp", "mdl"},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
         {}},
       Model::FaceAttribsConfig{},
@@ -398,7 +399,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
         "_tb_textures",
         Path{},
         {}},
-      Model::EntityConfig{{Path{"Quake2.fgd"}}, {"md2"}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}},
+      Model::EntityConfig{{Path{"Quake2.fgd"}}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}},
       Model::FaceAttribsConfig{
         {{{"light", "Emit light from the surface, brightness is specified in the 'value' field",
            1 << 0},
@@ -716,7 +717,6 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
         {"*_norm", "*_gloss"}},
       Model::EntityConfig{
         {Path{"Extras.ent"}},
-        {"md3"},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
         EL::Expression{
           EL::ArrayExpression{{
