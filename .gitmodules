@@ -1,6 +1,3 @@
-[submodule "lib/vecmath"]
-	path = lib/vecmath
-	url = https://github.com/TrenchBroom/vecmath.git
 [submodule "vcpkg"]
 	path = vcpkg
 	url = https://github.com/Microsoft/vcpkg.git
