@@ -52,6 +52,8 @@ const std::vector<vm::polygon3f>& PortalFile::portals() const {
 }
 
 void PortalFile::load(const IO::Path& path) {
+  static const std::string lineSplitter("() \n\t\r");
+
   std::ifstream stream = openPathAsInputStream(path);
   if (!stream.good()) {
     throw FileFormatException("Couldn't open file");
@@ -59,6 +61,7 @@ void PortalFile::load(const IO::Path& path) {
 
   std::string line;
   int numPortals;
+  bool prt1ForQ3 = false;
 
   // read header
   std::getline(stream, line);
@@ -68,6 +71,17 @@ void PortalFile::load(const IO::Path& path) {
     std::getline(stream, line); // number of leafs (ignored)
     std::getline(stream, line); // number of portals
     numPortals = std::stoi(line);
+    auto mark = stream.tellg();
+    std::getline(stream, line);
+    // If this line contains a single value, it is Q3-style PRT1 (value is
+    // number of solid faces -- will ignore). Otherwise is Q1/Q2 style and we
+    // will rewind the stream to process this line accordingly.
+    const auto componentsCheck = kdl::str_split(line, lineSplitter);
+    if (componentsCheck.size() == 1) {
+      prt1ForQ3 = true;
+    } else {
+      stream.seekg(mark);
+    }
   } else if (formatCode == "PRT2") {
     std::getline(stream, line); // number of leafs (ignored)
     std::getline(stream, line); // number of clusters (ignored)
@@ -89,14 +103,19 @@ void PortalFile::load(const IO::Path& path) {
   // read portals
   for (int i = 0; i < numPortals; ++i) {
     std::getline(stream, line);
-    const auto components = kdl::str_split(line, "() \n\t\r");
+    const auto components = kdl::str_split(line, lineSplitter);
 
     if (!stream.good() || components.size() < 3) {
       throw FileFormatException("Error reading portal");
     }
 
     std::vector<vm::vec3f> verts;
-    size_t ptr = 3;
+    size_t ptr;
+    if (prt1ForQ3) {
+      ptr = 4;
+    } else {
+      ptr = 3;
+    }
     const int numPoints = std::stoi(components.at(0));
     for (int j = 0; j < numPoints; ++j) {
       if (ptr + 2 >= components.size()) {

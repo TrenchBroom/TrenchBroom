@@ -64,6 +64,12 @@ TEST_CASE("PortalFileTest.parsePRT1", "[PortalFileTest]") {
   CHECK(portalFile.portals() == ExpectedPortals);
 }
 
+TEST_CASE("PortalFileTest.parsePRT1Q3", "[PortalFileTest]") {
+  const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1q3.prt");
+  const Model::PortalFile portalFile(path);
+  CHECK(portalFile.portals() == ExpectedPortals);
+}
+
 TEST_CASE("PortalFileTest.parsePRT1AM", "[PortalFileTest]") {
   const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1am.prt");
   const Model::PortalFile portalFile(path);
