@@ -48,7 +48,7 @@ bool SprParser::canParse(const Path& path, Reader reader) {
   const auto ident = reader.readString(4);
   const auto version = reader.readInt<int32_t>();
 
-  return ident == "IDSP" && version == 1;
+  return ident == "IDSP" && (version == 1 || version == 2);
 }
 
 struct SprPicture {
@@ -115,8 +115,79 @@ static Assets::Orientation parseSpriteOrientationType(Reader& reader) {
   return static_cast<Assets::Orientation>(type);
 }
 
+/**
+ * Specifies the render mode for a Goldsource sprite.
+ * Affects the palette data.
+ */
+enum class RenderMode : int32_t
+{
+  /** No alpha channel, just plain RGB */
+  Normal = 0,
+  /** Normal but also R+G+B/3 is the alpha channel */
+  Additive = 1,
+  /** Index 255 is the colour, R+G+B/3 is the alpha channel */
+  IndexAlpha = 2,
+  /** Standard Quake behaviour, Palette index 255 = transparent */
+  AlphaTest = 3
+};
+
+static RenderMode parseSpriteRenderMode(Reader& reader) {
+  const auto mode = reader.readInt<int32_t>();
+  if (mode < 0 || mode > 3) {
+    throw AssetException{"Unknown SPR render mode: " + std::to_string(mode)};
+  }
+
+  return static_cast<RenderMode>(mode);
+}
+
+static std::vector<unsigned char> processGoldsourcePalette(
+  const RenderMode mode, const std::vector<unsigned char>& data) {
+  // Convert the data into a Goldsource palette
+  auto processed = std::vector<unsigned char>();
+  processed.reserve(1024);
+
+  for (size_t i = 0; i < 256; ++i) {
+    const auto r = data[3 * i + 0];
+    const auto g = data[3 * i + 1];
+    const auto b = data[3 * i + 2];
+
+    // add the RGB channels - for IndexAlpha, the RGB is always index 255
+    if (mode == RenderMode::IndexAlpha) {
+      processed.push_back(data[0xFF * 3 + 0]);
+      processed.push_back(data[0xFF * 3 + 1]);
+      processed.push_back(data[0xFF * 3 + 2]);
+    } else {
+      processed.push_back(r);
+      processed.push_back(g);
+      processed.push_back(b);
+    }
+
+    // Add the alpha channel
+    switch (mode) {
+      case RenderMode::Normal:
+        processed.push_back(0xFF);
+        break;
+      case RenderMode::Additive:
+      case RenderMode::IndexAlpha: {
+        const auto average = round(static_cast<float>(r + g + b) / 3.0f);
+        processed.push_back(static_cast<unsigned char>(average));
+        break;
+      }
+      case RenderMode::AlphaTest:
+        processed.push_back(static_cast<unsigned char>(i == 0xFF ? 0 : 0xFF));
+        break;
+    }
+  }
+
+  return processed;
+}
+
 std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* logger */) {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
+
+  // Half-Life sprites (SPR version 2) are the same as Quake sprites, except
+  // there is an additional integer in the header (render mode), and the palette
+  // data is embedded after the header instead of using the external palette file.
 
   auto reader = m_reader;
 
@@ -125,18 +196,39 @@ std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* log
     throw AssetException{"Unknown SPR ident: " + ident};
   }
 
+  // Version 1: Quake SPR format
+  // Version 2: Half-Life SPR format
   const auto version = reader.readInt<int32_t>();
-  if (version != 1) {
+  if (version != 1 && version != 2) {
     throw AssetException{"Unknown SPR version: " + std::to_string(version)};
   }
 
+  Assets::Palette palette = m_palette;
+  auto renderMode = RenderMode::IndexAlpha;
+
   const auto orientationType = parseSpriteOrientationType(reader);
+  if (version == 2) {
+    renderMode = parseSpriteRenderMode(reader);
+  }
+
   /* const auto radius = */ reader.readFloat<float>();
   /* const auto maxWidth = */ reader.readSize<int32_t>();
   /* const auto maxHeight = */ reader.readSize<int32_t>();
   const auto frameCount = reader.readSize<int32_t>();
   /* const auto beamLength = */ reader.readFloat<float>();
   /* const auto synchtype = */ reader.readInt<int32_t>();
+
+  if (version == 2) {
+    const auto paletteSize = reader.readSize<int16_t>();
+    if (paletteSize != 256) {
+      throw AssetException{
+        "Incorrect SPR palette size: expected 256, got " + std::to_string(paletteSize)};
+    }
+    auto data = std::vector<unsigned char>(paletteSize * 3);
+    reader.read(data.data(), data.size());
+    data = processGoldsourcePalette(renderMode, data);
+    palette = Assets::Palette(data);
+  }
 
   auto model =
     std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal, orientationType);
@@ -151,7 +243,7 @@ std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* log
   textures.reserve(frameCount);
 
   for (size_t i = 0; i < frameCount; ++i) {
-    auto pictureFrame = parsePictureFrame(reader, m_palette);
+    auto pictureFrame = parsePictureFrame(reader, palette);
     textures.push_back(std::move(pictureFrame.texture));
 
     const auto w = static_cast<float>(pictureFrame.width);
