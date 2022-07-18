@@ -4,7 +4,7 @@
   "dependencies": [
     {
       "name": "assimp",
-      "version>=": "5.0.1#5"
+      "version>=": "5.2.4"
     },
     {
       "name": "catch2",
@@ -35,5 +35,8 @@
       "version>=": "9.0.0"
     }
   ],
-  "builtin-baseline": "a3df696929b28195b0d7a477ba6cd16dba48fa52"
+  "builtin-baseline": "15a0ab7a3e62e62c29bc677589e8974fe401a436",
+  "overrides": [
+    { "name": "catch2", "version": "2.13.8" }
+  ]
 }
