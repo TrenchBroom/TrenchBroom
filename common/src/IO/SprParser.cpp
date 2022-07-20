@@ -143,7 +143,7 @@ static RenderMode parseSpriteRenderMode(Reader& reader) {
 static std::vector<unsigned char> processGoldsourcePalette(
   const RenderMode mode, const std::vector<unsigned char>& data) {
   // Convert the data into a Goldsource palette
-  auto processed = std::vector<unsigned char>();
+  auto processed = std::vector<unsigned char>{};
   processed.reserve(1024);
 
   for (size_t i = 0; i < 256; ++i) {
@@ -169,7 +169,7 @@ static std::vector<unsigned char> processGoldsourcePalette(
         break;
       case RenderMode::Additive:
       case RenderMode::IndexAlpha: {
-        const auto average = round(static_cast<float>(r + g + b) / 3.0f);
+        const auto average = std::round(static_cast<float>(r + g + b) / 3.0f);
         processed.push_back(static_cast<unsigned char>(average));
         break;
       }
@@ -180,6 +180,18 @@ static std::vector<unsigned char> processGoldsourcePalette(
   }
 
   return processed;
+}
+
+static Assets::Palette readEmbeddedPalette(Reader& reader, const RenderMode renderMode) {
+  const auto paletteSize = reader.readSize<int16_t>();
+  if (paletteSize != 256) {
+    throw AssetException{
+      "Incorrect SPR palette size: expected 256, got " + std::to_string(paletteSize)};
+  }
+  auto data = std::vector<unsigned char>(paletteSize * 3);
+  reader.read(data.data(), data.size());
+  data = processGoldsourcePalette(renderMode, data);
+  return {data};
 }
 
 std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* logger */) {
@@ -203,7 +215,6 @@ std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* log
     throw AssetException{"Unknown SPR version: " + std::to_string(version)};
   }
 
-  Assets::Palette palette = m_palette;
   auto renderMode = RenderMode::IndexAlpha;
 
   const auto orientationType = parseSpriteOrientationType(reader);
@@ -218,16 +229,9 @@ std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* log
   /* const auto beamLength = */ reader.readFloat<float>();
   /* const auto synchtype = */ reader.readInt<int32_t>();
 
+  Assets::Palette palette = m_palette;
   if (version == 2) {
-    const auto paletteSize = reader.readSize<int16_t>();
-    if (paletteSize != 256) {
-      throw AssetException{
-        "Incorrect SPR palette size: expected 256, got " + std::to_string(paletteSize)};
-    }
-    auto data = std::vector<unsigned char>(paletteSize * 3);
-    reader.read(data.data(), data.size());
-    data = processGoldsourcePalette(renderMode, data);
-    palette = Assets::Palette(data);
+    palette = readEmbeddedPalette(reader, renderMode);
   }
 
   auto model =
