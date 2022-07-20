@@ -297,7 +297,8 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
       classInfo.size = parseSize(status);
     } else if (
       kdl::ci::str_is_equal(typeName, "model") || kdl::ci::str_is_equal(typeName, "studio") ||
-      kdl::ci::str_is_equal(typeName, "studioprop")) {
+      kdl::ci::str_is_equal(typeName, "studioprop") || kdl::ci::str_is_equal(typeName, "sprite") ||
+      kdl::ci::str_is_equal(typeName, "iconsprite")) {
       if (classInfo.modelDefinition) {
         status.warn(token.line(), token.column(), "Found multiple model properties");
       }
