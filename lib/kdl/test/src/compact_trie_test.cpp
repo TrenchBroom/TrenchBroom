@@ -29,7 +29,6 @@ using test_index = compact_trie<std::string>;
 
 static void assertMatches(
   const test_index& index, const std::string& pattern, std::vector<std::string> expectedMatches) {
-  ;
   std::vector<std::string> matches;
   index.find_matches(pattern, std::back_inserter(matches));
 
