@@ -20,6 +20,7 @@
 #include "TestUtils.h"
 #include "View/MapDocumentTest.h"
 
+#include "Assets/EntityDefinition.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -733,6 +734,58 @@ TEST_CASE_METHOD(
     CHECK(!groupNodeEntity->entity().hasProperty("key"));
     CHECK(!linkedEntityNode1->entity().hasProperty("key"));
     CHECK(!linkedEntityNode2->entity().hasProperty("key"));
+  }
+}
+
+TEST_CASE_METHOD(
+  MapDocumentTest, "GroupNodesTest.dontCrashWhenLinkedGroupUpdateFailsDuringEntityCreate") {
+
+  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
+  document->selectNodes({entityNode});
+
+  // move the entity down
+  REQUIRE(document->translateObjects({0, 0, -256}));
+  REQUIRE(entityNode->physicalBounds() == vm::bbox3{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
+
+  auto* groupNode = document->groupSelection("test");
+  auto* linkedGroupNode = document->createLinkedDuplicate();
+
+  // move the linked group up by half the world bounds
+  const auto zOffset = document->worldBounds().max.z();
+  document->deselectAll();
+  document->selectNodes({linkedGroupNode});
+  document->translateObjects({0, 0, document->worldBounds().max.z()});
+  REQUIRE(
+    linkedGroupNode->physicalBounds() ==
+    vm::bbox3{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
+
+  // create a brush entity inside the original group
+  document->openGroup(groupNode);
+  document->deselectAll();
+
+  SECTION("create point entity") {
+    REQUIRE(m_pointEntityDef->bounds() == vm::bbox3{{-16, -16, -16}, {16, 16, 16}});
+
+    // create a new point entity below the origin -- this entity is temporarily created at the
+    // origin and then moved to its eventual position, but the entity at the origin is propagated
+    // into the linked group, where it ends up out of  world bounds
+    CHECK(document->createPointEntity(m_pointEntityDef, {0, 0, -32}) == nullptr);
+  }
+
+  SECTION("create brush entity") {
+    auto* brushNode = createBrushNode();
+    Model::transformNode(
+      *brushNode, vm::translation_matrix(vm::vec3{0, 0, -32}), document->worldBounds());
+    REQUIRE(brushNode->physicalBounds() == vm::bbox3{{-16, -16, -48}, {16, 16, -16}});
+
+    document->addNodes({{document->parentForNodes(), {brushNode}}});
+    document->deselectAll();
+    document->selectNodes({brushNode});
+
+    // create a brush entity - a temporarily empty entity will be created at the origin and
+    // propagated into the linked group, where it ends up out of world bounds and thus failing
+    CHECK(document->createBrushEntity(m_brushEntityDef) == nullptr);
   }
 }
 } // namespace View

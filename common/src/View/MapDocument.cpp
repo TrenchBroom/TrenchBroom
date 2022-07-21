@@ -1542,10 +1542,13 @@ Model::EntityNode* MapDocument::createPointEntity(
   name << "Create " << definition->name();
 
   const auto transaction = Transaction{this, name.str()};
-  deselectAll();
-  addNodes({{parentForNodes(), {entityNode}}});
+  if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
+    return nullptr;
+  }
   selectNodes({entityNode});
-  translateObjects(delta);
+  if (!translateObjects(delta)) {
+    return nullptr;
+  }
 
   return entityNode;
 }
@@ -1585,8 +1588,12 @@ Model::EntityNode* MapDocument::createBrushEntity(const Assets::BrushEntityDefin
 
   const auto transaction = Transaction{this, name.str()};
   deselectAll();
-  addNodes({{parentForNodes(), {entityNode}}});
-  reparentNodes({{entityNode, nodes}});
+  if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
+    return nullptr;
+  }
+  if (!reparentNodes({{entityNode, nodes}})) {
+    return nullptr;
+  }
   selectNodes(nodes);
 
   return entityNode;
