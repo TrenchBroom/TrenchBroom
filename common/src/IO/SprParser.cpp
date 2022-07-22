@@ -119,8 +119,7 @@ static Assets::Orientation parseSpriteOrientationType(Reader& reader) {
  * Specifies the render mode for a Goldsource sprite.
  * Affects the palette data.
  */
-enum class RenderMode : int32_t
-{
+enum class RenderMode : int32_t {
   /** No alpha channel, just plain RGB */
   Normal = 0,
   /** Normal but also R+G+B/3 is the alpha channel */
