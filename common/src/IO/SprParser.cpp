@@ -181,7 +181,7 @@ static std::vector<unsigned char> processGoldsourcePalette(
   return processed;
 }
 
-static Assets::Palette readEmbeddedPalette(Reader& reader, const RenderMode renderMode) {
+static Assets::Palette parseEmbeddedPalette(Reader& reader, const RenderMode renderMode) {
   const auto paletteSize = reader.readSize<int16_t>();
   if (paletteSize != 256) {
     throw AssetException{
@@ -230,7 +230,7 @@ std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* log
 
   Assets::Palette palette = m_palette;
   if (version == 2) {
-    palette = readEmbeddedPalette(reader, renderMode);
+    palette = parseEmbeddedPalette(reader, renderMode);
   }
 
   auto model =
