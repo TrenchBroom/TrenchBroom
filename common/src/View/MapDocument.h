@@ -597,7 +597,7 @@ public: // command processing
   void clearRepeatableCommands();
 
 public: // transactions
-  void startTransaction(const std::string& name = "");
+  void startTransaction(const std::string& name);
   void rollbackTransaction();
   void commitTransaction();
   void cancelTransaction();

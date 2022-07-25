@@ -168,7 +168,7 @@ public:
    *
    * @param name the name of the transaction to start
    */
-  void startTransaction(const std::string& name = "");
+  void startTransaction(const std::string& name);
 
   /**
    * Commits the currently executing transaction. If it is a nested transaction, then its commands
