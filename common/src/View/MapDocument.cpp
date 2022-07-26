@@ -1538,14 +1538,17 @@ Model::EntityNode* MapDocument::createPointEntity(
   auto* entityNode = new Model::EntityNode{Model::Entity{
     m_world->entityPropertyConfig(), {{Model::EntityPropertyKeys::Classname, definition->name()}}}};
 
-  std::stringstream name;
+  auto name = std::stringstream{};
   name << "Create " << definition->name();
 
-  const Transaction transaction(this, name.str());
-  deselectAll();
-  addNodes({{parentForNodes(), {entityNode}}});
+  const auto transaction = Transaction{this, name.str()};
+  if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
+    return nullptr;
+  }
   selectNodes({entityNode});
-  translateObjects(delta);
+  if (!translateObjects(delta)) {
+    return nullptr;
+  }
 
   return entityNode;
 }
@@ -1576,17 +1579,21 @@ Model::EntityNode* MapDocument::createBrushEntity(const Assets::BrushEntityDefin
 
   entity.addOrUpdateProperty(
     m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Classname, definition->name());
-  auto* entityNode = new Model::EntityNode(std::move(entity));
+  auto* entityNode = new Model::EntityNode{std::move(entity)};
 
-  std::stringstream name;
+  auto name = std::stringstream{};
   name << "Create " << definition->name();
 
-  const std::vector<Model::Node*> nodes(std::begin(brushes), std::end(brushes));
+  const auto nodes = kdl::vec_element_cast<Model::Node*>(brushes);
 
-  const Transaction transaction(this, name.str());
+  const auto transaction = Transaction{this, name.str()};
   deselectAll();
-  addNodes({{parentForNodes(), {entityNode}}});
-  reparentNodes({{entityNode, nodes}});
+  if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
+    return nullptr;
+  }
+  if (!reparentNodes({{entityNode, nodes}})) {
+    return nullptr;
+  }
   selectNodes(nodes);
 
   return entityNode;
