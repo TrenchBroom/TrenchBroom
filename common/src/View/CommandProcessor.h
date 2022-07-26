@@ -96,7 +96,7 @@ public:
    */
   explicit CommandProcessor(
     MapDocumentCommandFacade* document,
-    std::chrono::milliseconds collationInterval = std::chrono::milliseconds(1000));
+    std::chrono::milliseconds collationInterval = std::chrono::milliseconds{1000});
 
   ~CommandProcessor();
 
@@ -275,7 +275,7 @@ private:
    * @param command the command to execute
    * @return the result of executing the given command
    */
-  std::unique_ptr<CommandResult> executeCommand(Command* command);
+  std::unique_ptr<CommandResult> executeCommand(Command& command);
 
   /**
    * Undoes the given command by calling its `performUndo` method and triggers the corresponding
@@ -284,7 +284,7 @@ private:
    * @param command the command to undo
    * @return the result of undoing the given command
    */
-  std::unique_ptr<CommandResult> undoCommand(UndoableCommand* command);
+  std::unique_ptr<CommandResult> undoCommand(UndoableCommand& command);
 
   /**
    * Stores the given command or collates it with the topmost command on the undo stack.
@@ -329,7 +329,7 @@ private:
    * @return the newly created command
    */
   std::unique_ptr<UndoableCommand> createTransaction(
-    const std::string& name, std::vector<std::unique_ptr<UndoableCommand>> commands);
+    std::string name, std::vector<std::unique_ptr<UndoableCommand>> commands);
 
   /**
    * Pushes the given command onto the undo stack, unless it can be collated with the topmost
