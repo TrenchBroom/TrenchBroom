@@ -103,32 +103,32 @@ public:
   /**
    * Notifies observers when a command is going to be executed.
    */
-  Notifier<Command*> commandDoNotifier;
+  Notifier<Command&> commandDoNotifier;
 
   /**
    * Notifies observers when a command was successfully executed.
    */
-  Notifier<Command*> commandDoneNotifier;
+  Notifier<Command&> commandDoneNotifier;
 
   /**
    * Notifies observers when a command failed to execute.
    */
-  Notifier<Command*> commandDoFailedNotifier;
+  Notifier<Command&> commandDoFailedNotifier;
 
   /**
    * Notifies observers when an undoable command is going to be undone.
    */
-  Notifier<UndoableCommand*> commandUndoNotifier;
+  Notifier<UndoableCommand&> commandUndoNotifier;
 
   /**
    * Notifies observers when an undoable command was successfully undone.
    */
-  Notifier<UndoableCommand*> commandUndoneNotifier;
+  Notifier<UndoableCommand&> commandUndoneNotifier;
 
   /**
    * Notifies observers when an undoable command failed to undo.
    */
-  Notifier<UndoableCommand*> commandUndoFailedNotifier;
+  Notifier<UndoableCommand&> commandUndoFailedNotifier;
 
   /**
    * Notifies observers when a transaction completed successfully.

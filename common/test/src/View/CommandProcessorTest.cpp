@@ -89,23 +89,23 @@ public:
 
 private:
   // these would be tidier as lambdas in the TestObserver() constructor
-  void commandDo(Command* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDo, command->name()));
+  void commandDo(Command& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDo, command.name()));
   }
-  void commandDone(Command* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDone, command->name()));
+  void commandDone(Command& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDone, command.name()));
   }
-  void commandDoFailed(Command* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDoFailed, command->name()));
+  void commandDoFailed(Command& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDoFailed, command.name()));
   }
-  void commandUndo(UndoableCommand* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndo, command->name()));
+  void commandUndo(UndoableCommand& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndo, command.name()));
   }
-  void commandUndone(UndoableCommand* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndone, command->name()));
+  void commandUndone(UndoableCommand& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndone, command.name()));
   }
-  void commandUndoFailed(UndoableCommand* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndoFailed, command->name()));
+  void commandUndoFailed(UndoableCommand& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndoFailed, command.name()));
   }
   void transactionDone(const std::string& transactionName) {
     m_notifications.push_back(std::make_tuple(CommandNotif::TransactionDone, transactionName));

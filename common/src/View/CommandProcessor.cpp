@@ -35,8 +35,8 @@
 namespace TrenchBroom {
 namespace View {
 template <typename T, typename C>
-void notifyCommandIfNotType(T& notifier, const Command::CommandType ignore, C* command) {
-  if (command->type() != ignore) {
+void notifyCommandIfNotType(T& notifier, const Command::CommandType ignore, C& command) {
+  if (command.type() != ignore) {
     notifier(command);
   }
 }
@@ -65,17 +65,17 @@ public:
 private:
   std::vector<std::unique_ptr<UndoableCommand>> m_commands;
 
-  Notifier<Command*>& m_commandDoNotifier;
-  Notifier<Command*>& m_commandDoneNotifier;
-  Notifier<UndoableCommand*>& m_commandUndoNotifier;
-  Notifier<UndoableCommand*>& m_commandUndoneNotifier;
+  Notifier<Command&>& m_commandDoNotifier;
+  Notifier<Command&>& m_commandDoneNotifier;
+  Notifier<UndoableCommand&>& m_commandUndoNotifier;
+  Notifier<UndoableCommand&>& m_commandUndoneNotifier;
 
 public:
   TransactionCommand(
     const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands,
-    Notifier<Command*>& i_commandDoNotifier, Notifier<Command*>& i_commandDoneNotifier,
-    Notifier<UndoableCommand*>& i_commandUndoNotifier,
-    Notifier<UndoableCommand*>& i_commandUndoneNotifier)
+    Notifier<Command&>& i_commandDoNotifier, Notifier<Command&>& i_commandDoneNotifier,
+    Notifier<UndoableCommand&>& i_commandUndoNotifier,
+    Notifier<UndoableCommand&>& i_commandUndoneNotifier)
     : UndoableCommand(Type, name, false)
     , m_commands(std::move(commands))
     , m_commandDoNotifier(i_commandDoNotifier)
@@ -86,11 +86,11 @@ public:
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override {
     for (auto& command : m_commands) {
-      notifyCommandIfNotType(m_commandDoNotifier, TransactionCommand::Type, command.get());
+      notifyCommandIfNotType(m_commandDoNotifier, TransactionCommand::Type, *command);
       if (!command->performDo(document)) {
         throw CommandProcessorException("Partial failure while executing transaction");
       }
-      notifyCommandIfNotType(m_commandDoneNotifier, TransactionCommand::Type, command.get());
+      notifyCommandIfNotType(m_commandDoneNotifier, TransactionCommand::Type, *command);
     }
     return std::make_unique<CommandResult>(true);
   }
@@ -98,11 +98,11 @@ private:
   std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override {
     for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
       auto& command = *it;
-      notifyCommandIfNotType(m_commandUndoNotifier, TransactionCommand::Type, command.get());
+      notifyCommandIfNotType(m_commandUndoNotifier, TransactionCommand::Type, *command);
       if (!command->performUndo(document)) {
         throw CommandProcessorException("Partial failure while undoing transaction");
       }
-      notifyCommandIfNotType(m_commandUndoneNotifier, TransactionCommand::Type, command.get());
+      notifyCommandIfNotType(m_commandUndoneNotifier, TransactionCommand::Type, *command);
     }
     return std::make_unique<CommandResult>(true);
   }
@@ -236,26 +236,26 @@ CommandProcessor::SubmitAndStoreResult CommandProcessor::executeAndStoreCommand(
 }
 
 std::unique_ptr<CommandResult> CommandProcessor::executeCommand(Command* command) {
-  notifyCommandIfNotType(commandDoNotifier, TransactionCommand::Type, command);
+  notifyCommandIfNotType(commandDoNotifier, TransactionCommand::Type, *command);
   auto result = command->performDo(m_document);
   if (result->success()) {
-    notifyCommandIfNotType(commandDoneNotifier, TransactionCommand::Type, command);
+    notifyCommandIfNotType(commandDoneNotifier, TransactionCommand::Type, *command);
     if (m_transactionStack.empty()) {
       transactionDoneNotifier(command->name());
     }
   } else {
-    notifyCommandIfNotType(commandDoFailedNotifier, TransactionCommand::Type, command);
+    notifyCommandIfNotType(commandDoFailedNotifier, TransactionCommand::Type, *command);
   }
   return result;
 }
 
 std::unique_ptr<CommandResult> CommandProcessor::undoCommand(UndoableCommand* command) {
-  notifyCommandIfNotType(commandUndoNotifier, TransactionCommand::Type, command);
+  notifyCommandIfNotType(commandUndoNotifier, TransactionCommand::Type, *command);
   auto result = command->performUndo(m_document);
   if (result->success()) {
-    notifyCommandIfNotType(commandUndoneNotifier, TransactionCommand::Type, command);
+    notifyCommandIfNotType(commandUndoneNotifier, TransactionCommand::Type, *command);
   } else {
-    notifyCommandIfNotType(commandUndoFailedNotifier, TransactionCommand::Type, command);
+    notifyCommandIfNotType(commandUndoFailedNotifier, TransactionCommand::Type, *command);
   }
   return result;
 }

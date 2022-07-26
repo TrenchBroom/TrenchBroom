@@ -4286,12 +4286,12 @@ void MapDocument::preferenceDidChange(const IO::Path& path) {
   }
 }
 
-void MapDocument::commandDone(Command* command) {
-  debug() << "Command '" << command->name() << "' executed";
+void MapDocument::commandDone(Command& command) {
+  debug() << "Command '" << command.name() << "' executed";
 }
 
-void MapDocument::commandUndone(UndoableCommand* command) {
-  debug() << "Command '" << command->name() << "' undone";
+void MapDocument::commandUndone(UndoableCommand& command) {
+  debug() << "Command '" << command.name() << "' undone";
 }
 
 void MapDocument::transactionDone(const std::string& name) {

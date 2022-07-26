@@ -141,12 +141,12 @@ protected:
   std::unique_ptr<RepeatStack> m_repeatStack;
 
 public: // notification
-  Notifier<Command*> commandDoNotifier;
-  Notifier<Command*> commandDoneNotifier;
-  Notifier<Command*> commandDoFailedNotifier;
-  Notifier<UndoableCommand*> commandUndoNotifier;
-  Notifier<UndoableCommand*> commandUndoneNotifier;
-  Notifier<UndoableCommand*> commandUndoFailedNotifier;
+  Notifier<Command&> commandDoNotifier;
+  Notifier<Command&> commandDoneNotifier;
+  Notifier<Command&> commandDoFailedNotifier;
+  Notifier<UndoableCommand&> commandUndoNotifier;
+  Notifier<UndoableCommand&> commandUndoneNotifier;
+  Notifier<UndoableCommand&> commandUndoFailedNotifier;
   Notifier<const std::string&> transactionDoneNotifier;
   Notifier<const std::string&> transactionUndoneNotifier;
 
@@ -751,8 +751,8 @@ private: // observers
   void modsWillChange();
   void modsDidChange();
   void preferenceDidChange(const IO::Path& path);
-  void commandDone(Command* command);
-  void commandUndone(UndoableCommand* command);
+  void commandDone(Command& command);
+  void commandUndone(UndoableCommand& command);
   void transactionDone(const std::string& name);
   void transactionUndone(const std::string& name);
 };
