@@ -41,6 +41,8 @@ private:
   bool m_right;
   bool m_up;
   bool m_down;
+  bool m_fast;
+  bool m_slow;
 
   int64_t m_lastPollTime;
 
