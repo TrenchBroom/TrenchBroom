@@ -187,13 +187,13 @@ vm::vec3f FlyModeHelper::moveDelta(const float time) {
   return delta;
 }
 
-const float speed_modifier = 2.0f;
+const float SpeedModifier = 2.0f;
 float FlyModeHelper::moveSpeed() const {
   if (m_fast) {
-    return pref(Preferences::CameraFlyMoveSpeed) * speed_modifier;
+    return pref(Preferences::CameraFlyMoveSpeed) * SpeedModifier;
   }
   else if (m_slow) {
-    return pref(Preferences::CameraFlyMoveSpeed) / speed_modifier;
+    return pref(Preferences::CameraFlyMoveSpeed) / SpeedModifier;
   }
   return pref(Preferences::CameraFlyMoveSpeed);
 }
