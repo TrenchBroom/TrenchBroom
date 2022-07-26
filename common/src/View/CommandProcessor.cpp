@@ -144,8 +144,8 @@ const std::string& CommandProcessor::redoCommandName() const {
   }
 }
 
-void CommandProcessor::startTransaction(const std::string& name) {
-  m_transactionStack.emplace_back(name);
+void CommandProcessor::startTransaction(std::string name) {
+  m_transactionStack.emplace_back(std::move(name));
 }
 
 void CommandProcessor::commitTransaction() {

@@ -597,7 +597,7 @@ public: // command processing
   void clearRepeatableCommands();
 
 public: // transactions
-  void startTransaction(const std::string& name);
+  void startTransaction(std::string name);
   void rollbackTransaction();
   void commitTransaction();
   void cancelTransaction();
@@ -615,7 +615,7 @@ private: // subclassing interface for command processing
   virtual void doRedoCommand() = 0;
 
   virtual void doClearCommandProcessor() = 0;
-  virtual void doStartTransaction(const std::string& name) = 0;
+  virtual void doStartTransaction(std::string name) = 0;
   virtual void doCommitTransaction() = 0;
   virtual void doRollbackTransaction() = 0;
 
@@ -763,16 +763,16 @@ private:
   bool m_cancelled;
 
 public:
-  explicit Transaction(std::weak_ptr<MapDocument> document, const std::string& name = "");
-  explicit Transaction(std::shared_ptr<MapDocument> document, const std::string& name = "");
-  explicit Transaction(MapDocument* document, const std::string& name = "");
+  explicit Transaction(std::weak_ptr<MapDocument> document, std::string name = "");
+  explicit Transaction(std::shared_ptr<MapDocument> document, std::string name = "");
+  explicit Transaction(MapDocument* document, std::string name = "");
   ~Transaction();
 
   void rollback();
   void cancel();
 
 private:
-  void begin(const std::string& name);
+  void begin(std::string name);
   void commit();
 };
 } // namespace View
