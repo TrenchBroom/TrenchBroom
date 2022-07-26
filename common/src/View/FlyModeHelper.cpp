@@ -101,11 +101,11 @@ void FlyModeHelper::keyDown(QKeyEvent* event) {
   if (eventMatchesShortcut(down, event)) {
     m_down = true;
   }
-  if(event->key() == Qt::Key_Shift) {
-	m_fast = true;
+  if (event->key() == Qt::Key_Shift) {
+    m_fast = true;
   }
-  if(event->key() == Qt::Key_Alt) {
-	m_slow = true;
+  if (event->key() == Qt::Key_Alt) {
+    m_slow = true;
   }
 
   if (anyKeyDown() && !wasAnyKeyDown) {
@@ -146,11 +146,11 @@ void FlyModeHelper::keyUp(QKeyEvent* event) {
   if (eventMatchesShortcut(down, event)) {
     m_down = false;
   }
-  if(event->key() == Qt::Key_Shift) {
-	m_fast = false;
+  if (event->key() == Qt::Key_Shift) {
+    m_fast = false;
   }
-  if(event->key() == Qt::Key_Alt) {
-	m_slow = false;
+  if (event->key() == Qt::Key_Alt) {
+    m_slow = false;
   }
 }
 
@@ -191,8 +191,7 @@ const float SpeedModifier = 2.0f;
 float FlyModeHelper::moveSpeed() const {
   if (m_fast) {
     return pref(Preferences::CameraFlyMoveSpeed) * SpeedModifier;
-  }
-  else if (m_slow) {
+  } else if (m_slow) {
     return pref(Preferences::CameraFlyMoveSpeed) / SpeedModifier;
   }
   return pref(Preferences::CameraFlyMoveSpeed);
