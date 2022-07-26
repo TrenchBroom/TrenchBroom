@@ -3456,7 +3456,7 @@ private:
     return std::make_unique<CommandResult>(true);
   }
 
-  bool doCollateWith(UndoableCommand*) override { return false; }
+  bool doCollateWith(UndoableCommand&) override { return false; }
 };
 
 const ThrowExceptionCommand::CommandType ThrowExceptionCommand::Type = Command::freeType();

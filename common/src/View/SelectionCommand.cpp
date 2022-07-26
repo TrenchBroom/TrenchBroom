@@ -170,7 +170,7 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(MapDocumentComman
   return std::make_unique<CommandResult>(true);
 }
 
-bool SelectionCommand::doCollateWith(UndoableCommand*) {
+bool SelectionCommand::doCollateWith(UndoableCommand&) {
   return false;
 }
 } // namespace View

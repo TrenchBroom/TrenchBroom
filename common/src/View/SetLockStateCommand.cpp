@@ -109,7 +109,7 @@ std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-bool SetLockStateCommand::doCollateWith(UndoableCommand*) {
+bool SetLockStateCommand::doCollateWith(UndoableCommand&) {
   return false;
 }
 } // namespace View

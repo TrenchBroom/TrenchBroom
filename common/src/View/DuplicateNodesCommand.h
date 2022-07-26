@@ -54,7 +54,7 @@ private:
 
   bool shouldCloneParentWhenCloningNode(const Model::Node* node) const;
 
-  bool doCollateWith(UndoableCommand* command) override;
+  bool doCollateWith(UndoableCommand& command) override;
 
   deleteCopyAndMove(DuplicateNodesCommand);
 };

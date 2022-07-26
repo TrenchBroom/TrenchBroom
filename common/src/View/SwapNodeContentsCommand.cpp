@@ -62,13 +62,13 @@ std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-bool SwapNodeContentsCommand::doCollateWith(UndoableCommand* command) {
-  auto* other = static_cast<SwapNodeContentsCommand*>(command);
+bool SwapNodeContentsCommand::doCollateWith(UndoableCommand& command) {
+  auto& other = static_cast<SwapNodeContentsCommand&>(command);
 
   auto myNodes = kdl::vec_transform(m_nodes, [](const auto& pair) {
     return pair.first;
   });
-  auto theirNodes = kdl::vec_transform(other->m_nodes, [](const auto& pair) {
+  auto theirNodes = kdl::vec_transform(other.m_nodes, [](const auto& pair) {
     return pair.first;
   });
 
@@ -76,7 +76,7 @@ bool SwapNodeContentsCommand::doCollateWith(UndoableCommand* command) {
   kdl::vec_sort(theirNodes);
 
   if (myNodes == theirNodes) {
-    m_updateLinkedGroupsHelper.collateWith(other->m_updateLinkedGroupsHelper);
+    m_updateLinkedGroupsHelper.collateWith(other.m_updateLinkedGroupsHelper);
     return true;
   }
 

@@ -162,10 +162,10 @@ private:
     return std::make_unique<CommandResult>(expectedCall.returnSuccess);
   }
 
-  bool doCollateWith(UndoableCommand* otherCommand) override {
+  bool doCollateWith(UndoableCommand& otherCommand) override {
     const auto expectedCall = popCall<DoCollateWith>();
 
-    REQUIRE(otherCommand == expectedCall.expectedOtherCommand);
+    REQUIRE(&otherCommand == expectedCall.expectedOtherCommand);
 
     return expectedCall.returnCanCollate;
   }

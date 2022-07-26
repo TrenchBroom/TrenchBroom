@@ -78,7 +78,7 @@ private:
   void doAction(MapDocumentCommandFacade* document);
   void undoAction(MapDocumentCommandFacade* document);
 
-  bool doCollateWith(UndoableCommand* command) override;
+  bool doCollateWith(UndoableCommand& command) override;
 
   deleteCopyAndMove(AddRemoveNodesCommand);
 };

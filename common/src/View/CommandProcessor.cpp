@@ -107,7 +107,7 @@ private:
     return std::make_unique<CommandResult>(true);
   }
 
-  bool doCollateWith(UndoableCommand*) override { return false; }
+  bool doCollateWith(UndoableCommand&) override { return false; }
 };
 
 const Command::CommandType CommandProcessor::TransactionCommand::Type = Command::freeType();
@@ -274,7 +274,7 @@ bool CommandProcessor::pushTransactionCommand(
   auto& transaction = m_transactionStack.back();
   if (!transaction.commands.empty()) {
     auto& lastCommand = transaction.commands.back();
-    if (collate && lastCommand->collateWith(command.get())) {
+    if (collate && lastCommand->collateWith(*command)) {
       // the command is not stored because it was collated with its predecessor
       return false;
     }
@@ -318,7 +318,7 @@ bool CommandProcessor::pushToUndoStack(
 
   if (collatable(collate, timestamp)) {
     auto& lastCommand = m_undoStack.back();
-    if (lastCommand->collateWith(command.get())) {
+    if (lastCommand->collateWith(*command)) {
       return false;
     }
   }

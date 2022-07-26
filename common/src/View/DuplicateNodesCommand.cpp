@@ -123,7 +123,7 @@ bool DuplicateNodesCommand::shouldCloneParentWhenCloningNode(const Model::Node* 
     }));
 }
 
-bool DuplicateNodesCommand::doCollateWith(UndoableCommand*) {
+bool DuplicateNodesCommand::doCollateWith(UndoableCommand&) {
   return false;
 }
 } // namespace View

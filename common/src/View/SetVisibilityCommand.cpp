@@ -94,7 +94,7 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-bool SetVisibilityCommand::doCollateWith(UndoableCommand*) {
+bool SetVisibilityCommand::doCollateWith(UndoableCommand&) {
   return false;
 }
 } // namespace View

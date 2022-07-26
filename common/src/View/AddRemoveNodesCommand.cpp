@@ -142,7 +142,7 @@ void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade* document) {
   std::swap(m_nodesToAdd, m_nodesToRemove);
 }
 
-bool AddRemoveNodesCommand::doCollateWith(UndoableCommand*) {
+bool AddRemoveNodesCommand::doCollateWith(UndoableCommand&) {
   return false;
 }
 } // namespace View

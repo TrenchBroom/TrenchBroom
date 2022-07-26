@@ -57,10 +57,10 @@ std::unique_ptr<CommandResult> UndoableCommand::performUndo(MapDocumentCommandFa
   return result;
 }
 
-bool UndoableCommand::collateWith(UndoableCommand* command) {
-  assert(command != this);
-  if (command->type() == m_type && doCollateWith(command)) {
-    m_modificationCount += command->m_modificationCount;
+bool UndoableCommand::collateWith(UndoableCommand& command) {
+  assert(&command != this);
+  if (command.type() == m_type && doCollateWith(command)) {
+    m_modificationCount += command.m_modificationCount;
     return true;
   }
   return false;

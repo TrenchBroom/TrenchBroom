@@ -92,7 +92,7 @@ private:
   std::unique_ptr<CommandResult> createCommandResult(
     std::unique_ptr<CommandResult> swapResult) override;
 
-  bool doCollateWith(UndoableCommand* command) override;
+  bool doCollateWith(UndoableCommand& command) override;
 
   void selectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const override;
   void selectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const override;
@@ -116,7 +116,7 @@ public:
       linkedGroupsToUpdate);
 
 private:
-  bool doCollateWith(UndoableCommand* command) override;
+  bool doCollateWith(UndoableCommand& command) override;
 
   void selectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
   void selectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
@@ -140,7 +140,7 @@ public:
       linkedGroupsToUpdate);
 
 private:
-  bool doCollateWith(UndoableCommand* command) override;
+  bool doCollateWith(UndoableCommand& command) override;
 
   void selectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
   void selectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;

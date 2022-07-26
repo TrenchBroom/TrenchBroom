@@ -100,10 +100,10 @@ std::unique_ptr<CommandResult> BrushVertexCommand::createCommandResult(
     swapResult->success(), !m_newVertexPositions.empty());
 }
 
-bool BrushVertexCommand::doCollateWith(UndoableCommand* command) {
-  BrushVertexCommand* other = static_cast<BrushVertexCommand*>(command);
+bool BrushVertexCommand::doCollateWith(UndoableCommand& command) {
+  auto& other = static_cast<BrushVertexCommand&>(command);
 
-  if (m_newVertexPositions != other->m_oldVertexPositions) {
+  if (m_newVertexPositions != other.m_oldVertexPositions) {
     return false;
   }
 
@@ -111,7 +111,7 @@ bool BrushVertexCommand::doCollateWith(UndoableCommand* command) {
     return false;
   }
 
-  m_newVertexPositions = std::move(other->m_newVertexPositions);
+  m_newVertexPositions = std::move(other.m_newVertexPositions);
 
   return true;
 }
@@ -137,10 +137,10 @@ BrushEdgeCommand::BrushEdgeCommand(
   , m_oldEdgePositions(std::move(oldEdgePositions))
   , m_newEdgePositions(std::move(newEdgePositions)) {}
 
-bool BrushEdgeCommand::doCollateWith(UndoableCommand* command) {
-  BrushEdgeCommand* other = static_cast<BrushEdgeCommand*>(command);
+bool BrushEdgeCommand::doCollateWith(UndoableCommand& command) {
+  auto& other = static_cast<BrushEdgeCommand&>(command);
 
-  if (m_newEdgePositions != other->m_oldEdgePositions) {
+  if (m_newEdgePositions != other.m_oldEdgePositions) {
     return false;
   }
 
@@ -148,7 +148,7 @@ bool BrushEdgeCommand::doCollateWith(UndoableCommand* command) {
     return false;
   }
 
-  m_newEdgePositions = std::move(other->m_newEdgePositions);
+  m_newEdgePositions = std::move(other.m_newEdgePositions);
 
   return true;
 }
@@ -174,10 +174,10 @@ BrushFaceCommand::BrushFaceCommand(
   , m_oldFacePositions(std::move(oldFacePositions))
   , m_newFacePositions(std::move(newFacePositions)) {}
 
-bool BrushFaceCommand::doCollateWith(UndoableCommand* command) {
-  BrushFaceCommand* other = static_cast<BrushFaceCommand*>(command);
+bool BrushFaceCommand::doCollateWith(UndoableCommand& command) {
+  auto& other = static_cast<BrushFaceCommand&>(command);
 
-  if (m_newFacePositions != other->m_oldFacePositions) {
+  if (m_newFacePositions != other.m_oldFacePositions) {
     return false;
   }
 
@@ -185,7 +185,7 @@ bool BrushFaceCommand::doCollateWith(UndoableCommand* command) {
     return false;
   }
 
-  m_newFacePositions = std::move(other->m_newFacePositions);
+  m_newFacePositions = std::move(other.m_newFacePositions);
 
   return true;
 }

@@ -77,7 +77,7 @@ void ReparentNodesCommand::undoAction(MapDocumentCommandFacade* document) {
   document->performAddNodes(m_nodesToRemove);
 }
 
-bool ReparentNodesCommand::doCollateWith(UndoableCommand*) {
+bool ReparentNodesCommand::doCollateWith(UndoableCommand&) {
   return false;
 }
 } // namespace View

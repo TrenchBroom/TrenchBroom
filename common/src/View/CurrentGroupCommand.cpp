@@ -61,7 +61,7 @@ std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-bool CurrentGroupCommand::doCollateWith(UndoableCommand*) {
+bool CurrentGroupCommand::doCollateWith(UndoableCommand&) {
   return false;
 }
 } // namespace View
