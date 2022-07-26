@@ -619,9 +619,9 @@ private: // subclassing interface for command processing
   virtual void doCommitTransaction() = 0;
   virtual void doRollbackTransaction() = 0;
 
-  virtual std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command>&& command) = 0;
+  virtual std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command> command) = 0;
   virtual std::unique_ptr<CommandResult> doExecuteAndStore(
-    std::unique_ptr<UndoableCommand>&& command) = 0;
+    std::unique_ptr<UndoableCommand> command) = 0;
 
 public: // asset state management
   void commitPendingAssets();

@@ -102,25 +102,6 @@ public:
   void performPushGroup(Model::GroupNode* group);
   void performPopGroup();
 
-public: // brush face attributes
-  void performMoveTextures(
-    const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
-  void performRotateTextures(float angle);
-  void performShearTextures(const vm::vec2f& factors);
-  void performCopyTexCoordSystemFromFace(
-    const Model::TexCoordSystemSnapshot& coordSystemSnapshot,
-    const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane,
-    const Model::WrapStyle wrapStyle);
-
-public: // entity definition file management
-  void performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
-
-public: // texture collection management
-  void performSetTextureCollections(const std::vector<IO::Path>& paths);
-
-public: // mods management
-  void performSetMods(const std::vector<std::string>& mods);
-
 private:
   void doSetIssueHidden(Model::Issue* issue, bool hidden) override;
 
@@ -146,9 +127,9 @@ private: // implement MapDocument interface
   void doCommitTransaction() override;
   void doRollbackTransaction() override;
 
-  std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command>&& command) override;
+  std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command> command) override;
   std::unique_ptr<CommandResult> doExecuteAndStore(
-    std::unique_ptr<UndoableCommand>&& command) override;
+    std::unique_ptr<UndoableCommand> command) override;
 };
 } // namespace View
 } // namespace TrenchBroom
