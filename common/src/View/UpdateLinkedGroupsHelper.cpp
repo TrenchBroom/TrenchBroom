@@ -85,12 +85,10 @@ void UpdateLinkedGroupsHelper::collateWith(UpdateLinkedGroupsHelper& other) {
   auto& myLinkedGroupUpdates = std::get<LinkedGroupUpdates>(m_state);
   auto& theirLinkedGroupUpdates = std::get<LinkedGroupUpdates>(other.m_state);
 
-  for (auto& theirUpdate : theirLinkedGroupUpdates) {
-    Model::Node* theirGroupNodeToUpdate = theirUpdate.first;
-    std::vector<std::unique_ptr<Model::Node>>& theirOldChildren = theirUpdate.second;
-
-    auto myIt = std::find_if(
-      std::begin(myLinkedGroupUpdates), std::end(myLinkedGroupUpdates), [&](const auto& p) {
+  for (auto& [theirGroupNodeToUpdate, theirOldChildren] : theirLinkedGroupUpdates) {
+    const auto myIt = std::find_if(
+      std::begin(myLinkedGroupUpdates), std::end(myLinkedGroupUpdates),
+      [theirGroupNodeToUpdate = theirGroupNodeToUpdate](const auto& p) {
         return p.first == theirGroupNodeToUpdate;
       });
     if (myIt == std::end(myLinkedGroupUpdates)) {
