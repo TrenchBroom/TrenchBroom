@@ -31,6 +31,7 @@
 #include <kdl/result_for_each.h>
 #include <kdl/vector_utils.h>
 
+#include <algorithm>
 #include <cassert>
 #include <map>
 #include <unordered_set>
@@ -38,20 +39,13 @@
 namespace TrenchBroom {
 namespace View {
 bool checkLinkedGroupsToUpdate(const std::vector<const Model::GroupNode*>& linkedGroupsToUpdate) {
-  if (linkedGroupsToUpdate.empty()) {
-    return true;
-  }
+  const auto linkedGroupIds =
+    kdl::vec_sort(kdl::vec_transform(linkedGroupsToUpdate, [](const auto* groupNode) {
+      return groupNode->group().linkedGroupId();
+    }));
 
-  for (auto it = std::begin(linkedGroupsToUpdate), last = std::prev(std::end(linkedGroupsToUpdate));
-       it != last; ++it) {
-    for (auto other = std::next(it); other != std::end(linkedGroupsToUpdate); ++other) {
-      if ((*it)->group().linkedGroupId() == (*other)->group().linkedGroupId()) {
-        return false;
-      }
-    }
-  }
-
-  return true;
+  return std::adjacent_find(std::begin(linkedGroupIds), std::end(linkedGroupIds)) ==
+         std::end(linkedGroupIds);
 }
 
 // Order groups so that descendants will be updated before their ancestors
