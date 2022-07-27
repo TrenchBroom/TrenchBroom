@@ -76,9 +76,5 @@ void ReparentNodesCommand::undoAction(MapDocumentCommandFacade* document) {
   document->performRemoveNodes(m_nodesToAdd);
   document->performAddNodes(m_nodesToRemove);
 }
-
-bool ReparentNodesCommand::doCollateWith(UndoableCommand&) {
-  return false;
-}
 } // namespace View
 } // namespace TrenchBroom

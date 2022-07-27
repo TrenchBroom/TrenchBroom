@@ -3455,8 +3455,6 @@ private:
   std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override {
     return std::make_unique<CommandResult>(true);
   }
-
-  bool doCollateWith(UndoableCommand&) override { return false; }
 };
 
 const ThrowExceptionCommand::CommandType ThrowExceptionCommand::Type = Command::freeType();

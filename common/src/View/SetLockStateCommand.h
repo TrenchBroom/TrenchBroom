@@ -56,8 +56,6 @@ private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
-  bool doCollateWith(UndoableCommand& command) override;
-
   deleteCopyAndMove(SetLockStateCommand);
 };
 } // namespace View

@@ -106,8 +106,6 @@ private:
     }
     return std::make_unique<CommandResult>(true);
   }
-
-  bool doCollateWith(UndoableCommand&) override { return false; }
 };
 
 const Command::CommandType CommandProcessor::TransactionCommand::Type = Command::freeType();

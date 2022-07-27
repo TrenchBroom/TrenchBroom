@@ -65,5 +65,9 @@ bool UndoableCommand::collateWith(UndoableCommand& command) {
   }
   return false;
 }
+
+bool UndoableCommand::doCollateWith(UndoableCommand&) {
+  return false;
+}
 } // namespace View
 } // namespace TrenchBroom

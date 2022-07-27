@@ -141,9 +141,5 @@ void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade* document) {
   using std::swap;
   std::swap(m_nodesToAdd, m_nodesToRemove);
 }
-
-bool AddRemoveNodesCommand::doCollateWith(UndoableCommand&) {
-  return false;
-}
 } // namespace View
 } // namespace TrenchBroom

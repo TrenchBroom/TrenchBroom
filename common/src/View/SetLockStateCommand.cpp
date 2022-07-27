@@ -108,9 +108,5 @@ std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(
   document->restoreLockState(m_oldLockState);
   return std::make_unique<CommandResult>(true);
 }
-
-bool SetLockStateCommand::doCollateWith(UndoableCommand&) {
-  return false;
-}
 } // namespace View
 } // namespace TrenchBroom

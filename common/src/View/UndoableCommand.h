@@ -47,7 +47,7 @@ public:
 private:
   virtual std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) = 0;
 
-  virtual bool doCollateWith(UndoableCommand& command) = 0;
+  virtual bool doCollateWith(UndoableCommand& command);
 
   deleteCopyAndMove(UndoableCommand);
 };

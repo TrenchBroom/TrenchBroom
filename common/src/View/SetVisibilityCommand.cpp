@@ -93,9 +93,5 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(
   document->restoreVisibilityState(m_oldState);
   return std::make_unique<CommandResult>(true);
 }
-
-bool SetVisibilityCommand::doCollateWith(UndoableCommand&) {
-  return false;
-}
 } // namespace View
 } // namespace TrenchBroom
