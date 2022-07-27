@@ -35,9 +35,6 @@ class Node;
 
 namespace View {
 class ReparentNodesCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;

@@ -34,8 +34,6 @@
 
 namespace TrenchBroom {
 namespace View {
-const Command::CommandType SetLockStateCommand::Type = Command::freeType();
-
 std::unique_ptr<SetLockStateCommand> SetLockStateCommand::lock(
   const std::vector<Model::Node*>& nodes) {
   return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Locked);
@@ -81,7 +79,7 @@ static bool shouldUpdateModificationCount(const std::vector<Model::Node*>& nodes
 
 SetLockStateCommand::SetLockStateCommand(
   const std::vector<Model::Node*>& nodes, const Model::LockState lockState)
-  : UndoableCommand(Type, makeName(lockState), shouldUpdateModificationCount(nodes))
+  : UndoableCommand(makeName(lockState), shouldUpdateModificationCount(nodes))
   , m_nodes(nodes)
   , m_lockState(lockState) {}
 

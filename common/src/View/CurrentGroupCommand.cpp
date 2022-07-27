@@ -23,8 +23,6 @@
 
 namespace TrenchBroom {
 namespace View {
-const Command::CommandType CurrentGroupCommand::Type = Command::freeType();
-
 std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::push(Model::GroupNode* group) {
   return std::make_unique<CurrentGroupCommand>(group);
 }
@@ -34,7 +32,7 @@ std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::pop() {
 }
 
 CurrentGroupCommand::CurrentGroupCommand(Model::GroupNode* group)
-  : UndoableCommand(Type, group != nullptr ? "Push Group" : "Pop Group", false)
+  : UndoableCommand(group != nullptr ? "Push Group" : "Pop Group", false)
   , m_group(group) {}
 
 std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(

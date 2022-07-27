@@ -3440,12 +3440,11 @@ void MapDocument::printVertices() {
 
 class ThrowExceptionCommand : public UndoableCommand {
 public:
-  static const CommandType Type;
   using Ptr = std::shared_ptr<ThrowExceptionCommand>;
 
 public:
   ThrowExceptionCommand()
-    : UndoableCommand(Type, "Throw Exception", false) {}
+    : UndoableCommand("Throw Exception", false) {}
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override {
@@ -3456,8 +3455,6 @@ private:
     return std::make_unique<CommandResult>(true);
   }
 };
-
-const ThrowExceptionCommand::CommandType ThrowExceptionCommand::Type = Command::freeType();
 
 bool MapDocument::throwExceptionDuringCommand() {
   const auto result = executeAndStore(std::make_unique<ThrowExceptionCommand>());

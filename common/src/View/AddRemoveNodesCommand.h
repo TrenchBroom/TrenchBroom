@@ -35,9 +35,6 @@ class Node;
 
 namespace View {
 class AddRemoveNodesCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   enum class Action {
     Add,

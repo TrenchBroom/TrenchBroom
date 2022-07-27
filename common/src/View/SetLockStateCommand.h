@@ -35,9 +35,6 @@ class Node;
 
 namespace View {
 class SetLockStateCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   std::vector<Model::Node*> m_nodes;
   Model::LockState m_lockState;

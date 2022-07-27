@@ -37,8 +37,6 @@
 
 namespace TrenchBroom {
 namespace View {
-const Command::CommandType SelectionCommand::Type = Command::freeType();
-
 std::unique_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::Node*>& nodes) {
   return std::make_unique<SelectionCommand>(
     Action::SelectNodes, nodes, std::vector<Model::BrushFaceHandle>{});
@@ -85,7 +83,7 @@ std::unique_ptr<SelectionCommand> SelectionCommand::deselectAll() {
 SelectionCommand::SelectionCommand(
   const Action action, const std::vector<Model::Node*>& nodes,
   const std::vector<Model::BrushFaceHandle>& faces)
-  : UndoableCommand(Type, makeName(action, nodes.size(), faces.size()), false)
+  : UndoableCommand(makeName(action, nodes.size(), faces.size()), false)
   , m_action(action)
   , m_nodes(nodes)
   , m_faceRefs(Model::createRefs(faces)) {}

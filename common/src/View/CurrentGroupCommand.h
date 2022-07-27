@@ -31,9 +31,6 @@ class GroupNode;
 
 namespace View {
 class CurrentGroupCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   Model::GroupNode* m_group;
 

@@ -26,8 +26,6 @@
 
 namespace TrenchBroom {
 namespace View {
-const Command::CommandType ReparentNodesCommand::Type = Command::freeType();
-
 std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
@@ -42,7 +40,7 @@ ReparentNodesCommand::ReparentNodesCommand(
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
   std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
     linkedGroupsToUpdate)
-  : UndoableCommand(Type, "Reparent Objects", true)
+  : UndoableCommand("Reparent Objects", true)
   , m_nodesToAdd(std::move(nodesToAdd))
   , m_nodesToRemove(std::move(nodesToRemove))
   , m_updateLinkedGroupsHelper(std::move(linkedGroupsToUpdate)) {}

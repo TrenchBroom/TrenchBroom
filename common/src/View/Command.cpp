@@ -32,25 +32,11 @@ bool CommandResult::success() const {
   return m_success;
 }
 
-Command::CommandType Command::freeType() {
-  static CommandType type = 1;
-  return type++;
-}
-
-Command::Command(const CommandType type, const std::string& name)
-  : m_type(type)
-  , m_state(CommandState::Default)
+Command::Command(const std::string& name)
+  : m_state(CommandState::Default)
   , m_name(name) {}
 
 Command::~Command() {}
-
-Command::CommandType Command::type() const {
-  return m_type;
-}
-
-bool Command::isType(CommandType type) const {
-  return m_type == type;
-}
 
 Command::CommandState Command::state() const {
   return m_state;

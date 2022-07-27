@@ -39,9 +39,6 @@ class Node;
 
 namespace View {
 class SwapNodeContentsCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 protected:
   std::vector<std::pair<Model::Node*, Model::NodeContents>> m_nodes;
   UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;

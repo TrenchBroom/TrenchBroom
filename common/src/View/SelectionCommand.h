@@ -39,9 +39,6 @@ class Node;
 
 namespace View {
 class SelectionCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   enum class Action {
     SelectNodes,

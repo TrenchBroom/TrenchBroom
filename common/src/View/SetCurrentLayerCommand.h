@@ -31,9 +31,6 @@ class LayerNode;
 
 namespace View {
 class SetCurrentLayerCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   Model::LayerNode* m_currentLayer;
   Model::LayerNode* m_oldCurrentLayer;

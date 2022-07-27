@@ -133,14 +133,12 @@ private:
   mutable std::vector<TestCommandCall> m_expectedCalls;
 
 public:
-  static const CommandType Type;
-
   static std::unique_ptr<TestCommand> create(const std::string& name) {
     return std::make_unique<TestCommand>(name);
   }
 
   explicit TestCommand(const std::string& name)
-    : UndoableCommand(Type, name, false) {}
+    : UndoableCommand(name, false) {}
 
   ~TestCommand() { CHECK(m_expectedCalls.empty()); }
 
@@ -197,8 +195,6 @@ public:
 
   deleteCopyAndMove(TestCommand);
 };
-
-const Command::CommandType TestCommand::Type = Command::freeType();
 
 TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand", "[CommandProcessorTest]") {
   /*

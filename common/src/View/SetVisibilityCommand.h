@@ -35,9 +35,6 @@ enum class VisibilityState;
 
 namespace View {
 class SetVisibilityCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   enum class Action {
     Reset,

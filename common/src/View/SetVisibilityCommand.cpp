@@ -26,8 +26,6 @@
 
 namespace TrenchBroom {
 namespace View {
-const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
-
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::show(
   const std::vector<Model::Node*>& nodes) {
   return std::make_unique<SetVisibilityCommand>(nodes, Action::Show);
@@ -50,7 +48,7 @@ std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::reset(
 
 SetVisibilityCommand::SetVisibilityCommand(
   const std::vector<Model::Node*>& nodes, const Action action)
-  : UndoableCommand(Type, makeName(action), false)
+  : UndoableCommand(makeName(action), false)
   , m_nodes(nodes)
   , m_action(action) {}
 

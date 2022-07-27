@@ -74,9 +74,6 @@ public:
 };
 
 class BrushVertexCommand : public BrushVertexCommandBase {
-public:
-  static const CommandType Type;
-
 private:
   std::vector<vm::vec3> m_oldVertexPositions;
   std::vector<vm::vec3> m_newVertexPositions;
@@ -101,9 +98,6 @@ private:
 };
 
 class BrushEdgeCommand : public BrushVertexCommandBase {
-public:
-  static const CommandType Type;
-
 private:
   std::vector<vm::segment3> m_oldEdgePositions;
   std::vector<vm::segment3> m_newEdgePositions;
@@ -125,9 +119,6 @@ private:
 };
 
 class BrushFaceCommand : public BrushVertexCommandBase {
-public:
-  static const CommandType Type;
-
 private:
   std::vector<vm::polygon3> m_oldFacePositions;
   std::vector<vm::polygon3> m_newFacePositions;
