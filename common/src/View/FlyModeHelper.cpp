@@ -44,6 +44,8 @@ FlyModeHelper::FlyModeHelper(Renderer::Camera& camera)
   , m_right(false)
   , m_up(false)
   , m_down(false)
+  , m_fast(false)
+  , m_slow(false)
   , m_lastPollTime(msecsSinceReference()) {}
 
 void FlyModeHelper::pollAndUpdate() {
@@ -99,6 +101,12 @@ void FlyModeHelper::keyDown(QKeyEvent* event) {
   if (eventMatchesShortcut(down, event)) {
     m_down = true;
   }
+  if (event->key() == Qt::Key_Shift) {
+    m_fast = true;
+  }
+  if (event->key() == Qt::Key_Alt) {
+    m_slow = true;
+  }
 
   if (anyKeyDown() && !wasAnyKeyDown) {
     // Reset the last polling time, otherwise the view will jump!
@@ -138,6 +146,12 @@ void FlyModeHelper::keyUp(QKeyEvent* event) {
   if (eventMatchesShortcut(down, event)) {
     m_down = false;
   }
+  if (event->key() == Qt::Key_Shift) {
+    m_fast = false;
+  }
+  if (event->key() == Qt::Key_Alt) {
+    m_slow = false;
+  }
 }
 
 bool FlyModeHelper::anyKeyDown() const {
@@ -173,7 +187,13 @@ vm::vec3f FlyModeHelper::moveDelta(const float time) {
   return delta;
 }
 
+const float SpeedModifier = 2.0f;
 float FlyModeHelper::moveSpeed() const {
+  if (m_fast) {
+    return pref(Preferences::CameraFlyMoveSpeed) * SpeedModifier;
+  } else if (m_slow) {
+    return pref(Preferences::CameraFlyMoveSpeed) / SpeedModifier;
+  }
   return pref(Preferences::CameraFlyMoveSpeed);
 }
 } // namespace View
