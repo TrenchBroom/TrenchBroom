@@ -26,9 +26,9 @@
 
 namespace TrenchBroom {
 namespace View {
-UndoableCommand::UndoableCommand(const std::string& name, const bool updateModificationCount)
-  : Command(name)
-  , m_modificationCount(updateModificationCount ? 1u : 0u) {}
+UndoableCommand::UndoableCommand(std::string name, const bool updateModificationCount)
+  : Command{std::move(name)}
+  , m_modificationCount{updateModificationCount ? 1u : 0u} {}
 
 UndoableCommand::~UndoableCommand() {}
 

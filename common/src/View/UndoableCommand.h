@@ -34,7 +34,7 @@ private:
   size_t m_modificationCount;
 
 protected:
-  UndoableCommand(const std::string& name, bool updateModificationCount);
+  UndoableCommand(std::string name, bool updateModificationCount);
 
 public:
   virtual ~UndoableCommand();

@@ -24,7 +24,7 @@
 namespace TrenchBroom {
 namespace View {
 CommandResult::CommandResult(const bool success)
-  : m_success(success) {}
+  : m_success{success} {}
 
 CommandResult::~CommandResult() = default;
 
@@ -32,11 +32,11 @@ bool CommandResult::success() const {
   return m_success;
 }
 
-Command::Command(const std::string& name)
-  : m_state(CommandState::Default)
-  , m_name(name) {}
+Command::Command(std::string name)
+  : m_state{CommandState::Default}
+  , m_name{std::move(name)} {}
 
-Command::~Command() {}
+Command::~Command() = default;
 
 Command::CommandState Command::state() const {
   return m_state;

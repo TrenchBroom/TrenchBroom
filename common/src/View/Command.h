@@ -53,7 +53,7 @@ protected:
   std::string m_name;
 
 public:
-  Command(const std::string& name);
+  Command(std::string name);
   virtual ~Command();
 
 public:
