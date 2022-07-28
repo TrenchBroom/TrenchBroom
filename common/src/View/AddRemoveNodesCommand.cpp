@@ -38,7 +38,7 @@ std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
     linkedGroupsToUpdate) {
   ensure(parent != nullptr, "parent is null");
-  std::map<Model::Node*, std::vector<Model::Node*>> nodes;
+  auto nodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
   nodes[parent] = children;
 
   return add(nodes, std::move(linkedGroupsToUpdate));
@@ -68,9 +68,9 @@ AddRemoveNodesCommand::AddRemoveNodesCommand(
   const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
   std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
     linkedGroupsToUpdate)
-  : UndoableCommand(makeName(action), true)
-  , m_action(action)
-  , m_updateLinkedGroupsHelper(std::move(linkedGroupsToUpdate)) {
+  : UndoableCommand{makeName(action), true}
+  , m_action{action}
+  , m_updateLinkedGroupsHelper{std::move(linkedGroupsToUpdate)} {
   switch (m_action) {
     case Action::Add:
       m_nodesToAdd = nodes;
