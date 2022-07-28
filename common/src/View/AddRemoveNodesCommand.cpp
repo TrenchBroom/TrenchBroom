@@ -125,7 +125,7 @@ void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade* document) {
   }
 
   using std::swap;
-  std::swap(m_nodesToAdd, m_nodesToRemove);
+  swap(m_nodesToAdd, m_nodesToRemove);
 }
 
 void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade* document) {
@@ -139,7 +139,7 @@ void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade* document) {
   }
 
   using std::swap;
-  std::swap(m_nodesToAdd, m_nodesToRemove);
+  swap(m_nodesToAdd, m_nodesToRemove);
 }
 } // namespace View
 } // namespace TrenchBroom
