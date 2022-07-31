@@ -602,6 +602,8 @@ public: // transactions
   void commitTransaction();
   void cancelTransaction();
 
+  virtual bool isCurrentDocumentStateObservable() const = 0;
+
 private:
   std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
   std::unique_ptr<CommandResult> executeAndStore(std::unique_ptr<UndoableCommand>&& command);

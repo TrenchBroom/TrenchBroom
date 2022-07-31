@@ -186,6 +186,11 @@ void CommandProcessor::rollbackTransaction() {
   transaction.commands.clear();
 }
 
+bool CommandProcessor::isCurrentDocumentStateObservable() const {
+  return m_transactionStack.size() < 2 ||
+         m_transactionStack[m_transactionStack.size() - 2].scope == TransactionScope::LongRunning;
+}
+
 std::unique_ptr<CommandResult> CommandProcessor::execute(std::unique_ptr<Command> command) {
   auto result = executeCommand(*command);
   if (result->success()) {

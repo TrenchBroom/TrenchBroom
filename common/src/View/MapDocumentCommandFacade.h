@@ -115,6 +115,8 @@ private: // notification
   void documentWasLoaded(MapDocument* document);
 
 private: // implement MapDocument interface
+  bool isCurrentDocumentStateObservable() const override;
+
   bool doCanUndoCommand() const override;
   bool doCanRedoCommand() const override;
   const std::string& doGetUndoCommandName() const override;

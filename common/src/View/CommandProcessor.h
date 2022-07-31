@@ -194,6 +194,15 @@ public:
   void rollbackTransaction();
 
   /**
+   * Indicates whether the current document state is observable.
+   *
+   * If no transaction is active, the state is observable.
+   * If a transaction is active, the state is observable unless the transaction is nested inside a
+   * one shot transaction.
+   */
+  bool isCurrentDocumentStateObservable() const;
+
+  /**
    * Executes the given command by calling its `performDo` method without storing it for later undo.
    * If the command is executed successfully, both the undo and the redo stacks are cleared since
    * the application's state is likely to have become inconsistent with the state expected by the

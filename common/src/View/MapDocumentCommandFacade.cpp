@@ -540,6 +540,10 @@ void MapDocumentCommandFacade::connectObservers() {
     m_commandProcessor->transactionUndoneNotifier.connect(transactionUndoneNotifier);
 }
 
+bool MapDocumentCommandFacade::isCurrentDocumentStateObservable() const {
+  return m_commandProcessor->isCurrentDocumentStateObservable();
+}
+
 bool MapDocumentCommandFacade::doCanUndoCommand() const {
   return m_commandProcessor->canUndo();
 }
