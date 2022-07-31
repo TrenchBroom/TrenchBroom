@@ -99,6 +99,7 @@
 #include "View/SetLockStateCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/SwapNodeContentsCommand.h"
+#include "View/TransactionScope.h"
 #include "View/UpdateLinkedGroupsHelper.h"
 #include "View/ViewEffectsService.h"
 
@@ -3493,9 +3494,9 @@ void MapDocument::clearRepeatableCommands() {
   m_repeatStack->clear();
 }
 
-void MapDocument::startTransaction(std::string name) {
+void MapDocument::startTransaction(std::string name, const TransactionScope scope) {
   debug("Starting transaction '" + name + "'");
-  doStartTransaction(std::move(name));
+  doStartTransaction(std::move(name), scope);
   m_repeatStack->startTransaction();
 }
 
@@ -4323,7 +4324,7 @@ void Transaction::cancel() {
 }
 
 void Transaction::begin(std::string name) {
-  m_document->startTransaction(std::move(name));
+  m_document->startTransaction(std::move(name), TransactionScope::Oneshot);
 }
 
 void Transaction::commit() {

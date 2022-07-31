@@ -33,6 +33,7 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
 
@@ -173,7 +174,7 @@ void ShearObjectsTool::startShearWithHit(const Model::Hit& hit) {
   m_dragCumulativeDelta = vm::vec3::zero();
 
   auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Shear Objects");
+  document->startTransaction("Shear Objects", TransactionScope::LongRunning);
   m_resizing = true;
 }
 

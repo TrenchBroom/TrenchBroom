@@ -24,6 +24,7 @@
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsToolPage.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
@@ -93,7 +94,7 @@ FloatType RotateObjectsTool::minorHandleRadius(const Renderer::Camera& camera) c
 
 void RotateObjectsTool::beginRotation() {
   auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Rotate Objects");
+  document->startTransaction("Rotate Objects", TransactionScope::LongRunning);
 }
 
 void RotateObjectsTool::commitRotation() {

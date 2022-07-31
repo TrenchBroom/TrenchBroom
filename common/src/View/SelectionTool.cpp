@@ -35,6 +35,7 @@
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
 
@@ -410,7 +411,7 @@ std::unique_ptr<DragTracker> SelectionTool::acceptMouseDrag(const InputState& in
       const auto* brush = faceHandle->node();
       const auto& face = faceHandle->face();
       if (editorContext.selectable(brush, face)) {
-        document->startTransaction("Drag Select Brush Faces");
+        document->startTransaction("Drag Select Brush Faces", TransactionScope::LongRunning);
         if (document->hasSelection() && !document->hasSelectedBrushFaces()) {
           document->deselectAll();
         }
@@ -430,7 +431,7 @@ std::unique_ptr<DragTracker> SelectionTool::acceptMouseDrag(const InputState& in
 
     auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
     if (editorContext.selectable(node)) {
-      document->startTransaction("Drag Select Objects");
+      document->startTransaction("Drag Select Objects", TransactionScope::LongRunning);
       if (document->hasSelection() && !document->hasSelectedNodes()) {
         document->deselectAll();
       }

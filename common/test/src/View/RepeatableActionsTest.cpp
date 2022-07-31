@@ -22,6 +22,7 @@
 #include "View/Command.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/result.h>
 
@@ -217,7 +218,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction") {
   document->selectNodes({entityNode1});
   CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
 
-  document->startTransaction("");
+  document->startTransaction("", TransactionScope::Oneshot);
   document->translateObjects(vm::vec3(0, 0, 10));
   document->rollbackTransaction();
   document->translateObjects(vm::vec3(10, 0, 0));
@@ -257,7 +258,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
   SECTION("transaction containing a rollback") {
     document->duplicateObjects();
 
-    document->startTransaction("");
+    document->startTransaction("", TransactionScope::Oneshot);
     document->translateObjects(vm::vec3(0, 0, 10));
     document->rollbackTransaction();
     document->translateObjects(vm::vec3(10, 0, 0));
@@ -270,7 +271,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
     document->translateObjects(vm::vec3(5, 0, 0));
   }
   SECTION("duplicate inside transaction, then standalone movements") {
-    document->startTransaction("");
+    document->startTransaction("", TransactionScope::Oneshot);
     document->duplicateObjects();
     document->translateObjects(vm::vec3(2, 0, 0));
     document->translateObjects(vm::vec3(2, 0, 0));

@@ -965,6 +965,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ToolBoxConnector.h
         ${COMMON_SOURCE_DIR}/View/ToolChain.h
         ${COMMON_SOURCE_DIR}/View/ToolController.h
+        ${COMMON_SOURCE_DIR}/View/TransactionScope.h
         ${COMMON_SOURCE_DIR}/View/TwoPaneMapView.h
         ${COMMON_SOURCE_DIR}/View/UndoableCommand.h
         ${COMMON_SOURCE_DIR}/View/UpdateLinkedGroupsHelper.h

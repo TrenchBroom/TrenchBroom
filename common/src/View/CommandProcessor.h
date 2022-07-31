@@ -32,6 +32,7 @@ class Command;
 class CommandResult;
 class MapDocumentCommandFacade;
 class UndoableCommand;
+enum class TransactionScope;
 
 /**
  * The command processor is responsible for executing and undoing commands and for maintining the
@@ -167,8 +168,9 @@ public:
    * transaction upon commit.
    *
    * @param name the name of the transaction to start
+   * @param scope the scope of the transaction to start
    */
-  void startTransaction(std::string name);
+  void startTransaction(std::string name, TransactionScope scope);
 
   /**
    * Commits the currently executing transaction. If it is a nested transaction, then its commands

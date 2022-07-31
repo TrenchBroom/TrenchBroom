@@ -84,6 +84,7 @@ class Selection;
 class UndoableCommand;
 class ViewEffectsService;
 enum class MapTextEncoding;
+enum class TransactionScope;
 
 struct PointFile {
   Model::PointTrace trace;
@@ -596,7 +597,7 @@ public: // command processing
   void clearRepeatableCommands();
 
 public: // transactions
-  void startTransaction(std::string name);
+  void startTransaction(std::string name, TransactionScope scope);
   void rollbackTransaction();
   void commitTransaction();
   void cancelTransaction();
@@ -614,7 +615,7 @@ private: // subclassing interface for command processing
   virtual void doRedoCommand() = 0;
 
   virtual void doClearCommandProcessor() = 0;
-  virtual void doStartTransaction(std::string name) = 0;
+  virtual void doStartTransaction(std::string name, TransactionScope scope) = 0;
   virtual void doCommitTransaction() = 0;
   virtual void doRollbackTransaction() = 0;
 

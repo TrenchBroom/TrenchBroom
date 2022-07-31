@@ -568,8 +568,8 @@ void MapDocumentCommandFacade::doClearCommandProcessor() {
   m_commandProcessor->clear();
 }
 
-void MapDocumentCommandFacade::doStartTransaction(std::string name) {
-  m_commandProcessor->startTransaction(std::move(name));
+void MapDocumentCommandFacade::doStartTransaction(std::string name, const TransactionScope scope) {
+  m_commandProcessor->startTransaction(std::move(name), scope);
 }
 
 void MapDocumentCommandFacade::doCommitTransaction() {

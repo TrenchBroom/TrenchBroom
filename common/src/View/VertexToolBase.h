@@ -39,6 +39,7 @@
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 #include "View/Tool.h"
+#include "View/TransactionScope.h"
 #include "View/VertexHandleManager.h"
 
 #include <kdl/memory_utils.h>
@@ -243,7 +244,7 @@ public: // performing moves
     refreshViews();
 
     auto document = kdl::mem_lock(m_document);
-    document->startTransaction(actionName());
+    document->startTransaction(actionName(), TransactionScope::LongRunning);
 
     m_dragHandlePosition = getHandlePosition(hits.front());
     m_dragging = true;

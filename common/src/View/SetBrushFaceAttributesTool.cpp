@@ -31,6 +31,7 @@
 #include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
 
@@ -210,7 +211,7 @@ std::unique_ptr<DragTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
     return nullptr;
   }
 
-  document->startTransaction("Drag Apply Face Attributes");
+  document->startTransaction("Drag Apply Face Attributes", TransactionScope::LongRunning);
 
   return std::make_unique<SetBrushFaceAttributesDragTracker>(
     *kdl::mem_lock(m_document), selectedFaces.front());

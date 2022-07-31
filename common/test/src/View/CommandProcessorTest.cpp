@@ -20,6 +20,7 @@
 #include "View/CommandProcessor.h"
 #include "Macros.h"
 #include "NotifierConnection.h"
+#include "View/TransactionScope.h"
 #include "View/UndoableCommand.h"
 
 #include <kdl/vector_utils.h>
@@ -326,7 +327,7 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTe
   command1->expectDo(true);
   command2->expectDo(true);
 
-  commandProcessor.startTransaction(transactionName);
+  commandProcessor.startTransaction(transactionName, TransactionScope::Oneshot);
   CHECK(commandProcessor.executeAndStore(std::move(command1))->success());
   CHECK(commandProcessor.executeAndStore(std::move(command2))->success());
   commandProcessor.commitTransaction();
@@ -398,7 +399,7 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]") 
   command1->expectUndo(true);
 
   const auto transactionName = "transaction";
-  commandProcessor.startTransaction(transactionName);
+  commandProcessor.startTransaction(transactionName, TransactionScope::Oneshot);
   CHECK(commandProcessor.executeAndStore(std::move(command1))->success());
   CHECK_THAT(
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
@@ -461,7 +462,7 @@ TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
   innerCommand->expectUndo(true);
   outerCommand->expectUndo(true);
 
-  commandProcessor.startTransaction(outerTransactionName);
+  commandProcessor.startTransaction(outerTransactionName, TransactionScope::Oneshot);
   CHECK(commandProcessor.executeAndStore(std::move(outerCommand))->success());
   CHECK_THAT(
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
@@ -469,7 +470,7 @@ TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
                                    {CommandNotif::CommandDone, outerCommandName},
                                  }));
 
-  commandProcessor.startTransaction(innerTransactionName);
+  commandProcessor.startTransaction(innerTransactionName, TransactionScope::Oneshot);
   CHECK(commandProcessor.executeAndStore(std::move(innerCommand))->success());
   CHECK_THAT(
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
@@ -645,12 +646,12 @@ TEST_CASE("CommandProcessorTest.collateTransactions", "[CommandProcessorTest]") 
   transaction1_command2->expectUndo(true);
   transaction2_command2->expectUndo(true);
 
-  commandProcessor.startTransaction("transaction 1");
+  commandProcessor.startTransaction("transaction 1", TransactionScope::Oneshot);
   commandProcessor.executeAndStore(std::move(transaction1_command1));
   commandProcessor.executeAndStore(std::move(transaction1_command2));
   commandProcessor.commitTransaction();
 
-  commandProcessor.startTransaction("transaction 2");
+  commandProcessor.startTransaction("transaction 2", TransactionScope::Oneshot);
   commandProcessor.executeAndStore(std::move(transaction2_command1));
   commandProcessor.executeAndStore(std::move(transaction2_command2));
   commandProcessor.commitTransaction();
