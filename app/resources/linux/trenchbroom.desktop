@@ -1,5 +1,5 @@
 [Desktop Entry]
-Exec=trenchbroom
+Exec=trenchbroom %F
 GenericName=Level Editor
 Comment=Level Editor
 Icon=trenchbroom
@@ -8,4 +8,4 @@ Terminal=0
 Type=Application
 Categories=Game
 Keywords=quake;level;editor;
-
+MimeType=text/x-quakemap;
