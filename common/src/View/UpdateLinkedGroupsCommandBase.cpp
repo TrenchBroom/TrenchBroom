@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Model/UpdateLinkedGroupsError.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/UpdateLinkedGroupsCommand.h"
 
 #include <kdl/result.h>
 
@@ -74,6 +75,11 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(
 
 bool UpdateLinkedGroupsCommandBase::collateWith(UndoableCommand& command) {
   assert(&command != this);
+
+  if (auto* updateLinkedGroupsCommand = dynamic_cast<UpdateLinkedGroupsCommand*>(&command)) {
+    m_updateLinkedGroupsHelper.collateWith(updateLinkedGroupsCommand->m_updateLinkedGroupsHelper);
+    return true;
+  }
 
   if (UndoableCommand::collateWith(command)) {
     if (
