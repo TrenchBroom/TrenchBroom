@@ -2,7 +2,7 @@
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
 	<mime-type type="text/x-quakemap">
 		<comment>Quake map source file</comment>
-		<sub-class-of type="test/plain"/>
+		<sub-class-of type="text/plain"/>
 		<magic>
 			<match offset="0" type="string" value="// Game: Quake"/>
 		</magic>
