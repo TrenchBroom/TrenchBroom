@@ -28,8 +28,7 @@ namespace TrenchBroom {
 namespace View {
 BrushVertexCommandBase::BrushVertexCommandBase(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate)
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate)
   : SwapNodeContentsCommand(name, std::move(nodes), std::move(linkedGroupsToUpdate)) {}
 
 std::unique_ptr<CommandResult> BrushVertexCommandBase::doPerformDo(
@@ -86,8 +85,7 @@ bool BrushVertexCommandResult::hasRemainingVertices() const {
 BrushVertexCommand::BrushVertexCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate)
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate)
   : BrushVertexCommandBase(name, std::move(nodes), std::move(linkedGroupsToUpdate))
   , m_oldVertexPositions(std::move(oldVertexPositions))
   , m_newVertexPositions(std::move(newVertexPositions)) {}
@@ -130,8 +128,7 @@ void BrushVertexCommand::selectOldHandlePositions(
 BrushEdgeCommand::BrushEdgeCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate)
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate)
   : BrushVertexCommandBase(name, std::move(nodes), std::move(linkedGroupsToUpdate))
   , m_oldEdgePositions(std::move(oldEdgePositions))
   , m_newEdgePositions(std::move(newEdgePositions)) {}
@@ -168,8 +165,7 @@ void BrushEdgeCommand::selectOldHandlePositions(
 BrushFaceCommand::BrushFaceCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate)
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate)
   : BrushVertexCommandBase(name, std::move(nodes), std::move(linkedGroupsToUpdate))
   , m_oldFacePositions(std::move(oldFacePositions))
   , m_newFacePositions(std::move(newFacePositions)) {}

@@ -58,8 +58,7 @@ bool checkLinkedGroupsToUpdate(const std::vector<const Model::GroupNode*>& linke
  */
 class UpdateLinkedGroupsHelper {
 private:
-  using LinkedGroupsToUpdate =
-    std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>;
+  using LinkedGroupsToUpdate = std::vector<const Model::GroupNode*>;
   using LinkedGroupUpdates =
     std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>;
   std::variant<LinkedGroupsToUpdate, LinkedGroupUpdates> m_state;
@@ -77,7 +76,7 @@ private:
   kdl::result<void, Model::UpdateLinkedGroupsError> computeLinkedGroupUpdates(
     MapDocumentCommandFacade& document);
   static kdl::result<LinkedGroupUpdates, Model::UpdateLinkedGroupsError> computeLinkedGroupUpdates(
-    const LinkedGroupsToUpdate& linkedGroupsToUpdate, const vm::bbox3& worldBounds);
+    const LinkedGroupsToUpdate& linkedGroupsToUpdate, MapDocumentCommandFacade& document);
 
   void doApplyOrUndoLinkedGroupUpdates(MapDocumentCommandFacade& document);
 };

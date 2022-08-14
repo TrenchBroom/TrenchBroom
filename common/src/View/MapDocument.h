@@ -513,8 +513,7 @@ public: // modifying objects, declared in MapFacade interface
   bool swapNodeContents(
     const std::string& commandName,
     std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap,
-    std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-      linkedGroupsToUpdate);
+    std::vector<const Model::GroupNode*> linkedGroupsToUpdate);
   bool swapNodeContents(
     const std::string& commandName,
     std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap);

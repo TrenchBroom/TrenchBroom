@@ -26,7 +26,6 @@
 
 #include <memory>
 #include <string>
-#include <tuple>
 #include <vector>
 
 namespace TrenchBroom {
@@ -46,8 +45,7 @@ protected:
 public:
   SwapNodeContentsCommand(
     const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-    std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-      linkedGroupsToUpdate);
+    std::vector<const Model::GroupNode*> linkedGroupsToUpdate);
   ~SwapNodeContentsCommand();
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;

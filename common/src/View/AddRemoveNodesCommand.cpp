@@ -35,8 +35,7 @@ namespace TrenchBroom {
 namespace View {
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   Model::Node* parent, const std::vector<Model::Node*>& children,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate) {
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate) {
   ensure(parent != nullptr, "parent is null");
   auto nodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
   nodes[parent] = children;
@@ -46,16 +45,14 @@ std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate) {
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate) {
   return std::make_unique<AddRemoveNodesCommand>(
     Action::Add, nodes, std::move(linkedGroupsToUpdate));
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::remove(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate) {
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate) {
   return std::make_unique<AddRemoveNodesCommand>(
     Action::Remove, nodes, std::move(linkedGroupsToUpdate));
 }
@@ -66,8 +63,7 @@ AddRemoveNodesCommand::~AddRemoveNodesCommand() {
 
 AddRemoveNodesCommand::AddRemoveNodesCommand(
   const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate)
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate)
   : UndoableCommand{makeName(action), true}
   , m_action{action}
   , m_updateLinkedGroupsHelper{std::move(linkedGroupsToUpdate)} {

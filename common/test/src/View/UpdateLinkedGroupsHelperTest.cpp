@@ -93,7 +93,7 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "UpdateLinkedGroupsHelperTest.own
 
   SECTION("Helper takes ownership of replaced child nodes") {
     {
-      auto helper = UpdateLinkedGroupsHelper{{{linkedNode, {groupNode}}}};
+      auto helper = UpdateLinkedGroupsHelper{{linkedNode}};
       REQUIRE(
         helper.applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get())));
     }
@@ -102,7 +102,7 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "UpdateLinkedGroupsHelperTest.own
 
   SECTION("Helper relinquishes ownership of replaced child nodes when undoing updates") {
     {
-      auto helper = UpdateLinkedGroupsHelper{{{linkedNode, {groupNode}}}};
+      auto helper = UpdateLinkedGroupsHelper{{linkedNode}};
       REQUIRE(
         helper.applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get())));
       helper.undoLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get()));
@@ -163,7 +163,7 @@ TEST_CASE_METHOD(
   */
 
   // propagate changes
-  auto helper = UpdateLinkedGroupsHelper{{{groupNode, {linkedGroupNode}}}};
+  auto helper = UpdateLinkedGroupsHelper{{groupNode}};
   REQUIRE(helper.applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get())));
 
   /*
@@ -373,8 +373,7 @@ TEST_CASE_METHOD(
   */
 
   SECTION("First propagate changes to innerGroupNode, then outerGroupNode") {
-    auto helper1 = UpdateLinkedGroupsHelper{
-      {{innerGroupNode, {linkedInnerGroupNode, nestedLinkedInnerGroupNode}}}};
+    auto helper1 = UpdateLinkedGroupsHelper{{innerGroupNode}};
     CHECK(helper1.applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get())));
 
     /*
@@ -411,14 +410,14 @@ TEST_CASE_METHOD(
       newNestedLinkedBrushNode->physicalBounds() ==
       originalBrushBounds.translate(vm::vec3(32.0, 0.0, 8.0)));
 
-    auto helper2 = UpdateLinkedGroupsHelper{{{outerGroupNode, {linkedOuterGroupNode}}}};
+    auto helper2 = UpdateLinkedGroupsHelper{{outerGroupNode}};
     CHECK(helper2.applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get())));
 
     // see end of test for assertions of final state
   }
 
   SECTION("First propagate changes to outerGroupNode, then innerGroupNode") {
-    auto helper1 = UpdateLinkedGroupsHelper{{{outerGroupNode, {linkedOuterGroupNode}}}};
+    auto helper1 = UpdateLinkedGroupsHelper{{outerGroupNode}};
     REQUIRE(
       helper1.applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get())));
 
@@ -454,8 +453,7 @@ TEST_CASE_METHOD(
       newNestedLinkedBrushNode->physicalBounds() ==
       originalBrushBounds.translate(vm::vec3(32.0, 16.0, 8.0)));
 
-    auto helper2 = UpdateLinkedGroupsHelper{
-      {{innerGroupNode, {linkedInnerGroupNode, nestedLinkedInnerGroupNode}}}};
+    auto helper2 = UpdateLinkedGroupsHelper{{innerGroupNode}};
     REQUIRE(
       helper2.applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get())));
 
@@ -463,11 +461,7 @@ TEST_CASE_METHOD(
   }
 
   SECTION("Propagate both changes at once") {
-    auto groupNodes =
-      std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>{
-        {outerGroupNode, {linkedOuterGroupNode}},
-        {innerGroupNode, {linkedInnerGroupNode, nestedLinkedInnerGroupNode}},
-      };
+    auto groupNodes = std::vector<const Model::GroupNode*>{outerGroupNode, innerGroupNode};
     std::sort(std::begin(groupNodes), std::end(groupNodes));
 
     // The following code generates both permutations of the group nodes

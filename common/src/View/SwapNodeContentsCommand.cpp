@@ -32,8 +32,7 @@ namespace TrenchBroom {
 namespace View {
 SwapNodeContentsCommand::SwapNodeContentsCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate)
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate)
   : UndoableCommand(name, true)
   , m_nodes(std::move(nodes))
   , m_updateLinkedGroupsHelper(std::move(linkedGroupsToUpdate)) {}

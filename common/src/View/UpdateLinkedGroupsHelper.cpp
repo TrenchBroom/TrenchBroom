@@ -49,8 +49,8 @@ bool checkLinkedGroupsToUpdate(const std::vector<const Model::GroupNode*>& linke
 }
 
 // Order groups so that descendants will be updated before their ancestors
-const auto compareByAncestry = [](const auto& lhs, const auto& rhs) {
-  return rhs.first->isAncestorOf(lhs.first);
+const auto compareByAncestry = [](const auto* lhs, const auto* rhs) {
+  return rhs->isAncestorOf(lhs);
 };
 
 UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(LinkedGroupsToUpdate linkedGroupsToUpdate)
@@ -101,8 +101,8 @@ kdl::result<void, Model::UpdateLinkedGroupsError> UpdateLinkedGroupsHelper::
   computeLinkedGroupUpdates(MapDocumentCommandFacade& document) {
   return std::visit(
     kdl::overload(
-      [&](const LinkedGroupsToUpdate& linkedGroups) {
-        return computeLinkedGroupUpdates(linkedGroups, document.worldBounds())
+      [&](const LinkedGroupsToUpdate& linkedGroupsToUpdate) {
+        return computeLinkedGroupUpdates(linkedGroupsToUpdate, document)
           .and_then([&](auto&& linkedGroupUpdates) {
             m_state = std::move(linkedGroupUpdates);
           });
@@ -115,17 +115,20 @@ kdl::result<void, Model::UpdateLinkedGroupsError> UpdateLinkedGroupsHelper::
 
 kdl::result<UpdateLinkedGroupsHelper::LinkedGroupUpdates, Model::UpdateLinkedGroupsError>
 UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
-  const LinkedGroupsToUpdate& linkedGroupsToUpdate, const vm::bbox3& worldBounds) {
-  if (!checkLinkedGroupsToUpdate(kdl::vec_transform(linkedGroupsToUpdate, [](const auto& p) {
-        return p.first;
-      }))) {
+  const LinkedGroupsToUpdate& linkedGroupsToUpdate, MapDocumentCommandFacade& document) {
+  if (!checkLinkedGroupsToUpdate(linkedGroupsToUpdate)) {
     return Model::UpdateLinkedGroupsError::UpdateIsInconsistent;
   }
 
+  const auto& worldBounds = document.worldBounds();
   return kdl::for_each_result(
            linkedGroupsToUpdate,
-           [&](const auto& pair) {
-             return Model::updateLinkedGroups(*pair.first, pair.second, worldBounds);
+           [&](const auto* groupNode) {
+             const auto groupNodesToUpdate = kdl::vec_erase(
+               Model::findLinkedGroups(*document.world(), *groupNode->group().linkedGroupId()),
+               groupNode);
+
+             return Model::updateLinkedGroups(*groupNode, groupNodesToUpdate, worldBounds);
            })
     .and_then(
       [&](auto&& nestedUpdateLists)

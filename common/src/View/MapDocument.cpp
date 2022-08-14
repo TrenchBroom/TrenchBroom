@@ -134,14 +134,13 @@ namespace View {
 template <typename T>
 static auto findLinkedGroupsToUpdate(
   Model::WorldNode& worldNode, const std::vector<T*>& nodes, const bool includeGivenNodes) {
-  auto result = std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>{};
+  auto result = std::vector<const Model::GroupNode*>{};
 
   const auto addGroupNode = [&](const Model::GroupNode* groupNode) {
     while (groupNode) {
       if (const auto linkedGroupId = groupNode->group().linkedGroupId()) {
-        auto linkedGroups = Model::findLinkedGroups(worldNode, *linkedGroupId);
-        if (linkedGroups.size() > 1u) {
-          result.emplace_back(groupNode, std::move(linkedGroups));
+        if (Model::findLinkedGroups(worldNode, *linkedGroupId).size() > 1u) {
+          result.emplace_back(groupNode);
           return;
         }
       }
@@ -258,9 +257,7 @@ static std::optional<std::vector<std::pair<Model::Node*, Model::NodeContents>>> 
 template <typename N, typename L>
 static bool applyAndSwap(
   MapDocument& document, const std::string& commandName, const std::vector<N*>& nodes,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate,
-  L lambda) {
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate, L lambda) {
   if (nodes.empty()) {
     return true;
   }
@@ -1913,9 +1910,7 @@ bool MapDocument::canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) 
   }
 
   const auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(*m_world, nodes);
-  return checkLinkedGroupsToUpdate(kdl::vec_transform(linkedGroupsToUpdate, [](const auto& p) {
-    return p.first;
-  }));
+  return checkLinkedGroupsToUpdate(linkedGroupsToUpdate);
 }
 
 void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups) {
@@ -2328,8 +2323,7 @@ void MapDocument::downgradeUnlockedToInherit(const std::vector<Model::Node*>& no
 bool MapDocument::swapNodeContents(
   const std::string& commandName,
   std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate) {
+  std::vector<const Model::GroupNode*> linkedGroupsToUpdate) {
   return executeAndStore(std::make_unique<SwapNodeContentsCommand>(
                            commandName, std::move(nodesToSwap), std::move(linkedGroupsToUpdate)))
     ->success();
