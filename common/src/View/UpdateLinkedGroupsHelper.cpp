@@ -38,9 +38,9 @@
 
 namespace TrenchBroom {
 namespace View {
-bool checkLinkedGroupsToUpdate(const std::vector<const Model::GroupNode*>& linkedGroupsToUpdate) {
+bool checkLinkedGroupsToUpdate(const std::vector<const Model::GroupNode*>& changedLinkedGroups) {
   const auto linkedGroupIds =
-    kdl::vec_sort(kdl::vec_transform(linkedGroupsToUpdate, [](const auto* groupNode) {
+    kdl::vec_sort(kdl::vec_transform(changedLinkedGroups, [](const auto* groupNode) {
       return groupNode->group().linkedGroupId();
     }));
 
@@ -53,8 +53,8 @@ const auto compareByAncestry = [](const auto* lhs, const auto* rhs) {
   return rhs->isAncestorOf(lhs);
 };
 
-UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(LinkedGroupsToUpdate linkedGroupsToUpdate)
-  : m_state{kdl::vec_sort(std::move(linkedGroupsToUpdate), compareByAncestry)} {}
+UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(ChangedLinkedGroups changedLinkedGroups)
+  : m_state{kdl::vec_sort(std::move(changedLinkedGroups), compareByAncestry)} {}
 
 UpdateLinkedGroupsHelper::~UpdateLinkedGroupsHelper() = default;
 
@@ -101,8 +101,8 @@ kdl::result<void, Model::UpdateLinkedGroupsError> UpdateLinkedGroupsHelper::
   computeLinkedGroupUpdates(MapDocumentCommandFacade& document) {
   return std::visit(
     kdl::overload(
-      [&](const LinkedGroupsToUpdate& linkedGroupsToUpdate) {
-        return computeLinkedGroupUpdates(linkedGroupsToUpdate, document)
+      [&](const ChangedLinkedGroups& changedLinkedGroups) {
+        return computeLinkedGroupUpdates(changedLinkedGroups, document)
           .and_then([&](auto&& linkedGroupUpdates) {
             m_state = std::move(linkedGroupUpdates);
           });
@@ -115,14 +115,14 @@ kdl::result<void, Model::UpdateLinkedGroupsError> UpdateLinkedGroupsHelper::
 
 kdl::result<UpdateLinkedGroupsHelper::LinkedGroupUpdates, Model::UpdateLinkedGroupsError>
 UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
-  const LinkedGroupsToUpdate& linkedGroupsToUpdate, MapDocumentCommandFacade& document) {
-  if (!checkLinkedGroupsToUpdate(linkedGroupsToUpdate)) {
+  const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document) {
+  if (!checkLinkedGroupsToUpdate(changedLinkedGroups)) {
     return Model::UpdateLinkedGroupsError::UpdateIsInconsistent;
   }
 
   const auto& worldBounds = document.worldBounds();
   return kdl::for_each_result(
-           linkedGroupsToUpdate,
+           changedLinkedGroups,
            [&](const auto* groupNode) {
              const auto groupNodesToUpdate = kdl::vec_erase(
                Model::findLinkedGroups(*document.world(), *groupNode->group().linkedGroupId()),
@@ -140,7 +140,7 @@ UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
 void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(MapDocumentCommandFacade& document) {
   std::visit(
     kdl::overload(
-      [](const LinkedGroupsToUpdate&) {},
+      [](const ChangedLinkedGroups&) {},
       [&](LinkedGroupUpdates&& linkedGroupUpdates) {
         m_state = document.performReplaceChildren(std::move(linkedGroupUpdates));
       }),

@@ -35,26 +35,26 @@ namespace TrenchBroom {
 namespace View {
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   Model::Node* parent, const std::vector<Model::Node*>& children,
-  std::vector<const Model::GroupNode*> linkedGroupsToUpdate) {
+  std::vector<const Model::GroupNode*> changedLinkedGroups) {
   ensure(parent != nullptr, "parent is null");
   auto nodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
   nodes[parent] = children;
 
-  return add(nodes, std::move(linkedGroupsToUpdate));
+  return add(nodes, std::move(changedLinkedGroups));
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<const Model::GroupNode*> linkedGroupsToUpdate) {
+  std::vector<const Model::GroupNode*> changedLinkedGroups) {
   return std::make_unique<AddRemoveNodesCommand>(
-    Action::Add, nodes, std::move(linkedGroupsToUpdate));
+    Action::Add, nodes, std::move(changedLinkedGroups));
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::remove(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<const Model::GroupNode*> linkedGroupsToUpdate) {
+  std::vector<const Model::GroupNode*> changedLinkedGroups) {
   return std::make_unique<AddRemoveNodesCommand>(
-    Action::Remove, nodes, std::move(linkedGroupsToUpdate));
+    Action::Remove, nodes, std::move(changedLinkedGroups));
 }
 
 AddRemoveNodesCommand::~AddRemoveNodesCommand() {
@@ -63,10 +63,10 @@ AddRemoveNodesCommand::~AddRemoveNodesCommand() {
 
 AddRemoveNodesCommand::AddRemoveNodesCommand(
   const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<const Model::GroupNode*> linkedGroupsToUpdate)
+  std::vector<const Model::GroupNode*> changedLinkedGroups)
   : UndoableCommand{makeName(action), true}
   , m_action{action}
-  , m_updateLinkedGroupsHelper{std::move(linkedGroupsToUpdate)} {
+  , m_updateLinkedGroupsHelper{std::move(changedLinkedGroups)} {
   switch (m_action) {
     case Action::Add:
       m_nodesToAdd = nodes;
