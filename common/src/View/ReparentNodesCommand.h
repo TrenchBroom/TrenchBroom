@@ -20,8 +20,7 @@
 #pragma once
 
 #include "Macros.h"
-#include "View/UndoableCommand.h"
-#include "View/UpdateLinkedGroupsHelper.h"
+#include "View/UpdateLinkedGroupsCommandBase.h"
 
 #include <map>
 #include <memory>
@@ -34,11 +33,10 @@ class Node;
 } // namespace Model
 
 namespace View {
-class ReparentNodesCommand : public UndoableCommand {
+class ReparentNodesCommand : public UpdateLinkedGroupsCommandBase {
 private:
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
-  UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
 
 public:
   static std::unique_ptr<ReparentNodesCommand> reparent(
@@ -54,9 +52,6 @@ public:
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
-
-  void doAction(MapDocumentCommandFacade* document);
-  void undoAction(MapDocumentCommandFacade* document);
 
   deleteCopyAndMove(ReparentNodesCommand);
 };

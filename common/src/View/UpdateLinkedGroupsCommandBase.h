@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2022 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,7 +20,8 @@
 #pragma once
 
 #include "Macros.h"
-#include "View/Command.h"
+#include "View/UndoableCommand.h"
+#include "View/UpdateLinkedGroupsHelper.h"
 
 #include <memory>
 #include <string>
@@ -29,30 +30,25 @@ namespace TrenchBroom {
 namespace View {
 class MapDocumentCommandFacade;
 
-class UndoableCommand : public Command {
+class UpdateLinkedGroupsCommandBase : public UndoableCommand {
 private:
-  size_t m_modificationCount;
+  UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
 
 protected:
-  UndoableCommand(std::string name, bool updateModificationCount);
+  UpdateLinkedGroupsCommandBase(
+    std::string name, bool updateModificationCount,
+    std::vector<Model::GroupNode*> changedLinkedGroups);
 
 public:
-  virtual ~UndoableCommand();
+  virtual ~UpdateLinkedGroupsCommandBase();
 
   std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
-  virtual std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document);
+  std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document) override;
 
-  virtual bool collateWith(UndoableCommand& command);
+  bool collateWith(UndoableCommand& command) override;
 
-protected:
-  virtual std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) = 0;
-
-  virtual bool doCollateWith(UndoableCommand& command);
-
-  void setModificationCount(MapDocumentCommandFacade* document);
-  void resetModificationCount(MapDocumentCommandFacade* document);
-
-  deleteCopyAndMove(UndoableCommand);
+private:
+  deleteCopyAndMove(UpdateLinkedGroupsCommandBase);
 };
 } // namespace View
 } // namespace TrenchBroom

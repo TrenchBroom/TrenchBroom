@@ -20,8 +20,7 @@
 #pragma once
 
 #include "Macros.h"
-#include "View/UndoableCommand.h"
-#include "View/UpdateLinkedGroupsHelper.h"
+#include "View/UpdateLinkedGroupsCommandBase.h"
 
 #include <map>
 #include <memory>
@@ -34,7 +33,7 @@ class Node;
 } // namespace Model
 
 namespace View {
-class AddRemoveNodesCommand : public UndoableCommand {
+class AddRemoveNodesCommand : public UpdateLinkedGroupsCommandBase {
 private:
   enum class Action {
     Add,
@@ -44,7 +43,6 @@ private:
   Action m_action;
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
-  UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
 
 public:
   static std::unique_ptr<AddRemoveNodesCommand> add(

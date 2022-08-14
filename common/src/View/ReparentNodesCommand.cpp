@@ -22,8 +22,6 @@
 #include "Model/UpdateLinkedGroupsError.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <kdl/result.h>
-
 namespace TrenchBroom {
 namespace View {
 std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
@@ -38,39 +36,22 @@ ReparentNodesCommand::ReparentNodesCommand(
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
   std::vector<Model::GroupNode*> changedLinkedGroups)
-  : UndoableCommand("Reparent Objects", true)
+  : UpdateLinkedGroupsCommandBase("Reparent Objects", true, std::move(changedLinkedGroups))
   , m_nodesToAdd(std::move(nodesToAdd))
-  , m_nodesToRemove(std::move(nodesToRemove))
-  , m_updateLinkedGroupsHelper(std::move(changedLinkedGroups)) {}
+  , m_nodesToRemove(std::move(nodesToRemove)) {}
 
 std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformDo(
   MapDocumentCommandFacade* document) {
-  doAction(document);
-
-  const auto success = m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document).handle_errors(
-    [&](const Model::UpdateLinkedGroupsError& e) {
-      document->error() << e;
-      undoAction(document);
-    });
-
-  return std::make_unique<CommandResult>(success);
+  document->performRemoveNodes(m_nodesToRemove);
+  document->performAddNodes(m_nodesToAdd);
+  return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(
   MapDocumentCommandFacade* document) {
-  undoAction(document);
-  m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(*document);
-  return std::make_unique<CommandResult>(true);
-}
-
-void ReparentNodesCommand::doAction(MapDocumentCommandFacade* document) {
-  document->performRemoveNodes(m_nodesToRemove);
-  document->performAddNodes(m_nodesToAdd);
-}
-
-void ReparentNodesCommand::undoAction(MapDocumentCommandFacade* document) {
   document->performRemoveNodes(m_nodesToAdd);
   document->performAddNodes(m_nodesToRemove);
+  return std::make_unique<CommandResult>(true);
 }
 } // namespace View
 } // namespace TrenchBroom

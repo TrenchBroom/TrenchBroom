@@ -26,7 +26,6 @@
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/map_utils.h>
-#include <kdl/result.h>
 
 #include <map>
 #include <vector>
@@ -64,9 +63,8 @@ AddRemoveNodesCommand::~AddRemoveNodesCommand() {
 AddRemoveNodesCommand::AddRemoveNodesCommand(
   const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
   std::vector<Model::GroupNode*> changedLinkedGroups)
-  : UndoableCommand{makeName(action), true}
-  , m_action{action}
-  , m_updateLinkedGroupsHelper{std::move(changedLinkedGroups)} {
+  : UpdateLinkedGroupsCommandBase{makeName(action), true, std::move(changedLinkedGroups)}
+  , m_action{action} {
   switch (m_action) {
     case Action::Add:
       m_nodesToAdd = nodes;
@@ -91,20 +89,12 @@ std::string AddRemoveNodesCommand::makeName(const Action action) {
 std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(
   MapDocumentCommandFacade* document) {
   doAction(document);
-
-  const auto success = m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document).handle_errors(
-    [&](const Model::UpdateLinkedGroupsError& e) {
-      document->error() << e;
-      undoAction(document);
-    });
-
-  return std::make_unique<CommandResult>(success);
+  return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(
   MapDocumentCommandFacade* document) {
   undoAction(document);
-  m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(*document);
   return std::make_unique<CommandResult>(true);
 }
 
