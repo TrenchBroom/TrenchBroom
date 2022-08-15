@@ -211,6 +211,41 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroups") {
   }
 }
 
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsAfterRecursiveDelete") {
+  auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));
+  document->addNodes({{document->parentForNodes(), {outerGroupNode}}});
+
+  document->openGroup(outerGroupNode);
+
+  auto* outerEntityNode = new Model::EntityNode{Model::Entity{}};
+  auto* innerGroupNode = new Model::GroupNode{Model::Group{"inner"}};
+  document->addNodes({{document->parentForNodes(), {outerEntityNode, innerGroupNode}}});
+
+  document->openGroup(innerGroupNode);
+
+  auto* innerEntityNode = new Model::EntityNode{Model::Entity{}};
+  document->addNodes({{document->parentForNodes(), {innerEntityNode}}});
+
+  document->closeGroup();
+  document->closeGroup();
+
+  document->selectNodes({outerGroupNode});
+
+  auto* linkedOuterGroupNode = document->createLinkedDuplicate();
+
+  document->deselectAll();
+
+  document->reparentNodes({{document->parentForNodes(), {innerEntityNode}}});
+  REQUIRE(outerGroupNode->children() == std::vector<Model::Node*>{outerEntityNode});
+  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+
+  document->undoCommand();
+  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+
+  document->redoCommand();
+  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+}
+
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroupsFails") {
   auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
   document->addNodes({{document->parentForNodes(), {groupNode}}});
