@@ -52,7 +52,7 @@ const std::vector<vm::polygon3f>& PortalFile::portals() const {
 }
 
 void PortalFile::load(const IO::Path& path) {
-  static const std::string lineSplitter("() \n\t\r");
+  static const auto lineSplitter = "() \n\t\r";
 
   std::ifstream stream = openPathAsInputStream(path);
   if (!stream.good()) {
@@ -71,7 +71,7 @@ void PortalFile::load(const IO::Path& path) {
     std::getline(stream, line); // number of leafs (ignored)
     std::getline(stream, line); // number of portals
     numPortals = std::stoi(line);
-    auto mark = stream.tellg();
+    const auto mark = stream.tellg();
     std::getline(stream, line);
     // If this line contains a single value, it is Q3-style PRT1 (value is
     // number of solid faces -- will ignore). Otherwise is Q1/Q2 style and we
@@ -110,12 +110,7 @@ void PortalFile::load(const IO::Path& path) {
     }
 
     std::vector<vm::vec3f> verts;
-    size_t ptr;
-    if (prt1ForQ3) {
-      ptr = 4;
-    } else {
-      ptr = 3;
-    }
+    auto ptr = prt1ForQ3 ? 4u : 3u;
     const int numPoints = std::stoi(components.at(0));
     for (int j = 0; j < numPoints; ++j) {
       if (ptr + 2 >= components.size()) {
