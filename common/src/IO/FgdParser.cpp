@@ -396,6 +396,15 @@ Assets::ModelDefinition FgdParser::parseModel(ParserStatus& status) {
 }
 
 void FgdParser::skipClassProperty(ParserStatus& /* status */) {
+  // We have already consumed the property name.
+  // We assume that the next token we should encounter is
+  // an open parenthesis. If the next token is not a
+  // parenthesis, it forms part of the next property
+  // (which we should not skip).
+  if (m_tokenizer.peekToken().type() != FgdToken::OParenthesis) {
+    return;
+  }
+
   size_t depth = 0;
   Token token;
   do {
