@@ -159,7 +159,9 @@ private:
   bool doCollateWith(UndoableCommand& otherCommand) override {
     const auto expectedCall = popCall<DoCollateWith>();
 
-    REQUIRE(&otherCommand == expectedCall.expectedOtherCommand);
+    REQUIRE(
+      (expectedCall.expectedOtherCommand == nullptr ||
+       &otherCommand == expectedCall.expectedOtherCommand));
 
     return expectedCall.returnCanCollate;
   }
@@ -450,6 +452,8 @@ TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
   outerCommand->expectDo(true);
   innerCommand->expectDo(true);
 
+  outerCommand->expectCollate(nullptr, false);
+
   const auto innerTransactionName = "inner transaction";
   const auto outerTransactionName = "outer transaction";
 
@@ -616,6 +620,42 @@ TEST_CASE("CommandProcessorTest.collationInterval", "[CommandProcessorTest]") {
   CHECK(commandProcessor.canRedo());
   REQUIRE(commandProcessor.undoCommandName() == commandName1);
   REQUIRE(commandProcessor.redoCommandName() == commandName2);
+}
+
+TEST_CASE("CommandProcessorTest.collateTransactions", "[CommandProcessorTest]") {
+  auto commandProcessor = CommandProcessor{nullptr};
+  auto observer = TestObserver{commandProcessor};
+
+  auto transaction1_command1 = std::make_unique<TestCommand>("cmd1");
+  auto transaction1_command2 = std::make_unique<TestCommand>("cmd2");
+  auto transaction2_command1 = std::make_unique<TestCommand>("cmd1");
+  auto transaction2_command2 = std::make_unique<TestCommand>("cmd2");
+
+  transaction1_command1->expectDo(true);
+  transaction1_command2->expectDo(true);
+  transaction1_command1->expectCollate(transaction1_command2.get(), false);
+
+  transaction2_command1->expectDo(true);
+  transaction2_command2->expectDo(true);
+  transaction2_command1->expectCollate(transaction2_command2.get(), false);
+
+  transaction1_command2->expectCollate(transaction2_command1.get(), true);
+
+  transaction1_command1->expectUndo(true);
+  transaction1_command2->expectUndo(true);
+  transaction2_command2->expectUndo(true);
+
+  commandProcessor.startTransaction("transaction 1");
+  commandProcessor.executeAndStore(std::move(transaction1_command1));
+  commandProcessor.executeAndStore(std::move(transaction1_command2));
+  commandProcessor.commitTransaction();
+
+  commandProcessor.startTransaction("transaction 2");
+  commandProcessor.executeAndStore(std::move(transaction2_command1));
+  commandProcessor.executeAndStore(std::move(transaction2_command2));
+  commandProcessor.commitTransaction();
+
+  commandProcessor.undo();
 }
 } // namespace View
 } // namespace TrenchBroom

@@ -103,6 +103,27 @@ private:
     }
     return std::make_unique<CommandResult>(true);
   }
+
+  bool doCollateWith(UndoableCommand& other) override {
+    if (auto* transactionCommand = dynamic_cast<TransactionCommand*>(&other)) {
+      if (m_commands.empty()) {
+        m_commands = std::move(transactionCommand->m_commands);
+        return true;
+      }
+      if (transactionCommand->m_commands.empty()) {
+        return true;
+      }
+
+      auto it = std::begin(transactionCommand->m_commands);
+      if (m_commands.back()->collateWith(**it)) {
+        std::move(
+          std::next(it), std::end(transactionCommand->m_commands), std::back_inserter(m_commands));
+        return true;
+      }
+    }
+
+    return false;
+  }
 };
 
 CommandProcessor::CommandProcessor(
@@ -287,9 +308,9 @@ void CommandProcessor::createAndStoreTransaction() {
     auto command = createTransaction(transaction.name, std::move(transaction.commands));
 
     if (m_transactionStack.empty()) {
-      pushToUndoStack(std::move(command), false);
+      pushToUndoStack(std::move(command), true);
     } else {
-      pushTransactionCommand(std::move(command), false);
+      pushTransactionCommand(std::move(command), true);
     }
     transactionDoneNotifier(transaction.name);
   }
