@@ -29,7 +29,7 @@ namespace View {
 BrushVertexCommandBase::BrushVertexCommandBase(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : SwapNodeContentsCommand(name, std::move(nodes), std::move(changedLinkedGroups)) {}
+  : SwapNodeContentsCommand{name, std::move(nodes), std::move(changedLinkedGroups)} {}
 
 std::unique_ptr<CommandResult> BrushVertexCommandBase::doPerformDo(
   MapDocumentCommandFacade* document) {
@@ -75,8 +75,8 @@ void BrushVertexCommandBase::selectOldHandlePositions(
 
 BrushVertexCommandResult::BrushVertexCommandResult(
   const bool success, const bool hasRemainingVertices)
-  : CommandResult(success)
-  , m_hasRemainingVertices(hasRemainingVertices) {}
+  : CommandResult{success}
+  , m_hasRemainingVertices{hasRemainingVertices} {}
 
 bool BrushVertexCommandResult::hasRemainingVertices() const {
   return m_hasRemainingVertices;
@@ -86,9 +86,9 @@ BrushVertexCommand::BrushVertexCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions,
   std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : BrushVertexCommandBase(name, std::move(nodes), std::move(changedLinkedGroups))
-  , m_oldVertexPositions(std::move(oldVertexPositions))
-  , m_newVertexPositions(std::move(newVertexPositions)) {}
+  : BrushVertexCommandBase{name, std::move(nodes), std::move(changedLinkedGroups)}
+  , m_oldVertexPositions{std::move(oldVertexPositions)}
+  , m_newVertexPositions{std::move(newVertexPositions)} {}
 
 std::unique_ptr<CommandResult> BrushVertexCommand::createCommandResult(
   std::unique_ptr<CommandResult> swapResult) {
@@ -129,9 +129,9 @@ BrushEdgeCommand::BrushEdgeCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions,
   std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : BrushVertexCommandBase(name, std::move(nodes), std::move(changedLinkedGroups))
-  , m_oldEdgePositions(std::move(oldEdgePositions))
-  , m_newEdgePositions(std::move(newEdgePositions)) {}
+  : BrushVertexCommandBase{name, std::move(nodes), std::move(changedLinkedGroups)}
+  , m_oldEdgePositions{std::move(oldEdgePositions)}
+  , m_newEdgePositions{std::move(newEdgePositions)} {}
 
 bool BrushEdgeCommand::doCollateWith(UndoableCommand& command) {
   auto* other = dynamic_cast<BrushEdgeCommand*>(&command);
@@ -166,9 +166,9 @@ BrushFaceCommand::BrushFaceCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions,
   std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : BrushVertexCommandBase(name, std::move(nodes), std::move(changedLinkedGroups))
-  , m_oldFacePositions(std::move(oldFacePositions))
-  , m_newFacePositions(std::move(newFacePositions)) {}
+  : BrushVertexCommandBase{name, std::move(nodes), std::move(changedLinkedGroups)}
+  , m_oldFacePositions{std::move(oldFacePositions)}
+  , m_newFacePositions{std::move(newFacePositions)} {}
 
 bool BrushFaceCommand::doCollateWith(UndoableCommand& command) {
   auto* other = dynamic_cast<BrushFaceCommand*>(&command);

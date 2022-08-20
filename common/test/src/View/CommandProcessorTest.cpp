@@ -79,7 +79,7 @@ public:
    * since the last call to popNotifications().
    */
   std::vector<NotificationTuple> popNotifications() {
-    std::vector<NotificationTuple> result;
+    auto result = std::vector<NotificationTuple>{};
 
     using std::swap;
     swap(m_notifications, result);
@@ -90,28 +90,28 @@ public:
 private:
   // these would be tidier as lambdas in the TestObserver() constructor
   void commandDo(Command& command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDo, command.name()));
+    m_notifications.emplace_back(CommandNotif::CommandDo, command.name());
   }
   void commandDone(Command& command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDone, command.name()));
+    m_notifications.emplace_back(CommandNotif::CommandDone, command.name());
   }
   void commandDoFailed(Command& command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDoFailed, command.name()));
+    m_notifications.emplace_back(CommandNotif::CommandDoFailed, command.name());
   }
   void commandUndo(UndoableCommand& command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndo, command.name()));
+    m_notifications.emplace_back(CommandNotif::CommandUndo, command.name());
   }
   void commandUndone(UndoableCommand& command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndone, command.name()));
+    m_notifications.emplace_back(CommandNotif::CommandUndone, command.name());
   }
   void commandUndoFailed(UndoableCommand& command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndoFailed, command.name()));
+    m_notifications.emplace_back(CommandNotif::CommandUndoFailed, command.name());
   }
   void transactionDone(const std::string& transactionName) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::TransactionDone, transactionName));
+    m_notifications.emplace_back(CommandNotif::TransactionDone, transactionName);
   }
   void transactionUndone(const std::string& transactionName) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::TransactionUndone, transactionName));
+    m_notifications.emplace_back(CommandNotif::TransactionUndone, transactionName);
   }
 };
 
@@ -133,10 +133,6 @@ private:
   mutable std::vector<TestCommandCall> m_expectedCalls;
 
 public:
-  static std::unique_ptr<TestCommand> create(const std::string& name) {
-    return std::make_unique<TestCommand>(name);
-  }
-
   explicit TestCommand(const std::string& name)
     : UndoableCommand(name, false) {}
 
@@ -145,8 +141,8 @@ public:
 private:
   template <class T> T popCall() const {
     CHECK_FALSE(m_expectedCalls.empty());
-    TestCommandCall variant = kdl::vec_pop_front(m_expectedCalls);
-    T call = std::get<T>(std::move(variant));
+    auto variant = kdl::vec_pop_front(m_expectedCalls);
+    auto call = std::get<T>(std::move(variant));
     return call;
   }
 
@@ -163,7 +159,9 @@ private:
   bool doCollateWith(UndoableCommand& otherCommand) override {
     const auto expectedCall = popCall<DoCollateWith>();
 
-    REQUIRE(&otherCommand == expectedCall.expectedOtherCommand);
+    REQUIRE(
+      (expectedCall.expectedOtherCommand == nullptr ||
+       &otherCommand == expectedCall.expectedOtherCommand));
 
     return expectedCall.returnCanCollate;
   }
@@ -173,16 +171,14 @@ public:
    * Sets an expectation that doPerformDo() should be called.
    * When called, it will return the given `returnSuccess` value.
    */
-  void expectDo(const bool returnSuccess) {
-    m_expectedCalls.emplace_back(DoPerformDo{returnSuccess});
-  }
+  void expectDo(const bool returnSuccess) { m_expectedCalls.push_back(DoPerformDo{returnSuccess}); }
 
   /**
    * Sets an expectation that doPerformUndo() should be called.
    * When called, it will return the given `returnSuccess` value.
    */
   void expectUndo(const bool returnSuccess) {
-    m_expectedCalls.emplace_back(DoPerformUndo{returnSuccess});
+    m_expectedCalls.push_back(DoPerformUndo{returnSuccess});
   }
 
   /**
@@ -190,7 +186,7 @@ public:
    * When called, doCollateWith() will return `returnCanCollate`.
    */
   void expectCollate(UndoableCommand* expectedOtherCommand, const bool returnCanCollate) {
-    m_expectedCalls.emplace_back(DoCollateWith{returnCanCollate, expectedOtherCommand});
+    m_expectedCalls.push_back(DoCollateWith{returnCanCollate, expectedOtherCommand});
   }
 
   deleteCopyAndMove(TestCommand);
@@ -201,11 +197,11 @@ TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand", "[CommandProcessorT
    * Execute a successful command, then undo it successfully.
    */
 
-  CommandProcessor commandProcessor(nullptr);
-  TestObserver observer(commandProcessor);
+  auto commandProcessor = CommandProcessor{nullptr};
+  auto observer = TestObserver{commandProcessor};
 
   const auto commandName = "test command";
-  auto command = TestCommand::create(commandName);
+  auto command = std::make_unique<TestCommand>(commandName);
 
   command->expectDo(true);
   command->expectUndo(true);
@@ -220,7 +216,8 @@ TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand", "[CommandProcessorT
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
                                    {CommandNotif::CommandDo, commandName},
                                    {CommandNotif::CommandDone, commandName},
-                                   {CommandNotif::TransactionDone, commandName}}));
+                                   {CommandNotif::TransactionDone, commandName},
+                                 }));
 
   const auto undoResult = commandProcessor.undo();
   CHECK(undoResult->success());
@@ -233,7 +230,8 @@ TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand", "[CommandProcessorT
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
                                    {CommandNotif::CommandUndo, commandName},
                                    {CommandNotif::CommandUndone, commandName},
-                                   {CommandNotif::TransactionUndone, commandName}}));
+                                   {CommandNotif::TransactionUndone, commandName},
+                                 }));
 }
 
 TEST_CASE("CommandProcessorTest.doSuccessfulCommandAndFailAtUndo", "[CommandProcessorTest]") {
@@ -241,11 +239,11 @@ TEST_CASE("CommandProcessorTest.doSuccessfulCommandAndFailAtUndo", "[CommandProc
    * Execute a successful command, then undo fails.
    */
 
-  CommandProcessor commandProcessor(nullptr);
-  TestObserver observer(commandProcessor);
+  auto commandProcessor = CommandProcessor{nullptr};
+  auto observer = TestObserver{commandProcessor};
 
   const auto commandName = "test command";
-  auto command = TestCommand::create(commandName);
+  auto command = std::make_unique<TestCommand>(commandName);
   command->expectDo(true);
   command->expectUndo(false);
 
@@ -259,7 +257,8 @@ TEST_CASE("CommandProcessorTest.doSuccessfulCommandAndFailAtUndo", "[CommandProc
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
                                    {CommandNotif::CommandDo, commandName},
                                    {CommandNotif::CommandDone, commandName},
-                                   {CommandNotif::TransactionDone, commandName}}));
+                                   {CommandNotif::TransactionDone, commandName},
+                                 }));
 
   const auto undoResult = commandProcessor.undo();
   CHECK_FALSE(undoResult->success());
@@ -267,9 +266,10 @@ TEST_CASE("CommandProcessorTest.doSuccessfulCommandAndFailAtUndo", "[CommandProc
   CHECK_FALSE(commandProcessor.canRedo());
 
   CHECK_THAT(
-    observer.popNotifications(),
-    Catch::Equals(std::vector<NotificationTuple>{
-      {CommandNotif::CommandUndo, commandName}, {CommandNotif::CommandUndoFailed, commandName}}));
+    observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
+                                   {CommandNotif::CommandUndo, commandName},
+                                   {CommandNotif::CommandUndoFailed, commandName},
+                                 }));
 }
 
 TEST_CASE("CommandProcessorTest.doFailingCommand", "[CommandProcessorTest]") {
@@ -277,11 +277,11 @@ TEST_CASE("CommandProcessorTest.doFailingCommand", "[CommandProcessorTest]") {
    * Execute a failing command.
    */
 
-  CommandProcessor commandProcessor(nullptr);
-  TestObserver observer(commandProcessor);
+  auto commandProcessor = CommandProcessor{nullptr};
+  auto observer = TestObserver{commandProcessor};
 
   const auto commandName = "test command";
-  auto command = TestCommand::create(commandName);
+  auto command = std::make_unique<TestCommand>(commandName);
   command->expectDo(false);
 
   const auto doResult = commandProcessor.executeAndStore(std::move(command));
@@ -291,9 +291,10 @@ TEST_CASE("CommandProcessorTest.doFailingCommand", "[CommandProcessorTest]") {
   CHECK_FALSE(commandProcessor.canRedo());
 
   CHECK_THAT(
-    observer.popNotifications(),
-    Catch::Equals(std::vector<NotificationTuple>{
-      {CommandNotif::CommandDo, commandName}, {CommandNotif::CommandDoFailed, commandName}}));
+    observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
+                                   {CommandNotif::CommandDo, commandName},
+                                   {CommandNotif::CommandDoFailed, commandName},
+                                 }));
 }
 
 TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTest]") {
@@ -302,14 +303,14 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTe
    * Finally, redo it, also with success.
    */
 
-  CommandProcessor commandProcessor(nullptr);
-  TestObserver observer(commandProcessor);
+  auto commandProcessor = CommandProcessor{nullptr};
+  auto observer = TestObserver{commandProcessor};
 
   const auto commandName1 = "test command 1";
-  auto command1 = TestCommand::create(commandName1);
+  auto command1 = std::make_unique<TestCommand>(commandName1);
 
   const auto commandName2 = "test command 2";
-  auto command2 = TestCommand::create(commandName2);
+  auto command2 = std::make_unique<TestCommand>(commandName2);
 
   command1->expectDo(true);
   command2->expectDo(true);
@@ -336,7 +337,8 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTe
                                    {CommandNotif::CommandDone, commandName1},
                                    {CommandNotif::CommandDo, commandName2},
                                    {CommandNotif::CommandDone, commandName2},
-                                   {CommandNotif::TransactionDone, transactionName}}));
+                                   {CommandNotif::TransactionDone, transactionName},
+                                 }));
 
   CHECK(commandProcessor.canUndo());
   CHECK_FALSE(commandProcessor.canRedo());
@@ -354,7 +356,8 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTe
                                    {CommandNotif::CommandUndone, commandName2},
                                    {CommandNotif::CommandUndo, commandName1},
                                    {CommandNotif::CommandUndone, commandName1},
-                                   {CommandNotif::TransactionUndone, transactionName}}));
+                                   {CommandNotif::TransactionUndone, transactionName},
+                                 }));
 
   CHECK(commandProcessor.redo()->success());
 
@@ -368,7 +371,8 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTe
                                    {CommandNotif::CommandDone, commandName1},
                                    {CommandNotif::CommandDo, commandName2},
                                    {CommandNotif::CommandDone, commandName2},
-                                   {CommandNotif::TransactionDone, transactionName}}));
+                                   {CommandNotif::TransactionDone, transactionName},
+                                 }));
 }
 
 TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]") {
@@ -376,14 +380,14 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]") 
    * Execute two successful commands in a transaction, then rollback the transaction and commit it.
    */
 
-  CommandProcessor commandProcessor(nullptr);
-  TestObserver observer(commandProcessor);
+  auto commandProcessor = CommandProcessor{nullptr};
+  auto observer = TestObserver{commandProcessor};
 
   const auto commandName1 = "test command 1";
-  auto command1 = TestCommand::create(commandName1);
+  auto command1 = std::make_unique<TestCommand>(commandName1);
 
   const auto commandName2 = "test command 2";
-  auto command2 = TestCommand::create(commandName2);
+  auto command2 = std::make_unique<TestCommand>(commandName2);
 
   command1->expectDo(true);
   command2->expectDo(true);
@@ -397,15 +401,17 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]") 
   commandProcessor.startTransaction(transactionName);
   CHECK(commandProcessor.executeAndStore(std::move(command1))->success());
   CHECK_THAT(
-    observer.popNotifications(),
-    Catch::Equals(std::vector<NotificationTuple>{
-      {CommandNotif::CommandDo, commandName1}, {CommandNotif::CommandDone, commandName1}}));
+    observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
+                                   {CommandNotif::CommandDo, commandName1},
+                                   {CommandNotif::CommandDone, commandName1},
+                                 }));
 
   CHECK(commandProcessor.executeAndStore(std::move(command2))->success());
   CHECK_THAT(
-    observer.popNotifications(),
-    Catch::Equals(std::vector<NotificationTuple>{
-      {CommandNotif::CommandDo, commandName2}, {CommandNotif::CommandDone, commandName2}}));
+    observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
+                                   {CommandNotif::CommandDo, commandName2},
+                                   {CommandNotif::CommandDone, commandName2},
+                                 }));
 
   commandProcessor.rollbackTransaction();
   CHECK_THAT(
@@ -413,7 +419,8 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]") 
                                    {CommandNotif::CommandUndo, commandName2},
                                    {CommandNotif::CommandUndone, commandName2},
                                    {CommandNotif::CommandUndo, commandName1},
-                                   {CommandNotif::CommandUndone, commandName1}}));
+                                   {CommandNotif::CommandUndone, commandName1},
+                                 }));
 
   CHECK_FALSE(commandProcessor.canUndo());
   CHECK_FALSE(commandProcessor.canRedo());
@@ -424,7 +431,7 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]") 
   CHECK_FALSE(commandProcessor.canUndo());
   CHECK_FALSE(commandProcessor.canRedo());
 
-  REQUIRE(observer.popNotifications() == (std::vector<NotificationTuple>{}));
+  REQUIRE(observer.popNotifications().empty());
 }
 
 TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
@@ -433,17 +440,19 @@ TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
    * commit both transactions. Then undo the outer transaction.
    */
 
-  CommandProcessor commandProcessor(nullptr);
-  TestObserver observer(commandProcessor);
+  auto commandProcessor = CommandProcessor{nullptr};
+  auto observer = TestObserver{commandProcessor};
 
   const auto outerCommandName = "outer command";
-  auto outerCommand = TestCommand::create(outerCommandName);
+  auto outerCommand = std::make_unique<TestCommand>(outerCommandName);
 
   const auto innerCommandName = "inner command";
-  auto innerCommand = TestCommand::create(innerCommandName);
+  auto innerCommand = std::make_unique<TestCommand>(innerCommandName);
 
   outerCommand->expectDo(true);
   innerCommand->expectDo(true);
+
+  outerCommand->expectCollate(nullptr, false);
 
   const auto innerTransactionName = "inner transaction";
   const auto outerTransactionName = "outer transaction";
@@ -455,26 +464,30 @@ TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
   commandProcessor.startTransaction(outerTransactionName);
   CHECK(commandProcessor.executeAndStore(std::move(outerCommand))->success());
   CHECK_THAT(
-    observer.popNotifications(),
-    Catch::Equals(std::vector<NotificationTuple>{
-      {CommandNotif::CommandDo, outerCommandName}, {CommandNotif::CommandDone, outerCommandName}}));
+    observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
+                                   {CommandNotif::CommandDo, outerCommandName},
+                                   {CommandNotif::CommandDone, outerCommandName},
+                                 }));
 
   commandProcessor.startTransaction(innerTransactionName);
   CHECK(commandProcessor.executeAndStore(std::move(innerCommand))->success());
   CHECK_THAT(
-    observer.popNotifications(),
-    Catch::Equals(std::vector<NotificationTuple>{
-      {CommandNotif::CommandDo, innerCommandName}, {CommandNotif::CommandDone, innerCommandName}}));
+    observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
+                                   {CommandNotif::CommandDo, innerCommandName},
+                                   {CommandNotif::CommandDone, innerCommandName},
+                                 }));
 
   commandProcessor.commitTransaction();
   CHECK_THAT(
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
-                                   {CommandNotif::TransactionDone, innerTransactionName}}));
+                                   {CommandNotif::TransactionDone, innerTransactionName},
+                                 }));
 
   commandProcessor.commitTransaction();
   CHECK_THAT(
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
-                                   {CommandNotif::TransactionDone, outerTransactionName}}));
+                                   {CommandNotif::TransactionDone, outerTransactionName},
+                                 }));
 
   CHECK(commandProcessor.canUndo());
   CHECK_FALSE(commandProcessor.canRedo());
@@ -492,7 +505,8 @@ TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
                                    {CommandNotif::CommandUndone, innerCommandName},
                                    {CommandNotif::CommandUndo, outerCommandName},
                                    {CommandNotif::CommandUndone, outerCommandName},
-                                   {CommandNotif::TransactionUndone, outerTransactionName}}));
+                                   {CommandNotif::TransactionUndone, outerTransactionName},
+                                 }));
 }
 
 TEST_CASE("CommandProcessorTest.collateCommands", "[CommandProcessorTest]") {
@@ -500,14 +514,14 @@ TEST_CASE("CommandProcessorTest.collateCommands", "[CommandProcessorTest]") {
    * Execute a command and collate the next command, then undo.
    */
 
-  CommandProcessor commandProcessor(nullptr);
-  TestObserver observer(commandProcessor);
+  auto commandProcessor = CommandProcessor{nullptr};
+  auto observer = TestObserver{commandProcessor};
 
   const auto commandName1 = "test command 1";
-  auto command1 = TestCommand::create(commandName1);
+  auto command1 = std::make_unique<TestCommand>(commandName1);
 
   const auto commandName2 = "test command 2";
-  auto command2 = TestCommand::create(commandName2);
+  auto command2 = std::make_unique<TestCommand>(commandName2);
 
   command1->expectDo(true);
   command2->expectDo(true);
@@ -519,14 +533,16 @@ TEST_CASE("CommandProcessorTest.collateCommands", "[CommandProcessorTest]") {
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
                                    {CommandNotif::CommandDo, commandName1},
                                    {CommandNotif::CommandDone, commandName1},
-                                   {CommandNotif::TransactionDone, commandName1}}));
+                                   {CommandNotif::TransactionDone, commandName1},
+                                 }));
 
   commandProcessor.executeAndStore(std::move(command2));
   CHECK_THAT(
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
                                    {CommandNotif::CommandDo, commandName2},
                                    {CommandNotif::CommandDone, commandName2},
-                                   {CommandNotif::TransactionDone, commandName2}}));
+                                   {CommandNotif::TransactionDone, commandName2},
+                                 }));
 
   CHECK(commandProcessor.canUndo());
   CHECK_FALSE(commandProcessor.canRedo());
@@ -543,7 +559,8 @@ TEST_CASE("CommandProcessorTest.collateCommands", "[CommandProcessorTest]") {
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
                                    {CommandNotif::CommandUndo, commandName1},
                                    {CommandNotif::CommandUndone, commandName1},
-                                   {CommandNotif::TransactionUndone, commandName1}}));
+                                   {CommandNotif::TransactionUndone, commandName1},
+                                 }));
 }
 
 TEST_CASE("CommandProcessorTest.collationInterval", "[CommandProcessorTest]") {
@@ -552,14 +569,14 @@ TEST_CASE("CommandProcessorTest.collationInterval", "[CommandProcessorTest]") {
    * interval. Then, undo the second command.
    */
 
-  CommandProcessor commandProcessor(nullptr, std::chrono::milliseconds(100));
-  TestObserver observer(commandProcessor);
+  auto commandProcessor = CommandProcessor{nullptr, std::chrono::milliseconds(100)};
+  auto observer = TestObserver{commandProcessor};
 
   const auto commandName1 = "test command 1";
-  auto command1 = TestCommand::create(commandName1);
+  auto command1 = std::make_unique<TestCommand>(commandName1);
 
   const auto commandName2 = "test command 2";
-  auto command2 = TestCommand::create(commandName2);
+  auto command2 = std::make_unique<TestCommand>(commandName2);
 
   command1->expectDo(true);
   command2->expectDo(true);
@@ -571,7 +588,8 @@ TEST_CASE("CommandProcessorTest.collationInterval", "[CommandProcessorTest]") {
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
                                    {CommandNotif::CommandDo, commandName1},
                                    {CommandNotif::CommandDone, commandName1},
-                                   {CommandNotif::TransactionDone, commandName1}}));
+                                   {CommandNotif::TransactionDone, commandName1},
+                                 }));
 
   using namespace std::chrono_literals;
   std::this_thread::sleep_for(100ms);
@@ -582,7 +600,8 @@ TEST_CASE("CommandProcessorTest.collationInterval", "[CommandProcessorTest]") {
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
                                    {CommandNotif::CommandDo, commandName2},
                                    {CommandNotif::CommandDone, commandName2},
-                                   {CommandNotif::TransactionDone, commandName2}}));
+                                   {CommandNotif::TransactionDone, commandName2},
+                                 }));
 
   CHECK(commandProcessor.canUndo());
   CHECK_FALSE(commandProcessor.canRedo());
@@ -594,12 +613,49 @@ TEST_CASE("CommandProcessorTest.collationInterval", "[CommandProcessorTest]") {
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
                                    {CommandNotif::CommandUndo, commandName2},
                                    {CommandNotif::CommandUndone, commandName2},
-                                   {CommandNotif::TransactionUndone, commandName2}}));
+                                   {CommandNotif::TransactionUndone, commandName2},
+                                 }));
 
   CHECK(commandProcessor.canUndo());
   CHECK(commandProcessor.canRedo());
   REQUIRE(commandProcessor.undoCommandName() == commandName1);
   REQUIRE(commandProcessor.redoCommandName() == commandName2);
+}
+
+TEST_CASE("CommandProcessorTest.collateTransactions", "[CommandProcessorTest]") {
+  auto commandProcessor = CommandProcessor{nullptr};
+  auto observer = TestObserver{commandProcessor};
+
+  auto transaction1_command1 = std::make_unique<TestCommand>("cmd1");
+  auto transaction1_command2 = std::make_unique<TestCommand>("cmd2");
+  auto transaction2_command1 = std::make_unique<TestCommand>("cmd1");
+  auto transaction2_command2 = std::make_unique<TestCommand>("cmd2");
+
+  transaction1_command1->expectDo(true);
+  transaction1_command2->expectDo(true);
+  transaction1_command1->expectCollate(transaction1_command2.get(), false);
+
+  transaction2_command1->expectDo(true);
+  transaction2_command2->expectDo(true);
+  transaction2_command1->expectCollate(transaction2_command2.get(), false);
+
+  transaction1_command2->expectCollate(transaction2_command1.get(), true);
+
+  transaction1_command1->expectUndo(true);
+  transaction1_command2->expectUndo(true);
+  transaction2_command2->expectUndo(true);
+
+  commandProcessor.startTransaction("transaction 1");
+  commandProcessor.executeAndStore(std::move(transaction1_command1));
+  commandProcessor.executeAndStore(std::move(transaction1_command2));
+  commandProcessor.commitTransaction();
+
+  commandProcessor.startTransaction("transaction 2");
+  commandProcessor.executeAndStore(std::move(transaction2_command1));
+  commandProcessor.executeAndStore(std::move(transaction2_command2));
+  commandProcessor.commitTransaction();
+
+  commandProcessor.undo();
 }
 } // namespace View
 } // namespace TrenchBroom
