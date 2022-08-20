@@ -132,16 +132,15 @@
 namespace TrenchBroom {
 namespace View {
 template <typename T>
-static auto findLinkedGroupsToUpdate(
+static auto findLinkedGroupsRecursively(
   Model::WorldNode& worldNode, const std::vector<T*>& nodes, const bool includeGivenNodes) {
-  auto result = std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>{};
+  auto result = std::vector<const Model::GroupNode*>{};
 
   const auto addGroupNode = [&](const Model::GroupNode* groupNode) {
     while (groupNode) {
       if (const auto linkedGroupId = groupNode->group().linkedGroupId()) {
-        auto linkedGroups = Model::findLinkedGroups(worldNode, *linkedGroupId);
-        if (linkedGroups.size() > 1u) {
-          result.emplace_back(groupNode, std::move(linkedGroups));
+        if (Model::findLinkedGroups(worldNode, *linkedGroupId).size() > 1u) {
+          result.emplace_back(groupNode);
           return;
         }
       }
@@ -173,14 +172,13 @@ static auto findLinkedGroupsToUpdate(
 }
 
 template <typename T>
-static auto findContainingLinkedGroupsToUpdate(
-  Model::WorldNode& worldNode, const std::vector<T*>& nodes) {
-  return findLinkedGroupsToUpdate(worldNode, nodes, false);
+static auto findContainingLinkedGroups(Model::WorldNode& worldNode, const std::vector<T*>& nodes) {
+  return findLinkedGroupsRecursively(worldNode, nodes, false);
 }
 
 template <typename T>
-static auto findAllLinkedGroupsToUpdate(Model::WorldNode& worldNode, const std::vector<T*>& nodes) {
-  return findLinkedGroupsToUpdate(worldNode, nodes, true);
+static auto findAllLinkedGroups(Model::WorldNode& worldNode, const std::vector<T*>& nodes) {
+  return findLinkedGroupsRecursively(worldNode, nodes, true);
 }
 
 /**
@@ -258,16 +256,14 @@ static std::optional<std::vector<std::pair<Model::Node*, Model::NodeContents>>> 
 template <typename N, typename L>
 static bool applyAndSwap(
   MapDocument& document, const std::string& commandName, const std::vector<N*>& nodes,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate,
-  L lambda) {
+  std::vector<const Model::GroupNode*> changedLinkedGroups, L lambda) {
   if (nodes.empty()) {
     return true;
   }
 
   if (auto newNodes = applyToNodeContents(nodes, std::move(lambda))) {
     return document.swapNodeContents(
-      commandName, std::move(*newNodes), std::move(linkedGroupsToUpdate));
+      commandName, std::move(*newNodes), std::move(changedLinkedGroups));
   }
 
   return false;
@@ -323,11 +319,11 @@ static bool applyAndSwap(
       newNodes.emplace_back(brushNode, Model::NodeContents(std::move(brush)));
     }
 
-    auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(
-      *document.world(), kdl::vec_transform(newNodes, [](const auto& p) {
+    auto changedLinkedGroups =
+      findContainingLinkedGroups(*document.world(), kdl::vec_transform(newNodes, [](const auto& p) {
         return p.first;
       }));
-    document.swapNodeContents(commandName, std::move(newNodes), std::move(linkedGroupsToUpdate));
+    document.swapNodeContents(commandName, std::move(newNodes), std::move(changedLinkedGroups));
   }
 
   return success;
@@ -1248,7 +1244,7 @@ std::vector<Model::Node*> MapDocument::addNodes(
 
   Transaction transaction(this, "Add Objects");
   const auto result = executeAndStore(
-    AddRemoveNodesCommand::add(nodes, findAllLinkedGroupsToUpdate(*m_world, kdl::map_keys(nodes))));
+    AddRemoveNodesCommand::add(nodes, findAllLinkedGroups(*m_world, kdl::map_keys(nodes))));
   if (!result->success()) {
     return {};
   }
@@ -1302,7 +1298,7 @@ void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes) {
 
     closeRemovedGroups(removableNodes);
     executeAndStore(AddRemoveNodesCommand::remove(
-      removableNodes, findAllLinkedGroupsToUpdate(*m_world, kdl::map_keys(removableNodes))));
+      removableNodes, findAllLinkedGroups(*m_world, kdl::map_keys(removableNodes))));
 
     removableNodes = collectRemovableParents(removableNodes);
   }
@@ -1317,7 +1313,7 @@ void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes) {
 
   applyAndSwap(
     *this, "Reset Linked Group ID", singletonLinkSetsAfterRemoval,
-    findContainingLinkedGroupsToUpdate(*m_world, singletonLinkSetsAfterRemoval),
+    findContainingLinkedGroups(*m_world, singletonLinkSetsAfterRemoval),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -1416,11 +1412,11 @@ bool MapDocument::reparentNodes(
     downgradeShownToInherit(nodesToDowngrade);
   }
 
-  auto linkedGroupsToUpdate = findAllLinkedGroupsToUpdate(
+  auto changedLinkedGroups = findAllLinkedGroups(
     *m_world, kdl::vec_concat(kdl::map_keys(nodesToAdd), kdl::map_keys(nodesToRemove)));
   const auto success =
     executeAndStore(ReparentNodesCommand::reparent(
-                      std::move(nodesToAdd), nodesToRemove, std::move(linkedGroupsToUpdate)))
+                      std::move(nodesToAdd), nodesToRemove, std::move(changedLinkedGroups)))
       ->success();
   if (success) {
     std::map<Model::Node*, std::vector<Model::Node*>> removableNodes =
@@ -1428,7 +1424,7 @@ bool MapDocument::reparentNodes(
     while (!removableNodes.empty()) {
       closeRemovedGroups(removableNodes);
       executeAndStore(AddRemoveNodesCommand::remove(
-        removableNodes, findAllLinkedGroupsToUpdate(*m_world, kdl::map_keys(removableNodes))));
+        removableNodes, findAllLinkedGroups(*m_world, kdl::map_keys(removableNodes))));
 
       removableNodes = collectRemovableParents(removableNodes);
     }
@@ -1766,7 +1762,7 @@ Model::GroupNode* MapDocument::createLinkedDuplicate() {
   if (!groupNode->group().linkedGroupId()) {
     applyAndSwap(
       *this, "Set Linked Group ID", m_selectedNodes.groups(),
-      findContainingLinkedGroupsToUpdate(*m_world, m_selectedNodes.groups()),
+      findContainingLinkedGroups(*m_world, m_selectedNodes.groups()),
       kdl::overload(
         [](Model::Layer&) {
           return true;
@@ -1842,8 +1838,7 @@ bool MapDocument::canSelectLinkedGroups() const {
 void MapDocument::linkGroups(const std::vector<Model::GroupNode*>& groupNodes) {
   const auto newLinkedGroupId = generateUuid();
   applyAndSwap(
-    *this, "Set Linked Group ID", groupNodes,
-    findContainingLinkedGroupsToUpdate(*m_world, groupNodes),
+    *this, "Set Linked Group ID", groupNodes, findContainingLinkedGroups(*m_world, groupNodes),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -1865,8 +1860,7 @@ void MapDocument::linkGroups(const std::vector<Model::GroupNode*>& groupNodes) {
 
 void MapDocument::unlinkGroups(const std::vector<Model::GroupNode*>& groupNodes) {
   applyAndSwap(
-    *this, "Reset Linked Group ID", groupNodes,
-    findContainingLinkedGroupsToUpdate(*m_world, groupNodes),
+    *this, "Reset Linked Group ID", groupNodes, findContainingLinkedGroups(*m_world, groupNodes),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -1912,10 +1906,8 @@ bool MapDocument::canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) 
     return false;
   }
 
-  const auto linkedGroupsToUpdate = findContainingLinkedGroupsToUpdate(*m_world, nodes);
-  return checkLinkedGroupsToUpdate(kdl::vec_transform(linkedGroupsToUpdate, [](const auto& p) {
-    return p.first;
-  }));
+  const auto changedLinkedGroups = findContainingLinkedGroups(*m_world, nodes);
+  return checkLinkedGroupsToUpdate(changedLinkedGroups);
 }
 
 void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups) {
@@ -2328,22 +2320,21 @@ void MapDocument::downgradeUnlockedToInherit(const std::vector<Model::Node*>& no
 bool MapDocument::swapNodeContents(
   const std::string& commandName,
   std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap,
-  std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
-    linkedGroupsToUpdate) {
+  std::vector<const Model::GroupNode*> changedLinkedGroups) {
   return executeAndStore(std::make_unique<SwapNodeContentsCommand>(
-                           commandName, std::move(nodesToSwap), std::move(linkedGroupsToUpdate)))
+                           commandName, std::move(nodesToSwap), std::move(changedLinkedGroups)))
     ->success();
 }
 
 bool MapDocument::swapNodeContents(
   const std::string& commandName,
   std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap) {
-  auto linkedGroupsToUpdate =
-    findContainingLinkedGroupsToUpdate(*m_world, kdl::vec_transform(nodesToSwap, [](const auto& p) {
+  auto changedLinkedGroups =
+    findContainingLinkedGroups(*m_world, kdl::vec_transform(nodesToSwap, [](const auto& p) {
       return p.first;
     }));
 
-  return swapNodeContents(commandName, std::move(nodesToSwap), std::move(linkedGroupsToUpdate));
+  return swapNodeContents(commandName, std::move(nodesToSwap), std::move(changedLinkedGroups));
 }
 
 bool MapDocument::transformObjects(
@@ -2443,7 +2434,7 @@ bool MapDocument::transformObjects(
 
   const auto success = swapNodeContents(
     commandName, std::move(nodesToUpdate),
-    findContainingLinkedGroupsToUpdate(*m_world, m_selectedNodes.nodes()));
+    findContainingLinkedGroups(*m_world, m_selectedNodes.nodes()));
 
   if (success) {
     m_repeatStack->push([=]() {
@@ -2744,7 +2735,7 @@ bool MapDocument::setProperty(
   const std::string& key, const std::string& value, const bool defaultToProtected) {
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
-    *this, "Set Property", entityNodes, findContainingLinkedGroupsToUpdate(*m_world, entityNodes),
+    *this, "Set Property", entityNodes, findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -2767,8 +2758,7 @@ bool MapDocument::setProperty(
 bool MapDocument::renameProperty(const std::string& oldKey, const std::string& newKey) {
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
-    *this, "Rename Property", entityNodes,
-    findContainingLinkedGroupsToUpdate(*m_world, entityNodes),
+    *this, "Rename Property", entityNodes, findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -2791,8 +2781,7 @@ bool MapDocument::renameProperty(const std::string& oldKey, const std::string& n
 bool MapDocument::removeProperty(const std::string& key) {
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
-    *this, "Remove Property", entityNodes,
-    findContainingLinkedGroupsToUpdate(*m_world, entityNodes),
+    *this, "Remove Property", entityNodes, findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -2815,7 +2804,7 @@ bool MapDocument::removeProperty(const std::string& key) {
 bool MapDocument::convertEntityColorRange(const std::string& key, Assets::ColorRange::Type range) {
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
-    *this, "Convert Color", entityNodes, findContainingLinkedGroupsToUpdate(*m_world, entityNodes),
+    *this, "Convert Color", entityNodes, findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -2843,7 +2832,7 @@ bool MapDocument::updateSpawnflag(
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
     *this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", entityNodes,
-    findContainingLinkedGroupsToUpdate(*m_world, entityNodes),
+    findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -2933,8 +2922,7 @@ bool MapDocument::setProtectedProperty(const std::string& key, const bool value)
   }
 
   return swapNodeContents(
-    "Set Protected Property", nodesToUpdate,
-    findContainingLinkedGroupsToUpdate(*m_world, entityNodes));
+    "Set Protected Property", nodesToUpdate, findContainingLinkedGroups(*m_world, entityNodes));
 }
 
 bool MapDocument::clearProtectedProperties() {
@@ -2973,8 +2961,7 @@ bool MapDocument::clearProtectedProperties() {
   }
 
   return swapNodeContents(
-    "Clear Protected Properties", nodesToUpdate,
-    findContainingLinkedGroupsToUpdate(*m_world, entityNodes));
+    "Clear Protected Properties", nodesToUpdate, findContainingLinkedGroups(*m_world, entityNodes));
 }
 
 bool MapDocument::canClearProtectedProperties() const {
@@ -2989,7 +2976,7 @@ bool MapDocument::canClearProtectedProperties() const {
 bool MapDocument::extrudeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
   const auto nodes = m_selectedNodes.nodes();
   return applyAndSwap(
-    *this, "Resize Brushes", nodes, findContainingLinkedGroupsToUpdate(*m_world, nodes),
+    *this, "Resize Brushes", nodes, findContainingLinkedGroups(*m_world, nodes),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -3097,7 +3084,7 @@ bool MapDocument::snapVertices(const FloatType snapTo) {
   const auto allSelectedBrushes = allSelectedBrushNodes();
   const bool applyAndSwapSuccess = applyAndSwap(
     *this, "Snap Brush Vertices", allSelectedBrushes,
-    findContainingLinkedGroupsToUpdate(*m_world, allSelectedBrushes),
+    findContainingLinkedGroups(*m_world, allSelectedBrushes),
     kdl::overload(
       [](Model::Layer&) {
         return true;
@@ -3190,13 +3177,13 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
 
     const auto commandName =
       kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
-    auto linkedGroupsToUpdate =
-      findContainingLinkedGroupsToUpdate(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
+    auto changedLinkedGroups =
+      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
     const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
       commandName, std::move(*newNodes), std::move(vertexPositions), std::move(newVertexPositions),
-      std::move(linkedGroupsToUpdate)));
+      std::move(changedLinkedGroups)));
 
     const auto* moveVerticesResult = dynamic_cast<BrushVertexCommandResult*>(result.get());
     ensure(
@@ -3257,13 +3244,13 @@ bool MapDocument::moveEdges(std::vector<vm::segment3> edgePositions, const vm::v
 
     const auto commandName =
       kdl::str_plural(edgePositions.size(), "Move Brush Edge", "Move Brush Edges");
-    auto linkedGroupsToUpdate =
-      findContainingLinkedGroupsToUpdate(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
+    auto changedLinkedGroups =
+      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
     return executeAndStore(std::make_unique<BrushEdgeCommand>(
                              commandName, std::move(*newNodes), std::move(edgePositions),
-                             std::move(newEdgePositions), std::move(linkedGroupsToUpdate)))
+                             std::move(newEdgePositions), std::move(changedLinkedGroups)))
       ->success();
   }
 
@@ -3318,13 +3305,13 @@ bool MapDocument::moveFaces(std::vector<vm::polygon3> facePositions, const vm::v
 
     const auto commandName =
       kdl::str_plural(facePositions.size(), "Move Brush Face", "Move Brush Faces");
-    auto linkedGroupsToUpdate =
-      findContainingLinkedGroupsToUpdate(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
+    auto changedLinkedGroups =
+      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
     return executeAndStore(std::make_unique<BrushFaceCommand>(
                              commandName, std::move(*newNodes), std::move(facePositions),
-                             std::move(newFacePositions), std::move(linkedGroupsToUpdate)))
+                             std::move(newFacePositions), std::move(changedLinkedGroups)))
       ->success();
   }
 
@@ -3358,14 +3345,13 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition) {
                                }));
 
   if (newNodes) {
-    auto linkedGroupsToUpdate =
-      findContainingLinkedGroupsToUpdate(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
+    auto changedLinkedGroups =
+      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
     return executeAndStore(std::make_unique<BrushVertexCommand>(
                              "Add Brush Vertex", std::move(*newNodes), std::vector<vm::vec3>{},
-                             std::vector<vm::vec3>{vertexPosition},
-                             std::move(linkedGroupsToUpdate)))
+                             std::vector<vm::vec3>{vertexPosition}, std::move(changedLinkedGroups)))
       ->success();
   }
 
@@ -3408,13 +3394,13 @@ bool MapDocument::removeVertices(
                                }));
 
   if (newNodes) {
-    auto linkedGroupsToUpdate =
-      findContainingLinkedGroupsToUpdate(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
+    auto changedLinkedGroups =
+      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
     return executeAndStore(std::make_unique<BrushVertexCommand>(
                              commandName, std::move(*newNodes), std::move(vertexPositions),
-                             std::vector<vm::vec3>{}, std::move(linkedGroupsToUpdate)))
+                             std::vector<vm::vec3>{}, std::move(changedLinkedGroups)))
       ->success();
   }
 

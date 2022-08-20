@@ -44,7 +44,7 @@ class MapDocumentCommandFacade;
  * The given linked groups can be updated consistently if no two of them are in the same
  * linked set.
  */
-bool checkLinkedGroupsToUpdate(const std::vector<const Model::GroupNode*>& linkedGroupsToUpdate);
+bool checkLinkedGroupsToUpdate(const std::vector<const Model::GroupNode*>& changedLinkedGroups);
 
 /**
  * A helper class to add support for updating linked groups to commands.
@@ -58,14 +58,13 @@ bool checkLinkedGroupsToUpdate(const std::vector<const Model::GroupNode*>& linke
  */
 class UpdateLinkedGroupsHelper {
 private:
-  using LinkedGroupsToUpdate =
-    std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>;
+  using ChangedLinkedGroups = std::vector<const Model::GroupNode*>;
   using LinkedGroupUpdates =
     std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>;
-  std::variant<LinkedGroupsToUpdate, LinkedGroupUpdates> m_state;
+  std::variant<ChangedLinkedGroups, LinkedGroupUpdates> m_state;
 
 public:
-  explicit UpdateLinkedGroupsHelper(LinkedGroupsToUpdate linkedGroupsToUpdate);
+  explicit UpdateLinkedGroupsHelper(ChangedLinkedGroups changedLinkedGroups);
   ~UpdateLinkedGroupsHelper();
 
   kdl::result<void, Model::UpdateLinkedGroupsError> applyLinkedGroupUpdates(
@@ -77,7 +76,7 @@ private:
   kdl::result<void, Model::UpdateLinkedGroupsError> computeLinkedGroupUpdates(
     MapDocumentCommandFacade& document);
   static kdl::result<LinkedGroupUpdates, Model::UpdateLinkedGroupsError> computeLinkedGroupUpdates(
-    const LinkedGroupsToUpdate& linkedGroupsToUpdate, const vm::bbox3& worldBounds);
+    const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document);
 
   void doApplyOrUndoLinkedGroupUpdates(MapDocumentCommandFacade& document);
 };
