@@ -39,9 +39,6 @@ class Node;
 
 namespace View {
 class SwapNodeContentsCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 protected:
   std::vector<std::pair<Model::Node*, Model::NodeContents>> m_nodes;
   UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
@@ -56,7 +53,7 @@ public:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
-  bool doCollateWith(UndoableCommand* command) override;
+  bool doCollateWith(UndoableCommand& command) override;
 
   deleteCopyAndMove(SwapNodeContentsCommand);
 };

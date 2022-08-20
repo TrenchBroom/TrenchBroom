@@ -142,7 +142,7 @@ private: // implement MapDocument interface
   void doRedoCommand() override;
 
   void doClearCommandProcessor() override;
-  void doStartTransaction(const std::string& name) override;
+  void doStartTransaction(std::string name) override;
   void doCommitTransaction() override;
   void doRollbackTransaction() override;
 

@@ -446,36 +446,36 @@ private: // Observers and state management
       document->commandUndoFailedNotifier.connect(this, &VertexToolBase::commandUndoFailed);
   }
 
-  void commandDo(Command* command) { commandDoOrUndo(command); }
+  void commandDo(Command& command) { commandDoOrUndo(command); }
 
-  void commandDone(Command* command) { commandDoneOrUndoFailed(command); }
+  void commandDone(Command& command) { commandDoneOrUndoFailed(command); }
 
-  void commandDoFailed(Command* command) { commandDoFailedOrUndone(command); }
+  void commandDoFailed(Command& command) { commandDoFailedOrUndone(command); }
 
-  void commandUndo(UndoableCommand* command) { commandDoOrUndo(command); }
+  void commandUndo(UndoableCommand& command) { commandDoOrUndo(command); }
 
-  void commandUndone(UndoableCommand* command) { commandDoFailedOrUndone(command); }
+  void commandUndone(UndoableCommand& command) { commandDoFailedOrUndone(command); }
 
-  void commandUndoFailed(UndoableCommand* command) { commandDoneOrUndoFailed(command); }
+  void commandUndoFailed(UndoableCommand& command) { commandDoneOrUndoFailed(command); }
 
-  void commandDoOrUndo(Command* command) {
-    if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(command)) {
+  void commandDoOrUndo(Command& command) {
+    if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(&command)) {
       deselectHandles();
       removeHandles(vertexCommand);
       ++m_ignoreChangeNotifications;
     }
   }
 
-  void commandDoneOrUndoFailed(Command* command) {
-    if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(command)) {
+  void commandDoneOrUndoFailed(Command& command) {
+    if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(&command)) {
       addHandles(vertexCommand);
       selectNewHandlePositions(vertexCommand);
       --m_ignoreChangeNotifications;
     }
   }
 
-  void commandDoFailedOrUndone(Command* command) {
-    if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(command)) {
+  void commandDoFailedOrUndone(Command& command) {
+    if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(&command)) {
       addHandles(vertexCommand);
       selectOldHandlePositions(vertexCommand);
       --m_ignoreChangeNotifications;

@@ -83,8 +83,6 @@ bool BrushVertexCommandResult::hasRemainingVertices() const {
   return m_hasRemainingVertices;
 }
 
-const Command::CommandType BrushVertexCommand::Type = Command::freeType();
-
 BrushVertexCommand::BrushVertexCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions,
@@ -100,8 +98,11 @@ std::unique_ptr<CommandResult> BrushVertexCommand::createCommandResult(
     swapResult->success(), !m_newVertexPositions.empty());
 }
 
-bool BrushVertexCommand::doCollateWith(UndoableCommand* command) {
-  BrushVertexCommand* other = static_cast<BrushVertexCommand*>(command);
+bool BrushVertexCommand::doCollateWith(UndoableCommand& command) {
+  auto* other = dynamic_cast<BrushVertexCommand*>(&command);
+  if (other == nullptr) {
+    return false;
+  }
 
   if (m_newVertexPositions != other->m_oldVertexPositions) {
     return false;
@@ -126,8 +127,6 @@ void BrushVertexCommand::selectOldHandlePositions(
   manager.select(std::begin(m_oldVertexPositions), std::end(m_oldVertexPositions));
 }
 
-const Command::CommandType BrushEdgeCommand::Type = Command::freeType();
-
 BrushEdgeCommand::BrushEdgeCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions,
@@ -137,8 +136,11 @@ BrushEdgeCommand::BrushEdgeCommand(
   , m_oldEdgePositions(std::move(oldEdgePositions))
   , m_newEdgePositions(std::move(newEdgePositions)) {}
 
-bool BrushEdgeCommand::doCollateWith(UndoableCommand* command) {
-  BrushEdgeCommand* other = static_cast<BrushEdgeCommand*>(command);
+bool BrushEdgeCommand::doCollateWith(UndoableCommand& command) {
+  auto* other = dynamic_cast<BrushEdgeCommand*>(&command);
+  if (other == nullptr) {
+    return false;
+  }
 
   if (m_newEdgePositions != other->m_oldEdgePositions) {
     return false;
@@ -163,8 +165,6 @@ void BrushEdgeCommand::selectOldHandlePositions(
   manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
 }
 
-const Command::CommandType BrushFaceCommand::Type = Command::freeType();
-
 BrushFaceCommand::BrushFaceCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions,
@@ -174,8 +174,11 @@ BrushFaceCommand::BrushFaceCommand(
   , m_oldFacePositions(std::move(oldFacePositions))
   , m_newFacePositions(std::move(newFacePositions)) {}
 
-bool BrushFaceCommand::doCollateWith(UndoableCommand* command) {
-  BrushFaceCommand* other = static_cast<BrushFaceCommand*>(command);
+bool BrushFaceCommand::doCollateWith(UndoableCommand& command) {
+  auto* other = dynamic_cast<BrushFaceCommand*>(&command);
+  if (other == nullptr) {
+    return false;
+  }
 
   if (m_newFacePositions != other->m_oldFacePositions) {
     return false;

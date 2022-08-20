@@ -3447,12 +3447,11 @@ void MapDocument::printVertices() {
 
 class ThrowExceptionCommand : public UndoableCommand {
 public:
-  static const CommandType Type;
   using Ptr = std::shared_ptr<ThrowExceptionCommand>;
 
 public:
   ThrowExceptionCommand()
-    : UndoableCommand(Type, "Throw Exception", false) {}
+    : UndoableCommand("Throw Exception", false) {}
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override {
@@ -3462,11 +3461,7 @@ private:
   std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override {
     return std::make_unique<CommandResult>(true);
   }
-
-  bool doCollateWith(UndoableCommand*) override { return false; }
 };
-
-const ThrowExceptionCommand::CommandType ThrowExceptionCommand::Type = Command::freeType();
 
 bool MapDocument::throwExceptionDuringCommand() {
   const auto result = executeAndStore(std::make_unique<ThrowExceptionCommand>());
@@ -3512,9 +3507,9 @@ void MapDocument::clearRepeatableCommands() {
   m_repeatStack->clear();
 }
 
-void MapDocument::startTransaction(const std::string& name) {
+void MapDocument::startTransaction(std::string name) {
   debug("Starting transaction '" + name + "'");
-  doStartTransaction(name);
+  doStartTransaction(std::move(name));
   m_repeatStack->startTransaction();
 }
 
@@ -4293,12 +4288,12 @@ void MapDocument::preferenceDidChange(const IO::Path& path) {
   }
 }
 
-void MapDocument::commandDone(Command* command) {
-  debug() << "Command '" << command->name() << "' executed";
+void MapDocument::commandDone(Command& command) {
+  debug() << "Command '" << command.name() << "' executed";
 }
 
-void MapDocument::commandUndone(UndoableCommand* command) {
-  debug() << "Command '" << command->name() << "' undone";
+void MapDocument::commandUndone(UndoableCommand& command) {
+  debug() << "Command '" << command.name() << "' undone";
 }
 
 void MapDocument::transactionDone(const std::string& name) {
@@ -4309,22 +4304,22 @@ void MapDocument::transactionUndone(const std::string& name) {
   debug() << "Transaction '" << name << "' undone";
 }
 
-Transaction::Transaction(std::weak_ptr<MapDocument> document, const std::string& name)
+Transaction::Transaction(std::weak_ptr<MapDocument> document, std::string name)
   : m_document(kdl::mem_lock(document).get())
   , m_cancelled(false) {
-  begin(name);
+  begin(std::move(name));
 }
 
-Transaction::Transaction(std::shared_ptr<MapDocument> document, const std::string& name)
+Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name)
   : m_document(document.get())
   , m_cancelled(false) {
-  begin(name);
+  begin(std::move(name));
 }
 
-Transaction::Transaction(MapDocument* document, const std::string& name)
+Transaction::Transaction(MapDocument* document, std::string name)
   : m_document(document)
   , m_cancelled(false) {
-  begin(name);
+  begin(std::move(name));
 }
 
 Transaction::~Transaction() {
@@ -4341,8 +4336,8 @@ void Transaction::cancel() {
   m_cancelled = true;
 }
 
-void Transaction::begin(const std::string& name) {
-  m_document->startTransaction(name);
+void Transaction::begin(std::string name) {
+  m_document->startTransaction(std::move(name));
 }
 
 void Transaction::commit() {

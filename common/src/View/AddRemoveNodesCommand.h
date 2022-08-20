@@ -35,9 +35,6 @@ class Node;
 
 namespace View {
 class AddRemoveNodesCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   enum class Action {
     Add,
@@ -77,8 +74,6 @@ private:
 
   void doAction(MapDocumentCommandFacade* document);
   void undoAction(MapDocumentCommandFacade* document);
-
-  bool doCollateWith(UndoableCommand* command) override;
 
   deleteCopyAndMove(AddRemoveNodesCommand);
 };

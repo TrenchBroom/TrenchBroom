@@ -143,8 +143,8 @@ private:
 
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
   void toolChanged(Tool& tool);
-  void commandDone(Command* command);
-  void commandUndone(UndoableCommand* command);
+  void commandDone(Command& command);
+  void commandUndone(UndoableCommand& command);
   void selectionDidChange(const Selection& selection);
   void textureCollectionsDidChange();
   void entityDefinitionsDidChange();

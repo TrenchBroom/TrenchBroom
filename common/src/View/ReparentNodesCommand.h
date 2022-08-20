@@ -35,9 +35,6 @@ class Node;
 
 namespace View {
 class ReparentNodesCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
@@ -62,8 +59,6 @@ private:
 
   void doAction(MapDocumentCommandFacade* document);
   void undoAction(MapDocumentCommandFacade* document);
-
-  bool doCollateWith(UndoableCommand* command) override;
 
   deleteCopyAndMove(ReparentNodesCommand);
 };

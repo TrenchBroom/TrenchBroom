@@ -41,8 +41,6 @@ public:
 
 class Command {
 public:
-  using CommandType = size_t;
-
   enum class CommandState {
     Default,
     Doing,
@@ -51,24 +49,14 @@ public:
   };
 
 protected:
-  CommandType m_type;
   CommandState m_state;
   std::string m_name;
 
 public:
-  static CommandType freeType();
-
-  Command(CommandType type, const std::string& name);
+  Command(const std::string& name);
   virtual ~Command();
 
-  CommandType type() const;
-
-  bool isType(CommandType type) const;
-
-  template <typename... C> bool isType(CommandType type, C... types) const {
-    return isType(type) || isType(types...);
-  }
-
+public:
   CommandState state() const;
   const std::string& name() const;
 

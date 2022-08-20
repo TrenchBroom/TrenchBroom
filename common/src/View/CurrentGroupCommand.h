@@ -31,9 +31,6 @@ class GroupNode;
 
 namespace View {
 class CurrentGroupCommand : public UndoableCommand {
-public:
-  static const CommandType Type;
-
 private:
   Model::GroupNode* m_group;
 
@@ -46,8 +43,6 @@ public:
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
-
-  bool doCollateWith(UndoableCommand* command) override;
 
   deleteCopyAndMove(CurrentGroupCommand);
 };

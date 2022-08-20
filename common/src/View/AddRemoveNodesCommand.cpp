@@ -33,8 +33,6 @@
 
 namespace TrenchBroom {
 namespace View {
-const Command::CommandType AddRemoveNodesCommand::Type = Command::freeType();
-
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   Model::Node* parent, const std::vector<Model::Node*>& children,
   std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
@@ -70,7 +68,7 @@ AddRemoveNodesCommand::AddRemoveNodesCommand(
   const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
   std::vector<std::pair<const Model::GroupNode*, std::vector<Model::GroupNode*>>>
     linkedGroupsToUpdate)
-  : UndoableCommand(Type, makeName(action), true)
+  : UndoableCommand(makeName(action), true)
   , m_action(action)
   , m_updateLinkedGroupsHelper(std::move(linkedGroupsToUpdate)) {
   switch (m_action) {
@@ -125,7 +123,7 @@ void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade* document) {
   }
 
   using std::swap;
-  std::swap(m_nodesToAdd, m_nodesToRemove);
+  swap(m_nodesToAdd, m_nodesToRemove);
 }
 
 void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade* document) {
@@ -139,11 +137,7 @@ void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade* document) {
   }
 
   using std::swap;
-  std::swap(m_nodesToAdd, m_nodesToRemove);
-}
-
-bool AddRemoveNodesCommand::doCollateWith(UndoableCommand*) {
-  return false;
+  swap(m_nodesToAdd, m_nodesToRemove);
 }
 } // namespace View
 } // namespace TrenchBroom

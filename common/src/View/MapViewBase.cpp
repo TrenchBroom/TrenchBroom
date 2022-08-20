@@ -204,13 +204,13 @@ void MapViewBase::toolChanged(Tool&) {
   update();
 }
 
-void MapViewBase::commandDone(Command*) {
+void MapViewBase::commandDone(Command&) {
   updateActionStatesDelayed();
   updatePickResult();
   update();
 }
 
-void MapViewBase::commandUndone(UndoableCommand*) {
+void MapViewBase::commandUndone(UndoableCommand&) {
   updateActionStatesDelayed();
   updatePickResult();
   update();

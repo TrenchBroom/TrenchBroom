@@ -22,14 +22,12 @@
 
 namespace TrenchBroom {
 namespace View {
-const Command::CommandType SetCurrentLayerCommand::Type = Command::freeType();
-
 std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(Model::LayerNode* layer) {
   return std::make_unique<SetCurrentLayerCommand>(layer);
 }
 
 SetCurrentLayerCommand::SetCurrentLayerCommand(Model::LayerNode* layer)
-  : UndoableCommand(Type, "Set Current Layer", false)
+  : UndoableCommand("Set Current Layer", false)
   , m_currentLayer(layer)
   , m_oldCurrentLayer(nullptr) {}
 
@@ -45,10 +43,12 @@ std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-bool SetCurrentLayerCommand::doCollateWith(UndoableCommand* command) {
-  SetCurrentLayerCommand* other = static_cast<SetCurrentLayerCommand*>(command);
-  m_currentLayer = other->m_currentLayer;
-  return true;
+bool SetCurrentLayerCommand::doCollateWith(UndoableCommand& command) {
+  if (auto* other = dynamic_cast<SetCurrentLayerCommand*>(&command)) {
+    m_currentLayer = other->m_currentLayer;
+    return true;
+  }
+  return false;
 }
 } // namespace View
 } // namespace TrenchBroom

@@ -89,23 +89,23 @@ public:
 
 private:
   // these would be tidier as lambdas in the TestObserver() constructor
-  void commandDo(Command* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDo, command->name()));
+  void commandDo(Command& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDo, command.name()));
   }
-  void commandDone(Command* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDone, command->name()));
+  void commandDone(Command& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDone, command.name()));
   }
-  void commandDoFailed(Command* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDoFailed, command->name()));
+  void commandDoFailed(Command& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandDoFailed, command.name()));
   }
-  void commandUndo(UndoableCommand* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndo, command->name()));
+  void commandUndo(UndoableCommand& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndo, command.name()));
   }
-  void commandUndone(UndoableCommand* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndone, command->name()));
+  void commandUndone(UndoableCommand& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndone, command.name()));
   }
-  void commandUndoFailed(UndoableCommand* command) {
-    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndoFailed, command->name()));
+  void commandUndoFailed(UndoableCommand& command) {
+    m_notifications.push_back(std::make_tuple(CommandNotif::CommandUndoFailed, command.name()));
   }
   void transactionDone(const std::string& transactionName) {
     m_notifications.push_back(std::make_tuple(CommandNotif::TransactionDone, transactionName));
@@ -133,14 +133,12 @@ private:
   mutable std::vector<TestCommandCall> m_expectedCalls;
 
 public:
-  static const CommandType Type;
-
   static std::unique_ptr<TestCommand> create(const std::string& name) {
     return std::make_unique<TestCommand>(name);
   }
 
   explicit TestCommand(const std::string& name)
-    : UndoableCommand(Type, name, false) {}
+    : UndoableCommand(name, false) {}
 
   ~TestCommand() { CHECK(m_expectedCalls.empty()); }
 
@@ -162,10 +160,10 @@ private:
     return std::make_unique<CommandResult>(expectedCall.returnSuccess);
   }
 
-  bool doCollateWith(UndoableCommand* otherCommand) override {
+  bool doCollateWith(UndoableCommand& otherCommand) override {
     const auto expectedCall = popCall<DoCollateWith>();
 
-    REQUIRE(otherCommand == expectedCall.expectedOtherCommand);
+    REQUIRE(&otherCommand == expectedCall.expectedOtherCommand);
 
     return expectedCall.returnCanCollate;
   }
@@ -197,8 +195,6 @@ public:
 
   deleteCopyAndMove(TestCommand);
 };
-
-const Command::CommandType TestCommand::Type = Command::freeType();
 
 TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand", "[CommandProcessorTest]") {
   /*

@@ -122,9 +122,5 @@ bool DuplicateNodesCommand::shouldCloneParentWhenCloningNode(const Model::Node* 
       return false;
     }));
 }
-
-bool DuplicateNodesCommand::doCollateWith(UndoableCommand*) {
-  return false;
-}
 } // namespace View
 } // namespace TrenchBroom
