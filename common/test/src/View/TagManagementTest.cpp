@@ -178,7 +178,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchTextureNameTag") {
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableTextureNameTag") {
   auto* nonMatchingBrushNode = createBrushNode("asdf");
-  addNode(*document, document->parentForNodes(), nonMatchingBrushNode);
+  document->addNodes({{document->parentForNodes(), {nonMatchingBrushNode}}});
 
   const auto& tag = document->smartTag("texture");
   CHECK(tag.canEnable());
@@ -233,7 +233,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceParmTag") {
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceParmTag") {
   auto* nonMatchingBrushNode = createBrushNode("asdf");
-  addNode(*document, document->parentForNodes(), nonMatchingBrushNode);
+  document->addNodes({{document->parentForNodes(), {nonMatchingBrushNode}}});
 
   const auto& tag = document->smartTag("surfaceparm_single");
   CHECK(tag.canEnable());
@@ -282,7 +282,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchContentFlagsTag") {
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableContentFlagsTag") {
   auto* nonMatchingBrushNode = createBrushNode("asdf");
-  addNode(*document, document->parentForNodes(), nonMatchingBrushNode);
+  document->addNodes({{document->parentForNodes(), {nonMatchingBrushNode}}});
 
   const auto& tag = document->smartTag("contentflags");
   CHECK(tag.canEnable());
@@ -307,7 +307,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableContentFlagsTag") 
     }
   });
 
-  addNode(*document, document->parentForNodes(), matchingBrushNode);
+  document->addNodes({{document->parentForNodes(), {matchingBrushNode}}});
 
   const auto& tag = document->smartTag("contentflags");
   CHECK(tag.canDisable());
@@ -351,7 +351,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceFlagsTag") {
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceFlagsTag") {
   auto* nonMatchingBrushNode = createBrushNode("asdf");
-  addNode(*document, document->parentForNodes(), nonMatchingBrushNode);
+  document->addNodes({{document->parentForNodes(), {nonMatchingBrushNode}}});
 
   const auto& tag = document->smartTag("surfaceflags");
   CHECK(tag.canEnable());
@@ -376,7 +376,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceFlagsTag") 
     }
   });
 
-  addNode(*document, document->parentForNodes(), matchingBrushNode);
+  document->addNodes({{document->parentForNodes(), {matchingBrushNode}}});
 
   const auto& tag = document->smartTag("surfaceflags");
   CHECK(tag.canDisable());
@@ -411,7 +411,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchEntityClassnameTag")
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTag") {
   auto* brushNode = createBrushNode("asdf");
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const auto& tag = document->smartTag("entity");
   CHECK_FALSE(tag.matches(*brushNode));
@@ -431,8 +431,8 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTagR
   auto* oldEntity =
     new Model::EntityNode{{}, {{"classname", "something"}, {"some_attr", "some_value"}}};
 
-  addNode(*document, document->parentForNodes(), oldEntity);
-  addNode(*document, oldEntity, brushNode);
+  document->addNodes({{document->parentForNodes(), {oldEntity}}});
+  document->addNodes({{oldEntity, {brushNode}}});
 
   const auto& tag = document->smartTag("entity");
   document->selectNodes({brushNode});
@@ -454,8 +454,8 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag
 
   auto* oldEntity = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
 
-  addNode(*document, document->parentForNodes(), oldEntity);
-  addNode(*document, oldEntity, brushNode);
+  document->addNodes({{document->parentForNodes(), {oldEntity}}});
+  document->addNodes({{oldEntity, {brushNode}}});
 
   const auto& tag = document->smartTag("entity");
   CHECK(tag.matches(*brushNode));
@@ -471,10 +471,10 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushTags") {
   auto* entityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   auto* brush = createBrushNode("some_texture");
-  addNode(*document, entityNode, brush);
+  document->addNodes({{entityNode, {brush}}});
 
   const auto& tag = document->smartTag("entity");
   CHECK(brush->hasTag(tag));
@@ -482,12 +482,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushTags") 
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushTags") {
   auto* entityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   auto* brush = createBrushNode("some_texture");
-  addNode(*document, entityNode, brush);
+  document->addNodes({{entityNode, {brush}}});
 
-  removeNode(*document, brush);
+  document->removeNodes({brush});
 
   const auto& tag = document->smartTag("entity");
   CHECK_FALSE(brush->hasTag(tag));
@@ -495,41 +495,41 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushTags") {
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTags") {
   auto* brushNode = createBrushNode("some_texture");
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   auto* entityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   const auto& tag = document->smartTag("entity");
   CHECK_FALSE(brushNode->hasTag(tag));
 
-  reparentNodes(*document, entityNode, {brushNode});
+  document->reparentNodes({{entityNode, {brushNode}}});
   CHECK(brushNode->hasTag(tag));
 }
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterReparenting") {
   auto* lightEntityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
-  addNode(*document, document->parentForNodes(), lightEntityNode);
+  document->addNodes({{document->parentForNodes(), {lightEntityNode}}});
 
   auto* otherEntityNode = new Model::EntityNode{{}, {{"classname", "other"}}};
-  addNode(*document, document->parentForNodes(), otherEntityNode);
+  document->addNodes({{document->parentForNodes(), {otherEntityNode}}});
 
   auto* brushNode = createBrushNode("some_texture");
-  addNode(*document, otherEntityNode, brushNode);
+  document->addNodes({{otherEntityNode, {brushNode}}});
 
   const auto& tag = document->smartTag("entity");
   CHECK_FALSE(brushNode->hasTag(tag));
 
-  reparentNodes(*document, lightEntityNode, {brushNode});
+  document->reparentNodes({{lightEntityNode, {brushNode}}});
   CHECK(brushNode->hasTag(tag));
 }
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterChangingClassname") {
   auto* lightEntityNode = new Model::EntityNode{{}, {{"classname", "asdf"}}};
-  addNode(*document, document->parentForNodes(), lightEntityNode);
+  document->addNodes({{document->parentForNodes(), {lightEntityNode}}});
 
   auto* brushNode = createBrushNode("some_texture");
-  addNode(*document, lightEntityNode, brushNode);
+  document->addNodes({{lightEntityNode, {brushNode}}});
 
   const auto& tag = document->smartTag("entity");
   CHECK_FALSE(brushNode->hasTag(tag));
@@ -544,7 +544,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterCh
 TEST_CASE_METHOD(
   TagManagementTest, "TagManagementTest.tagInitializeBrushFaceTags", "[TagManagementTest]") {
   auto* brushNodeWithTags = createBrushNode("some_texture");
-  addNode(*document, document->parentForNodes(), brushNodeWithTags);
+  document->addNodes({{document->parentForNodes(), {brushNodeWithTags}}});
   document->selectNodes({brushNodeWithTags});
 
   SECTION("No modification to brush") {}
@@ -560,7 +560,7 @@ TEST_CASE_METHOD(
   }
 
   auto* brushNodeWithoutTags = createBrushNode("asdf");
-  addNode(*document, document->parentForNodes(), brushNodeWithoutTags);
+  document->addNodes({{document->parentForNodes(), {brushNodeWithoutTags}}});
 
   for (const auto& face : brushNodeWithoutTags->brush().faces()) {
     CHECK(!face.hasTag(tag));
@@ -569,8 +569,8 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushFaceTags") {
   auto* brushNodeWithTags = createBrushNode("some_texture");
-  addNode(*document, document->parentForNodes(), brushNodeWithTags);
-  removeNode(*document, brushNodeWithTags);
+  document->addNodes({{document->parentForNodes(), {brushNodeWithTags}}});
+  document->removeNodes({brushNodeWithTags});
 
   const auto& tag = document->smartTag("texture");
   for (const auto& face : brushNodeWithTags->brush().faces()) {
@@ -580,7 +580,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushFaceTags") 
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushFaceTags") {
   auto* brushNode = createBrushNode("asdf");
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const auto& tag = document->smartTag("contentflags");
 

@@ -52,7 +52,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
 
   Model::EntityNode* entityNode = new Model::EntityNode({}, {{"classname", "large_entity"}});
 
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
   REQUIRE(entityNode->entity().definition() == largeEntityDef);
 
   document->deselectAll();
@@ -375,7 +375,7 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
 
   auto* brushNode = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   document->selectAllNodes();
 

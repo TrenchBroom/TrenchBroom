@@ -198,9 +198,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching") {
   transformNode(
     *brushNode3, vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}), document->worldBounds());
 
-  addNode(*document, document->parentForNodes(), brushNode1);
-  addNode(*document, document->parentForNodes(), brushNode2);
-  addNode(*document, document->parentForNodes(), brushNode3);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
+  document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   REQUIRE(brushNode1->intersects(brushNode2));
   REQUIRE(brushNode2->intersects(brushNode1));
@@ -227,11 +227,11 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476") {
   const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
   auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 =
     new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   document->selectAllNodes();
 
@@ -260,23 +260,23 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup") {
   assert(document->selectedNodes().nodeCount() == 0);
 
   Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
-  addNode(*document, document->world(), layer);
+  document->addNodes({{document->world(), {layer}}});
 
   Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
-  addNode(*document, layer, group);
+  document->addNodes({{layer, {group}}});
 
   Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
   const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0), vm::vec3(+32.0, +32.0, +32.0));
 
   Model::BrushNode* brush =
     new Model::BrushNode(builder.createCuboid(brushBounds, "texture").value());
-  addNode(*document, group, brush);
+  document->addNodes({{group, {brush}}});
 
   const vm::bbox3 selectionBounds(vm::vec3(-16.0, -16.0, -48.0), vm::vec3(+16.0, +16.0, +48.0));
 
   Model::BrushNode* selectionBrush =
     new Model::BrushNode(builder.createCuboid(selectionBounds, "texture").value());
-  addNode(*document, layer, selectionBrush);
+  document->addNodes({{layer, {selectionBrush}}});
 
   document->selectNodes({selectionBrush});
   document->selectTouching(true);
@@ -290,23 +290,23 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup") {
   assert(document->selectedNodes().nodeCount() == 0);
 
   Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
-  addNode(*document, document->world(), layer);
+  document->addNodes({{document->world(), {layer}}});
 
   Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
-  addNode(*document, layer, group);
+  document->addNodes({{layer, {group}}});
 
   Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
   const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0), vm::vec3(+32.0, +32.0, +32.0));
 
   Model::BrushNode* brush =
     new Model::BrushNode(builder.createCuboid(brushBounds, "texture").value());
-  addNode(*document, group, brush);
+  document->addNodes({{group, {brush}}});
 
   const vm::bbox3 selectionBounds(vm::vec3(-48.0, -48.0, -48.0), vm::vec3(+48.0, +48.0, +48.0));
 
   Model::BrushNode* selectionBrush =
     new Model::BrushNode(builder.createCuboid(selectionBounds, "texture").value());
-  addNode(*document, layer, selectionBrush);
+  document->addNodes({{layer, {selectionBrush}}});
 
   document->selectNodes({selectionBrush});
   document->selectInside(true);
@@ -327,9 +327,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall") {
   transformNode(
     *brushNode3, vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}), document->worldBounds());
 
-  addNode(*document, document->parentForNodes(), brushNode1);
-  addNode(*document, document->parentForNodes(), brushNode2);
-  addNode(*document, document->parentForNodes(), brushNode3);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
+  document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   REQUIRE(!brushNode1->intersects(brushNode2));
   REQUIRE(!brushNode1->intersects(brushNode3));
@@ -361,18 +361,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse") {
   const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
   auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 =
     new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   auto* brushNode3 =
     new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode3);
+  document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   auto* patchNode = createPatchNode();
-  addNode(*document, document->parentForNodes(), patchNode);
+  document->addNodes({{document->parentForNodes(), {patchNode}}});
 
   document->selectNodes({brushNode1, brushNode2});
   Model::EntityNode* brushEnt = document->createBrushEntity(m_brushEntityDef);
@@ -416,10 +416,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingInsideNestedGroup
   auto* outerGroup = new Model::GroupNode{Model::Group{"outerGroup"}};
   auto* innerGroup = new Model::GroupNode{Model::Group{"innerGroup"}};
 
-  addNode(*document, document->parentForNodes(), outerGroup);
-  addNode(*document, outerGroup, innerGroup);
-  addNode(*document, innerGroup, brushNode1);
-  addNode(*document, innerGroup, brushNode2);
+  document->addNodes({{document->parentForNodes(), {outerGroup}}});
+  document->addNodes({{outerGroup, {innerGroup}}});
+  document->addNodes({{innerGroup, {brushNode1}}});
+  document->addNodes({{innerGroup, {brushNode2}}});
 
   // worldspawn {
   //   outerGroup {
@@ -446,18 +446,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings") {
   const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
   auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 =
     new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   auto* brushNode3 =
     new Model::BrushNode(builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode3);
+  document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   auto* patchNode = createPatchNode();
-  addNode(*document, document->parentForNodes(), patchNode);
+  document->addNodes({{document->parentForNodes(), {patchNode}}});
 
   document->selectNodes({brushNode1, brushNode2});
   document->createBrushEntity(m_brushEntityDef);
@@ -507,7 +507,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings") {
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds") {
   auto* entityNode = new Model::EntityNode({}, {{"classname", "point_entity"}});
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
   REQUIRE(!entityNode->logicalBounds().is_empty());
 
   document->selectAllNodes();
@@ -520,7 +520,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds") {
   CHECK(document->lastSelectionBounds() == bounds);
 
   auto* brushNode = createBrushNode();
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   document->selectNodes({brushNode});
   CHECK(document->lastSelectionBounds() == bounds);
@@ -535,7 +535,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionCommandTest.faceSelectionUndoAfterTr
   Model::BrushNode* brushNode = createBrushNode();
   CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
 
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
   REQUIRE(topFaceIndex);

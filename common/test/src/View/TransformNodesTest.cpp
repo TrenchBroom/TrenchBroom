@@ -101,8 +101,8 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip") {
   checkBrushIntegral(brushNode1);
   checkBrushIntegral(brushNode2);
 
-  addNode(*document, document->parentForNodes(), brushNode1);
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   std::vector<Model::Node*> brushes;
   brushes.push_back(brushNode1);
@@ -192,8 +192,8 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate") {
   checkBrushIntegral(brushNode1);
   checkBrushIntegral(brushNode2);
 
-  addNode(*document, document->parentForNodes(), brushNode1);
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   std::vector<Model::Node*> brushes;
   brushes.push_back(brushNode1);
@@ -256,7 +256,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube") {
   Model::BrushNode* brushNode =
     new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({std::vector<Model::Node*>{brushNode}});
 
   CHECK_THAT(
@@ -298,7 +298,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar") {
   Model::BrushNode* brushNode =
     new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({std::vector<Model::Node*>{brushNode}});
 
   CHECK_THAT(
@@ -343,7 +343,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects") {
     new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
   const Model::Brush& brush = brushNode->brush();
 
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({std::vector<Model::Node*>{brushNode}});
 
   CHECK(brushNode->logicalBounds().size() == vm::vec3(200, 200, 200));
@@ -374,7 +374,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup") {
   Model::BrushNode* brushNode =
     new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({std::vector<Model::Node*>{brushNode}});
   [[maybe_unused]] Model::GroupNode* group = document->groupSelection("my group");
 
@@ -394,7 +394,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsWithCenter") {
   Model::BrushNode* brushNode =
     new Model::BrushNode(builder.createCuboid(initialBBox, "texture").value());
 
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({std::vector<Model::Node*>{brushNode}});
 
   const vm::vec3 boundsCenter = initialBBox.center();
@@ -412,7 +412,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup") {
   const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
   auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
   auto* group = document->groupSelection("testGroup");

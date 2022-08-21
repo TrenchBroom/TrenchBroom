@@ -61,7 +61,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createGroupWithOneNode", "[Gro
     }});
 
   auto* node = createNode(*this);
-  addNode(*document, document->parentForNodes(), node);
+  document->addNodes({{document->parentForNodes(), {node}}});
   document->selectNodes({node});
 
   Model::GroupNode* group = document->groupSelection("test");
@@ -80,14 +80,14 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createGroupWithOneNode", "[Gro
 TEST_CASE_METHOD(
   MapDocumentTest, "GroupNodesTest.createGroupWithPartialBrushEntity", "[GroupNodesTest]") {
   Model::BrushNode* child1 = createBrushNode();
-  addNode(*document, document->parentForNodes(), child1);
+  document->addNodes({{document->parentForNodes(), {child1}}});
 
   Model::PatchNode* child2 = createPatchNode();
-  addNode(*document, document->parentForNodes(), child2);
+  document->addNodes({{document->parentForNodes(), {child2}}});
 
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
-  reparentNodes(*document, entity, {child1, child2});
+  document->addNodes({{document->parentForNodes(), {entity}}});
+  document->reparentNodes({{entity, {child1, child2}}});
 
   document->selectNodes({child1});
 
@@ -112,14 +112,14 @@ TEST_CASE_METHOD(
 TEST_CASE_METHOD(
   MapDocumentTest, "GroupNodesTest.createGroupWithFullBrushEntity", "[GroupNodesTest]") {
   Model::BrushNode* child1 = createBrushNode();
-  addNode(*document, document->parentForNodes(), child1);
+  document->addNodes({{document->parentForNodes(), {child1}}});
 
   Model::PatchNode* child2 = createPatchNode();
-  addNode(*document, document->parentForNodes(), child2);
+  document->addNodes({{document->parentForNodes(), {child2}}});
 
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
-  reparentNodes(*document, entity, {child1, child2});
+  document->addNodes({{document->parentForNodes(), {entity}}});
+  document->reparentNodes({{entity, {child1, child2}}});
 
   document->selectNodes({child1, child2});
 
@@ -157,11 +157,11 @@ TEST_CASE_METHOD(
   // Test for issue #1715
 
   Model::BrushNode* brush1 = createBrushNode();
-  addNode(*document, document->parentForNodes(), brush1);
+  document->addNodes({{document->parentForNodes(), {brush1}}});
 
   Model::EntityNode* entityNode = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entityNode);
-  reparentNodes(*document, entityNode, {brush1});
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
+  document->reparentNodes({{entityNode, {brush1}}});
 
   document->selectNodes({brush1});
 
@@ -182,11 +182,11 @@ TEST_CASE_METHOD(
   // Test for issue #1754
 
   Model::BrushNode* brush1 = createBrushNode();
-  addNode(*document, document->parentForNodes(), brush1);
+  document->addNodes({{document->parentForNodes(), {brush1}}});
 
   Model::EntityNode* entityNode = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entityNode);
-  reparentNodes(*document, entityNode, {brush1});
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
+  document->reparentNodes({{entityNode, {brush1}}});
 
   document->selectNodes({brush1});
 
@@ -204,7 +204,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {
   Model::BrushNode* brush1 = createBrushNode();
-  addNode(*document, document->parentForNodes(), brush1);
+  document->addNodes({{document->parentForNodes(), {brush1}}});
   document->selectNodes({brush1});
 
   Model::GroupNode* group = document->groupSelection("test");
@@ -221,7 +221,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup", "[GroupNodesTest
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateNodeInGroup", "[GroupNodesTest]") {
   Model::BrushNode* brush = createBrushNode();
-  addNode(*document, document->parentForNodes(), brush);
+  document->addNodes({{document->parentForNodes(), {brush}}});
   document->selectNodes({brush});
 
   Model::GroupNode* group = document->groupSelection("test");
@@ -243,15 +243,15 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupInnerGroup") {
   Model::EntityNode* innerEnt1 = new Model::EntityNode{Model::Entity{}};
   Model::EntityNode* innerEnt2 = new Model::EntityNode{Model::Entity{}};
 
-  addNode(*document, document->parentForNodes(), innerEnt1);
-  addNode(*document, document->parentForNodes(), innerEnt2);
+  document->addNodes({{document->parentForNodes(), {innerEnt1}}});
+  document->addNodes({{document->parentForNodes(), {innerEnt2}}});
   document->selectNodes({innerEnt1, innerEnt2});
 
   Model::GroupNode* inner = document->groupSelection("Inner");
 
   document->deselectAll();
-  addNode(*document, document->parentForNodes(), outerEnt1);
-  addNode(*document, document->parentForNodes(), outerEnt2);
+  document->addNodes({{document->parentForNodes(), {outerEnt1}}});
+  document->addNodes({{document->parentForNodes(), {outerEnt2}}});
   document->selectNodes({inner, outerEnt1, outerEnt2});
 
   Model::GroupNode* outer = document->groupSelection("Outer");
@@ -293,7 +293,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupInnerGroup") {
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesPointEntitySelected") {
   Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
 
-  addNode(*document, document->parentForNodes(), ent1);
+  document->addNodes({{document->parentForNodes(), {ent1}}});
   document->selectNodes({ent1});
 
   Model::GroupNode* group = document->groupSelection("Group");
@@ -307,11 +307,11 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
   Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), ent1);
+  document->addNodes({{document->parentForNodes(), {ent1}}});
 
   Model::BrushNode* brushNode1 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-  addNode(*document, ent1, brushNode1);
+  document->addNodes({{ent1, {brushNode1}}});
   document->selectNodes({ent1});
   CHECK_THAT(
     document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{brushNode1}));
@@ -338,8 +338,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity") {
   auto* ent1 = new Model::EntityNode{Model::Entity{}};
   auto* ent2 = new Model::EntityNode{Model::Entity{}};
 
-  addNode(*document, document->parentForNodes(), ent1);
-  addNode(*document, document->parentForNodes(), ent2);
+  document->addNodes({{document->parentForNodes(), {ent1}}});
+  document->addNodes({{document->parentForNodes(), {ent2}}});
   document->selectNodes({ent1});
 
   auto* group = document->groupSelection("Group");
@@ -359,13 +359,13 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups") {
   document->deleteObjects();
 
   Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), ent1);
+  document->addNodes({{document->parentForNodes(), {ent1}}});
   document->deselectAll();
   document->selectNodes({ent1});
   Model::GroupNode* group1 = document->groupSelection("group1");
 
   Model::EntityNode* ent2 = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), ent2);
+  document->addNodes({{document->parentForNodes(), {ent2}}});
   document->deselectAll();
   document->selectNodes({ent2});
   Model::GroupNode* group2 = document->groupSelection("group2");
@@ -627,7 +627,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodes
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.newWithGroupOpen") {
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
+  document->addNodes({{document->parentForNodes(), {entity}}});
   document->selectNodes({entity});
   Model::GroupNode* group = document->groupSelection("my group");
   document->openGroup(group);

@@ -39,14 +39,14 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeBrushes") {
   const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
   auto* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
+  document->addNodes({{document->parentForNodes(), {entity}}});
 
   auto* brushNode1 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture").value());
   auto* brushNode2 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-  addNode(*document, entity, brushNode1);
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{entity, {brushNode1}}});
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
   CHECK(entity->children().size() == 1u);
 
   document->selectNodes({brushNode1, brushNode2});
@@ -61,14 +61,14 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeFaces") {
   const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
   auto* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
+  document->addNodes({{document->parentForNodes(), {entity}}});
 
   auto* brushNode1 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture").value());
   auto* brushNode2 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-  addNode(*document, entity, brushNode1);
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{entity, {brushNode1}}});
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
   CHECK(entity->children().size() == 1u);
 
   const auto faceIndex = 0u;
@@ -101,7 +101,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
+  document->addNodes({{document->parentForNodes(), {entity}}});
 
   Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
@@ -119,8 +119,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   Model::BrushNode* brushNode1 = new Model::BrushNode(std::move(brush1));
   Model::BrushNode* brushNode2 = new Model::BrushNode(std::move(brush2));
 
-  addNode(*document, entity, brushNode1);
-  addNode(*document, entity, brushNode2);
+  document->addNodes({{entity, {brushNode1}}});
+  document->addNodes({{entity, {brushNode2}}});
   CHECK(entity->children().size() == 2u);
 
   document->selectNodes({brushNode1, brushNode2});
@@ -139,7 +139,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
+  document->addNodes({{document->parentForNodes(), {entity}}});
 
   Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
@@ -154,8 +154,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   Model::BrushNode* brushNode1 = new Model::BrushNode(std::move(brush1));
   Model::BrushNode* brushNode2 = new Model::BrushNode(std::move(brush2));
 
-  addNode(*document, entity, brushNode1);
-  addNode(*document, entity, brushNode2);
+  document->addNodes({{entity, {brushNode1}}});
+  document->addNodes({{entity, {brushNode2}}});
   CHECK(entity->children().size() == 2u);
 
   // we want to compute brush1 - brush2
@@ -179,7 +179,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes") {
   const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
   auto* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
+  document->addNodes({{document->parentForNodes(), {entity}}});
 
   Model::BrushNode* minuend = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
@@ -216,11 +216,11 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
   const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
 
   auto* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
+  document->addNodes({{document->parentForNodes(), {entity}}});
 
   Model::BrushNode* subtrahend1 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-  addNode(*document, entity, subtrahend1);
+  document->addNodes({{entity, {subtrahend1}}});
 
   document->selectNodes({subtrahend1});
   CHECK(document->csgSubtract());

@@ -58,7 +58,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInter
   Autosaver autosaver(document, 10s);
 
   // modify the map
-  addNode(*document, document->currentLayer(), createBrushNode("some_texture"));
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
 
   autosaver.triggerAutosave(logger);
 
@@ -94,7 +94,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterv
   Autosaver autosaver(document, 100ms);
 
   // modify the map
-  addNode(*document, document->currentLayer(), createBrushNode("some_texture"));
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
 
   // Wait for 2 seconds.
   using namespace std::chrono_literals;
@@ -118,7 +118,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
   Autosaver autosaver(document, 100ms);
 
   // modify the map
-  addNode(*document, document->currentLayer(), createBrushNode("some_texture"));
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
 
   // Wait for 2 seconds.
   using namespace std::chrono_literals;
@@ -137,7 +137,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
   CHECK_FALSE(env.fileExists(IO::Path("autosave/test.2.map")));
 
   // modify the map
-  addNode(*document, document->currentLayer(), createBrushNode("some_texture"));
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
 
   autosaver.triggerAutosave(logger);
   CHECK(env.fileExists(IO::Path("autosave/test.2.map")));
@@ -161,7 +161,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesP
   Autosaver autosaver(document, 0s);
 
   // modify the map
-  addNode(*document, document->currentLayer(), createBrushNode("some_texture"));
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
 
   autosaver.triggerAutosave(logger);
 

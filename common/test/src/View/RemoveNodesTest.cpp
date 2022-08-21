@@ -73,9 +73,9 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes") {
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer") {
   Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
-  addNode(*document, document->world(), layer);
+  document->addNodes({{document->world(), {layer}}});
 
-  removeNode(*document, layer);
+  document->removeNodes({layer});
   CHECK(layer->parent() == nullptr);
 
   document->undoCommand();
@@ -84,15 +84,15 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer") {
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity") {
   Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
-  addNode(*document, document->world(), layer);
+  document->addNodes({{document->world(), {layer}}});
 
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, layer, entity);
+  document->addNodes({{layer, {entity}}});
 
   Model::BrushNode* brush = createBrushNode();
-  addNode(*document, entity, brush);
+  document->addNodes({{entity, {brush}}});
 
-  removeNode(*document, brush);
+  document->removeNodes({brush});
   CHECK(brush->parent() == nullptr);
   CHECK(entity->parent() == nullptr);
 
@@ -103,14 +103,14 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity") {
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup") {
   Model::GroupNode* group = new Model::GroupNode(Model::Group("group"));
-  addNode(*document, document->parentForNodes(), group);
+  document->addNodes({{document->parentForNodes(), {group}}});
 
   document->openGroup(group);
 
   Model::BrushNode* brush = createBrushNode();
-  addNode(*document, document->parentForNodes(), brush);
+  document->addNodes({{document->parentForNodes(), {brush}}});
 
-  removeNode(*document, brush);
+  document->removeNodes({brush});
   CHECK(document->currentGroup() == nullptr);
   CHECK(brush->parent() == nullptr);
   CHECK(group->parent() == nullptr);
@@ -123,19 +123,19 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup") {
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups") {
   Model::GroupNode* outer = new Model::GroupNode(Model::Group("outer"));
-  addNode(*document, document->parentForNodes(), outer);
+  document->addNodes({{document->parentForNodes(), {outer}}});
 
   document->openGroup(outer);
 
   Model::GroupNode* inner = new Model::GroupNode(Model::Group("inner"));
-  addNode(*document, document->parentForNodes(), inner);
+  document->addNodes({{document->parentForNodes(), {inner}}});
 
   document->openGroup(inner);
 
   Model::BrushNode* brush = createBrushNode();
-  addNode(*document, document->parentForNodes(), brush);
+  document->addNodes({{document->parentForNodes(), {brush}}});
 
-  removeNode(*document, brush);
+  document->removeNodes({brush});
   CHECK(document->currentGroup() == nullptr);
   CHECK(brush->parent() == nullptr);
   CHECK(inner->parent() == nullptr);

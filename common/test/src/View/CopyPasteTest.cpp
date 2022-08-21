@@ -233,7 +233,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup") {
   const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
   auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
   const auto groupName = std::string("testGroup");
@@ -261,7 +261,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]
                          "}");
 
   Model::BrushNode* brush = createBrushNode();
-  addNode(*document, document->parentForNodes(), brush);
+  document->addNodes({{document->parentForNodes(), {brush}}});
   document->selectNodes({brush});
 
   Model::GroupNode* group = document->groupSelection("test");

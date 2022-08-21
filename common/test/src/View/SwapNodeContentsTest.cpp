@@ -56,7 +56,7 @@ namespace TrenchBroom {
 namespace View {
 TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes") {
   auto* brushNode = createBrushNode();
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const auto originalBrush = brushNode->brush();
   auto modifiedBrush = originalBrush;
@@ -76,7 +76,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes") {
 
 TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches") {
   auto* patchNode = createPatchNode();
-  addNode(*document, document->parentForNodes(), patchNode);
+  document->addNodes({{document->parentForNodes(), {patchNode}}});
 
   const auto originalPatch = patchNode->patch();
   auto modifiedPatch = originalPatch;
@@ -100,7 +100,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount") {
   REQUIRE(texture != nullptr);
 
   auto* brushNode = createBrushNode(TextureName);
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const auto& originalBrush = brushNode->brush();
   auto modifiedBrush = originalBrush;
@@ -125,7 +125,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCou
 
   auto* entityNode = new Model::EntityNode{{}, {{Model::EntityPropertyKeys::Classname, Classname}}};
 
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   const auto& originalEntity = entityNode->entity();
   auto modifiedEntity = originalEntity;
