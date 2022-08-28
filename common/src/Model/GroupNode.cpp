@@ -297,22 +297,19 @@ kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroup
     const auto transformation =
       targetGroupNode->group().transformation() * _invertedSourceTransformation;
     return cloneAndTransformChildren(sourceGroupNode, worldBounds, transformation)
-      .and_then(
-        [&](std::vector<std::unique_ptr<Node>>&& newChildren)
-          -> kdl::result<
-            std::pair<Node*, std::vector<std::unique_ptr<Node>>>, UpdateLinkedGroupsError> {
-          preserveGroupNames(newChildren, targetGroupNode->children());
-          preserveEntityProperties(newChildren, targetGroupNode->children());
+      .and_then([&](std::vector<std::unique_ptr<Node>>&& newChildren) {
+        preserveGroupNames(newChildren, targetGroupNode->children());
+        preserveEntityProperties(newChildren, targetGroupNode->children());
 
-          return std::make_pair(targetGroupNode, std::move(newChildren));
-        });
+        return std::make_pair(static_cast<Node*>(targetGroupNode), std::move(newChildren));
+      });
   });
 }
 
 GroupNode::GroupNode(Group group)
-  : m_group(std::move(group))
-  , m_editState(EditState::Closed)
-  , m_boundsValid(false) {}
+  : m_group{std::move(group)}
+  , m_editState{EditState::Closed}
+  , m_boundsValid{false} {}
 
 const Group& GroupNode::group() const {
   return m_group;
@@ -418,9 +415,9 @@ FloatType GroupNode::doGetProjectedArea(const vm::axis::type) const {
 }
 
 Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const {
-  GroupNode* group = new GroupNode(m_group);
-  cloneAttributes(group);
-  return group;
+  auto groupNode = std::make_unique<GroupNode>(m_group);
+  cloneAttributes(groupNode.get());
+  return groupNode.release();
 }
 
 bool GroupNode::doCanAddChild(const Node* child) const {
@@ -526,8 +523,8 @@ void GroupNode::invalidateBounds() {
 }
 
 void GroupNode::validateBounds() const {
-  m_logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
-  m_physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
+  m_logicalBounds = computeLogicalBounds(children(), vm::bbox3{0.0});
+  m_physicalBounds = computePhysicalBounds(children(), vm::bbox3{0.0});
   m_boundsValid = true;
 }
 
