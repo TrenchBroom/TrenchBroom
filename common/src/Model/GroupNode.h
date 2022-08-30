@@ -97,6 +97,8 @@ private:
    */
   std::optional<IdType> m_persistentId;
 
+  bool m_hasPendingChanges;
+
 public:
   explicit GroupNode(Group group);
 
@@ -112,6 +114,9 @@ public:
   const std::optional<IdType>& persistentId() const;
   void setPersistentId(IdType persistentId);
   void resetPersistentId();
+
+  bool hasPendingChanges() const;
+  void setHasPendingChanges(bool hasPendingChanges);
 
 private:
   void setEditState(EditState editState);

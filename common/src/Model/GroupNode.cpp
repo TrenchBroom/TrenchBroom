@@ -309,7 +309,8 @@ kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroup
 GroupNode::GroupNode(Group group)
   : m_group{std::move(group)}
   , m_editState{EditState::Closed}
-  , m_boundsValid{false} {}
+  , m_boundsValid{false}
+  , m_hasPendingChanges{false} {}
 
 const Group& GroupNode::group() const {
   return m_group;
@@ -355,6 +356,14 @@ void GroupNode::setPersistentId(const IdType persistentId) {
 
 void GroupNode::resetPersistentId() {
   m_persistentId = std::nullopt;
+}
+
+bool GroupNode::hasPendingChanges() const {
+  return m_hasPendingChanges;
+}
+
+void GroupNode::setHasPendingChanges(const bool hasPendingChanges) {
+  m_hasPendingChanges = hasPendingChanges;
 }
 
 void GroupNode::setEditState(const EditState editState) {
