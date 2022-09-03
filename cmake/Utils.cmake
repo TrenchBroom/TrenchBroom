@@ -107,7 +107,12 @@ macro(set_compiler_config TARGET)
 
         # Disable a warning in clang when using PCH:
         target_compile_options(${TARGET} PRIVATE -Wno-pragma-system-header-outside-header)
-    elseif(COMPILER_IS_GNU)
+
+        if(${CMAKE_VERSION} VERSION_EQUAL "3.24.1") 
+            # Disable missing prototype for automoc files, see https://gitlab.kitware.com/cmake/cmake/-/merge_requests/7558
+            set_source_files_properties("${TARGET}_autogen/mocs_compilation.cpp" PROPERTIES COMPILE_FLAGS "-Wno-missing-prototypes")
+        endif()
+  elseif(COMPILER_IS_GNU)
         target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wconversion -Wshadow=local -Wnon-virtual-dtor -Wmissing-declarations -pedantic)
         target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:-O3>")
 
@@ -118,7 +123,12 @@ macro(set_compiler_config TARGET)
         if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8)
             target_compile_options(${TARGET} PRIVATE -Wno-unused-variable)
         endif()
-    elseif(COMPILER_IS_MSVC)
+
+        if(${CMAKE_VERSION} VERSION_EQUAL "3.24.1") 
+            # Disable missing prototype for automoc files, see https://gitlab.kitware.com/cmake/cmake/-/merge_requests/7558
+            set_source_files_properties("${TARGET}_autogen/mocs_compilation.cpp" PROPERTIES COMPILE_FLAGS "-Wno-missing-declarations")
+        endif()
+  elseif(COMPILER_IS_MSVC)
         target_compile_definitions(${TARGET} PRIVATE _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE)
         target_compile_options(${TARGET} PRIVATE /W4 /EHsc /MP)
 
