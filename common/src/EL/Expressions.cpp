@@ -625,70 +625,72 @@ static Value evaluateModulus(const Value& lhs, const Value& rhs) {
     " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'"};
 }
 
-static Value evaluateLogicalAnd(const Value& lhs, const Value& rhs) {
-  switch (lhs.type()) {
-    case ValueType::Boolean:
-    case ValueType::Null:
-      switch (rhs.type()) {
-        case ValueType::Boolean:
-        case ValueType::Null:
-          return Value{
-            lhs.convertTo(ValueType::Boolean).booleanValue() &&
-            rhs.convertTo(ValueType::Boolean).booleanValue()};
-        case ValueType::Number:
-        case ValueType::String:
-        case ValueType::Array:
-        case ValueType::Map:
-        case ValueType::Range:
-        case ValueType::Undefined:
-          break;
-      }
-      break;
-    case ValueType::Number:
-    case ValueType::String:
-    case ValueType::Array:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Undefined:
-      break;
+template <typename EvaluateLhs, typename EvaluateRhs>
+static Value evaluateLogicalAnd(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs) {
+  const auto lhs = evaluateLhs();
+  auto rhs = std::make_optional<Value>();
+
+  if (lhs.type() == ValueType::Undefined) {
+    return Value::Undefined;
+  }
+
+  if (lhs.type() == ValueType::Boolean || lhs.type() == ValueType::Null) {
+    const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
+    if (!lhsValue) {
+      return Value{false};
+    }
+
+    rhs = evaluateRhs();
+    if (rhs->type() == ValueType::Boolean || rhs->type() == ValueType::Null) {
+      return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
+    }
+  }
+
+  if (!rhs) {
+    rhs = evaluateRhs();
+  }
+
+  if (rhs->type() == ValueType::Undefined) {
+    return Value::Undefined;
   }
 
   throw EvaluationError{
     "Cannot apply operator && to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) +
-    " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'"};
+    " and '" + rhs->describe() + "' of type '" + typeName(rhs->type()) + "'"};
 }
 
-static Value evaluateLogicalOr(const Value& lhs, const Value& rhs) {
-  switch (lhs.type()) {
-    case ValueType::Boolean:
-    case ValueType::Null:
-      switch (rhs.type()) {
-        case ValueType::Boolean:
-        case ValueType::Null:
-          return Value{
-            lhs.convertTo(ValueType::Boolean).booleanValue() ||
-            rhs.convertTo(ValueType::Boolean).booleanValue()};
-        case ValueType::Number:
-        case ValueType::String:
-        case ValueType::Array:
-        case ValueType::Map:
-        case ValueType::Range:
-        case ValueType::Undefined:
-          break;
-      }
-      break;
-    case ValueType::Number:
-    case ValueType::String:
-    case ValueType::Array:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Undefined:
-      break;
+template <typename EvaluateLhs, typename EvaluateRhs>
+static Value evaluateLogicalOr(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs) {
+  const auto lhs = evaluateLhs();
+  auto rhs = std::make_optional<Value>();
+
+  if (lhs.type() == ValueType::Undefined) {
+    return Value::Undefined;
+  }
+
+  if (lhs.type() == ValueType::Boolean || lhs.type() == ValueType::Null) {
+    const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
+    if (lhsValue) {
+      return Value{true};
+    }
+
+    rhs = evaluateRhs();
+    if (rhs->type() == ValueType::Boolean || rhs->type() == ValueType::Null) {
+      return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
+    }
+  }
+
+  if (!rhs) {
+    rhs = evaluateRhs();
+  }
+
+  if (rhs->type() == ValueType::Undefined) {
+    return Value::Undefined;
   }
 
   throw EvaluationError{
     "Cannot apply operator || to '" + lhs.describe() + "' of type '" + typeName(lhs.type()) +
-    " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'"};
+    " and '" + rhs->describe() + "' of type '" + typeName(rhs->type()) + "'"};
 }
 
 static Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs) {
@@ -942,85 +944,101 @@ static Value evaluateRange(const Value& lhs, const Value& rhs) {
   return Value{range};
 }
 
-static Value evaluateCase(const Value& lhs, const Value& rhs) {
-  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined) {
-    return Value::Undefined;
-  }
+template <typename EvaluateLhs, typename EvaluateRhs>
+static Value evaluateCase(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs) {
+  const auto lhs = evaluateLhs();
 
-  if (lhs.convertTo(ValueType::Boolean).booleanValue()) {
-    return rhs;
+  if (lhs.type() != ValueType::Undefined && lhs.convertTo(ValueType::Boolean).booleanValue()) {
+    return evaluateRhs();
   }
 
   return Value::Undefined;
 }
 
+template <typename EvalualateLhs, typename EvaluateRhs>
 static Value evaluateBinaryExpression(
-  const BinaryOperator operator_, const Value& leftOperand, const Value& rightOperand) {
+  const BinaryOperator operator_, const EvalualateLhs& evaluateLhs,
+  const EvaluateRhs& evaluateRhs) {
   switch (operator_) {
     case BinaryOperator::Addition:
-      return evaluateAddition(leftOperand, rightOperand);
+      return evaluateAddition(evaluateLhs(), evaluateRhs());
     case BinaryOperator::Subtraction:
-      return evaluateSubtraction(leftOperand, rightOperand);
+      return evaluateSubtraction(evaluateLhs(), evaluateRhs());
     case BinaryOperator::Multiplication:
-      return evaluateMultiplication(leftOperand, rightOperand);
+      return evaluateMultiplication(evaluateLhs(), evaluateRhs());
     case BinaryOperator::Division:
-      return evaluateDivision(leftOperand, rightOperand);
+      return evaluateDivision(evaluateLhs(), evaluateRhs());
     case BinaryOperator::Modulus:
-      return evaluateModulus(leftOperand, rightOperand);
+      return evaluateModulus(evaluateLhs(), evaluateRhs());
     case BinaryOperator::LogicalAnd:
-      return evaluateLogicalAnd(leftOperand, rightOperand);
+      return evaluateLogicalAnd(evaluateLhs, evaluateRhs);
     case BinaryOperator::LogicalOr:
-      return evaluateLogicalOr(leftOperand, rightOperand);
+      return evaluateLogicalOr(evaluateLhs, evaluateRhs);
     case BinaryOperator::BitwiseAnd:
-      return evaluateBitwiseAnd(leftOperand, rightOperand);
+      return evaluateBitwiseAnd(evaluateLhs(), evaluateRhs());
     case BinaryOperator::BitwiseXOr:
-      return evaluateBitwiseXOr(leftOperand, rightOperand);
+      return evaluateBitwiseXOr(evaluateLhs(), evaluateRhs());
     case BinaryOperator::BitwiseOr:
-      return evaluateBitwiseOr(leftOperand, rightOperand);
+      return evaluateBitwiseOr(evaluateLhs(), evaluateRhs());
     case BinaryOperator::BitwiseShiftLeft:
-      return evaluateBitwiseShiftLeft(leftOperand, rightOperand);
+      return evaluateBitwiseShiftLeft(evaluateLhs(), evaluateRhs());
     case BinaryOperator::BitwiseShiftRight:
-      return evaluateBitwiseShiftRight(leftOperand, rightOperand);
+      return evaluateBitwiseShiftRight(evaluateLhs(), evaluateRhs());
     case BinaryOperator::Less:
-      return Value{evaluateCompare(leftOperand, rightOperand) < 0};
+      return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) < 0};
     case BinaryOperator::LessOrEqual:
-      return Value{evaluateCompare(leftOperand, rightOperand) <= 0};
+      return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) <= 0};
     case BinaryOperator::Greater:
-      return Value{evaluateCompare(leftOperand, rightOperand) > 0};
+      return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) > 0};
     case BinaryOperator::GreaterOrEqual:
-      return Value{evaluateCompare(leftOperand, rightOperand) >= 0};
+      return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) >= 0};
     case BinaryOperator::Equal:
-      return Value{evaluateCompare(leftOperand, rightOperand) == 0};
+      return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) == 0};
     case BinaryOperator::NotEqual:
-      return Value{evaluateCompare(leftOperand, rightOperand) != 0};
+      return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) != 0};
     case BinaryOperator::Range:
-      return Value{evaluateRange(leftOperand, rightOperand)};
+      return Value{evaluateRange(evaluateLhs(), evaluateRhs())};
     case BinaryOperator::Case:
-      return evaluateCase(leftOperand, rightOperand);
+      return evaluateCase(evaluateLhs, evaluateRhs);
       switchDefault();
   };
 }
 
 Value BinaryExpression::evaluate(const EvaluationContext& context) const {
   return evaluateBinaryExpression(
-    m_operator, m_leftOperand.evaluate(context), m_rightOperand.evaluate(context));
+    m_operator,
+    [&] {
+      return m_leftOperand.evaluate(context);
+    },
+    [&] {
+      return m_rightOperand.evaluate(context);
+    });
 }
 
 std::unique_ptr<ExpressionImpl> BinaryExpression::optimize() const {
-  auto optimizedLeftOperand = m_leftOperand.optimize();
-  auto optimizedRightOperand = m_rightOperand.optimize();
+  auto optimizedLeftOperand = std::optional<Expression>{};
+  auto optimizedRightOperand = std::optional<Expression>{};
 
   const auto evaluationContext = EvaluationContext{};
-  auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
-  auto rightValue = optimizedRightOperand.evaluate(evaluationContext);
 
-  if (auto value = evaluateBinaryExpression(m_operator, leftValue, rightValue);
+  const auto evaluateLeftOperand = [&] {
+    optimizedLeftOperand = m_leftOperand.optimize();
+    return optimizedLeftOperand->evaluate(evaluationContext);
+  };
+
+  const auto evaluateRightOperand = [&] {
+    optimizedRightOperand = m_rightOperand.optimize();
+    return optimizedRightOperand->evaluate(evaluationContext);
+  };
+
+  if (auto value = evaluateBinaryExpression(m_operator, evaluateLeftOperand, evaluateRightOperand);
       value != Value::Undefined) {
     return std::make_unique<LiteralExpression>(std::move(value));
   }
 
   return std::make_unique<BinaryExpression>(
-    m_operator, std::move(optimizedLeftOperand), std::move(optimizedRightOperand));
+    m_operator, std::move(optimizedLeftOperand).value_or(m_leftOperand.optimize()),
+    std::move(optimizedRightOperand).value_or(m_rightOperand.optimize()));
 }
 
 size_t BinaryExpression::precedence() const {

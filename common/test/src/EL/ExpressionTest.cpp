@@ -386,6 +386,10 @@ TEST_CASE("ExpressionTest.testOperators", "[ExpressionTest]") {
   {"true || false",   Value{true}},
   {"true || true",    Value{true}},
 
+  // Logical short circuit evaluation 
+  {"false && x[-1]",  Value{false}},
+  {"true || x[-1]",   Value{true}},
+
   // Bitwise negation
   {"~23423",          Value{~23423}},
   {"~23423.1",        Value{~23423}},
@@ -617,6 +621,10 @@ TEST_CASE("ExpressionTest.testOperators", "[ExpressionTest]") {
   {"{k1:1} == {k1:2}",       Value{false}},
   {"{k1:1} == {k1:1, k2:2}", Value{false}},
   {"{k1:1} == {k1:2, k2:2}", Value{false}},
+
+  {"true -> 'asdf'",  Value{"asdf"}},
+  {"false -> 'asdf'", Value::Undefined},
+  {"false -> x[-1]",  Value::Undefined},
   }));
   // clang-format on
 
