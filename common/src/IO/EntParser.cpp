@@ -21,6 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
+#include "EL/ELExceptions.h"
 #include "EL/Expressions.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
@@ -159,6 +160,9 @@ Assets::ModelDefinition EntParser::parseModel(
         EL::Value(EL::MapType({{Assets::ModelSpecificationKeys::Path, EL::Value{model}}}))),
       lineNum, 0);
     return Assets::ModelDefinition(expression);
+  } catch (const EL::EvaluationError& evaluationError) {
+    const auto line = static_cast<size_t>(element.GetLineNum());
+    throw ParserException{line, evaluationError.what()};
   }
 }
 
