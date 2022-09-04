@@ -882,6 +882,37 @@ static int evaluateCompare(const Value& lhs, const Value& rhs) {
   }
 }
 
+static Value evaluateRange(const Value& lhs, const Value& rhs) {
+  const auto from = static_cast<long>(lhs.convertTo(ValueType::Number).numberValue());
+  const auto to = static_cast<long>(rhs.convertTo(ValueType::Number).numberValue());
+
+  auto range = RangeType{};
+  if (from <= to) {
+    range.reserve(static_cast<size_t>(to - from + 1));
+    for (long i = from; i <= to; ++i) {
+      assert(range.capacity() > range.size());
+      range.push_back(i);
+    }
+  } else if (to < from) {
+    range.reserve(static_cast<size_t>(from - to + 1));
+    for (long i = from; i >= to; --i) {
+      assert(range.capacity() > range.size());
+      range.push_back(i);
+    }
+  }
+  assert(range.capacity() == range.size());
+
+  return Value{range};
+}
+
+static Value evaluateCase(const Value& lhs, const Value& rhs) {
+  if (lhs.convertTo(ValueType::Boolean).booleanValue()) {
+    return rhs;
+  }
+
+  return Value::Undefined;
+}
+
 static Value evaluateBinaryExpression(
   const BinaryOperator operator_, const Value& leftOperand, const Value& rightOperand) {
   if (leftOperand == Value::Undefined || rightOperand == Value::Undefined) {
@@ -925,35 +956,10 @@ static Value evaluateBinaryExpression(
       return Value{evaluateCompare(leftOperand, rightOperand) == 0};
     case BinaryOperator::NotEqual:
       return Value{evaluateCompare(leftOperand, rightOperand) != 0};
-    case BinaryOperator::Range: {
-      const auto from = static_cast<long>(leftOperand.convertTo(ValueType::Number).numberValue());
-      const auto to = static_cast<long>(rightOperand.convertTo(ValueType::Number).numberValue());
-
-      auto range = RangeType{};
-      if (from <= to) {
-        range.reserve(static_cast<size_t>(to - from + 1));
-        for (long i = from; i <= to; ++i) {
-          assert(range.capacity() > range.size());
-          range.push_back(i);
-        }
-      } else if (to < from) {
-        range.reserve(static_cast<size_t>(from - to + 1));
-        for (long i = from; i >= to; --i) {
-          assert(range.capacity() > range.size());
-          range.push_back(i);
-        }
-      }
-      assert(range.capacity() == range.size());
-
-      return Value{std::move(range)};
-    }
-    case BinaryOperator::Case: {
-      if (leftOperand.convertTo(ValueType::Boolean).booleanValue()) {
-        return rightOperand;
-      } else {
-        return Value::Undefined;
-      }
-    }
+    case BinaryOperator::Range:
+      return Value{evaluateRange(leftOperand, rightOperand)};
+    case BinaryOperator::Case:
+      return evaluateCase(leftOperand, rightOperand);
       switchDefault();
   };
 }
