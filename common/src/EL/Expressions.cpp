@@ -408,9 +408,13 @@ Expression BinaryExpression::createAutoRangeWithLeftOperand(
 
 static Value evaluateAddition(const Value& lhs, const Value& rhs) {
   switch (lhs.type()) {
+    case ValueType::Undefined:
+      return Value::Undefined;
     case ValueType::Boolean:
     case ValueType::Number:
       switch (rhs.type()) {
+        case ValueType::Undefined:
+          return Value::Undefined;
         case ValueType::Boolean:
         case ValueType::Number:
           return Value{
@@ -421,12 +425,13 @@ static Value evaluateAddition(const Value& lhs, const Value& rhs) {
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Null:
-        case ValueType::Undefined:
           break;
       }
       break;
     case ValueType::String:
       switch (rhs.type()) {
+        case ValueType::Undefined:
+          return Value::Undefined;
         case ValueType::String:
           return Value{
             lhs.convertTo(ValueType::String).stringValue() +
@@ -437,12 +442,13 @@ static Value evaluateAddition(const Value& lhs, const Value& rhs) {
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Null:
-        case ValueType::Undefined:
           break;
       }
       break;
     case ValueType::Array:
       switch (rhs.type()) {
+        case ValueType::Undefined:
+          return Value::Undefined;
         case ValueType::Array:
           return Value{kdl::vec_concat(lhs.arrayValue(), rhs.arrayValue())};
         case ValueType::Boolean:
@@ -451,12 +457,13 @@ static Value evaluateAddition(const Value& lhs, const Value& rhs) {
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Null:
-        case ValueType::Undefined:
           break;
       }
       break;
     case ValueType::Map:
       switch (rhs.type()) {
+        case ValueType::Undefined:
+          return Value::Undefined;
         case ValueType::Map:
           return Value{kdl::map_union(lhs.mapValue(), rhs.mapValue())};
         case ValueType::Boolean:
@@ -465,13 +472,11 @@ static Value evaluateAddition(const Value& lhs, const Value& rhs) {
         case ValueType::Array:
         case ValueType::Range:
         case ValueType::Null:
-        case ValueType::Undefined:
           break;
       }
       break;
     case ValueType::Range:
     case ValueType::Null:
-    case ValueType::Undefined:
       break;
   }
 
@@ -482,9 +487,13 @@ static Value evaluateAddition(const Value& lhs, const Value& rhs) {
 
 static Value evaluateSubtraction(const Value& lhs, const Value& rhs) {
   switch (lhs.type()) {
+    case ValueType::Undefined:
+      return Value::Undefined;
     case ValueType::Boolean:
     case ValueType::Number:
       switch (rhs.type()) {
+        case ValueType::Undefined:
+          return Value::Undefined;
         case ValueType::Boolean:
         case ValueType::Number:
           return Value{
@@ -495,7 +504,6 @@ static Value evaluateSubtraction(const Value& lhs, const Value& rhs) {
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Null:
-        case ValueType::Undefined:
           break;
       }
       break;
@@ -504,7 +512,6 @@ static Value evaluateSubtraction(const Value& lhs, const Value& rhs) {
     case ValueType::Map:
     case ValueType::Range:
     case ValueType::Null:
-    case ValueType::Undefined:
       break;
   }
 
@@ -515,9 +522,13 @@ static Value evaluateSubtraction(const Value& lhs, const Value& rhs) {
 
 static Value evaluateMultiplication(const Value& lhs, const Value& rhs) {
   switch (lhs.type()) {
+    case ValueType::Undefined:
+      return Value::Undefined;
     case ValueType::Boolean:
     case ValueType::Number:
       switch (rhs.type()) {
+        case ValueType::Undefined:
+          return Value::Undefined;
         case ValueType::Boolean:
         case ValueType::Number:
           return Value{
@@ -528,7 +539,6 @@ static Value evaluateMultiplication(const Value& lhs, const Value& rhs) {
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Null:
-        case ValueType::Undefined:
           break;
       }
       break;
@@ -537,7 +547,6 @@ static Value evaluateMultiplication(const Value& lhs, const Value& rhs) {
     case ValueType::Map:
     case ValueType::Range:
     case ValueType::Null:
-    case ValueType::Undefined:
       break;
   }
 
@@ -548,9 +557,13 @@ static Value evaluateMultiplication(const Value& lhs, const Value& rhs) {
 
 static Value evaluateDivision(const Value& lhs, const Value& rhs) {
   switch (lhs.type()) {
+    case ValueType::Undefined:
+      return Value::Undefined;
     case ValueType::Boolean:
     case ValueType::Number:
       switch (rhs.type()) {
+        case ValueType::Undefined:
+          return Value::Undefined;
         case ValueType::Boolean:
         case ValueType::Number:
           return Value{
@@ -561,7 +574,6 @@ static Value evaluateDivision(const Value& lhs, const Value& rhs) {
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Null:
-        case ValueType::Undefined:
           break;
       }
       break;
@@ -570,7 +582,6 @@ static Value evaluateDivision(const Value& lhs, const Value& rhs) {
     case ValueType::Map:
     case ValueType::Range:
     case ValueType::Null:
-    case ValueType::Undefined:
       break;
   }
 
@@ -581,9 +592,13 @@ static Value evaluateDivision(const Value& lhs, const Value& rhs) {
 
 static Value evaluateModulus(const Value& lhs, const Value& rhs) {
   switch (lhs.type()) {
+    case ValueType::Undefined:
+      return Value::Undefined;
     case ValueType::Boolean:
     case ValueType::Number:
       switch (rhs.type()) {
+        case ValueType::Undefined:
+          return Value::Undefined;
         case ValueType::Boolean:
         case ValueType::Number:
           return Value{std::fmod(
@@ -594,7 +609,6 @@ static Value evaluateModulus(const Value& lhs, const Value& rhs) {
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Null:
-        case ValueType::Undefined:
           break;
       }
       break;
@@ -603,7 +617,6 @@ static Value evaluateModulus(const Value& lhs, const Value& rhs) {
     case ValueType::Map:
     case ValueType::Range:
     case ValueType::Null:
-    case ValueType::Undefined:
       break;
   }
 
@@ -679,6 +692,10 @@ static Value evaluateLogicalOr(const Value& lhs, const Value& rhs) {
 }
 
 static Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs) {
+  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined) {
+    return Value::Undefined;
+  }
+
   if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
     const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
     const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
@@ -690,6 +707,10 @@ static Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs) {
 }
 
 static Value evaluateBitwiseXOr(const Value& lhs, const Value& rhs) {
+  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined) {
+    return Value::Undefined;
+  }
+
   if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
     const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
     const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
@@ -701,6 +722,10 @@ static Value evaluateBitwiseXOr(const Value& lhs, const Value& rhs) {
 }
 
 static Value evaluateBitwiseOr(const Value& lhs, const Value& rhs) {
+  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined) {
+    return Value::Undefined;
+  }
+
   if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
     const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
     const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
@@ -712,6 +737,10 @@ static Value evaluateBitwiseOr(const Value& lhs, const Value& rhs) {
 }
 
 static Value evaluateBitwiseShiftLeft(const Value& lhs, const Value& rhs) {
+  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined) {
+    return Value::Undefined;
+  }
+
   if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
     const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
     const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
@@ -723,6 +752,10 @@ static Value evaluateBitwiseShiftLeft(const Value& lhs, const Value& rhs) {
 }
 
 static Value evaluateBitwiseShiftRight(const Value& lhs, const Value& rhs) {
+  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined) {
+    return Value::Undefined;
+  }
+
   if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number)) {
     const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
     const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
@@ -883,6 +916,10 @@ static int evaluateCompare(const Value& lhs, const Value& rhs) {
 }
 
 static Value evaluateRange(const Value& lhs, const Value& rhs) {
+  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined) {
+    return Value::Undefined;
+  }
+
   const auto from = static_cast<long>(lhs.convertTo(ValueType::Number).numberValue());
   const auto to = static_cast<long>(rhs.convertTo(ValueType::Number).numberValue());
 
@@ -906,6 +943,10 @@ static Value evaluateRange(const Value& lhs, const Value& rhs) {
 }
 
 static Value evaluateCase(const Value& lhs, const Value& rhs) {
+  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined) {
+    return Value::Undefined;
+  }
+
   if (lhs.convertTo(ValueType::Boolean).booleanValue()) {
     return rhs;
   }
@@ -915,10 +956,6 @@ static Value evaluateCase(const Value& lhs, const Value& rhs) {
 
 static Value evaluateBinaryExpression(
   const BinaryOperator operator_, const Value& leftOperand, const Value& rightOperand) {
-  if (leftOperand == Value::Undefined || rightOperand == Value::Undefined) {
-    return Value::Undefined;
-  }
-
   switch (operator_) {
     case BinaryOperator::Addition:
       return evaluateAddition(leftOperand, rightOperand);
