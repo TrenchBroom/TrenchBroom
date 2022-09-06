@@ -21,6 +21,7 @@
 
 #include "Assets/ModelDefinition.h"
 #include "Assets/PropertyDefinition.h"
+#include "EL/ELExceptions.h"
 #include "Exceptions.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
@@ -365,6 +366,8 @@ Assets::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status) {
       m_tokenizer.restore(snapshot);
       throw e;
     }
+  } catch (const EL::EvaluationError& evaluationError) {
+    throw ParserException{m_tokenizer.line(), m_tokenizer.column(), evaluationError.what()};
   }
 }
 

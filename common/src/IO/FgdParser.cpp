@@ -20,6 +20,7 @@
 #include "FgdParser.h"
 
 #include "Assets/PropertyDefinition.h"
+#include "EL/ELExceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
@@ -392,6 +393,8 @@ Assets::ModelDefinition FgdParser::parseModel(ParserStatus& status) {
       m_tokenizer.restore(snapshot);
       throw e;
     }
+  } catch (const EL::EvaluationError& evaluationError) {
+    throw ParserException{m_tokenizer.line(), m_tokenizer.column(), evaluationError.what()};
   }
 }
 
