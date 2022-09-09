@@ -44,12 +44,12 @@ public:
   static std::unique_ptr<ReparentNodesCommand> reparent(
     std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
     std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
-    std::vector<const Model::GroupNode*> changedLinkedGroups);
+    std::vector<Model::GroupNode*> changedLinkedGroups);
 
   ReparentNodesCommand(
     std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
     std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
-    std::vector<const Model::GroupNode*> changedLinkedGroups);
+    std::vector<Model::GroupNode*> changedLinkedGroups);
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;

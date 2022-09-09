@@ -135,9 +135,9 @@ namespace View {
 template <typename T>
 static auto findLinkedGroupsRecursively(
   Model::WorldNode& worldNode, const std::vector<T*>& nodes, const bool includeGivenNodes) {
-  auto result = std::vector<const Model::GroupNode*>{};
+  auto result = std::vector<Model::GroupNode*>{};
 
-  const auto addGroupNode = [&](const Model::GroupNode* groupNode) {
+  const auto addGroupNode = [&](Model::GroupNode* groupNode) {
     while (groupNode) {
       if (const auto linkedGroupId = groupNode->group().linkedGroupId()) {
         if (Model::findLinkedGroups(worldNode, *linkedGroupId).size() > 1u) {
@@ -257,7 +257,7 @@ static std::optional<std::vector<std::pair<Model::Node*, Model::NodeContents>>> 
 template <typename N, typename L>
 static bool applyAndSwap(
   MapDocument& document, const std::string& commandName, const std::vector<N*>& nodes,
-  std::vector<const Model::GroupNode*> changedLinkedGroups, L lambda) {
+  std::vector<Model::GroupNode*> changedLinkedGroups, L lambda) {
   if (nodes.empty()) {
     return true;
   }
@@ -2321,7 +2321,7 @@ void MapDocument::downgradeUnlockedToInherit(const std::vector<Model::Node*>& no
 bool MapDocument::swapNodeContents(
   const std::string& commandName,
   std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap,
-  std::vector<const Model::GroupNode*> changedLinkedGroups) {
+  std::vector<Model::GroupNode*> changedLinkedGroups) {
   return executeAndStore(std::make_unique<SwapNodeContentsCommand>(
                            commandName, std::move(nodesToSwap), std::move(changedLinkedGroups)))
     ->success();

@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
 namespace View {
-bool checkLinkedGroupsToUpdate(const std::vector<const Model::GroupNode*>& changedLinkedGroups) {
+bool checkLinkedGroupsToUpdate(const std::vector<Model::GroupNode*>& changedLinkedGroups) {
   const auto linkedGroupIds =
     kdl::vec_sort(kdl::vec_transform(changedLinkedGroups, [](const auto* groupNode) {
       return groupNode->group().linkedGroupId();

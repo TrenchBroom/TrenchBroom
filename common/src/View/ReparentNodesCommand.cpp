@@ -29,7 +29,7 @@ namespace View {
 std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
-  std::vector<const Model::GroupNode*> changedLinkedGroups) {
+  std::vector<Model::GroupNode*> changedLinkedGroups) {
   return std::make_unique<ReparentNodesCommand>(
     std::move(nodesToAdd), std::move(nodesToRemove), std::move(changedLinkedGroups));
 }
@@ -37,7 +37,7 @@ std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
 ReparentNodesCommand::ReparentNodesCommand(
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
-  std::vector<const Model::GroupNode*> changedLinkedGroups)
+  std::vector<Model::GroupNode*> changedLinkedGroups)
   : UndoableCommand("Reparent Objects", true)
   , m_nodesToAdd(std::move(nodesToAdd))
   , m_nodesToRemove(std::move(nodesToRemove))
