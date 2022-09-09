@@ -624,7 +624,7 @@ void ClipTool::performClip() {
     const kdl::set_temp ignoreNotifications(m_ignoreNotifications);
 
     auto document = kdl::mem_lock(m_document);
-    const Transaction transaction(document, "Clip Brushes");
+    const auto transaction = Transaction{document, "Clip Brushes"};
 
     // need to make a copies here so that we are not affected by the deselection
     const auto toAdd = clipBrushes();

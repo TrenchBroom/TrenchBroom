@@ -120,16 +120,16 @@ static void transferFaceAttributes(
   const Model::BrushFaceHandle& sourceFaceHandle,
   const std::vector<Model::BrushFaceHandle>& targetFaceHandles,
   const Model::BrushFaceHandle& faceToSelectAfter) {
-  const Model::WrapStyle style = copyTextureAttribsRotationModifiersDown(inputState)
-                                   ? Model::WrapStyle::Rotation
-                                   : Model::WrapStyle::Projection;
+  const auto style = copyTextureAttribsRotationModifiersDown(inputState)
+                       ? Model::WrapStyle::Rotation
+                       : Model::WrapStyle::Projection;
 
-  const Transaction transaction(&document, TransferFaceAttributesTransactionName);
+  const auto transaction = Transaction{&document, TransferFaceAttributesTransactionName};
   document.deselectAll();
   document.selectBrushFaces(targetFaceHandles);
 
   if (copyTextureOnlyModifiersDown(inputState)) {
-    Model::ChangeBrushFaceAttributesRequest request;
+    auto request = Model::ChangeBrushFaceAttributesRequest{};
     request.setTextureName(sourceFaceHandle.face().attributes().textureName());
     document.setFaceAttributes(request);
   } else {

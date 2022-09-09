@@ -68,7 +68,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
   CHECK(document->selectionBounds().size() == Model::EntityNode::DefaultBounds.size());
 
   {
-    Transaction transaction(document); // we only want to undo the following changes later
+    const auto transaction =
+      Transaction{document}; // we only want to undo the following changes later
     document->setProperty("temp", "large_entity");
     document->renameProperty("temp", "classname");
     CHECK(entityNode->entity().definition() == largeEntityDef);

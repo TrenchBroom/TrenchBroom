@@ -54,10 +54,10 @@ ReplaceTextureDialog::ReplaceTextureDialog(
 }
 
 void ReplaceTextureDialog::accept() {
-  const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
+  const auto* subject = m_subjectBrowser->selectedTexture();
   ensure(subject != nullptr, "subject is null");
 
-  const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
+  const auto* replacement = m_replacementBrowser->selectedTexture();
   ensure(replacement != nullptr, "replacement is null");
 
   auto document = kdl::mem_lock(m_document);
@@ -69,14 +69,14 @@ void ReplaceTextureDialog::accept() {
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.setTextureName(replacement->name());
 
-  Transaction transaction(document, "Replace Textures");
+  const auto transaction = Transaction{document, "Replace Textures"};
   document->selectBrushFaces(faces);
   document->setFaceAttributes(request);
 
-  std::stringstream msg;
+  auto msg = std::stringstream{};
   msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on "
       << faces.size() << " faces.";
 

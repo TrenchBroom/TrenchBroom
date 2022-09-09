@@ -222,16 +222,16 @@ void LayerEditor::onAddLayer() {
     auto layer = Model::Layer(name);
 
     // Sort it at the bottom of the list
-    const std::vector<Model::LayerNode*> customLayers = world->customLayersUserSorted();
+    const auto customLayers = world->customLayersUserSorted();
     if (customLayers.empty()) {
       layer.setSortIndex(0);
     } else {
       layer.setSortIndex(customLayers.back()->layer().sortIndex() + 1);
     }
 
-    auto* layerNode = new Model::LayerNode(std::move(layer));
+    auto* layerNode = new Model::LayerNode{std::move(layer)};
 
-    Transaction transaction(document, "Create Layer " + layerNode->name());
+    const auto transaction = Transaction{document, "Create Layer " + layerNode->name()};
     document->addNodes({{world, {layerNode}}});
     document->setCurrentLayer(layerNode);
     m_layerList->setSelectedLayer(layerNode);
@@ -245,7 +245,7 @@ void LayerEditor::onRemoveLayer() {
   auto document = kdl::mem_lock(m_document);
   auto* defaultLayer = document->world()->defaultLayer();
 
-  Transaction transaction(document, "Remove Layer " + layer->name());
+  const auto transaction = Transaction{document, "Remove Layer " + layer->name()};
   document->deselectAll();
   if (layer->hasChildren()) {
     document->reparentNodes({{defaultLayer, layer->children()}});

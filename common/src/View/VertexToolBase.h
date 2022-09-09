@@ -277,11 +277,11 @@ public: // csg convex merge
   bool canDoCsgConvexMerge() { return handleManager().selectedHandleCount() > 1; }
 
   void csgConvexMerge() {
-    std::vector<vm::vec3> vertices;
+    auto vertices = std::vector<vm::vec3>{};
     const auto handles = handleManager().selectedHandles();
     H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
 
-    const Model::Polyhedron3 polyhedron(vertices);
+    const auto polyhedron = Model::Polyhedron3{vertices};
     if (!polyhedron.polyhedron() || !polyhedron.closed()) {
       return;
     }
@@ -289,18 +289,18 @@ public: // csg convex merge
     auto document = kdl::mem_lock(m_document);
     auto game = document->game();
 
-    const Model::BrushBuilder builder(
-      document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
+    const auto builder = Model::BrushBuilder{
+      document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs()};
     builder.createBrush(polyhedron, document->currentTextureName())
       .and_then([&](Model::Brush&& b) {
-        for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
+        for (const auto* selectedBrushNode : document->selectedNodes().brushes()) {
           b.cloneFaceAttributesFrom(selectedBrushNode->brush());
         }
 
-        Model::Node* newParent = document->parentForNodes(document->selectedNodes().nodes());
-        const Transaction transaction(document, "CSG Convex Merge");
+        auto* newParent = document->parentForNodes(document->selectedNodes().nodes());
+        const auto transaction = Transaction{document, "CSG Convex Merge"};
         deselectAll();
-        document->addNodes({{newParent, {new Model::BrushNode(std::move(b))}}});
+        document->addNodes({{newParent, {new Model::BrushNode{std::move(b)}}}});
       })
       .handle_errors([&](const Model::BrushError e) {
         document->error() << "Could not create brush: " << e;
@@ -317,9 +317,9 @@ public: // csg convex merge
 
 public:
   void moveSelection(const vm::vec3& delta) {
-    const kdl::inc_temp ignoreChangeNotifications(m_ignoreChangeNotifications);
+    const auto ignoreChangeNotifications = kdl::inc_temp{m_ignoreChangeNotifications};
 
-    Transaction transaction(m_document, actionName());
+    const auto transaction = Transaction{m_document, actionName()};
     move(delta);
   }
 
