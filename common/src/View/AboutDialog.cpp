@@ -87,9 +87,11 @@ void AboutDialog::createGui() {
                                    "GLEW (OpenGL extension library)\n"
                                    "tinyxml2 (XML parsing library)\n"
                                    "miniz (Archive library)\n"
+                                   "Assimp (Asset importer library)\n"
                                    "Catch 2 (C++ testing framework)\n"
                                    "StackWalker (C++ stack trace analyzer)\n"
                                    "CMake (Cross platform build manager)\n"
+                                   "Vcpkg (C/C++ dependency manager)\n"
                                    "Pandoc (Universal document converter)\n"
                                    "Source Sans Pro (Font)\n"
                                    "Font Awesome 5 Free (Icons)\n")
