@@ -17,12 +17,15 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "View/CompilationRunner.h"
+#include "TestUtils.h"
+
 #include "EL/VariableStore.h"
 #include "IO/TestEnvironment.h"
 #include "MapDocumentTest.h"
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
+#include "View/CompilationRunner.h"
+#include "View/CompilationVariables.h"
 #include "View/TextOutputAdapter.h"
 
 #include <QObject>
@@ -117,6 +120,29 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDi
   REQUIRE_NOTHROW(runner.execute());
 
   CHECK(testEnvironment.directoryExists(targetPath));
+}
+
+TEST_CASE("CompilationRunner.interpolateToolsVariables") {
+  auto [document, game, gameConfig] = View::loadMapDocument(
+    IO::Path{"fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"}, "Quake",
+    Model::MapFormat::Unknown);
+  const auto testWorkDir = std::string{"/some/path"};
+  auto variables = CompilationVariables{document, testWorkDir};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  const auto startSubstr = std::string{"foo "};
+  const auto midSubstr = std::string{" bar "};
+  const auto toInterpolate =
+    startSubstr + std::string{"${MAP_DIR_PATH}"} + midSubstr + std::string{"${WORK_DIR_PATH}"};
+  const auto expected =
+    startSubstr + document->path().deleteLastComponent().asString() + midSubstr + testWorkDir;
+
+  const auto interpolated = context.interpolate(toInterpolate);
+
+  CHECK(interpolated == expected);
 }
 } // namespace View
 } // namespace TrenchBroom
