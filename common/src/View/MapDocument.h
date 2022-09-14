@@ -761,13 +761,13 @@ private: // observers
 
 class Transaction {
 private:
-  MapDocument* m_document;
+  MapDocument& m_document;
   bool m_cancelled;
 
 public:
   explicit Transaction(std::weak_ptr<MapDocument> document, std::string name = "");
   explicit Transaction(std::shared_ptr<MapDocument> document, std::string name = "");
-  explicit Transaction(MapDocument* document, std::string name = "");
+  explicit Transaction(MapDocument& document, std::string name = "");
   ~Transaction();
 
   void rollback();

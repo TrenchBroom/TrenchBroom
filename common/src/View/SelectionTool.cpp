@@ -337,7 +337,7 @@ static void drillSelection(const InputState& inputState, MapDocument& document) 
   auto* nextNode = nodePair.second;
 
   if (nextNode != nullptr) {
-    auto transaction = Transaction{&document, "Drill Selection"};
+    auto transaction = Transaction{document, "Drill Selection"};
     document.deselectNodes({selectedNode});
     document.selectNodes({nextNode});
   }
