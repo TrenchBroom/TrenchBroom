@@ -1562,10 +1562,7 @@ Model::EntityNode* MapDocument::createPointEntity(
   auto* entityNode = new Model::EntityNode{Model::Entity{
     m_world->entityPropertyConfig(), {{Model::EntityPropertyKeys::Classname, definition->name()}}}};
 
-  auto name = std::stringstream{};
-  name << "Create " << definition->name();
-
-  auto transaction = Transaction{*this, name.str()};
+  auto transaction = Transaction{*this, "Create " + definition->name()};
   if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
     transaction.cancel();
     return nullptr;
@@ -1608,12 +1605,9 @@ Model::EntityNode* MapDocument::createBrushEntity(const Assets::BrushEntityDefin
     m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Classname, definition->name());
   auto* entityNode = new Model::EntityNode{std::move(entity)};
 
-  auto name = std::stringstream{};
-  name << "Create " << definition->name();
-
   const auto nodes = kdl::vec_element_cast<Model::Node*>(brushes);
 
-  auto transaction = Transaction{*this, name.str()};
+  auto transaction = Transaction{*this, "Create " + definition->name()};
   deselectAll();
   if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
     transaction.cancel();
