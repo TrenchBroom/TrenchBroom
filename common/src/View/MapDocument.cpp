@@ -3251,13 +3251,17 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
 
     const auto commandName =
       kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
+    auto transaction = Transaction{*this, commandName};
+
     auto changedLinkedGroups =
       findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
+
     const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
       commandName, std::move(*newNodes), std::move(vertexPositions), std::move(newVertexPositions),
       std::move(changedLinkedGroups)));
+    transaction.commit();
 
     const auto* moveVerticesResult = dynamic_cast<BrushVertexCommandResult*>(result.get());
     ensure(
@@ -3318,14 +3322,19 @@ bool MapDocument::moveEdges(std::vector<vm::segment3> edgePositions, const vm::v
 
     const auto commandName =
       kdl::str_plural(edgePositions.size(), "Move Brush Edge", "Move Brush Edges");
+    auto transaction = Transaction{*this, commandName};
+
     auto changedLinkedGroups =
       findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
-    return executeAndStore(std::make_unique<BrushEdgeCommand>(
-                             commandName, std::move(*newNodes), std::move(edgePositions),
-                             std::move(newEdgePositions), std::move(changedLinkedGroups)))
-      ->success();
+
+    const auto result = executeAndStore(std::make_unique<BrushEdgeCommand>(
+      commandName, std::move(*newNodes), std::move(edgePositions), std::move(newEdgePositions),
+      std::move(changedLinkedGroups)));
+
+    transaction.commit();
+    return result->success();
   }
 
   return false;
@@ -3379,14 +3388,19 @@ bool MapDocument::moveFaces(std::vector<vm::polygon3> facePositions, const vm::v
 
     const auto commandName =
       kdl::str_plural(facePositions.size(), "Move Brush Face", "Move Brush Faces");
+    auto transaction = Transaction{*this, commandName};
+
     auto changedLinkedGroups =
       findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
-    return executeAndStore(std::make_unique<BrushFaceCommand>(
-                             commandName, std::move(*newNodes), std::move(facePositions),
-                             std::move(newFacePositions), std::move(changedLinkedGroups)))
-      ->success();
+
+    const auto result = executeAndStore(std::make_unique<BrushFaceCommand>(
+      commandName, std::move(*newNodes), std::move(facePositions), std::move(newFacePositions),
+      std::move(changedLinkedGroups)));
+
+    transaction.commit();
+    return result->success();
   }
 
   return false;
@@ -3419,14 +3433,20 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition) {
                                }));
 
   if (newNodes) {
+    const auto commandName = "Add Brush Vertex";
+    auto transaction = Transaction{*this, commandName};
+
     auto changedLinkedGroups =
       findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
-    return executeAndStore(std::make_unique<BrushVertexCommand>(
-                             "Add Brush Vertex", std::move(*newNodes), std::vector<vm::vec3>{},
-                             std::vector<vm::vec3>{vertexPosition}, std::move(changedLinkedGroups)))
-      ->success();
+
+    const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
+      commandName, std::move(*newNodes), std::vector<vm::vec3>{},
+      std::vector<vm::vec3>{vertexPosition}, std::move(changedLinkedGroups)));
+
+    transaction.commit();
+    return result->success();
   }
 
   return false;
@@ -3468,14 +3488,19 @@ bool MapDocument::removeVertices(
                                }));
 
   if (newNodes) {
+    auto transaction = Transaction{*this, commandName};
+
     auto changedLinkedGroups =
       findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
         return p.first;
       }));
-    return executeAndStore(std::make_unique<BrushVertexCommand>(
-                             commandName, std::move(*newNodes), std::move(vertexPositions),
-                             std::vector<vm::vec3>{}, std::move(changedLinkedGroups)))
-      ->success();
+
+    const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
+      commandName, std::move(*newNodes), std::move(vertexPositions), std::vector<vm::vec3>{},
+      std::move(changedLinkedGroups)));
+
+    transaction.commit();
+    return result->success();
   }
 
   return false;
