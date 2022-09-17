@@ -26,17 +26,14 @@ namespace TrenchBroom {
 namespace View {
 std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
-  std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
-  std::vector<Model::GroupNode*> changedLinkedGroups) {
-  return std::make_unique<ReparentNodesCommand>(
-    std::move(nodesToAdd), std::move(nodesToRemove), std::move(changedLinkedGroups));
+  std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove) {
+  return std::make_unique<ReparentNodesCommand>(std::move(nodesToAdd), std::move(nodesToRemove));
 }
 
 ReparentNodesCommand::ReparentNodesCommand(
   std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
-  std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove,
-  std::vector<Model::GroupNode*> changedLinkedGroups)
-  : UpdateLinkedGroupsCommandBase("Reparent Objects", true, std::move(changedLinkedGroups))
+  std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove)
+  : UpdateLinkedGroupsCommandBase("Reparent Objects", true)
   , m_nodesToAdd(std::move(nodesToAdd))
   , m_nodesToRemove(std::move(nodesToRemove)) {}
 

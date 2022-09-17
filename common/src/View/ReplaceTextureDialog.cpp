@@ -74,7 +74,10 @@ void ReplaceTextureDialog::accept() {
 
   auto transaction = Transaction{document, "Replace Textures"};
   document->selectBrushFaces(faces);
-  document->setFaceAttributes(request);
+  if (!document->setFaceAttributes(request)) {
+    transaction.cancel();
+    return;
+  }
   transaction.commit();
 
   auto msg = std::stringstream{};

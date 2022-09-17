@@ -37,7 +37,7 @@ private:
 protected:
   UpdateLinkedGroupsCommandBase(
     std::string name, bool updateModificationCount,
-    std::vector<Model::GroupNode*> changedLinkedGroups);
+    std::vector<Model::GroupNode*> changedLinkedGroups = {});
 
 public:
   virtual ~UpdateLinkedGroupsCommandBase();

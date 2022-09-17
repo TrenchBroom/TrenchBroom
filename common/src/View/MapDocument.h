@@ -604,7 +604,7 @@ public: // command processing
 public: // transactions
   void startTransaction(std::string name, TransactionScope scope);
   void rollbackTransaction();
-  void commitTransaction();
+  bool commitTransaction();
   void cancelTransaction();
 
   virtual bool isCurrentDocumentStateObservable() const = 0;
@@ -781,7 +781,7 @@ public:
   explicit Transaction(MapDocument& document, std::string name = "");
   ~Transaction();
 
-  void commit();
+  bool commit();
   void rollback();
   void cancel();
 

@@ -39,8 +39,7 @@ template <typename H> class VertexHandleManagerBaseT;
 class BrushVertexCommandBase : public SwapNodeContentsCommand {
 protected:
   BrushVertexCommandBase(
-    const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-    std::vector<Model::GroupNode*> changedLinkedGroups);
+    const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
@@ -80,8 +79,7 @@ private:
 public:
   BrushVertexCommand(
     const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-    std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions,
-    std::vector<Model::GroupNode*> changedLinkedGroups);
+    std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions);
 
 private:
   std::unique_ptr<CommandResult> createCommandResult(
@@ -103,8 +101,7 @@ private:
 public:
   BrushEdgeCommand(
     const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-    std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions,
-    std::vector<Model::GroupNode*> changedLinkedGroups);
+    std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions);
 
 private:
   bool doCollateWith(UndoableCommand& command) override;
@@ -123,8 +120,7 @@ private:
 public:
   BrushFaceCommand(
     const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-    std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions,
-    std::vector<Model::GroupNode*> changedLinkedGroups);
+    std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions);
 
 private:
   bool doCollateWith(UndoableCommand& command) override;

@@ -28,7 +28,6 @@
 
 namespace TrenchBroom {
 namespace Model {
-class GroupNode;
 class Node;
 } // namespace Model
 
@@ -46,18 +45,14 @@ private:
 
 public:
   static std::unique_ptr<AddRemoveNodesCommand> add(
-    Model::Node* parent, const std::vector<Model::Node*>& children,
-    std::vector<Model::GroupNode*> edLinkedGroups);
+    Model::Node* parent, const std::vector<Model::Node*>& children);
   static std::unique_ptr<AddRemoveNodesCommand> add(
-    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-    std::vector<Model::GroupNode*> changedLinkedGroups);
+    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
   static std::unique_ptr<AddRemoveNodesCommand> remove(
-    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-    std::vector<Model::GroupNode*> changedLinkedGroups);
+    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
 
   AddRemoveNodesCommand(
-    Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-    std::vector<Model::GroupNode*> changedLinkedGroups);
+    Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
   ~AddRemoveNodesCommand() override;
 
 private:

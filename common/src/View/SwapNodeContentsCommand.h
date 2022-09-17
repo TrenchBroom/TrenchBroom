@@ -42,8 +42,7 @@ protected:
 
 public:
   SwapNodeContentsCommand(
-    const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-    std::vector<Model::GroupNode*> changedLinkedGroups);
+    const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
   ~SwapNodeContentsCommand();
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;

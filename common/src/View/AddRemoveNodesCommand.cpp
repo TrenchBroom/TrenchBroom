@@ -33,27 +33,22 @@
 namespace TrenchBroom {
 namespace View {
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  Model::Node* parent, const std::vector<Model::Node*>& children,
-  std::vector<Model::GroupNode*> changedLinkedGroups) {
+  Model::Node* parent, const std::vector<Model::Node*>& children) {
   ensure(parent != nullptr, "parent is null");
   auto nodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
   nodes[parent] = children;
 
-  return add(nodes, std::move(changedLinkedGroups));
+  return add(nodes);
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<Model::GroupNode*> changedLinkedGroups) {
-  return std::make_unique<AddRemoveNodesCommand>(
-    Action::Add, nodes, std::move(changedLinkedGroups));
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
+  return std::make_unique<AddRemoveNodesCommand>(Action::Add, nodes);
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::remove(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<Model::GroupNode*> changedLinkedGroups) {
-  return std::make_unique<AddRemoveNodesCommand>(
-    Action::Remove, nodes, std::move(changedLinkedGroups));
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
+  return std::make_unique<AddRemoveNodesCommand>(Action::Remove, nodes);
 }
 
 AddRemoveNodesCommand::~AddRemoveNodesCommand() {
@@ -61,9 +56,8 @@ AddRemoveNodesCommand::~AddRemoveNodesCommand() {
 }
 
 AddRemoveNodesCommand::AddRemoveNodesCommand(
-  const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<Model::GroupNode*> changedLinkedGroups)
-  : UpdateLinkedGroupsCommandBase{makeName(action), true, std::move(changedLinkedGroups)}
+  const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
+  : UpdateLinkedGroupsCommandBase{makeName(action), true}
   , m_action{action} {
   switch (m_action) {
     case Action::Add:
