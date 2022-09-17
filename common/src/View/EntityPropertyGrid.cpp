@@ -140,18 +140,18 @@ void EntityPropertyGrid::removeSelectedProperties() {
   const auto numRows = propertyKeys.size();
   auto document = kdl::mem_lock(m_document);
 
-  {
-    auto transaction =
-      Transaction{document, kdl::str_plural(numRows, "Remove Property", "Remove Properties")};
+  auto transaction =
+    Transaction{document, kdl::str_plural(numRows, "Remove Property", "Remove Properties")};
 
-    auto success = true;
-    for (const auto& propertyKey : propertyKeys) {
-      success = success && document->removeProperty(propertyKey);
-    }
+  auto success = true;
+  for (const auto& propertyKey : propertyKeys) {
+    success = success && document->removeProperty(propertyKey);
+  }
 
-    if (!success) {
-      transaction.rollback();
-    }
+  if (success) {
+    transaction.commit();
+  } else {
+    transaction.cancel();
   }
 }
 

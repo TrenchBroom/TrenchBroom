@@ -169,6 +169,7 @@ bool SelectionTool::mouseClick(const InputState& inputState) {
               auto transaction = Transaction{document, "Select Brush Face"};
               document->convertToFaceSelection();
               document->selectBrushFaces({*faceHandle});
+              transaction.commit();
             }
           } else {
             if (face.selected()) {
@@ -181,6 +182,7 @@ bool SelectionTool::mouseClick(const InputState& inputState) {
           auto transaction = Transaction{document, "Select Brush Face"};
           document->deselectAll();
           document->selectBrushFaces({*faceHandle});
+          transaction.commit();
         }
       }
     } else {
@@ -201,11 +203,13 @@ bool SelectionTool::mouseClick(const InputState& inputState) {
               document->deselectAll();
             }
             document->selectNodes({node});
+            transaction.commit();
           }
         } else {
           auto transaction = Transaction{document, "Select Object"};
           document->deselectAll();
           document->selectNodes({node});
+          transaction.commit();
         }
       }
     } else {
@@ -241,6 +245,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState) {
           auto transaction = Transaction{document, "Select Brush Faces"};
           document->deselectAll();
           document->selectBrushFaces(Model::toHandles(brush));
+          transaction.commit();
         }
       }
     }
@@ -272,6 +277,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState) {
               auto transaction = Transaction{document, "Select Brushes"};
               document->deselectAll();
               document->selectNodes(siblings);
+              transaction.commit();
             }
           }
         }
@@ -340,6 +346,7 @@ static void drillSelection(const InputState& inputState, MapDocument& document) 
     auto transaction = Transaction{document, "Drill Selection"};
     document.deselectNodes({selectedNode});
     document.selectNodes({nextNode});
+    transaction.commit();
   }
 }
 

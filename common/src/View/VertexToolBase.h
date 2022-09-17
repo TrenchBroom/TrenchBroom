@@ -298,9 +298,13 @@ public: // csg convex merge
         }
 
         auto* newParent = document->parentForNodes(document->selectedNodes().nodes());
-        const auto transaction = Transaction{document, "CSG Convex Merge"};
+        auto transaction = Transaction{document, "CSG Convex Merge"};
         deselectAll();
-        document->addNodes({{newParent, {new Model::BrushNode{std::move(b)}}}});
+        if (document->addNodes({{newParent, {new Model::BrushNode{std::move(b)}}}}).empty()) {
+          transaction.cancel();
+          return;
+        }
+        transaction.commit();
       })
       .handle_errors([&](const Model::BrushError e) {
         document->error() << "Could not create brush: " << e;
@@ -319,8 +323,9 @@ public:
   void moveSelection(const vm::vec3& delta) {
     const auto ignoreChangeNotifications = kdl::inc_temp{m_ignoreChangeNotifications};
 
-    const auto transaction = Transaction{m_document, actionName()};
+    auto transaction = Transaction{m_document, actionName()};
     move(delta);
+    transaction.commit();
   }
 
   bool canRemoveSelection() const { return handleManager().selectedHandleCount() > 0; }

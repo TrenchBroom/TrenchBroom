@@ -414,7 +414,7 @@ private:
   bool checkReparenting(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const;
 
 public:
-  bool deleteObjects() override;
+  void deleteObjects() override;
   void duplicateObjects() override;
 
 public: // entity management
@@ -761,8 +761,14 @@ private: // observers
 
 class Transaction {
 private:
+  enum class TransactionState {
+    Running,
+    Committed,
+    Cancelled,
+  };
+
   MapDocument& m_document;
-  bool m_cancelled;
+  TransactionState m_state;
 
 public:
   explicit Transaction(std::weak_ptr<MapDocument> document, std::string name = "");
@@ -770,12 +776,12 @@ public:
   explicit Transaction(MapDocument& document, std::string name = "");
   ~Transaction();
 
+  void commit();
   void rollback();
   void cancel();
 
 private:
   void begin(std::string name);
-  void commit();
 };
 } // namespace View
 } // namespace TrenchBroom

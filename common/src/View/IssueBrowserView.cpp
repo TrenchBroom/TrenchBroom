@@ -165,10 +165,10 @@ void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix* quickFix) {
   auto document = kdl::mem_lock(m_document);
   const auto issues = collectIssues(getSelection());
 
-  const auto transaction =
-    Transaction{document, "Apply Quick Fix (" + quickFix->description() + ")"};
+  auto transaction = Transaction{document, "Apply Quick Fix (" + quickFix->description() + ")"};
   updateSelection();
   quickFix->apply(document.get(), issues);
+  transaction.commit();
 }
 
 std::vector<Model::Issue*> IssueBrowserView::collectIssues(

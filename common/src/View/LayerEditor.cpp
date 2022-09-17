@@ -231,9 +231,15 @@ void LayerEditor::onAddLayer() {
 
     auto* layerNode = new Model::LayerNode{std::move(layer)};
 
-    const auto transaction = Transaction{document, "Create Layer " + layerNode->name()};
-    document->addNodes({{world, {layerNode}}});
+    auto transaction = Transaction{document, "Create Layer " + layerNode->name()};
+    if (document->addNodes({{world, {layerNode}}}).empty()) {
+      transaction.cancel();
+      return;
+    }
+
     document->setCurrentLayer(layerNode);
+    transaction.commit();
+
     m_layerList->setSelectedLayer(layerNode);
   }
 }
@@ -245,15 +251,20 @@ void LayerEditor::onRemoveLayer() {
   auto document = kdl::mem_lock(m_document);
   auto* defaultLayer = document->world()->defaultLayer();
 
-  const auto transaction = Transaction{document, "Remove Layer " + layer->name()};
+  auto transaction = Transaction{document, "Remove Layer " + layer->name()};
   document->deselectAll();
   if (layer->hasChildren()) {
-    document->reparentNodes({{defaultLayer, layer->children()}});
+    if (!document->reparentNodes({{defaultLayer, layer->children()}})) {
+      transaction.cancel();
+      return;
+    }
   }
+
   if (document->currentLayer() == layer) {
     document->setCurrentLayer(defaultLayer);
   }
   document->removeNodes({layer});
+  transaction.commit();
 }
 
 bool LayerEditor::canRemoveLayer() const {

@@ -72,9 +72,10 @@ void ReplaceTextureDialog::accept() {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.setTextureName(replacement->name());
 
-  const auto transaction = Transaction{document, "Replace Textures"};
+  auto transaction = Transaction{document, "Replace Textures"};
   document->selectBrushFaces(faces);
   document->setFaceAttributes(request);
+  transaction.commit();
 
   auto msg = std::stringstream{};
   msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on "

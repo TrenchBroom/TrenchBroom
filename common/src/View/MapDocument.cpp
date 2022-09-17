@@ -409,7 +409,7 @@ void MapDocument::setCurrentLayer(Model::LayerNode* currentLayer) {
   ensure(m_currentLayer != nullptr, "old currentLayer is null");
   ensure(currentLayer != nullptr, "new currentLayer is null");
 
-  const auto transaction = Transaction{*this, "Set Current Layer"};
+  auto transaction = Transaction{*this, "Set Current Layer"};
 
   while (currentGroup() != nullptr) {
     closeGroup();
@@ -420,6 +420,7 @@ void MapDocument::setCurrentLayer(Model::LayerNode* currentLayer) {
   downgradeUnlockedToInherit(descendants);
 
   executeAndStore(SetCurrentLayerCommand::set(currentLayer));
+  transaction.commit();
 }
 
 bool MapDocument::canSetCurrentLayer(Model::LayerNode* currentLayer) const {
@@ -1009,9 +1010,10 @@ void MapDocument::selectSiblings() {
     }
   }
 
-  const auto transaction = Transaction{*this, "Select Siblings"};
+  auto transaction = Transaction{*this, "Select Siblings"};
   deselectAll();
   selectNodes(nodesToSelect);
+  transaction.commit();
 }
 
 void MapDocument::selectTouching(const bool del) {
@@ -1022,13 +1024,14 @@ void MapDocument::selectTouching(const bool del) {
       return m_editorContext->selectable(node);
     });
 
-  const auto transaction = Transaction{*this, "Select Touching"};
+  auto transaction = Transaction{*this, "Select Touching"};
   if (del) {
     deleteObjects();
   } else {
     deselectAll();
   }
   selectNodes(nodes);
+  transaction.commit();
 }
 
 void MapDocument::selectInside(const bool del) {
@@ -1039,13 +1042,14 @@ void MapDocument::selectInside(const bool del) {
       return m_editorContext->selectable(node);
     });
 
-  const auto transaction = Transaction{*this, "Select Inside"};
+  auto transaction = Transaction{*this, "Select Inside"};
   if (del) {
     deleteObjects();
   } else {
     deselectAll();
   }
   selectNodes(nodes);
+  transaction.commit();
 }
 
 void MapDocument::selectInverse() {
@@ -1085,9 +1089,10 @@ void MapDocument::selectInverse() {
       collectNode(patch);
     }));
 
-  const auto transaction = Transaction{*this, "Select Inverse"};
+  auto transaction = Transaction{*this, "Select Inverse"};
   deselectAll();
   selectNodes(nodesToSelect);
+  transaction.commit();
 }
 
 void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positions) {
@@ -1102,9 +1107,10 @@ void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positio
       return false;
     });
 
-  const auto transaction = Transaction{*this, "Select by Line Number"};
+  auto transaction = Transaction{*this, "Select by Line Number"};
   deselectAll();
   selectNodes(nodes);
+  transaction.commit();
 }
 
 void MapDocument::selectNodes(const std::vector<Model::Node*>& nodes) {
@@ -1132,9 +1138,10 @@ void MapDocument::selectFacesWithTexture(const Assets::Texture* texture) {
       return faceHandle.face().texture() == texture;
     });
 
-  const auto transaction = Transaction{*this, "Select Faces with Texture"};
+  auto transaction = Transaction{*this, "Select Faces with Texture"};
   deselectAll();
   selectBrushFaces(faces);
+  transaction.commit();
 }
 
 void MapDocument::selectTall(const vm::axis::type cameraAxis) {
@@ -1173,7 +1180,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis) {
     })
     .and_then([&](const std::vector<std::unique_ptr<Model::BrushNode>>& tallBrushes) {
       // delete the original selection brushes before searching for the objects to select
-      const auto transaction = Transaction{*this, "Select Tall"};
+      auto transaction = Transaction{*this, "Select Tall"};
       deleteObjects();
 
       const auto nodesToSelect = kdl::vec_filter(
@@ -1187,6 +1194,8 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis) {
           return editorContext().selectable(node);
         });
       selectNodes(nodesToSelect);
+
+      transaction.commit();
     })
     .handle_errors([&](const Model::BrushError& e) {
       logger().error() << "Could not create selection brush: " << e;
@@ -1245,16 +1254,19 @@ std::vector<Model::Node*> MapDocument::addNodes(
     unused(parent);
   }
 
-  const auto transaction = Transaction{*this, "Add Objects"};
+  auto transaction = Transaction{*this, "Add Objects"};
   const auto result = executeAndStore(
     AddRemoveNodesCommand::add(nodes, findAllLinkedGroups(*m_world, kdl::map_keys(nodes))));
   if (!result->success()) {
+    transaction.cancel();
     return {};
   }
 
   const auto addedNodes = collectChildren(nodes);
   ensureVisible(addedNodes);
   ensureUnlocked(addedNodes);
+  transaction.commit();
+
   return addedNodes;
 }
 
@@ -1333,6 +1345,8 @@ void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes) {
       [](Model::BezierPatch&) {
         return true;
       }));
+
+  transaction.commit();
 }
 
 std::map<Model::Node*, std::vector<Model::Node*>> MapDocument::collectRemovableParents(
@@ -1421,19 +1435,22 @@ bool MapDocument::reparentNodes(
     executeAndStore(ReparentNodesCommand::reparent(
                       std::move(nodesToAdd), nodesToRemove, std::move(changedLinkedGroups)))
       ->success();
-  if (success) {
-    std::map<Model::Node*, std::vector<Model::Node*>> removableNodes =
-      collectRemovableParents(nodesToRemove);
-    while (!removableNodes.empty()) {
-      closeRemovedGroups(removableNodes);
-      executeAndStore(AddRemoveNodesCommand::remove(
-        removableNodes, findAllLinkedGroups(*m_world, kdl::map_keys(removableNodes))));
-
-      removableNodes = collectRemovableParents(removableNodes);
-    }
+  if (!success) {
+    transaction.cancel();
+    return false;
   }
 
-  return success;
+  auto removableNodes = collectRemovableParents(nodesToRemove);
+  while (!removableNodes.empty()) {
+    closeRemovedGroups(removableNodes);
+    executeAndStore(AddRemoveNodesCommand::remove(
+      removableNodes, findAllLinkedGroups(*m_world, kdl::map_keys(removableNodes))));
+
+    removableNodes = collectRemovableParents(removableNodes);
+  }
+
+  transaction.commit();
+  return true;
 }
 
 bool MapDocument::checkReparenting(
@@ -1446,12 +1463,13 @@ bool MapDocument::checkReparenting(
   return true;
 }
 
-bool MapDocument::deleteObjects() {
-  const auto transaction = Transaction{*this, "Delete Objects"};
+void MapDocument::deleteObjects() {
   const auto nodes = m_selectedNodes.nodes();
+
+  auto transaction = Transaction{*this, "Delete Objects"};
   deselectAll();
   removeNodes(nodes);
-  return true;
+  transaction.commit();
 }
 
 /**
@@ -1517,10 +1535,16 @@ void MapDocument::duplicateObjects() {
   }
 
   {
-    const auto transaction = Transaction{*this, "Duplicate Objects"};
+    auto transaction = Transaction{*this, "Duplicate Objects"};
     deselectAll();
-    addNodes(nodesToAdd);
+
+    if (addNodes(nodesToAdd).empty()) {
+      transaction.cancel();
+      return;
+    }
+
     selectNodes(nodesToSelect);
+    transaction.commit();
   }
 
   if (m_viewEffectsService) {
@@ -1541,15 +1565,18 @@ Model::EntityNode* MapDocument::createPointEntity(
   auto name = std::stringstream{};
   name << "Create " << definition->name();
 
-  const auto transaction = Transaction{*this, name.str()};
+  auto transaction = Transaction{*this, name.str()};
   if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
+    transaction.cancel();
     return nullptr;
   }
   selectNodes({entityNode});
   if (!translateObjects(delta)) {
+    transaction.cancel();
     return nullptr;
   }
 
+  transaction.commit();
   return entityNode;
 }
 
@@ -1586,16 +1613,19 @@ Model::EntityNode* MapDocument::createBrushEntity(const Assets::BrushEntityDefin
 
   const auto nodes = kdl::vec_element_cast<Model::Node*>(brushes);
 
-  const auto transaction = Transaction{*this, name.str()};
+  auto transaction = Transaction{*this, name.str()};
   deselectAll();
   if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
+    transaction.cancel();
     return nullptr;
   }
   if (!reparentNodes({{entityNode, nodes}})) {
+    transaction.cancel();
     return nullptr;
   }
   selectNodes(nodes);
 
+  transaction.commit();
   return entityNode;
 }
 
@@ -1640,12 +1670,15 @@ Model::GroupNode* MapDocument::groupSelection(const std::string& name) {
 
   auto* group = new Model::GroupNode{Model::Group{name}};
 
-  const auto transaction = Transaction{*this, "Group Selected Objects"};
+  auto transaction = Transaction{*this, "Group Selected Objects"};
   deselectAll();
-  addNodes({{parentForNodes(nodes), {group}}});
-  reparentNodes({{group, nodes}});
+  if (addNodes({{parentForNodes(nodes), {group}}}).empty() || !reparentNodes({{group, nodes}})) {
+    transaction.cancel();
+    return nullptr;
+  }
   selectNodes({group});
 
+  transaction.commit();
   return group;
 }
 
@@ -1654,17 +1687,22 @@ void MapDocument::mergeSelectedGroupsWithGroup(Model::GroupNode* group) {
     return;
   }
 
-  const auto transaction = Transaction{*this, "Merge Groups"};
   const auto groupsToMerge = m_selectedNodes.groups();
 
+  auto transaction = Transaction{*this, "Merge Groups"};
   deselectAll();
   for (auto groupToMerge : groupsToMerge) {
     if (groupToMerge != group) {
       const auto children = groupToMerge->children();
-      reparentNodes({{group, children}});
+      if (!reparentNodes({{group, children}})) {
+        transaction.cancel();
+        return;
+      }
     }
   }
   selectNodes({group});
+
+  transaction.commit();
 }
 
 void MapDocument::ungroupSelection() {
@@ -1672,7 +1710,7 @@ void MapDocument::ungroupSelection() {
     return;
   }
 
-  const auto transaction = Transaction{*this, "Ungroup"};
+  auto transaction = Transaction{*this, "Ungroup"};
   separateSelectedLinkedGroups(false);
 
   const auto selectedNodes = m_selectedNodes.nodes();
@@ -1680,13 +1718,14 @@ void MapDocument::ungroupSelection() {
 
   deselectAll();
 
+  auto success = true;
   Model::Node::visitAll(
     selectedNodes, kdl::overload(
                      [](Model::WorldNode*) {}, [](Model::LayerNode*) {},
                      [&](Model::GroupNode* group) {
                        auto* parent = group->parent();
                        const auto children = group->children();
-                       reparentNodes({{parent, children}});
+                       success = success && reparentNodes({{parent, children}});
                        nodesToReselect = kdl::vec_concat(std::move(nodesToReselect), children);
                      },
                      [&](Model::EntityNode* entity) {
@@ -1699,7 +1738,13 @@ void MapDocument::ungroupSelection() {
                        nodesToReselect.push_back(patch);
                      }));
 
+  if (!success) {
+    transaction.cancel();
+    return;
+  }
+
   selectNodes(nodesToReselect);
+  transaction.commit();
 }
 
 void MapDocument::renameGroups(const std::string& name) {
@@ -1730,7 +1775,7 @@ void MapDocument::renameGroups(const std::string& name) {
 }
 
 void MapDocument::openGroup(Model::GroupNode* group) {
-  const auto transaction = Transaction{*this, "Open Group"};
+  auto transaction = Transaction{*this, "Open Group"};
 
   deselectAll();
   auto* previousGroup = m_editorContext->currentGroup();
@@ -1741,10 +1786,12 @@ void MapDocument::openGroup(Model::GroupNode* group) {
   }
   unlock(std::vector<Model::Node*>{group});
   executeAndStore(CurrentGroupCommand::push(group));
+
+  transaction.commit();
 }
 
 void MapDocument::closeGroup() {
-  const auto transaction = Transaction{*this, "Open Group"};
+  auto transaction = Transaction{*this, "Open Group"};
 
   deselectAll();
   auto* previousGroup = m_editorContext->currentGroup();
@@ -1757,6 +1804,8 @@ void MapDocument::closeGroup() {
   } else {
     unlock(std::vector<Model::Node*>{m_world.get()});
   }
+
+  transaction.commit();
 }
 
 Model::GroupNode* MapDocument::createLinkedDuplicate() {
@@ -1764,7 +1813,7 @@ Model::GroupNode* MapDocument::createLinkedDuplicate() {
     return nullptr;
   }
 
-  const auto transaction = Transaction{*this, "Create Linked Duplicate"};
+  auto transaction = Transaction{*this, "Create Linked Duplicate"};
 
   auto* groupNode = m_selectedNodes.groups().front();
   if (!groupNode->group().linkedGroupId()) {
@@ -1792,8 +1841,12 @@ Model::GroupNode* MapDocument::createLinkedDuplicate() {
 
   auto* groupNodeClone = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(m_worldBounds));
   auto* suggestedParent = parentForNodes(std::vector<Model::Node*>{groupNode});
-  addNodes({{suggestedParent, {groupNodeClone}}});
+  if (addNodes({{suggestedParent, {groupNodeClone}}}).empty()) {
+    transaction.cancel();
+    return nullptr;
+  }
 
+  transaction.commit();
   return groupNodeClone;
 }
 
@@ -1827,6 +1880,7 @@ void MapDocument::selectLinkedGroups() {
   auto transaction = Transaction{*this, "Select Linked Groups"};
   deselectAll();
   selectNodes(groupNodesToSelect);
+  transaction.commit();
 }
 
 bool MapDocument::canSelectLinkedGroups() const {
@@ -1889,8 +1943,9 @@ void MapDocument::unlinkGroups(const std::vector<Model::GroupNode*>& groupNodes)
 }
 
 void MapDocument::separateLinkedGroups() {
-  const auto transaction = Transaction{*this, "Separate Linked Groups"};
+  auto transaction = Transaction{*this, "Separate Linked Groups"};
   separateSelectedLinkedGroups(true);
+  transaction.commit();
 }
 
 bool MapDocument::canSeparateLinkedGroups() const {
@@ -2031,7 +2086,7 @@ bool MapDocument::moveLayerByOne(Model::LayerNode* layerNode, MoveDirection dire
 void MapDocument::moveLayer(Model::LayerNode* layer, const int offset) {
   ensure(layer != m_world->defaultLayer(), "attempted to move default layer");
 
-  const auto transaction = Transaction{*this, "Move Layer"};
+  auto transaction = Transaction{*this, "Move Layer"};
 
   const auto direction = (offset > 0) ? MoveDirection::Down : MoveDirection::Up;
   for (int i = 0; i < std::abs(offset); ++i) {
@@ -2039,6 +2094,8 @@ void MapDocument::moveLayer(Model::LayerNode* layer, const int offset) {
       break;
     }
   }
+
+  transaction.commit();
 }
 
 bool MapDocument::canMoveLayer(Model::LayerNode* layer, const int offset) const {
@@ -2060,8 +2117,6 @@ bool MapDocument::canMoveLayer(Model::LayerNode* layer, const int offset) const 
 }
 
 void MapDocument::moveSelectionToLayer(Model::LayerNode* layer) {
-  const auto transaction = Transaction{*this, "Move Nodes to " + layer->name()};
-
   const auto& selectedNodes = this->selectedNodes().nodes();
 
   auto nodesToMove = std::vector<Model::Node*>{};
@@ -2112,11 +2167,16 @@ void MapDocument::moveSelectionToLayer(Model::LayerNode* layer) {
   }
 
   if (!nodesToMove.empty()) {
+    auto transaction = Transaction{*this, "Move Nodes to " + layer->name()};
     deselectAll();
-    reparentNodes({{layer, nodesToMove}});
+    if (!reparentNodes({{layer, nodesToMove}})) {
+      transaction.cancel();
+      return;
+    }
     if (!layer->hidden() && !layer->locked()) {
       selectNodes(nodesToSelect);
     }
+    transaction.commit();
   }
 }
 
@@ -2136,8 +2196,9 @@ bool MapDocument::canMoveSelectionToLayer(Model::LayerNode* layer) const {
 }
 
 void MapDocument::hideLayers(const std::vector<Model::LayerNode*>& layers) {
-  const auto transaction = Transaction{*this, "Hide Layers"};
+  auto transaction = Transaction{*this, "Hide Layers"};
   hide(std::vector<Model::Node*>{std::begin(layers), std::end(layers)});
+  transaction.commit();
 }
 
 bool MapDocument::canHideLayers(const std::vector<Model::LayerNode*>& layers) const {
@@ -2149,9 +2210,10 @@ bool MapDocument::canHideLayers(const std::vector<Model::LayerNode*>& layers) co
 void MapDocument::isolateLayers(const std::vector<Model::LayerNode*>& layers) {
   const auto allLayers = world()->allLayers();
 
-  const auto transaction = Transaction{*this, "Isolate Layers"};
+  auto transaction = Transaction{*this, "Isolate Layers"};
   hide(std::vector<Model::Node*>{std::begin(allLayers), std::end(allLayers)});
   show(std::vector<Model::Node*>{std::begin(layers), std::end(layers)});
+  transaction.commit();
 }
 
 bool MapDocument::canIsolateLayers(const std::vector<Model::LayerNode*>& layers) const {
@@ -2195,9 +2257,10 @@ void MapDocument::isolate() {
       collectNode(patch);
     }));
 
-  const auto transaction = Transaction{*this, "Isolate Objects"};
+  auto transaction = Transaction{*this, "Isolate Objects"};
   executeAndStore(SetVisibilityCommand::hide(unselectedNodes));
   executeAndStore(SetVisibilityCommand::show(selectedNodes));
+  transaction.commit();
 }
 
 void MapDocument::setOmitLayerFromExport(Model::LayerNode* layerNode, const bool omitFromExport) {
@@ -2221,7 +2284,7 @@ bool MapDocument::canSelectAllInLayers(const std::vector<Model::LayerNode*>& /* 
 }
 
 void MapDocument::hide(const std::vector<Model::Node*> nodes) {
-  const auto transaction = Transaction{*this, "Hide Objects"};
+  auto transaction = Transaction{*this, "Hide Objects"};
 
   // Deselect any selected nodes inside `nodes`
   deselectNodes(Model::collectSelectedNodes(nodes));
@@ -2230,6 +2293,7 @@ void MapDocument::hide(const std::vector<Model::Node*> nodes) {
   downgradeShownToInherit(Model::collectDescendants(nodes));
 
   executeAndStore(SetVisibilityCommand::hide(nodes));
+  transaction.commit();
 }
 
 void MapDocument::hideSelection() {
@@ -2254,7 +2318,7 @@ void MapDocument::resetVisibility(const std::vector<Model::Node*>& nodes) {
 }
 
 void MapDocument::lock(const std::vector<Model::Node*>& nodes) {
-  const auto transaction = Transaction{*this, "Lock Objects"};
+  auto transaction = Transaction{*this, "Lock Objects"};
 
   // Deselect any selected nodes or faces inside `nodes`
   deselectNodes(Model::collectSelectedNodes(nodes));
@@ -2264,6 +2328,7 @@ void MapDocument::lock(const std::vector<Model::Node*>& nodes) {
   downgradeUnlockedToInherit(Model::collectDescendants(nodes));
 
   executeAndStore(SetLockStateCommand::lock(nodes));
+  transaction.commit();
 }
 
 void MapDocument::unlock(const std::vector<Model::Node*>& nodes) {
@@ -2478,10 +2543,14 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
     .and_then([&](Model::Brush&& b) {
       auto* brushNode = new Model::BrushNode{std::move(b)};
 
-      const auto transaction = Transaction{*this, "Create Brush"};
+      auto transaction = Transaction{*this, "Create Brush"};
       deselectAll();
-      addNodes({{parentForNodes(), {brushNode}}});
+      if (addNodes({{parentForNodes(), {brushNode}}}).empty()) {
+        transaction.cancel();
+        return;
+      }
       selectNodes({brushNode});
+      transaction.commit();
     })
     .handle_errors([&](const Model::BrushError e) {
       error() << "Could not create brush: " << e;
@@ -2538,11 +2607,15 @@ bool MapDocument::csgConvexMerge() {
 
       auto* brushNode = new Model::BrushNode{std::move(b)};
 
-      const auto transaction = Transaction{*this, "CSG Convex Merge"};
+      auto transaction = Transaction{*this, "CSG Convex Merge"};
       deselectAll();
-      addNodes({{parentNode, {brushNode}}});
+      if (addNodes({{parentNode, {brushNode}}}).empty()) {
+        transaction.cancel();
+        return;
+      }
       removeNodes(toRemove);
       selectNodes({brushNode});
+      transaction.commit();
     })
     .handle_errors([&](const Model::BrushError e) {
       error() << "Could not create brush: " << e;
@@ -2555,7 +2628,7 @@ bool MapDocument::csgSubtract() {
     return false;
   }
 
-  const auto transaction = Transaction{*this, "CSG Subtract"};
+  auto transaction = Transaction{*this, "CSG Subtract"};
   // Select touching, but don't delete the subtrahends yet
   selectTouching(false);
 
@@ -2591,6 +2664,8 @@ bool MapDocument::csgSubtract() {
   const auto added = addNodes(toAdd);
   removeNodes(toRemove);
   selectNodes(added);
+
+  transaction.commit();
   return true;
 }
 
@@ -2615,18 +2690,22 @@ bool MapDocument::csgIntersect() {
 
   const auto toRemove = std::vector<Model::Node*>{std::begin(brushes), std::end(brushes)};
 
-  const auto transaction = Transaction{*this, "CSG Intersect"};
+  auto transaction = Transaction{*this, "CSG Intersect"};
   deselectNodes(toRemove);
 
   if (valid) {
     auto* intersectionNode = new Model::BrushNode{std::move(intersection)};
-    addNodes({{parentForNodes(toRemove), {intersectionNode}}});
+    if (addNodes({{parentForNodes(toRemove), {intersectionNode}}}).empty()) {
+      transaction.cancel();
+      return false;
+    }
     removeNodes(toRemove);
     selectNodes({intersectionNode});
   } else {
     removeNodes(toRemove);
   }
 
+  transaction.commit();
   return true;
 }
 
@@ -2678,12 +2757,17 @@ bool MapDocument::csgHollow() {
     toRemove.push_back(sourceNode);
   }
 
-  const auto transaction = Transaction{*this, "CSG Hollow"};
+  auto transaction = Transaction{*this, "CSG Hollow"};
   deselectAll();
   const auto added = addNodes(toAdd);
+  if (added.empty()) {
+    transaction.cancel();
+    return false;
+  }
   removeNodes(toRemove);
   selectNodes(added);
 
+  transaction.commit();
   return true;
 }
 
@@ -2710,12 +2794,17 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
         toAdd[parentNode].push_back(new Model::BrushNode{std::move(clippedBrush)});
       }
 
-      const auto transaction = Transaction{*this, "Clip Brushes"};
+      auto transaction = Transaction{*this, "Clip Brushes"};
       deselectAll();
       removeNodes(toRemove);
 
       const auto addedNodes = addNodes(toAdd);
+      if (addedNodes.empty()) {
+        transaction.cancel();
+        return;
+      }
       selectNodes(addedNodes);
+      transaction.commit();
     })
     .handle_errors([&](const Model::BrushError e) {
       error() << "Could not clip brushes: " << e;
@@ -4289,31 +4378,32 @@ Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name
 
 Transaction::Transaction(MapDocument& document, std::string name)
   : m_document{document}
-  , m_cancelled{false} {
+  , m_state{TransactionState::Running} {
   begin(std::move(name));
 }
 
 Transaction::~Transaction() {
-  if (!m_cancelled) {
-    commit();
-  }
+  assert(m_state != TransactionState::Running);
+}
+
+void Transaction::commit() {
+  assert(m_state == TransactionState::Running);
+  m_document.commitTransaction();
+  m_state = TransactionState::Committed;
 }
 
 void Transaction::rollback() {
+  assert(m_state == TransactionState::Running);
   m_document.rollbackTransaction();
 }
 
 void Transaction::cancel() {
-  m_document.cancelTransaction();
-  m_cancelled = true;
+  assert(m_state == TransactionState::Running);
+  m_state = TransactionState::Cancelled;
 }
 
 void Transaction::begin(std::string name) {
   m_document.startTransaction(std::move(name), TransactionScope::Oneshot);
-}
-
-void Transaction::commit() {
-  m_document.commitTransaction();
 }
 } // namespace View
 } // namespace TrenchBroom

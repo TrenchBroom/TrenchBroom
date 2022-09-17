@@ -124,7 +124,7 @@ static void transferFaceAttributes(
                        ? Model::WrapStyle::Rotation
                        : Model::WrapStyle::Projection;
 
-  const auto transaction = Transaction{document, TransferFaceAttributesTransactionName};
+  auto transaction = Transaction{document, TransferFaceAttributesTransactionName};
   document.deselectAll();
   document.selectBrushFaces(targetFaceHandles);
 
@@ -143,6 +143,7 @@ static void transferFaceAttributes(
 
   document.deselectAll();
   document.selectBrushFaces({faceToSelectAfter});
+  transaction.commit();
 }
 
 namespace {

@@ -369,9 +369,10 @@ void MapViewBase::duplicateObjects() {
 }
 
 void MapViewBase::duplicateAndMoveObjects(const vm::direction direction) {
-  const auto transaction = Transaction{m_document};
+  auto transaction = Transaction{m_document};
   duplicateObjects();
   moveObjects(direction);
+  transaction.commit();
 }
 
 void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clockwise) {
@@ -633,17 +634,19 @@ void MapViewBase::enableTag(const Model::SmartTag& tag) {
   assert(tag.canEnable());
   auto document = kdl::mem_lock(m_document);
 
-  const auto transaction = Transaction{document, "Turn Selection into " + tag.name()};
+  auto transaction = Transaction{document, "Turn Selection into " + tag.name()};
   auto callback = EnableDisableTagCallback{};
   tag.enable(callback, *document);
+  transaction.commit();
 }
 
 void MapViewBase::disableTag(const Model::SmartTag& tag) {
   assert(tag.canDisable());
   auto document = kdl::mem_lock(m_document);
-  const auto transaction = Transaction{document, "Turn Selection into non-" + tag.name()};
+  auto transaction = Transaction{document, "Turn Selection into non-" + tag.name()};
   auto callback = EnableDisableTagCallback{};
   tag.disable(callback, *document);
+  transaction.commit();
 }
 
 void MapViewBase::makeStructural() {
@@ -679,7 +682,10 @@ void MapViewBase::makeStructural() {
 
   if (!anyTagDisabled && toReparent.empty()) {
     transaction.cancel();
+    return;
   }
+
+  transaction.commit();
 }
 
 void MapViewBase::toggleEntityDefinitionVisible(const Assets::EntityDefinition* definition) {
@@ -1283,10 +1289,11 @@ void MapViewBase::addSelectedObjectsToGroup() {
   auto* newGroup = findNewGroupForObjects(nodes);
   ensure(newGroup != nullptr, "newGroup is null");
 
-  const auto transaction = Transaction{document, "Add Objects to Group"};
+  auto transaction = Transaction{document, "Add Objects to Group"};
   reparentNodes(nodes, newGroup, true);
   document->deselectAll();
   document->selectNodes({newGroup});
+  transaction.commit();
 }
 
 void MapViewBase::removeSelectedObjectsFromGroup() {
@@ -1295,13 +1302,14 @@ void MapViewBase::removeSelectedObjectsFromGroup() {
   auto* currentGroup = document->editorContext().currentGroup();
   ensure(currentGroup != nullptr, "currentGroup is null");
 
-  const auto transaction = Transaction{document, "Remove Objects from Group"};
+  auto transaction = Transaction{document, "Remove Objects from Group"};
   reparentNodes(nodes, document->currentLayer(), true);
 
   while (document->currentGroup() != nullptr) {
     document->closeGroup();
   }
   document->selectNodes(nodes);
+  transaction.commit();
 }
 
 Model::Node* MapViewBase::findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const {
@@ -1324,8 +1332,9 @@ void MapViewBase::mergeSelectedGroups() {
   auto* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
   ensure(newGroup != nullptr, "newGroup is null");
 
-  const auto transaction = Transaction{document, "Merge Groups"};
+  auto transaction = Transaction{document, "Merge Groups"};
   document->mergeSelectedGroupsWithGroup(newGroup);
+  transaction.commit();
 }
 
 Model::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
@@ -1372,12 +1381,13 @@ void MapViewBase::moveSelectedBrushesToEntity() {
   auto* newParent = findNewParentEntityForBrushes(nodes);
   ensure(newParent != nullptr, "newParent is null");
 
-  const auto transaction =
+  auto transaction =
     Transaction{document, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
   reparentNodes(nodes, newParent, false);
 
   document->deselectAll();
   document->selectNodes(nodes);
+  transaction.commit();
 }
 
 Model::Node* MapViewBase::findNewParentEntityForBrushes(
@@ -1476,10 +1486,14 @@ void MapViewBase::reparentNodes(
   const auto name = "Move " + kdl::str_plural(reparentableNodes.size(), "Object", "Objects") +
                     " to " + newParent->name();
 
-  const auto transaction = Transaction{document, name};
+  auto transaction = Transaction{document, name};
   document->deselectAll();
-  document->reparentNodes({{newParent, reparentableNodes}});
+  if (!document->reparentNodes({{newParent, reparentableNodes}})) {
+    transaction.cancel();
+    return;
+  }
   document->selectNodes(reparentableNodes);
+  transaction.commit();
 }
 
 std::vector<Model::Node*> MapViewBase::collectReparentableNodes(

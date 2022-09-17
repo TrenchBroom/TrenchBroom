@@ -108,7 +108,7 @@ public: // adding, removing, reparenting, and duplicating nodes
   virtual void removeNodes(const std::vector<Node*>& nodes) = 0;
 
   virtual bool reparentNodes(const std::map<Node*, std::vector<Node*>>& nodes) = 0;
-  virtual bool deleteObjects() = 0;
+  virtual void deleteObjects() = 0;
   virtual void duplicateObjects() = 0;
 
 public: // entity management
