@@ -466,6 +466,11 @@ public:
 
   bool canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) const;
 
+protected:
+  void setHasPendingChanges(
+    const std::vector<Model::GroupNode*>& groupNodes, bool hasPendingChanges);
+  bool updateLinkedGroups();
+
 private:
   void separateSelectedLinkedGroups(bool relinkGroups);
 

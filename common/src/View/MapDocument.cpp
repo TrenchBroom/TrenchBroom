@@ -1967,6 +1967,51 @@ bool MapDocument::canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) 
   return checkLinkedGroupsToUpdate(changedLinkedGroups);
 }
 
+void MapDocument::setHasPendingChanges(
+  const std::vector<Model::GroupNode*>& groupNodes, const bool hasPendingChanges) {
+  for (auto* groupNode : groupNodes) {
+    groupNode->setHasPendingChanges(hasPendingChanges);
+  }
+}
+
+static std::vector<Model::GroupNode*> collectLinkedGroupsWithPendingChanges(Model::Node& node) {
+  auto result = std::vector<Model::GroupNode*>{};
+
+  node.accept(kdl::overload(
+    [](auto&& thisLambda, const Model::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const Model::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, Model::GroupNode* groupNode) {
+      if (groupNode->hasPendingChanges() && groupNode->group().linkedGroupId().has_value()) {
+        result.push_back(groupNode);
+      } else {
+        groupNode->visitChildren(thisLambda);
+      }
+    },
+    [](const Model::EntityNode*) {}, [](const Model::BrushNode*) {},
+    [](const Model::PatchNode*) {}));
+
+  return result;
+}
+
+bool MapDocument::updateLinkedGroups() {
+  if (isCurrentDocumentStateObservable()) {
+    if (const auto allChangedLinkedGroups = collectLinkedGroupsWithPendingChanges(*m_world);
+        !allChangedLinkedGroups.empty()) {
+      setHasPendingChanges(allChangedLinkedGroups, false);
+
+      auto command = std::make_unique<UpdateLinkedGroupsCommand>(allChangedLinkedGroups);
+      const auto result = executeAndStore(std::move(command));
+      return result->success();
+    }
+  }
+
+  return true;
+}
+
 void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups) {
   const auto selectedGroupsWithLinkGroupIds =
     kdl::vec_filter(m_selectedNodes.groups(), [](const auto& g) {
