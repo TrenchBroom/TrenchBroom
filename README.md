@@ -7,6 +7,7 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Trailer:   https://www.youtube.com/watch?v=shcAvnYp9ow
 - Website:   https://github.com/TrenchBroom/TrenchBroom
 - Discord:   https://discord.gg/WGf9uve
+- Twitter:   https://twitter.com/tb_leveleditor
 - Video Tutorial Series:  https://www.youtube.com/playlist?list=PLgDKRPte5Y0AZ_K_PZbWbgBAEt5xf74aE
 - Manual:    https://trenchbroom.github.io/manual/latest
 
@@ -53,7 +54,7 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Read [Build.md](Build.md) for instructions
 
 # Contributing
-- Bug reports and feature suggestions are welcome. Please submit them at https://github.com/kduske/TrenchBroom/issues
+- Bug reports and feature suggestions are welcome. Please submit them at https://github.com/TrenchBroom/TrenchBroom/issues
 - If you wish to contribute code or improve the documentation, please get in touch with me at kristian.duske@gmail.com.
 - All help is appreciated!
 
@@ -62,8 +63,12 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - [FreeType](https://www.freetype.org/)
 - [FreeImage](https://freeimage.sourceforge.io/)
 - [GLEW](https://github.com/nigels-com/glew)
+- [TinyXML](http://www.grinninglizard.com/tinyxml/)
+- miniz
+- [Assimp](https://www.assimp.org/)
 - [Catch2](https://github.com/catchorg/Catch2)
 - [CMake](https://cmake.org/)
+- [vcpkg](https://www.vcpkg.io/)
 - [Pandoc](https://www.pandoc.org/)
 - Quake icons by [Th3 ProphetMan](https://www.deviantart.com/th3-prophetman)
 - Hexen 2 icon by [thedoctor45](https://www.deviantart.com/thedoctor45)
