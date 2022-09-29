@@ -70,20 +70,17 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document) {
 CommonCompilationVariables::CommonCompilationVariables(std::shared_ptr<MapDocument> document)
   : CommonVariables(document) {
   const IO::Path filename = document->path().lastComponent();
+  const IO::Path filePath = document->path().deleteLastComponent();
   const IO::Path appPath = IO::SystemPaths::appDirectory();
 
   using namespace CompilationVariableNames;
   declare(MAP_FULL_NAME, EL::Value(filename.asString()));
+  declare(MAP_DIR_PATH, EL::Value(filePath.asString()));
   declare(APP_DIR_PATH, EL::Value(appPath.asString()));
 }
 
 CompilationWorkDirVariables::CompilationWorkDirVariables(std::shared_ptr<MapDocument> document)
-  : CommonCompilationVariables(document) {
-  const IO::Path filePath = document->path().deleteLastComponent();
-
-  using namespace CompilationVariableNames;
-  declare(MAP_DIR_PATH, EL::Value(filePath.asString()));
-}
+  : CommonCompilationVariables(document) {}
 
 CompilationVariables::CompilationVariables(
   std::shared_ptr<MapDocument> document, const std::string& workDir)
