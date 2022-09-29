@@ -54,7 +54,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleBrush") {
 
   auto* brushNode1 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   Model::PickResult pickResult;
   document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x()), pickResult);
@@ -79,7 +79,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleEntity") {
   document->deleteObjects();
 
   Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), ent1);
+  document->addNodes({{document->parentForNodes(), {ent1}}});
 
   const auto origin = ent1->entity().origin();
   const auto bounds = ent1->logicalBounds();
@@ -111,7 +111,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup") {
 
   auto* brushNode1 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 = new Model::BrushNode(
     builder
@@ -119,7 +119,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup") {
         vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)).translate(vm::vec3(0, 0, 128)),
         "texture")
       .value());
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   document->selectAllNodes();
   auto* group = document->groupSelection("test");
@@ -185,7 +185,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup") {
 
   auto* brushNode1 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 = new Model::BrushNode(
     builder
@@ -193,7 +193,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup") {
         vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)).translate(vm::vec3(0, 0, 128)),
         "texture")
       .value());
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   document->selectAllNodes();
   auto* innerGroup = document->groupSelection("inner");
@@ -205,7 +205,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup") {
         vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)).translate(vm::vec3(0, 0, 256)),
         "texture")
       .value());
-  addNode(*document, document->parentForNodes(), brushNode3);
+  document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   document->selectAllNodes();
   auto* outerGroup = document->groupSelection("outer");
@@ -348,7 +348,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickBrushEntity") {
 
   auto* brushNode1 = new Model::BrushNode(
     builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 = new Model::BrushNode(
     builder
@@ -356,7 +356,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickBrushEntity") {
         vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)).translate(vm::vec3(0, 0, 128)),
         "texture")
       .value());
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   document->selectAllNodes();
 

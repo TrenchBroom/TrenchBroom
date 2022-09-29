@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Notifier.h"
 #include "View/Command.h"
+#include "View/TransactionScope.h"
 #include "View/UndoableCommand.h"
 
 #include <kdl/set_temp.h>
@@ -43,10 +44,12 @@ void notifyCommandIfNotType(T& notifier, C& command) {
 
 struct CommandProcessor::TransactionState {
   std::string name;
+  TransactionScope scope;
   std::vector<std::unique_ptr<UndoableCommand>> commands;
 
-  explicit TransactionState(std::string i_name)
-    : name{std::move(i_name)} {}
+  TransactionState(std::string i_name, const TransactionScope i_scope)
+    : name{std::move(i_name)}
+    , scope{i_scope} {}
 };
 
 struct CommandProcessor::SubmitAndStoreResult {
@@ -158,8 +161,8 @@ const std::string& CommandProcessor::redoCommandName() const {
   }
 }
 
-void CommandProcessor::startTransaction(std::string name) {
-  m_transactionStack.emplace_back(std::move(name));
+void CommandProcessor::startTransaction(std::string name, const TransactionScope scope) {
+  m_transactionStack.emplace_back(std::move(name), scope);
 }
 
 void CommandProcessor::commitTransaction() {
@@ -181,6 +184,11 @@ void CommandProcessor::rollbackTransaction() {
     undoCommand(**it);
   }
   transaction.commands.clear();
+}
+
+bool CommandProcessor::isCurrentDocumentStateObservable() const {
+  return m_transactionStack.size() < 2 ||
+         m_transactionStack[m_transactionStack.size() - 2].scope == TransactionScope::LongRunning;
 }
 
 std::unique_ptr<CommandResult> CommandProcessor::execute(std::unique_ptr<Command> command) {

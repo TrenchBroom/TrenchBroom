@@ -32,6 +32,7 @@ class Command;
 class CommandResult;
 class MapDocumentCommandFacade;
 class UndoableCommand;
+enum class TransactionScope;
 
 /**
  * The command processor is responsible for executing and undoing commands and for maintining the
@@ -167,8 +168,9 @@ public:
    * transaction upon commit.
    *
    * @param name the name of the transaction to start
+   * @param scope the scope of the transaction to start
    */
-  void startTransaction(std::string name);
+  void startTransaction(std::string name, TransactionScope scope);
 
   /**
    * Commits the currently executing transaction. If it is a nested transaction, then its commands
@@ -190,6 +192,15 @@ public:
    * @throws CommandProcessorException if no transaction is currently executing
    */
   void rollbackTransaction();
+
+  /**
+   * Indicates whether the current document state is observable.
+   *
+   * If no transaction is active, the state is observable.
+   * If a transaction is active, the state is observable unless the transaction is nested inside a
+   * one shot transaction.
+   */
+  bool isCurrentDocumentStateObservable() const;
 
   /**
    * Executes the given command by calling its `performDo` method without storing it for later undo.

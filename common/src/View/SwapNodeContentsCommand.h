@@ -21,8 +21,7 @@
 
 #include "Macros.h"
 #include "Model/NodeContents.h"
-#include "View/UndoableCommand.h"
-#include "View/UpdateLinkedGroupsHelper.h"
+#include "View/UpdateLinkedGroupsCommandBase.h"
 
 #include <memory>
 #include <string>
@@ -37,15 +36,13 @@ class Node;
 } // namespace Model
 
 namespace View {
-class SwapNodeContentsCommand : public UndoableCommand {
+class SwapNodeContentsCommand : public UpdateLinkedGroupsCommandBase {
 protected:
   std::vector<std::pair<Model::Node*, Model::NodeContents>> m_nodes;
-  UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
 
 public:
   SwapNodeContentsCommand(
-    const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-    std::vector<const Model::GroupNode*> changedLinkedGroups);
+    const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
   ~SwapNodeContentsCommand();
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;

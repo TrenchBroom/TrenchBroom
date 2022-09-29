@@ -84,6 +84,7 @@ class Selection;
 class UndoableCommand;
 class ViewEffectsService;
 enum class MapTextEncoding;
+enum class TransactionScope;
 
 struct PointFile {
   Model::PointTrace trace;
@@ -413,7 +414,7 @@ private:
   bool checkReparenting(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const;
 
 public:
-  bool deleteObjects() override;
+  void deleteObjects() override;
   void duplicateObjects() override;
 
 public: // entity management
@@ -465,6 +466,11 @@ public:
 
   bool canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) const;
 
+protected:
+  void setHasPendingChanges(
+    const std::vector<Model::GroupNode*>& groupNodes, bool hasPendingChanges);
+  bool updateLinkedGroups();
+
 private:
   void separateSelectedLinkedGroups(bool relinkGroups);
 
@@ -513,7 +519,7 @@ public: // modifying objects, declared in MapFacade interface
   bool swapNodeContents(
     const std::string& commandName,
     std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap,
-    std::vector<const Model::GroupNode*> changedLinkedGroups);
+    std::vector<Model::GroupNode*> changedLinkedGroups);
   bool swapNodeContents(
     const std::string& commandName,
     std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap);
@@ -596,10 +602,12 @@ public: // command processing
   void clearRepeatableCommands();
 
 public: // transactions
-  void startTransaction(std::string name);
+  void startTransaction(std::string name, TransactionScope scope);
   void rollbackTransaction();
-  void commitTransaction();
+  bool commitTransaction();
   void cancelTransaction();
+
+  virtual bool isCurrentDocumentStateObservable() const = 0;
 
 private:
   std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
@@ -614,7 +622,7 @@ private: // subclassing interface for command processing
   virtual void doRedoCommand() = 0;
 
   virtual void doClearCommandProcessor() = 0;
-  virtual void doStartTransaction(std::string name) = 0;
+  virtual void doStartTransaction(std::string name, TransactionScope scope) = 0;
   virtual void doCommitTransaction() = 0;
   virtual void doRollbackTransaction() = 0;
 
@@ -758,21 +766,27 @@ private: // observers
 
 class Transaction {
 private:
-  MapDocument* m_document;
-  bool m_cancelled;
+  enum class TransactionState {
+    Running,
+    Committed,
+    Cancelled,
+  };
+
+  MapDocument& m_document;
+  TransactionState m_state;
 
 public:
   explicit Transaction(std::weak_ptr<MapDocument> document, std::string name = "");
   explicit Transaction(std::shared_ptr<MapDocument> document, std::string name = "");
-  explicit Transaction(MapDocument* document, std::string name = "");
+  explicit Transaction(MapDocument& document, std::string name = "");
   ~Transaction();
 
+  bool commit();
   void rollback();
   void cancel();
 
 private:
   void begin(std::string name);
-  void commit();
 };
 } // namespace View
 } // namespace TrenchBroom

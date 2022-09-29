@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2022 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,51 +20,28 @@
 #pragma once
 
 #include "Macros.h"
+#include "Model/NodeContents.h"
 #include "View/UpdateLinkedGroupsCommandBase.h"
 
-#include <map>
-#include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
 namespace Model {
+class GroupNode;
 class Node;
 } // namespace Model
 
 namespace View {
-class AddRemoveNodesCommand : public UpdateLinkedGroupsCommandBase {
-private:
-  enum class Action {
-    Add,
-    Remove
-  };
-
-  Action m_action;
-  std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
-  std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
-
+class UpdateLinkedGroupsCommand : public UpdateLinkedGroupsCommandBase {
 public:
-  static std::unique_ptr<AddRemoveNodesCommand> add(
-    Model::Node* parent, const std::vector<Model::Node*>& children);
-  static std::unique_ptr<AddRemoveNodesCommand> add(
-    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
-  static std::unique_ptr<AddRemoveNodesCommand> remove(
-    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
-
-  AddRemoveNodesCommand(
-    Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
-  ~AddRemoveNodesCommand() override;
-
-private:
-  static std::string makeName(Action action);
+  UpdateLinkedGroupsCommand(std::vector<Model::GroupNode*> changedLinkedGroups);
+  ~UpdateLinkedGroupsCommand();
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
-  void doAction(MapDocumentCommandFacade* document);
-  void undoAction(MapDocumentCommandFacade* document);
-
-  deleteCopyAndMove(AddRemoveNodesCommand);
+  deleteCopyAndMove(UpdateLinkedGroupsCommand);
 };
 } // namespace View
 } // namespace TrenchBroom

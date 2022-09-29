@@ -35,6 +35,7 @@
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
 
@@ -168,6 +169,7 @@ bool SelectionTool::mouseClick(const InputState& inputState) {
               auto transaction = Transaction{document, "Select Brush Face"};
               document->convertToFaceSelection();
               document->selectBrushFaces({*faceHandle});
+              transaction.commit();
             }
           } else {
             if (face.selected()) {
@@ -180,6 +182,7 @@ bool SelectionTool::mouseClick(const InputState& inputState) {
           auto transaction = Transaction{document, "Select Brush Face"};
           document->deselectAll();
           document->selectBrushFaces({*faceHandle});
+          transaction.commit();
         }
       }
     } else {
@@ -200,11 +203,13 @@ bool SelectionTool::mouseClick(const InputState& inputState) {
               document->deselectAll();
             }
             document->selectNodes({node});
+            transaction.commit();
           }
         } else {
           auto transaction = Transaction{document, "Select Object"};
           document->deselectAll();
           document->selectNodes({node});
+          transaction.commit();
         }
       }
     } else {
@@ -240,6 +245,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState) {
           auto transaction = Transaction{document, "Select Brush Faces"};
           document->deselectAll();
           document->selectBrushFaces(Model::toHandles(brush));
+          transaction.commit();
         }
       }
     }
@@ -271,6 +277,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState) {
               auto transaction = Transaction{document, "Select Brushes"};
               document->deselectAll();
               document->selectNodes(siblings);
+              transaction.commit();
             }
           }
         }
@@ -336,9 +343,10 @@ static void drillSelection(const InputState& inputState, MapDocument& document) 
   auto* nextNode = nodePair.second;
 
   if (nextNode != nullptr) {
-    auto transaction = Transaction{&document, "Drill Selection"};
+    auto transaction = Transaction{document, "Drill Selection"};
     document.deselectNodes({selectedNode});
     document.selectNodes({nextNode});
+    transaction.commit();
   }
 }
 
@@ -410,7 +418,7 @@ std::unique_ptr<DragTracker> SelectionTool::acceptMouseDrag(const InputState& in
       const auto* brush = faceHandle->node();
       const auto& face = faceHandle->face();
       if (editorContext.selectable(brush, face)) {
-        document->startTransaction("Drag Select Brush Faces");
+        document->startTransaction("Drag Select Brush Faces", TransactionScope::LongRunning);
         if (document->hasSelection() && !document->hasSelectedBrushFaces()) {
           document->deselectAll();
         }
@@ -430,7 +438,7 @@ std::unique_ptr<DragTracker> SelectionTool::acceptMouseDrag(const InputState& in
 
     auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
     if (editorContext.selectable(node)) {
-      document->startTransaction("Drag Select Objects");
+      document->startTransaction("Drag Select Objects", TransactionScope::LongRunning);
       if (document->hasSelection() && !document->hasSelectedNodes()) {
         document->deselectAll();
       }

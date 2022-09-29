@@ -27,6 +27,7 @@
 #include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/TransactionScope.h"
 #include "View/UVView.h"
 
 #include <kdl/memory_utils.h>
@@ -97,7 +98,7 @@ public:
     : m_document{document}
     , m_helper{helper}
     , m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())} {
-    m_document.startTransaction("Move Texture");
+    m_document.startTransaction("Move Texture", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) {

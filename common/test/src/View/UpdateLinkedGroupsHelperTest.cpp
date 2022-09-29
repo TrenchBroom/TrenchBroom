@@ -461,7 +461,7 @@ TEST_CASE_METHOD(
   }
 
   SECTION("Propagate both changes at once") {
-    auto groupNodes = std::vector<const Model::GroupNode*>{outerGroupNode, innerGroupNode};
+    auto groupNodes = std::vector<Model::GroupNode*>{outerGroupNode, innerGroupNode};
     std::sort(std::begin(groupNodes), std::end(groupNodes));
 
     // The following code generates both permutations of the group nodes

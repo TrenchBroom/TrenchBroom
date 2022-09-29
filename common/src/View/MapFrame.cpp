@@ -1158,8 +1158,9 @@ bool MapFrame::hasRepeatableCommands() const {
 void MapFrame::cutSelection() {
   if (canCutSelection()) {
     copyToClipboard();
-    Transaction transaction(m_document, "Cut");
+    auto transaction = Transaction{m_document, "Cut"};
     m_document->deleteObjects();
+    transaction.commit();
   }
 }
 
@@ -1194,19 +1195,24 @@ bool MapFrame::canCopySelection() const {
 
 void MapFrame::pasteAtCursorPosition() {
   if (canPaste()) {
-    const vm::bbox3 referenceBounds = m_document->referenceBounds();
-    Transaction transaction(m_document);
+    const auto referenceBounds = m_document->referenceBounds();
     if (paste() == PasteType::Node && m_document->hasSelectedNodes()) {
-      const vm::bbox3 bounds = m_document->selectionBounds();
+      const auto bounds = m_document->selectionBounds();
 
       // The pasted objects must be hidden to prevent the picking done in pasteObjectsDelta
       // from hitting them (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
-      const std::vector<Model::Node*> nodes = m_document->selectedNodes().nodes();
+      const auto nodes = m_document->selectedNodes().nodes();
+
+      auto transaction = Transaction{m_document};
       m_document->hide(nodes);
-      const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
+      const auto delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
       m_document->show(nodes);
       m_document->selectNodes(nodes); // Hiding deselected the nodes, so reselect them
-      m_document->translateObjects(delta);
+      if (!m_document->translateObjects(delta)) {
+        transaction.cancel();
+        return;
+      }
+      transaction.commit();
     }
   }
 }

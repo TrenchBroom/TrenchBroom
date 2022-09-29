@@ -49,10 +49,13 @@ const Grid& CreateBrushToolBase::grid() const {
 void CreateBrushToolBase::createBrush() {
   if (m_brush != nullptr) {
     auto document = kdl::mem_lock(m_document);
-    const Transaction transaction(document, "Create Brush");
+
+    auto transaction = Transaction{document, "Create Brush"};
     document->deselectAll();
     document->addNodes({{document->parentForNodes(), {m_brush}}});
     document->selectNodes({m_brush});
+    transaction.commit();
+
     m_brush = nullptr;
     doBrushWasCreated();
   }

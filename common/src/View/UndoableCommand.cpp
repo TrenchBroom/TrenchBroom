@@ -34,10 +34,8 @@ UndoableCommand::~UndoableCommand() {}
 
 std::unique_ptr<CommandResult> UndoableCommand::performDo(MapDocumentCommandFacade* document) {
   auto result = Command::performDo(document);
-  if (result->success() && m_modificationCount) {
-    if (document) {
-      document->incModificationCount(m_modificationCount);
-    }
+  if (result->success()) {
+    setModificationCount(document);
   }
   return result;
 }
@@ -46,9 +44,7 @@ std::unique_ptr<CommandResult> UndoableCommand::performUndo(MapDocumentCommandFa
   m_state = CommandState::Undoing;
   auto result = doPerformUndo(document);
   if (result->success()) {
-    if (document) {
-      document->decModificationCount(m_modificationCount);
-    }
+    resetModificationCount(document);
     m_state = CommandState::Default;
   } else {
     m_state = CommandState::Done;
@@ -68,5 +64,18 @@ bool UndoableCommand::collateWith(UndoableCommand& command) {
 bool UndoableCommand::doCollateWith(UndoableCommand&) {
   return false;
 }
+
+void UndoableCommand::setModificationCount(MapDocumentCommandFacade* document) {
+  if (document && m_modificationCount) {
+    document->incModificationCount(m_modificationCount);
+  }
+}
+
+void UndoableCommand::resetModificationCount(MapDocumentCommandFacade* document) {
+  if (document) {
+    document->decModificationCount(m_modificationCount);
+  }
+}
+
 } // namespace View
 } // namespace TrenchBroom

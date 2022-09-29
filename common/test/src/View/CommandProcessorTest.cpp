@@ -20,6 +20,7 @@
 #include "View/CommandProcessor.h"
 #include "Macros.h"
 #include "NotifierConnection.h"
+#include "View/TransactionScope.h"
 #include "View/UndoableCommand.h"
 
 #include <kdl/vector_utils.h>
@@ -192,6 +193,20 @@ public:
   deleteCopyAndMove(TestCommand);
 };
 
+class NullCommand : public UndoableCommand {
+public:
+  explicit NullCommand(std::string name)
+    : UndoableCommand{std::move(name), true} {}
+
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override {
+    return std::make_unique<CommandResult>(true);
+  }
+
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override {
+    return std::make_unique<CommandResult>(true);
+  }
+};
+
 TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand", "[CommandProcessorTest]") {
   /*
    * Execute a successful command, then undo it successfully.
@@ -326,7 +341,7 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTe
   command1->expectDo(true);
   command2->expectDo(true);
 
-  commandProcessor.startTransaction(transactionName);
+  commandProcessor.startTransaction(transactionName, TransactionScope::Oneshot);
   CHECK(commandProcessor.executeAndStore(std::move(command1))->success());
   CHECK(commandProcessor.executeAndStore(std::move(command2))->success());
   commandProcessor.commitTransaction();
@@ -398,7 +413,7 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]") 
   command1->expectUndo(true);
 
   const auto transactionName = "transaction";
-  commandProcessor.startTransaction(transactionName);
+  commandProcessor.startTransaction(transactionName, TransactionScope::Oneshot);
   CHECK(commandProcessor.executeAndStore(std::move(command1))->success());
   CHECK_THAT(
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
@@ -461,7 +476,7 @@ TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
   innerCommand->expectUndo(true);
   outerCommand->expectUndo(true);
 
-  commandProcessor.startTransaction(outerTransactionName);
+  commandProcessor.startTransaction(outerTransactionName, TransactionScope::Oneshot);
   CHECK(commandProcessor.executeAndStore(std::move(outerCommand))->success());
   CHECK_THAT(
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
@@ -469,7 +484,7 @@ TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
                                    {CommandNotif::CommandDone, outerCommandName},
                                  }));
 
-  commandProcessor.startTransaction(innerTransactionName);
+  commandProcessor.startTransaction(innerTransactionName, TransactionScope::Oneshot);
   CHECK(commandProcessor.executeAndStore(std::move(innerCommand))->success());
   CHECK_THAT(
     observer.popNotifications(), Catch::Equals(std::vector<NotificationTuple>{
@@ -507,6 +522,79 @@ TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
                                    {CommandNotif::CommandUndone, outerCommandName},
                                    {CommandNotif::TransactionUndone, outerTransactionName},
                                  }));
+}
+
+TEST_CASE("CommandProceossor.isCurrentDocumentStateObservable") {
+  auto commandProcessor = CommandProcessor{nullptr};
+
+  SECTION("No enclosing transaction") {
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.executeAndStore(std::make_unique<NullCommand>("command"));
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+  }
+
+  SECTION("One enclosing one shot transaction") {
+    commandProcessor.startTransaction("", TransactionScope::Oneshot);
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.executeAndStore(std::make_unique<NullCommand>("command"));
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.commitTransaction();
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+  }
+
+  SECTION("One enclosing long running transaction") {
+    commandProcessor.startTransaction("", TransactionScope::LongRunning);
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.executeAndStore(std::make_unique<NullCommand>("command"));
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.commitTransaction();
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+  }
+
+  SECTION("Nested one shot transactions") {
+    commandProcessor.startTransaction("outer", TransactionScope::Oneshot);
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.startTransaction("inner", TransactionScope::Oneshot);
+    CHECK_FALSE(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.executeAndStore(std::make_unique<NullCommand>("command"));
+    CHECK_FALSE(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.commitTransaction();
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.commitTransaction();
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+  }
+
+  SECTION("Enclosing long running transaction with nested one shot transactions") {
+    commandProcessor.startTransaction("long running", TransactionScope::LongRunning);
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.startTransaction("outer", TransactionScope::Oneshot);
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.startTransaction("inner", TransactionScope::Oneshot);
+    CHECK_FALSE(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.executeAndStore(std::make_unique<NullCommand>("command"));
+    CHECK_FALSE(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.commitTransaction();
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.commitTransaction();
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+
+    commandProcessor.commitTransaction();
+    CHECK(commandProcessor.isCurrentDocumentStateObservable());
+  }
 }
 
 TEST_CASE("CommandProcessorTest.collateCommands", "[CommandProcessorTest]") {
@@ -645,12 +733,12 @@ TEST_CASE("CommandProcessorTest.collateTransactions", "[CommandProcessorTest]") 
   transaction1_command2->expectUndo(true);
   transaction2_command2->expectUndo(true);
 
-  commandProcessor.startTransaction("transaction 1");
+  commandProcessor.startTransaction("transaction 1", TransactionScope::Oneshot);
   commandProcessor.executeAndStore(std::move(transaction1_command1));
   commandProcessor.executeAndStore(std::move(transaction1_command2));
   commandProcessor.commitTransaction();
 
-  commandProcessor.startTransaction("transaction 2");
+  commandProcessor.startTransaction("transaction 2", TransactionScope::Oneshot);
   commandProcessor.executeAndStore(std::move(transaction2_command1));
   commandProcessor.executeAndStore(std::move(transaction2_command2));
   commandProcessor.commitTransaction();

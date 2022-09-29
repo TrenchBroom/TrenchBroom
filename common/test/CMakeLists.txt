@@ -125,6 +125,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/TextOutputAdapterTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/TransformNodesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/UndoTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/UpdateLinkedGroupsCommandTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/UpdateLinkedGroupsHelperTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/AABBTreeStressTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/AABBTreeTest.cpp"

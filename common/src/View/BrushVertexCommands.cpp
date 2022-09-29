@@ -27,9 +27,8 @@
 namespace TrenchBroom {
 namespace View {
 BrushVertexCommandBase::BrushVertexCommandBase(
-  const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : SwapNodeContentsCommand{name, std::move(nodes), std::move(changedLinkedGroups)} {}
+  const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
+  : SwapNodeContentsCommand{name, std::move(nodes)} {}
 
 std::unique_ptr<CommandResult> BrushVertexCommandBase::doPerformDo(
   MapDocumentCommandFacade* document) {
@@ -84,9 +83,8 @@ bool BrushVertexCommandResult::hasRemainingVertices() const {
 
 BrushVertexCommand::BrushVertexCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions,
-  std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : BrushVertexCommandBase{name, std::move(nodes), std::move(changedLinkedGroups)}
+  std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions)
+  : BrushVertexCommandBase{name, std::move(nodes)}
   , m_oldVertexPositions{std::move(oldVertexPositions)}
   , m_newVertexPositions{std::move(newVertexPositions)} {}
 
@@ -127,9 +125,8 @@ void BrushVertexCommand::selectOldHandlePositions(
 
 BrushEdgeCommand::BrushEdgeCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions,
-  std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : BrushVertexCommandBase{name, std::move(nodes), std::move(changedLinkedGroups)}
+  std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions)
+  : BrushVertexCommandBase{name, std::move(nodes)}
   , m_oldEdgePositions{std::move(oldEdgePositions)}
   , m_newEdgePositions{std::move(newEdgePositions)} {}
 
@@ -164,9 +161,8 @@ void BrushEdgeCommand::selectOldHandlePositions(
 
 BrushFaceCommand::BrushFaceCommand(
   const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions,
-  std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : BrushVertexCommandBase{name, std::move(nodes), std::move(changedLinkedGroups)}
+  std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions)
+  : BrushVertexCommandBase{name, std::move(nodes)}
   , m_oldFacePositions{std::move(oldFacePositions)}
   , m_newFacePositions{std::move(newFacePositions)} {}
 

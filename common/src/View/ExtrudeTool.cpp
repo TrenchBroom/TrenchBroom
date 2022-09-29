@@ -33,6 +33,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
@@ -311,7 +312,7 @@ std::vector<Model::BrushFaceHandle> ExtrudeTool::getDragFaces(
 void ExtrudeTool::beginExtrude() {
   ensure(!m_dragging, "may not be called during a drag");
   m_dragging = true;
-  kdl::mem_lock(m_document)->startTransaction("Resize Brushes");
+  kdl::mem_lock(m_document)->startTransaction("Resize Brushes", TransactionScope::LongRunning);
 }
 
 namespace {
@@ -515,7 +516,7 @@ bool ExtrudeTool::extrude(const vm::vec3& handleDelta, ExtrudeDragState& dragSta
 void ExtrudeTool::beginMove() {
   ensure(!m_dragging, "may not be called during a drag");
   m_dragging = true;
-  kdl::mem_lock(m_document)->startTransaction("Move Faces");
+  kdl::mem_lock(m_document)->startTransaction("Move Faces", TransactionScope::LongRunning);
 }
 
 bool ExtrudeTool::move(const vm::vec3& delta, ExtrudeDragState& dragState) {

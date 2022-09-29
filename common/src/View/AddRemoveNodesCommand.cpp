@@ -26,7 +26,6 @@
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/map_utils.h>
-#include <kdl/result.h>
 
 #include <map>
 #include <vector>
@@ -34,27 +33,22 @@
 namespace TrenchBroom {
 namespace View {
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  Model::Node* parent, const std::vector<Model::Node*>& children,
-  std::vector<const Model::GroupNode*> changedLinkedGroups) {
+  Model::Node* parent, const std::vector<Model::Node*>& children) {
   ensure(parent != nullptr, "parent is null");
   auto nodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
   nodes[parent] = children;
 
-  return add(nodes, std::move(changedLinkedGroups));
+  return add(nodes);
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<const Model::GroupNode*> changedLinkedGroups) {
-  return std::make_unique<AddRemoveNodesCommand>(
-    Action::Add, nodes, std::move(changedLinkedGroups));
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
+  return std::make_unique<AddRemoveNodesCommand>(Action::Add, nodes);
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::remove(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<const Model::GroupNode*> changedLinkedGroups) {
-  return std::make_unique<AddRemoveNodesCommand>(
-    Action::Remove, nodes, std::move(changedLinkedGroups));
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
+  return std::make_unique<AddRemoveNodesCommand>(Action::Remove, nodes);
 }
 
 AddRemoveNodesCommand::~AddRemoveNodesCommand() {
@@ -62,11 +56,9 @@ AddRemoveNodesCommand::~AddRemoveNodesCommand() {
 }
 
 AddRemoveNodesCommand::AddRemoveNodesCommand(
-  const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes,
-  std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : UndoableCommand{makeName(action), true}
-  , m_action{action}
-  , m_updateLinkedGroupsHelper{std::move(changedLinkedGroups)} {
+  const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
+  : UpdateLinkedGroupsCommandBase{makeName(action), true}
+  , m_action{action} {
   switch (m_action) {
     case Action::Add:
       m_nodesToAdd = nodes;
@@ -91,20 +83,12 @@ std::string AddRemoveNodesCommand::makeName(const Action action) {
 std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(
   MapDocumentCommandFacade* document) {
   doAction(document);
-
-  const auto success = m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document).handle_errors(
-    [&](const Model::UpdateLinkedGroupsError& e) {
-      document->error() << e;
-      undoAction(document);
-    });
-
-  return std::make_unique<CommandResult>(success);
+  return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(
   MapDocumentCommandFacade* document) {
   undoAction(document);
-  m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(*document);
   return std::make_unique<CommandResult>(true);
 }
 

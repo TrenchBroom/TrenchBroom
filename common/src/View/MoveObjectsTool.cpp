@@ -25,6 +25,7 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/MoveObjectsToolPage.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
 
@@ -50,7 +51,9 @@ bool MoveObjectsTool::startMove(const InputState& inputState) {
     return false;
   }
 
-  document->startTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
+  document->startTransaction(
+    duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects",
+    TransactionScope::LongRunning);
   m_duplicateObjects = duplicateObjects(inputState);
   return true;
 }

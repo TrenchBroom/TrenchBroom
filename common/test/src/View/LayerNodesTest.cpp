@@ -55,7 +55,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer", "[LayerNodesTest]
   document->deleteObjects();
 
   Model::LayerNode* layerNode = new Model::LayerNode(Model::Layer("test1"));
-  addNode(*document, document->world(), layerNode);
+  document->addNodes({{document->world(), {layerNode}}});
   CHECK(layerNode->name() == "test1");
 
   document->renameLayer(layerNode, "test2");
@@ -73,8 +73,8 @@ TEST_CASE_METHOD(
 
   Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
   Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
-  addNode(*document, document->world(), layerNode1);
-  addNode(*document, document->world(), layerNode2);
+  document->addNodes({{document->world(), {layerNode1}}});
+  document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
   Model::EntityNode* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
@@ -99,8 +99,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer", "
 
   Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
   Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
-  addNode(*document, document->world(), layerNode1);
-  addNode(*document, document->world(), layerNode2);
+  document->addNodes({{document->world(), {layerNode1}}});
+  document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
   Model::EntityNode* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
@@ -126,8 +126,8 @@ TEST_CASE_METHOD(
 
   Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
   Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
-  addNode(*document, document->world(), layerNode1);
-  addNode(*document, document->world(), layerNode2);
+  document->addNodes({{document->world(), {layerNode1}}});
+  document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
 
@@ -195,7 +195,7 @@ TEST_CASE_METHOD(
   document->deleteObjects();
 
   Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
-  addNode(*document, document->world(), layerNode1);
+  document->addNodes({{document->world(), {layerNode1}}});
 
   document->setCurrentLayer(layerNode1);
   document->hideLayers({layerNode1});
@@ -203,7 +203,7 @@ TEST_CASE_METHOD(
   // Create entity1 and brush1 in the hidden layer1
   Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   Model::BrushNode* brush1 = createBrushNode();
-  addNode(*document, document->parentForNodes(), brush1);
+  document->addNodes({{document->parentForNodes(), {brush1}}});
 
   CHECK(entity1->parent() == layerNode1);
   CHECK(brush1->parent() == layerNode1);
@@ -241,8 +241,8 @@ TEST_CASE_METHOD(
 
   auto* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
   auto* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
-  addNode(*document, document->world(), layerNode1);
-  addNode(*document, document->world(), layerNode2);
+  document->addNodes({{document->world(), {layerNode1}}});
+  document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
 
@@ -317,9 +317,9 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer", "[LayerNodesTest]")
   setLayerSortIndex(*layerNode1, 1);
   setLayerSortIndex(*layerNode2, 2);
 
-  addNode(*document, document->world(), layerNode0);
-  addNode(*document, document->world(), layerNode1);
-  addNode(*document, document->world(), layerNode2);
+  document->addNodes({{document->world(), {layerNode0}}});
+  document->addNodes({{document->world(), {layerNode1}}});
+  document->addNodes({{document->world(), {layerNode2}}});
 
   SECTION("check canMoveLayer") {
     // defaultLayer() can never be moved
@@ -365,7 +365,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerN
   document->deleteObjects();
 
   auto* customLayer = new Model::LayerNode(Model::Layer("layer"));
-  addNode(*document, document->world(), customLayer);
+  document->addNodes({{document->world(), {customLayer}}});
 
   auto* defaultLayer = document->world()->defaultLayer();
 
@@ -483,8 +483,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.setCurrentLayerCollation", "[La
   auto* defaultLayerNode = document->world()->defaultLayer();
   auto* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
   auto* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
-  addNode(*document, document->world(), layerNode1);
-  addNode(*document, document->world(), layerNode2);
+  document->addNodes({{document->world(), {layerNode1}}});
+  document->addNodes({{document->world(), {layerNode2}}});
   CHECK(document->currentLayer() == defaultLayerNode);
 
   document->setCurrentLayer(layerNode1);

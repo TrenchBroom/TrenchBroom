@@ -30,6 +30,7 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsToolPage.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/string_utils.h>
@@ -904,7 +905,7 @@ void ScaleObjectsTool::startScaleWithHit(const Model::Hit& hit) {
   m_dragCumulativeDelta = vm::vec3::zero();
 
   auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Scale Objects");
+  document->startTransaction("Scale Objects", TransactionScope::LongRunning);
   m_resizing = true;
 }
 

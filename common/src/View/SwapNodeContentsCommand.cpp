@@ -22,7 +22,6 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Node.h"
-#include "Model/UpdateLinkedGroupsError.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/result.h>
@@ -31,31 +30,21 @@
 namespace TrenchBroom {
 namespace View {
 SwapNodeContentsCommand::SwapNodeContentsCommand(
-  const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<const Model::GroupNode*> changedLinkedGroups)
-  : UndoableCommand(name, true)
-  , m_nodes(std::move(nodes))
-  , m_updateLinkedGroupsHelper(std::move(changedLinkedGroups)) {}
+  const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
+  : UpdateLinkedGroupsCommandBase(name, true)
+  , m_nodes(std::move(nodes)) {}
 
 SwapNodeContentsCommand::~SwapNodeContentsCommand() = default;
 
 std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(
   MapDocumentCommandFacade* document) {
   document->performSwapNodeContents(m_nodes);
-
-  const auto success = m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document).handle_errors(
-    [&](const Model::UpdateLinkedGroupsError& e) {
-      document->error() << e;
-      document->performSwapNodeContents(m_nodes);
-    });
-
-  return std::make_unique<CommandResult>(success);
+  return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(
   MapDocumentCommandFacade* document) {
   document->performSwapNodeContents(m_nodes);
-  m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(*document);
   return std::make_unique<CommandResult>(true);
 }
 
@@ -71,10 +60,7 @@ bool SwapNodeContentsCommand::doCollateWith(UndoableCommand& command) {
     kdl::vec_sort(myNodes);
     kdl::vec_sort(theirNodes);
 
-    if (myNodes == theirNodes) {
-      m_updateLinkedGroupsHelper.collateWith(other->m_updateLinkedGroupsHelper);
-      return true;
-    }
+    return myNodes == theirNodes;
   }
 
   return false;

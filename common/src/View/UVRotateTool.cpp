@@ -40,6 +40,7 @@
 #include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/TransactionScope.h"
 #include "View/UVViewHelper.h"
 
 #include <kdl/memory_utils.h>
@@ -219,7 +220,7 @@ public:
     : m_document{document}
     , m_helper{helper}
     , m_initialAngle{initialAngle} {
-    document.startTransaction("Rotate Texture");
+    document.startTransaction("Rotate Texture", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override {

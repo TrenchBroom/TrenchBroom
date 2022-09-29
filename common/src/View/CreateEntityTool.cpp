@@ -35,6 +35,7 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
 #include <vecmath/bbox.h>
@@ -64,7 +65,7 @@ bool CreateEntityTool::createEntity(const std::string& classname) {
 
   m_referenceBounds = document->referenceBounds();
 
-  document->startTransaction("Create '" + definition->name() + "'");
+  document->startTransaction("Create '" + definition->name() + "'", TransactionScope::LongRunning);
   document->deselectAll();
   document->addNodes({{document->parentForNodes(), {m_entity}}});
   document->selectNodes({m_entity});

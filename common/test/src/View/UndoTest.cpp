@@ -44,7 +44,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest
     std::vector<IO::Path>{IO::Path("fixture/test/IO/Wad/cr8_czg.wad")});
 
   Model::BrushNode* brushNode = createBrushNode("coffin1");
-  addNode(*document, document->parentForNodes(), brushNode);
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const Assets::Texture* texture = document->textureManager().texture("coffin1");
   CHECK(texture != nullptr);
@@ -99,7 +99,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest
 TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation", "[UndoTest]") {
   auto* entityNode = new Model::EntityNode{{}, {{Model::EntityPropertyKeys::Classname, "test"}}};
 
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
   CHECK(!entityNode->entity().hasProperty("angle"));
 
   document->selectNodes({entityNode});

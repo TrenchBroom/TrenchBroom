@@ -111,10 +111,6 @@ void setLinkedGroupId(GroupNode& groupNode, std::string linkedGroupId);
 namespace View {
 class MapDocument;
 
-void addNode(MapDocument& document, Model::Node* parent, Model::Node* node);
-void removeNode(MapDocument& document, Model::Node* node);
-bool reparentNodes(MapDocument& document, Model::Node* newParent, std::vector<Model::Node*> nodes);
-
 struct DocumentGameConfig {
   std::shared_ptr<MapDocument> document;
   std::shared_ptr<Model::Game> game;

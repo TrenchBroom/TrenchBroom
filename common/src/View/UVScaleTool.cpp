@@ -35,6 +35,7 @@
 #include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/TransactionScope.h"
 #include "View/UVOriginTool.h"
 #include "View/UVViewHelper.h"
 
@@ -186,7 +187,7 @@ public:
     , m_handle{handle}
     , m_selector{selector}
     , m_lastHitPoint{initialHitPoint} {
-    document.startTransaction("Scale Texture");
+    document.startTransaction("Scale Texture", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override {

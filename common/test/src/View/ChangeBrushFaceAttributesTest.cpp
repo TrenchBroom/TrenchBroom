@@ -38,16 +38,16 @@ namespace TrenchBroom {
 namespace View {
 TEST_CASE_METHOD(
   ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face") {
-  Model::BrushNode* brushNode = createBrushNode();
-  addNode(*document, document->parentForNodes(), brushNode);
+  auto* brushNode = createBrushNode();
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const size_t faceIndex = 0u;
-  const vm::vec3 initialX = brushNode->brush().face(faceIndex).textureXAxis();
-  const vm::vec3 initialY = brushNode->brush().face(faceIndex).textureYAxis();
+  const auto initialX = brushNode->brush().face(faceIndex).textureXAxis();
+  const auto initialY = brushNode->brush().face(faceIndex).textureYAxis();
 
   document->selectBrushFaces({{brushNode, faceIndex}});
 
-  Model::ChangeBrushFaceAttributesRequest rotate;
+  auto rotate = Model::ChangeBrushFaceAttributesRequest{};
   rotate.addRotation(2.0);
   for (size_t i = 0; i < 5; ++i) {
     document->setFaceAttributes(rotate);
@@ -55,12 +55,12 @@ TEST_CASE_METHOD(
 
   CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 10.0f);
 
-  Model::BrushFaceAttributes defaultFaceAttrs(Model::BrushFaceAttributes::NoTextureName);
+  auto defaultFaceAttrs = Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName};
   defaultFaceAttrs.setXScale(0.5f);
   defaultFaceAttrs.setYScale(2.0f);
   game->setDefaultFaceAttributes(defaultFaceAttrs);
 
-  Model::ChangeBrushFaceAttributesRequest reset;
+  auto reset = Model::ChangeBrushFaceAttributesRequest{};
   reset.resetAll(defaultFaceAttrs);
 
   document->setFaceAttributes(reset);
@@ -76,45 +76,43 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo") {
-  Model::BrushNode* brushNode = createBrushNode("original");
-  addNode(*document, document->parentForNodes(), brushNode);
+  auto* brushNode = createBrushNode("original");
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
-  const auto requireTexture = [&](const std::string& textureName) {
-    for (const auto& face : brushNode->brush().faces()) {
-      REQUIRE(face.attributes().textureName() == textureName);
-    }
-  };
-
-  const auto checkTexture = [&](const std::string& textureName) {
-    for (const auto& face : brushNode->brush().faces()) {
-      CHECK(face.attributes().textureName() == textureName);
-    }
-  };
-
-  requireTexture("original");
+  for (const auto& face : brushNode->brush().faces()) {
+    REQUIRE(face.attributes().textureName() == "original");
+  }
 
   document->selectNodes({brushNode});
 
-  Model::ChangeBrushFaceAttributesRequest setTexture1;
+  auto setTexture1 = Model::ChangeBrushFaceAttributesRequest{};
   setTexture1.setTextureName("texture1");
   document->setFaceAttributes(setTexture1);
-  requireTexture("texture1");
+  for (const auto& face : brushNode->brush().faces()) {
+    REQUIRE(face.attributes().textureName() == "texture1");
+  }
 
-  Model::ChangeBrushFaceAttributesRequest setTexture2;
+  auto setTexture2 = Model::ChangeBrushFaceAttributesRequest{};
   setTexture2.setTextureName("texture2");
   document->setFaceAttributes(setTexture2);
-  requireTexture("texture2");
+  for (const auto& face : brushNode->brush().faces()) {
+    REQUIRE(face.attributes().textureName() == "texture2");
+  }
 
   document->undoCommand();
-  checkTexture("original");
+  for (const auto& face : brushNode->brush().faces()) {
+    CHECK(face.attributes().textureName() == "original");
+  }
 
   document->redoCommand();
-  checkTexture("texture2");
+  for (const auto& face : brushNode->brush().faces()) {
+    CHECK(face.attributes().textureName() == "texture2");
+  }
 }
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
-  Model::BrushNode* brushNode = createBrushNode();
-  addNode(*document, document->parentForNodes(), brushNode);
+  auto* brushNode = createBrushNode();
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const size_t firstFaceIndex = 0u;
   const size_t secondFaceIndex = 1u;
@@ -122,7 +120,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
 
   document->deselectAll();
   document->selectBrushFaces({{brushNode, firstFaceIndex}});
-  Model::ChangeBrushFaceAttributesRequest setFirstFace;
+
+  auto setFirstFace = Model::ChangeBrushFaceAttributesRequest{};
   setFirstFace.setTextureName("first");
   setFirstFace.setXOffset(32.0f);
   setFirstFace.setYOffset(64.0f);
@@ -132,8 +131,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
   setFirstFace.replaceSurfaceFlags(63u);
   setFirstFace.replaceContentFlags(12u);
   setFirstFace.setSurfaceValue(3.14f);
-  const Color firstColor(1.0f, 1.0f, 1.0f, 1.0f);
-  setFirstFace.setColor(firstColor);
+  setFirstFace.setColor(Color{1.0f, 1.0f, 1.0f, 1.0f});
   document->setFaceAttributes(setFirstFace);
 
   {
@@ -147,12 +145,13 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
     CHECK(firstAttrs.surfaceFlags() == 63u);
     CHECK(firstAttrs.surfaceContents() == 12u);
     CHECK(firstAttrs.surfaceValue() == 3.14f);
-    CHECK(firstAttrs.color() == firstColor);
+    CHECK(firstAttrs.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   }
 
   document->deselectAll();
   document->selectBrushFaces({{brushNode, secondFaceIndex}});
-  Model::ChangeBrushFaceAttributesRequest setSecondFace;
+
+  auto setSecondFace = Model::ChangeBrushFaceAttributesRequest{};
   setSecondFace.setTextureName("second");
   setSecondFace.setXOffset(16.0f);
   setSecondFace.setYOffset(48.0f);
@@ -162,8 +161,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
   setSecondFace.replaceSurfaceFlags(18u);
   setSecondFace.replaceContentFlags(2048u);
   setSecondFace.setSurfaceValue(1.0f);
-  const Color secondColor(0.5f, 0.5f, 0.5f, 0.5f);
-  setSecondFace.setColor(secondColor);
+  setSecondFace.setColor(Color{0.5f, 0.5f, 0.5f, 0.5f});
   document->setFaceAttributes(setSecondFace);
 
   {
@@ -177,35 +175,33 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
     CHECK(secondAttrs.surfaceFlags() == 18u);
     CHECK(secondAttrs.surfaceContents() == 2048u);
     CHECK(secondAttrs.surfaceValue() == 1.0f);
-    CHECK(secondAttrs.color() == secondColor);
+    CHECK(secondAttrs.color() == Color{0.5f, 0.5f, 0.5f, 0.5f});
   }
 
   document->deselectAll();
   document->selectBrushFaces({{brushNode, thirdFaceIndex}});
-  Model::ChangeBrushFaceAttributesRequest copySecondToThirdFace;
+
+  auto copySecondToThirdFace = Model::ChangeBrushFaceAttributesRequest{};
   copySecondToThirdFace.setAll(brushNode->brush().face(secondFaceIndex));
   document->setFaceAttributes(copySecondToThirdFace);
 
-  {
-    const auto& secondAttrs = brushNode->brush().face(secondFaceIndex).attributes();
-    const auto& thirdAttrs = brushNode->brush().face(thirdFaceIndex).attributes();
-    CHECK(thirdAttrs == secondAttrs);
-  }
+  CHECK(
+    brushNode->brush().face(thirdFaceIndex).attributes() ==
+    brushNode->brush().face(secondFaceIndex).attributes());
 
   auto thirdFaceContentsFlags =
     brushNode->brush().face(thirdFaceIndex).attributes().surfaceContents();
 
   document->deselectAll();
   document->selectBrushFaces({{brushNode, secondFaceIndex}});
-  Model::ChangeBrushFaceAttributesRequest copyFirstToSecondFace;
+
+  auto copyFirstToSecondFace = Model::ChangeBrushFaceAttributesRequest{};
   copyFirstToSecondFace.setAll(brushNode->brush().face(firstFaceIndex));
   document->setFaceAttributes(copyFirstToSecondFace);
 
-  {
-    const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
-    const auto& newSecondAttrs = brushNode->brush().face(secondFaceIndex).attributes();
-    CHECK(newSecondAttrs == firstAttrs);
-  }
+  CHECK(
+    brushNode->brush().face(secondFaceIndex).attributes() ==
+    brushNode->brush().face(firstFaceIndex).attributes());
 
   document->deselectAll();
   document->selectBrushFaces({{brushNode, thirdFaceIndex}});
@@ -231,13 +227,13 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
 
 TEST_CASE_METHOD(
   ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setTextureKeepsSurfaceFlagsUnset") {
-  Model::BrushNode* brushNode = createBrushNode();
-  addNode(*document, document->parentForNodes(), brushNode);
+  auto* brushNode = createBrushNode();
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   document->selectNodes({brushNode});
   CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
 
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.setTextureName("something_else");
   document->setFaceAttributes(request);
 
@@ -284,7 +280,7 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest") {
   SECTION("setting a content flag when the existing one is inherited keeps the existing one") {
     document->selectNodes({lavabrush});
 
-    Model::ChangeBrushFaceAttributesRequest request;
+    auto request = Model::ChangeBrushFaceAttributesRequest{};
     request.setContentFlags(WaterFlag);
     CHECK(document->setFaceAttributes(request));
 

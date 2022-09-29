@@ -299,18 +299,6 @@ void setLinkedGroupId(GroupNode& groupNode, std::string linkedGroupId) {
 } // namespace Model
 
 namespace View {
-void addNode(MapDocument& document, Model::Node* parent, Model::Node* node) {
-  document.addNodes({{parent, {node}}});
-}
-
-void removeNode(MapDocument& document, Model::Node* node) {
-  document.removeNodes({node});
-}
-
-bool reparentNodes(MapDocument& document, Model::Node* newParent, std::vector<Model::Node*> nodes) {
-  return document.reparentNodes({{newParent, std::move(nodes)}});
-}
-
 DocumentGameConfig loadMapDocument(
   const IO::Path& mapPath, const std::string& gameName, const Model::MapFormat mapFormat) {
   auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);

@@ -31,6 +31,7 @@
 #include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
 
@@ -119,16 +120,16 @@ static void transferFaceAttributes(
   const Model::BrushFaceHandle& sourceFaceHandle,
   const std::vector<Model::BrushFaceHandle>& targetFaceHandles,
   const Model::BrushFaceHandle& faceToSelectAfter) {
-  const Model::WrapStyle style = copyTextureAttribsRotationModifiersDown(inputState)
-                                   ? Model::WrapStyle::Rotation
-                                   : Model::WrapStyle::Projection;
+  const auto style = copyTextureAttribsRotationModifiersDown(inputState)
+                       ? Model::WrapStyle::Rotation
+                       : Model::WrapStyle::Projection;
 
-  const Transaction transaction(&document, TransferFaceAttributesTransactionName);
+  auto transaction = Transaction{document, TransferFaceAttributesTransactionName};
   document.deselectAll();
   document.selectBrushFaces(targetFaceHandles);
 
   if (copyTextureOnlyModifiersDown(inputState)) {
-    Model::ChangeBrushFaceAttributesRequest request;
+    auto request = Model::ChangeBrushFaceAttributesRequest{};
     request.setTextureName(sourceFaceHandle.face().attributes().textureName());
     document.setFaceAttributes(request);
   } else {
@@ -142,6 +143,7 @@ static void transferFaceAttributes(
 
   document.deselectAll();
   document.selectBrushFaces({faceToSelectAfter});
+  transaction.commit();
 }
 
 namespace {
@@ -210,7 +212,7 @@ std::unique_ptr<DragTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
     return nullptr;
   }
 
-  document->startTransaction("Drag Apply Face Attributes");
+  document->startTransaction("Drag Apply Face Attributes", TransactionScope::LongRunning);
 
   return std::make_unique<SetBrushFaceAttributesDragTracker>(
     *kdl::mem_lock(m_document), selectedFaces.front());

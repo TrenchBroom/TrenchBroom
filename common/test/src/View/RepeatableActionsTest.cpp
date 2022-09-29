@@ -22,6 +22,7 @@
 #include "View/Command.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
+#include "View/TransactionScope.h"
 
 #include <kdl/result.h>
 
@@ -44,7 +45,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat") {
   CHECK_FALSE(document->canRepeatCommands());
 
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
   CHECK_FALSE(document->canRepeatCommands());
 
   document->selectNodes({entityNode});
@@ -59,7 +60,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat") {
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTranslate") {
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
   document->selectNodes({entityNode});
 
   REQUIRE_FALSE(document->canRepeatCommands());
@@ -77,7 +78,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatRotate") {
 
   auto* entityNode = new Model::EntityNode(std::move(entity));
 
-  addNode(*document, document->parentForNodes(), entityNode);
+  document->addNodes({{document->parentForNodes(), {entityNode}}});
   document->selectNodes({entityNode});
 
   REQUIRE_FALSE(document->canRepeatCommands());
@@ -96,7 +97,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatRotate") {
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithBBox") {
   auto* brushNode1 = createBrushNode();
 
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
   REQUIRE_FALSE(document->canRepeatCommands());
@@ -106,7 +107,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithBBox") {
   CHECK(document->canRepeatCommands());
 
   auto* brushNode2 = createBrushNode();
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
   document->selectNodes({brushNode2});
 
   document->repeatCommands();
@@ -116,7 +117,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithBBox") {
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithFactors") {
   auto* brushNode1 = createBrushNode();
 
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
   REQUIRE_FALSE(document->canRepeatCommands());
@@ -124,7 +125,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithFactors"
   CHECK(document->canRepeatCommands());
 
   auto* brushNode2 = createBrushNode();
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
   document->deselectAll();
   document->selectNodes({brushNode2});
 
@@ -136,7 +137,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.shearObjects") {
   auto* brushNode1 = createBrushNode();
   const auto originalBounds = brushNode1->logicalBounds();
 
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
   REQUIRE_FALSE(document->canRepeatCommands());
@@ -145,7 +146,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.shearObjects") {
   CHECK(document->canRepeatCommands());
 
   auto* brushNode2 = createBrushNode();
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
   document->deselectAll();
   document->selectNodes({brushNode2});
 
@@ -157,7 +158,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.flipObjects") {
   auto* brushNode1 = createBrushNode();
   const auto originalBounds = brushNode1->logicalBounds();
 
-  addNode(*document, document->parentForNodes(), brushNode1);
+  document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
   REQUIRE_FALSE(document->canRepeatCommands());
@@ -166,7 +167,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.flipObjects") {
   CHECK(document->canRepeatCommands());
 
   auto* brushNode2 = createBrushNode();
-  addNode(*document, document->parentForNodes(), brushNode2);
+  document->addNodes({{document->parentForNodes(), {brushNode2}}});
   document->deselectAll();
   document->selectNodes({brushNode2});
 
@@ -176,10 +177,10 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.flipObjects") {
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.selectionClears") {
   auto* entityNode1 = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entityNode1);
+  document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   auto* entityNode2 = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entityNode2);
+  document->addNodes({{document->parentForNodes(), {entityNode2}}});
 
   document->selectNodes({entityNode1});
 
@@ -212,12 +213,12 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.selectionClears") {
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction") {
   auto* entityNode1 = new Model::EntityNode({});
-  addNode(*document, document->parentForNodes(), entityNode1);
+  document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   document->selectNodes({entityNode1});
   CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
 
-  document->startTransaction("");
+  document->startTransaction("", TransactionScope::Oneshot);
   document->translateObjects(vm::vec3(0, 0, 10));
   document->rollbackTransaction();
   document->translateObjects(vm::vec3(10, 0, 0));
@@ -229,7 +230,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction") {
   // now repeat the transaction on a second entity
 
   auto* entityNode2 = new Model::EntityNode({});
-  addNode(*document, document->parentForNodes(), entityNode2);
+  document->addNodes({{document->parentForNodes(), {entityNode2}}});
 
   document->deselectAll();
   document->selectNodes({entityNode2});
@@ -249,7 +250,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction") {
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTranslate") {
   auto* entityNode1 = new Model::EntityNode({});
-  addNode(*document, document->parentForNodes(), entityNode1);
+  document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   document->selectNodes({entityNode1});
   CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));
@@ -257,7 +258,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
   SECTION("transaction containing a rollback") {
     document->duplicateObjects();
 
-    document->startTransaction("");
+    document->startTransaction("", TransactionScope::Oneshot);
     document->translateObjects(vm::vec3(0, 0, 10));
     document->rollbackTransaction();
     document->translateObjects(vm::vec3(10, 0, 0));
@@ -270,7 +271,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
     document->translateObjects(vm::vec3(5, 0, 0));
   }
   SECTION("duplicate inside transaction, then standalone movements") {
-    document->startTransaction("");
+    document->startTransaction("", TransactionScope::Oneshot);
     document->duplicateObjects();
     document->translateObjects(vm::vec3(2, 0, 0));
     document->translateObjects(vm::vec3(2, 0, 0));
@@ -307,7 +308,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatUndo") {
   auto* entityNode1 = new Model::EntityNode({});
-  addNode(*document, document->parentForNodes(), entityNode1);
+  document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   document->selectNodes({entityNode1});
   CHECK(entityNode1->entity().origin() == vm::vec3(0, 0, 0));

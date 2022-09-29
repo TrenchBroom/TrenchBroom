@@ -33,26 +33,26 @@ namespace TrenchBroom {
 namespace View {
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentLayerToLayer") {
   Model::LayerNode* layer1 = new Model::LayerNode(Model::Layer("Layer 1"));
-  addNode(*document, document->world(), layer1);
+  document->addNodes({{document->world(), {layer1}}});
 
   Model::LayerNode* layer2 = new Model::LayerNode(Model::Layer("Layer 2"));
-  addNode(*document, document->world(), layer2);
+  document->addNodes({{document->world(), {layer2}}});
 
-  CHECK_FALSE(reparentNodes(*document, layer2, {layer1}));
+  CHECK_FALSE(document->reparentNodes({{layer2, {layer1}}}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentBetweenLayers") {
   Model::LayerNode* oldParent = new Model::LayerNode(Model::Layer("Layer 1"));
-  addNode(*document, document->world(), oldParent);
+  document->addNodes({{document->world(), {oldParent}}});
 
   Model::LayerNode* newParent = new Model::LayerNode(Model::Layer("Layer 2"));
-  addNode(*document, document->world(), newParent);
+  document->addNodes({{document->world(), {newParent}}});
 
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, oldParent, entity);
+  document->addNodes({{oldParent, {entity}}});
 
   assert(entity->parent() == oldParent);
-  CHECK(reparentNodes(*document, newParent, {entity}));
+  CHECK(document->reparentNodes({{newParent, {entity}}}));
   CHECK(entity->parent() == newParent);
 
   document->undoCommand();
@@ -61,29 +61,29 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentBetweenLayers") {
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentGroupToItself") {
   Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
-  addNode(*document, document->parentForNodes(), group);
+  document->addNodes({{document->parentForNodes(), {group}}});
 
-  CHECK_FALSE(reparentNodes(*document, group, {group}));
+  CHECK_FALSE(document->reparentNodes({{group, {group}}}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentGroupToChild") {
   Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
-  addNode(*document, document->parentForNodes(), outer);
+  document->addNodes({{document->parentForNodes(), {outer}}});
 
   Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
-  addNode(*document, outer, inner);
+  document->addNodes({{outer, {inner}}});
 
-  CHECK_FALSE(reparentNodes(*document, inner, {outer}));
+  CHECK_FALSE(document->reparentNodes({{inner, {outer}}}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyGroup") {
   Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
-  addNode(*document, document->parentForNodes(), group);
+  document->addNodes({{document->parentForNodes(), {group}}});
 
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, group, entity);
+  document->addNodes({{group, {entity}}});
 
-  CHECK(reparentNodes(*document, document->parentForNodes(), {entity}));
+  CHECK(document->reparentNodes({{document->parentForNodes(), {entity}}}));
   CHECK(entity->parent() == document->parentForNodes());
   CHECK(group->parent() == nullptr);
 
@@ -94,15 +94,15 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyGroup") {
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.recursivelyRemoveEmptyGroups") {
   Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
-  addNode(*document, document->parentForNodes(), outer);
+  document->addNodes({{document->parentForNodes(), {outer}}});
 
   Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
-  addNode(*document, outer, inner);
+  document->addNodes({{outer, {inner}}});
 
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, inner, entity);
+  document->addNodes({{inner, {entity}}});
 
-  CHECK(reparentNodes(*document, document->parentForNodes(), {entity}));
+  CHECK(document->reparentNodes({{document->parentForNodes(), {entity}}}));
   CHECK(entity->parent() == document->parentForNodes());
   CHECK(inner->parent() == nullptr);
   CHECK(outer->parent() == nullptr);
@@ -115,12 +115,12 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.recursivelyRemoveEmptyGroup
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyEntity") {
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, document->parentForNodes(), entity);
+  document->addNodes({{document->parentForNodes(), {entity}}});
 
   Model::BrushNode* brush = createBrushNode();
-  addNode(*document, entity, brush);
+  document->addNodes({{entity, {brush}}});
 
-  CHECK(reparentNodes(*document, document->parentForNodes(), {brush}));
+  CHECK(document->reparentNodes({{document->parentForNodes(), {brush}}}));
   CHECK(brush->parent() == document->parentForNodes());
   CHECK(entity->parent() == nullptr);
 
@@ -131,15 +131,15 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyEntity") {
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyGroupAndEntity") {
   Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
-  addNode(*document, document->parentForNodes(), group);
+  document->addNodes({{document->parentForNodes(), {group}}});
 
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
-  addNode(*document, group, entity);
+  document->addNodes({{group, {entity}}});
 
   Model::BrushNode* brush = createBrushNode();
-  addNode(*document, entity, brush);
+  document->addNodes({{entity, {brush}}});
 
-  CHECK(reparentNodes(*document, document->parentForNodes(), {brush}));
+  CHECK(document->reparentNodes({{document->parentForNodes(), {brush}}}));
   CHECK(brush->parent() == document->parentForNodes());
   CHECK(group->parent() == nullptr);
   CHECK(entity->parent() == nullptr);
@@ -209,6 +209,41 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroups") {
     CHECK(groupNode->childCount() == 2u);
     CHECK(linkedGroupNode->childCount() == 2u);
   }
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsAfterRecursiveDelete") {
+  auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));
+  document->addNodes({{document->parentForNodes(), {outerGroupNode}}});
+
+  document->openGroup(outerGroupNode);
+
+  auto* outerEntityNode = new Model::EntityNode{Model::Entity{}};
+  auto* innerGroupNode = new Model::GroupNode{Model::Group{"inner"}};
+  document->addNodes({{document->parentForNodes(), {outerEntityNode, innerGroupNode}}});
+
+  document->openGroup(innerGroupNode);
+
+  auto* innerEntityNode = new Model::EntityNode{Model::Entity{}};
+  document->addNodes({{document->parentForNodes(), {innerEntityNode}}});
+
+  document->closeGroup();
+  document->closeGroup();
+
+  document->selectNodes({outerGroupNode});
+
+  auto* linkedOuterGroupNode = document->createLinkedDuplicate();
+
+  document->deselectAll();
+
+  document->reparentNodes({{document->parentForNodes(), {innerEntityNode}}});
+  REQUIRE(outerGroupNode->children() == std::vector<Model::Node*>{outerEntityNode});
+  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+
+  document->undoCommand();
+  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+
+  document->redoCommand();
+  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroupsFails") {
