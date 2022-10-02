@@ -30,13 +30,13 @@
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
-#include "Model/IssueGenerator.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 #include "Model/TexCoordSystem.h"
+#include "Model/Validator.h"
 #include "Model/WorldNode.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
@@ -326,8 +326,8 @@ bool BrushNode::doSelectable() const {
   return true;
 }
 
-void BrushNode::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
-  generator->generate(this, issues);
+void BrushNode::doValidate(const Validator* validator, std::vector<Issue*>& issues) {
+  validator->validate(this, issues);
 }
 
 void BrushNode::doAccept(NodeVisitor& visitor) {

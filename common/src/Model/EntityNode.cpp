@@ -24,11 +24,11 @@
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityPropertiesVariableStore.h"
-#include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
+#include "Model/Validator.h"
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
@@ -200,8 +200,8 @@ void EntityNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>
   }
 }
 
-void EntityNode::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
-  generator->generate(this, issues);
+void EntityNode::doValidate(const Validator* validator, std::vector<Issue*>& issues) {
+  validator->validate(this, issues);
 }
 
 void EntityNode::doAccept(NodeVisitor& visitor) {

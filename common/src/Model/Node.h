@@ -41,10 +41,10 @@ class EntityNodeBase;
 struct EntityPropertyConfig;
 class ConstNodeVisitor;
 class Issue;
-class IssueGenerator;
 enum class LockState;
 class NodeVisitor;
 class PickResult;
+class Validator;
 enum class VisibilityState;
 
 struct NodePath {
@@ -349,7 +349,7 @@ public: // file position
   bool containsLine(size_t lineNumber) const;
 
 public: // issue management
-  const std::vector<Issue*>& issues(const std::vector<IssueGenerator*>& issueGenerators);
+  const std::vector<Issue*>& issues(const std::vector<Validator*>& validators);
 
   bool issueHidden(IssueType type) const;
   void setIssueHidden(IssueType type, bool hidden);
@@ -358,7 +358,7 @@ public: // should only be called from this and from the world
   void invalidateIssues() const;
 
 private:
-  void validateIssues(const std::vector<IssueGenerator*>& issueGenerators);
+  void validateIssues(const std::vector<Validator*>& validators);
   void clearIssues() const;
 
 public: // visitors
@@ -513,7 +513,7 @@ private: // subclassing interface
     const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) = 0;
   virtual void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) = 0;
 
-  virtual void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) = 0;
+  virtual void doValidate(const Validator* validator, std::vector<Issue*>& issues) = 0;
 
   virtual void doAccept(NodeVisitor& visitor) = 0;
   virtual void doAccept(ConstNodeVisitor& visitor) const = 0;

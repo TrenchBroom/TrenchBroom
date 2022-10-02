@@ -156,8 +156,7 @@ private: // implement Node interface
 
   void doAccept(ConstNodeVisitor& /*visitor*/) const override {}
 
-  void doGenerateIssues(
-    const IssueGenerator* /* generator */, std::vector<Issue*>& /* issues */) override {}
+  void doValidate(const Validator* /* validator */, std::vector<Issue*>& /* issues */) override {}
 
   void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
   void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
@@ -208,8 +207,7 @@ private: // implement Node interface
 
   void doAccept(NodeVisitor& /* visitor */) override {}
   void doAccept(ConstNodeVisitor& /* visitor */) const override {}
-  void doGenerateIssues(
-    const IssueGenerator* /* generator */, std::vector<Issue*>& /* issues */) override {}
+  void doValidate(const Validator* /* validator */, std::vector<Issue*>& /* issues */) override {}
 
   void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
   void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}

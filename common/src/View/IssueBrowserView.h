@@ -45,7 +45,7 @@ class IssueBrowserView : public QWidget {
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  int m_hiddenGenerators;
+  int m_hiddenIssueTypes;
   bool m_showHiddenIssues;
 
   bool m_valid;
@@ -60,8 +60,8 @@ private:
   void createGui();
 
 public:
-  int hiddenGenerators() const;
-  void setHiddenGenerators(int hiddenGenerators);
+  int hiddenIssueTypes() const;
+  void setHiddenIssueTypes(int hiddenIssueTypes);
   void setShowHiddenIssues(bool show);
   void reload();
   void deselectAll();

@@ -29,6 +29,7 @@
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
+#include "View/QtUtils.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/overload.h>
@@ -48,7 +49,7 @@ namespace View {
 IssueBrowserView::IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget(parent)
   , m_document(document)
-  , m_hiddenGenerators(0)
+  , m_hiddenIssueTypes(0)
   , m_showHiddenIssues(false)
   , m_valid(false) {
   createGui();
@@ -72,14 +73,14 @@ void IssueBrowserView::createGui() {
   setLayout(layout);
 }
 
-int IssueBrowserView::hiddenGenerators() const {
-  return m_hiddenGenerators;
+int IssueBrowserView::hiddenIssueTypes() const {
+  return m_hiddenIssueTypes;
 }
 
-void IssueBrowserView::setHiddenGenerators(const int hiddenGenerators) {
-  if (hiddenGenerators == m_hiddenGenerators)
+void IssueBrowserView::setHiddenIssueTypes(const int hiddenIssueTypes) {
+  if (hiddenIssueTypes == m_hiddenIssueTypes)
     return;
-  m_hiddenGenerators = hiddenGenerators;
+  m_hiddenIssueTypes = hiddenIssueTypes;
   invalidate();
 }
 
@@ -117,12 +118,12 @@ void IssueBrowserView::updateSelection() {
 void IssueBrowserView::updateIssues() {
   auto document = kdl::mem_lock(m_document);
   if (document->world() != nullptr) {
-    const auto& issueGenerators = document->world()->registeredIssueGenerators();
+    const auto& validators = document->world()->registeredValidators();
 
     auto issues = std::vector<Model::Issue*>{};
     const auto collectIssues = [&](auto* node) {
-      for (auto* issue : node->issues(issueGenerators)) {
-        if (m_showHiddenIssues || (!issue->hidden() && (issue->type() & m_hiddenGenerators) == 0)) {
+      for (auto* issue : node->issues(validators)) {
+        if (m_showHiddenIssues || (!issue->hidden() && (issue->type() & m_hiddenIssueTypes) == 0)) {
           issues.push_back(issue);
         }
       }

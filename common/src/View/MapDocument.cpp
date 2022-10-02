@@ -45,42 +45,42 @@
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EditorContext.h"
-#include "Model/EmptyBrushEntityIssueGenerator.h"
-#include "Model/EmptyGroupIssueGenerator.h"
-#include "Model/EmptyPropertyKeyIssueGenerator.h"
-#include "Model/EmptyPropertyValueIssueGenerator.h"
+#include "Model/EmptyBrushEntityValidator.h"
+#include "Model/EmptyGroupValidator.h"
+#include "Model/EmptyPropertyKeyValidator.h"
+#include "Model/EmptyPropertyValueValidator.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
-#include "Model/InvalidTextureScaleIssueGenerator.h"
+#include "Model/InvalidTextureScaleValidator.h"
 #include "Model/LayerNode.h"
-#include "Model/LinkSourceIssueGenerator.h"
-#include "Model/LinkTargetIssueGenerator.h"
+#include "Model/LinkSourceValidator.h"
+#include "Model/LinkTargetValidator.h"
 #include "Model/LockState.h"
-#include "Model/LongPropertyKeyIssueGenerator.h"
-#include "Model/LongPropertyValueIssueGenerator.h"
-#include "Model/MissingClassnameIssueGenerator.h"
-#include "Model/MissingDefinitionIssueGenerator.h"
-#include "Model/MissingModIssueGenerator.h"
-#include "Model/MixedBrushContentsIssueGenerator.h"
+#include "Model/LongPropertyKeyValidator.h"
+#include "Model/LongPropertyValueValidator.h"
+#include "Model/MissingClassnameValidator.h"
+#include "Model/MissingDefinitionValidator.h"
+#include "Model/MissingModValidator.h"
+#include "Model/MixedBrushContentsValidator.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeContents.h"
-#include "Model/NonIntegerVerticesIssueGenerator.h"
+#include "Model/NonIntegerVerticesValidator.h"
 #include "Model/PatchNode.h"
-#include "Model/PointEntityWithBrushesIssueGenerator.h"
+#include "Model/PointEntityWithBrushesValidator.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
 #include "Model/PortalFile.h"
-#include "Model/PropertyKeyWithDoubleQuotationMarksIssueGenerator.h"
-#include "Model/PropertyValueWithDoubleQuotationMarksIssueGenerator.h"
-#include "Model/SoftMapBoundsIssueGenerator.h"
+#include "Model/PropertyKeyWithDoubleQuotationMarksValidator.h"
+#include "Model/PropertyValueWithDoubleQuotationMarksValidator.h"
+#include "Model/SoftMapBoundsValidator.h"
 #include "Model/TagManager.h"
 #include "Model/VisibilityState.h"
-#include "Model/WorldBoundsIssueGenerator.h"
+#include "Model/WorldBoundsValidator.h"
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -518,7 +518,7 @@ void MapDocument::newDocument(
   createWorld(mapFormat, worldBounds, game);
 
   loadAssets();
-  registerIssueGenerators();
+  registerValidators();
   registerSmartTags();
   createTagActions();
 
@@ -538,7 +538,7 @@ void MapDocument::loadDocument(
   loadWorld(mapFormat, worldBounds, game, path);
 
   loadAssets();
-  registerIssueGenerators();
+  registerValidators();
   registerSmartTags();
   createTagActions();
 
@@ -4229,31 +4229,29 @@ void MapDocument::setIssueHidden(Model::Issue* issue, const bool hidden) {
   doSetIssueHidden(issue, hidden);
 }
 
-void MapDocument::registerIssueGenerators() {
+void MapDocument::registerValidators() {
   ensure(m_world != nullptr, "world is null");
   ensure(m_game.get() != nullptr, "game is null");
 
-  m_world->registerIssueGenerator(new Model::MissingClassnameIssueGenerator());
-  m_world->registerIssueGenerator(new Model::MissingDefinitionIssueGenerator());
-  m_world->registerIssueGenerator(new Model::MissingModIssueGenerator(m_game));
-  m_world->registerIssueGenerator(new Model::EmptyGroupIssueGenerator());
-  m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
-  m_world->registerIssueGenerator(new Model::PointEntityWithBrushesIssueGenerator());
-  m_world->registerIssueGenerator(new Model::LinkSourceIssueGenerator());
-  m_world->registerIssueGenerator(new Model::LinkTargetIssueGenerator());
-  m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
-  m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
-  m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(worldBounds()));
-  m_world->registerIssueGenerator(new Model::SoftMapBoundsIssueGenerator(m_game, m_world.get()));
-  m_world->registerIssueGenerator(new Model::EmptyPropertyKeyIssueGenerator());
-  m_world->registerIssueGenerator(new Model::EmptyPropertyValueIssueGenerator());
-  m_world->registerIssueGenerator(
-    new Model::LongPropertyKeyIssueGenerator(m_game->maxPropertyLength()));
-  m_world->registerIssueGenerator(
-    new Model::LongPropertyValueIssueGenerator(m_game->maxPropertyLength()));
-  m_world->registerIssueGenerator(new Model::PropertyKeyWithDoubleQuotationMarksIssueGenerator());
-  m_world->registerIssueGenerator(new Model::PropertyValueWithDoubleQuotationMarksIssueGenerator());
-  m_world->registerIssueGenerator(new Model::InvalidTextureScaleIssueGenerator());
+  m_world->registerValidator(new Model::MissingClassnameValidator());
+  m_world->registerValidator(new Model::MissingDefinitionValidator());
+  m_world->registerValidator(new Model::MissingModValidator(m_game));
+  m_world->registerValidator(new Model::EmptyGroupValidator());
+  m_world->registerValidator(new Model::EmptyBrushEntityValidator());
+  m_world->registerValidator(new Model::PointEntityWithBrushesValidator());
+  m_world->registerValidator(new Model::LinkSourceValidator());
+  m_world->registerValidator(new Model::LinkTargetValidator());
+  m_world->registerValidator(new Model::NonIntegerVerticesValidator());
+  m_world->registerValidator(new Model::MixedBrushContentsValidator());
+  m_world->registerValidator(new Model::WorldBoundsValidator(worldBounds()));
+  m_world->registerValidator(new Model::SoftMapBoundsValidator(m_game, m_world.get()));
+  m_world->registerValidator(new Model::EmptyPropertyKeyValidator());
+  m_world->registerValidator(new Model::EmptyPropertyValueValidator());
+  m_world->registerValidator(new Model::LongPropertyKeyValidator(m_game->maxPropertyLength()));
+  m_world->registerValidator(new Model::LongPropertyValueValidator(m_game->maxPropertyLength()));
+  m_world->registerValidator(new Model::PropertyKeyWithDoubleQuotationMarksValidator());
+  m_world->registerValidator(new Model::PropertyValueWithDoubleQuotationMarksValidator());
+  m_world->registerValidator(new Model::InvalidTextureScaleValidator());
 }
 
 void MapDocument::registerSmartTags() {

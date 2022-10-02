@@ -23,8 +23,8 @@
 #include "Macros.h"
 #include "Model/EntityProperties.h"
 #include "Model/Issue.h"
-#include "Model/IssueGenerator.h"
 #include "Model/LockState.h"
+#include "Model/Validator.h"
 #include "Model/VisibilityState.h"
 
 #include <kdl/reflection_impl.h>
@@ -701,8 +701,8 @@ bool Node::containsLine(const size_t lineNumber) const {
   return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
 }
 
-const std::vector<Issue*>& Node::issues(const std::vector<IssueGenerator*>& issueGenerators) {
-  validateIssues(issueGenerators);
+const std::vector<Issue*>& Node::issues(const std::vector<Validator*>& validators) {
+  validateIssues(validators);
   return m_issues;
 }
 
@@ -718,10 +718,10 @@ void Node::setIssueHidden(const IssueType type, const bool hidden) {
   }
 }
 
-void Node::validateIssues(const std::vector<IssueGenerator*>& issueGenerators) {
+void Node::validateIssues(const std::vector<Validator*>& validators) {
   if (!m_issuesValid) {
-    for (const auto* generator : issueGenerators) {
-      doGenerateIssues(generator, m_issues);
+    for (const auto* validator : validators) {
+      doValidate(validator, m_issues);
     }
     m_issuesValid = true;
   }

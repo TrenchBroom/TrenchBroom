@@ -25,7 +25,6 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/IssueGenerator.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/NodeContents.h"
@@ -33,6 +32,7 @@
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 #include "Model/UpdateLinkedGroupsError.h"
+#include "Model/Validator.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -503,8 +503,8 @@ void GroupNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>&
   }
 }
 
-void GroupNode::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
-  generator->generate(this, issues);
+void GroupNode::doValidate(const Validator* validator, std::vector<Issue*>& issues) {
+  validator->validate(this, issues);
 }
 
 void GroupNode::doAccept(NodeVisitor& visitor) {

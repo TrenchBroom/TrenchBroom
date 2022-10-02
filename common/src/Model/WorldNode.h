@@ -40,10 +40,11 @@ namespace Model {
 class EntityNodeIndex;
 enum class BrushError;
 class BrushFace;
-class IssueGeneratorRegistry;
 class IssueQuickFix;
 enum class MapFormat;
 class PickResult;
+class Validator;
+class ValidatorRegistry;
 
 class WorldNode : public EntityNodeBase {
 private:
@@ -51,7 +52,7 @@ private:
   MapFormat m_mapFormat;
   LayerNode* m_defaultLayer;
   std::unique_ptr<EntityNodeIndex> m_entityNodeIndex;
-  std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
+  std::unique_ptr<ValidatorRegistry> m_validatorRegistry;
 
   using NodeTree = AABBTree<FloatType, 3, Node*>;
   std::unique_ptr<NodeTree> m_nodeTree;
@@ -123,12 +124,11 @@ private:
 public: // index
   const EntityNodeIndex& entityNodeIndex() const;
 
-public: // selection
-  // issue generator registration
-  const std::vector<IssueGenerator*>& registeredIssueGenerators() const;
+public: // validator registration
+  const std::vector<Validator*>& registeredValidators() const;
   std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
-  void registerIssueGenerator(IssueGenerator* issueGenerator);
-  void unregisterAllIssueGenerators();
+  void registerValidator(Validator* validator);
+  void unregisterAllValidators();
 
 public: // node tree bulk updating
   void disableNodeTreeUpdates();
@@ -157,7 +157,7 @@ private: // implement Node interface
   void doPick(
     const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
   void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
-  void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
+  void doValidate(const Validator* validator, std::vector<Issue*>& issues) override;
   void doAccept(NodeVisitor& visitor) override;
   void doAccept(ConstNodeVisitor& visitor) const override;
   const EntityPropertyConfig& doGetEntityPropertyConfig() const override;

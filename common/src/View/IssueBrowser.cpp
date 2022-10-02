@@ -20,7 +20,7 @@
 #include "IssueBrowser.h"
 
 #include "Model/Issue.h"
-#include "Model/IssueGenerator.h"
+#include "Model/Validator.h"
 #include "Model/WorldNode.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/IssueBrowserView.h"
@@ -119,21 +119,21 @@ void IssueBrowser::issueIgnoreChanged(Model::Issue*) {
 void IssueBrowser::updateFilterFlags() {
   auto document = kdl::mem_lock(m_document);
   const Model::WorldNode* world = document->world();
-  const std::vector<Model::IssueGenerator*>& generators = world->registeredIssueGenerators();
+  const std::vector<Model::Validator*>& validators = world->registeredValidators();
 
   QList<int> flags;
   QStringList labels;
 
-  for (const Model::IssueGenerator* generator : generators) {
-    const Model::IssueType flag = generator->type();
-    const std::string& description = generator->description();
+  for (const Model::Validator* validator : validators) {
+    const Model::IssueType flag = validator->type();
+    const std::string& description = validator->description();
 
     flags.push_back(flag);
     labels.push_back(QString::fromStdString(description));
   }
 
   m_filterEditor->setFlags(flags, labels);
-  m_view->setHiddenGenerators(0);
+  m_view->setHiddenIssueTypes(0);
   m_filterEditor->setFlagValue(~0);
 }
 
@@ -143,7 +143,7 @@ void IssueBrowser::showHiddenIssuesChanged() {
 
 void IssueBrowser::filterChanged(
   const size_t /* index */, const int /* value */, const int setFlag, const int /* mixedFlag */) {
-  m_view->setHiddenGenerators(~setFlag);
+  m_view->setHiddenIssueTypes(~setFlag);
 }
 } // namespace View
 } // namespace TrenchBroom

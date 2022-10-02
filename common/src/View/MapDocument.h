@@ -707,8 +707,8 @@ public: // map soft bounds
   void setSoftMapBounds(const Model::Game::SoftMapBounds& bounds);
   Model::Game::SoftMapBounds softMapBounds() const;
 
-private: // issue management
-  void registerIssueGenerators();
+private: // validator management
+  void registerValidators();
 
 public:
   void setIssueHidden(Model::Issue* issue, bool hidden);
