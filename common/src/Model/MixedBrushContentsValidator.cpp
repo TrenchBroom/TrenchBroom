@@ -50,8 +50,8 @@ const IssueType MixedBrushContentsValidator::MixedBrushContentsIssue::Type = Iss
 MixedBrushContentsValidator::MixedBrushContentsValidator()
   : Validator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
 
-void MixedBrushContentsValidator::doValidate(BrushNode* brushNode, IssueList& issues) const {
-  const Brush& brush = brushNode->brush();
+void MixedBrushContentsValidator::doValidate(BrushNode& brushNode, IssueList& issues) const {
+  const Brush& brush = brushNode.brush();
   const auto& faces = brush.faces();
   auto it = std::begin(faces);
   auto end = std::end(faces);
@@ -61,7 +61,7 @@ void MixedBrushContentsValidator::doValidate(BrushNode* brushNode, IssueList& is
   ++it;
   while (it != end) {
     if (it->resolvedSurfaceContents() != contentFlags) {
-      issues.push_back(new MixedBrushContentsIssue(*brushNode));
+      issues.push_back(new MixedBrushContentsIssue(brushNode));
     }
     ++it;
   }

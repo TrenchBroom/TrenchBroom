@@ -64,14 +64,14 @@ WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3& bounds)
   addQuickFix(std::make_unique<WorldBoundsIssueQuickFix>());
 }
 
-void WorldBoundsValidator::doValidate(EntityNode* entity, IssueList& issues) const {
-  if (!m_bounds.contains(entity->logicalBounds()))
-    issues.push_back(new WorldBoundsIssue(*entity));
+void WorldBoundsValidator::doValidate(EntityNode& entity, IssueList& issues) const {
+  if (!m_bounds.contains(entity.logicalBounds()))
+    issues.push_back(new WorldBoundsIssue(entity));
 }
 
-void WorldBoundsValidator::doValidate(BrushNode* brush, IssueList& issues) const {
-  if (!m_bounds.contains(brush->logicalBounds()))
-    issues.push_back(new WorldBoundsIssue(*brush));
+void WorldBoundsValidator::doValidate(BrushNode& brush, IssueList& issues) const {
+  if (!m_bounds.contains(brush.logicalBounds()))
+    issues.push_back(new WorldBoundsIssue(brush));
 }
 } // namespace Model
 } // namespace TrenchBroom

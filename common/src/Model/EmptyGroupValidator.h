@@ -34,7 +34,7 @@ public:
   EmptyGroupValidator();
 
 private:
-  void doValidate(GroupNode* group, IssueList& issues) const override;
+  void doValidate(GroupNode& group, IssueList& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

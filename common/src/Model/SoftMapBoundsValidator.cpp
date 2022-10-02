@@ -69,23 +69,23 @@ SoftMapBoundsValidator::SoftMapBoundsValidator(std::weak_ptr<Game> game, const W
   addQuickFix(std::make_unique<SoftMapBoundsIssueQuickFix>());
 }
 
-void SoftMapBoundsValidator::generateInternal(Node* node, IssueList& issues) const {
+void SoftMapBoundsValidator::generateInternal(Node& node, IssueList& issues) const {
   auto game = kdl::mem_lock(m_game);
   const Game::SoftMapBounds bounds = game->extractSoftMapBounds(m_world->entity());
 
   if (!bounds.bounds.has_value()) {
     return;
   }
-  if (!bounds.bounds->contains(node->logicalBounds())) {
-    issues.push_back(new SoftMapBoundsIssue(*node));
+  if (!bounds.bounds->contains(node.logicalBounds())) {
+    issues.push_back(new SoftMapBoundsIssue(node));
   }
 }
 
-void SoftMapBoundsValidator::doValidate(EntityNode* entity, IssueList& issues) const {
+void SoftMapBoundsValidator::doValidate(EntityNode& entity, IssueList& issues) const {
   generateInternal(entity, issues);
 }
 
-void SoftMapBoundsValidator::doValidate(BrushNode* brush, IssueList& issues) const {
+void SoftMapBoundsValidator::doValidate(BrushNode& brush, IssueList& issues) const {
   generateInternal(brush, issues);
 }
 } // namespace Model

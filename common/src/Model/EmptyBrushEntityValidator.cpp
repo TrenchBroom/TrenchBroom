@@ -67,13 +67,12 @@ EmptyBrushEntityValidator::EmptyBrushEntityValidator()
   addQuickFix(std::make_unique<EmptyBrushEntityIssueQuickFix>());
 }
 
-void EmptyBrushEntityValidator::doValidate(EntityNode* entityNode, IssueList& issues) const {
-  ensure(entityNode != nullptr, "entity is null");
-  const Assets::EntityDefinition* definition = entityNode->entity().definition();
+void EmptyBrushEntityValidator::doValidate(EntityNode& entityNode, IssueList& issues) const {
+  const Assets::EntityDefinition* definition = entityNode.entity().definition();
   if (
     definition != nullptr && definition->type() == Assets::EntityDefinitionType::BrushEntity &&
-    !entityNode->hasChildren())
-    issues.push_back(new EmptyBrushEntityIssue(*entityNode));
+    !entityNode.hasChildren())
+    issues.push_back(new EmptyBrushEntityIssue(entityNode));
 }
 } // namespace Model
 } // namespace TrenchBroom

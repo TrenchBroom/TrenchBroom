@@ -64,11 +64,11 @@ NonIntegerVerticesValidator::NonIntegerVerticesValidator()
   addQuickFix(std::make_unique<NonIntegerVerticesIssueQuickFix>());
 }
 
-void NonIntegerVerticesValidator::doValidate(BrushNode* brushNode, IssueList& issues) const {
-  const Brush& brush = brushNode->brush();
+void NonIntegerVerticesValidator::doValidate(BrushNode& brushNode, IssueList& issues) const {
+  const Brush& brush = brushNode.brush();
   for (const BrushVertex* vertex : brush.vertices()) {
     if (!vm::is_integral(vertex->position())) {
-      issues.push_back(new NonIntegerVerticesIssue(*brushNode));
+      issues.push_back(new NonIntegerVerticesIssue(brushNode));
       return;
     }
   }

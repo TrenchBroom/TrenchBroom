@@ -77,12 +77,12 @@ PropertyValueWithDoubleQuotationMarksValidator::PropertyValueWithDoubleQuotation
 }
 
 void PropertyValueWithDoubleQuotationMarksValidator::doValidate(
-  EntityNodeBase* node, IssueList& issues) const {
-  for (const EntityProperty& property : node->entity().properties()) {
+  EntityNodeBase& node, IssueList& issues) const {
+  for (const EntityProperty& property : node.entity().properties()) {
     const std::string& propertyKey = property.key();
     const std::string& propertyValue = property.value();
     if (propertyValue.find('"') != std::string::npos) {
-      issues.push_back(new PropertyValueWithDoubleQuotationMarksIssue(*node, propertyKey));
+      issues.push_back(new PropertyValueWithDoubleQuotationMarksIssue(node, propertyKey));
     }
   }
 }

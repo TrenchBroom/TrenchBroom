@@ -102,10 +102,8 @@ MissingModValidator::MissingModValidator(std::weak_ptr<Game> game)
   addQuickFix(std::make_unique<MissingModIssueQuickFix>());
 }
 
-void MissingModValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
-  assert(node != nullptr);
-
-  if (node->entity().classname() != EntityPropertyValues::WorldspawnClassname) {
+void MissingModValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+  if (node.entity().classname() != EntityPropertyValues::WorldspawnClassname) {
     return;
   }
 
@@ -114,7 +112,7 @@ void MissingModValidator::doValidate(EntityNodeBase* node, IssueList& issues) co
   }
 
   auto game = kdl::mem_lock(m_game);
-  const std::vector<std::string> mods = game->extractEnabledMods(node->entity());
+  const std::vector<std::string> mods = game->extractEnabledMods(node.entity());
 
   if (mods == m_lastMods) {
     return;
@@ -124,7 +122,7 @@ void MissingModValidator::doValidate(EntityNodeBase* node, IssueList& issues) co
   const auto errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
 
   for (const auto& [searchPath, message] : errors) {
-    issues.push_back(new MissingModIssue(*node, searchPath.asString(), message));
+    issues.push_back(new MissingModIssue(node, searchPath.asString(), message));
   }
 
   m_lastMods = mods;

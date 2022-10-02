@@ -84,13 +84,12 @@ PointEntityWithBrushesValidator::PointEntityWithBrushesValidator()
   addQuickFix(std::make_unique<PointEntityWithBrushesIssueQuickFix>());
 }
 
-void PointEntityWithBrushesValidator::doValidate(EntityNode* entityNode, IssueList& issues) const {
-  ensure(entityNode != nullptr, "entity is null");
-  const Assets::EntityDefinition* definition = entityNode->entity().definition();
+void PointEntityWithBrushesValidator::doValidate(EntityNode& entityNode, IssueList& issues) const {
+  const Assets::EntityDefinition* definition = entityNode.entity().definition();
   if (
     definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity &&
-    entityNode->hasChildren())
-    issues.push_back(new PointEntityWithBrushesIssue(*entityNode));
+    entityNode.hasChildren())
+    issues.push_back(new PointEntityWithBrushesIssue(entityNode));
 }
 } // namespace Model
 } // namespace TrenchBroom

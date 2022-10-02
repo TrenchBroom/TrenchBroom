@@ -24,6 +24,7 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/overload.h>
 #include <kdl/vector_utils.h>
 
 #include <cassert>
@@ -47,24 +48,26 @@ std::vector<const IssueQuickFix*> Validator::quickFixes() const {
   });
 }
 
-void Validator::validate(WorldNode* worldNode, IssueList& issues) const {
-  doValidate(worldNode, issues);
-}
-
-void Validator::validate(LayerNode* layerNode, IssueList& issues) const {
-  doValidate(layerNode, issues);
-}
-
-void Validator::validate(GroupNode* groupNode, IssueList& issues) const {
-  doValidate(groupNode, issues);
-}
-
-void Validator::validate(EntityNode* entityNode, IssueList& issues) const {
-  doValidate(entityNode, issues);
-}
-
-void Validator::validate(BrushNode* brushNode, IssueList& issues) const {
-  doValidate(brushNode, issues);
+void Validator::validate(Node& node, IssueList& issues) const {
+  node.accept(kdl::overload(
+    [&](WorldNode* worldNode) {
+      doValidate(*worldNode, issues);
+    },
+    [&](LayerNode* layerNode) {
+      doValidate(*layerNode, issues);
+    },
+    [&](GroupNode* groupNode) {
+      doValidate(*groupNode, issues);
+    },
+    [&](EntityNode* entityNode) {
+      doValidate(*entityNode, issues);
+    },
+    [&](BrushNode* brushNode) {
+      doValidate(*brushNode, issues);
+    },
+    [&](PatchNode* patchNode) {
+      doValidate(*patchNode, issues);
+    }));
 }
 
 Validator::Validator(const IssueType type, const std::string& description)
@@ -77,15 +80,16 @@ void Validator::addQuickFix(std::unique_ptr<IssueQuickFix> quickFix) {
   m_quickFixes.push_back(std::move(quickFix));
 }
 
-void Validator::doValidate(WorldNode* worldNode, IssueList& issues) const {
-  doValidate(static_cast<EntityNodeBase*>(worldNode), issues);
+void Validator::doValidate(WorldNode& worldNode, IssueList& issues) const {
+  doValidate(static_cast<EntityNodeBase&>(worldNode), issues);
 }
-void Validator::doValidate(LayerNode*, IssueList&) const {}
-void Validator::doValidate(GroupNode*, IssueList&) const {}
-void Validator::doValidate(EntityNode* entityNode, IssueList& issues) const {
-  doValidate(static_cast<EntityNodeBase*>(entityNode), issues);
+void Validator::doValidate(LayerNode&, IssueList&) const {}
+void Validator::doValidate(GroupNode&, IssueList&) const {}
+void Validator::doValidate(EntityNode& entityNode, IssueList& issues) const {
+  doValidate(static_cast<EntityNodeBase&>(entityNode), issues);
 }
-void Validator::doValidate(BrushNode*, IssueList&) const {}
-void Validator::doValidate(EntityNodeBase*, IssueList&) const {}
+void Validator::doValidate(BrushNode&, IssueList&) const {}
+void Validator::doValidate(PatchNode&, IssueList&) const {}
+void Validator::doValidate(EntityNodeBase&, IssueList&) const {}
 } // namespace Model
 } // namespace TrenchBroom

@@ -72,9 +72,9 @@ LinkSourceValidator::LinkSourceValidator()
   addQuickFix(std::make_unique<LinkSourceIssueQuickFix>());
 }
 
-void LinkSourceValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
-  if (node->hasMissingSources())
-    issues.push_back(new LinkSourceIssue(*node));
+void LinkSourceValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+  if (node.hasMissingSources())
+    issues.push_back(new LinkSourceIssue(node));
 }
 } // namespace Model
 } // namespace TrenchBroom

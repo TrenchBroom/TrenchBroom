@@ -326,10 +326,6 @@ bool BrushNode::doSelectable() const {
   return true;
 }
 
-void BrushNode::doValidate(const Validator& validator, std::vector<Issue*>& issues) {
-  validator.validate(this, issues);
-}
-
 void BrushNode::doAccept(NodeVisitor& visitor) {
   visitor.visit(this);
 }

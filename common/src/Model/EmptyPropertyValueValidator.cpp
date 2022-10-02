@@ -81,10 +81,10 @@ EmptyPropertyValueValidator::EmptyPropertyValueValidator()
   addQuickFix(std::make_unique<EmptyPropertyValueIssueQuickFix>());
 }
 
-void EmptyPropertyValueValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
-  for (const EntityProperty& property : node->entity().properties()) {
+void EmptyPropertyValueValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+  for (const EntityProperty& property : node.entity().properties()) {
     if (property.value().empty())
-      issues.push_back(new EmptyPropertyValueIssue(*node, property.key()));
+      issues.push_back(new EmptyPropertyValueIssue(node, property.key()));
   }
 }
 } // namespace Model

@@ -34,6 +34,8 @@ class GroupNode;
 class Issue;
 class IssueQuickFix;
 class LayerNode;
+class Node;
+class PatchNode;
 class WorldNode;
 
 class Validator {
@@ -52,23 +54,20 @@ public:
   const std::string& description() const;
   std::vector<const IssueQuickFix*> quickFixes() const;
 
-  void validate(WorldNode* worldNode, IssueList& issues) const;
-  void validate(LayerNode* layerNode, IssueList& issues) const;
-  void validate(GroupNode* groupNode, IssueList& issues) const;
-  void validate(EntityNode* entityNode, IssueList& issues) const;
-  void validate(BrushNode* brushNode, IssueList& issues) const;
+  void validate(Node& node, IssueList& issues) const;
 
 protected:
   Validator(IssueType type, const std::string& description);
   void addQuickFix(std::unique_ptr<IssueQuickFix> quickFix);
 
 private:
-  virtual void doValidate(WorldNode* worldNode, IssueList& issues) const;
-  virtual void doValidate(LayerNode* layerNode, IssueList& issues) const;
-  virtual void doValidate(GroupNode* groupNode, IssueList& issues) const;
-  virtual void doValidate(EntityNode* entityNode, IssueList& issues) const;
-  virtual void doValidate(BrushNode* brushNode, IssueList& issues) const;
-  virtual void doValidate(EntityNodeBase* node, IssueList& issues) const;
+  virtual void doValidate(WorldNode& worldNode, IssueList& issues) const;
+  virtual void doValidate(LayerNode& layerNode, IssueList& issues) const;
+  virtual void doValidate(GroupNode& groupNode, IssueList& issues) const;
+  virtual void doValidate(EntityNode& entityNode, IssueList& issues) const;
+  virtual void doValidate(BrushNode& brushNode, IssueList& issues) const;
+  virtual void doValidate(PatchNode& patchNode, IssueList& issues) const;
+  virtual void doValidate(EntityNodeBase& node, IssueList& issues) const;
 };
 } // namespace Model
 } // namespace TrenchBroom

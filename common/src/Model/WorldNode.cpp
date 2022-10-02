@@ -443,10 +443,6 @@ void WorldNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>&
   }
 }
 
-void WorldNode::doValidate(const Validator& validator, std::vector<Issue*>& issues) {
-  validator.validate(this, issues);
-}
-
 void WorldNode::doAccept(NodeVisitor& visitor) {
   visitor.visit(this);
 }

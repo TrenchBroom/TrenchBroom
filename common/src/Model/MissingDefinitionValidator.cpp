@@ -66,9 +66,9 @@ MissingDefinitionValidator::MissingDefinitionValidator()
   addQuickFix(std::make_unique<MissingDefinitionIssueQuickFix>());
 }
 
-void MissingDefinitionValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
-  if (node->entity().definition() == nullptr)
-    issues.push_back(new MissingDefinitionIssue(*node));
+void MissingDefinitionValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+  if (node.entity().definition() == nullptr)
+    issues.push_back(new MissingDefinitionIssue(node));
 }
 } // namespace Model
 } // namespace TrenchBroom

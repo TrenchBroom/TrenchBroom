@@ -721,7 +721,7 @@ void Node::setIssueHidden(const IssueType type, const bool hidden) {
 void Node::validateIssues(const std::vector<const Validator*>& validators) {
   if (!m_issuesValid) {
     for (const auto* validator : validators) {
-      doValidate(*validator, m_issues);
+      validator->validate(*this, m_issues);
     }
     m_issuesValid = true;
   }

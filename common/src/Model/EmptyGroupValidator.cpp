@@ -65,10 +65,9 @@ EmptyGroupValidator::EmptyGroupValidator()
   addQuickFix(std::make_unique<EmptyGroupIssueQuickFix>());
 }
 
-void EmptyGroupValidator::doValidate(GroupNode* group, IssueList& issues) const {
-  ensure(group != nullptr, "group is null");
-  if (!group->hasChildren())
-    issues.push_back(new EmptyGroupIssue(*group));
+void EmptyGroupValidator::doValidate(GroupNode& group, IssueList& issues) const {
+  if (!group.hasChildren())
+    issues.push_back(new EmptyGroupIssue(group));
 }
 } // namespace Model
 } // namespace TrenchBroom

@@ -90,12 +90,12 @@ LongPropertyValueValidator::LongPropertyValueValidator(const size_t maxLength)
   addQuickFix(std::make_unique<TruncateLongPropertyValueIssueQuickFix>(m_maxLength));
 }
 
-void LongPropertyValueValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
-  for (const EntityProperty& property : node->entity().properties()) {
+void LongPropertyValueValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+  for (const EntityProperty& property : node.entity().properties()) {
     const auto& propertyKey = property.key();
     const auto& propertyValue = property.value();
     if (propertyValue.size() >= m_maxLength) {
-      issues.push_back(new LongPropertyValueIssue(*node, propertyKey));
+      issues.push_back(new LongPropertyValueIssue(node, propertyKey));
     }
   }
 }

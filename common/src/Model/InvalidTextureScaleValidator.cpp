@@ -84,12 +84,12 @@ InvalidTextureScaleValidator::InvalidTextureScaleValidator()
   addQuickFix(std::make_unique<InvalidTextureScaleIssueQuickFix>());
 }
 
-void InvalidTextureScaleValidator::doValidate(BrushNode* brushNode, IssueList& issues) const {
-  const Brush& brush = brushNode->brush();
+void InvalidTextureScaleValidator::doValidate(BrushNode& brushNode, IssueList& issues) const {
+  const Brush& brush = brushNode.brush();
   for (size_t i = 0u; i < brush.faceCount(); ++i) {
     const BrushFace& face = brush.face(i);
     if (!face.attributes().valid()) {
-      issues.push_back(new InvalidTextureScaleIssue(*brushNode, i));
+      issues.push_back(new InvalidTextureScaleIssue(brushNode, i));
     }
   }
 }

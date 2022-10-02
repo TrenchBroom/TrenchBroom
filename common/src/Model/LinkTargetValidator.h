@@ -35,9 +35,9 @@ public:
   LinkTargetValidator();
 
 private:
-  void doValidate(EntityNodeBase* node, IssueList& issues) const override;
+  void doValidate(EntityNodeBase& node, IssueList& issues) const override;
   void processKeys(
-    EntityNodeBase* node, const std::vector<std::string>& keys, IssueList& issues) const;
+    EntityNodeBase& node, const std::vector<std::string>& keys, IssueList& issues) const;
 };
 } // namespace Model
 } // namespace TrenchBroom

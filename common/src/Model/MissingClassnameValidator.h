@@ -34,7 +34,7 @@ public:
   MissingClassnameValidator();
 
 private:
-  void doValidate(EntityNodeBase* node, IssueList& issues) const override;
+  void doValidate(EntityNodeBase& node, IssueList& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom
