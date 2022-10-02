@@ -395,7 +395,7 @@ void PatchNode::doPick(
 
 void PatchNode::doFindNodesContaining(const vm::vec3&, std::vector<Node*>&) {}
 
-void PatchNode::doValidate(const Validator*, std::vector<Issue*>&) {}
+void PatchNode::doValidate(const Validator&, std::vector<Issue*>&) {}
 
 void PatchNode::doAccept(NodeVisitor& visitor) {
   visitor.visit(this);

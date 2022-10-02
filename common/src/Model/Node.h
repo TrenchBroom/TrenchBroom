@@ -513,7 +513,7 @@ private: // subclassing interface
     const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) = 0;
   virtual void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) = 0;
 
-  virtual void doValidate(const Validator* validator, std::vector<Issue*>& issues) = 0;
+  virtual void doValidate(const Validator& validator, std::vector<Issue*>& issues) = 0;
 
   virtual void doAccept(NodeVisitor& visitor) = 0;
   virtual void doAccept(ConstNodeVisitor& visitor) const = 0;

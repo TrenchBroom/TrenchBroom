@@ -151,8 +151,8 @@ void LayerNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>&
     child->findNodesContaining(point, result);
 }
 
-void LayerNode::doValidate(const Validator* validator, std::vector<Issue*>& issues) {
-  validator->validate(this, issues);
+void LayerNode::doValidate(const Validator& validator, std::vector<Issue*>& issues) {
+  validator.validate(this, issues);
 }
 
 void LayerNode::doAccept(NodeVisitor& visitor) {
