@@ -35,14 +35,14 @@ public:
   static const IssueType Type;
 
 public:
-  explicit EmptyPropertyKeyIssue(EntityNodeBase* node)
+  explicit EmptyPropertyKeyIssue(EntityNodeBase& node)
     : Issue(node) {}
 
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
-    return entityNode->name() + " has a property with an empty name.";
+    const auto& entityNode = static_cast<EntityNodeBase&>(node());
+    return entityNode.name() + " has a property with an empty name.";
   }
 };
 
@@ -61,7 +61,7 @@ private:
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->selectNodes({issue->node()});
+    facade->selectNodes({&issue->node()});
     facade->removeProperty("");
   }
 };
@@ -73,7 +73,7 @@ EmptyPropertyKeyValidator::EmptyPropertyKeyValidator()
 
 void EmptyPropertyKeyValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
   if (node->entity().hasProperty(""))
-    issues.push_back(new EmptyPropertyKeyIssue(node));
+    issues.push_back(new EmptyPropertyKeyIssue(*node));
 }
 } // namespace Model
 } // namespace TrenchBroom

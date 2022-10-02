@@ -37,15 +37,15 @@ public:
   static const IssueType Type;
 
 public:
-  explicit EmptyBrushEntityIssue(EntityNode* entity)
+  explicit EmptyBrushEntityIssue(EntityNode& entity)
     : Issue(entity) {}
 
 private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const EntityNode* entity = static_cast<EntityNode*>(node());
-    return "Entity '" + entity->name() + "' does not contain any brushes";
+    const auto& entity = static_cast<EntityNode&>(node());
+    return "Entity '" + entity.name() + "' does not contain any brushes";
   }
 };
 
@@ -73,7 +73,7 @@ void EmptyBrushEntityValidator::doValidate(EntityNode* entityNode, IssueList& is
   if (
     definition != nullptr && definition->type() == Assets::EntityDefinitionType::BrushEntity &&
     !entityNode->hasChildren())
-    issues.push_back(new EmptyBrushEntityIssue(entityNode));
+    issues.push_back(new EmptyBrushEntityIssue(*entityNode));
 }
 } // namespace Model
 } // namespace TrenchBroom

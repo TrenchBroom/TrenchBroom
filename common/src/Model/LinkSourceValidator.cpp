@@ -36,14 +36,14 @@ public:
   static const IssueType Type;
 
 public:
-  explicit LinkSourceIssue(EntityNodeBase* node)
+  explicit LinkSourceIssue(EntityNodeBase& node)
     : Issue(node) {}
 
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
-    return entityNode->name() + " has unused targetname key";
+    const auto& entityNode = static_cast<EntityNodeBase&>(node());
+    return entityNode.name() + " has unused targetname key";
   }
 };
 
@@ -62,7 +62,7 @@ private:
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->selectNodes({issue->node()});
+    facade->selectNodes({&issue->node()});
     facade->removeProperty(EntityPropertyKeys::Targetname);
   }
 };
@@ -74,7 +74,7 @@ LinkSourceValidator::LinkSourceValidator()
 
 void LinkSourceValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
   if (node->hasMissingSources())
-    issues.push_back(new LinkSourceIssue(node));
+    issues.push_back(new LinkSourceIssue(*node));
 }
 } // namespace Model
 } // namespace TrenchBroom

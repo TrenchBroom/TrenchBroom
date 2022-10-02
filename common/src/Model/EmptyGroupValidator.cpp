@@ -35,15 +35,15 @@ public:
   static const IssueType Type;
 
 public:
-  explicit EmptyGroupIssue(GroupNode* group)
+  explicit EmptyGroupIssue(GroupNode& group)
     : Issue(group) {}
 
 private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const GroupNode* group = static_cast<GroupNode*>(node());
-    return "Group '" + group->name() + "' does not contain any objects";
+    const auto& group = static_cast<GroupNode&>(node());
+    return "Group '" + group.name() + "' does not contain any objects";
   }
 };
 
@@ -68,7 +68,7 @@ EmptyGroupValidator::EmptyGroupValidator()
 void EmptyGroupValidator::doValidate(GroupNode* group, IssueList& issues) const {
   ensure(group != nullptr, "group is null");
   if (!group->hasChildren())
-    issues.push_back(new EmptyGroupIssue(group));
+    issues.push_back(new EmptyGroupIssue(*group));
 }
 } // namespace Model
 } // namespace TrenchBroom

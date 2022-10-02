@@ -36,7 +36,7 @@ public:
   static const IssueType Type;
 
 public:
-  explicit MissingClassnameIssue(EntityNodeBase* node)
+  explicit MissingClassnameIssue(EntityNodeBase& node)
     : Issue(node) {}
 
 private:
@@ -65,7 +65,7 @@ MissingClassnameValidator::MissingClassnameValidator()
 
 void MissingClassnameValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
   if (!node->entity().hasProperty(EntityPropertyKeys::Classname))
-    issues.push_back(new MissingClassnameIssue(node));
+    issues.push_back(new MissingClassnameIssue(*node));
 }
 } // namespace Model
 } // namespace TrenchBroom

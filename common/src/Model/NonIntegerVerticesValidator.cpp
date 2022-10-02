@@ -38,7 +38,7 @@ public:
   static const IssueType Type;
 
 public:
-  explicit NonIntegerVerticesIssue(BrushNode* brush)
+  explicit NonIntegerVerticesIssue(BrushNode& brush)
     : Issue(brush) {}
 
   IssueType doGetType() const override { return Type; }
@@ -68,7 +68,7 @@ void NonIntegerVerticesValidator::doValidate(BrushNode* brushNode, IssueList& is
   const Brush& brush = brushNode->brush();
   for (const BrushVertex* vertex : brush.vertices()) {
     if (!vm::is_integral(vertex->position())) {
-      issues.push_back(new NonIntegerVerticesIssue(brushNode));
+      issues.push_back(new NonIntegerVerticesIssue(*brushNode));
       return;
     }
   }

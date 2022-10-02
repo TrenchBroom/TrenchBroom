@@ -48,7 +48,7 @@ private:
   std::string m_message;
 
 public:
-  MissingModIssue(EntityNodeBase* node, const std::string& mod, const std::string& message)
+  MissingModIssue(EntityNodeBase& node, const std::string& mod, const std::string& message)
     : Issue(node)
     , m_mod(mod)
     , m_message(message) {}
@@ -124,7 +124,7 @@ void MissingModValidator::doValidate(EntityNodeBase* node, IssueList& issues) co
   const auto errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
 
   for (const auto& [searchPath, message] : errors) {
-    issues.push_back(new MissingModIssue(node, searchPath.asString(), message));
+    issues.push_back(new MissingModIssue(*node, searchPath.asString(), message));
   }
 
   m_lastMods = mods;

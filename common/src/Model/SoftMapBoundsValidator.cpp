@@ -42,7 +42,7 @@ public:
   static const IssueType Type;
 
 public:
-  explicit SoftMapBoundsIssue(Node* node)
+  explicit SoftMapBoundsIssue(Node& node)
     : Issue(node) {}
 
   IssueType doGetType() const override { return Type; }
@@ -77,7 +77,7 @@ void SoftMapBoundsValidator::generateInternal(Node* node, IssueList& issues) con
     return;
   }
   if (!bounds.bounds->contains(node->logicalBounds())) {
-    issues.push_back(new SoftMapBoundsIssue(node));
+    issues.push_back(new SoftMapBoundsIssue(*node));
   }
 }
 

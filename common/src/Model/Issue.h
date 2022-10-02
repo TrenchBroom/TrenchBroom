@@ -35,7 +35,7 @@ private:
   size_t m_seqId;
 
 protected:
-  Node* const m_node;
+  Node& m_node;
 
 public:
   virtual ~Issue();
@@ -45,7 +45,7 @@ public:
   std::string description() const;
 
   IssueType type() const;
-  Node* node() const;
+  Node& node() const;
 
   bool addSelectableNodes(std::vector<Model::Node*>& nodes) const;
 
@@ -53,7 +53,7 @@ public:
   void setHidden(bool hidden);
 
 protected:
-  explicit Issue(Node* node);
+  explicit Issue(Node& node);
   static size_t nextSeqId();
   static IssueType freeType();
 
@@ -68,7 +68,7 @@ private:
   const size_t m_faceIndex;
 
 protected:
-  explicit BrushFaceIssue(BrushNode* node, size_t faceIndex);
+  explicit BrushFaceIssue(BrushNode& node, size_t faceIndex);
 
 public:
   ~BrushFaceIssue() override;

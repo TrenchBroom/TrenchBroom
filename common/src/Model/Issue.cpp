@@ -54,16 +54,16 @@ IssueType Issue::type() const {
   return doGetType();
 }
 
-Node* Issue::node() const {
+Node& Issue::node() const {
   return m_node;
 }
 
 bool Issue::addSelectableNodes(std::vector<Model::Node*>& nodes) const {
-  if (m_node->parent() == nullptr) {
+  if (m_node.parent() == nullptr) {
     return false;
   }
 
-  m_node->accept(kdl::overload(
+  m_node.accept(kdl::overload(
     [](WorldNode*) {}, [](LayerNode*) {},
     [&](GroupNode* group) {
       nodes.push_back(group);
@@ -86,18 +86,16 @@ bool Issue::addSelectableNodes(std::vector<Model::Node*>& nodes) const {
 }
 
 bool Issue::hidden() const {
-  return m_node->issueHidden(type());
+  return m_node.issueHidden(type());
 }
 
 void Issue::setHidden(const bool hidden) {
-  m_node->setIssueHidden(type(), hidden);
+  m_node.setIssueHidden(type(), hidden);
 }
 
-Issue::Issue(Node* node)
+Issue::Issue(Node& node)
   : m_seqId(nextSeqId())
-  , m_node(node) {
-  ensure(m_node != nullptr, "node is null");
-}
+  , m_node(node) {}
 
 size_t Issue::nextSeqId() {
   static size_t seqId = 0;
@@ -112,10 +110,10 @@ IssueType Issue::freeType() {
 }
 
 size_t Issue::doGetLineNumber() const {
-  return m_node->lineNumber();
+  return m_node.lineNumber();
 }
 
-BrushFaceIssue::BrushFaceIssue(BrushNode* node, const size_t faceIndex)
+BrushFaceIssue::BrushFaceIssue(BrushNode& node, const size_t faceIndex)
   : Issue(node)
   , m_faceIndex(faceIndex) {}
 
@@ -126,8 +124,8 @@ size_t BrushFaceIssue::faceIndex() const {
 }
 
 const BrushFace& BrushFaceIssue::face() const {
-  const BrushNode* brushNode = static_cast<const BrushNode*>(node());
-  const Brush& brush = brushNode->brush();
+  const BrushNode& brushNode = static_cast<const BrushNode&>(node());
+  const Brush& brush = brushNode.brush();
   return brush.face(m_faceIndex);
 }
 
@@ -139,8 +137,8 @@ EntityPropertyIssue::~EntityPropertyIssue() = default;
 
 const std::string& EntityPropertyIssue::propertyValue() const {
   static const auto NoValue = std::string("");
-  const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
-  const auto* value = entityNode->entity().property(propertyKey());
+  const EntityNodeBase& entityNode = static_cast<EntityNodeBase&>(node());
+  const auto* value = entityNode.entity().property(propertyKey());
   return value ? *value : NoValue;
 }
 } // namespace Model

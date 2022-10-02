@@ -40,15 +40,15 @@ public:
   static const IssueType Type;
 
 public:
-  explicit PointEntityWithBrushesIssue(EntityNode* entity)
+  explicit PointEntityWithBrushesIssue(EntityNode& entity)
     : Issue(entity) {}
 
 private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const EntityNode* entity = static_cast<EntityNode*>(node());
-    return entity->name() + " contains brushes";
+    const auto& entity = static_cast<EntityNode&>(node());
+    return entity.name() + " contains brushes";
   }
 };
 
@@ -66,11 +66,11 @@ private:
     std::map<Node*, std::vector<Node*>> nodesToReparent;
 
     for (const Issue* issue : issues) {
-      Node* node = issue->node();
-      nodesToReparent[node->parent()] = node->children();
+      auto& node = issue->node();
+      nodesToReparent[node.parent()] = node.children();
 
-      affectedNodes.push_back(node);
-      affectedNodes = kdl::vec_concat(std::move(affectedNodes), node->children());
+      affectedNodes.push_back(&node);
+      affectedNodes = kdl::vec_concat(std::move(affectedNodes), node.children());
     }
 
     facade->deselectAll();
@@ -90,7 +90,7 @@ void PointEntityWithBrushesValidator::doValidate(EntityNode* entityNode, IssueLi
   if (
     definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity &&
     entityNode->hasChildren())
-    issues.push_back(new PointEntityWithBrushesIssue(entityNode));
+    issues.push_back(new PointEntityWithBrushesIssue(*entityNode));
 }
 } // namespace Model
 } // namespace TrenchBroom

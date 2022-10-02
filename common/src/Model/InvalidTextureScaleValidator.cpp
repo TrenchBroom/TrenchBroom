@@ -42,7 +42,7 @@ public:
   static const IssueType Type;
 
 public:
-  explicit InvalidTextureScaleIssue(BrushNode* node, const size_t faceIndex)
+  explicit InvalidTextureScaleIssue(BrushNode& node, const size_t faceIndex)
     : BrushFaceIssue(node, faceIndex) {}
 
   IssueType doGetType() const override { return Type; }
@@ -64,9 +64,9 @@ private:
     std::vector<BrushFaceHandle> faceHandles;
     for (const auto* issue : issues) {
       if (issue->type() == InvalidTextureScaleIssue::Type) {
-        BrushNode* node = static_cast<BrushNode*>(issue->node());
+        auto& brushNode = static_cast<BrushNode&>(issue->node());
         const auto faceIndex = static_cast<const InvalidTextureScaleIssue*>(issue)->faceIndex();
-        faceHandles.push_back(BrushFaceHandle(node, faceIndex));
+        faceHandles.push_back(BrushFaceHandle(&brushNode, faceIndex));
       }
     }
 
@@ -89,7 +89,7 @@ void InvalidTextureScaleValidator::doValidate(BrushNode* brushNode, IssueList& i
   for (size_t i = 0u; i < brush.faceCount(); ++i) {
     const BrushFace& face = brush.face(i);
     if (!face.attributes().valid()) {
-      issues.push_back(new InvalidTextureScaleIssue(brushNode, i));
+      issues.push_back(new InvalidTextureScaleIssue(*brushNode, i));
     }
   }
 }

@@ -39,7 +39,7 @@ private:
   const std::string m_propertyKey;
 
 public:
-  LongPropertyKeyIssue(EntityNodeBase* node, const std::string& propertyKey)
+  LongPropertyKeyIssue(EntityNodeBase& node, const std::string& propertyKey)
     : EntityPropertyIssue(node)
     , m_propertyKey(propertyKey) {}
 
@@ -65,7 +65,7 @@ void LongPropertyKeyValidator::doValidate(EntityNodeBase* node, IssueList& issue
   for (const EntityProperty& property : node->entity().properties()) {
     const std::string& propertyKey = property.key();
     if (propertyKey.size() >= m_maxLength) {
-      issues.push_back(new LongPropertyKeyIssue(node, propertyKey));
+      issues.push_back(new LongPropertyKeyIssue(*node, propertyKey));
     }
   }
 }

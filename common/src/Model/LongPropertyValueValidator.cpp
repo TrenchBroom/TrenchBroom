@@ -41,7 +41,7 @@ private:
   const std::string m_propertyKey;
 
 public:
-  LongPropertyValueIssue(EntityNodeBase* node, const std::string& propertyKey)
+  LongPropertyValueIssue(EntityNodeBase& node, const std::string& propertyKey)
     : EntityPropertyIssue(node)
     , m_propertyKey(propertyKey) {}
 
@@ -78,7 +78,7 @@ private:
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->selectNodes({issue->node()});
+    facade->selectNodes({&issue->node()});
     facade->setProperty(propertyName, propertyValue.substr(0, m_maxLength));
   }
 };
@@ -95,7 +95,7 @@ void LongPropertyValueValidator::doValidate(EntityNodeBase* node, IssueList& iss
     const auto& propertyKey = property.key();
     const auto& propertyValue = property.value();
     if (propertyValue.size() >= m_maxLength) {
-      issues.push_back(new LongPropertyValueIssue(node, propertyKey));
+      issues.push_back(new LongPropertyValueIssue(*node, propertyKey));
     }
   }
 }

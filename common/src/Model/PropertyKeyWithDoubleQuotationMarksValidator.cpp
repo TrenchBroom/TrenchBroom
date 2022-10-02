@@ -42,7 +42,7 @@ private:
   const std::string m_propertyKey;
 
 public:
-  PropertyKeyWithDoubleQuotationMarksIssue(EntityNodeBase* node, const std::string& propertyKey)
+  PropertyKeyWithDoubleQuotationMarksIssue(EntityNodeBase& node, const std::string& propertyKey)
     : EntityPropertyIssue(node)
     , m_propertyKey(propertyKey) {}
 
@@ -81,7 +81,7 @@ void PropertyKeyWithDoubleQuotationMarksValidator::doValidate(
   for (const EntityProperty& property : node->entity().properties()) {
     const std::string& propertyKey = property.key();
     if (propertyKey.find('"') != std::string::npos) {
-      issues.push_back(new PropertyKeyWithDoubleQuotationMarksIssue(node, propertyKey));
+      issues.push_back(new PropertyKeyWithDoubleQuotationMarksIssue(*node, propertyKey));
     }
   }
 }

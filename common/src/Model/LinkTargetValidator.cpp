@@ -43,15 +43,15 @@ public:
   static const IssueType Type;
 
 public:
-  LinkTargetIssue(EntityNodeBase* node, const std::string& name)
+  LinkTargetIssue(EntityNodeBase& node, const std::string& name)
     : Issue(node)
     , m_name(name) {}
 
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const EntityNodeBase* propertyNode = static_cast<EntityNodeBase*>(node());
-    return propertyNode->name() + " has missing target for key '" + m_name + "'";
+    const auto& propertyNode = static_cast<EntityNodeBase&>(node());
+    return propertyNode.name() + " has missing target for key '" + m_name + "'";
   }
 };
 
@@ -73,7 +73,7 @@ private:
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->selectNodes({issue->node()});
+    facade->selectNodes({&issue->node()});
     facade->removeProperty(propertyKey);
   }
 };
@@ -92,7 +92,7 @@ void LinkTargetValidator::processKeys(
   EntityNodeBase* node, const std::vector<std::string>& keys, IssueList& issues) const {
   issues.reserve(issues.size() + keys.size());
   for (const std::string& key : keys) {
-    issues.push_back(new LinkTargetIssue(node, key));
+    issues.push_back(new LinkTargetIssue(*node, key));
   }
 }
 } // namespace Model

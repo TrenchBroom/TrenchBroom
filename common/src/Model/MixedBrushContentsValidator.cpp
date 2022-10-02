@@ -37,7 +37,7 @@ public:
   static const IssueType Type;
 
 public:
-  explicit MixedBrushContentsIssue(BrushNode* brush)
+  explicit MixedBrushContentsIssue(BrushNode& brush)
     : Issue(brush) {}
 
   IssueType doGetType() const override { return Type; }
@@ -61,7 +61,7 @@ void MixedBrushContentsValidator::doValidate(BrushNode* brushNode, IssueList& is
   ++it;
   while (it != end) {
     if (it->resolvedSurfaceContents() != contentFlags) {
-      issues.push_back(new MixedBrushContentsIssue(brushNode));
+      issues.push_back(new MixedBrushContentsIssue(*brushNode));
     }
     ++it;
   }

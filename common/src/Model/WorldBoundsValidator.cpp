@@ -37,7 +37,7 @@ public:
   static const IssueType Type;
 
 public:
-  explicit WorldBoundsIssue(Node* node)
+  explicit WorldBoundsIssue(Node& node)
     : Issue(node) {}
 
   IssueType doGetType() const override { return Type; }
@@ -66,12 +66,12 @@ WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3& bounds)
 
 void WorldBoundsValidator::doValidate(EntityNode* entity, IssueList& issues) const {
   if (!m_bounds.contains(entity->logicalBounds()))
-    issues.push_back(new WorldBoundsIssue(entity));
+    issues.push_back(new WorldBoundsIssue(*entity));
 }
 
 void WorldBoundsValidator::doValidate(BrushNode* brush, IssueList& issues) const {
   if (!m_bounds.contains(brush->logicalBounds()))
-    issues.push_back(new WorldBoundsIssue(brush));
+    issues.push_back(new WorldBoundsIssue(*brush));
 }
 } // namespace Model
 } // namespace TrenchBroom

@@ -36,15 +36,15 @@ public:
   static const IssueType Type;
 
 public:
-  explicit MissingDefinitionIssue(EntityNodeBase* node)
+  explicit MissingDefinitionIssue(EntityNodeBase& node)
     : Issue(node) {}
 
 private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
-    return entityNode->name() + " not found in entity definitions";
+    const auto& entityNode = static_cast<EntityNodeBase&>(node());
+    return entityNode.name() + " not found in entity definitions";
   }
 };
 
@@ -68,7 +68,7 @@ MissingDefinitionValidator::MissingDefinitionValidator()
 
 void MissingDefinitionValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
   if (node->entity().definition() == nullptr)
-    issues.push_back(new MissingDefinitionIssue(node));
+    issues.push_back(new MissingDefinitionIssue(*node));
 }
 } // namespace Model
 } // namespace TrenchBroom

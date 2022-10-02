@@ -39,15 +39,15 @@ private:
   std::string m_propertyKey;
 
 public:
-  EmptyPropertyValueIssue(EntityNodeBase* node, const std::string& propertyKey)
+  EmptyPropertyValueIssue(EntityNodeBase& node, const std::string& propertyKey)
     : Issue(node)
     , m_propertyKey(propertyKey) {}
 
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const EntityNodeBase* entityNode = static_cast<EntityNodeBase*>(node());
-    return "Property '" + m_propertyKey + "' of " + entityNode->name() + " has an empty value.";
+    const auto& entityNode = static_cast<EntityNodeBase&>(node());
+    return "Property '" + m_propertyKey + "' of " + entityNode.name() + " has an empty value.";
   }
 
   const std::string& attributeName() const { return m_propertyKey; }
@@ -71,7 +71,7 @@ private:
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->selectNodes({issue->node()});
+    facade->selectNodes({&issue->node()});
     facade->removeProperty(propertyKey);
   }
 };
@@ -84,7 +84,7 @@ EmptyPropertyValueValidator::EmptyPropertyValueValidator()
 void EmptyPropertyValueValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
   for (const EntityProperty& property : node->entity().properties()) {
     if (property.value().empty())
-      issues.push_back(new EmptyPropertyValueIssue(node, property.key()));
+      issues.push_back(new EmptyPropertyValueIssue(*node, property.key()));
   }
 }
 } // namespace Model
