@@ -126,7 +126,7 @@ public: // index
 
 public: // validator registration
   std::vector<const Validator*> registeredValidators() const;
-  std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
+  std::vector<const IssueQuickFix*> quickFixes(IssueType issueTypes) const;
   void registerValidator(std::unique_ptr<Validator> validator);
   void unregisterAllValidators();
 

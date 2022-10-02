@@ -188,7 +188,7 @@ std::vector<Model::Issue*> IssueBrowserView::collectIssues(
   return result.release_data();
 }
 
-std::vector<Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
+std::vector<const Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
   const QList<QModelIndex>& indices) const {
   if (indices.empty()) {
     return {};
@@ -249,12 +249,12 @@ void IssueBrowserView::itemRightClicked(const QPoint& pos) {
   popupMenu->addAction(tr("Show"), this, &IssueBrowserView::showIssues);
   popupMenu->addAction(tr("Hide"), this, &IssueBrowserView::hideIssues);
 
-  const std::vector<Model::IssueQuickFix*> quickFixes = collectQuickFixes(selectedIndexes);
+  const auto quickFixes = collectQuickFixes(selectedIndexes);
   if (!quickFixes.empty()) {
     auto* quickFixMenu = new QMenu();
     quickFixMenu->setTitle(tr("Fix"));
 
-    for (Model::IssueQuickFix* quickFix : quickFixes) {
+    for (const auto* quickFix : quickFixes) {
       quickFixMenu->addAction(QString::fromStdString(quickFix->description()), this, [=]() {
         this->applyQuickFix(quickFix);
       });

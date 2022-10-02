@@ -36,8 +36,8 @@ std::vector<const Validator*> ValidatorRegistry::registeredValidators() const {
   });
 }
 
-std::vector<IssueQuickFix*> ValidatorRegistry::quickFixes(const IssueType issueTypes) const {
-  auto result = std::vector<IssueQuickFix*>{};
+std::vector<const IssueQuickFix*> ValidatorRegistry::quickFixes(const IssueType issueTypes) const {
+  auto result = std::vector<const IssueQuickFix*>{};
   for (const auto& validator : m_validators) {
     if ((validator->type() & issueTypes) != 0) {
       result = kdl::vec_concat(std::move(result), validator->quickFixes());

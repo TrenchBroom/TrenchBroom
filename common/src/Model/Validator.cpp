@@ -31,9 +31,7 @@
 
 namespace TrenchBroom {
 namespace Model {
-Validator::~Validator() {
-  kdl::vec_clear_and_delete(m_quickFixes);
-}
+Validator::~Validator() = default;
 
 IssueType Validator::type() const {
   return m_type;
@@ -43,8 +41,10 @@ const std::string& Validator::description() const {
   return m_description;
 }
 
-const std::vector<IssueQuickFix*>& Validator::quickFixes() const {
-  return m_quickFixes;
+std::vector<const IssueQuickFix*> Validator::quickFixes() const {
+  return kdl::vec_transform(m_quickFixes, [](const auto& quickFix) {
+    return const_cast<const IssueQuickFix*>(quickFix.get());
+  });
 }
 
 void Validator::validate(WorldNode* worldNode, IssueList& issues) const {
@@ -71,10 +71,10 @@ Validator::Validator(const IssueType type, const std::string& description)
   : m_type(type)
   , m_description(description) {}
 
-void Validator::addQuickFix(IssueQuickFix* quickFix) {
+void Validator::addQuickFix(std::unique_ptr<IssueQuickFix> quickFix) {
   ensure(quickFix != nullptr, "quickFix is null");
   assert(!kdl::vec_contains(m_quickFixes, quickFix));
-  m_quickFixes.push_back(quickFix);
+  m_quickFixes.push_back(std::move(quickFix));
 }
 
 void Validator::doValidate(WorldNode* worldNode, IssueList& issues) const {

@@ -165,7 +165,7 @@ std::vector<const Validator*> WorldNode::registeredValidators() const {
   return m_validatorRegistry->registeredValidators();
 }
 
-std::vector<IssueQuickFix*> WorldNode::quickFixes(const IssueType issueTypes) const {
+std::vector<const IssueQuickFix*> WorldNode::quickFixes(const IssueType issueTypes) const {
   return m_validatorRegistry->quickFixes(issueTypes);
 }
 

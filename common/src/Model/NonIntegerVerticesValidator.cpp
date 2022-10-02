@@ -61,7 +61,7 @@ private:
 
 NonIntegerVerticesValidator::NonIntegerVerticesValidator()
   : Validator(NonIntegerVerticesIssue::Type, "Non-integer vertices") {
-  addQuickFix(new NonIntegerVerticesIssueQuickFix());
+  addQuickFix(std::make_unique<NonIntegerVerticesIssueQuickFix>());
 }
 
 void NonIntegerVerticesValidator::doValidate(BrushNode* brushNode, IssueList& issues) const {

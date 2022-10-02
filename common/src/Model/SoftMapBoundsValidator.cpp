@@ -66,7 +66,7 @@ SoftMapBoundsValidator::SoftMapBoundsValidator(std::weak_ptr<Game> game, const W
   : Validator(SoftMapBoundsIssue::Type, "Objects out of soft map bounds")
   , m_game(game)
   , m_world(world) {
-  addQuickFix(new SoftMapBoundsIssueQuickFix());
+  addQuickFix(std::make_unique<SoftMapBoundsIssueQuickFix>());
 }
 
 void SoftMapBoundsValidator::generateInternal(Node* node, IssueList& issues) const {

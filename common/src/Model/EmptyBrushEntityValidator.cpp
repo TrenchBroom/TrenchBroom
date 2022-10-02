@@ -64,7 +64,7 @@ private:
 
 EmptyBrushEntityValidator::EmptyBrushEntityValidator()
   : Validator(EmptyBrushEntityIssue::Type, "Empty brush entity") {
-  addQuickFix(new EmptyBrushEntityIssueQuickFix());
+  addQuickFix(std::make_unique<EmptyBrushEntityIssueQuickFix>());
 }
 
 void EmptyBrushEntityValidator::doValidate(EntityNode* entityNode, IssueList& issues) const {

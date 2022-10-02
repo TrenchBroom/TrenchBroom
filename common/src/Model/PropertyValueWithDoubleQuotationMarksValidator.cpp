@@ -64,8 +64,9 @@ const IssueType
 
 PropertyValueWithDoubleQuotationMarksValidator::PropertyValueWithDoubleQuotationMarksValidator()
   : Validator(PropertyValueWithDoubleQuotationMarksIssue::Type, "Invalid entity property values") {
-  addQuickFix(new RemoveEntityPropertiesQuickFix(PropertyValueWithDoubleQuotationMarksIssue::Type));
-  addQuickFix(new TransformEntityPropertiesQuickFix(
+  addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(
+    PropertyValueWithDoubleQuotationMarksIssue::Type));
+  addQuickFix(std::make_unique<TransformEntityPropertiesQuickFix>(
     PropertyValueWithDoubleQuotationMarksIssue::Type, "Replace \" with '",
     [](const std::string& key) {
       return key;

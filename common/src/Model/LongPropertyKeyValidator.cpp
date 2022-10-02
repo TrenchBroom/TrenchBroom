@@ -58,7 +58,7 @@ const IssueType LongPropertyKeyValidator::LongPropertyKeyIssue::Type = Issue::fr
 LongPropertyKeyValidator::LongPropertyKeyValidator(const size_t maxLength)
   : Validator(LongPropertyKeyIssue::Type, "Long entity property keys")
   , m_maxLength(maxLength) {
-  addQuickFix(new RemoveEntityPropertiesQuickFix(LongPropertyKeyIssue::Type));
+  addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(LongPropertyKeyIssue::Type));
 }
 
 void LongPropertyKeyValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {

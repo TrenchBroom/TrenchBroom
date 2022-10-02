@@ -81,7 +81,7 @@ private:
 
 PointEntityWithBrushesValidator::PointEntityWithBrushesValidator()
   : Validator(PointEntityWithBrushesIssue::Type, "Point entity with brushes") {
-  addQuickFix(new PointEntityWithBrushesIssueQuickFix());
+  addQuickFix(std::make_unique<PointEntityWithBrushesIssueQuickFix>());
 }
 
 void PointEntityWithBrushesValidator::doValidate(EntityNode* entityNode, IssueList& issues) const {

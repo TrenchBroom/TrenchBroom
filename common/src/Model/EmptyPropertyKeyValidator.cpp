@@ -68,7 +68,7 @@ private:
 
 EmptyPropertyKeyValidator::EmptyPropertyKeyValidator()
   : Validator(EmptyPropertyKeyIssue::Type, "Empty property name") {
-  addQuickFix(new EmptyPropertyKeyIssueQuickFix());
+  addQuickFix(std::make_unique<EmptyPropertyKeyIssueQuickFix>());
 }
 
 void EmptyPropertyKeyValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {

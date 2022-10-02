@@ -80,7 +80,7 @@ private:
 
 LinkTargetValidator::LinkTargetValidator()
   : Validator(LinkTargetIssue::Type, "Missing entity link target") {
-  addQuickFix(new LinkTargetIssueQuickFix());
+  addQuickFix(std::make_unique<LinkTargetIssueQuickFix>());
 }
 
 void LinkTargetValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {

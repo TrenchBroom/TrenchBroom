@@ -37,7 +37,7 @@ public:
   ~ValidatorRegistry();
 
   std::vector<const Validator*> registeredValidators() const;
-  std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
+  std::vector<const IssueQuickFix*> quickFixes(IssueType issueTypes) const;
 
   void registerValidator(const std::unique_ptr<Validator> validator);
   void unregisterAllValidators();

@@ -99,7 +99,7 @@ private:
 MissingModValidator::MissingModValidator(std::weak_ptr<Game> game)
   : Validator(MissingModIssue::Type, "Missing mod directory")
   , m_game(std::move(game)) {
-  addQuickFix(new MissingModIssueQuickFix());
+  addQuickFix(std::make_unique<MissingModIssueQuickFix>());
 }
 
 void MissingModValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {

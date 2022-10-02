@@ -81,7 +81,7 @@ private:
 
 InvalidTextureScaleValidator::InvalidTextureScaleValidator()
   : Validator(InvalidTextureScaleIssue::Type, "Invalid texture scale") {
-  addQuickFix(new InvalidTextureScaleIssueQuickFix());
+  addQuickFix(std::make_unique<InvalidTextureScaleIssueQuickFix>());
 }
 
 void InvalidTextureScaleValidator::doValidate(BrushNode* brushNode, IssueList& issues) const {

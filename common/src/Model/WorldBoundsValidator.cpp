@@ -61,7 +61,7 @@ const IssueType WorldBoundsValidator::WorldBoundsIssue::Type = Issue::freeType()
 WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3& bounds)
   : Validator(WorldBoundsIssue::Type, "Objects out of world bounds")
   , m_bounds(bounds) {
-  addQuickFix(new WorldBoundsIssueQuickFix());
+  addQuickFix(std::make_unique<WorldBoundsIssueQuickFix>());
 }
 
 void WorldBoundsValidator::doValidate(EntityNode* entity, IssueList& issues) const {

@@ -86,8 +86,8 @@ private:
 LongPropertyValueValidator::LongPropertyValueValidator(const size_t maxLength)
   : Validator(LongPropertyValueIssue::Type, "Long entity property value")
   , m_maxLength(maxLength) {
-  addQuickFix(new RemoveEntityPropertiesQuickFix(LongPropertyValueIssue::Type));
-  addQuickFix(new TruncateLongPropertyValueIssueQuickFix(m_maxLength));
+  addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(LongPropertyValueIssue::Type));
+  addQuickFix(std::make_unique<TruncateLongPropertyValueIssueQuickFix>(m_maxLength));
 }
 
 void LongPropertyValueValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {

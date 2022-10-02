@@ -60,7 +60,7 @@ private:
 
 MissingClassnameValidator::MissingClassnameValidator()
   : Validator(MissingClassnameIssue::Type, "Missing entity classname") {
-  addQuickFix(new MissingClassnameIssueQuickFix());
+  addQuickFix(std::make_unique<MissingClassnameIssueQuickFix>());
 }
 
 void MissingClassnameValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {

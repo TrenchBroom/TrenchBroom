@@ -69,7 +69,7 @@ private:
 
 LinkSourceValidator::LinkSourceValidator()
   : Validator(LinkSourceIssue::Type, "Missing entity link source") {
-  addQuickFix(new LinkSourceIssueQuickFix());
+  addQuickFix(std::make_unique<LinkSourceIssueQuickFix>());
 }
 
 void LinkSourceValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {

@@ -62,7 +62,7 @@ private:
 
 EmptyGroupValidator::EmptyGroupValidator()
   : Validator(EmptyGroupIssue::Type, "Empty group") {
-  addQuickFix(new EmptyGroupIssueQuickFix());
+  addQuickFix(std::make_unique<EmptyGroupIssueQuickFix>());
 }
 
 void EmptyGroupValidator::doValidate(GroupNode* group, IssueList& issues) const {

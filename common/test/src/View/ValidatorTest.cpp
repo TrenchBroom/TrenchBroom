@@ -89,10 +89,10 @@ TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty") {
     ((issue0->type() == validators[0]->type() && issue1->type() == validators[1]->type()) ||
      (issue0->type() == validators[1]->type() && issue1->type() == validators[0]->type())));
 
-  std::vector<Model::IssueQuickFix*> fixes = document->world()->quickFixes(issue0->type());
+  auto fixes = document->world()->quickFixes(issue0->type());
   REQUIRE(1 == fixes.size());
 
-  Model::IssueQuickFix* quickFix = fixes.at(0);
+  const auto* quickFix = fixes.at(0);
   quickFix->apply(document.get(), std::vector<Model::Issue*>{issue0});
 
   // The fix should have deleted the property

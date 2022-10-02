@@ -21,6 +21,7 @@
 
 #include "Model/IssueType.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -38,19 +39,18 @@ class WorldNode;
 class Validator {
 protected:
   using IssueList = std::vector<Issue*>;
-  using IssueQuickFixList = std::vector<IssueQuickFix*>;
 
 private:
   IssueType m_type;
   std::string m_description;
-  IssueQuickFixList m_quickFixes;
+  std::vector<std::unique_ptr<IssueQuickFix>> m_quickFixes;
 
 public:
   virtual ~Validator();
 
   IssueType type() const;
   const std::string& description() const;
-  const IssueQuickFixList& quickFixes() const;
+  std::vector<const IssueQuickFix*> quickFixes() const;
 
   void validate(WorldNode* worldNode, IssueList& issues) const;
   void validate(LayerNode* layerNode, IssueList& issues) const;
@@ -60,7 +60,7 @@ public:
 
 protected:
   Validator(IssueType type, const std::string& description);
-  void addQuickFix(IssueQuickFix* quickFix);
+  void addQuickFix(std::unique_ptr<IssueQuickFix> quickFix);
 
 private:
   virtual void doValidate(WorldNode* worldNode, IssueList& issues) const;

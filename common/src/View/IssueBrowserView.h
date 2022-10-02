@@ -70,7 +70,8 @@ private:
   void updateIssues();
 
   std::vector<Model::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
-  std::vector<Model::IssueQuickFix*> collectQuickFixes(const QList<QModelIndex>& indices) const;
+  std::vector<const Model::IssueQuickFix*> collectQuickFixes(
+    const QList<QModelIndex>& indices) const;
   Model::IssueType issueTypeMask() const;
 
   void setIssueVisibility(bool show);

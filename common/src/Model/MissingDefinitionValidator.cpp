@@ -63,7 +63,7 @@ private:
 
 MissingDefinitionValidator::MissingDefinitionValidator()
   : Validator(MissingDefinitionIssue::Type, "Missing entity definition") {
-  addQuickFix(new MissingDefinitionIssueQuickFix());
+  addQuickFix(std::make_unique<MissingDefinitionIssueQuickFix>());
 }
 
 void MissingDefinitionValidator::doValidate(EntityNodeBase* node, IssueList& issues) const {
