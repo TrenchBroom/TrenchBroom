@@ -44,11 +44,11 @@ void IssueQuickFix::apply(MapFacade* facade, const std::vector<Issue*>& issues) 
 void IssueQuickFix::doApply(MapFacade* facade, const std::vector<Issue*>& issues) const {
   for (const Issue* issue : issues) {
     if (issue->type() == m_issueType)
-      doApply(facade, issue);
+      doApply(facade, *issue);
   }
 }
 
-void IssueQuickFix::doApply(MapFacade* /* facade */, const Issue* /* issue */) const {
+void IssueQuickFix::doApply(MapFacade* /* facade */, const Issue& /* issue */) const {
   assert(false);
 }
 } // namespace Model

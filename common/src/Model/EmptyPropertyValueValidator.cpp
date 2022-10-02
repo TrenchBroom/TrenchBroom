@@ -61,9 +61,9 @@ public:
     : IssueQuickFix(EmptyPropertyValueIssue::Type, "Delete property") {}
 
 private:
-  void doApply(MapFacade* facade, const Issue* issue) const override {
-    const EmptyPropertyValueIssue* actualIssue = static_cast<const EmptyPropertyValueIssue*>(issue);
-    const std::string& propertyKey = actualIssue->attributeName();
+  void doApply(MapFacade* facade, const Issue& issue) const override {
+    const auto& actualIssue = static_cast<const EmptyPropertyValueIssue&>(issue);
+    const std::string& propertyKey = actualIssue.attributeName();
 
     const PushSelection push(facade);
 
@@ -71,7 +71,7 @@ private:
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->selectNodes({&issue->node()});
+    facade->selectNodes({&issue.node()});
     facade->removeProperty(propertyKey);
   }
 };

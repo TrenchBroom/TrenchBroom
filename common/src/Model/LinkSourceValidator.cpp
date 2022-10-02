@@ -55,14 +55,14 @@ public:
     : IssueQuickFix(LinkSourceIssue::Type, "Delete property") {}
 
 private:
-  void doApply(MapFacade* facade, const Issue* issue) const override {
+  void doApply(MapFacade* facade, const Issue& issue) const override {
     const PushSelection push(facade);
 
     // If world node is affected, the selection will fail, but if nothing is selected,
     // the removeProperty call will correctly affect worldspawn either way.
 
     facade->deselectAll();
-    facade->selectNodes({&issue->node()});
+    facade->selectNodes({&issue.node()});
     facade->removeProperty(EntityPropertyKeys::Targetname);
   }
 };

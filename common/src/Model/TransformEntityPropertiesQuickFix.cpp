@@ -34,12 +34,12 @@ TransformEntityPropertiesQuickFix::TransformEntityPropertiesQuickFix(
   , m_keyTransform(keyTransform)
   , m_valueTransform(valueTransform) {}
 
-void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
+void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue& issue) const {
   const PushSelection push(facade);
 
-  const auto* propIssue = static_cast<const EntityPropertyIssue*>(issue);
-  const auto& oldkey = propIssue->propertyKey();
-  const auto& oldValue = propIssue->propertyValue();
+  const auto& propIssue = static_cast<const EntityPropertyIssue&>(issue);
+  const auto& oldkey = propIssue.propertyKey();
+  const auto& oldValue = propIssue.propertyValue();
   const auto newKey = m_keyTransform(oldkey);
   const auto newValue = m_valueTransform(oldValue);
 
@@ -47,10 +47,10 @@ void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue* 
   // the removeProperty call will correctly affect worldspawn either way.
 
   facade->deselectAll();
-  facade->selectNodes({&issue->node()});
+  facade->selectNodes({&issue.node()});
 
   if (newKey.empty()) {
-    facade->removeProperty(propIssue->propertyKey());
+    facade->removeProperty(propIssue.propertyKey());
   } else {
     if (newKey != oldkey)
       facade->renameProperty(oldkey, newKey);

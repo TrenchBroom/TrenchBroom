@@ -46,7 +46,7 @@ public:
 
 private:
   virtual void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const;
-  virtual void doApply(MapFacade* facade, const Issue* issue) const;
+  virtual void doApply(MapFacade* facade, const Issue& issue) const;
 };
 } // namespace Model
 } // namespace TrenchBroom

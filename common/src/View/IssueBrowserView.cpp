@@ -216,8 +216,8 @@ Model::IssueType IssueBrowserView::issueTypeMask() const {
 
 void IssueBrowserView::setIssueVisibility(const bool show) {
   auto document = kdl::mem_lock(m_document);
-  for (Model::Issue* issue : collectIssues(getSelection())) {
-    document->setIssueHidden(issue, !show);
+  for (auto* issue : collectIssues(getSelection())) {
+    document->setIssueHidden(*issue, !show);
   }
 
   invalidate();

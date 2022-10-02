@@ -41,7 +41,7 @@ public:
     const ValueTransform& valueTransform);
 
 private:
-  void doApply(MapFacade* facade, const Issue* issue) const override;
+  void doApply(MapFacade* facade, const Issue& issue) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom
