@@ -54,7 +54,7 @@ TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty") {
     bool operator()(const Model::Issue*) const { return true; }
   };
 
-  auto issues = std::vector<Model::Issue*>{};
+  auto issues = std::vector<const Model::Issue*>{};
   document->world()->accept(kdl::overload(
     [&](auto&& thisLambda, Model::WorldNode* w) {
       issues = kdl::vec_concat(std::move(issues), w->issues(validators));
@@ -81,8 +81,8 @@ TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty") {
 
   REQUIRE(2 == issues.size());
 
-  Model::Issue* issue0 = issues.at(0);
-  Model::Issue* issue1 = issues.at(1);
+  const Model::Issue* issue0 = issues.at(0);
+  const Model::Issue* issue1 = issues.at(1);
 
   // Should be one EmptyPropertyNameIssue and one EmptyPropertyValueIssue
   CHECK(

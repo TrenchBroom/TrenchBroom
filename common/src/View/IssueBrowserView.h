@@ -99,13 +99,13 @@ public slots:
 class IssueBrowserModel : public QAbstractTableModel {
   Q_OBJECT
 private:
-  std::vector<Model::Issue*> m_issues;
+  std::vector<const Model::Issue*> m_issues;
 
 public:
   explicit IssueBrowserModel(QObject* parent);
 
-  void setIssues(std::vector<Model::Issue*> issues);
-  const std::vector<Model::Issue*>& issues();
+  void setIssues(std::vector<const Model::Issue*> issues);
+  const std::vector<const Model::Issue*>& issues();
 
 public: // QAbstractTableModel overrides
   int rowCount(const QModelIndex& parent) const override;

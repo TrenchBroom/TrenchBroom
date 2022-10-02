@@ -349,7 +349,7 @@ public: // file position
   bool containsLine(size_t lineNumber) const;
 
 public: // issue management
-  const std::vector<Issue*>& issues(const std::vector<const Validator*>& validators);
+  std::vector<const Issue*> issues(const std::vector<const Validator*>& validators);
 
   bool issueHidden(IssueType type) const;
   void setIssueHidden(IssueType type, bool hidden);

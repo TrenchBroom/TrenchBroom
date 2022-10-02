@@ -701,9 +701,11 @@ bool Node::containsLine(const size_t lineNumber) const {
   return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
 }
 
-const std::vector<Issue*>& Node::issues(const std::vector<const Validator*>& validators) {
+std::vector<const Issue*> Node::issues(const std::vector<const Validator*>& validators) {
   validateIssues(validators);
-  return m_issues;
+  return kdl::vec_transform(m_issues, [](const auto& issue) {
+    return const_cast<const Issue*>(issue);
+  });
 }
 
 bool Node::issueHidden(const IssueType type) const {

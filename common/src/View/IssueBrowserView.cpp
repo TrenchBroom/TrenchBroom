@@ -120,7 +120,7 @@ void IssueBrowserView::updateIssues() {
   if (document->world() != nullptr) {
     const auto validators = document->world()->registeredValidators();
 
-    auto issues = std::vector<Model::Issue*>{};
+    auto issues = std::vector<const Model::Issue*>{};
     const auto collectIssues = [&](auto* node) {
       for (auto* issue : node->issues(validators)) {
         if (m_showHiddenIssues || (!issue->hidden() && (issue->type() & m_hiddenIssueTypes) == 0)) {
@@ -299,13 +299,13 @@ IssueBrowserModel::IssueBrowserModel(QObject* parent)
   : QAbstractTableModel(parent)
   , m_issues() {}
 
-void IssueBrowserModel::setIssues(std::vector<Model::Issue*> issues) {
+void IssueBrowserModel::setIssues(std::vector<const Model::Issue*> issues) {
   beginResetModel();
   m_issues = std::move(issues);
   endResetModel();
 }
 
-const std::vector<Model::Issue*>& IssueBrowserModel::issues() {
+const std::vector<const Model::Issue*>& IssueBrowserModel::issues() {
   return m_issues;
 }
 
