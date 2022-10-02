@@ -84,7 +84,7 @@ private:
   void itemSelectionChanged();
   void showIssues();
   void hideIssues();
-  void applyQuickFix(const Model::IssueQuickFix* quickFix);
+  void applyQuickFix(const Model::IssueQuickFix& quickFix);
 
 private:
   void invalidate();

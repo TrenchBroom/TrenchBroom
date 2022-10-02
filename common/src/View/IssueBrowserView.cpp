@@ -160,15 +160,13 @@ void IssueBrowserView::updateIssues() {
   }
 }
 
-void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix* quickFix) {
-  ensure(quickFix != nullptr, "quickFix is null");
-
+void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix& quickFix) {
   auto document = kdl::mem_lock(m_document);
   const auto issues = collectIssues(getSelection());
 
-  auto transaction = Transaction{document, "Apply Quick Fix (" + quickFix->description() + ")"};
+  auto transaction = Transaction{document, "Apply Quick Fix (" + quickFix.description() + ")"};
   updateSelection();
-  quickFix->apply(document.get(), issues);
+  quickFix.apply(document.get(), issues);
   transaction.commit();
 }
 
@@ -256,7 +254,7 @@ void IssueBrowserView::itemRightClicked(const QPoint& pos) {
 
     for (const auto* quickFix : quickFixes) {
       quickFixMenu->addAction(QString::fromStdString(quickFix->description()), this, [=]() {
-        this->applyQuickFix(quickFix);
+        this->applyQuickFix(*quickFix);
       });
     }
 
