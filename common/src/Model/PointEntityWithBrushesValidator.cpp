@@ -85,12 +85,12 @@ PointEntityWithBrushesValidator::PointEntityWithBrushesValidator()
 }
 
 void PointEntityWithBrushesValidator::doValidate(
-  EntityNode& entityNode, std::vector<Issue*>& issues) const {
+  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   const Assets::EntityDefinition* definition = entityNode.entity().definition();
   if (
     definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity &&
     entityNode.hasChildren())
-    issues.push_back(new PointEntityWithBrushesIssue(entityNode));
+    issues.push_back(std::make_unique<PointEntityWithBrushesIssue>(entityNode));
 }
 } // namespace Model
 } // namespace TrenchBroom

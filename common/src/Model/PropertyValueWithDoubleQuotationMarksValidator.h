@@ -33,7 +33,7 @@ public:
   PropertyValueWithDoubleQuotationMarksValidator();
 
 private:
-  void doValidate(EntityNodeBase& node, std::vector<Issue*>& issues) const override;
+  void doValidate(EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

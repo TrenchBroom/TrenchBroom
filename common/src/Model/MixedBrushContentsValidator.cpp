@@ -51,7 +51,7 @@ MixedBrushContentsValidator::MixedBrushContentsValidator()
   : Validator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
 
 void MixedBrushContentsValidator::doValidate(
-  BrushNode& brushNode, std::vector<Issue*>& issues) const {
+  BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   const Brush& brush = brushNode.brush();
   const auto& faces = brush.faces();
   auto it = std::begin(faces);
@@ -62,7 +62,7 @@ void MixedBrushContentsValidator::doValidate(
   ++it;
   while (it != end) {
     if (it->resolvedSurfaceContents() != contentFlags) {
-      issues.push_back(new MixedBrushContentsIssue(brushNode));
+      issues.push_back(std::make_unique<MixedBrushContentsIssue>(brushNode));
     }
     ++it;
   }

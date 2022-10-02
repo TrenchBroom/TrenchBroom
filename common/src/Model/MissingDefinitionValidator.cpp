@@ -67,9 +67,9 @@ MissingDefinitionValidator::MissingDefinitionValidator()
 }
 
 void MissingDefinitionValidator::doValidate(
-  EntityNodeBase& node, std::vector<Issue*>& issues) const {
+  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (node.entity().definition() == nullptr)
-    issues.push_back(new MissingDefinitionIssue(node));
+    issues.push_back(std::make_unique<MissingDefinitionIssue>(node));
 }
 } // namespace Model
 } // namespace TrenchBroom

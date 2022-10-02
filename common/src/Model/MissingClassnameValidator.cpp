@@ -64,9 +64,9 @@ MissingClassnameValidator::MissingClassnameValidator()
 }
 
 void MissingClassnameValidator::doValidate(
-  EntityNodeBase& node, std::vector<Issue*>& issues) const {
+  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (!node.entity().hasProperty(EntityPropertyKeys::Classname))
-    issues.push_back(new MissingClassnameIssue(node));
+    issues.push_back(std::make_unique<MissingClassnameIssue>(node));
 }
 } // namespace Model
 } // namespace TrenchBroom

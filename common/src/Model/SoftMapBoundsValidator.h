@@ -46,9 +46,9 @@ public:
   explicit SoftMapBoundsValidator(std::weak_ptr<Game> game, const WorldNode* world);
 
 private:
-  void generateInternal(Node& node, std::vector<Issue*>& issues) const;
-  void doValidate(EntityNode& brush, std::vector<Issue*>& issues) const override;
-  void doValidate(BrushNode& brush, std::vector<Issue*>& issues) const override;
+  void generateInternal(Node& node, std::vector<std::unique_ptr<Issue>>& issues) const;
+  void doValidate(EntityNode& brush, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(BrushNode& brush, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

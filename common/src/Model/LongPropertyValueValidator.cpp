@@ -91,12 +91,12 @@ LongPropertyValueValidator::LongPropertyValueValidator(const size_t maxLength)
 }
 
 void LongPropertyValueValidator::doValidate(
-  EntityNodeBase& node, std::vector<Issue*>& issues) const {
+  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
   for (const EntityProperty& property : node.entity().properties()) {
     const auto& propertyKey = property.key();
     const auto& propertyValue = property.value();
     if (propertyValue.size() >= m_maxLength) {
-      issues.push_back(new LongPropertyValueIssue(node, propertyKey));
+      issues.push_back(std::make_unique<LongPropertyValueIssue>(node, propertyKey));
     }
   }
 }

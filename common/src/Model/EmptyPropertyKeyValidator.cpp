@@ -72,9 +72,9 @@ EmptyPropertyKeyValidator::EmptyPropertyKeyValidator()
 }
 
 void EmptyPropertyKeyValidator::doValidate(
-  EntityNodeBase& node, std::vector<Issue*>& issues) const {
+  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (node.entity().hasProperty(""))
-    issues.push_back(new EmptyPropertyKeyIssue(node));
+    issues.push_back(std::make_unique<EmptyPropertyKeyIssue>(node));
 }
 } // namespace Model
 } // namespace TrenchBroom

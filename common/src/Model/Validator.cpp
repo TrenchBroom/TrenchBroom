@@ -48,7 +48,7 @@ std::vector<const IssueQuickFix*> Validator::quickFixes() const {
   });
 }
 
-void Validator::validate(Node& node, std::vector<Issue*>& issues) const {
+void Validator::validate(Node& node, std::vector<std::unique_ptr<Issue>>& issues) const {
   node.accept(kdl::overload(
     [&](WorldNode* worldNode) {
       doValidate(*worldNode, issues);
@@ -80,16 +80,18 @@ void Validator::addQuickFix(std::unique_ptr<IssueQuickFix> quickFix) {
   m_quickFixes.push_back(std::move(quickFix));
 }
 
-void Validator::doValidate(WorldNode& worldNode, std::vector<Issue*>& issues) const {
+void Validator::doValidate(
+  WorldNode& worldNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   doValidate(static_cast<EntityNodeBase&>(worldNode), issues);
 }
-void Validator::doValidate(LayerNode&, std::vector<Issue*>&) const {}
-void Validator::doValidate(GroupNode&, std::vector<Issue*>&) const {}
-void Validator::doValidate(EntityNode& entityNode, std::vector<Issue*>& issues) const {
+void Validator::doValidate(LayerNode&, std::vector<std::unique_ptr<Issue>>&) const {}
+void Validator::doValidate(GroupNode&, std::vector<std::unique_ptr<Issue>>&) const {}
+void Validator::doValidate(
+  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   doValidate(static_cast<EntityNodeBase&>(entityNode), issues);
 }
-void Validator::doValidate(BrushNode&, std::vector<Issue*>&) const {}
-void Validator::doValidate(PatchNode&, std::vector<Issue*>&) const {}
-void Validator::doValidate(EntityNodeBase&, std::vector<Issue*>&) const {}
+void Validator::doValidate(BrushNode&, std::vector<std::unique_ptr<Issue>>&) const {}
+void Validator::doValidate(PatchNode&, std::vector<std::unique_ptr<Issue>>&) const {}
+void Validator::doValidate(EntityNodeBase&, std::vector<std::unique_ptr<Issue>>&) const {}
 } // namespace Model
 } // namespace TrenchBroom

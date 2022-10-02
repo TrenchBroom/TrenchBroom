@@ -85,12 +85,12 @@ InvalidTextureScaleValidator::InvalidTextureScaleValidator()
 }
 
 void InvalidTextureScaleValidator::doValidate(
-  BrushNode& brushNode, std::vector<Issue*>& issues) const {
+  BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   const Brush& brush = brushNode.brush();
   for (size_t i = 0u; i < brush.faceCount(); ++i) {
     const BrushFace& face = brush.face(i);
     if (!face.attributes().valid()) {
-      issues.push_back(new InvalidTextureScaleIssue(brushNode, i));
+      issues.push_back(std::make_unique<InvalidTextureScaleIssue>(brushNode, i));
     }
   }
 }

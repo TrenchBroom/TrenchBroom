@@ -83,16 +83,18 @@ LinkTargetValidator::LinkTargetValidator()
   addQuickFix(std::make_unique<LinkTargetIssueQuickFix>());
 }
 
-void LinkTargetValidator::doValidate(EntityNodeBase& node, std::vector<Issue*>& issues) const {
+void LinkTargetValidator::doValidate(
+  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
   processKeys(node, node.findMissingLinkTargets(), issues);
   processKeys(node, node.findMissingKillTargets(), issues);
 }
 
 void LinkTargetValidator::processKeys(
-  EntityNodeBase& node, const std::vector<std::string>& keys, std::vector<Issue*>& issues) const {
+  EntityNodeBase& node, const std::vector<std::string>& keys,
+  std::vector<std::unique_ptr<Issue>>& issues) const {
   issues.reserve(issues.size() + keys.size());
   for (const std::string& key : keys) {
-    issues.push_back(new LinkTargetIssue(node, key));
+    issues.push_back(std::make_unique<LinkTargetIssue>(node, key));
   }
 }
 } // namespace Model

@@ -69,7 +69,8 @@ SoftMapBoundsValidator::SoftMapBoundsValidator(std::weak_ptr<Game> game, const W
   addQuickFix(std::make_unique<SoftMapBoundsIssueQuickFix>());
 }
 
-void SoftMapBoundsValidator::generateInternal(Node& node, std::vector<Issue*>& issues) const {
+void SoftMapBoundsValidator::generateInternal(
+  Node& node, std::vector<std::unique_ptr<Issue>>& issues) const {
   auto game = kdl::mem_lock(m_game);
   const Game::SoftMapBounds bounds = game->extractSoftMapBounds(m_world->entity());
 
@@ -77,15 +78,17 @@ void SoftMapBoundsValidator::generateInternal(Node& node, std::vector<Issue*>& i
     return;
   }
   if (!bounds.bounds->contains(node.logicalBounds())) {
-    issues.push_back(new SoftMapBoundsIssue(node));
+    issues.push_back(std::make_unique<SoftMapBoundsIssue>(node));
   }
 }
 
-void SoftMapBoundsValidator::doValidate(EntityNode& entity, std::vector<Issue*>& issues) const {
+void SoftMapBoundsValidator::doValidate(
+  EntityNode& entity, std::vector<std::unique_ptr<Issue>>& issues) const {
   generateInternal(entity, issues);
 }
 
-void SoftMapBoundsValidator::doValidate(BrushNode& brush, std::vector<Issue*>& issues) const {
+void SoftMapBoundsValidator::doValidate(
+  BrushNode& brush, std::vector<std::unique_ptr<Issue>>& issues) const {
   generateInternal(brush, issues);
 }
 } // namespace Model

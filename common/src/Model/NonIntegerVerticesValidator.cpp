@@ -65,11 +65,11 @@ NonIntegerVerticesValidator::NonIntegerVerticesValidator()
 }
 
 void NonIntegerVerticesValidator::doValidate(
-  BrushNode& brushNode, std::vector<Issue*>& issues) const {
+  BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   const Brush& brush = brushNode.brush();
   for (const BrushVertex* vertex : brush.vertices()) {
     if (!vm::is_integral(vertex->position())) {
-      issues.push_back(new NonIntegerVerticesIssue(brushNode));
+      issues.push_back(std::make_unique<NonIntegerVerticesIssue>(brushNode));
       return;
     }
   }

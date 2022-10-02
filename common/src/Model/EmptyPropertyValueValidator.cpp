@@ -82,10 +82,10 @@ EmptyPropertyValueValidator::EmptyPropertyValueValidator()
 }
 
 void EmptyPropertyValueValidator::doValidate(
-  EntityNodeBase& node, std::vector<Issue*>& issues) const {
+  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
   for (const EntityProperty& property : node.entity().properties()) {
     if (property.value().empty())
-      issues.push_back(new EmptyPropertyValueIssue(node, property.key()));
+      issues.push_back(std::make_unique<EmptyPropertyValueIssue>(node, property.key()));
   }
 }
 } // namespace Model

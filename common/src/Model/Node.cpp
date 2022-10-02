@@ -59,7 +59,6 @@ Node::Node()
 
 Node::~Node() {
   clearChildren();
-  clearIssues();
 }
 
 const std::string& Node::name() const {
@@ -704,7 +703,7 @@ bool Node::containsLine(const size_t lineNumber) const {
 std::vector<const Issue*> Node::issues(const std::vector<const Validator*>& validators) {
   validateIssues(validators);
   return kdl::vec_transform(m_issues, [](const auto& issue) {
-    return const_cast<const Issue*>(issue);
+    return const_cast<const Issue*>(issue.get());
   });
 }
 
@@ -730,12 +729,8 @@ void Node::validateIssues(const std::vector<const Validator*>& validators) {
 }
 
 void Node::invalidateIssues() const {
-  clearIssues();
+  m_issues.clear();
   m_issuesValid = false;
-}
-
-void Node::clearIssues() const {
-  kdl::vec_clear_and_delete(m_issues);
 }
 
 const EntityPropertyConfig& Node::entityPropertyConfig() const {

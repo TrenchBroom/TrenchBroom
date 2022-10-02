@@ -102,7 +102,8 @@ MissingModValidator::MissingModValidator(std::weak_ptr<Game> game)
   addQuickFix(std::make_unique<MissingModIssueQuickFix>());
 }
 
-void MissingModValidator::doValidate(EntityNodeBase& node, std::vector<Issue*>& issues) const {
+void MissingModValidator::doValidate(
+  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (node.entity().classname() != EntityPropertyValues::WorldspawnClassname) {
     return;
   }
@@ -122,7 +123,7 @@ void MissingModValidator::doValidate(EntityNodeBase& node, std::vector<Issue*>& 
   const auto errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
 
   for (const auto& [searchPath, message] : errors) {
-    issues.push_back(new MissingModIssue(node, searchPath.asString(), message));
+    issues.push_back(std::make_unique<MissingModIssue>(node, searchPath.asString(), message));
   }
 
   m_lastMods = mods;

@@ -70,7 +70,7 @@ private:
   mutable size_t m_lineNumber;
   mutable size_t m_lineCount;
 
-  mutable std::vector<Issue*> m_issues;
+  mutable std::vector<std::unique_ptr<Issue>> m_issues;
   mutable bool m_issuesValid;
   IssueType m_hiddenIssues;
 
@@ -359,7 +359,6 @@ public: // should only be called from this and from the world
 
 private:
   void validateIssues(const std::vector<const Validator*>& validators);
-  void clearIssues() const;
 
 public: // visitors
   /**
