@@ -55,7 +55,7 @@ public:
     : IssueQuickFix(EmptyGroupIssue::Type, "Delete groups") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& /* issues */) const override {
     facade->deleteObjects();
   }
 };
@@ -65,7 +65,7 @@ EmptyGroupValidator::EmptyGroupValidator()
   addQuickFix(std::make_unique<EmptyGroupIssueQuickFix>());
 }
 
-void EmptyGroupValidator::doValidate(GroupNode& group, IssueList& issues) const {
+void EmptyGroupValidator::doValidate(GroupNode& group, std::vector<Issue*>& issues) const {
   if (!group.hasChildren())
     issues.push_back(new EmptyGroupIssue(group));
 }

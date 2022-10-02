@@ -34,7 +34,7 @@ public:
   NonIntegerVerticesValidator();
 
 private:
-  void doValidate(BrushNode& brushNode, IssueList& issues) const override;
+  void doValidate(BrushNode& brushNode, std::vector<Issue*>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

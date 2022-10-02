@@ -41,7 +41,7 @@ public:
   MissingModValidator(std::weak_ptr<Game> game);
 
 private:
-  void doValidate(EntityNodeBase& node, IssueList& issues) const override;
+  void doValidate(EntityNodeBase& node, std::vector<Issue*>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

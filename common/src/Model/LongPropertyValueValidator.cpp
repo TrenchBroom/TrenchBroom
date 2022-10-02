@@ -90,7 +90,8 @@ LongPropertyValueValidator::LongPropertyValueValidator(const size_t maxLength)
   addQuickFix(std::make_unique<TruncateLongPropertyValueIssueQuickFix>(m_maxLength));
 }
 
-void LongPropertyValueValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+void LongPropertyValueValidator::doValidate(
+  EntityNodeBase& node, std::vector<Issue*>& issues) const {
   for (const EntityProperty& property : node.entity().properties()) {
     const auto& propertyKey = property.key();
     const auto& propertyValue = property.value();

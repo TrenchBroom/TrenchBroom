@@ -55,7 +55,7 @@ public:
     : IssueQuickFix(SoftMapBoundsIssue::Type, "Delete objects") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& /* issues */) const override {
     facade->deleteObjects();
   }
 };
@@ -69,7 +69,7 @@ SoftMapBoundsValidator::SoftMapBoundsValidator(std::weak_ptr<Game> game, const W
   addQuickFix(std::make_unique<SoftMapBoundsIssueQuickFix>());
 }
 
-void SoftMapBoundsValidator::generateInternal(Node& node, IssueList& issues) const {
+void SoftMapBoundsValidator::generateInternal(Node& node, std::vector<Issue*>& issues) const {
   auto game = kdl::mem_lock(m_game);
   const Game::SoftMapBounds bounds = game->extractSoftMapBounds(m_world->entity());
 
@@ -81,11 +81,11 @@ void SoftMapBoundsValidator::generateInternal(Node& node, IssueList& issues) con
   }
 }
 
-void SoftMapBoundsValidator::doValidate(EntityNode& entity, IssueList& issues) const {
+void SoftMapBoundsValidator::doValidate(EntityNode& entity, std::vector<Issue*>& issues) const {
   generateInternal(entity, issues);
 }
 
-void SoftMapBoundsValidator::doValidate(BrushNode& brush, IssueList& issues) const {
+void SoftMapBoundsValidator::doValidate(BrushNode& brush, std::vector<Issue*>& issues) const {
   generateInternal(brush, issues);
 }
 } // namespace Model

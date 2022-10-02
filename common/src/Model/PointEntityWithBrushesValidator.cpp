@@ -61,7 +61,7 @@ public:
     : IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& issues) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const override {
     std::vector<Node*> affectedNodes;
     std::map<Node*, std::vector<Node*>> nodesToReparent;
 
@@ -84,7 +84,8 @@ PointEntityWithBrushesValidator::PointEntityWithBrushesValidator()
   addQuickFix(std::make_unique<PointEntityWithBrushesIssueQuickFix>());
 }
 
-void PointEntityWithBrushesValidator::doValidate(EntityNode& entityNode, IssueList& issues) const {
+void PointEntityWithBrushesValidator::doValidate(
+  EntityNode& entityNode, std::vector<Issue*>& issues) const {
   const Assets::EntityDefinition* definition = entityNode.entity().definition();
   if (
     definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity &&

@@ -53,7 +53,7 @@ public:
     : IssueQuickFix(MissingClassnameIssue::Type, "Delete entities") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& /* issues */) const override {
     facade->deleteObjects();
   }
 };
@@ -63,7 +63,8 @@ MissingClassnameValidator::MissingClassnameValidator()
   addQuickFix(std::make_unique<MissingClassnameIssueQuickFix>());
 }
 
-void MissingClassnameValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+void MissingClassnameValidator::doValidate(
+  EntityNodeBase& node, std::vector<Issue*>& issues) const {
   if (!node.entity().hasProperty(EntityPropertyKeys::Classname))
     issues.push_back(new MissingClassnameIssue(node));
 }

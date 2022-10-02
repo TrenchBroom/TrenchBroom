@@ -58,7 +58,7 @@ public:
     : IssueQuickFix(InvalidTextureScaleIssue::Type, "Reset texture scale") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& issues) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const override {
     const PushSelection push(facade);
 
     std::vector<BrushFaceHandle> faceHandles;
@@ -84,7 +84,8 @@ InvalidTextureScaleValidator::InvalidTextureScaleValidator()
   addQuickFix(std::make_unique<InvalidTextureScaleIssueQuickFix>());
 }
 
-void InvalidTextureScaleValidator::doValidate(BrushNode& brushNode, IssueList& issues) const {
+void InvalidTextureScaleValidator::doValidate(
+  BrushNode& brushNode, std::vector<Issue*>& issues) const {
   const Brush& brush = brushNode.brush();
   for (size_t i = 0u; i < brush.faceCount(); ++i) {
     const BrushFace& face = brush.face(i);

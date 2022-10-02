@@ -54,7 +54,7 @@ public:
     : IssueQuickFix(NonIntegerVerticesIssue::Type, "Convert vertices to integer") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& /* issues */) const override {
     facade->snapVertices(1);
   }
 };
@@ -64,7 +64,8 @@ NonIntegerVerticesValidator::NonIntegerVerticesValidator()
   addQuickFix(std::make_unique<NonIntegerVerticesIssueQuickFix>());
 }
 
-void NonIntegerVerticesValidator::doValidate(BrushNode& brushNode, IssueList& issues) const {
+void NonIntegerVerticesValidator::doValidate(
+  BrushNode& brushNode, std::vector<Issue*>& issues) const {
   const Brush& brush = brushNode.brush();
   for (const BrushVertex* vertex : brush.vertices()) {
     if (!vm::is_integral(vertex->position())) {

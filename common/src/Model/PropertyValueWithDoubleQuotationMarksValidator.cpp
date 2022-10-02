@@ -77,7 +77,7 @@ PropertyValueWithDoubleQuotationMarksValidator::PropertyValueWithDoubleQuotation
 }
 
 void PropertyValueWithDoubleQuotationMarksValidator::doValidate(
-  EntityNodeBase& node, IssueList& issues) const {
+  EntityNodeBase& node, std::vector<Issue*>& issues) const {
   for (const EntityProperty& property : node.entity().properties()) {
     const std::string& propertyKey = property.key();
     const std::string& propertyValue = property.value();

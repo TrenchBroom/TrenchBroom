@@ -56,7 +56,7 @@ public:
     : IssueQuickFix(MissingDefinitionIssue::Type, "Delete entities") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& /* issues */) const override {
     facade->deleteObjects();
   }
 };
@@ -66,7 +66,8 @@ MissingDefinitionValidator::MissingDefinitionValidator()
   addQuickFix(std::make_unique<MissingDefinitionIssueQuickFix>());
 }
 
-void MissingDefinitionValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+void MissingDefinitionValidator::doValidate(
+  EntityNodeBase& node, std::vector<Issue*>& issues) const {
   if (node.entity().definition() == nullptr)
     issues.push_back(new MissingDefinitionIssue(node));
 }

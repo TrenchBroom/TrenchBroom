@@ -72,7 +72,7 @@ public:
     : IssueQuickFix(MissingModIssue::Type, "Remove mod") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& issues) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const override {
     const PushSelection pushSelection(facade);
 
     // If nothing is selected, property changes will affect only world.
@@ -84,7 +84,7 @@ private:
   }
 
   std::vector<std::string> removeMissingMods(
-    std::vector<std::string> mods, const IssueList& issues) const {
+    std::vector<std::string> mods, const std::vector<Issue*>& issues) const {
     for (const Issue* issue : issues) {
       if (issue->type() == MissingModIssue::Type) {
         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
@@ -102,7 +102,7 @@ MissingModValidator::MissingModValidator(std::weak_ptr<Game> game)
   addQuickFix(std::make_unique<MissingModIssueQuickFix>());
 }
 
-void MissingModValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+void MissingModValidator::doValidate(EntityNodeBase& node, std::vector<Issue*>& issues) const {
   if (node.entity().classname() != EntityPropertyValues::WorldspawnClassname) {
     return;
   }

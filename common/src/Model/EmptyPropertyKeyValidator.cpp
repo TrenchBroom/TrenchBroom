@@ -71,7 +71,8 @@ EmptyPropertyKeyValidator::EmptyPropertyKeyValidator()
   addQuickFix(std::make_unique<EmptyPropertyKeyIssueQuickFix>());
 }
 
-void EmptyPropertyKeyValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+void EmptyPropertyKeyValidator::doValidate(
+  EntityNodeBase& node, std::vector<Issue*>& issues) const {
   if (node.entity().hasProperty(""))
     issues.push_back(new EmptyPropertyKeyIssue(node));
 }

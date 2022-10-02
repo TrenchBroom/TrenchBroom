@@ -77,7 +77,7 @@ PropertyKeyWithDoubleQuotationMarksValidator::PropertyKeyWithDoubleQuotationMark
 }
 
 void PropertyKeyWithDoubleQuotationMarksValidator::doValidate(
-  EntityNodeBase& node, IssueList& issues) const {
+  EntityNodeBase& node, std::vector<Issue*>& issues) const {
   for (const EntityProperty& property : node.entity().properties()) {
     const std::string& propertyKey = property.key();
     if (propertyKey.find('"') != std::string::npos) {

@@ -72,7 +72,7 @@ LinkSourceValidator::LinkSourceValidator()
   addQuickFix(std::make_unique<LinkSourceIssueQuickFix>());
 }
 
-void LinkSourceValidator::doValidate(EntityNodeBase& node, IssueList& issues) const {
+void LinkSourceValidator::doValidate(EntityNodeBase& node, std::vector<Issue*>& issues) const {
   if (node.hasMissingSources())
     issues.push_back(new LinkSourceIssue(node));
 }

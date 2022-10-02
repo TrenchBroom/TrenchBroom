@@ -51,7 +51,7 @@ public:
     : IssueQuickFix(WorldBoundsIssue::Type, "Delete objects") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& /* issues */) const override {
     facade->deleteObjects();
   }
 };
@@ -64,12 +64,12 @@ WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3& bounds)
   addQuickFix(std::make_unique<WorldBoundsIssueQuickFix>());
 }
 
-void WorldBoundsValidator::doValidate(EntityNode& entity, IssueList& issues) const {
+void WorldBoundsValidator::doValidate(EntityNode& entity, std::vector<Issue*>& issues) const {
   if (!m_bounds.contains(entity.logicalBounds()))
     issues.push_back(new WorldBoundsIssue(entity));
 }
 
-void WorldBoundsValidator::doValidate(BrushNode& brush, IssueList& issues) const {
+void WorldBoundsValidator::doValidate(BrushNode& brush, std::vector<Issue*>& issues) const {
   if (!m_bounds.contains(brush.logicalBounds()))
     issues.push_back(new WorldBoundsIssue(brush));
 }

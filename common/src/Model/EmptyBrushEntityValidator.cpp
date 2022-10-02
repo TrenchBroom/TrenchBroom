@@ -57,7 +57,7 @@ public:
     : IssueQuickFix(EmptyBrushEntityIssue::Type, "Delete entities") {}
 
 private:
-  void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<Issue*>& /* issues */) const override {
     facade->deleteObjects();
   }
 };
@@ -67,7 +67,8 @@ EmptyBrushEntityValidator::EmptyBrushEntityValidator()
   addQuickFix(std::make_unique<EmptyBrushEntityIssueQuickFix>());
 }
 
-void EmptyBrushEntityValidator::doValidate(EntityNode& entityNode, IssueList& issues) const {
+void EmptyBrushEntityValidator::doValidate(
+  EntityNode& entityNode, std::vector<Issue*>& issues) const {
   const Assets::EntityDefinition* definition = entityNode.entity().definition();
   if (
     definition != nullptr && definition->type() == Assets::EntityDefinitionType::BrushEntity &&

@@ -50,7 +50,8 @@ const IssueType MixedBrushContentsValidator::MixedBrushContentsIssue::Type = Iss
 MixedBrushContentsValidator::MixedBrushContentsValidator()
   : Validator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
 
-void MixedBrushContentsValidator::doValidate(BrushNode& brushNode, IssueList& issues) const {
+void MixedBrushContentsValidator::doValidate(
+  BrushNode& brushNode, std::vector<Issue*>& issues) const {
   const Brush& brush = brushNode.brush();
   const auto& faces = brush.faces();
   auto it = std::begin(faces);

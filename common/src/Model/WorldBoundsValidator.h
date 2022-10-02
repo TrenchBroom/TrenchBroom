@@ -40,8 +40,8 @@ public:
   explicit WorldBoundsValidator(const vm::bbox3& bounds);
 
 private:
-  void doValidate(EntityNode& brush, IssueList& issues) const override;
-  void doValidate(BrushNode& brush, IssueList& issues) const override;
+  void doValidate(EntityNode& brush, std::vector<Issue*>& issues) const override;
+  void doValidate(BrushNode& brush, std::vector<Issue*>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom
