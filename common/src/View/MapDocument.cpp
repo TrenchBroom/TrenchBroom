@@ -4233,25 +4233,30 @@ void MapDocument::registerValidators() {
   ensure(m_world != nullptr, "world is null");
   ensure(m_game.get() != nullptr, "game is null");
 
-  m_world->registerValidator(new Model::MissingClassnameValidator());
-  m_world->registerValidator(new Model::MissingDefinitionValidator());
-  m_world->registerValidator(new Model::MissingModValidator(m_game));
-  m_world->registerValidator(new Model::EmptyGroupValidator());
-  m_world->registerValidator(new Model::EmptyBrushEntityValidator());
-  m_world->registerValidator(new Model::PointEntityWithBrushesValidator());
-  m_world->registerValidator(new Model::LinkSourceValidator());
-  m_world->registerValidator(new Model::LinkTargetValidator());
-  m_world->registerValidator(new Model::NonIntegerVerticesValidator());
-  m_world->registerValidator(new Model::MixedBrushContentsValidator());
-  m_world->registerValidator(new Model::WorldBoundsValidator(worldBounds()));
-  m_world->registerValidator(new Model::SoftMapBoundsValidator(m_game, m_world.get()));
-  m_world->registerValidator(new Model::EmptyPropertyKeyValidator());
-  m_world->registerValidator(new Model::EmptyPropertyValueValidator());
-  m_world->registerValidator(new Model::LongPropertyKeyValidator(m_game->maxPropertyLength()));
-  m_world->registerValidator(new Model::LongPropertyValueValidator(m_game->maxPropertyLength()));
-  m_world->registerValidator(new Model::PropertyKeyWithDoubleQuotationMarksValidator());
-  m_world->registerValidator(new Model::PropertyValueWithDoubleQuotationMarksValidator());
-  m_world->registerValidator(new Model::InvalidTextureScaleValidator());
+  m_world->registerValidator(std::make_unique<Model::MissingClassnameValidator>());
+  m_world->registerValidator(std::make_unique<Model::MissingDefinitionValidator>());
+  m_world->registerValidator(std::make_unique<Model::MissingModValidator>(m_game));
+  m_world->registerValidator(std::make_unique<Model::EmptyGroupValidator>());
+  m_world->registerValidator(std::make_unique<Model::EmptyBrushEntityValidator>());
+  m_world->registerValidator(std::make_unique<Model::PointEntityWithBrushesValidator>());
+  m_world->registerValidator(std::make_unique<Model::LinkSourceValidator>());
+  m_world->registerValidator(std::make_unique<Model::LinkTargetValidator>());
+  m_world->registerValidator(std::make_unique<Model::NonIntegerVerticesValidator>());
+  m_world->registerValidator(std::make_unique<Model::MixedBrushContentsValidator>());
+  m_world->registerValidator(std::make_unique<Model::WorldBoundsValidator>(worldBounds()));
+  m_world->registerValidator(
+    std::make_unique<Model::SoftMapBoundsValidator>(m_game, m_world.get()));
+  m_world->registerValidator(std::make_unique<Model::EmptyPropertyKeyValidator>());
+  m_world->registerValidator(std::make_unique<Model::EmptyPropertyValueValidator>());
+  m_world->registerValidator(
+    std::make_unique<Model::LongPropertyKeyValidator>(m_game->maxPropertyLength()));
+  m_world->registerValidator(
+    std::make_unique<Model::LongPropertyValueValidator>(m_game->maxPropertyLength()));
+  m_world->registerValidator(
+    std::make_unique<Model::PropertyKeyWithDoubleQuotationMarksValidator>());
+  m_world->registerValidator(
+    std::make_unique<Model::PropertyValueWithDoubleQuotationMarksValidator>());
+  m_world->registerValidator(std::make_unique<Model::InvalidTextureScaleValidator>());
 }
 
 void MapDocument::registerSmartTags() {

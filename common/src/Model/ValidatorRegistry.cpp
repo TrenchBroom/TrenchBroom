@@ -28,35 +28,32 @@
 
 namespace TrenchBroom {
 namespace Model {
-ValidatorRegistry::~ValidatorRegistry() {
-  clearValidators();
-}
+ValidatorRegistry::~ValidatorRegistry() = default;
 
-const std::vector<Validator*>& ValidatorRegistry::registeredValidators() const {
-  return m_validators;
+std::vector<const Validator*> ValidatorRegistry::registeredValidators() const {
+  return kdl::vec_transform(m_validators, [](const std::unique_ptr<Validator>& validator) {
+    return const_cast<const Validator*>(validator.get());
+  });
 }
 
 std::vector<IssueQuickFix*> ValidatorRegistry::quickFixes(const IssueType issueTypes) const {
-  std::vector<IssueQuickFix*> result;
-  for (const Validator* validator : m_validators) {
-    if ((validator->type() & issueTypes) != 0)
+  auto result = std::vector<IssueQuickFix*>{};
+  for (const auto& validator : m_validators) {
+    if ((validator->type() & issueTypes) != 0) {
       result = kdl::vec_concat(std::move(result), validator->quickFixes());
+    }
   }
   return result;
 }
 
-void ValidatorRegistry::registerValidator(Validator* validator) {
+void ValidatorRegistry::registerValidator(std::unique_ptr<Validator> validator) {
   ensure(validator != nullptr, "validator is null");
   assert(!kdl::vec_contains(m_validators, validator));
-  m_validators.push_back(validator);
+  m_validators.push_back(std::move(validator));
 }
 
 void ValidatorRegistry::unregisterAllValidators() {
-  clearValidators();
-}
-
-void ValidatorRegistry::clearValidators() {
-  kdl::vec_clear_and_delete(m_validators);
+  m_validators.clear();
 }
 } // namespace Model
 } // namespace TrenchBroom

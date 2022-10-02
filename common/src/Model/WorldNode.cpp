@@ -161,7 +161,7 @@ const EntityNodeIndex& WorldNode::entityNodeIndex() const {
   return *m_entityNodeIndex;
 }
 
-const std::vector<Validator*>& WorldNode::registeredValidators() const {
+std::vector<const Validator*> WorldNode::registeredValidators() const {
   return m_validatorRegistry->registeredValidators();
 }
 
@@ -169,8 +169,8 @@ std::vector<IssueQuickFix*> WorldNode::quickFixes(const IssueType issueTypes) co
   return m_validatorRegistry->quickFixes(issueTypes);
 }
 
-void WorldNode::registerValidator(Validator* validator) {
-  m_validatorRegistry->registerValidator(validator);
+void WorldNode::registerValidator(std::unique_ptr<Validator> validator) {
+  m_validatorRegistry->registerValidator(std::move(validator));
   invalidateAllIssues();
 }
 

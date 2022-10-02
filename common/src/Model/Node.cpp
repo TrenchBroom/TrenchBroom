@@ -701,7 +701,7 @@ bool Node::containsLine(const size_t lineNumber) const {
   return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
 }
 
-const std::vector<Issue*>& Node::issues(const std::vector<Validator*>& validators) {
+const std::vector<Issue*>& Node::issues(const std::vector<const Validator*>& validators) {
   validateIssues(validators);
   return m_issues;
 }
@@ -718,7 +718,7 @@ void Node::setIssueHidden(const IssueType type, const bool hidden) {
   }
 }
 
-void Node::validateIssues(const std::vector<Validator*>& validators) {
+void Node::validateIssues(const std::vector<const Validator*>& validators) {
   if (!m_issuesValid) {
     for (const auto* validator : validators) {
       doValidate(validator, m_issues);

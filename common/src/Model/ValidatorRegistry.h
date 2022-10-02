@@ -21,6 +21,7 @@
 
 #include "Model/IssueType.h"
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -30,19 +31,16 @@ class Validator;
 
 class ValidatorRegistry {
 private:
-  std::vector<Validator*> m_validators;
+  std::vector<std::unique_ptr<Validator>> m_validators;
 
 public:
   ~ValidatorRegistry();
 
-  const std::vector<Validator*>& registeredValidators() const;
+  std::vector<const Validator*> registeredValidators() const;
   std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
 
-  void registerValidator(Validator* validator);
+  void registerValidator(const std::unique_ptr<Validator> validator);
   void unregisterAllValidators();
-
-private:
-  void clearValidators();
 };
 } // namespace Model
 } // namespace TrenchBroom

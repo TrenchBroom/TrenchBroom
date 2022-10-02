@@ -119,14 +119,14 @@ void IssueBrowser::issueIgnoreChanged(Model::Issue*) {
 void IssueBrowser::updateFilterFlags() {
   auto document = kdl::mem_lock(m_document);
   const Model::WorldNode* world = document->world();
-  const std::vector<Model::Validator*>& validators = world->registeredValidators();
+  const auto validators = world->registeredValidators();
 
   QList<int> flags;
   QStringList labels;
 
-  for (const Model::Validator* validator : validators) {
-    const Model::IssueType flag = validator->type();
-    const std::string& description = validator->description();
+  for (const auto* validator : validators) {
+    const auto flag = validator->type();
+    const auto& description = validator->description();
 
     flags.push_back(flag);
     labels.push_back(QString::fromStdString(description));

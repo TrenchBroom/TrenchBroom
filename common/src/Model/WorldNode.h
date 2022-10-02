@@ -125,9 +125,9 @@ public: // index
   const EntityNodeIndex& entityNodeIndex() const;
 
 public: // validator registration
-  const std::vector<Validator*>& registeredValidators() const;
+  std::vector<const Validator*> registeredValidators() const;
   std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
-  void registerValidator(Validator* validator);
+  void registerValidator(std::unique_ptr<Validator> validator);
   void unregisterAllValidators();
 
 public: // node tree bulk updating

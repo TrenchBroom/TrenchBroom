@@ -118,7 +118,7 @@ void IssueBrowserView::updateSelection() {
 void IssueBrowserView::updateIssues() {
   auto document = kdl::mem_lock(m_document);
   if (document->world() != nullptr) {
-    const auto& validators = document->world()->registeredValidators();
+    const auto validators = document->world()->registeredValidators();
 
     auto issues = std::vector<Model::Issue*>{};
     const auto collectIssues = [&](auto* node) {

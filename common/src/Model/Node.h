@@ -349,7 +349,7 @@ public: // file position
   bool containsLine(size_t lineNumber) const;
 
 public: // issue management
-  const std::vector<Issue*>& issues(const std::vector<Validator*>& validators);
+  const std::vector<Issue*>& issues(const std::vector<const Validator*>& validators);
 
   bool issueHidden(IssueType type) const;
   void setIssueHidden(IssueType type, bool hidden);
@@ -358,7 +358,7 @@ public: // should only be called from this and from the world
   void invalidateIssues() const;
 
 private:
-  void validateIssues(const std::vector<Validator*>& validators);
+  void validateIssues(const std::vector<const Validator*>& validators);
   void clearIssues() const;
 
 public: // visitors

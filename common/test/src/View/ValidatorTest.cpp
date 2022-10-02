@@ -46,7 +46,7 @@ TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty") {
   document->setProperty("", "");
   REQUIRE(entityNode->entity().hasProperty(""));
 
-  auto validators = std::vector<Model::Validator*>{
+  auto validators = std::vector<const Model::Validator*>{
     new Model::EmptyPropertyKeyValidator(), new Model::EmptyPropertyValueValidator()};
 
   class AcceptAllIssues {
