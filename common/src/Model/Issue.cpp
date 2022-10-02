@@ -89,10 +89,6 @@ bool Issue::hidden() const {
   return m_node.issueHidden(type());
 }
 
-void Issue::setHidden(const bool hidden) {
-  m_node.setIssueHidden(type(), hidden);
-}
-
 Issue::Issue(Node& node)
   : m_seqId(nextSeqId())
   , m_node(node) {}

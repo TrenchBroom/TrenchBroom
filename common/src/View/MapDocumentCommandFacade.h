@@ -103,7 +103,7 @@ public:
   void performPopGroup();
 
 private:
-  void doSetIssueHidden(Model::Issue& issue, bool hidden) override;
+  void doSetIssueHidden(const Model::Issue& issue, bool hidden) override;
 
 public: // modification count
   void incModificationCount(size_t delta = 1);

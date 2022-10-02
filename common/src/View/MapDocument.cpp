@@ -4225,7 +4225,7 @@ Model::Game::SoftMapBounds MapDocument::softMapBounds() const {
   return m_game->extractSoftMapBounds(m_world->entity());
 }
 
-void MapDocument::setIssueHidden(Model::Issue& issue, const bool hidden) {
+void MapDocument::setIssueHidden(const Model::Issue& issue, const bool hidden) {
   doSetIssueHidden(issue, hidden);
 }
 

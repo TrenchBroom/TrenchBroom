@@ -711,10 +711,10 @@ private: // validator management
   void registerValidators();
 
 public:
-  void setIssueHidden(Model::Issue& issue, bool hidden);
+  void setIssueHidden(const Model::Issue& issue, bool hidden);
 
 private:
-  virtual void doSetIssueHidden(Model::Issue& issue, bool hidden) = 0;
+  virtual void doSetIssueHidden(const Model::Issue& issue, bool hidden) = 0;
 
 public:                     // tag management
   void registerSmartTags(); // public for testing

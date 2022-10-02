@@ -50,7 +50,6 @@ public:
   bool addSelectableNodes(std::vector<Model::Node*>& nodes) const;
 
   bool hidden() const;
-  void setHidden(bool hidden);
 
 protected:
   explicit Issue(Node& node);
