@@ -54,7 +54,7 @@ public:
     : IssueQuickFix(NonIntegerVerticesIssue::Type, "Convert vertices to integer") {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<Issue*>& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<const Issue*>& /* issues */) const override {
     facade->snapVertices(1);
   }
 };

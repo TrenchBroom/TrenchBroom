@@ -93,7 +93,7 @@ TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty") {
   REQUIRE(1 == fixes.size());
 
   const auto* quickFix = fixes.at(0);
-  quickFix->apply(document.get(), std::vector<Model::Issue*>{issue0});
+  quickFix->apply(document.get(), std::vector<const Model::Issue*>{issue0});
 
   // The fix should have deleted the property
   CHECK(!entityNode->entity().hasProperty(""));

@@ -58,7 +58,7 @@ public:
     : IssueQuickFix(InvalidTextureScaleIssue::Type, "Reset texture scale") {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const override {
+  void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const override {
     const PushSelection push(facade);
 
     std::vector<BrushFaceHandle> faceHandles;

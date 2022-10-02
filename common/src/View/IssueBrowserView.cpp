@@ -104,7 +104,7 @@ void IssueBrowserView::updateSelection() {
   auto document = kdl::mem_lock(m_document);
 
   std::vector<Model::Node*> nodes;
-  for (Model::Issue* issue : collectIssues(getSelection())) {
+  for (const Model::Issue* issue : collectIssues(getSelection())) {
     if (!issue->addSelectableNodes(nodes)) {
       nodes.clear();
       break;
@@ -170,12 +170,12 @@ void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix& quickFix) {
   transaction.commit();
 }
 
-std::vector<Model::Issue*> IssueBrowserView::collectIssues(
+std::vector<const Model::Issue*> IssueBrowserView::collectIssues(
   const QList<QModelIndex>& indices) const {
   // Use a vector_set to filter out duplicates.
   // The QModelIndex list returned by getSelection() contains duplicates
   // (not sure why, current row and selected row?)
-  kdl::vector_set<Model::Issue*> result;
+  kdl::vector_set<const Model::Issue*> result;
   result.reserve(static_cast<size_t>(indices.size()));
   for (QModelIndex index : indices) {
     if (index.isValid()) {
@@ -208,7 +208,7 @@ std::vector<const Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
 
 Model::IssueType IssueBrowserView::issueTypeMask() const {
   Model::IssueType result = ~static_cast<Model::IssueType>(0);
-  for (Model::Issue* issue : collectIssues(getSelection())) {
+  for (const Model::Issue* issue : collectIssues(getSelection())) {
     result &= issue->type();
   }
   return result;
@@ -216,7 +216,7 @@ Model::IssueType IssueBrowserView::issueTypeMask() const {
 
 void IssueBrowserView::setIssueVisibility(const bool show) {
   auto document = kdl::mem_lock(m_document);
-  for (auto* issue : collectIssues(getSelection())) {
+  for (const auto* issue : collectIssues(getSelection())) {
     document->setIssueHidden(*issue, !show);
   }
 

@@ -53,7 +53,7 @@ public:
     : IssueQuickFix(MissingClassnameIssue::Type, "Delete entities") {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<Issue*>& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<const Issue*>& /* issues */) const override {
     facade->deleteObjects();
   }
 };

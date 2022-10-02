@@ -42,10 +42,10 @@ public:
 
   const std::string& description() const;
 
-  void apply(MapFacade* facade, const std::vector<Issue*>& issues) const;
+  void apply(MapFacade* facade, const std::vector<const Issue*>& issues) const;
 
 private:
-  virtual void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const;
+  virtual void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const;
   virtual void doApply(MapFacade* facade, const Issue& issue) const;
 };
 } // namespace Model

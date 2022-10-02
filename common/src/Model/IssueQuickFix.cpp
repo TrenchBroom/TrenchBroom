@@ -37,11 +37,11 @@ const std::string& IssueQuickFix::description() const {
   return m_description;
 }
 
-void IssueQuickFix::apply(MapFacade* facade, const std::vector<Issue*>& issues) const {
+void IssueQuickFix::apply(MapFacade* facade, const std::vector<const Issue*>& issues) const {
   doApply(facade, issues);
 }
 
-void IssueQuickFix::doApply(MapFacade* facade, const std::vector<Issue*>& issues) const {
+void IssueQuickFix::doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const {
   for (const Issue* issue : issues) {
     if (issue->type() == m_issueType)
       doApply(facade, *issue);
