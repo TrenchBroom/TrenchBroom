@@ -32,26 +32,12 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class MissingClassnameIssue : public Issue {
-public:
-  static const IssueType Type;
-
-public:
-  explicit MissingClassnameIssue(EntityNodeBase& entityNode)
-    : Issue{entityNode} {}
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override { return "Entity has no classname property"; }
-};
-
-const IssueType MissingClassnameIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 
 class MissingClassnameIssueQuickFix : public IssueQuickFix {
 public:
   MissingClassnameIssueQuickFix()
-    : IssueQuickFix{MissingClassnameIssue::Type, "Delete entities"} {}
+    : IssueQuickFix{Type, "Delete entities"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
@@ -61,14 +47,14 @@ private:
 } // namespace
 
 MissingClassnameValidator::MissingClassnameValidator()
-  : Validator{MissingClassnameIssue::Type, "Missing entity classname"} {
+  : Validator{Type, "Missing entity classname"} {
   addQuickFix(std::make_unique<MissingClassnameIssueQuickFix>());
 }
 
 void MissingClassnameValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (!entityNode.entity().hasProperty(EntityPropertyKeys::Classname)) {
-    issues.push_back(std::make_unique<MissingClassnameIssue>(entityNode));
+    issues.push_back(std::make_unique<Issue>(Type, entityNode, "Entity has no classname property"));
   }
 }
 } // namespace Model

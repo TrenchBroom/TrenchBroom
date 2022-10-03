@@ -33,41 +33,19 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class LinkTargetIssue : public Issue {
-public:
-  friend class LinkTargetIssueQuickFix;
-  static const IssueType Type;
-
-private:
-  const std::string m_propertyKey;
-
-public:
-  LinkTargetIssue(EntityNodeBase& entityNode, const std::string& propertyKey)
-    : Issue{entityNode}
-    , m_propertyKey{propertyKey} {}
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override {
-    const auto& entityNode = static_cast<EntityNodeBase&>(node());
-    return entityNode.name() + " has missing target for key '" + m_propertyKey + "'";
-  }
-};
-
-const IssueType LinkTargetIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 
 class LinkTargetIssueQuickFix : public IssueQuickFix {
 public:
   LinkTargetIssueQuickFix()
-    : IssueQuickFix{LinkTargetIssue::Type, "Delete property"} {}
+    : IssueQuickFix{Type, "Delete property"} {}
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override {
     const auto pushSelection = PushSelection{facade};
 
-    const auto& targetIssue = static_cast<const LinkTargetIssue&>(issue);
-    const auto& propertyKey = targetIssue.m_propertyKey;
+    const auto& targetIssue = static_cast<const EntityPropertyIssue&>(issue);
+    const auto& propertyKey = targetIssue.propertyKey();
 
     // If world node is affected, the selection will fail, but if nothing is selected,
     // the removeProperty call will correctly affect worldspawn either way.
@@ -83,13 +61,14 @@ void validateInternal(
   std::vector<std::unique_ptr<Issue>>& issues) {
   issues.reserve(issues.size() + propertyKeys.size());
   for (const auto& key : propertyKeys) {
-    issues.push_back(std::make_unique<LinkTargetIssue>(entityNode, key));
+    issues.push_back(std::make_unique<EntityPropertyIssue>(
+      Type, entityNode, key, entityNode.name() + " has missing target for key '" + key + "'"));
   }
 }
 } // namespace
 
 LinkTargetValidator::LinkTargetValidator()
-  : Validator{LinkTargetIssue::Type, "Missing entity link target"} {
+  : Validator{Type, "Missing entity link target"} {
   addQuickFix(std::make_unique<LinkTargetIssueQuickFix>());
 }
 

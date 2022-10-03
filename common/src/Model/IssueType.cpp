@@ -17,12 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "IssueType.h"
+
+#include <utility>
 
 namespace TrenchBroom {
 namespace Model {
-using IssueType = int;
-
-IssueType freeIssueType();
+IssueType freeIssueType() {
+  static IssueType type = 1;
+  return std::exchange(type, type << 1);
+}
 } // namespace Model
 } // namespace TrenchBroom

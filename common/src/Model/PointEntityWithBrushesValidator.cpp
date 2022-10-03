@@ -36,28 +36,12 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class PointEntityWithBrushesIssue : public Issue {
-public:
-  static const IssueType Type;
-
-  explicit PointEntityWithBrushesIssue(EntityNode& entityNode)
-    : Issue{entityNode} {}
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override {
-    const auto& entity = static_cast<EntityNode&>(node());
-    return entity.name() + " contains brushes";
-  }
-};
-
-const IssueType PointEntityWithBrushesIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 
 class PointEntityWithBrushesIssueQuickFix : public IssueQuickFix {
 public:
   PointEntityWithBrushesIssueQuickFix()
-    : IssueQuickFix{PointEntityWithBrushesIssue::Type, "Move brushes to world"} {}
+    : IssueQuickFix{Type, "Move brushes to world"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const override {
@@ -80,7 +64,7 @@ private:
 } // namespace
 
 PointEntityWithBrushesValidator::PointEntityWithBrushesValidator()
-  : Validator{PointEntityWithBrushesIssue::Type, "Point entity with brushes"} {
+  : Validator{Type, "Point entity with brushes"} {
   addQuickFix(std::make_unique<PointEntityWithBrushesIssueQuickFix>());
 }
 
@@ -89,7 +73,8 @@ void PointEntityWithBrushesValidator::doValidate(
   const auto* definition =
     dynamic_cast<const Assets::PointEntityDefinition*>(entityNode.entity().definition());
   if (definition && entityNode.hasChildren()) {
-    issues.push_back(std::make_unique<PointEntityWithBrushesIssue>(entityNode));
+    issues.push_back(
+      std::make_unique<Issue>(Type, entityNode, entityNode.name() + " contains brushes"));
   }
 }
 } // namespace Model

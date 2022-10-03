@@ -45,11 +45,7 @@ namespace Model {
 class TestIssue : public Issue {
 public:
   TestIssue(Node& node)
-    : Issue(node) {}
-
-private:
-  IssueType doGetType() const { return 0; }
-  std::string doGetDescription() const { return ""; }
+    : Issue{0, node, ""} {}
 };
 
 TEST_CASE("Issue.addSelectableNodes") {

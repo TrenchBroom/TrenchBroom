@@ -32,29 +32,12 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class LinkSourceIssue : public Issue {
-public:
-  static const IssueType Type;
-
-public:
-  explicit LinkSourceIssue(EntityNodeBase& entityNode)
-    : Issue{entityNode} {}
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override {
-    const auto& entityNode = static_cast<EntityNodeBase&>(node());
-    return entityNode.name() + " has unused targetname key";
-  }
-};
-
-const IssueType LinkSourceIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 
 class LinkSourceIssueQuickFix : public IssueQuickFix {
 public:
   LinkSourceIssueQuickFix()
-    : IssueQuickFix{LinkSourceIssue::Type, "Delete property"} {}
+    : IssueQuickFix{Type, "Delete property"} {}
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override {
@@ -71,14 +54,15 @@ private:
 } // namespace
 
 LinkSourceValidator::LinkSourceValidator()
-  : Validator{LinkSourceIssue::Type, "Missing entity link source"} {
+  : Validator{Type, "Missing entity link source"} {
   addQuickFix(std::make_unique<LinkSourceIssueQuickFix>());
 }
 
 void LinkSourceValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (entityNode.hasMissingSources()) {
-    issues.push_back(std::make_unique<LinkSourceIssue>(entityNode));
+    issues.push_back(
+      std::make_unique<Issue>(Type, entityNode, entityNode.name() + " has unused targetname key"));
   }
 }
 } // namespace Model

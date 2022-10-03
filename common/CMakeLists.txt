@@ -139,6 +139,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Issue.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.cpp
+        ${COMMON_SOURCE_DIR}/Model/IssueType.cpp
         ${COMMON_SOURCE_DIR}/Model/Layer.cpp
         ${COMMON_SOURCE_DIR}/Model/LayerNode.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkSourceValidator.cpp

@@ -32,38 +32,16 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class EmptyPropertyValueIssue : public Issue {
-public:
-  static const IssueType Type;
-
-private:
-  std::string m_propertyKey;
-
-public:
-  EmptyPropertyValueIssue(EntityNodeBase& entityNode, const std::string& propertyKey)
-    : Issue{entityNode}
-    , m_propertyKey{propertyKey} {}
-
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override {
-    const auto& entityNode = static_cast<EntityNodeBase&>(node());
-    return "Property '" + m_propertyKey + "' of " + entityNode.name() + " has an empty value.";
-  }
-
-  const std::string& propertyKey() const { return m_propertyKey; }
-};
-
-const IssueType EmptyPropertyValueIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 
 class EmptyPropertyValueIssueQuickFix : public IssueQuickFix {
 public:
   EmptyPropertyValueIssueQuickFix()
-    : IssueQuickFix{EmptyPropertyValueIssue::Type, "Delete property"} {}
+    : IssueQuickFix{Type, "Delete property"} {}
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override {
-    const auto& actualIssue = static_cast<const EmptyPropertyValueIssue&>(issue);
+    const auto& actualIssue = static_cast<const EntityPropertyIssue&>(issue);
     const auto& propertyKey = actualIssue.propertyKey();
 
     const auto pushSelection = PushSelection{facade};
@@ -79,7 +57,7 @@ private:
 } // namespace
 
 EmptyPropertyValueValidator::EmptyPropertyValueValidator()
-  : Validator{EmptyPropertyValueIssue::Type, "Empty property value"} {
+  : Validator{Type, "Empty property value"} {
   addQuickFix(std::make_unique<EmptyPropertyValueIssueQuickFix>());
 }
 
@@ -87,7 +65,9 @@ void EmptyPropertyValueValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   for (const auto& property : entityNode.entity().properties()) {
     if (property.value().empty()) {
-      issues.push_back(std::make_unique<EmptyPropertyValueIssue>(entityNode, property.key()));
+      issues.push_back(std::make_unique<EntityPropertyIssue>(
+        Type, entityNode, property.key(),
+        "Property '" + property.key() + "' of " + entityNode.name() + " has an empty value."));
     }
   }
 }

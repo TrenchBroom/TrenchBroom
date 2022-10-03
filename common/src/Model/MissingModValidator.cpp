@@ -40,37 +40,24 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class MissingModIssue : public Issue {
-public:
-  static const IssueType Type;
+static const auto Type = freeIssueType();
 
+class MissingModIssue : public Issue {
 private:
   std::string m_mod;
-  std::string m_message;
 
 public:
-  MissingModIssue(EntityNodeBase& entityNode, std::string mod, std::string message)
-    : Issue{entityNode}
-    , m_mod{std::move(mod)}
-    , m_message{std::move(message)} {}
+  MissingModIssue(EntityNodeBase& entityNode, std::string mod, std::string description)
+    : Issue{Type, entityNode, std::move(description)}
+    , m_mod{std::move(mod)} {}
 
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override {
-    return "Mod '" + m_mod + "' could not be used: " + m_message;
-  }
-
-public:
   const std::string& mod() const { return m_mod; }
 };
-
-const IssueType MissingModIssue::Type = Issue::freeType();
 
 class MissingModIssueQuickFix : public IssueQuickFix {
 public:
   MissingModIssueQuickFix()
-    : IssueQuickFix{MissingModIssue::Type, "Remove mod"} {}
+    : IssueQuickFix{Type, "Remove mod"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const override {
@@ -87,7 +74,7 @@ private:
   std::vector<std::string> removeMissingMods(
     std::vector<std::string> mods, const std::vector<const Issue*>& issues) const {
     for (const auto* issue : issues) {
-      if (issue->type() == MissingModIssue::Type) {
+      if (issue->type() == Type) {
         const auto* modIssue = static_cast<const MissingModIssue*>(issue);
         const auto& missingMod = modIssue->mod();
         mods = kdl::vec_erase(std::move(mods), missingMod);
@@ -99,7 +86,7 @@ private:
 } // namespace
 
 MissingModValidator::MissingModValidator(std::weak_ptr<Game> game)
-  : Validator{MissingModIssue::Type, "Missing mod directory"}
+  : Validator{Type, "Missing mod directory"}
   , m_game{std::move(game)} {
   addQuickFix(std::make_unique<MissingModIssueQuickFix>());
 }
@@ -125,7 +112,9 @@ void MissingModValidator::doValidate(
   const auto errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
 
   for (const auto& [searchPath, message] : errors) {
-    issues.push_back(std::make_unique<MissingModIssue>(entityNode, searchPath.asString(), message));
+    const auto mod = searchPath.asString();
+    issues.push_back(std::make_unique<MissingModIssue>(
+      entityNode, mod, "Mod '" + mod + "' could not be used: " + message));
   }
 
   m_lastMods = std::move(mods);

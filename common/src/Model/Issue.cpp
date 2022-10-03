@@ -36,9 +36,11 @@
 
 namespace TrenchBroom {
 namespace Model {
-Issue::Issue(Node& node)
+Issue::Issue(const IssueType type, Node& node, std::string description)
   : m_seqId{nextSeqId()}
-  , m_node{node} {}
+  , m_type{type}
+  , m_node{node}
+  , m_description{std::move(description)} {}
 
 Issue::~Issue() = default;
 
@@ -50,12 +52,12 @@ size_t Issue::lineNumber() const {
   return doGetLineNumber();
 }
 
-std::string Issue::description() const {
-  return doGetDescription();
+const std::string& Issue::description() const {
+  return m_description;
 }
 
 IssueType Issue::type() const {
-  return doGetType();
+  return m_type;
 }
 
 Node& Issue::node() const {
@@ -98,17 +100,13 @@ size_t Issue::nextSeqId() {
   return seqId++;
 }
 
-IssueType Issue::freeType() {
-  static IssueType type = 1;
-  return std::exchange(type, type << 1);
-}
-
 size_t Issue::doGetLineNumber() const {
   return m_node.lineNumber();
 }
 
-BrushFaceIssue::BrushFaceIssue(BrushNode& node, const size_t faceIndex)
-  : Issue{node}
+BrushFaceIssue::BrushFaceIssue(
+  const IssueType type, BrushNode& node, const size_t faceIndex, std::string description)
+  : Issue{type, node, std::move(description)}
   , m_faceIndex{faceIndex} {}
 
 BrushFaceIssue::~BrushFaceIssue() = default;
@@ -127,7 +125,17 @@ size_t BrushFaceIssue::doGetLineNumber() const {
   return face().lineNumber();
 }
 
+EntityPropertyIssue::EntityPropertyIssue(
+  const IssueType type, EntityNodeBase& entityNode, std::string propertyKey,
+  std::string description)
+  : Issue{type, entityNode, std::move(description)}
+  , m_propertyKey{std::move(propertyKey)} {}
+
 EntityPropertyIssue::~EntityPropertyIssue() = default;
+
+const std::string& EntityPropertyIssue::propertyKey() const {
+  return m_propertyKey;
+}
 
 const std::string& EntityPropertyIssue::propertyValue() const {
   static const auto NoValue = std::string{""};

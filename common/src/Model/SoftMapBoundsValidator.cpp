@@ -36,22 +36,12 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class SoftMapBoundsIssue : public Issue {
-public:
-  friend class SoftMapBoundsIssueQuickFix;
-  static const IssueType Type;
-
-  using Issue::Issue;
-
-private:
-  IssueType doGetType() const override { return Type; }
-  std::string doGetDescription() const override { return "Object is out of soft map bounds"; }
-};
+static const auto Type = freeIssueType();
 
 class SoftMapBoundsIssueQuickFix : public IssueQuickFix {
 public:
   SoftMapBoundsIssueQuickFix()
-    : IssueQuickFix{SoftMapBoundsIssue::Type, "Delete objects"} {}
+    : IssueQuickFix{Type, "Delete objects"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
@@ -59,21 +49,19 @@ private:
   }
 };
 
-const IssueType SoftMapBoundsIssue::Type = Issue::freeType();
-
 void validateInternal(
   const std::shared_ptr<Game>& game, const WorldNode& worldNode, Node& node,
   std::vector<std::unique_ptr<Issue>>& issues) {
   const auto bounds = game->extractSoftMapBounds(worldNode.entity());
 
   if (bounds.bounds && !bounds.bounds->contains(node.logicalBounds())) {
-    issues.push_back(std::make_unique<SoftMapBoundsIssue>(node));
+    issues.push_back(std::make_unique<Issue>(Type, node, "Object is out of soft map bounds"));
   }
 }
 } // namespace
 
 SoftMapBoundsValidator::SoftMapBoundsValidator(std::weak_ptr<Game> game, const WorldNode& world)
-  : Validator(SoftMapBoundsIssue::Type, "Objects out of soft map bounds")
+  : Validator(Type, "Objects out of soft map bounds")
   , m_game{game}
   , m_world{world} {
   addQuickFix(std::make_unique<SoftMapBoundsIssueQuickFix>());

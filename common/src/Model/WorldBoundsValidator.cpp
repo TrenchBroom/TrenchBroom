@@ -31,23 +31,12 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class WorldBoundsIssue : public Issue {
-public:
-  friend class WorldBoundsIssueQuickFix;
-  static const IssueType Type;
-
-  using Issue::Issue;
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override { return "Object is out of world bounds"; }
-};
+static const auto Type = freeIssueType();
 
 class WorldBoundsIssueQuickFix : public IssueQuickFix {
 public:
   WorldBoundsIssueQuickFix()
-    : IssueQuickFix{WorldBoundsIssue::Type, "Delete objects"} {}
+    : IssueQuickFix{Type, "Delete objects"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
@@ -55,18 +44,16 @@ private:
   }
 };
 
-const IssueType WorldBoundsIssue::Type = Issue::freeType();
-
 void validateInternal(
   const vm::bbox3& bounds, Node& node, std::vector<std::unique_ptr<Issue>>& issues) {
   if (!bounds.contains(node.logicalBounds())) {
-    issues.push_back(std::make_unique<WorldBoundsIssue>(node));
+    issues.push_back(std::make_unique<Issue>(Type, node, "Object is out of world bounds"));
   }
 }
 } // namespace
 
 WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3& bounds)
-  : Validator{WorldBoundsIssue::Type, "Objects out of world bounds"}
+  : Validator{Type, "Objects out of world bounds"}
   , m_bounds{bounds} {
   addQuickFix(std::make_unique<WorldBoundsIssueQuickFix>());
 }

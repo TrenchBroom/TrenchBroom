@@ -34,39 +34,14 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class PropertyKeyWithDoubleQuotationMarksIssue : public EntityPropertyIssue {
-public:
-  static const IssueType Type;
-
-private:
-  const std::string m_propertyKey;
-
-public:
-  PropertyKeyWithDoubleQuotationMarksIssue(EntityNodeBase& entityNode, std::string propertyKey)
-    : EntityPropertyIssue{entityNode}
-    , m_propertyKey{std::move(propertyKey)} {}
-
-  const std::string& propertyKey() const override { return m_propertyKey; }
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override {
-    return "The key of entity property '" + m_propertyKey +
-           "' contains double quotation marks. This may cause errors during compilation or in the "
-           "game.";
-  }
-};
-
-const IssueType PropertyKeyWithDoubleQuotationMarksIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 } // namespace
 
 PropertyKeyWithDoubleQuotationMarksValidator::PropertyKeyWithDoubleQuotationMarksValidator()
-  : Validator{PropertyKeyWithDoubleQuotationMarksIssue::Type, "Invalid entity property keys"} {
-  addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(
-    PropertyKeyWithDoubleQuotationMarksIssue::Type));
+  : Validator{Type, "Invalid entity property keys"} {
+  addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(Type));
   addQuickFix(std::make_unique<TransformEntityPropertiesQuickFix>(
-    PropertyKeyWithDoubleQuotationMarksIssue::Type, "Replace \" with '",
+    Type, "Replace \" with '",
     [](const std::string& key) {
       return kdl::str_replace_every(key, "\"", "'");
     },
@@ -80,8 +55,10 @@ void PropertyKeyWithDoubleQuotationMarksValidator::doValidate(
   for (const auto& property : entityNode.entity().properties()) {
     const auto& propertyKey = property.key();
     if (propertyKey.find('"') != std::string::npos) {
-      issues.push_back(
-        std::make_unique<PropertyKeyWithDoubleQuotationMarksIssue>(entityNode, propertyKey));
+      issues.push_back(std::make_unique<EntityPropertyIssue>(
+        Type, entityNode, propertyKey,
+        "Property key '" + propertyKey + "' of " + entityNode.name() +
+          " contains double quotation marks."));
     }
   }
 }

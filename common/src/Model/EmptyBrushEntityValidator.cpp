@@ -33,29 +33,12 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class EmptyBrushEntityIssue : public Issue {
-public:
-  static const IssueType Type;
-
-public:
-  explicit EmptyBrushEntityIssue(EntityNode& entity)
-    : Issue{entity} {}
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override {
-    const auto& entity = static_cast<EntityNode&>(node());
-    return "Entity '" + entity.name() + "' does not contain any brushes";
-  }
-};
-
-const IssueType EmptyBrushEntityIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 
 class EmptyBrushEntityIssueQuickFix : public IssueQuickFix {
 public:
   EmptyBrushEntityIssueQuickFix()
-    : IssueQuickFix{EmptyBrushEntityIssue::Type, "Delete entities"} {}
+    : IssueQuickFix{Type, "Delete entities"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
@@ -65,7 +48,7 @@ private:
 } // namespace
 
 EmptyBrushEntityValidator::EmptyBrushEntityValidator()
-  : Validator{EmptyBrushEntityIssue::Type, "Empty brush entity"} {
+  : Validator{Type, "Empty brush entity"} {
   addQuickFix(std::make_unique<EmptyBrushEntityIssueQuickFix>());
 }
 
@@ -74,7 +57,8 @@ void EmptyBrushEntityValidator::doValidate(
   const auto* definition =
     dynamic_cast<const Assets::BrushEntityDefinition*>(entityNode.entity().definition());
   if (definition && !entityNode.hasChildren()) {
-    issues.push_back(std::make_unique<EmptyBrushEntityIssue>(entityNode));
+    issues.push_back(std::make_unique<Issue>(
+      Type, entityNode, "Entity '" + entityNode.name() + "' does not contain any brushes"));
   }
 }
 } // namespace Model

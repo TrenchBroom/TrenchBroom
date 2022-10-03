@@ -35,25 +35,12 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class InvalidTextureScaleIssue : public BrushFaceIssue {
-public:
-  friend class InvalidTextureScaleIssueQuickFix;
-  static const IssueType Type;
-
-  using BrushFaceIssue::BrushFaceIssue;
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override { return "Face has invalid texture scale."; }
-};
-
-const IssueType InvalidTextureScaleIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 
 class InvalidTextureScaleIssueQuickFix : public IssueQuickFix {
 public:
   InvalidTextureScaleIssueQuickFix()
-    : IssueQuickFix{InvalidTextureScaleIssue::Type, "Reset texture scale"} {}
+    : IssueQuickFix{Type, "Reset texture scale"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const override {
@@ -61,9 +48,9 @@ private:
 
     auto faceHandles = std::vector<BrushFaceHandle>{};
     for (const auto* issue : issues) {
-      if (issue->type() == InvalidTextureScaleIssue::Type) {
+      if (issue->type() == Type) {
         auto& brushNode = static_cast<BrushNode&>(issue->node());
-        const auto faceIndex = static_cast<const InvalidTextureScaleIssue*>(issue)->faceIndex();
+        const auto faceIndex = static_cast<const BrushFaceIssue*>(issue)->faceIndex();
         faceHandles.emplace_back(&brushNode, faceIndex);
       }
     }
@@ -79,7 +66,7 @@ private:
 } // namespace
 
 InvalidTextureScaleValidator::InvalidTextureScaleValidator()
-  : Validator{InvalidTextureScaleIssue::Type, "Invalid texture scale"} {
+  : Validator{Type, "Invalid texture scale"} {
   addQuickFix(std::make_unique<InvalidTextureScaleIssueQuickFix>());
 }
 
@@ -89,7 +76,8 @@ void InvalidTextureScaleValidator::doValidate(
   for (size_t i = 0u; i < brush.faceCount(); ++i) {
     const auto& face = brush.face(i);
     if (!face.attributes().valid()) {
-      issues.push_back(std::make_unique<InvalidTextureScaleIssue>(brushNode, i));
+      issues.push_back(
+        std::make_unique<BrushFaceIssue>(Type, brushNode, i, "Face has invalid texture scale."));
     }
   }
 }

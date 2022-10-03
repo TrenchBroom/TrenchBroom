@@ -31,28 +31,12 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class EmptyPropertyKeyIssue : public Issue {
-public:
-  static const IssueType Type;
-
-public:
-  explicit EmptyPropertyKeyIssue(EntityNodeBase& entityNode)
-    : Issue{entityNode} {}
-
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override {
-    const auto& entityNode = static_cast<EntityNodeBase&>(node());
-    return entityNode.name() + " has a property with an empty name.";
-  }
-};
-
-const IssueType EmptyPropertyKeyIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 
 class EmptyPropertyKeyIssueQuickFix : public IssueQuickFix {
 public:
   EmptyPropertyKeyIssueQuickFix()
-    : IssueQuickFix{EmptyPropertyKeyIssue::Type, "Delete property"} {}
+    : IssueQuickFix{Type, "Delete property"} {}
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override {
@@ -69,14 +53,15 @@ private:
 } // namespace
 
 EmptyPropertyKeyValidator::EmptyPropertyKeyValidator()
-  : Validator{EmptyPropertyKeyIssue::Type, "Empty property name"} {
+  : Validator{Type, "Empty property name"} {
   addQuickFix(std::make_unique<EmptyPropertyKeyIssueQuickFix>());
 }
 
 void EmptyPropertyKeyValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (entityNode.entity().hasProperty("")) {
-    issues.push_back(std::make_unique<EmptyPropertyKeyIssue>(entityNode));
+    issues.push_back(std::make_unique<Issue>(
+      Type, entityNode, entityNode.name() + " has a property with an empty name."));
   }
 }
 } // namespace Model

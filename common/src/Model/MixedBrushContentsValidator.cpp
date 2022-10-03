@@ -30,25 +30,11 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class MixedBrushContentsIssue : public Issue {
-public:
-  friend class MixedBrushContentsIssueQuickFix;
-  static const IssueType Type;
-
-  explicit MixedBrushContentsIssue(BrushNode& brushNode)
-    : Issue{brushNode} {}
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override { return "Brush has mixed content flags"; }
-};
-
-const IssueType MixedBrushContentsIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 } // namespace
 
 MixedBrushContentsValidator::MixedBrushContentsValidator()
-  : Validator{MixedBrushContentsIssue::Type, "Mixed brush content flags"} {}
+  : Validator{Type, "Mixed brush content flags"} {}
 
 void MixedBrushContentsValidator::doValidate(
   BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
@@ -62,7 +48,7 @@ void MixedBrushContentsValidator::doValidate(
   ++it;
   while (it != end) {
     if (it->resolvedSurfaceContents() != contentFlags) {
-      issues.push_back(std::make_unique<MixedBrushContentsIssue>(brushNode));
+      issues.push_back(std::make_unique<Issue>(Type, brushNode, "Brush has mixed content flags"));
     }
     ++it;
   }

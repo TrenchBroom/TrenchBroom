@@ -31,29 +31,12 @@
 namespace TrenchBroom {
 namespace Model {
 namespace {
-class EmptyGroupIssue : public Issue {
-public:
-  static const IssueType Type;
-
-public:
-  explicit EmptyGroupIssue(GroupNode& groupNode)
-    : Issue{groupNode} {}
-
-private:
-  IssueType doGetType() const override { return Type; }
-
-  std::string doGetDescription() const override {
-    const auto& groupNode = static_cast<GroupNode&>(node());
-    return "Group '" + groupNode.name() + "' does not contain any objects";
-  }
-};
-
-const IssueType EmptyGroupIssue::Type = Issue::freeType();
+static const auto Type = freeIssueType();
 
 class EmptyGroupIssueQuickFix : public IssueQuickFix {
 public:
   EmptyGroupIssueQuickFix()
-    : IssueQuickFix{EmptyGroupIssue::Type, "Delete groups"} {}
+    : IssueQuickFix{Type, "Delete groups"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
@@ -63,14 +46,15 @@ private:
 } // namespace
 
 EmptyGroupValidator::EmptyGroupValidator()
-  : Validator{EmptyGroupIssue::Type, "Empty group"} {
+  : Validator{Type, "Empty group"} {
   addQuickFix(std::make_unique<EmptyGroupIssueQuickFix>());
 }
 
 void EmptyGroupValidator::doValidate(
   GroupNode& groupNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (!groupNode.hasChildren()) {
-    issues.push_back(std::make_unique<EmptyGroupIssue>(groupNode));
+    issues.push_back(
+      std::make_unique<Issue>(Type, groupNode, "Group '" + groupNode.name() + "' is empty"));
   }
 }
 } // namespace Model
