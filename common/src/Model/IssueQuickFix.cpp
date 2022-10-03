@@ -29,9 +29,9 @@
 
 namespace TrenchBroom {
 namespace Model {
-IssueQuickFix::IssueQuickFix(const IssueType issueType, const std::string& description)
+IssueQuickFix::IssueQuickFix(const IssueType issueType, std::string description)
   : m_issueType{issueType}
-  , m_description{description} {}
+  , m_description{std::move(description)} {}
 
 IssueQuickFix::~IssueQuickFix() = default;
 
@@ -56,30 +56,30 @@ void IssueQuickFix::doApply(MapFacade*, const Issue&) const {
 }
 
 RemoveEntityPropertiesQuickFix::RemoveEntityPropertiesQuickFix(const IssueType issueType)
-  : IssueQuickFix(issueType, "Delete properties") {}
+  : IssueQuickFix{issueType, "Delete properties"} {}
 
 void RemoveEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue& issue) const {
-  const PushSelection push(facade);
+  const auto pushSelection = PushSelection{facade};
 
-  const auto& propIssue = static_cast<const EntityPropertyIssue&>(issue);
+  const auto& entityPropertyIssue = static_cast<const EntityPropertyIssue&>(issue);
 
   // If world node is affected, the selection will fail, but if nothing is selected,
   // the removeProperty call will correctly affect worldspawn either way.
 
   facade->deselectAll();
   facade->selectNodes({&issue.node()});
-  facade->removeProperty(propIssue.propertyKey());
+  facade->removeProperty(entityPropertyIssue.propertyKey());
 }
 
 TransformEntityPropertiesQuickFix::TransformEntityPropertiesQuickFix(
-  const IssueType issueType, const std::string& description, const KeyTransform& keyTransform,
-  const ValueTransform& valueTransform)
-  : IssueQuickFix(issueType, description)
-  , m_keyTransform(keyTransform)
-  , m_valueTransform(valueTransform) {}
+  const IssueType issueType, std::string description, KeyTransform keyTransform,
+  ValueTransform valueTransform)
+  : IssueQuickFix{issueType, std::move(description)}
+  , m_keyTransform{std::move(keyTransform)}
+  , m_valueTransform{std::move(valueTransform)} {}
 
 void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue& issue) const {
-  const PushSelection push(facade);
+  const auto pushSelection = PushSelection{facade};
 
   const auto& propIssue = static_cast<const EntityPropertyIssue&>(issue);
   const auto& oldkey = propIssue.propertyKey();
@@ -96,10 +96,12 @@ void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue& 
   if (newKey.empty()) {
     facade->removeProperty(propIssue.propertyKey());
   } else {
-    if (newKey != oldkey)
+    if (newKey != oldkey) {
       facade->renameProperty(oldkey, newKey);
-    if (newValue != oldValue)
+    }
+    if (newValue != oldValue) {
       facade->setProperty(newKey, newValue);
+    }
   }
 }
 } // namespace Model

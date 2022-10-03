@@ -36,7 +36,7 @@ private:
   std::string m_description;
 
 protected:
-  IssueQuickFix(IssueType issueType, const std::string& description);
+  IssueQuickFix(IssueType issueType, std::string description);
 
 public:
   virtual ~IssueQuickFix();
@@ -69,8 +69,8 @@ private:
 
 public:
   TransformEntityPropertiesQuickFix(
-    const IssueType issueType, const std::string& description, const KeyTransform& keyTransform,
-    const ValueTransform& valueTransform);
+    IssueType issueType, std::string description, KeyTransform keyTransform,
+    ValueTransform valueTransform);
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override;
