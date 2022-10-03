@@ -43,6 +43,14 @@ std::string actionContextName(const ActionContext::Type actionContext) {
   }
 
   std::vector<std::string> actionContexts;
+  if ((actionContext & ActionContext::AnyView) == ActionContext::AnyView) {
+    actionContexts.emplace_back("Any View");
+  } else if (actionContext & ActionContext::View3D) {
+    actionContexts.emplace_back("3D View");
+  } else if (actionContext & ActionContext::View2D) {
+    actionContexts.emplace_back("2D View");
+  }
+
   if (actionContext & ActionContext::NodeSelection) {
     actionContexts.emplace_back("Objects");
   }
@@ -65,14 +73,6 @@ std::string actionContextName(const ActionContext::Type actionContext) {
     if (actionContext & ActionContext::AnyVertexTool) {
       actionContexts.emplace_back("Any Vertex Tool");
     }
-  }
-
-  if ((actionContext & ActionContext::AnyView) == ActionContext::AnyView) {
-    actionContexts.emplace_back("Any View");
-  } else if (actionContext & ActionContext::View3D) {
-    actionContexts.emplace_back("3D View");
-  } else if (actionContext & ActionContext::View2D) {
-    actionContexts.emplace_back("2D View");
   }
 
   return kdl::str_join(actionContexts, ", ");
