@@ -1,0 +1,32 @@
+Checks: >
+  -*,
+  bugprone-move-forwarding-reference,
+  bugprone-infinite-loop,
+  bugprone-use-after-move,
+  google-explicit-constructor,
+  misc-move-constructor-init,
+  misc-unused-alias-decls,
+  misc-unused-using-decls,
+  modernize-raw-string-literal,
+  modernize-use-auto,
+  modernize-use-default,
+  modernize-use-emplace,
+  modernize-use-nullptr,
+  modernize-use-override,
+  performance-for-range-copy,
+  performance-move-const-arg,
+  performance-move-constructor-init,
+  readability-avoid-const-params-in-decls,
+  readability-braces-around-statements,
+  readability-container-size-empty,
+  readability-make-member-function-const,
+  readability-redundant-member-init,
+  readability-redundant-string-cstr,
+  readability-redundant-string-init,
+  readability-static-definition-in-anonymous-namespace,
+
+CheckOptions:
+  - key: modernize-use-auto.RemoveStars
+    value: 1
+  - key: performance-move-const-arg.CheckTriviallyCopyableMove
+    value: false
