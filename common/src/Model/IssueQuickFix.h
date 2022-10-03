@@ -21,6 +21,7 @@
 
 #include "Model/IssueType.h"
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -47,6 +48,32 @@ public:
 private:
   virtual void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const;
   virtual void doApply(MapFacade* facade, const Issue& issue) const;
+};
+
+class RemoveEntityPropertiesQuickFix : public IssueQuickFix {
+public:
+  explicit RemoveEntityPropertiesQuickFix(IssueType issueType);
+
+private:
+  void doApply(MapFacade* facade, const Issue& issue) const override;
+};
+
+class TransformEntityPropertiesQuickFix : public IssueQuickFix {
+public:
+  using KeyTransform = std::function<std::string(const std::string&)>;
+  using ValueTransform = std::function<std::string(const std::string&)>;
+
+private:
+  KeyTransform m_keyTransform;
+  ValueTransform m_valueTransform;
+
+public:
+  TransformEntityPropertiesQuickFix(
+    const IssueType issueType, const std::string& description, const KeyTransform& keyTransform,
+    const ValueTransform& valueTransform);
+
+private:
+  void doApply(MapFacade* facade, const Issue& issue) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

@@ -170,7 +170,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/PropertyKeyWithDoubleQuotationMarksValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/PropertyValueWithDoubleQuotationMarksValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/PushSelection.cpp
-        ${COMMON_SOURCE_DIR}/Model/RemoveEntityPropertiesQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Tag.cpp
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.cpp
@@ -178,7 +177,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/TransformEntityPropertiesQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/Validator.cpp
         ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.cpp
         ${COMMON_SOURCE_DIR}/Model/UpdateLinkedGroupsError.cpp
@@ -684,7 +682,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/PropertyKeyWithDoubleQuotationMarksValidator.h
         ${COMMON_SOURCE_DIR}/Model/PropertyValueWithDoubleQuotationMarksValidator.h
         ${COMMON_SOURCE_DIR}/Model/PushSelection.h
-        ${COMMON_SOURCE_DIR}/Model/RemoveEntityPropertiesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsValidator.h
         ${COMMON_SOURCE_DIR}/Model/Tag.h
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.h
@@ -693,7 +690,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
-        ${COMMON_SOURCE_DIR}/Model/TransformEntityPropertiesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/UpdateLinkedGroupsError.h
         ${COMMON_SOURCE_DIR}/Model/Validator.h
         ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.h

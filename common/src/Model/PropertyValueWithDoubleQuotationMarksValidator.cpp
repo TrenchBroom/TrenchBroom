@@ -23,8 +23,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
-#include "Model/RemoveEntityPropertiesQuickFix.h"
-#include "Model/TransformEntityPropertiesQuickFix.h"
+#include "Model/IssueQuickFix.h"
 
 #include <kdl/string_utils.h>
 

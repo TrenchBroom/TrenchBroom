@@ -26,7 +26,6 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
-#include "Model/RemoveEntityPropertiesQuickFix.h"
 
 #include <string>
 #include <vector>
