@@ -204,18 +204,21 @@ AssimpParser::AssimpParser(Path path, const FileSystem& fs)
   , m_fs{fs} {}
 
 bool AssimpParser::canParse(const Path& path) {
+  // clang-format off
   static const auto supportedExtensions = std::vector<std::string>{
-    // Quake model formats have been omitted since Trenchbroom's got its own parsers already.
+    // Quake model formats have been omitted since Trenchbroom's got its own parsers
+    // already.
     "3mf",  "dae",      "xml",          "blend",    "bvh",       "3ds",  "ase",
-    "lwo",  "lws",      "md5mesh",      "md5anim",  "md5camera", // Lightwave and Doom 3 formats.
+    "lwo",  "lws",      "md5mesh",      "md5anim",  "md5camera", // Lightwave and Doom 3 formats
     "gltf", "fbx",      "glb",          "ply",      "dxf",       "ifc",  "iqm",
     "nff",  "smd",      "vta", // .smd and .vta are uncompiled Source engine models.
     "mdc",  "x",        "q30",          "qrs",      "ter",       "raw",  "ac",
     "ac3d", "stl",      "dxf",          "irrmesh",  "irr",       "off",
-    "obj", // .obj files will only be parsed by Assimp if the neverball importer isn't enabled.
+    "obj", // .obj files will only be parsed by Assimp if the neverball importer isn't enabled
     "mdl", // 3D GameStudio Model. It requires a palette file to load.
     "hmp",  "mesh.xml", "skeleton.xml", "material", "ogex",      "ms3d", "lxo",
     "csm",  "ply",      "cob",          "scn",      "xgl"};
+  // clang-format on
 
   return kdl::vec_contains(supportedExtensions, kdl::str_to_lower(path.extension()));
 }
