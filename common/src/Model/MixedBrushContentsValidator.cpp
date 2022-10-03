@@ -29,36 +29,36 @@
 
 namespace TrenchBroom {
 namespace Model {
-class MixedBrushContentsValidator::MixedBrushContentsIssue : public Issue {
+namespace {
+class MixedBrushContentsIssue : public Issue {
 public:
   friend class MixedBrushContentsIssueQuickFix;
-
-public:
   static const IssueType Type;
 
-public:
-  explicit MixedBrushContentsIssue(BrushNode& brush)
-    : Issue(brush) {}
+  explicit MixedBrushContentsIssue(BrushNode& brushNode)
+    : Issue{brushNode} {}
 
+private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override { return "Brush has mixed content flags"; }
 };
 
-const IssueType MixedBrushContentsValidator::MixedBrushContentsIssue::Type = Issue::freeType();
+const IssueType MixedBrushContentsIssue::Type = Issue::freeType();
+} // namespace
 
 MixedBrushContentsValidator::MixedBrushContentsValidator()
-  : Validator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
+  : Validator{MixedBrushContentsIssue::Type, "Mixed brush content flags"} {}
 
 void MixedBrushContentsValidator::doValidate(
   BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
-  const Brush& brush = brushNode.brush();
+  const auto& brush = brushNode.brush();
   const auto& faces = brush.faces();
   auto it = std::begin(faces);
   auto end = std::end(faces);
   assert(it != end);
 
-  const int contentFlags = it->resolvedSurfaceContents();
+  const auto contentFlags = it->resolvedSurfaceContents();
   ++it;
   while (it != end) {
     if (it->resolvedSurfaceContents() != contentFlags) {

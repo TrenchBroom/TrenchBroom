@@ -27,16 +27,14 @@ namespace TrenchBroom {
 namespace Model {
 class LongPropertyKeyValidator : public Validator {
 private:
-  class LongPropertyKeyIssue;
-
-private:
   size_t m_maxLength;
 
 public:
   LongPropertyKeyValidator(size_t maxLength);
 
 private:
-  void doValidate(EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(
+    EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

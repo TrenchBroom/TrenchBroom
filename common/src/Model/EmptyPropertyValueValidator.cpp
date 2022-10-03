@@ -31,7 +31,8 @@
 
 namespace TrenchBroom {
 namespace Model {
-class EmptyPropertyValueValidator::EmptyPropertyValueIssue : public Issue {
+namespace {
+class EmptyPropertyValueIssue : public Issue {
 public:
   static const IssueType Type;
 
@@ -39,9 +40,9 @@ private:
   std::string m_propertyKey;
 
 public:
-  EmptyPropertyValueIssue(EntityNodeBase& node, const std::string& propertyKey)
-    : Issue(node)
-    , m_propertyKey(propertyKey) {}
+  EmptyPropertyValueIssue(EntityNodeBase& entityNode, const std::string& propertyKey)
+    : Issue{entityNode}
+    , m_propertyKey{propertyKey} {}
 
   IssueType doGetType() const override { return Type; }
 
@@ -50,22 +51,22 @@ public:
     return "Property '" + m_propertyKey + "' of " + entityNode.name() + " has an empty value.";
   }
 
-  const std::string& attributeName() const { return m_propertyKey; }
+  const std::string& propertyKey() const { return m_propertyKey; }
 };
 
-const IssueType EmptyPropertyValueValidator::EmptyPropertyValueIssue::Type = Issue::freeType();
+const IssueType EmptyPropertyValueIssue::Type = Issue::freeType();
 
-class EmptyPropertyValueValidator::EmptyPropertyValueIssueQuickFix : public IssueQuickFix {
+class EmptyPropertyValueIssueQuickFix : public IssueQuickFix {
 public:
   EmptyPropertyValueIssueQuickFix()
-    : IssueQuickFix(EmptyPropertyValueIssue::Type, "Delete property") {}
+    : IssueQuickFix{EmptyPropertyValueIssue::Type, "Delete property"} {}
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override {
     const auto& actualIssue = static_cast<const EmptyPropertyValueIssue&>(issue);
-    const std::string& propertyKey = actualIssue.attributeName();
+    const auto& propertyKey = actualIssue.propertyKey();
 
-    const PushSelection push(facade);
+    const auto pushSelection = PushSelection{facade};
 
     // If world node is affected, the selection will fail, but if nothing is selected,
     // the removeProperty call will correctly affect worldspawn either way.
@@ -75,17 +76,19 @@ private:
     facade->removeProperty(propertyKey);
   }
 };
+} // namespace
 
 EmptyPropertyValueValidator::EmptyPropertyValueValidator()
-  : Validator(EmptyPropertyValueIssue::Type, "Empty property value") {
+  : Validator{EmptyPropertyValueIssue::Type, "Empty property value"} {
   addQuickFix(std::make_unique<EmptyPropertyValueIssueQuickFix>());
 }
 
 void EmptyPropertyValueValidator::doValidate(
-  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  for (const EntityProperty& property : node.entity().properties()) {
-    if (property.value().empty())
-      issues.push_back(std::make_unique<EmptyPropertyValueIssue>(node, property.key()));
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  for (const auto& property : entityNode.entity().properties()) {
+    if (property.value().empty()) {
+      issues.push_back(std::make_unique<EmptyPropertyValueIssue>(entityNode, property.key()));
+    }
   }
 }
 } // namespace Model

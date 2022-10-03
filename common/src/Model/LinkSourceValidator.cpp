@@ -31,14 +31,16 @@
 
 namespace TrenchBroom {
 namespace Model {
-class LinkSourceValidator::LinkSourceIssue : public Issue {
+namespace {
+class LinkSourceIssue : public Issue {
 public:
   static const IssueType Type;
 
 public:
-  explicit LinkSourceIssue(EntityNodeBase& node)
-    : Issue(node) {}
+  explicit LinkSourceIssue(EntityNodeBase& entityNode)
+    : Issue{entityNode} {}
 
+private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
@@ -47,16 +49,16 @@ public:
   }
 };
 
-const IssueType LinkSourceValidator::LinkSourceIssue::Type = Issue::freeType();
+const IssueType LinkSourceIssue::Type = Issue::freeType();
 
-class LinkSourceValidator::LinkSourceIssueQuickFix : public IssueQuickFix {
+class LinkSourceIssueQuickFix : public IssueQuickFix {
 public:
   LinkSourceIssueQuickFix()
-    : IssueQuickFix(LinkSourceIssue::Type, "Delete property") {}
+    : IssueQuickFix{LinkSourceIssue::Type, "Delete property"} {}
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override {
-    const PushSelection push(facade);
+    const auto pushSelection = PushSelection{facade};
 
     // If world node is affected, the selection will fail, but if nothing is selected,
     // the removeProperty call will correctly affect worldspawn either way.
@@ -66,16 +68,18 @@ private:
     facade->removeProperty(EntityPropertyKeys::Targetname);
   }
 };
+} // namespace
 
 LinkSourceValidator::LinkSourceValidator()
-  : Validator(LinkSourceIssue::Type, "Missing entity link source") {
+  : Validator{LinkSourceIssue::Type, "Missing entity link source"} {
   addQuickFix(std::make_unique<LinkSourceIssueQuickFix>());
 }
 
 void LinkSourceValidator::doValidate(
-  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  if (node.hasMissingSources())
-    issues.push_back(std::make_unique<LinkSourceIssue>(node));
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  if (entityNode.hasMissingSources()) {
+    issues.push_back(std::make_unique<LinkSourceIssue>(entityNode));
+  }
 }
 } // namespace Model
 } // namespace TrenchBroom

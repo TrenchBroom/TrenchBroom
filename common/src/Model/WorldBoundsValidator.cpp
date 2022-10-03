@@ -24,56 +24,66 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
+#include "Model/PatchNode.h"
 
 #include <string>
 
 namespace TrenchBroom {
 namespace Model {
-class WorldBoundsValidator::WorldBoundsIssue : public Issue {
+namespace {
+class WorldBoundsIssue : public Issue {
 public:
   friend class WorldBoundsIssueQuickFix;
-
-public:
   static const IssueType Type;
 
-public:
-  explicit WorldBoundsIssue(Node& node)
-    : Issue(node) {}
+  using Issue::Issue;
 
+private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override { return "Object is out of world bounds"; }
 };
 
-class WorldBoundsValidator::WorldBoundsIssueQuickFix : public IssueQuickFix {
+class WorldBoundsIssueQuickFix : public IssueQuickFix {
 public:
   WorldBoundsIssueQuickFix()
-    : IssueQuickFix(WorldBoundsIssue::Type, "Delete objects") {}
+    : IssueQuickFix{WorldBoundsIssue::Type, "Delete objects"} {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
     facade->deleteObjects();
   }
 };
 
-const IssueType WorldBoundsValidator::WorldBoundsIssue::Type = Issue::freeType();
+const IssueType WorldBoundsIssue::Type = Issue::freeType();
+
+void validateInternal(
+  const vm::bbox3& bounds, Node& node, std::vector<std::unique_ptr<Issue>>& issues) {
+  if (!bounds.contains(node.logicalBounds())) {
+    issues.push_back(std::make_unique<WorldBoundsIssue>(node));
+  }
+}
+} // namespace
 
 WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3& bounds)
-  : Validator(WorldBoundsIssue::Type, "Objects out of world bounds")
-  , m_bounds(bounds) {
+  : Validator{WorldBoundsIssue::Type, "Objects out of world bounds"}
+  , m_bounds{bounds} {
   addQuickFix(std::make_unique<WorldBoundsIssueQuickFix>());
 }
 
 void WorldBoundsValidator::doValidate(
-  EntityNode& entity, std::vector<std::unique_ptr<Issue>>& issues) const {
-  if (!m_bounds.contains(entity.logicalBounds()))
-    issues.push_back(std::make_unique<WorldBoundsIssue>(entity));
+  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  validateInternal(m_bounds, entityNode, issues);
 }
 
 void WorldBoundsValidator::doValidate(
-  BrushNode& brush, std::vector<std::unique_ptr<Issue>>& issues) const {
-  if (!m_bounds.contains(brush.logicalBounds()))
-    issues.push_back(std::make_unique<WorldBoundsIssue>(brush));
+  BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  validateInternal(m_bounds, brushNode, issues);
+}
+
+void WorldBoundsValidator::doValidate(
+  PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  validateInternal(m_bounds, patchNode, issues);
 }
 } // namespace Model
 } // namespace TrenchBroom

@@ -26,14 +26,12 @@
 namespace TrenchBroom {
 namespace Model {
 class PropertyValueWithDoubleQuotationMarksValidator : public Validator {
-private:
-  class PropertyValueWithDoubleQuotationMarksIssue;
-
 public:
   PropertyValueWithDoubleQuotationMarksValidator();
 
 private:
-  void doValidate(EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(
+    EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

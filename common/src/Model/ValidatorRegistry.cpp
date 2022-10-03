@@ -31,7 +31,7 @@ namespace Model {
 ValidatorRegistry::~ValidatorRegistry() = default;
 
 std::vector<const Validator*> ValidatorRegistry::registeredValidators() const {
-  return kdl::vec_transform(m_validators, [](const std::unique_ptr<Validator>& validator) {
+  return kdl::vec_transform(m_validators, [](const auto& validator) {
     return const_cast<const Validator*>(validator.get());
   });
 }

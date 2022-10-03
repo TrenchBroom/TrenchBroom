@@ -26,10 +26,6 @@
 namespace TrenchBroom {
 namespace Model {
 class EmptyBrushEntityValidator : public Validator {
-private:
-  class EmptyBrushEntityIssue;
-  class EmptyBrushEntityIssueQuickFix;
-
 public:
   EmptyBrushEntityValidator();
 

@@ -32,42 +32,42 @@
 
 namespace TrenchBroom {
 namespace Model {
-class LinkTargetValidator::LinkTargetIssue : public Issue {
+namespace {
+class LinkTargetIssue : public Issue {
 public:
   friend class LinkTargetIssueQuickFix;
-
-private:
-  const std::string m_name;
-
-public:
   static const IssueType Type;
 
-public:
-  LinkTargetIssue(EntityNodeBase& node, const std::string& name)
-    : Issue(node)
-    , m_name(name) {}
+private:
+  const std::string m_propertyKey;
 
+public:
+  LinkTargetIssue(EntityNodeBase& entityNode, const std::string& propertyKey)
+    : Issue{entityNode}
+    , m_propertyKey{propertyKey} {}
+
+private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const auto& propertyNode = static_cast<EntityNodeBase&>(node());
-    return propertyNode.name() + " has missing target for key '" + m_name + "'";
+    const auto& entityNode = static_cast<EntityNodeBase&>(node());
+    return entityNode.name() + " has missing target for key '" + m_propertyKey + "'";
   }
 };
 
-const IssueType LinkTargetValidator::LinkTargetIssue::Type = Issue::freeType();
+const IssueType LinkTargetIssue::Type = Issue::freeType();
 
-class LinkTargetValidator::LinkTargetIssueQuickFix : public IssueQuickFix {
+class LinkTargetIssueQuickFix : public IssueQuickFix {
 public:
   LinkTargetIssueQuickFix()
-    : IssueQuickFix(LinkTargetIssue::Type, "Delete property") {}
+    : IssueQuickFix{LinkTargetIssue::Type, "Delete property"} {}
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override {
-    const PushSelection push(facade);
+    const auto pushSelection = PushSelection{facade};
 
     const auto& targetIssue = static_cast<const LinkTargetIssue&>(issue);
-    const std::string& propertyKey = targetIssue.m_name;
+    const auto& propertyKey = targetIssue.m_propertyKey;
 
     // If world node is affected, the selection will fail, but if nothing is selected,
     // the removeProperty call will correctly affect worldspawn either way.
@@ -78,24 +78,26 @@ private:
   }
 };
 
+void validateInternal(
+  EntityNodeBase& entityNode, const std::vector<std::string>& propertyKeys,
+  std::vector<std::unique_ptr<Issue>>& issues) {
+  issues.reserve(issues.size() + propertyKeys.size());
+  for (const auto& key : propertyKeys) {
+    issues.push_back(std::make_unique<LinkTargetIssue>(entityNode, key));
+  }
+}
+} // namespace
+
 LinkTargetValidator::LinkTargetValidator()
-  : Validator(LinkTargetIssue::Type, "Missing entity link target") {
+  : Validator{LinkTargetIssue::Type, "Missing entity link target"} {
   addQuickFix(std::make_unique<LinkTargetIssueQuickFix>());
 }
 
 void LinkTargetValidator::doValidate(
-  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  processKeys(node, node.findMissingLinkTargets(), issues);
-  processKeys(node, node.findMissingKillTargets(), issues);
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  validateInternal(entityNode, entityNode.findMissingLinkTargets(), issues);
+  validateInternal(entityNode, entityNode.findMissingKillTargets(), issues);
 }
 
-void LinkTargetValidator::processKeys(
-  EntityNodeBase& node, const std::vector<std::string>& keys,
-  std::vector<std::unique_ptr<Issue>>& issues) const {
-  issues.reserve(issues.size() + keys.size());
-  for (const std::string& key : keys) {
-    issues.push_back(std::make_unique<LinkTargetIssue>(node, key));
-  }
-}
 } // namespace Model
 } // namespace TrenchBroom

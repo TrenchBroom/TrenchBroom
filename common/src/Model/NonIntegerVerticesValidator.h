@@ -26,10 +26,6 @@
 namespace TrenchBroom {
 namespace Model {
 class NonIntegerVerticesValidator : public Validator {
-private:
-  class NonIntegerVerticesIssue;
-  class NonIntegerVerticesIssueQuickFix;
-
 public:
   NonIntegerVerticesValidator();
 

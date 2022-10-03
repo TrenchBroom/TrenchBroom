@@ -34,43 +34,41 @@
 
 namespace TrenchBroom {
 namespace Model {
-class InvalidTextureScaleValidator::InvalidTextureScaleIssue : public BrushFaceIssue {
+namespace {
+class InvalidTextureScaleIssue : public BrushFaceIssue {
 public:
   friend class InvalidTextureScaleIssueQuickFix;
-
-public:
   static const IssueType Type;
 
-public:
-  explicit InvalidTextureScaleIssue(BrushNode& node, const size_t faceIndex)
-    : BrushFaceIssue(node, faceIndex) {}
+  using BrushFaceIssue::BrushFaceIssue;
 
+private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override { return "Face has invalid texture scale."; }
 };
 
-const IssueType InvalidTextureScaleValidator::InvalidTextureScaleIssue::Type = Issue::freeType();
+const IssueType InvalidTextureScaleIssue::Type = Issue::freeType();
 
-class InvalidTextureScaleValidator::InvalidTextureScaleIssueQuickFix : public IssueQuickFix {
+class InvalidTextureScaleIssueQuickFix : public IssueQuickFix {
 public:
   InvalidTextureScaleIssueQuickFix()
-    : IssueQuickFix(InvalidTextureScaleIssue::Type, "Reset texture scale") {}
+    : IssueQuickFix{InvalidTextureScaleIssue::Type, "Reset texture scale"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const override {
-    const PushSelection push(facade);
+    const auto pushSelection = PushSelection{facade};
 
-    std::vector<BrushFaceHandle> faceHandles;
+    auto faceHandles = std::vector<BrushFaceHandle>{};
     for (const auto* issue : issues) {
       if (issue->type() == InvalidTextureScaleIssue::Type) {
         auto& brushNode = static_cast<BrushNode&>(issue->node());
         const auto faceIndex = static_cast<const InvalidTextureScaleIssue*>(issue)->faceIndex();
-        faceHandles.push_back(BrushFaceHandle(&brushNode, faceIndex));
+        faceHandles.emplace_back(&brushNode, faceIndex);
       }
     }
 
-    ChangeBrushFaceAttributesRequest request;
+    auto request = ChangeBrushFaceAttributesRequest{};
     request.setScale(vm::vec2f::one());
 
     facade->deselectAll();
@@ -78,17 +76,18 @@ private:
     facade->setFaceAttributes(request);
   }
 };
+} // namespace
 
 InvalidTextureScaleValidator::InvalidTextureScaleValidator()
-  : Validator(InvalidTextureScaleIssue::Type, "Invalid texture scale") {
+  : Validator{InvalidTextureScaleIssue::Type, "Invalid texture scale"} {
   addQuickFix(std::make_unique<InvalidTextureScaleIssueQuickFix>());
 }
 
 void InvalidTextureScaleValidator::doValidate(
   BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
-  const Brush& brush = brushNode.brush();
+  const auto& brush = brushNode.brush();
   for (size_t i = 0u; i < brush.faceCount(); ++i) {
-    const BrushFace& face = brush.face(i);
+    const auto& face = brush.face(i);
     if (!face.attributes().valid()) {
       issues.push_back(std::make_unique<InvalidTextureScaleIssue>(brushNode, i));
     }

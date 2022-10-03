@@ -26,10 +26,6 @@
 namespace TrenchBroom {
 namespace Model {
 class InvalidTextureScaleValidator : public Validator {
-private:
-  class InvalidTextureScaleIssue;
-  class InvalidTextureScaleIssueQuickFix;
-
 public:
   InvalidTextureScaleValidator();
 

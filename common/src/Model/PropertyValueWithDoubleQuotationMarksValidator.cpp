@@ -33,8 +33,8 @@
 
 namespace TrenchBroom {
 namespace Model {
-class PropertyValueWithDoubleQuotationMarksValidator::PropertyValueWithDoubleQuotationMarksIssue
-  : public EntityPropertyIssue {
+namespace {
+class PropertyValueWithDoubleQuotationMarksIssue : public EntityPropertyIssue {
 public:
   static const IssueType Type;
 
@@ -42,9 +42,9 @@ private:
   const std::string m_propertyKey;
 
 public:
-  PropertyValueWithDoubleQuotationMarksIssue(EntityNodeBase& node, const std::string& propertyKey)
-    : EntityPropertyIssue(node)
-    , m_propertyKey(propertyKey) {}
+  PropertyValueWithDoubleQuotationMarksIssue(EntityNodeBase& entityNode, std::string propertyKey)
+    : EntityPropertyIssue{entityNode}
+    , m_propertyKey{std::move(propertyKey)} {}
 
   const std::string& propertyKey() const override { return m_propertyKey; }
 
@@ -58,12 +58,11 @@ private:
   }
 };
 
-const IssueType
-  PropertyValueWithDoubleQuotationMarksValidator::PropertyValueWithDoubleQuotationMarksIssue::Type =
-    Issue::freeType();
+const IssueType PropertyValueWithDoubleQuotationMarksIssue::Type = Issue::freeType();
+} // namespace
 
 PropertyValueWithDoubleQuotationMarksValidator::PropertyValueWithDoubleQuotationMarksValidator()
-  : Validator(PropertyValueWithDoubleQuotationMarksIssue::Type, "Invalid entity property values") {
+  : Validator{PropertyValueWithDoubleQuotationMarksIssue::Type, "Invalid entity property values"} {
   addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(
     PropertyValueWithDoubleQuotationMarksIssue::Type));
   addQuickFix(std::make_unique<TransformEntityPropertiesQuickFix>(
@@ -77,13 +76,13 @@ PropertyValueWithDoubleQuotationMarksValidator::PropertyValueWithDoubleQuotation
 }
 
 void PropertyValueWithDoubleQuotationMarksValidator::doValidate(
-  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  for (const EntityProperty& property : node.entity().properties()) {
-    const std::string& propertyKey = property.key();
-    const std::string& propertyValue = property.value();
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  for (const auto& property : entityNode.entity().properties()) {
+    const auto& propertyKey = property.key();
+    const auto& propertyValue = property.value();
     if (propertyValue.find('"') != std::string::npos) {
       issues.push_back(
-        std::make_unique<PropertyValueWithDoubleQuotationMarksIssue>(node, propertyKey));
+        std::make_unique<PropertyValueWithDoubleQuotationMarksIssue>(entityNode, propertyKey));
     }
   }
 }

@@ -32,13 +32,14 @@
 
 namespace TrenchBroom {
 namespace Model {
-class EmptyBrushEntityValidator::EmptyBrushEntityIssue : public Issue {
+namespace {
+class EmptyBrushEntityIssue : public Issue {
 public:
   static const IssueType Type;
 
 public:
   explicit EmptyBrushEntityIssue(EntityNode& entity)
-    : Issue(entity) {}
+    : Issue{entity} {}
 
 private:
   IssueType doGetType() const override { return Type; }
@@ -49,31 +50,32 @@ private:
   }
 };
 
-const IssueType EmptyBrushEntityValidator::EmptyBrushEntityIssue::Type = Issue::freeType();
+const IssueType EmptyBrushEntityIssue::Type = Issue::freeType();
 
-class EmptyBrushEntityValidator::EmptyBrushEntityIssueQuickFix : public IssueQuickFix {
+class EmptyBrushEntityIssueQuickFix : public IssueQuickFix {
 public:
   EmptyBrushEntityIssueQuickFix()
-    : IssueQuickFix(EmptyBrushEntityIssue::Type, "Delete entities") {}
+    : IssueQuickFix{EmptyBrushEntityIssue::Type, "Delete entities"} {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
     facade->deleteObjects();
   }
 };
+} // namespace
 
 EmptyBrushEntityValidator::EmptyBrushEntityValidator()
-  : Validator(EmptyBrushEntityIssue::Type, "Empty brush entity") {
+  : Validator{EmptyBrushEntityIssue::Type, "Empty brush entity"} {
   addQuickFix(std::make_unique<EmptyBrushEntityIssueQuickFix>());
 }
 
 void EmptyBrushEntityValidator::doValidate(
   EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
-  const Assets::EntityDefinition* definition = entityNode.entity().definition();
-  if (
-    definition != nullptr && definition->type() == Assets::EntityDefinitionType::BrushEntity &&
-    !entityNode.hasChildren())
+  const auto* definition =
+    dynamic_cast<const Assets::BrushEntityDefinition*>(entityNode.entity().definition());
+  if (definition && !entityNode.hasChildren()) {
     issues.push_back(std::make_unique<EmptyBrushEntityIssue>(entityNode));
+  }
 }
 } // namespace Model
 } // namespace TrenchBroom

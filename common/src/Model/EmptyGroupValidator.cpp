@@ -30,45 +30,48 @@
 
 namespace TrenchBroom {
 namespace Model {
-class EmptyGroupValidator::EmptyGroupIssue : public Issue {
+namespace {
+class EmptyGroupIssue : public Issue {
 public:
   static const IssueType Type;
 
 public:
-  explicit EmptyGroupIssue(GroupNode& group)
-    : Issue(group) {}
+  explicit EmptyGroupIssue(GroupNode& groupNode)
+    : Issue{groupNode} {}
 
 private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override {
-    const auto& group = static_cast<GroupNode&>(node());
-    return "Group '" + group.name() + "' does not contain any objects";
+    const auto& groupNode = static_cast<GroupNode&>(node());
+    return "Group '" + groupNode.name() + "' does not contain any objects";
   }
 };
 
-const IssueType EmptyGroupValidator::EmptyGroupIssue::Type = Issue::freeType();
+const IssueType EmptyGroupIssue::Type = Issue::freeType();
 
-class EmptyGroupValidator::EmptyGroupIssueQuickFix : public IssueQuickFix {
+class EmptyGroupIssueQuickFix : public IssueQuickFix {
 public:
   EmptyGroupIssueQuickFix()
-    : IssueQuickFix(EmptyGroupIssue::Type, "Delete groups") {}
+    : IssueQuickFix{EmptyGroupIssue::Type, "Delete groups"} {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
     facade->deleteObjects();
   }
 };
+} // namespace
 
 EmptyGroupValidator::EmptyGroupValidator()
-  : Validator(EmptyGroupIssue::Type, "Empty group") {
+  : Validator{EmptyGroupIssue::Type, "Empty group"} {
   addQuickFix(std::make_unique<EmptyGroupIssueQuickFix>());
 }
 
 void EmptyGroupValidator::doValidate(
-  GroupNode& group, std::vector<std::unique_ptr<Issue>>& issues) const {
-  if (!group.hasChildren())
-    issues.push_back(std::make_unique<EmptyGroupIssue>(group));
+  GroupNode& groupNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  if (!groupNode.hasChildren()) {
+    issues.push_back(std::make_unique<EmptyGroupIssue>(groupNode));
+  }
 }
 } // namespace Model
 } // namespace TrenchBroom

@@ -31,13 +31,14 @@
 
 namespace TrenchBroom {
 namespace Model {
-class MissingDefinitionValidator::MissingDefinitionIssue : public Issue {
+namespace {
+class MissingDefinitionIssue : public Issue {
 public:
   static const IssueType Type;
 
 public:
-  explicit MissingDefinitionIssue(EntityNodeBase& node)
-    : Issue(node) {}
+  explicit MissingDefinitionIssue(EntityNodeBase& entityNode)
+    : Issue{entityNode} {}
 
 private:
   IssueType doGetType() const override { return Type; }
@@ -48,28 +49,30 @@ private:
   }
 };
 
-const IssueType MissingDefinitionValidator::MissingDefinitionIssue::Type = Issue::freeType();
+const IssueType MissingDefinitionIssue::Type = Issue::freeType();
 
-class MissingDefinitionValidator::MissingDefinitionIssueQuickFix : public IssueQuickFix {
+class MissingDefinitionIssueQuickFix : public IssueQuickFix {
 public:
   MissingDefinitionIssueQuickFix()
     : IssueQuickFix(MissingDefinitionIssue::Type, "Delete entities") {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
     facade->deleteObjects();
   }
 };
+} // namespace
 
 MissingDefinitionValidator::MissingDefinitionValidator()
-  : Validator(MissingDefinitionIssue::Type, "Missing entity definition") {
+  : Validator{MissingDefinitionIssue::Type, "Missing entity definition"} {
   addQuickFix(std::make_unique<MissingDefinitionIssueQuickFix>());
 }
 
 void MissingDefinitionValidator::doValidate(
-  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  if (node.entity().definition() == nullptr)
-    issues.push_back(std::make_unique<MissingDefinitionIssue>(node));
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  if (entityNode.entity().definition() == nullptr) {
+    issues.push_back(std::make_unique<MissingDefinitionIssue>(entityNode));
+  }
 }
 } // namespace Model
 } // namespace TrenchBroom

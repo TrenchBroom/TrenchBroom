@@ -33,7 +33,8 @@
 
 namespace TrenchBroom {
 namespace Model {
-class LongPropertyValueValidator::LongPropertyValueIssue : public EntityPropertyIssue {
+namespace {
+class LongPropertyValueIssue : public EntityPropertyIssue {
 public:
   static const IssueType Type;
 
@@ -41,9 +42,9 @@ private:
   const std::string m_propertyKey;
 
 public:
-  LongPropertyValueIssue(EntityNodeBase& node, const std::string& propertyKey)
-    : EntityPropertyIssue(node)
-    , m_propertyKey(propertyKey) {}
+  LongPropertyValueIssue(EntityNodeBase& entityNode, const std::string& propertyKey)
+    : EntityPropertyIssue{entityNode}
+    , m_propertyKey{propertyKey} {}
 
   const std::string& propertyKey() const override { return m_propertyKey; }
 
@@ -55,20 +56,20 @@ private:
   }
 };
 
-const IssueType LongPropertyValueValidator::LongPropertyValueIssue::Type = Issue::freeType();
+const IssueType LongPropertyValueIssue::Type = Issue::freeType();
 
-class LongPropertyValueValidator::TruncateLongPropertyValueIssueQuickFix : public IssueQuickFix {
+class TruncateLongPropertyValueIssueQuickFix : public IssueQuickFix {
 private:
   size_t m_maxLength;
 
 public:
   explicit TruncateLongPropertyValueIssueQuickFix(const size_t maxLength)
-    : IssueQuickFix(LongPropertyValueIssue::Type, "Truncate property values")
-    , m_maxLength(maxLength) {}
+    : IssueQuickFix{LongPropertyValueIssue::Type, "Truncate property values"}
+    , m_maxLength{maxLength} {}
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override {
-    const PushSelection push(facade);
+    const auto pushSelection = PushSelection{facade};
 
     const auto& propIssue = static_cast<const LongPropertyValueIssue&>(issue);
     const auto& propertyName = propIssue.propertyKey();
@@ -82,21 +83,22 @@ private:
     facade->setProperty(propertyName, propertyValue.substr(0, m_maxLength));
   }
 };
+} // namespace
 
 LongPropertyValueValidator::LongPropertyValueValidator(const size_t maxLength)
-  : Validator(LongPropertyValueIssue::Type, "Long entity property value")
-  , m_maxLength(maxLength) {
+  : Validator{LongPropertyValueIssue::Type, "Long entity property value"}
+  , m_maxLength{maxLength} {
   addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(LongPropertyValueIssue::Type));
   addQuickFix(std::make_unique<TruncateLongPropertyValueIssueQuickFix>(m_maxLength));
 }
 
 void LongPropertyValueValidator::doValidate(
-  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  for (const EntityProperty& property : node.entity().properties()) {
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  for (const auto& property : entityNode.entity().properties()) {
     const auto& propertyKey = property.key();
     const auto& propertyValue = property.value();
     if (propertyValue.size() >= m_maxLength) {
-      issues.push_back(std::make_unique<LongPropertyValueIssue>(node, propertyKey));
+      issues.push_back(std::make_unique<LongPropertyValueIssue>(entityNode, propertyKey));
     }
   }
 }

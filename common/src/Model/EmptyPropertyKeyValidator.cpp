@@ -30,13 +30,14 @@
 
 namespace TrenchBroom {
 namespace Model {
-class EmptyPropertyKeyValidator::EmptyPropertyKeyIssue : public Issue {
+namespace {
+class EmptyPropertyKeyIssue : public Issue {
 public:
   static const IssueType Type;
 
 public:
-  explicit EmptyPropertyKeyIssue(EntityNodeBase& node)
-    : Issue(node) {}
+  explicit EmptyPropertyKeyIssue(EntityNodeBase& entityNode)
+    : Issue{entityNode} {}
 
   IssueType doGetType() const override { return Type; }
 
@@ -46,16 +47,16 @@ public:
   }
 };
 
-const IssueType EmptyPropertyKeyValidator::EmptyPropertyKeyIssue::Type = Issue::freeType();
+const IssueType EmptyPropertyKeyIssue::Type = Issue::freeType();
 
-class EmptyPropertyKeyValidator::EmptyPropertyKeyIssueQuickFix : public IssueQuickFix {
+class EmptyPropertyKeyIssueQuickFix : public IssueQuickFix {
 public:
   EmptyPropertyKeyIssueQuickFix()
-    : IssueQuickFix(EmptyPropertyKeyIssue::Type, "Delete property") {}
+    : IssueQuickFix{EmptyPropertyKeyIssue::Type, "Delete property"} {}
 
 private:
   void doApply(MapFacade* facade, const Issue& issue) const override {
-    const PushSelection push(facade);
+    const auto pushSelection = PushSelection{facade};
 
     // If world node is affected, the selection will fail, but if nothing is selected,
     // the removeProperty call will correctly affect worldspawn either way.
@@ -65,16 +66,18 @@ private:
     facade->removeProperty("");
   }
 };
+} // namespace
 
 EmptyPropertyKeyValidator::EmptyPropertyKeyValidator()
-  : Validator(EmptyPropertyKeyIssue::Type, "Empty property name") {
+  : Validator{EmptyPropertyKeyIssue::Type, "Empty property name"} {
   addQuickFix(std::make_unique<EmptyPropertyKeyIssueQuickFix>());
 }
 
 void EmptyPropertyKeyValidator::doValidate(
-  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  if (node.entity().hasProperty(""))
-    issues.push_back(std::make_unique<EmptyPropertyKeyIssue>(node));
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  if (entityNode.entity().hasProperty("")) {
+    issues.push_back(std::make_unique<EmptyPropertyKeyIssue>(entityNode));
+  }
 }
 } // namespace Model
 } // namespace TrenchBroom

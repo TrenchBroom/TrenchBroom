@@ -26,15 +26,12 @@
 namespace TrenchBroom {
 namespace Model {
 class MissingDefinitionValidator : public Validator {
-private:
-  class MissingDefinitionIssue;
-  class MissingDefinitionIssueQuickFix;
-
 public:
   MissingDefinitionValidator();
 
 private:
-  void doValidate(EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(
+    EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

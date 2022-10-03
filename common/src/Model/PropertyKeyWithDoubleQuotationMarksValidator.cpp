@@ -33,8 +33,8 @@
 
 namespace TrenchBroom {
 namespace Model {
-class PropertyKeyWithDoubleQuotationMarksValidator::PropertyKeyWithDoubleQuotationMarksIssue
-  : public EntityPropertyIssue {
+namespace {
+class PropertyKeyWithDoubleQuotationMarksIssue : public EntityPropertyIssue {
 public:
   static const IssueType Type;
 
@@ -42,9 +42,9 @@ private:
   const std::string m_propertyKey;
 
 public:
-  PropertyKeyWithDoubleQuotationMarksIssue(EntityNodeBase& node, const std::string& propertyKey)
-    : EntityPropertyIssue(node)
-    , m_propertyKey(propertyKey) {}
+  PropertyKeyWithDoubleQuotationMarksIssue(EntityNodeBase& entityNode, std::string propertyKey)
+    : EntityPropertyIssue{entityNode}
+    , m_propertyKey{std::move(propertyKey)} {}
 
   const std::string& propertyKey() const override { return m_propertyKey; }
 
@@ -58,12 +58,11 @@ private:
   }
 };
 
-const IssueType
-  PropertyKeyWithDoubleQuotationMarksValidator::PropertyKeyWithDoubleQuotationMarksIssue::Type =
-    Issue::freeType();
+const IssueType PropertyKeyWithDoubleQuotationMarksIssue::Type = Issue::freeType();
+} // namespace
 
 PropertyKeyWithDoubleQuotationMarksValidator::PropertyKeyWithDoubleQuotationMarksValidator()
-  : Validator(PropertyKeyWithDoubleQuotationMarksIssue::Type, "Invalid entity property keys") {
+  : Validator{PropertyKeyWithDoubleQuotationMarksIssue::Type, "Invalid entity property keys"} {
   addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(
     PropertyKeyWithDoubleQuotationMarksIssue::Type));
   addQuickFix(std::make_unique<TransformEntityPropertiesQuickFix>(
@@ -77,12 +76,12 @@ PropertyKeyWithDoubleQuotationMarksValidator::PropertyKeyWithDoubleQuotationMark
 }
 
 void PropertyKeyWithDoubleQuotationMarksValidator::doValidate(
-  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  for (const EntityProperty& property : node.entity().properties()) {
-    const std::string& propertyKey = property.key();
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  for (const auto& property : entityNode.entity().properties()) {
+    const auto& propertyKey = property.key();
     if (propertyKey.find('"') != std::string::npos) {
       issues.push_back(
-        std::make_unique<PropertyKeyWithDoubleQuotationMarksIssue>(node, propertyKey));
+        std::make_unique<PropertyKeyWithDoubleQuotationMarksIssue>(entityNode, propertyKey));
     }
   }
 }

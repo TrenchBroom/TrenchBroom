@@ -30,34 +30,34 @@
 
 namespace TrenchBroom {
 namespace Model {
-class NonIntegerVerticesValidator::NonIntegerVerticesIssue : public Issue {
+namespace {
+class NonIntegerVerticesIssue : public Issue {
 public:
   friend class NonIntegerVerticesIssueQuickFix;
-
-public:
   static const IssueType Type;
 
-public:
-  explicit NonIntegerVerticesIssue(BrushNode& brush)
-    : Issue(brush) {}
+  explicit NonIntegerVerticesIssue(BrushNode& brushNode)
+    : Issue{brushNode} {}
 
+private:
   IssueType doGetType() const override { return Type; }
 
   std::string doGetDescription() const override { return "Brush has non-integer vertices"; }
 };
 
-const IssueType NonIntegerVerticesValidator::NonIntegerVerticesIssue::Type = Issue::freeType();
+const IssueType NonIntegerVerticesIssue::Type = Issue::freeType();
 
-class NonIntegerVerticesValidator::NonIntegerVerticesIssueQuickFix : public IssueQuickFix {
+class NonIntegerVerticesIssueQuickFix : public IssueQuickFix {
 public:
   NonIntegerVerticesIssueQuickFix()
-    : IssueQuickFix(NonIntegerVerticesIssue::Type, "Convert vertices to integer") {}
+    : IssueQuickFix{NonIntegerVerticesIssue::Type, "Convert vertices to integer"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>& /* issues */) const override {
     facade->snapVertices(1);
   }
 };
+} // namespace
 
 NonIntegerVerticesValidator::NonIntegerVerticesValidator()
   : Validator(NonIntegerVerticesIssue::Type, "Non-integer vertices") {
@@ -66,12 +66,11 @@ NonIntegerVerticesValidator::NonIntegerVerticesValidator()
 
 void NonIntegerVerticesValidator::doValidate(
   BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
-  const Brush& brush = brushNode.brush();
-  for (const BrushVertex* vertex : brush.vertices()) {
-    if (!vm::is_integral(vertex->position())) {
-      issues.push_back(std::make_unique<NonIntegerVerticesIssue>(brushNode));
-      return;
-    }
+  const auto& vertices = brushNode.brush().vertices();
+  if (!std::all_of(vertices.begin(), vertices.end(), [](const auto* vertex) {
+        return vm::is_integral(vertex->position());
+      })) {
+    issues.push_back(std::make_unique<NonIntegerVerticesIssue>(brushNode));
   }
 }
 } // namespace Model

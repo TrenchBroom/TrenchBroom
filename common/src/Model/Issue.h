@@ -38,6 +38,7 @@ protected:
   Node& m_node;
 
 public:
+  explicit Issue(Node& node);
   virtual ~Issue();
 
   size_t seqId() const;
@@ -52,7 +53,6 @@ public:
   bool hidden() const;
 
 protected:
-  explicit Issue(Node& node);
   static size_t nextSeqId();
   static IssueType freeType();
 
@@ -64,13 +64,12 @@ private: // subclassing interface
 
 class BrushFaceIssue : public Issue {
 private:
-  const size_t m_faceIndex;
-
-protected:
-  explicit BrushFaceIssue(BrushNode& node, size_t faceIndex);
+  size_t m_faceIndex;
 
 public:
+  BrushFaceIssue(BrushNode& node, size_t faceIndex);
   ~BrushFaceIssue() override;
+
   size_t faceIndex() const;
   const BrushFace& face() const;
 
@@ -83,6 +82,7 @@ public:
   using Issue::Issue;
 
   ~EntityPropertyIssue() override;
+
   virtual const std::string& propertyKey() const = 0;
   const std::string& propertyValue() const;
 };

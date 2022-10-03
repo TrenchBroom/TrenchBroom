@@ -35,20 +35,17 @@ class Node;
 
 class SoftMapBoundsValidator : public Validator {
 private:
-  class SoftMapBoundsIssue;
-  class SoftMapBoundsIssueQuickFix;
-
-private:
   std::weak_ptr<Game> m_game;
-  const WorldNode* m_world;
+  const WorldNode& m_world;
 
 public:
-  explicit SoftMapBoundsValidator(std::weak_ptr<Game> game, const WorldNode* world);
+  explicit SoftMapBoundsValidator(std::weak_ptr<Game> game, const WorldNode& world);
 
 private:
-  void generateInternal(Node& node, std::vector<std::unique_ptr<Issue>>& issues) const;
-  void doValidate(EntityNode& brush, std::vector<std::unique_ptr<Issue>>& issues) const override;
-  void doValidate(BrushNode& brush, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(
+    EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

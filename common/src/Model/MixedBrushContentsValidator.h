@@ -26,9 +26,6 @@
 namespace TrenchBroom {
 namespace Model {
 class MixedBrushContentsValidator : public Validator {
-private:
-  class MixedBrushContentsIssue;
-
 public:
   MixedBrushContentsValidator();
 

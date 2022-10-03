@@ -28,10 +28,10 @@
 namespace TrenchBroom {
 namespace Model {
 IssueQuickFix::IssueQuickFix(const IssueType issueType, const std::string& description)
-  : m_issueType(issueType)
-  , m_description(description) {}
+  : m_issueType{issueType}
+  , m_description{description} {}
 
-IssueQuickFix::~IssueQuickFix() {}
+IssueQuickFix::~IssueQuickFix() = default;
 
 const std::string& IssueQuickFix::description() const {
   return m_description;
@@ -43,12 +43,13 @@ void IssueQuickFix::apply(MapFacade* facade, const std::vector<const Issue*>& is
 
 void IssueQuickFix::doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const {
   for (const Issue* issue : issues) {
-    if (issue->type() == m_issueType)
+    if (issue->type() == m_issueType) {
       doApply(facade, *issue);
+    }
   }
 }
 
-void IssueQuickFix::doApply(MapFacade* /* facade */, const Issue& /* issue */) const {
+void IssueQuickFix::doApply(MapFacade*, const Issue&) const {
   assert(false);
 }
 } // namespace Model

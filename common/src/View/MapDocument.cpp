@@ -4244,8 +4244,7 @@ void MapDocument::registerValidators() {
   m_world->registerValidator(std::make_unique<Model::NonIntegerVerticesValidator>());
   m_world->registerValidator(std::make_unique<Model::MixedBrushContentsValidator>());
   m_world->registerValidator(std::make_unique<Model::WorldBoundsValidator>(worldBounds()));
-  m_world->registerValidator(
-    std::make_unique<Model::SoftMapBoundsValidator>(m_game, m_world.get()));
+  m_world->registerValidator(std::make_unique<Model::SoftMapBoundsValidator>(m_game, *m_world));
   m_world->registerValidator(std::make_unique<Model::EmptyPropertyKeyValidator>());
   m_world->registerValidator(std::make_unique<Model::EmptyPropertyValueValidator>());
   m_world->registerValidator(

@@ -31,13 +31,14 @@
 
 namespace TrenchBroom {
 namespace Model {
-class MissingClassnameValidator::MissingClassnameIssue : public Issue {
+namespace {
+class MissingClassnameIssue : public Issue {
 public:
   static const IssueType Type;
 
 public:
-  explicit MissingClassnameIssue(EntityNodeBase& node)
-    : Issue(node) {}
+  explicit MissingClassnameIssue(EntityNodeBase& entityNode)
+    : Issue{entityNode} {}
 
 private:
   IssueType doGetType() const override { return Type; }
@@ -45,28 +46,30 @@ private:
   std::string doGetDescription() const override { return "Entity has no classname property"; }
 };
 
-const IssueType MissingClassnameValidator::MissingClassnameIssue::Type = Issue::freeType();
+const IssueType MissingClassnameIssue::Type = Issue::freeType();
 
-class MissingClassnameValidator::MissingClassnameIssueQuickFix : public IssueQuickFix {
+class MissingClassnameIssueQuickFix : public IssueQuickFix {
 public:
   MissingClassnameIssueQuickFix()
-    : IssueQuickFix(MissingClassnameIssue::Type, "Delete entities") {}
+    : IssueQuickFix{MissingClassnameIssue::Type, "Delete entities"} {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
     facade->deleteObjects();
   }
 };
+} // namespace
 
 MissingClassnameValidator::MissingClassnameValidator()
-  : Validator(MissingClassnameIssue::Type, "Missing entity classname") {
+  : Validator{MissingClassnameIssue::Type, "Missing entity classname"} {
   addQuickFix(std::make_unique<MissingClassnameIssueQuickFix>());
 }
 
 void MissingClassnameValidator::doValidate(
-  EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  if (!node.entity().hasProperty(EntityPropertyKeys::Classname))
-    issues.push_back(std::make_unique<MissingClassnameIssue>(node));
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  if (!entityNode.entity().hasProperty(EntityPropertyKeys::Classname)) {
+    issues.push_back(std::make_unique<MissingClassnameIssue>(entityNode));
+  }
 }
 } // namespace Model
 } // namespace TrenchBroom

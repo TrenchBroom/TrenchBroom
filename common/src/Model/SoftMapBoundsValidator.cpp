@@ -25,6 +25,7 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
+#include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/memory_utils.h>
@@ -34,62 +35,63 @@
 
 namespace TrenchBroom {
 namespace Model {
-class SoftMapBoundsValidator::SoftMapBoundsIssue : public Issue {
+namespace {
+class SoftMapBoundsIssue : public Issue {
 public:
   friend class SoftMapBoundsIssueQuickFix;
-
-public:
   static const IssueType Type;
 
-public:
-  explicit SoftMapBoundsIssue(Node& node)
-    : Issue(node) {}
+  using Issue::Issue;
 
+private:
   IssueType doGetType() const override { return Type; }
   std::string doGetDescription() const override { return "Object is out of soft map bounds"; }
 };
 
-class SoftMapBoundsValidator::SoftMapBoundsIssueQuickFix : public IssueQuickFix {
+class SoftMapBoundsIssueQuickFix : public IssueQuickFix {
 public:
   SoftMapBoundsIssueQuickFix()
-    : IssueQuickFix(SoftMapBoundsIssue::Type, "Delete objects") {}
+    : IssueQuickFix{SoftMapBoundsIssue::Type, "Delete objects"} {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>& /* issues */) const override {
+  void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
     facade->deleteObjects();
   }
 };
 
-const IssueType SoftMapBoundsValidator::SoftMapBoundsIssue::Type = Issue::freeType();
+const IssueType SoftMapBoundsIssue::Type = Issue::freeType();
 
-SoftMapBoundsValidator::SoftMapBoundsValidator(std::weak_ptr<Game> game, const WorldNode* world)
-  : Validator(SoftMapBoundsIssue::Type, "Objects out of soft map bounds")
-  , m_game(game)
-  , m_world(world) {
-  addQuickFix(std::make_unique<SoftMapBoundsIssueQuickFix>());
-}
+void validateInternal(
+  const std::shared_ptr<Game>& game, const WorldNode& worldNode, Node& node,
+  std::vector<std::unique_ptr<Issue>>& issues) {
+  const auto bounds = game->extractSoftMapBounds(worldNode.entity());
 
-void SoftMapBoundsValidator::generateInternal(
-  Node& node, std::vector<std::unique_ptr<Issue>>& issues) const {
-  auto game = kdl::mem_lock(m_game);
-  const Game::SoftMapBounds bounds = game->extractSoftMapBounds(m_world->entity());
-
-  if (!bounds.bounds.has_value()) {
-    return;
-  }
-  if (!bounds.bounds->contains(node.logicalBounds())) {
+  if (bounds.bounds && !bounds.bounds->contains(node.logicalBounds())) {
     issues.push_back(std::make_unique<SoftMapBoundsIssue>(node));
   }
 }
+} // namespace
 
-void SoftMapBoundsValidator::doValidate(
-  EntityNode& entity, std::vector<std::unique_ptr<Issue>>& issues) const {
-  generateInternal(entity, issues);
+SoftMapBoundsValidator::SoftMapBoundsValidator(std::weak_ptr<Game> game, const WorldNode& world)
+  : Validator(SoftMapBoundsIssue::Type, "Objects out of soft map bounds")
+  , m_game{game}
+  , m_world{world} {
+  addQuickFix(std::make_unique<SoftMapBoundsIssueQuickFix>());
 }
 
 void SoftMapBoundsValidator::doValidate(
-  BrushNode& brush, std::vector<std::unique_ptr<Issue>>& issues) const {
-  generateInternal(brush, issues);
+  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  validateInternal(kdl::mem_lock(m_game), m_world, entityNode, issues);
+}
+
+void SoftMapBoundsValidator::doValidate(
+  BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  validateInternal(kdl::mem_lock(m_game), m_world, brushNode, issues);
+}
+
+void SoftMapBoundsValidator::doValidate(
+  PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  validateInternal(kdl::mem_lock(m_game), m_world, patchNode, issues);
 }
 } // namespace Model
 } // namespace TrenchBroom

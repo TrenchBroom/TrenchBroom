@@ -71,8 +71,8 @@ void Validator::validate(Node& node, std::vector<std::unique_ptr<Issue>>& issues
 }
 
 Validator::Validator(const IssueType type, const std::string& description)
-  : m_type(type)
-  , m_description(description) {}
+  : m_type{type}
+  , m_description{description} {}
 
 void Validator::addQuickFix(std::unique_ptr<IssueQuickFix> quickFix) {
   ensure(quickFix != nullptr, "quickFix is null");

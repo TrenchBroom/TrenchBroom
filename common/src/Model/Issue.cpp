@@ -36,6 +36,10 @@
 
 namespace TrenchBroom {
 namespace Model {
+Issue::Issue(Node& node)
+  : m_seqId{nextSeqId()}
+  , m_node{node} {}
+
 Issue::~Issue() = default;
 
 size_t Issue::seqId() const {
@@ -89,10 +93,6 @@ bool Issue::hidden() const {
   return m_node.issueHidden(type());
 }
 
-Issue::Issue(Node& node)
-  : m_seqId(nextSeqId())
-  , m_node(node) {}
-
 size_t Issue::nextSeqId() {
   static size_t seqId = 0;
   return seqId++;
@@ -100,9 +100,7 @@ size_t Issue::nextSeqId() {
 
 IssueType Issue::freeType() {
   static IssueType type = 1;
-  const IssueType result = type;
-  type = (type << 1);
-  return result;
+  return std::exchange(type, type << 1);
 }
 
 size_t Issue::doGetLineNumber() const {
@@ -110,8 +108,8 @@ size_t Issue::doGetLineNumber() const {
 }
 
 BrushFaceIssue::BrushFaceIssue(BrushNode& node, const size_t faceIndex)
-  : Issue(node)
-  , m_faceIndex(faceIndex) {}
+  : Issue{node}
+  , m_faceIndex{faceIndex} {}
 
 BrushFaceIssue::~BrushFaceIssue() = default;
 
@@ -120,8 +118,8 @@ size_t BrushFaceIssue::faceIndex() const {
 }
 
 const BrushFace& BrushFaceIssue::face() const {
-  const BrushNode& brushNode = static_cast<const BrushNode&>(node());
-  const Brush& brush = brushNode.brush();
+  const auto& brushNode = static_cast<const BrushNode&>(node());
+  const auto& brush = brushNode.brush();
   return brush.face(m_faceIndex);
 }
 
@@ -132,8 +130,8 @@ size_t BrushFaceIssue::doGetLineNumber() const {
 EntityPropertyIssue::~EntityPropertyIssue() = default;
 
 const std::string& EntityPropertyIssue::propertyValue() const {
-  static const auto NoValue = std::string("");
-  const EntityNodeBase& entityNode = static_cast<EntityNodeBase&>(node());
+  static const auto NoValue = std::string{""};
+  const auto& entityNode = static_cast<EntityNodeBase&>(node());
   const auto* value = entityNode.entity().property(propertyKey());
   return value ? *value : NoValue;
 }

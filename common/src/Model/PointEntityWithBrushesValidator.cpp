@@ -35,13 +35,13 @@
 
 namespace TrenchBroom {
 namespace Model {
-class PointEntityWithBrushesValidator::PointEntityWithBrushesIssue : public Issue {
+namespace {
+class PointEntityWithBrushesIssue : public Issue {
 public:
   static const IssueType Type;
 
-public:
-  explicit PointEntityWithBrushesIssue(EntityNode& entity)
-    : Issue(entity) {}
+  explicit PointEntityWithBrushesIssue(EntityNode& entityNode)
+    : Issue{entityNode} {}
 
 private:
   IssueType doGetType() const override { return Type; }
@@ -52,20 +52,19 @@ private:
   }
 };
 
-const IssueType PointEntityWithBrushesValidator::PointEntityWithBrushesIssue::Type =
-  Issue::freeType();
+const IssueType PointEntityWithBrushesIssue::Type = Issue::freeType();
 
-class PointEntityWithBrushesValidator::PointEntityWithBrushesIssueQuickFix : public IssueQuickFix {
+class PointEntityWithBrushesIssueQuickFix : public IssueQuickFix {
 public:
   PointEntityWithBrushesIssueQuickFix()
-    : IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
+    : IssueQuickFix{PointEntityWithBrushesIssue::Type, "Move brushes to world"} {}
 
 private:
   void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const override {
-    std::vector<Node*> affectedNodes;
-    std::map<Node*, std::vector<Node*>> nodesToReparent;
+    auto affectedNodes = std::vector<Node*>{};
+    auto nodesToReparent = std::map<Node*, std::vector<Node*>>{};
 
-    for (const Issue* issue : issues) {
+    for (const auto* issue : issues) {
       auto& node = issue->node();
       nodesToReparent[node.parent()] = node.children();
 
@@ -78,19 +77,20 @@ private:
     facade->selectNodes(affectedNodes);
   }
 };
+} // namespace
 
 PointEntityWithBrushesValidator::PointEntityWithBrushesValidator()
-  : Validator(PointEntityWithBrushesIssue::Type, "Point entity with brushes") {
+  : Validator{PointEntityWithBrushesIssue::Type, "Point entity with brushes"} {
   addQuickFix(std::make_unique<PointEntityWithBrushesIssueQuickFix>());
 }
 
 void PointEntityWithBrushesValidator::doValidate(
   EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
-  const Assets::EntityDefinition* definition = entityNode.entity().definition();
-  if (
-    definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity &&
-    entityNode.hasChildren())
+  const auto* definition =
+    dynamic_cast<const Assets::PointEntityDefinition*>(entityNode.entity().definition());
+  if (definition && entityNode.hasChildren()) {
     issues.push_back(std::make_unique<PointEntityWithBrushesIssue>(entityNode));
+  }
 }
 } // namespace Model
 } // namespace TrenchBroom

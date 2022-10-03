@@ -30,18 +30,16 @@ namespace TrenchBroom {
 namespace Model {
 class WorldBoundsValidator : public Validator {
 private:
-  class WorldBoundsIssue;
-  class WorldBoundsIssueQuickFix;
-
-private:
   const vm::bbox3 m_bounds;
 
 public:
   explicit WorldBoundsValidator(const vm::bbox3& bounds);
 
 private:
-  void doValidate(EntityNode& brush, std::vector<std::unique_ptr<Issue>>& issues) const override;
-  void doValidate(BrushNode& brush, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(
+    EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom
