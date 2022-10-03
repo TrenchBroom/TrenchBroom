@@ -44,12 +44,8 @@ namespace TrenchBroom {
 namespace Model {
 class TestIssue : public Issue {
 public:
-  TestIssue(Node* node)
-    : Issue(node) {}
-
-private:
-  IssueType doGetType() const { return 0; }
-  std::string doGetDescription() const { return ""; }
+  TestIssue(Node& node)
+    : Issue{0, node, ""} {}
 };
 
 TEST_CASE("Issue.addSelectableNodes") {
@@ -88,39 +84,39 @@ TEST_CASE("Issue.addSelectableNodes") {
     return issue.addSelectableNodes(nodes);
   };
 
-  CHECK_FALSE(hasSelectableNodes(TestIssue{&outerGroupNode}));
+  CHECK_FALSE(hasSelectableNodes(TestIssue{outerGroupNode}));
   CHECK_THAT(
-    getSelectableNodes(TestIssue{&outerGroupNode}),
+    getSelectableNodes(TestIssue{outerGroupNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
-  CHECK(hasSelectableNodes(TestIssue{innerGroupNode}));
+  CHECK(hasSelectableNodes(TestIssue{*innerGroupNode}));
   CHECK_THAT(
-    getSelectableNodes(TestIssue{innerGroupNode}),
+    getSelectableNodes(TestIssue{*innerGroupNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{innerGroupNode}));
 
-  CHECK(hasSelectableNodes(TestIssue{pointEntityNode}));
+  CHECK(hasSelectableNodes(TestIssue{*pointEntityNode}));
   CHECK_THAT(
-    getSelectableNodes(TestIssue{pointEntityNode}),
+    getSelectableNodes(TestIssue{*pointEntityNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{pointEntityNode}));
 
-  CHECK(hasSelectableNodes(TestIssue{brushNode}));
+  CHECK(hasSelectableNodes(TestIssue{*brushNode}));
   CHECK_THAT(
-    getSelectableNodes(TestIssue{brushNode}),
+    getSelectableNodes(TestIssue{*brushNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{brushNode}));
 
-  CHECK(hasSelectableNodes(TestIssue{brushEntityNode}));
+  CHECK(hasSelectableNodes(TestIssue{*brushEntityNode}));
   CHECK_THAT(
-    getSelectableNodes(TestIssue{brushEntityNode}),
+    getSelectableNodes(TestIssue{*brushEntityNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityBrushNode}));
 
-  CHECK(hasSelectableNodes(TestIssue{entityBrushNode}));
+  CHECK(hasSelectableNodes(TestIssue{*entityBrushNode}));
   CHECK_THAT(
-    getSelectableNodes(TestIssue{entityBrushNode}),
+    getSelectableNodes(TestIssue{*entityBrushNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{entityBrushNode}));
 
-  CHECK(hasSelectableNodes(TestIssue{patchNode}));
+  CHECK(hasSelectableNodes(TestIssue{*patchNode}));
   CHECK_THAT(
-    getSelectableNodes(TestIssue{patchNode}),
+    getSelectableNodes(TestIssue{*patchNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{patchNode}));
 }
 } // namespace Model

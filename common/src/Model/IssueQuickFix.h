@@ -21,6 +21,7 @@
 
 #include "Model/IssueType.h"
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -31,22 +32,30 @@ class MapFacade;
 
 class IssueQuickFix {
 private:
-  IssueType m_issueType;
-  std::string m_description;
+  using SingleIssueFix = std::function<void(MapFacade&, const Issue&)>;
+  using MultiIssueFix = std::function<void(MapFacade&, const std::vector<const Issue*>&)>;
 
-protected:
-  IssueQuickFix(IssueType issueType, const std::string& description);
+  std::string m_description;
+  MultiIssueFix m_fix;
 
 public:
+  IssueQuickFix(std::string description, MultiIssueFix fix);
+  IssueQuickFix(IssueType issueType, std::string description, SingleIssueFix fix);
   virtual ~IssueQuickFix();
 
   const std::string& description() const;
 
-  void apply(MapFacade* facade, const std::vector<Issue*>& issues) const;
-
-private:
-  virtual void doApply(MapFacade* facade, const std::vector<Issue*>& issues) const;
-  virtual void doApply(MapFacade* facade, const Issue* issue) const;
+  void apply(MapFacade& facade, const std::vector<const Issue*>& issues) const;
 };
+
+IssueQuickFix makeDeleteNodesQuickFix();
+
+IssueQuickFix makeRemoveEntityPropertiesQuickFix(IssueType type);
+
+IssueQuickFix makeTransformEntityPropertiesQuickFix(
+  IssueType type, std::string description,
+  std::function<std::string(const std::string&)> keyTransform,
+  std::function<std::string(const std::string&)> valueTransform);
+
 } // namespace Model
 } // namespace TrenchBroom

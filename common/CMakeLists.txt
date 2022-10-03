@@ -111,10 +111,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.cpp
         ${COMMON_SOURCE_DIR}/Model/EditorContext.cpp
-        ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyValueIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/EmptyGroupValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyValueValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Entity.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityColor.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityNode.cpp
@@ -136,52 +136,51 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitFilter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitType.cpp
-        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Issue.cpp
-        ${COMMON_SOURCE_DIR}/Model/IssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/IssueGeneratorRegistry.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.cpp
+        ${COMMON_SOURCE_DIR}/Model/IssueType.cpp
         ${COMMON_SOURCE_DIR}/Model/Layer.cpp
         ${COMMON_SOURCE_DIR}/Model/LayerNode.cpp
-        ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/LongPropertyValueIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/LinkSourceValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/LinkTargetValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyValueValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFacade.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFormat.cpp
-        ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/MixedBrushContentsIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/MissingClassnameValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/MissingDefinitionValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/MissingModValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/MixedBrushContentsValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.cpp
         ${COMMON_SOURCE_DIR}/Model/Node.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeContents.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Object.cpp
         ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/PatchNode.cpp
         ${COMMON_SOURCE_DIR}/Model/PickResult.cpp
-        ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/PointTrace.cpp
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Instantiation.cpp
         ${COMMON_SOURCE_DIR}/Model/PortalFile.cpp
-        ${COMMON_SOURCE_DIR}/Model/PropertyKeyWithDoubleQuotationMarksIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/PropertyValueWithDoubleQuotationMarksIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/PropertyKeyWithDoubleQuotationMarksValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/PropertyValueWithDoubleQuotationMarksValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/PushSelection.cpp
-        ${COMMON_SOURCE_DIR}/Model/RemoveEntityPropertiesQuickFix.cpp
-        ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Tag.cpp
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.cpp
         ${COMMON_SOURCE_DIR}/Model/TagManager.cpp
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/TransformEntityPropertiesQuickFix.cpp
+        ${COMMON_SOURCE_DIR}/Model/Validator.cpp
+        ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.cpp
         ${COMMON_SOURCE_DIR}/Model/UpdateLinkedGroupsError.cpp
-        ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/WorldBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldNode.cpp
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.cpp
@@ -604,10 +603,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.h
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.h
         ${COMMON_SOURCE_DIR}/Model/EditorContext.h
-        ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyValueIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityValidator.h
+        ${COMMON_SOURCE_DIR}/Model/EmptyGroupValidator.h
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyKeyValidator.h
+        ${COMMON_SOURCE_DIR}/Model/EmptyPropertyValueValidator.h
         ${COMMON_SOURCE_DIR}/Model/Entity.h
         ${COMMON_SOURCE_DIR}/Model/EntityColor.h
         ${COMMON_SOURCE_DIR}/Model/EntityNode.h
@@ -630,38 +629,36 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
         ${COMMON_SOURCE_DIR}/Model/HitType.h
         ${COMMON_SOURCE_DIR}/Model/IdType.h
-        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleValidator.h
         ${COMMON_SOURCE_DIR}/Model/Issue.h
-        ${COMMON_SOURCE_DIR}/Model/IssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/IssueGeneratorRegistry.h
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/IssueType.h
         ${COMMON_SOURCE_DIR}/Model/Layer.h
         ${COMMON_SOURCE_DIR}/Model/LayerNode.h
-        ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/LinkSourceValidator.h
+        ${COMMON_SOURCE_DIR}/Model/LinkTargetValidator.h
         ${COMMON_SOURCE_DIR}/Model/LockState.cpp
         ${COMMON_SOURCE_DIR}/Model/LockState.h
-        ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/LongPropertyValueIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyValidator.h
+        ${COMMON_SOURCE_DIR}/Model/LongPropertyValueValidator.h
         ${COMMON_SOURCE_DIR}/Model/MapFacade.h
         ${COMMON_SOURCE_DIR}/Model/MapFormat.h
-        ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/MixedBrushContentsIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/MissingClassnameValidator.h
+        ${COMMON_SOURCE_DIR}/Model/MissingDefinitionValidator.h
+        ${COMMON_SOURCE_DIR}/Model/MissingModValidator.h
+        ${COMMON_SOURCE_DIR}/Model/MixedBrushContentsValidator.h
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.h
         ${COMMON_SOURCE_DIR}/Model/Node.h
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.h
         ${COMMON_SOURCE_DIR}/Model/NodeContents.h
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesValidator.h
         ${COMMON_SOURCE_DIR}/Model/Object.h
         ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/PatchNode.h
         ${COMMON_SOURCE_DIR}/Model/PickResult.h
-        ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesValidator.h
         ${COMMON_SOURCE_DIR}/Model/PointTrace.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron3.h
@@ -682,11 +679,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Queries.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Vertex.h
         ${COMMON_SOURCE_DIR}/Model/PortalFile.h
-        ${COMMON_SOURCE_DIR}/Model/PropertyKeyWithDoubleQuotationMarksIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/PropertyValueWithDoubleQuotationMarksIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/PropertyKeyWithDoubleQuotationMarksValidator.h
+        ${COMMON_SOURCE_DIR}/Model/PropertyValueWithDoubleQuotationMarksValidator.h
         ${COMMON_SOURCE_DIR}/Model/PushSelection.h
-        ${COMMON_SOURCE_DIR}/Model/RemoveEntityPropertiesQuickFix.h
-        ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsValidator.h
         ${COMMON_SOURCE_DIR}/Model/Tag.h
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.h
         ${COMMON_SOURCE_DIR}/Model/TagManager.h
@@ -694,11 +690,12 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
-        ${COMMON_SOURCE_DIR}/Model/TransformEntityPropertiesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/UpdateLinkedGroupsError.h
+        ${COMMON_SOURCE_DIR}/Model/Validator.h
+        ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.h
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.cpp
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.h
-        ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/WorldBoundsValidator.h
         ${COMMON_SOURCE_DIR}/Model/WorldNode.h
         ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.h
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.h

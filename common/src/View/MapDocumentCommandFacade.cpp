@@ -507,9 +507,9 @@ void MapDocumentCommandFacade::performPopGroup() {
   groupWasClosedNotifier(previousGroup);
 }
 
-void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {
-  if (issue->hidden() != hidden) {
-    issue->setHidden(hidden);
+void MapDocumentCommandFacade::doSetIssueHidden(const Model::Issue& issue, const bool hidden) {
+  if (issue.hidden() != hidden) {
+    issue.node().setIssueHidden(issue.type(), hidden);
     incModificationCount();
   }
 }

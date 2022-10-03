@@ -152,7 +152,6 @@ private: // implement methods inherited from Node
     const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
   void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
-  void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
   void doAccept(NodeVisitor& visitor) override;
   void doAccept(ConstNodeVisitor& visitor) const override;
 

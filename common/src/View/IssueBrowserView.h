@@ -45,7 +45,7 @@ class IssueBrowserView : public QWidget {
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  int m_hiddenGenerators;
+  int m_hiddenIssueTypes;
   bool m_showHiddenIssues;
 
   bool m_valid;
@@ -60,8 +60,8 @@ private:
   void createGui();
 
 public:
-  int hiddenGenerators() const;
-  void setHiddenGenerators(int hiddenGenerators);
+  int hiddenIssueTypes() const;
+  void setHiddenIssueTypes(int hiddenIssueTypes);
   void setShowHiddenIssues(bool show);
   void reload();
   void deselectAll();
@@ -69,8 +69,9 @@ public:
 private:
   void updateIssues();
 
-  std::vector<Model::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
-  std::vector<Model::IssueQuickFix*> collectQuickFixes(const QList<QModelIndex>& indices) const;
+  std::vector<const Model::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
+  std::vector<const Model::IssueQuickFix*> collectQuickFixes(
+    const QList<QModelIndex>& indices) const;
   Model::IssueType issueTypeMask() const;
 
   void setIssueVisibility(bool show);
@@ -83,7 +84,7 @@ private:
   void itemSelectionChanged();
   void showIssues();
   void hideIssues();
-  void applyQuickFix(const Model::IssueQuickFix* quickFix);
+  void applyQuickFix(const Model::IssueQuickFix& quickFix);
 
 private:
   void invalidate();
@@ -98,13 +99,13 @@ public slots:
 class IssueBrowserModel : public QAbstractTableModel {
   Q_OBJECT
 private:
-  std::vector<Model::Issue*> m_issues;
+  std::vector<const Model::Issue*> m_issues;
 
 public:
   explicit IssueBrowserModel(QObject* parent);
 
-  void setIssues(std::vector<Model::Issue*> issues);
-  const std::vector<Model::Issue*>& issues();
+  void setIssues(std::vector<const Model::Issue*> issues);
+  const std::vector<const Model::Issue*>& issues();
 
 public: // QAbstractTableModel overrides
   int rowCount(const QModelIndex& parent) const override;

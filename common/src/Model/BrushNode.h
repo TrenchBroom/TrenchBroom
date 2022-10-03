@@ -112,7 +112,6 @@ private: // implement Node interface
 
   bool doSelectable() const override;
 
-  void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
   void doAccept(NodeVisitor& visitor) override;
   void doAccept(ConstNodeVisitor& visitor) const override;
 

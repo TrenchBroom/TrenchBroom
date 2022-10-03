@@ -23,8 +23,8 @@
 #include "Macros.h"
 #include "Model/EntityProperties.h"
 #include "Model/Issue.h"
-#include "Model/IssueGenerator.h"
 #include "Model/LockState.h"
+#include "Model/Validator.h"
 #include "Model/VisibilityState.h"
 
 #include <kdl/reflection_impl.h>
@@ -59,7 +59,6 @@ Node::Node()
 
 Node::~Node() {
   clearChildren();
-  clearIssues();
 }
 
 const std::string& Node::name() const {
@@ -701,9 +700,11 @@ bool Node::containsLine(const size_t lineNumber) const {
   return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
 }
 
-const std::vector<Issue*>& Node::issues(const std::vector<IssueGenerator*>& issueGenerators) {
-  validateIssues(issueGenerators);
-  return m_issues;
+std::vector<const Issue*> Node::issues(const std::vector<const Validator*>& validators) {
+  validateIssues(validators);
+  return kdl::vec_transform(m_issues, [](const auto& issue) {
+    return const_cast<const Issue*>(issue.get());
+  });
 }
 
 bool Node::issueHidden(const IssueType type) const {
@@ -718,22 +719,18 @@ void Node::setIssueHidden(const IssueType type, const bool hidden) {
   }
 }
 
-void Node::validateIssues(const std::vector<IssueGenerator*>& issueGenerators) {
+void Node::validateIssues(const std::vector<const Validator*>& validators) {
   if (!m_issuesValid) {
-    for (const auto* generator : issueGenerators) {
-      doGenerateIssues(generator, m_issues);
+    for (const auto* validator : validators) {
+      validator->validate(*this, m_issues);
     }
     m_issuesValid = true;
   }
 }
 
 void Node::invalidateIssues() const {
-  clearIssues();
+  m_issues.clear();
   m_issuesValid = false;
-}
-
-void Node::clearIssues() const {
-  kdl::vec_clear_and_delete(m_issues);
 }
 
 const EntityPropertyConfig& Node::entityPropertyConfig() const {

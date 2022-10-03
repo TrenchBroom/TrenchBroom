@@ -24,10 +24,10 @@
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
-#include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/TagVisitor.h"
+#include "Model/Validator.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -149,10 +149,6 @@ void LayerNode::doPick(const EditorContext&, const vm::ray3& /* ray */, PickResu
 void LayerNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
   for (Node* child : Node::children())
     child->findNodesContaining(point, result);
-}
-
-void LayerNode::doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) {
-  generator->generate(this, issues);
 }
 
 void LayerNode::doAccept(NodeVisitor& visitor) {
