@@ -67,6 +67,8 @@ void IssueBrowserView::createGui() {
   m_tableView->horizontalHeader()->setSectionsClickable(false);
   m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
+  autoResizeRows(m_tableView);
+
   auto* layout = new QHBoxLayout();
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(m_tableView);
