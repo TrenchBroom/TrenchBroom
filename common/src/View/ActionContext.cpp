@@ -44,35 +44,35 @@ std::string actionContextName(const ActionContext::Type actionContext) {
 
   std::vector<std::string> actionContexts;
   if (actionContext & ActionContext::NodeSelection) {
-    actionContexts.push_back("Objects");
+    actionContexts.emplace_back("Objects");
   }
   if (actionContext & ActionContext::FaceSelection) {
-    actionContexts.push_back("Textures");
+    actionContexts.emplace_back("Textures");
   }
 
   if ((actionContext & ActionContext::AnyTool) == ActionContext::AnyTool) {
-    actionContexts.push_back("Any Tool");
+    actionContexts.emplace_back("Any Tool");
   } else {
     if (actionContext & ActionContext::CreateComplexBrushTool) {
-      actionContexts.push_back("Create Brush Tool");
+      actionContexts.emplace_back("Create Brush Tool");
     }
     if (actionContext & ActionContext::ClipTool) {
-      actionContexts.push_back("Clip Tool");
+      actionContexts.emplace_back("Clip Tool");
     }
     if (actionContext & ActionContext::RotateTool) {
-      actionContexts.push_back("Rotate Tool");
+      actionContexts.emplace_back("Rotate Tool");
     }
     if (actionContext & ActionContext::AnyVertexTool) {
-      actionContexts.push_back("Any Vertex Tool");
+      actionContexts.emplace_back("Any Vertex Tool");
     }
   }
 
   if ((actionContext & ActionContext::AnyView) == ActionContext::AnyView) {
-    actionContexts.push_back("Any View");
+    actionContexts.emplace_back("Any View");
   } else if (actionContext & ActionContext::View3D) {
-    actionContexts.push_back("3D View");
+    actionContexts.emplace_back("3D View");
   } else if (actionContext & ActionContext::View2D) {
-    actionContexts.push_back("2D View");
+    actionContexts.emplace_back("2D View");
   }
 
   return kdl::str_join(actionContexts, ", ");
