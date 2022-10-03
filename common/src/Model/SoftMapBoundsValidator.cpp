@@ -44,8 +44,8 @@ public:
     : IssueQuickFix{Type, "Delete objects"} {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>&) const override {
-    facade->deleteObjects();
+  void doApply(MapFacade& facade, const std::vector<const Issue*>&) const override {
+    facade.deleteObjects();
   }
 };
 

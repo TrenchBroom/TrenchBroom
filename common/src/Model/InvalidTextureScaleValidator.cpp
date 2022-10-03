@@ -43,7 +43,7 @@ public:
     : IssueQuickFix{Type, "Reset texture scale"} {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const override {
+  void doApply(MapFacade& facade, const std::vector<const Issue*>& issues) const override {
     const auto pushSelection = PushSelection{facade};
 
     auto faceHandles = std::vector<BrushFaceHandle>{};
@@ -58,9 +58,9 @@ private:
     auto request = ChangeBrushFaceAttributesRequest{};
     request.setScale(vm::vec2f::one());
 
-    facade->deselectAll();
-    facade->selectBrushFaces(faceHandles);
-    facade->setFaceAttributes(request);
+    facade.deselectAll();
+    facade.selectBrushFaces(faceHandles);
+    facade.setFaceAttributes(request);
   }
 };
 } // namespace

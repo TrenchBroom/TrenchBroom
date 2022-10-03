@@ -43,11 +43,11 @@ public:
 
   const std::string& description() const;
 
-  void apply(MapFacade* facade, const std::vector<const Issue*>& issues) const;
+  void apply(MapFacade& facade, const std::vector<const Issue*>& issues) const;
 
 private:
-  virtual void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const;
-  virtual void doApply(MapFacade* facade, const Issue& issue) const;
+  virtual void doApply(MapFacade& facade, const std::vector<const Issue*>& issues) const;
+  virtual void doApply(MapFacade& facade, const Issue& issue) const;
 };
 
 class RemoveEntityPropertiesQuickFix : public IssueQuickFix {
@@ -55,7 +55,7 @@ public:
   explicit RemoveEntityPropertiesQuickFix(IssueType issueType);
 
 private:
-  void doApply(MapFacade* facade, const Issue& issue) const override;
+  void doApply(MapFacade& facade, const Issue& issue) const override;
 };
 
 class TransformEntityPropertiesQuickFix : public IssueQuickFix {
@@ -73,7 +73,7 @@ public:
     ValueTransform valueTransform);
 
 private:
-  void doApply(MapFacade* facade, const Issue& issue) const override;
+  void doApply(MapFacade& facade, const Issue& issue) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

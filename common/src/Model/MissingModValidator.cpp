@@ -60,15 +60,15 @@ public:
     : IssueQuickFix{Type, "Remove mod"} {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const override {
+  void doApply(MapFacade& facade, const std::vector<const Issue*>& issues) const override {
     const auto pushSelection = PushSelection{facade};
 
     // If nothing is selected, property changes will affect only world.
-    facade->deselectAll();
+    facade.deselectAll();
 
-    const auto oldMods = facade->mods();
+    const auto oldMods = facade.mods();
     const auto newMods = removeMissingMods(oldMods, issues);
-    facade->setMods(newMods);
+    facade.setMods(newMods);
   }
 
   std::vector<std::string> removeMissingMods(

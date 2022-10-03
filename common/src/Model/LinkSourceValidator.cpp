@@ -40,15 +40,15 @@ public:
     : IssueQuickFix{Type, "Delete property"} {}
 
 private:
-  void doApply(MapFacade* facade, const Issue& issue) const override {
+  void doApply(MapFacade& facade, const Issue& issue) const override {
     const auto pushSelection = PushSelection{facade};
 
     // If world node is affected, the selection will fail, but if nothing is selected,
     // the removeProperty call will correctly affect worldspawn either way.
 
-    facade->deselectAll();
-    facade->selectNodes({&issue.node()});
-    facade->removeProperty(EntityPropertyKeys::Targetname);
+    facade.deselectAll();
+    facade.selectNodes({&issue.node()});
+    facade.removeProperty(EntityPropertyKeys::Targetname);
   }
 };
 } // namespace

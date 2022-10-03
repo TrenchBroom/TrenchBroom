@@ -45,7 +45,7 @@ public:
     , m_maxLength{maxLength} {}
 
 private:
-  void doApply(MapFacade* facade, const Issue& issue) const override {
+  void doApply(MapFacade& facade, const Issue& issue) const override {
     const auto pushSelection = PushSelection{facade};
 
     const auto& propIssue = static_cast<const EntityPropertyIssue&>(issue);
@@ -55,9 +55,9 @@ private:
     // If world node is affected, the selection will fail, but if nothing is selected,
     // the removeProperty call will correctly affect worldspawn either way.
 
-    facade->deselectAll();
-    facade->selectNodes({&issue.node()});
-    facade->setProperty(propertyName, propertyValue.substr(0, m_maxLength));
+    facade.deselectAll();
+    facade.selectNodes({&issue.node()});
+    facade.setProperty(propertyName, propertyValue.substr(0, m_maxLength));
   }
 };
 } // namespace

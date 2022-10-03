@@ -39,11 +39,11 @@ const std::string& IssueQuickFix::description() const {
   return m_description;
 }
 
-void IssueQuickFix::apply(MapFacade* facade, const std::vector<const Issue*>& issues) const {
+void IssueQuickFix::apply(MapFacade& facade, const std::vector<const Issue*>& issues) const {
   doApply(facade, issues);
 }
 
-void IssueQuickFix::doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const {
+void IssueQuickFix::doApply(MapFacade& facade, const std::vector<const Issue*>& issues) const {
   for (const Issue* issue : issues) {
     if (issue->type() == m_issueType) {
       doApply(facade, *issue);
@@ -51,14 +51,14 @@ void IssueQuickFix::doApply(MapFacade* facade, const std::vector<const Issue*>& 
   }
 }
 
-void IssueQuickFix::doApply(MapFacade*, const Issue&) const {
+void IssueQuickFix::doApply(MapFacade&, const Issue&) const {
   assert(false);
 }
 
 RemoveEntityPropertiesQuickFix::RemoveEntityPropertiesQuickFix(const IssueType issueType)
   : IssueQuickFix{issueType, "Delete properties"} {}
 
-void RemoveEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue& issue) const {
+void RemoveEntityPropertiesQuickFix::doApply(MapFacade& facade, const Issue& issue) const {
   const auto pushSelection = PushSelection{facade};
 
   const auto& entityPropertyIssue = static_cast<const EntityPropertyIssue&>(issue);
@@ -66,9 +66,9 @@ void RemoveEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue& iss
   // If world node is affected, the selection will fail, but if nothing is selected,
   // the removeProperty call will correctly affect worldspawn either way.
 
-  facade->deselectAll();
-  facade->selectNodes({&issue.node()});
-  facade->removeProperty(entityPropertyIssue.propertyKey());
+  facade.deselectAll();
+  facade.selectNodes({&issue.node()});
+  facade.removeProperty(entityPropertyIssue.propertyKey());
 }
 
 TransformEntityPropertiesQuickFix::TransformEntityPropertiesQuickFix(
@@ -78,7 +78,7 @@ TransformEntityPropertiesQuickFix::TransformEntityPropertiesQuickFix(
   , m_keyTransform{std::move(keyTransform)}
   , m_valueTransform{std::move(valueTransform)} {}
 
-void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue& issue) const {
+void TransformEntityPropertiesQuickFix::doApply(MapFacade& facade, const Issue& issue) const {
   const auto pushSelection = PushSelection{facade};
 
   const auto& propIssue = static_cast<const EntityPropertyIssue&>(issue);
@@ -90,17 +90,17 @@ void TransformEntityPropertiesQuickFix::doApply(MapFacade* facade, const Issue& 
   // If world node is affected, the selection will fail, but if nothing is selected,
   // the removeProperty call will correctly affect worldspawn either way.
 
-  facade->deselectAll();
-  facade->selectNodes({&issue.node()});
+  facade.deselectAll();
+  facade.selectNodes({&issue.node()});
 
   if (newKey.empty()) {
-    facade->removeProperty(propIssue.propertyKey());
+    facade.removeProperty(propIssue.propertyKey());
   } else {
     if (newKey != oldkey) {
-      facade->renameProperty(oldkey, newKey);
+      facade.renameProperty(oldkey, newKey);
     }
     if (newValue != oldValue) {
-      facade->setProperty(newKey, newValue);
+      facade.setProperty(newKey, newValue);
     }
   }
 }

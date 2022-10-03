@@ -166,7 +166,7 @@ void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix& quickFix) {
 
   auto transaction = Transaction{document, "Apply Quick Fix (" + quickFix.description() + ")"};
   updateSelection();
-  quickFix.apply(document.get(), issues);
+  quickFix.apply(*document, issues);
   transaction.commit();
 }
 

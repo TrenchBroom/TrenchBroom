@@ -44,7 +44,7 @@ public:
     : IssueQuickFix{Type, "Move brushes to world"} {}
 
 private:
-  void doApply(MapFacade* facade, const std::vector<const Issue*>& issues) const override {
+  void doApply(MapFacade& facade, const std::vector<const Issue*>& issues) const override {
     auto affectedNodes = std::vector<Node*>{};
     auto nodesToReparent = std::map<Node*, std::vector<Node*>>{};
 
@@ -56,9 +56,9 @@ private:
       affectedNodes = kdl::vec_concat(std::move(affectedNodes), node.children());
     }
 
-    facade->deselectAll();
-    facade->reparentNodes(nodesToReparent);
-    facade->selectNodes(affectedNodes);
+    facade.deselectAll();
+    facade.reparentNodes(nodesToReparent);
+    facade.selectNodes(affectedNodes);
   }
 };
 } // namespace
