@@ -33,36 +33,19 @@ namespace TrenchBroom {
 namespace Model {
 namespace {
 static const auto Type = freeIssueType();
-
-class LinkSourceIssueQuickFix : public IssueQuickFix {
-public:
-  LinkSourceIssueQuickFix()
-    : IssueQuickFix{Type, "Delete property"} {}
-
-private:
-  void doApply(MapFacade& facade, const Issue& issue) const override {
-    const auto pushSelection = PushSelection{facade};
-
-    // If world node is affected, the selection will fail, but if nothing is selected,
-    // the removeProperty call will correctly affect worldspawn either way.
-
-    facade.deselectAll();
-    facade.selectNodes({&issue.node()});
-    facade.removeProperty(EntityPropertyKeys::Targetname);
-  }
-};
 } // namespace
 
 LinkSourceValidator::LinkSourceValidator()
   : Validator{Type, "Missing entity link source"} {
-  addQuickFix(std::make_unique<LinkSourceIssueQuickFix>());
+  addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
 }
 
 void LinkSourceValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (entityNode.hasMissingSources()) {
-    issues.push_back(
-      std::make_unique<Issue>(Type, entityNode, entityNode.name() + " has unused targetname key"));
+    issues.push_back(std::make_unique<EntityPropertyIssue>(
+      Type, entityNode, EntityPropertyKeys::Targetname,
+      entityNode.name() + " has unused targetname key"));
   }
 }
 } // namespace Model

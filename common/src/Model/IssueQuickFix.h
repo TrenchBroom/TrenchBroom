@@ -32,48 +32,30 @@ class MapFacade;
 
 class IssueQuickFix {
 private:
-  IssueType m_issueType;
-  std::string m_description;
+  using SingleIssueFix = std::function<void(MapFacade&, const Issue&)>;
+  using MultiIssueFix = std::function<void(MapFacade&, const std::vector<const Issue*>&)>;
 
-protected:
-  IssueQuickFix(IssueType issueType, std::string description);
+  std::string m_description;
+  MultiIssueFix m_fix;
 
 public:
+  IssueQuickFix(std::string description, MultiIssueFix fix);
+  IssueQuickFix(IssueType issueType, std::string description, SingleIssueFix fix);
   virtual ~IssueQuickFix();
 
   const std::string& description() const;
 
   void apply(MapFacade& facade, const std::vector<const Issue*>& issues) const;
-
-private:
-  virtual void doApply(MapFacade& facade, const std::vector<const Issue*>& issues) const;
-  virtual void doApply(MapFacade& facade, const Issue& issue) const;
 };
 
-class RemoveEntityPropertiesQuickFix : public IssueQuickFix {
-public:
-  explicit RemoveEntityPropertiesQuickFix(IssueType issueType);
+IssueQuickFix makeDeleteNodesQuickFix();
 
-private:
-  void doApply(MapFacade& facade, const Issue& issue) const override;
-};
+IssueQuickFix makeRemoveEntityPropertiesQuickFix(IssueType type);
 
-class TransformEntityPropertiesQuickFix : public IssueQuickFix {
-public:
-  using KeyTransform = std::function<std::string(const std::string&)>;
-  using ValueTransform = std::function<std::string(const std::string&)>;
+IssueQuickFix makeTransformEntityPropertiesQuickFix(
+  IssueType type, std::string description,
+  std::function<std::string(const std::string&)> keyTransform,
+  std::function<std::string(const std::string&)> valueTransform);
 
-private:
-  KeyTransform m_keyTransform;
-  ValueTransform m_valueTransform;
-
-public:
-  TransformEntityPropertiesQuickFix(
-    IssueType issueType, std::string description, KeyTransform keyTransform,
-    ValueTransform valueTransform);
-
-private:
-  void doApply(MapFacade& facade, const Issue& issue) const override;
-};
 } // namespace Model
 } // namespace TrenchBroom

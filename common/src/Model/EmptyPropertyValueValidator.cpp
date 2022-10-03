@@ -33,32 +33,11 @@ namespace TrenchBroom {
 namespace Model {
 namespace {
 static const auto Type = freeIssueType();
-
-class EmptyPropertyValueIssueQuickFix : public IssueQuickFix {
-public:
-  EmptyPropertyValueIssueQuickFix()
-    : IssueQuickFix{Type, "Delete property"} {}
-
-private:
-  void doApply(MapFacade& facade, const Issue& issue) const override {
-    const auto& actualIssue = static_cast<const EntityPropertyIssue&>(issue);
-    const auto& propertyKey = actualIssue.propertyKey();
-
-    const auto pushSelection = PushSelection{facade};
-
-    // If world node is affected, the selection will fail, but if nothing is selected,
-    // the removeProperty call will correctly affect worldspawn either way.
-
-    facade.deselectAll();
-    facade.selectNodes({&issue.node()});
-    facade.removeProperty(propertyKey);
-  }
-};
 } // namespace
 
 EmptyPropertyValueValidator::EmptyPropertyValueValidator()
   : Validator{Type, "Empty property value"} {
-  addQuickFix(std::make_unique<EmptyPropertyValueIssueQuickFix>());
+  addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
 }
 
 void EmptyPropertyValueValidator::doValidate(

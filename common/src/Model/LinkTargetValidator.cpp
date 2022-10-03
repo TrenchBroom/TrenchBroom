@@ -35,27 +35,6 @@ namespace Model {
 namespace {
 static const auto Type = freeIssueType();
 
-class LinkTargetIssueQuickFix : public IssueQuickFix {
-public:
-  LinkTargetIssueQuickFix()
-    : IssueQuickFix{Type, "Delete property"} {}
-
-private:
-  void doApply(MapFacade& facade, const Issue& issue) const override {
-    const auto pushSelection = PushSelection{facade};
-
-    const auto& targetIssue = static_cast<const EntityPropertyIssue&>(issue);
-    const auto& propertyKey = targetIssue.propertyKey();
-
-    // If world node is affected, the selection will fail, but if nothing is selected,
-    // the removeProperty call will correctly affect worldspawn either way.
-
-    facade.deselectAll();
-    facade.selectNodes({&issue.node()});
-    facade.removeProperty(propertyKey);
-  }
-};
-
 void validateInternal(
   EntityNodeBase& entityNode, const std::vector<std::string>& propertyKeys,
   std::vector<std::unique_ptr<Issue>>& issues) {
@@ -69,7 +48,7 @@ void validateInternal(
 
 LinkTargetValidator::LinkTargetValidator()
   : Validator{Type, "Missing entity link target"} {
-  addQuickFix(std::make_unique<LinkTargetIssueQuickFix>());
+  addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
 }
 
 void LinkTargetValidator::doValidate(

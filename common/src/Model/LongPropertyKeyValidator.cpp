@@ -38,7 +38,7 @@ static const auto Type = freeIssueType();
 LongPropertyKeyValidator::LongPropertyKeyValidator(const size_t maxLength)
   : Validator{Type, "Long entity property keys"}
   , m_maxLength{maxLength} {
-  addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(Type));
+  addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
 }
 
 void LongPropertyKeyValidator::doValidate(

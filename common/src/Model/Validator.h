@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Model/IssueQuickFix.h"
 #include "Model/IssueType.h"
 
 #include <memory>
@@ -32,7 +33,6 @@ class BrushNode;
 class EntityNode;
 class GroupNode;
 class Issue;
-class IssueQuickFix;
 class LayerNode;
 class Node;
 class PatchNode;
@@ -42,7 +42,7 @@ class Validator {
 private:
   IssueType m_type;
   std::string m_description;
-  std::vector<std::unique_ptr<IssueQuickFix>> m_quickFixes;
+  std::vector<IssueQuickFix> m_quickFixes;
 
 public:
   virtual ~Validator();
@@ -55,7 +55,7 @@ public:
 
 protected:
   Validator(IssueType type, const std::string& description);
-  void addQuickFix(std::unique_ptr<IssueQuickFix> quickFix);
+  void addQuickFix(IssueQuickFix quickFix);
 
 private:
   virtual void doValidate(WorldNode& worldNode, std::vector<std::unique_ptr<Issue>>& issues) const;

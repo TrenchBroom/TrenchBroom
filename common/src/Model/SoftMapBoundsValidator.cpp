@@ -38,17 +38,6 @@ namespace Model {
 namespace {
 static const auto Type = freeIssueType();
 
-class SoftMapBoundsIssueQuickFix : public IssueQuickFix {
-public:
-  SoftMapBoundsIssueQuickFix()
-    : IssueQuickFix{Type, "Delete objects"} {}
-
-private:
-  void doApply(MapFacade& facade, const std::vector<const Issue*>&) const override {
-    facade.deleteObjects();
-  }
-};
-
 void validateInternal(
   const std::shared_ptr<Game>& game, const WorldNode& worldNode, Node& node,
   std::vector<std::unique_ptr<Issue>>& issues) {
@@ -64,7 +53,7 @@ SoftMapBoundsValidator::SoftMapBoundsValidator(std::weak_ptr<Game> game, const W
   : Validator(Type, "Objects out of soft map bounds")
   , m_game{game}
   , m_world{world} {
-  addQuickFix(std::make_unique<SoftMapBoundsIssueQuickFix>());
+  addQuickFix(makeDeleteNodesQuickFix());
 }
 
 void SoftMapBoundsValidator::doValidate(

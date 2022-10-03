@@ -33,22 +33,11 @@ namespace TrenchBroom {
 namespace Model {
 namespace {
 static const auto Type = freeIssueType();
-
-class MissingClassnameIssueQuickFix : public IssueQuickFix {
-public:
-  MissingClassnameIssueQuickFix()
-    : IssueQuickFix{Type, "Delete entities"} {}
-
-private:
-  void doApply(MapFacade& facade, const std::vector<const Issue*>&) const override {
-    facade.deleteObjects();
-  }
-};
 } // namespace
 
 MissingClassnameValidator::MissingClassnameValidator()
   : Validator{Type, "Missing entity classname"} {
-  addQuickFix(std::make_unique<MissingClassnameIssueQuickFix>());
+  addQuickFix(makeDeleteNodesQuickFix());
 }
 
 void MissingClassnameValidator::doValidate(

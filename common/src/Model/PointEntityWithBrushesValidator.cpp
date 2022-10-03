@@ -38,34 +38,29 @@ namespace Model {
 namespace {
 static const auto Type = freeIssueType();
 
-class PointEntityWithBrushesIssueQuickFix : public IssueQuickFix {
-public:
-  PointEntityWithBrushesIssueQuickFix()
-    : IssueQuickFix{Type, "Move brushes to world"} {}
+IssueQuickFix makeMoveBrushesToWorldQuickFix() {
+  return {"Move Brushes to World", [](MapFacade& facade, const std::vector<const Issue*>& issues) {
+            auto affectedNodes = std::vector<Node*>{};
+            auto nodesToReparent = std::map<Node*, std::vector<Node*>>{};
 
-private:
-  void doApply(MapFacade& facade, const std::vector<const Issue*>& issues) const override {
-    auto affectedNodes = std::vector<Node*>{};
-    auto nodesToReparent = std::map<Node*, std::vector<Node*>>{};
+            for (const auto* issue : issues) {
+              auto& node = issue->node();
+              nodesToReparent[node.parent()] = node.children();
 
-    for (const auto* issue : issues) {
-      auto& node = issue->node();
-      nodesToReparent[node.parent()] = node.children();
+              affectedNodes.push_back(&node);
+              affectedNodes = kdl::vec_concat(std::move(affectedNodes), node.children());
+            }
 
-      affectedNodes.push_back(&node);
-      affectedNodes = kdl::vec_concat(std::move(affectedNodes), node.children());
-    }
-
-    facade.deselectAll();
-    facade.reparentNodes(nodesToReparent);
-    facade.selectNodes(affectedNodes);
-  }
-};
+            facade.deselectAll();
+            facade.reparentNodes(nodesToReparent);
+            facade.selectNodes(affectedNodes);
+          }};
+}
 } // namespace
 
 PointEntityWithBrushesValidator::PointEntityWithBrushesValidator()
   : Validator{Type, "Point entity with brushes"} {
-  addQuickFix(std::make_unique<PointEntityWithBrushesIssueQuickFix>());
+  addQuickFix(makeMoveBrushesToWorldQuickFix());
 }
 
 void PointEntityWithBrushesValidator::doValidate(

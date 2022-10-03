@@ -35,38 +35,29 @@ namespace Model {
 namespace {
 static const auto Type = freeIssueType();
 
-class TruncateLongPropertyValueIssueQuickFix : public IssueQuickFix {
-private:
-  size_t m_maxLength;
+IssueQuickFix makeTruncatePropertyValueQuickFix(const size_t maxLength) {
+  return {Type, "Truncate Property Values", [=](MapFacade& facade, const Issue& issue) {
+            const auto pushSelection = PushSelection{facade};
 
-public:
-  explicit TruncateLongPropertyValueIssueQuickFix(const size_t maxLength)
-    : IssueQuickFix{Type, "Truncate property values"}
-    , m_maxLength{maxLength} {}
+            const auto& propIssue = static_cast<const EntityPropertyIssue&>(issue);
+            const auto& propertyName = propIssue.propertyKey();
+            const auto& propertyValue = propIssue.propertyValue();
 
-private:
-  void doApply(MapFacade& facade, const Issue& issue) const override {
-    const auto pushSelection = PushSelection{facade};
+            // If world node is affected, the selection will fail, but if nothing is selected,
+            // the removeProperty call will correctly affect worldspawn either way.
 
-    const auto& propIssue = static_cast<const EntityPropertyIssue&>(issue);
-    const auto& propertyName = propIssue.propertyKey();
-    const auto& propertyValue = propIssue.propertyValue();
-
-    // If world node is affected, the selection will fail, but if nothing is selected,
-    // the removeProperty call will correctly affect worldspawn either way.
-
-    facade.deselectAll();
-    facade.selectNodes({&issue.node()});
-    facade.setProperty(propertyName, propertyValue.substr(0, m_maxLength));
-  }
-};
+            facade.deselectAll();
+            facade.selectNodes({&issue.node()});
+            facade.setProperty(propertyName, propertyValue.substr(0, maxLength));
+          }};
+}
 } // namespace
 
 LongPropertyValueValidator::LongPropertyValueValidator(const size_t maxLength)
   : Validator{Type, "Long entity property value"}
   , m_maxLength{maxLength} {
-  addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(Type));
-  addQuickFix(std::make_unique<TruncateLongPropertyValueIssueQuickFix>(m_maxLength));
+  addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
+  addQuickFix(makeTruncatePropertyValueQuickFix(m_maxLength));
 }
 
 void LongPropertyValueValidator::doValidate(

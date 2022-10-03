@@ -44,7 +44,7 @@ const std::string& Validator::description() const {
 
 std::vector<const IssueQuickFix*> Validator::quickFixes() const {
   return kdl::vec_transform(m_quickFixes, [](const auto& quickFix) {
-    return const_cast<const IssueQuickFix*>(quickFix.get());
+    return const_cast<const IssueQuickFix*>(&quickFix);
   });
 }
 
@@ -74,9 +74,7 @@ Validator::Validator(const IssueType type, const std::string& description)
   : m_type{type}
   , m_description{description} {}
 
-void Validator::addQuickFix(std::unique_ptr<IssueQuickFix> quickFix) {
-  ensure(quickFix != nullptr, "quickFix is null");
-  assert(!kdl::vec_contains(m_quickFixes, quickFix));
+void Validator::addQuickFix(IssueQuickFix quickFix) {
   m_quickFixes.push_back(std::move(quickFix));
 }
 

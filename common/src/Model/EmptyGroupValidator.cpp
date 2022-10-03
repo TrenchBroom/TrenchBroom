@@ -32,22 +32,11 @@ namespace TrenchBroom {
 namespace Model {
 namespace {
 static const auto Type = freeIssueType();
-
-class EmptyGroupIssueQuickFix : public IssueQuickFix {
-public:
-  EmptyGroupIssueQuickFix()
-    : IssueQuickFix{Type, "Delete groups"} {}
-
-private:
-  void doApply(MapFacade& facade, const std::vector<const Issue*>&) const override {
-    facade.deleteObjects();
-  }
-};
 } // namespace
 
 EmptyGroupValidator::EmptyGroupValidator()
   : Validator{Type, "Empty group"} {
-  addQuickFix(std::make_unique<EmptyGroupIssueQuickFix>());
+  addQuickFix(makeDeleteNodesQuickFix());
 }
 
 void EmptyGroupValidator::doValidate(

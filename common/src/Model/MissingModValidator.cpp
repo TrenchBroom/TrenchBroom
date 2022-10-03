@@ -54,41 +54,36 @@ public:
   const std::string& mod() const { return m_mod; }
 };
 
-class MissingModIssueQuickFix : public IssueQuickFix {
-public:
-  MissingModIssueQuickFix()
-    : IssueQuickFix{Type, "Remove mod"} {}
-
-private:
-  void doApply(MapFacade& facade, const std::vector<const Issue*>& issues) const override {
-    const auto pushSelection = PushSelection{facade};
-
-    // If nothing is selected, property changes will affect only world.
-    facade.deselectAll();
-
-    const auto oldMods = facade.mods();
-    const auto newMods = removeMissingMods(oldMods, issues);
-    facade.setMods(newMods);
-  }
-
-  std::vector<std::string> removeMissingMods(
-    std::vector<std::string> mods, const std::vector<const Issue*>& issues) const {
-    for (const auto* issue : issues) {
-      if (issue->type() == Type) {
-        const auto* modIssue = static_cast<const MissingModIssue*>(issue);
-        const auto& missingMod = modIssue->mod();
-        mods = kdl::vec_erase(std::move(mods), missingMod);
-      }
+std::vector<std::string> removeMissingMods(
+  std::vector<std::string> mods, const std::vector<const Issue*>& issues) {
+  for (const auto* issue : issues) {
+    if (issue->type() == Type) {
+      const auto* modIssue = static_cast<const MissingModIssue*>(issue);
+      const auto& missingMod = modIssue->mod();
+      mods = kdl::vec_erase(std::move(mods), missingMod);
     }
-    return mods;
   }
-};
+  return mods;
+}
+
+IssueQuickFix makeRemoveModsQuickFix() {
+  return {"Remove Mod", [](MapFacade& facade, const std::vector<const Issue*>& issues) {
+            const auto pushSelection = PushSelection{facade};
+
+            // If nothing is selected, property changes will affect only world.
+            facade.deselectAll();
+
+            const auto oldMods = facade.mods();
+            const auto newMods = removeMissingMods(oldMods, issues);
+            facade.setMods(newMods);
+          }};
+}
 } // namespace
 
 MissingModValidator::MissingModValidator(std::weak_ptr<Game> game)
   : Validator{Type, "Missing mod directory"}
   , m_game{std::move(game)} {
-  addQuickFix(std::make_unique<MissingModIssueQuickFix>());
+  addQuickFix(makeRemoveModsQuickFix());
 }
 
 void MissingModValidator::doValidate(

@@ -33,21 +33,16 @@ namespace Model {
 namespace {
 static const auto Type = freeIssueType();
 
-class NonIntegerVerticesIssueQuickFix : public IssueQuickFix {
-public:
-  NonIntegerVerticesIssueQuickFix()
-    : IssueQuickFix{Type, "Convert vertices to integer"} {}
-
-private:
-  void doApply(MapFacade& facade, const std::vector<const Issue*>& /* issues */) const override {
-    facade.snapVertices(1);
-  }
-};
+IssueQuickFix makeSnapVerticesQuickFix() {
+  return {"Snap Vertices", [](MapFacade& facade, const std::vector<const Issue*>&) {
+            facade.snapVertices(1);
+          }};
+}
 } // namespace
 
 NonIntegerVerticesValidator::NonIntegerVerticesValidator()
   : Validator(Type, "Non-integer vertices") {
-  addQuickFix(std::make_unique<NonIntegerVerticesIssueQuickFix>());
+  addQuickFix(makeSnapVerticesQuickFix());
 }
 
 void NonIntegerVerticesValidator::doValidate(

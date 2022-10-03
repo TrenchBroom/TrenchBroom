@@ -34,22 +34,11 @@ namespace TrenchBroom {
 namespace Model {
 namespace {
 static const auto Type = freeIssueType();
-
-class EmptyBrushEntityIssueQuickFix : public IssueQuickFix {
-public:
-  EmptyBrushEntityIssueQuickFix()
-    : IssueQuickFix{Type, "Delete entities"} {}
-
-private:
-  void doApply(MapFacade& facade, const std::vector<const Issue*>&) const override {
-    facade.deleteObjects();
-  }
-};
 } // namespace
 
 EmptyBrushEntityValidator::EmptyBrushEntityValidator()
   : Validator{Type, "Empty brush entity"} {
-  addQuickFix(std::make_unique<EmptyBrushEntityIssueQuickFix>());
+  addQuickFix(makeDeleteNodesQuickFix());
 }
 
 void EmptyBrushEntityValidator::doValidate(

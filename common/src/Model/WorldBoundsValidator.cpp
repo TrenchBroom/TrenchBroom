@@ -33,17 +33,6 @@ namespace Model {
 namespace {
 static const auto Type = freeIssueType();
 
-class WorldBoundsIssueQuickFix : public IssueQuickFix {
-public:
-  WorldBoundsIssueQuickFix()
-    : IssueQuickFix{Type, "Delete objects"} {}
-
-private:
-  void doApply(MapFacade& facade, const std::vector<const Issue*>&) const override {
-    facade.deleteObjects();
-  }
-};
-
 void validateInternal(
   const vm::bbox3& bounds, Node& node, std::vector<std::unique_ptr<Issue>>& issues) {
   if (!bounds.contains(node.logicalBounds())) {
@@ -55,7 +44,7 @@ void validateInternal(
 WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3& bounds)
   : Validator{Type, "Objects out of world bounds"}
   , m_bounds{bounds} {
-  addQuickFix(std::make_unique<WorldBoundsIssueQuickFix>());
+  addQuickFix(makeDeleteNodesQuickFix());
 }
 
 void WorldBoundsValidator::doValidate(

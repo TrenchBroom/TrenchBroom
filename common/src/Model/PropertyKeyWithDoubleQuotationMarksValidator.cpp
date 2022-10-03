@@ -38,8 +38,8 @@ static const auto Type = freeIssueType();
 
 PropertyKeyWithDoubleQuotationMarksValidator::PropertyKeyWithDoubleQuotationMarksValidator()
   : Validator{Type, "Invalid entity property keys"} {
-  addQuickFix(std::make_unique<RemoveEntityPropertiesQuickFix>(Type));
-  addQuickFix(std::make_unique<TransformEntityPropertiesQuickFix>(
+  addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
+  addQuickFix(makeTransformEntityPropertiesQuickFix(
     Type, "Replace \" with '",
     [](const std::string& key) {
       return kdl::str_replace_every(key, "\"", "'");

@@ -32,36 +32,18 @@ namespace TrenchBroom {
 namespace Model {
 namespace {
 static const auto Type = freeIssueType();
-
-class EmptyPropertyKeyIssueQuickFix : public IssueQuickFix {
-public:
-  EmptyPropertyKeyIssueQuickFix()
-    : IssueQuickFix{Type, "Delete property"} {}
-
-private:
-  void doApply(MapFacade& facade, const Issue& issue) const override {
-    const auto pushSelection = PushSelection{facade};
-
-    // If world node is affected, the selection will fail, but if nothing is selected,
-    // the removeProperty call will correctly affect worldspawn either way.
-
-    facade.deselectAll();
-    facade.selectNodes({&issue.node()});
-    facade.removeProperty("");
-  }
-};
 } // namespace
 
 EmptyPropertyKeyValidator::EmptyPropertyKeyValidator()
   : Validator{Type, "Empty property name"} {
-  addQuickFix(std::make_unique<EmptyPropertyKeyIssueQuickFix>());
+  addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
 }
 
 void EmptyPropertyKeyValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
   if (entityNode.entity().hasProperty("")) {
-    issues.push_back(std::make_unique<Issue>(
-      Type, entityNode, entityNode.name() + " has a property with an empty name."));
+    issues.push_back(std::make_unique<EntityPropertyIssue>(
+      Type, entityNode, "", entityNode.name() + " has a property with an empty name."));
   }
 }
 } // namespace Model
