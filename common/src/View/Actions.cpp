@@ -817,7 +817,7 @@ void ActionManager::createViewActions() {
     });
   createAction(
     IO::Path("Controls/Map view/Reset texture alignment"), QObject::tr("Reset texture alignment"),
-    ActionContext::View3D | ActionContext::AnyTool | ActionContext::AnySelection,
+    ActionContext::AnyView | ActionContext::AnyTool | ActionContext::AnySelection,
     QKeySequence(Qt::SHIFT + Qt::Key_R),
     [](ActionExecutionContext& context) {
       context.view()->resetTextures();
@@ -828,7 +828,7 @@ void ActionManager::createViewActions() {
   createAction(
     IO::Path("Controls/Map view/Reset texture alignment to world aligned"),
     QObject::tr("Reset texture alignment to world aligned"),
-    ActionContext::View3D | ActionContext::AnyTool | ActionContext::AnySelection,
+    ActionContext::AnyView | ActionContext::AnyTool | ActionContext::AnySelection,
     QKeySequence(Qt::SHIFT + Qt::ALT + Qt::Key_R),
     [](ActionExecutionContext& context) {
       context.view()->resetTexturesToWorld();
