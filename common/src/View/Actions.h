@@ -73,7 +73,7 @@ protected:
 
 public:
   Action(
-    const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext,
+    const IO::Path& preferencePath, const QString& label, ActionContext::Type actionContext,
     const QKeySequence& defaultShortcut, const IO::Path& iconPath, const QString& statusTip);
   virtual ~Action();
 
