@@ -788,29 +788,21 @@ void MapViewBase::focusOutEvent(QFocusEvent* event) {
 }
 
 ActionContext::Type MapViewBase::actionContext() const {
+  auto document = kdl::mem_lock(m_document);
+
   const auto derivedContext = doGetActionContext();
-  if (m_toolBox.createComplexBrushToolActive()) {
-    return derivedContext | ActionContext::CreateComplexBrushTool;
-  } else if (m_toolBox.clipToolActive()) {
-    return derivedContext | ActionContext::ClipTool;
-  } else if (m_toolBox.anyVertexToolActive()) {
-    return derivedContext | ActionContext::AnyVertexTool;
-  } else if (m_toolBox.rotateObjectsToolActive()) {
-    return derivedContext | ActionContext::RotateTool;
-  } else if (m_toolBox.scaleObjectsToolActive()) {
-    return derivedContext | ActionContext::ScaleTool;
-  } else if (m_toolBox.shearObjectsToolActive()) {
-    return derivedContext | ActionContext::ShearTool;
-  } else {
-    auto document = kdl::mem_lock(m_document);
-    if (document->hasSelectedNodes()) {
-      return derivedContext | ActionContext::NodeSelection;
-    } else if (document->hasSelectedBrushFaces()) {
-      return derivedContext | ActionContext::FaceSelection;
-    } else {
-      return derivedContext;
-    }
-  }
+  const auto toolContext = m_toolBox.createComplexBrushToolActive()
+                             ? ActionContext::CreateComplexBrushTool
+                           : m_toolBox.clipToolActive()          ? ActionContext::ClipTool
+                           : m_toolBox.anyVertexToolActive()     ? ActionContext::AnyVertexTool
+                           : m_toolBox.rotateObjectsToolActive() ? ActionContext::RotateTool
+                           : m_toolBox.scaleObjectsToolActive()  ? ActionContext::ScaleTool
+                           : m_toolBox.shearObjectsToolActive()  ? ActionContext::ShearTool
+                                                                 : ActionContext::NoTool;
+  const auto selectionContext = document->hasSelectedNodes()        ? ActionContext::NodeSelection
+                                : document->hasSelectedBrushFaces() ? ActionContext::FaceSelection
+                                                                    : ActionContext::NoSelection;
+  return derivedContext | toolContext | selectionContext;
 }
 
 void MapViewBase::doFlashSelection() {

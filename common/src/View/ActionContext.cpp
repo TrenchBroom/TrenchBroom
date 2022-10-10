@@ -28,8 +28,8 @@ namespace TrenchBroom {
 namespace View {
 bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs) {
   return actionContextMatches(lhs, rhs, ActionContext::AnyView) &&
-         (actionContextMatches(lhs, rhs, ActionContext::AnyTool) ||
-          actionContextMatches(lhs, rhs, ActionContext::AnySelection));
+         actionContextMatches(lhs, rhs, ActionContext::AnyOrNoTool) &&
+         actionContextMatches(lhs, rhs, ActionContext::AnyOrNoSelection);
 }
 
 bool actionContextMatches(
@@ -39,40 +39,54 @@ bool actionContextMatches(
 
 std::string actionContextName(const ActionContext::Type actionContext) {
   if (actionContext == ActionContext::Any) {
-    return "Any";
+    return "any";
   }
 
   std::vector<std::string> actionContexts;
-  if (actionContext & ActionContext::NodeSelection) {
-    actionContexts.push_back("Objects");
-  }
-  if (actionContext & ActionContext::FaceSelection) {
-    actionContexts.push_back("Textures");
+  if ((actionContext & ActionContext::AnyView) == ActionContext::AnyView) {
+    actionContexts.emplace_back("any view");
+  } else if (actionContext & ActionContext::View3D) {
+    actionContexts.emplace_back("3D view");
+  } else if (actionContext & ActionContext::View2D) {
+    actionContexts.emplace_back("2D view");
   }
 
-  if ((actionContext & ActionContext::AnyTool) == ActionContext::AnyTool) {
-    actionContexts.push_back("Any Tool");
+  if ((actionContext & ActionContext::AnyOrNoSelection) == ActionContext::AnyOrNoSelection) {
+    actionContexts.emplace_back("any or no selection");
+  } else if ((actionContext & ActionContext::AnyOrNoSelection) == ActionContext::AnySelection) {
+    actionContexts.emplace_back("any selection");
   } else {
+    if (actionContext & ActionContext::NoSelection) {
+      actionContexts.emplace_back("no selection");
+    }
+    if (actionContext & ActionContext::NodeSelection) {
+      actionContexts.emplace_back("objects selected");
+    }
+    if (actionContext & ActionContext::FaceSelection) {
+      actionContexts.emplace_back("faces selected");
+    }
+  }
+
+  if ((actionContext & ActionContext::AnyOrNoTool) == ActionContext::AnyOrNoTool) {
+    actionContexts.emplace_back("any or no tool");
+  } else if ((actionContext & ActionContext::AnyOrNoTool) == ActionContext::AnyTool) {
+    actionContexts.emplace_back("any tool");
+  } else {
+    if (actionContext & ActionContext::NoTool) {
+      actionContexts.emplace_back("no tool");
+    }
     if (actionContext & ActionContext::CreateComplexBrushTool) {
-      actionContexts.push_back("Create Brush Tool");
+      actionContexts.emplace_back("brush tool");
     }
     if (actionContext & ActionContext::ClipTool) {
-      actionContexts.push_back("Clip Tool");
+      actionContexts.emplace_back("clip tool");
     }
     if (actionContext & ActionContext::RotateTool) {
-      actionContexts.push_back("Rotate Tool");
+      actionContexts.emplace_back("rotate tool");
     }
     if (actionContext & ActionContext::AnyVertexTool) {
-      actionContexts.push_back("Any Vertex Tool");
+      actionContexts.emplace_back("any vertex tool");
     }
-  }
-
-  if ((actionContext & ActionContext::AnyView) == ActionContext::AnyView) {
-    actionContexts.push_back("Any View");
-  } else if (actionContext & ActionContext::View3D) {
-    actionContexts.push_back("3D View");
-  } else if (actionContext & ActionContext::View2D) {
-    actionContexts.push_back("2D View");
   }
 
   return kdl::str_join(actionContexts, ", ");

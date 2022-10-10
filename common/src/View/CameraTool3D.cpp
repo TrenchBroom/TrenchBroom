@@ -131,7 +131,13 @@ const Tool& CameraTool3D::tool() const {
 void CameraTool3D::mouseScroll(const InputState& inputState) {
   const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
   const bool zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
-  const float scrollDist = inputState.scrollY();
+  const float scrollDist =
+#ifdef __APPLE__
+    inputState.modifierKeysPressed(ModifierKeys::MKShift) ? inputState.scrollX()
+                                                          : inputState.scrollY();
+#else
+    inputState.scrollY();
+#endif
 
   if (shouldMove(inputState)) {
     if (zoom) {
