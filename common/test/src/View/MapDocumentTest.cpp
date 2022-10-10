@@ -252,5 +252,64 @@ TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups") {
   CHECK_FALSE(document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes)));
 }
 
+TEST_CASE_METHOD(MapDocumentTest, "createPointEntity") {
+  document->selectAllNodes();
+  document->deleteObjects();
+
+  SECTION("Point entity is created and selected") {
+    auto* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3{16.0, 32.0, 48.0});
+    CHECK(entityNode != nullptr);
+    CHECK(entityNode->entity().definition() == m_pointEntityDef);
+    CHECK(entityNode->entity().origin() == vm::vec3{16.0, 32.0, 48.0});
+    CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{entityNode});
+  }
+
+  SECTION("Selected objects are deselect and not translated") {
+    auto* existingNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+    document->selectNodes({existingNode});
+
+    const auto origin = existingNode->entity().origin();
+    document->createPointEntity(m_pointEntityDef, {16, 16, 16});
+
+    CHECK(existingNode->entity().origin() == origin);
+  }
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity") {
+  document->selectAllNodes();
+  document->deleteObjects();
+
+  SECTION("Brush entity is created and selected") {
+    auto* brushNode = createBrushNode("some_texture");
+    document->addNodes({{document->parentForNodes(), {brushNode}}});
+
+    document->selectNodes({brushNode});
+    auto* entityNode = document->createBrushEntity(m_brushEntityDef);
+    CHECK(entityNode != nullptr);
+    CHECK(entityNode->entity().definition() == m_brushEntityDef);
+    CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{brushNode});
+  }
+
+  SECTION("Copies properties from existing brush entity") {
+    auto* brushNode1 = createBrushNode("some_texture");
+    auto* brushNode2 = createBrushNode("some_texture");
+    auto* brushNode3 = createBrushNode("some_texture");
+    document->addNodes({{document->parentForNodes(), {brushNode1, brushNode2, brushNode3}}});
+
+    document->selectNodes({brushNode1, brushNode2, brushNode3});
+    auto* previousEntityNode = document->createBrushEntity(m_brushEntityDef);
+
+    document->setProperty("prop", "value");
+    REQUIRE(previousEntityNode->entity().hasProperty("prop", "value"));
+
+    document->deselectAll();
+    document->selectNodes({brushNode1, brushNode2});
+
+    auto* newEntityNode = document->createBrushEntity(m_brushEntityDef);
+    CHECK(newEntityNode != nullptr);
+    CHECK(newEntityNode->entity().hasProperty("prop", "value"));
+  }
+}
+
 } // namespace View
 } // namespace TrenchBroom
