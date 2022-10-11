@@ -1572,6 +1572,7 @@ Model::EntityNode* MapDocument::createPointEntity(
     m_world->entityPropertyConfig(), {{Model::EntityPropertyKeys::Classname, definition->name()}}}};
 
   auto transaction = Transaction{*this, "Create " + definition->name()};
+  deselectAll();
   if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
     transaction.cancel();
     return nullptr;

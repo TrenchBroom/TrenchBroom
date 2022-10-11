@@ -303,14 +303,14 @@ private:
   bool pasteBrushFaces(const std::vector<Model::BrushFace>& faces);
 
 public: // point file management
-  void loadPointFile(const IO::Path path);
+  void loadPointFile(IO::Path path);
   bool isPointFileLoaded() const;
   bool canReloadPointFile() const;
   void reloadPointFile();
   void unloadPointFile();
 
 public: // portal file management
-  void loadPortalFile(const IO::Path path);
+  void loadPortalFile(IO::Path path);
   bool isPortalFileLoaded() const;
   bool canReloadPortalFile() const;
   void reloadPortalFile();
@@ -550,7 +550,7 @@ public: // modifying entity properties, declared in MapFacade interface
   bool removeProperty(const std::string& key) override;
 
   bool convertEntityColorRange(const std::string& key, Assets::ColorRange::Type range) override;
-  bool updateSpawnflag(const std::string& key, const size_t flagIndex, const bool setFlag) override;
+  bool updateSpawnflag(const std::string& key, size_t flagIndex, bool setFlag) override;
 
   bool setProtectedProperty(const std::string& key, bool value);
   bool clearProtectedProperties();
@@ -566,7 +566,7 @@ public:
   bool copyTexCoordSystemFromFace(
     const Model::TexCoordSystemSnapshot& coordSystemSnapshot,
     const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane,
-    const Model::WrapStyle wrapStyle);
+    Model::WrapStyle wrapStyle);
   bool moveTextures(
     const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) override;
   bool rotateTextures(float angle) override;
