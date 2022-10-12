@@ -1294,7 +1294,7 @@ Model::Node* MapViewBase::findNewGroupForObjects(const std::vector<Model::Node*>
   const auto hits = pickResult().all(type(Model::nodeHitType()));
   if (!hits.empty()) {
     auto* newGroup = Model::findOutermostClosedGroup(Model::hitToNode(hits.front()));
-    if (canReparentNodes(nodes, newGroup)) {
+    if (newGroup && canReparentNodes(nodes, newGroup)) {
       return newGroup;
     }
   }
