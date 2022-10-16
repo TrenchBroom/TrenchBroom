@@ -1,5 +1,4 @@
 # Using target_link_library to link an object library to qt requires 3.12
-# 3.12.4 is the maximum version supported on travis / linux out of the box
 # 3.14 is required for generator expressions in install(CODE)
 cmake_minimum_required(VERSION 3.14)
 
