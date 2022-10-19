@@ -11,7 +11,7 @@ pandoc --version
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_PREFIX_PATH="cmake/packages" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" -DTB_SUPPRESS_PCH=1 || exit 1
+cmake .. -GNinja -DCMAKE_PREFIX_PATH="cmake/packages" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--fatal-warnings" -DTB_SUPPRESS_PCH=1 || exit 1
 cmake --build . --config Release || exit 1
 
 # Run tests (wxgtk needs an X server running for the app to initialize)
