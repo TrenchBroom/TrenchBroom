@@ -47,10 +47,6 @@ private:
 public:
   /**
    * Creates a new parser for Wavefront OBJ models.
-   *
-   * @param name the name of the model
-   * @param begin the start of the text
-   * @param end the end of the text
    */
   ObjParser(const std::string& name, std::string_view text);
 

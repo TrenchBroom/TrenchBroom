@@ -543,10 +543,6 @@ protected:
   /**
    * Creates a new buffered reader for the given memory region. If the given buffer is not nullptr,
    * it will be moved into this object and it will be destroyed when this object is destroyed.
-   *
-   * @param begin the beginning of the memory region
-   * @param end the end of the memory region (the position after the last byte)
-   * @param buffer the buffer to intern into this object
    */
   explicit BufferedReader(std::unique_ptr<BufferSource> source);
 

@@ -25,10 +25,6 @@ integrated into TrenchBroom's build system and will download and build all depen
 Cmake's configure phase. This is an automatic process, but it can take a little while when it
 happens for the first time.
 
-vcpkg is integrated into cmake by means of a toolchain file. This is a cmake file that is generated
-by vcpkg and must be passed to cmake via a commandline argument,
-`-DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake` (see below).
-
 ---
 
 ## Windows
@@ -69,12 +65,12 @@ Then, execute this command to configure the project:
 
 - For 32-bit:
 ```bash
-cmake .. -G "Visual Studio 16 2019" -T v142 -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017" -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake .. -G "Visual Studio 16 2019" -T v142 -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
 ```
 
 - For 64-bit:
 ```bash
-cmake .. -G "Visual Studio 16 2019" -T v142 -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017_64" -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake .. -G "Visual Studio 16 2019" -T v142 -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017_64"
 ```
 
 > **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
@@ -120,7 +116,7 @@ cd <path/to/TrenchBroom>/build
 Then, execute this command to configure the project:
 
 ```bash
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="cmake/packages" -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="cmake/packages"
 cmake --build . --target TrenchBroom
 ```
 
@@ -151,7 +147,7 @@ Finally, build the project:
 ```bash
 mkdir build-xcode
 cd build-xcode
-cmake .. -GXcode -DCMAKE_PREFIX_PATH="$(brew --prefix qt)" -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake .. -GXcode -DCMAKE_PREFIX_PATH="$(brew --prefix qt)"
 open TrenchBroom.xcodeproj
 ```
 

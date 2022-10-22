@@ -1,5 +1,4 @@
 # Using target_link_library to link an object library to qt requires 3.12
-# 3.12.4 is the maximum version supported on travis / linux out of the box
 # 3.14 is required for generator expressions in install(CODE)
 cmake_minimum_required(VERSION 3.14)
 
@@ -16,6 +15,9 @@ endif()
 if(POLICY CMP0063)
   cmake_policy(SET CMP0063 NEW)
 endif()
+
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
+set(VCPKG_OVERLAY_PORTS "${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/poly2tri;${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/freeimage;${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/openexr")
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
