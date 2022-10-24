@@ -41,19 +41,23 @@
 #include <sstream>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 ReplaceTextureDialog::ReplaceTextureDialog(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QDialog(parent)
   , m_document(document)
   , m_subjectBrowser(nullptr)
   , m_replacementBrowser(nullptr)
-  , m_replaceButton(nullptr) {
+  , m_replaceButton(nullptr)
+{
   createGui(contextManager);
 }
 
-void ReplaceTextureDialog::accept() {
+void ReplaceTextureDialog::accept()
+{
   const auto* subject = m_subjectBrowser->selectedTexture();
   ensure(subject != nullptr, "subject is null");
 
@@ -63,9 +67,12 @@ void ReplaceTextureDialog::accept() {
   auto document = kdl::mem_lock(m_document);
   const auto faces = getApplicableFaces();
 
-  if (faces.empty()) {
+  if (faces.empty())
+  {
     QMessageBox::warning(
-      this, tr("Replace Failed"), tr("None of the selected faces has the selected texture"));
+      this,
+      tr("Replace Failed"),
+      tr("None of the selected faces has the selected texture"));
     return;
   }
 
@@ -74,35 +81,39 @@ void ReplaceTextureDialog::accept() {
 
   auto transaction = Transaction{document, "Replace Textures"};
   document->selectBrushFaces(faces);
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     transaction.cancel();
     return;
   }
   transaction.commit();
 
   auto msg = std::stringstream{};
-  msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on "
-      << faces.size() << " faces.";
+  msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name()
+      << "' on " << faces.size() << " faces.";
 
-  QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg.str()));
+  QMessageBox::information(
+    this, tr("Replace Succeeded"), QString::fromStdString(msg.str()));
 }
 
-std::vector<Model::BrushFaceHandle> ReplaceTextureDialog::getApplicableFaces() const {
+std::vector<Model::BrushFaceHandle> ReplaceTextureDialog::getApplicableFaces() const
+{
   const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
   ensure(subject != nullptr, "subject is null");
 
   auto document = kdl::mem_lock(m_document);
   auto faces = document->allSelectedBrushFaces();
-  if (faces.empty()) {
+  if (faces.empty())
+  {
     faces = Model::collectBrushFaces(std::vector<Model::Node*>{document->world()});
   }
 
-  return kdl::vec_filter(faces, [&](const auto& handle) {
-    return handle.face().texture() == subject;
-  });
+  return kdl::vec_filter(
+    faces, [&](const auto& handle) { return handle.face().texture() == subject; });
 }
 
-void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {
+void ReplaceTextureDialog::createGui(GLContextManager& contextManager)
+{
   setWindowIconTB(this);
   setWindowTitle(tr("Replace Texture"));
 
@@ -110,7 +121,9 @@ void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {
   m_subjectBrowser = new TextureBrowser(m_document, contextManager);
   m_subjectBrowser->setHideUnused(true);
   connect(
-    m_subjectBrowser, &TextureBrowser::textureSelected, this,
+    m_subjectBrowser,
+    &TextureBrowser::textureSelected,
+    this,
     &ReplaceTextureDialog::subjectSelected);
 
   auto* subjectPanelLayout = new QVBoxLayout();
@@ -123,7 +136,9 @@ void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {
   m_replacementBrowser = new TextureBrowser(m_document, contextManager);
   m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
   connect(
-    m_replacementBrowser, &TextureBrowser::textureSelected, this,
+    m_replacementBrowser,
+    &TextureBrowser::textureSelected,
+    this,
     &ReplaceTextureDialog::replacementSelected);
 
   auto* replacementPanelLayout = new QVBoxLayout();
@@ -161,15 +176,18 @@ void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {
   setMinimumSize(650, 450);
 }
 
-void ReplaceTextureDialog::subjectSelected(const Assets::Texture* /* subject */) {
+void ReplaceTextureDialog::subjectSelected(const Assets::Texture* /* subject */)
+{
   updateReplaceButton();
 }
 
-void ReplaceTextureDialog::replacementSelected(const Assets::Texture* /* replacement */) {
+void ReplaceTextureDialog::replacementSelected(const Assets::Texture* /* replacement */)
+{
   updateReplaceButton();
 }
 
-void ReplaceTextureDialog::updateReplaceButton() {
+void ReplaceTextureDialog::updateReplaceButton()
+{
   const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
   const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
   m_replaceButton->setEnabled(subject != nullptr && replacement != nullptr);

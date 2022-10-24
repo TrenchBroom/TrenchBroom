@@ -29,17 +29,21 @@
 
 class QKeyEvent;
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Renderer {
+namespace Renderer
+{
 class PerspectiveCamera;
 }
 
-namespace View {
+namespace View
+{
 class FlyModeHelper;
 
-class MapView3D : public MapViewBase {
+class MapView3D : public MapViewBase
+{
   Q_OBJECT
 private:
   std::unique_ptr<Renderer::PerspectiveCamera> m_camera;
@@ -50,8 +54,11 @@ private:
 
 public:
   MapView3D(
-    std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
-    GLContextManager& contextManager, Logger* logger);
+    std::weak_ptr<MapDocument> document,
+    MapViewToolBox& toolBox,
+    Renderer::MapRenderer& renderer,
+    GLContextManager& contextManager,
+    Logger* logger);
   ~MapView3D() override;
 
 private:
@@ -99,7 +106,9 @@ private: // implement MapView interface
 
   void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
   void animateCamera(
-    const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up,
+    const vm::vec3f& position,
+    const vm::vec3f& direction,
+    const vm::vec3f& up,
     const int duration = DefaultCameraAnimationDuration);
 
   void doMoveCameraToCurrentTracePoint() override;
@@ -119,10 +128,12 @@ private: // implement MapViewBase interface
   void doRenderGrid(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
   void doRenderMap(
-    Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext,
+    Renderer::MapRenderer& renderer,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
   void doRenderTools(
-    MapViewToolBox& toolBox, Renderer::RenderContext& renderContext,
+    MapViewToolBox& toolBox,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
   void doRenderSoftWorldBounds(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;

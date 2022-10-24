@@ -19,9 +19,12 @@
 
 #pragma once
 
-namespace TrenchBroom {
-namespace Model {
-struct DefaultPolyhedronPayload {
+namespace TrenchBroom
+{
+namespace Model
+{
+struct DefaultPolyhedronPayload
+{
   using Type = char;
   static Type defaultValue() { return '0'; }
 };

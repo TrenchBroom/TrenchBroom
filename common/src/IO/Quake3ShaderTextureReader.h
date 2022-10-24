@@ -23,32 +23,37 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Quake3Shader;
 }
 
-namespace IO {
+namespace IO
+{
 class File;
 class FileSystem;
 class Path;
 
 /**
- * Loads a texture that represents a Quake 3 shader from the file system. Uses a given file system
- * to locate the actual editor image for the shader. The shader is expected to be readily parsed and
- * available as a virtual object file in the file system.
+ * Loads a texture that represents a Quake 3 shader from the file system. Uses a given
+ * file system to locate the actual editor image for the shader. The shader is expected to
+ * be readily parsed and available as a virtual object file in the file system.
  */
-class Quake3ShaderTextureReader : public TextureReader {
+class Quake3ShaderTextureReader : public TextureReader
+{
 public:
   /**
-   * Creates a texture reader using the given name strategy and file system to locate the texture
-   * image.
+   * Creates a texture reader using the given name strategy and file system to locate the
+   * texture image.
    *
    * @param nameStrategy the strategy to determine the texture name
    * @param fs the file system to use when locating the texture image
    * @param logger the logger to use
    */
-  Quake3ShaderTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  Quake3ShaderTextureReader(
+    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
 
 private:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;

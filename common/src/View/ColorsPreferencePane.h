@@ -25,10 +25,12 @@ class QWidget;
 class QTableView;
 class QSortFilterProxyModel;
 
-namespace TrenchBroom::View {
+namespace TrenchBroom::View
+{
 class ColorModel;
 
-class ColorsPreferencePane : public PreferencePane {
+class ColorsPreferencePane : public PreferencePane
+{
   Q_OBJECT
 private:
   QTableView* m_table;

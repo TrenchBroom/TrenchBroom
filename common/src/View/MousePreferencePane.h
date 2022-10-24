@@ -24,14 +24,18 @@
 class QCheckBox;
 class QKeySequence;
 
-namespace TrenchBroom {
-template <typename T> class Preference;
+namespace TrenchBroom
+{
+template <typename T>
+class Preference;
 
-namespace View {
+namespace View
+{
 class KeySequenceEdit;
 class SliderWithLabel;
 
-class MousePreferencePane : public PreferencePane {
+class MousePreferencePane : public PreferencePane
+{
 private:
   SliderWithLabel* m_lookSpeedSlider;
   QCheckBox* m_invertLookHAxisCheckBox;

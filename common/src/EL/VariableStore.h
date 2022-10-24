@@ -26,9 +26,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace EL {
-class VariableStore {
+namespace TrenchBroom
+{
+namespace EL
+{
+class VariableStore
+{
 public:
   VariableStore() = default;
   VariableStore(const VariableStore& other) = default;
@@ -51,7 +54,8 @@ std::ostream& operator<<(std::ostream& lhs, const VariableStore& rhs);
 bool operator==(const VariableStore& lhs, const VariableStore& rhs);
 bool operator!=(const VariableStore& lhs, const VariableStore& rhs);
 
-class VariableTable : public VariableStore {
+class VariableTable : public VariableStore
+{
 private:
   using Table = std::map<std::string, Value>;
   Table m_variables;
@@ -68,7 +72,8 @@ public:
   void assign(const std::string& name, const Value& value) override;
 };
 
-class NullVariableStore : public VariableStore {
+class NullVariableStore : public VariableStore
+{
 public:
   NullVariableStore();
 

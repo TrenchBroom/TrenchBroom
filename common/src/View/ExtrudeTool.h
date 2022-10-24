@@ -37,28 +37,34 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushFace;
 class Hit;
 class Node;
 class PickResult;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class Camera;
 }
 
-namespace View {
+namespace View
+{
 class Grid;
 class MapDocument;
 class Selection;
 
 /**
- * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the drag.
- * We need this to be able to make decisions about the drag before reverting the transaction.
+ * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the
+ * drag. We need this to be able to make decisions about the drag before reverting the
+ * transaction.
  */
-struct ExtrudeDragHandle {
+struct ExtrudeDragHandle
+{
   Model::BrushFaceHandle faceHandle;
   Model::Brush brushAtDragStart;
 
@@ -70,7 +76,8 @@ struct ExtrudeDragHandle {
   kdl_reflect_decl(ExtrudeDragHandle, faceHandle);
 };
 
-struct ExtrudeDragState {
+struct ExtrudeDragState
+{
   /** The drag handles when the drag started. */
   std::vector<ExtrudeDragHandle> initialDragHandles;
   /** The faces being dragged. */
@@ -85,7 +92,8 @@ struct ExtrudeDragState {
     ExtrudeDragState, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
 };
 
-struct ExtrudeHitData {
+struct ExtrudeHitData
+{
   Model::BrushFaceHandle face;
   std::variant<vm::plane3, vm::line3> dragReference;
   vm::vec3 initialHandlePosition;
@@ -100,16 +108,17 @@ struct ExtrudeHitData {
  *  - split brushes outward/inward (Ctrl+Shift+LMB Drag)
  *  - move faces (Alt+Shift+LMB Drag, 2D views only)
  */
-class ExtrudeTool : public Tool {
+class ExtrudeTool : public Tool
+{
 public:
   static const Model::HitType::Type ExtrudeHitType;
 
 private:
   std::weak_ptr<MapDocument> m_document;
   /**
-   * Propsed drag handles for the next drag. Should only be accessed when m_dragging is false.
-   * This needs to be cached here so that it is shared between multiple views. Otherwise, we cannot
-   * show the proposed drag handles in all views.
+   * Propsed drag handles for the next drag. Should only be accessed when m_dragging is
+   * false. This needs to be cached here so that it is shared between multiple views.
+   * Otherwise, we cannot show the proposed drag handles in all views.
    */
   std::vector<ExtrudeDragHandle> m_proposedDragHandles;
   bool m_dragging;
@@ -127,7 +136,8 @@ public:
   Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) const;
 
   /**
-   * Returns the current proposed drag handles as per the last call to updateProposedDragHandles.
+   * Returns the current proposed drag handles as per the last call to
+   * updateProposedDragHandles.
    */
   const std::vector<ExtrudeDragHandle>& proposedDragHandles() const;
 

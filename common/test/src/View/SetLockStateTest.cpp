@@ -36,9 +36,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.lockStateChanges") {
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.lockStateChanges")
+{
   auto* brushNode = createBrushNode();
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   auto* patchNode = createPatchNode();
@@ -46,7 +49,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.lockStateChanges") {
   auto* entityNodeInGroup = new Model::EntityNode{Model::Entity{}};
 
   document->addNodes(
-    {{document->parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
+    {{document->parentForNodes(),
+      {brushNode, entityNode, patchNode, entityNodeInGroup}}});
   document->deselectAll();
   document->selectNodes({entityNodeInGroup});
 
@@ -82,7 +86,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.lockStateChanges") {
   CHECK_FALSE(layerNode->locked());
 }
 
-TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.modificationCount") {
+TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.modificationCount")
+{
   auto* brushNode = createBrushNode();
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   auto* patchNode = createPatchNode();
@@ -90,7 +95,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.modificationCount") {
   auto* entityNodeInGroup = new Model::EntityNode{Model::Entity{}};
 
   document->addNodes(
-    {{document->parentForNodes(), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
+    {{document->parentForNodes(),
+      {brushNode, entityNode, patchNode, entityNodeInGroup}}});
   document->deselectAll();
   document->selectNodes({entityNodeInGroup});
 
@@ -115,7 +121,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.modificationCount") {
   CHECK(document->modificationCount() == originalModificationCount);
 }
 
-TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection") {
+TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection")
+{
   auto* selectedBrushNode = createBrushNode();
   auto* unselectedBrushNode = createBrushNode();
   auto* unlockedBrushNode = createBrushNode();
@@ -127,12 +134,14 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection") {
   document->addNodes(
     {{document->world()->defaultLayer(), {selectedBrushNode, unselectedBrushNode}}});
 
-  SECTION("Node selection") {
+  SECTION("Node selection")
+  {
     document->selectNodes({selectedBrushNode, unlockedBrushNode});
 
     REQUIRE_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
+      Catch::UnorderedEquals(
+        std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
     document->lock({document->world()->defaultLayer()});
     CHECK_THAT(
       document->selectedNodes().nodes(),
@@ -141,10 +150,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection") {
     document->undoCommand();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
+      Catch::UnorderedEquals(
+        std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
   }
 
-  SECTION("Brush face selection") {
+  SECTION("Brush face selection")
+  {
     document->selectBrushFaces(
       {{selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}});
 
@@ -156,7 +167,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection") {
     document->lock({document->world()->defaultLayer()});
     CHECK_THAT(
       document->selectedBrushFaces(),
-      Catch::UnorderedEquals(std::vector<Model::BrushFaceHandle>{{unlockedBrushNode, 0}}));
+      Catch::UnorderedEquals(
+        std::vector<Model::BrushFaceHandle>{{unlockedBrushNode, 0}}));
 
     document->undoCommand();
     CHECK_THAT(

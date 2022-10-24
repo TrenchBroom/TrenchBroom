@@ -26,19 +26,27 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 TitleBar::TitleBar(
-  const QString& title, QWidget* parent, const int hMargin, const int vMargin, const bool boldTitle)
+  const QString& title,
+  QWidget* parent,
+  const int hMargin,
+  const int vMargin,
+  const bool boldTitle)
   : QWidget(parent)
-  , m_titleText(nullptr) {
+  , m_titleText(nullptr)
+{
   m_titleText = new QLabel(title);
 
-  // Tell ControlListBox to not update the title label's color when the selection changes, in case
-  // this widget is used inside of a ControlListBox.
+  // Tell ControlListBox to not update the title label's color when the selection changes,
+  // in case this widget is used inside of a ControlListBox.
   m_titleText->setProperty(ControlListBox::LabelColorShouldNotUpdateWhenSelected, true);
 
-  if (boldTitle) {
+  if (boldTitle)
+  {
     makeEmphasized(m_titleText);
   }
 
@@ -49,7 +57,10 @@ TitleBar::TitleBar(
   setLayout(layout);
 }
 
-TitleBar::TitleBar(const QString& title, const int hMargin, const int vMargin, const bool boldTitle)
-  : TitleBar(title, nullptr, hMargin, vMargin, boldTitle) {}
+TitleBar::TitleBar(
+  const QString& title, const int hMargin, const int vMargin, const bool boldTitle)
+  : TitleBar(title, nullptr, hMargin, vMargin, boldTitle)
+{
+}
 } // namespace View
 } // namespace TrenchBroom

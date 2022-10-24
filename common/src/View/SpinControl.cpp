@@ -26,43 +26,56 @@
 
 #include <cassert>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 SpinControl::SpinControl(QWidget* parent)
   : QDoubleSpinBox(parent)
   , m_regularIncrement(1.0)
   , m_shiftIncrement(2.0)
   , m_ctrlIncrement(4.0)
   , m_minDigits(0)
-  , m_maxDigits(6) {
+  , m_maxDigits(6)
+{
   setKeyboardTracking(false);
   updateTooltip();
 }
 
-void SpinControl::stepBy(int steps) {
-  if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier) {
+void SpinControl::stepBy(int steps)
+{
+  if (QGuiApplication::keyboardModifiers() & Qt::ShiftModifier)
+  {
     setSingleStep(m_shiftIncrement);
-  } else if (QGuiApplication::keyboardModifiers() & Qt::ControlModifier) {
+  }
+  else if (QGuiApplication::keyboardModifiers() & Qt::ControlModifier)
+  {
     setSingleStep(m_ctrlIncrement);
     // QAbstractSpinBox steps by +/-10 if control is held (on most platforms; see #3373)
     steps = (steps > 0) ? 1 : -1;
-  } else {
+  }
+  else
+  {
     setSingleStep(m_regularIncrement);
   }
 
   QDoubleSpinBox::stepBy(steps);
 }
 
-QString SpinControl::textFromValue(const double val) const {
+QString SpinControl::textFromValue(const double val) const
+{
   auto str = QDoubleSpinBox::textFromValue(val);
 
-  if (m_minDigits < m_maxDigits) {
+  if (m_minDigits < m_maxDigits)
+  {
     const auto zero = locale().zeroDigit();
-    while (str.length() > m_minDigits && str[str.length() - 1] == zero) {
+    while (str.length() > m_minDigits && str[str.length() - 1] == zero)
+    {
       str.chop(1);
     }
     const auto dec = locale().decimalPoint();
-    if (!str.isEmpty() && str[str.length() - 1] == dec) {
+    if (!str.isEmpty() && str[str.length() - 1] == dec)
+    {
       assert(m_minDigits == 0);
       str.chop(1);
     }
@@ -72,18 +85,21 @@ QString SpinControl::textFromValue(const double val) const {
 }
 
 void SpinControl::setIncrements(
-  const double regularIncrement, const double shiftIncrement, const double ctrlIncrement) {
+  const double regularIncrement, const double shiftIncrement, const double ctrlIncrement)
+{
   m_regularIncrement = regularIncrement;
   m_shiftIncrement = shiftIncrement;
   m_ctrlIncrement = ctrlIncrement;
   updateTooltip();
 }
 
-void SpinControl::setDigits(const int /* minDigits */, const int maxDigits) {
+void SpinControl::setDigits(const int /* minDigits */, const int maxDigits)
+{
   setDecimals(maxDigits);
 }
 
-void SpinControl::updateTooltip() {
+void SpinControl::updateTooltip()
+{
   setToolTip(tr("Increment: %1 (%2: %3, %4: %5)")
                .arg(QString::fromStdString(kdl::str_to_string(m_regularIncrement)))
                .arg(nativeModifierLabel(Qt::SHIFT))

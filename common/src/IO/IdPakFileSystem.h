@@ -23,11 +23,14 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 
-class IdPakFileSystem : public ImageFileSystem {
+class IdPakFileSystem : public ImageFileSystem
+{
 public:
   explicit IdPakFileSystem(const Path& path);
   IdPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path);

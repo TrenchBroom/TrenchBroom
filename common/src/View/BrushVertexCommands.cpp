@@ -24,87 +24,125 @@
 
 #include <kdl/vector_utils.h>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 BrushVertexCommandBase::BrushVertexCommandBase(
-  const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
-  : SwapNodeContentsCommand{name, std::move(nodes)} {}
+  const std::string& name,
+  std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
+  : SwapNodeContentsCommand{name, std::move(nodes)}
+{
+}
 
 std::unique_ptr<CommandResult> BrushVertexCommandBase::doPerformDo(
-  MapDocumentCommandFacade* document) {
+  MapDocumentCommandFacade* document)
+{
   return createCommandResult(SwapNodeContentsCommand::doPerformDo(document));
 }
 
 std::unique_ptr<CommandResult> BrushVertexCommandBase::createCommandResult(
-  std::unique_ptr<CommandResult> swapResult) {
+  std::unique_ptr<CommandResult> swapResult)
+{
   return swapResult;
 }
 
 static auto collectBrushNodes(
-  const std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes) {
+  const std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
+{
   auto result = std::vector<Model::BrushNode*>{};
-  for (const auto& [node, contents] : nodes) {
-    if (auto* brushNode = dynamic_cast<Model::BrushNode*>(node)) {
+  for (const auto& [node, contents] : nodes)
+  {
+    if (auto* brushNode = dynamic_cast<Model::BrushNode*>(node))
+    {
       result.push_back(brushNode);
     }
   }
   return result;
 }
 
-void BrushVertexCommandBase::removeHandles(VertexHandleManagerBase& manager) {
+void BrushVertexCommandBase::removeHandles(VertexHandleManagerBase& manager)
+{
   const auto nodes = collectBrushNodes(m_nodes);
   manager.removeHandles(std::begin(nodes), std::end(nodes));
 }
 
-void BrushVertexCommandBase::addHandles(VertexHandleManagerBase& manager) {
+void BrushVertexCommandBase::addHandles(VertexHandleManagerBase& manager)
+{
   const auto nodes = collectBrushNodes(m_nodes);
   manager.addHandles(std::begin(nodes), std::end(nodes));
 }
 
-void BrushVertexCommandBase::selectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>&) const {}
-void BrushVertexCommandBase::selectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>&) const {}
 void BrushVertexCommandBase::selectNewHandlePositions(
-  VertexHandleManagerBaseT<vm::segment3>&) const {}
+  VertexHandleManagerBaseT<vm::vec3>&) const
+{
+}
 void BrushVertexCommandBase::selectOldHandlePositions(
-  VertexHandleManagerBaseT<vm::segment3>&) const {}
+  VertexHandleManagerBaseT<vm::vec3>&) const
+{
+}
 void BrushVertexCommandBase::selectNewHandlePositions(
-  VertexHandleManagerBaseT<vm::polygon3>&) const {}
+  VertexHandleManagerBaseT<vm::segment3>&) const
+{
+}
 void BrushVertexCommandBase::selectOldHandlePositions(
-  VertexHandleManagerBaseT<vm::polygon3>&) const {}
+  VertexHandleManagerBaseT<vm::segment3>&) const
+{
+}
+void BrushVertexCommandBase::selectNewHandlePositions(
+  VertexHandleManagerBaseT<vm::polygon3>&) const
+{
+}
+void BrushVertexCommandBase::selectOldHandlePositions(
+  VertexHandleManagerBaseT<vm::polygon3>&) const
+{
+}
 
 BrushVertexCommandResult::BrushVertexCommandResult(
   const bool success, const bool hasRemainingVertices)
   : CommandResult{success}
-  , m_hasRemainingVertices{hasRemainingVertices} {}
+  , m_hasRemainingVertices{hasRemainingVertices}
+{
+}
 
-bool BrushVertexCommandResult::hasRemainingVertices() const {
+bool BrushVertexCommandResult::hasRemainingVertices() const
+{
   return m_hasRemainingVertices;
 }
 
 BrushVertexCommand::BrushVertexCommand(
-  const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<vm::vec3> oldVertexPositions, std::vector<vm::vec3> newVertexPositions)
+  const std::string& name,
+  std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
+  std::vector<vm::vec3> oldVertexPositions,
+  std::vector<vm::vec3> newVertexPositions)
   : BrushVertexCommandBase{name, std::move(nodes)}
   , m_oldVertexPositions{std::move(oldVertexPositions)}
-  , m_newVertexPositions{std::move(newVertexPositions)} {}
+  , m_newVertexPositions{std::move(newVertexPositions)}
+{
+}
 
 std::unique_ptr<CommandResult> BrushVertexCommand::createCommandResult(
-  std::unique_ptr<CommandResult> swapResult) {
+  std::unique_ptr<CommandResult> swapResult)
+{
   return std::make_unique<BrushVertexCommandResult>(
     swapResult->success(), !m_newVertexPositions.empty());
 }
 
-bool BrushVertexCommand::doCollateWith(UndoableCommand& command) {
+bool BrushVertexCommand::doCollateWith(UndoableCommand& command)
+{
   auto* other = dynamic_cast<BrushVertexCommand*>(&command);
-  if (other == nullptr) {
+  if (other == nullptr)
+  {
     return false;
   }
 
-  if (m_newVertexPositions != other->m_oldVertexPositions) {
+  if (m_newVertexPositions != other->m_oldVertexPositions)
+  {
     return false;
   }
 
-  if (!SwapNodeContentsCommand::doCollateWith(command)) {
+  if (!SwapNodeContentsCommand::doCollateWith(command))
+  {
     return false;
   }
 
@@ -114,33 +152,43 @@ bool BrushVertexCommand::doCollateWith(UndoableCommand& command) {
 }
 
 void BrushVertexCommand::selectNewHandlePositions(
-  VertexHandleManagerBaseT<vm::vec3>& manager) const {
+  VertexHandleManagerBaseT<vm::vec3>& manager) const
+{
   manager.select(std::begin(m_newVertexPositions), std::end(m_newVertexPositions));
 }
 
 void BrushVertexCommand::selectOldHandlePositions(
-  VertexHandleManagerBaseT<vm::vec3>& manager) const {
+  VertexHandleManagerBaseT<vm::vec3>& manager) const
+{
   manager.select(std::begin(m_oldVertexPositions), std::end(m_oldVertexPositions));
 }
 
 BrushEdgeCommand::BrushEdgeCommand(
-  const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions)
+  const std::string& name,
+  std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
+  std::vector<vm::segment3> oldEdgePositions,
+  std::vector<vm::segment3> newEdgePositions)
   : BrushVertexCommandBase{name, std::move(nodes)}
   , m_oldEdgePositions{std::move(oldEdgePositions)}
-  , m_newEdgePositions{std::move(newEdgePositions)} {}
+  , m_newEdgePositions{std::move(newEdgePositions)}
+{
+}
 
-bool BrushEdgeCommand::doCollateWith(UndoableCommand& command) {
+bool BrushEdgeCommand::doCollateWith(UndoableCommand& command)
+{
   auto* other = dynamic_cast<BrushEdgeCommand*>(&command);
-  if (other == nullptr) {
+  if (other == nullptr)
+  {
     return false;
   }
 
-  if (m_newEdgePositions != other->m_oldEdgePositions) {
+  if (m_newEdgePositions != other->m_oldEdgePositions)
+  {
     return false;
   }
 
-  if (!SwapNodeContentsCommand::doCollateWith(command)) {
+  if (!SwapNodeContentsCommand::doCollateWith(command))
+  {
     return false;
   }
 
@@ -150,33 +198,43 @@ bool BrushEdgeCommand::doCollateWith(UndoableCommand& command) {
 }
 
 void BrushEdgeCommand::selectNewHandlePositions(
-  VertexHandleManagerBaseT<vm::segment3>& manager) const {
+  VertexHandleManagerBaseT<vm::segment3>& manager) const
+{
   manager.select(std::begin(m_newEdgePositions), std::end(m_newEdgePositions));
 }
 
 void BrushEdgeCommand::selectOldHandlePositions(
-  VertexHandleManagerBaseT<vm::segment3>& manager) const {
+  VertexHandleManagerBaseT<vm::segment3>& manager) const
+{
   manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
 }
 
 BrushFaceCommand::BrushFaceCommand(
-  const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
-  std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions)
+  const std::string& name,
+  std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
+  std::vector<vm::polygon3> oldFacePositions,
+  std::vector<vm::polygon3> newFacePositions)
   : BrushVertexCommandBase{name, std::move(nodes)}
   , m_oldFacePositions{std::move(oldFacePositions)}
-  , m_newFacePositions{std::move(newFacePositions)} {}
+  , m_newFacePositions{std::move(newFacePositions)}
+{
+}
 
-bool BrushFaceCommand::doCollateWith(UndoableCommand& command) {
+bool BrushFaceCommand::doCollateWith(UndoableCommand& command)
+{
   auto* other = dynamic_cast<BrushFaceCommand*>(&command);
-  if (other == nullptr) {
+  if (other == nullptr)
+  {
     return false;
   }
 
-  if (m_newFacePositions != other->m_oldFacePositions) {
+  if (m_newFacePositions != other->m_oldFacePositions)
+  {
     return false;
   }
 
-  if (!SwapNodeContentsCommand::doCollateWith(command)) {
+  if (!SwapNodeContentsCommand::doCollateWith(command))
+  {
     return false;
   }
 
@@ -186,12 +244,14 @@ bool BrushFaceCommand::doCollateWith(UndoableCommand& command) {
 }
 
 void BrushFaceCommand::selectNewHandlePositions(
-  VertexHandleManagerBaseT<vm::polygon3>& manager) const {
+  VertexHandleManagerBaseT<vm::polygon3>& manager) const
+{
   manager.select(std::begin(m_newFacePositions), std::end(m_newFacePositions));
 }
 
 void BrushFaceCommand::selectOldHandlePositions(
-  VertexHandleManagerBaseT<vm::polygon3>& manager) const {
+  VertexHandleManagerBaseT<vm::polygon3>& manager) const
+{
   manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
 }
 } // namespace View

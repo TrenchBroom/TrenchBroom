@@ -44,23 +44,28 @@
 #include <QLineEdit>
 #include <QRadioButton>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 // MapInspector
 
 MapInspector::MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent)
   : TabBookPage(parent)
   , m_mapPropertiesEditor(nullptr)
-  , m_modEditor(nullptr) {
+  , m_modEditor(nullptr)
+{
   createGui(document);
 }
 
-MapInspector::~MapInspector() {
+MapInspector::~MapInspector()
+{
   saveWindowState(m_mapPropertiesEditor);
   saveWindowState(m_modEditor);
 }
 
-void MapInspector::createGui(std::weak_ptr<MapDocument> document) {
+void MapInspector::createGui(std::weak_ptr<MapDocument> document)
+{
   m_mapPropertiesEditor = createMapPropertiesEditor(document);
   m_modEditor = createModEditor(document);
 
@@ -76,7 +81,8 @@ void MapInspector::createGui(std::weak_ptr<MapDocument> document) {
   setLayout(sizer);
 }
 
-QWidget* MapInspector::createLayerEditor(std::weak_ptr<MapDocument> document) {
+QWidget* MapInspector::createLayerEditor(std::weak_ptr<MapDocument> document)
+{
   TitledPanel* titledPanel = new TitledPanel(tr("Layers"));
   LayerEditor* layerEditor = new LayerEditor(document);
 
@@ -89,7 +95,8 @@ QWidget* MapInspector::createLayerEditor(std::weak_ptr<MapDocument> document) {
 }
 
 CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(
-  std::weak_ptr<MapDocument> document) {
+  std::weak_ptr<MapDocument> document)
+{
   CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Map Properties"));
   titledPanel->setObjectName("MapInspector_MapPropertiesPanel");
 
@@ -105,7 +112,8 @@ CollapsibleTitledPanel* MapInspector::createMapPropertiesEditor(
   return titledPanel;
 }
 
-CollapsibleTitledPanel* MapInspector::createModEditor(std::weak_ptr<MapDocument> document) {
+CollapsibleTitledPanel* MapInspector::createModEditor(std::weak_ptr<MapDocument> document)
+{
   CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(tr("Mods"));
   titledPanel->setObjectName("MapInspector_ModsPanel");
 
@@ -123,7 +131,8 @@ CollapsibleTitledPanel* MapInspector::createModEditor(std::weak_ptr<MapDocument>
 
 // MapPropertiesEditor
 
-MapPropertiesEditor::MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
+MapPropertiesEditor::MapPropertiesEditor(
+  std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget(parent)
   , m_document(document)
   , m_updatingGui(false)
@@ -133,32 +142,43 @@ MapPropertiesEditor::MapPropertiesEditor(std::weak_ptr<MapDocument> document, QW
   , m_softBoundsFromGameMaxLabel(nullptr)
   , m_softBoundsFromMap(nullptr)
   , m_softBoundsFromMapMinEdit(nullptr)
-  , m_softBoundsFromMapMaxEdit(nullptr) {
+  , m_softBoundsFromMapMaxEdit(nullptr)
+{
   createGui();
   connectObservers();
 }
 
-static std::optional<vm::vec3> parseVec(const QString& qString) {
+static std::optional<vm::vec3> parseVec(const QString& qString)
+{
   const std::string string = qString.toStdString();
-  if (const auto vec = vm::parse<double, 3u>(string)) {
+  if (const auto vec = vm::parse<double, 3u>(string))
+  {
     return *vec;
-  } else if (const auto val = vm::parse<double, 1u>(string)) {
+  }
+  else if (const auto val = vm::parse<double, 1u>(string))
+  {
     return vm::vec3::fill(val->x());
-  } else {
+  }
+  else
+  {
     return std::nullopt;
   }
 }
 
-std::optional<vm::bbox3> MapPropertiesEditor::parseLineEdits() {
+std::optional<vm::bbox3> MapPropertiesEditor::parseLineEdits()
+{
   const auto min = parseVec(m_softBoundsFromMapMinEdit->text());
   const auto max = parseVec(m_softBoundsFromMapMaxEdit->text());
 
-  if (!min.has_value() || !max.has_value()) {
+  if (!min.has_value() || !max.has_value())
+  {
     return std::nullopt;
   }
 
-  for (size_t i = 0; i < 3; ++i) {
-    if ((*min)[i] >= (*max)[i]) {
+  for (size_t i = 0; i < 3; ++i)
+  {
+    if ((*min)[i] >= (*max)[i])
+    {
       return std::nullopt;
     }
   }
@@ -166,7 +186,8 @@ std::optional<vm::bbox3> MapPropertiesEditor::parseLineEdits() {
   return vm::bbox3(*min, *max);
 }
 
-void MapPropertiesEditor::createGui() {
+void MapPropertiesEditor::createGui()
+{
   m_softBoundsDisabled = new QRadioButton();
   auto* softBoundsDisabledLabel = new ClickableLabel(tr("Soft bounds disabled"));
 
@@ -219,7 +240,9 @@ void MapPropertiesEditor::createGui() {
 
   auto* gridLayout = new QGridLayout();
   gridLayout->setContentsMargins(
-    LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin,
+    LayoutConstants::MediumHMargin,
+    LayoutConstants::MediumVMargin,
+    LayoutConstants::MediumHMargin,
     LayoutConstants::MediumVMargin);
   gridLayout->setHorizontalSpacing(LayoutConstants::NarrowHMargin);
   gridLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
@@ -234,106 +257,137 @@ void MapPropertiesEditor::createGui() {
   setLayout(gridLayout);
 
   connect(
-    softBoundsDisabledLabel, &ClickableLabel::clicked, m_softBoundsDisabled,
+    softBoundsDisabledLabel,
+    &ClickableLabel::clicked,
+    m_softBoundsDisabled,
     &QAbstractButton::click);
   connect(
-    softBoundsFromGameLabel, &ClickableLabel::clicked, m_softBoundsFromGame,
+    softBoundsFromGameLabel,
+    &ClickableLabel::clicked,
+    m_softBoundsFromGame,
     &QAbstractButton::click);
   connect(
-    softBoundsFromMapLabel, &ClickableLabel::clicked, m_softBoundsFromMap, &QAbstractButton::click);
+    softBoundsFromMapLabel,
+    &ClickableLabel::clicked,
+    m_softBoundsFromMap,
+    &QAbstractButton::click);
 
-  connect(m_softBoundsDisabled, &QAbstractButton::clicked, this, [this](const bool checked) {
-    auto document = kdl::mem_lock(m_document);
-    if (checked) {
-      document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, std::nullopt});
-    }
-  });
-  connect(m_softBoundsFromGame, &QAbstractButton::clicked, this, [this](const bool checked) {
-    auto document = kdl::mem_lock(m_document);
-    if (checked) {
-      document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Game, std::nullopt});
-    }
-  });
-  connect(m_softBoundsFromMap, &QAbstractButton::clicked, this, [this](const bool checked) {
-    auto document = kdl::mem_lock(m_document);
-
-    m_softBoundsFromMapMinEdit->setEnabled(true);
-    m_softBoundsFromMapMaxEdit->setEnabled(true);
-
-    if (checked) {
-      const std::optional<vm::bbox3> parsed = parseLineEdits();
-      // Only commit the change to the document right now if both text fields can be parsed.
-      // Otherwise, it will be committed below in textEditingFinished once
-      // both text fields have a valid value entered.
-      if (parsed.has_value()) {
-        document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, parsed.value()});
+  connect(
+    m_softBoundsDisabled, &QAbstractButton::clicked, this, [this](const bool checked) {
+      auto document = kdl::mem_lock(m_document);
+      if (checked)
+      {
+        document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, std::nullopt});
       }
-    }
-  });
+    });
+  connect(
+    m_softBoundsFromGame, &QAbstractButton::clicked, this, [this](const bool checked) {
+      auto document = kdl::mem_lock(m_document);
+      if (checked)
+      {
+        document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Game, std::nullopt});
+      }
+    });
+  connect(
+    m_softBoundsFromMap, &QAbstractButton::clicked, this, [this](const bool checked) {
+      auto document = kdl::mem_lock(m_document);
+
+      m_softBoundsFromMapMinEdit->setEnabled(true);
+      m_softBoundsFromMapMaxEdit->setEnabled(true);
+
+      if (checked)
+      {
+        const std::optional<vm::bbox3> parsed = parseLineEdits();
+        // Only commit the change to the document right now if both text fields can be
+        // parsed. Otherwise, it will be committed below in textEditingFinished once both
+        // text fields have a valid value entered.
+        if (parsed.has_value())
+        {
+          document->setSoftMapBounds(
+            {Model::Game::SoftMapBoundsType::Map, parsed.value()});
+        }
+      }
+    });
 
   const auto textEditingFinished = [this]() {
     // QLineEdit::editingFinished is emitted not just in response to user actions,
-    // but also e.g. if another radio button is clicked and the min/max line edits get disabled.
-    // So unfortunately we need to check if we are inside updateGui() and avoid committing
-    // a change in that case.
-    if (m_updatingGui) {
+    // but also e.g. if another radio button is clicked and the min/max line edits get
+    // disabled. So unfortunately we need to check if we are inside updateGui() and avoid
+    // committing a change in that case.
+    if (m_updatingGui)
+    {
       return;
     }
     auto document = kdl::mem_lock(m_document);
 
     const std::optional<vm::bbox3> parsed = parseLineEdits();
-    if (parsed.has_value()) {
+    if (parsed.has_value())
+    {
       document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, parsed.value()});
     }
   };
-  connect(m_softBoundsFromMapMinEdit, &QLineEdit::editingFinished, this, textEditingFinished);
-  connect(m_softBoundsFromMapMaxEdit, &QLineEdit::editingFinished, this, textEditingFinished);
+  connect(
+    m_softBoundsFromMapMinEdit, &QLineEdit::editingFinished, this, textEditingFinished);
+  connect(
+    m_softBoundsFromMapMaxEdit, &QLineEdit::editingFinished, this, textEditingFinished);
 
   updateGui();
 }
 
-void MapPropertiesEditor::connectObservers() {
+void MapPropertiesEditor::connectObservers()
+{
   auto document = kdl::mem_lock(m_document);
-  m_notifierConnection +=
-    document->documentWasNewedNotifier.connect(this, &MapPropertiesEditor::documentWasNewed);
-  m_notifierConnection +=
-    document->documentWasLoadedNotifier.connect(this, &MapPropertiesEditor::documentWasLoaded);
+  m_notifierConnection += document->documentWasNewedNotifier.connect(
+    this, &MapPropertiesEditor::documentWasNewed);
+  m_notifierConnection += document->documentWasLoadedNotifier.connect(
+    this, &MapPropertiesEditor::documentWasLoaded);
   m_notifierConnection +=
     document->nodesDidChangeNotifier.connect(this, &MapPropertiesEditor::nodesDidChange);
 }
 
-void MapPropertiesEditor::documentWasNewed(MapDocument*) {
+void MapPropertiesEditor::documentWasNewed(MapDocument*)
+{
   updateGui();
 }
 
-void MapPropertiesEditor::documentWasLoaded(MapDocument*) {
+void MapPropertiesEditor::documentWasLoaded(MapDocument*)
+{
   updateGui();
 }
 
-void MapPropertiesEditor::nodesDidChange(const std::vector<Model::Node*>& nodes) {
+void MapPropertiesEditor::nodesDidChange(const std::vector<Model::Node*>& nodes)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document) {
+  if (!document)
+  {
     return;
   }
 
-  for (Model::Node* node : nodes) {
-    if (node == document->world()) {
+  for (Model::Node* node : nodes)
+  {
+    if (node == document->world())
+    {
       updateGui();
       return;
     }
   }
 }
 
-static QString formatVec(const std::optional<vm::bbox3>& bbox, const bool max) {
-  if (!bbox.has_value()) {
+static QString formatVec(const std::optional<vm::bbox3>& bbox, const bool max)
+{
+  if (!bbox.has_value())
+  {
     return QObject::tr("None");
   }
   const vm::vec3& vec = max ? bbox->max : bbox->min;
   std::stringstream str;
-  if (vec.x() == vec.y() && vec.y() == vec.z()) {
+  if (vec.x() == vec.y() && vec.y() == vec.z())
+  {
     // Just print the first component to save space
     str << vec.x();
-  } else {
+  }
+  else
+  {
     str << vec;
   }
   return QString::fromStdString(str.str());
@@ -342,16 +396,19 @@ static QString formatVec(const std::optional<vm::bbox3>& bbox, const bool max) {
 /**
  * Refresh the UI from the model
  */
-void MapPropertiesEditor::updateGui() {
+void MapPropertiesEditor::updateGui()
+{
   const kdl::set_temp flagChange(m_updatingGui, true);
 
   auto document = kdl::mem_lock(m_document);
-  if (!document) {
+  if (!document)
+  {
     return;
   }
 
   auto game = document->game();
-  if (game == nullptr) {
+  if (game == nullptr)
+  {
     return;
   }
 
@@ -361,12 +418,15 @@ void MapPropertiesEditor::updateGui() {
 
   const auto bounds = document->softMapBounds();
 
-  if (bounds.source == Model::Game::SoftMapBoundsType::Map && !bounds.bounds.has_value()) {
+  if (bounds.source == Model::Game::SoftMapBoundsType::Map && !bounds.bounds.has_value())
+  {
     m_softBoundsDisabled->setChecked(true);
 
     m_softBoundsFromMapMinEdit->setEnabled(false);
     m_softBoundsFromMapMaxEdit->setEnabled(false);
-  } else if (bounds.source == Model::Game::SoftMapBoundsType::Map) {
+  }
+  else if (bounds.source == Model::Game::SoftMapBoundsType::Map)
+  {
     m_softBoundsFromMap->setChecked(true);
 
     m_softBoundsFromMapMinEdit->setEnabled(true);
@@ -374,7 +434,9 @@ void MapPropertiesEditor::updateGui() {
 
     m_softBoundsFromMapMinEdit->setText(formatVec(bounds.bounds, false));
     m_softBoundsFromMapMaxEdit->setText(formatVec(bounds.bounds, true));
-  } else {
+  }
+  else
+  {
     m_softBoundsFromGame->setChecked(true);
 
     m_softBoundsFromMapMinEdit->setEnabled(false);

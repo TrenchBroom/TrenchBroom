@@ -36,9 +36,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2659
 
   NullLogger logger;
@@ -46,7 +49,8 @@ TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]") {
   const auto textureSearchPaths = std::vector<Path>{Path("models")};
   std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(
     IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/armor"));
-  fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+  fs = std::make_shared<Quake3ShaderFileSystem>(
+    fs, shaderSearchPath, textureSearchPaths, logger);
 
   const auto md3Path = IO::Path("models/armor_red.md3");
   const auto md3File = fs->openFile(md3Path);
@@ -61,7 +65,8 @@ TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]") {
   CHECK(model->frameCount() == 30u);
   CHECK(model->surfaceCount() == 2u);
 
-  for (size_t i = 0; i < model->frameCount(); ++i) {
+  for (size_t i = 0; i < model->frameCount(); ++i)
+  {
     CHECK_NOTHROW(parser.loadFrame(i, *model, logger));
   }
 }

@@ -32,27 +32,33 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace IO {
+namespace IO
+{
 class Path;
 }
 
-namespace Model {
+namespace Model
+{
 class BrushFaceHandle;
 class Node;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class GLContextManager;
 class MapDocument;
 class TextureBrowserView;
 enum class TextureSortOrder;
 
-class TextureBrowser : public QWidget {
+class TextureBrowser : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -67,7 +73,8 @@ private:
 
 public:
   TextureBrowser(
-    std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    std::weak_ptr<MapDocument> document,
+    GLContextManager& contextManager,
     QWidget* parent = nullptr);
 
   const Assets::Texture* selectedTexture() const;

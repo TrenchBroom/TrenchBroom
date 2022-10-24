@@ -23,12 +23,15 @@
 
 #include "View/MapView.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapViewActivationTracker;
 class MapViewBase;
 
-class MapViewContainer : public QWidget, public MapView {
+class MapViewContainer : public QWidget, public MapView
+{
   Q_OBJECT
 public:
   explicit MapViewContainer(QWidget* parent);

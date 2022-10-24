@@ -27,35 +27,42 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace IO {
+namespace IO
+{
 class EntityModelLoader;
 }
 
-namespace Model {
+namespace Model
+{
 class EntityNode;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class TexturedRenderer;
 class VboManager;
 } // namespace Renderer
 
-namespace Assets {
+namespace Assets
+{
 class EntityModel;
 class EntityModelFrame;
 struct ModelSpecification;
 enum class Orientation;
 
-class EntityModelManager {
+class EntityModelManager
+{
 private:
   using ModelCache = std::map<IO::Path, std::unique_ptr<EntityModel>>;
   using ModelMismatches = kdl::vector_set<IO::Path>;
   using ModelList = std::vector<EntityModel*>;
 
-  using RendererCache = std::map<ModelSpecification, std::unique_ptr<Renderer::TexturedRenderer>>;
+  using RendererCache =
+    std::map<ModelSpecification, std::unique_ptr<Renderer::TexturedRenderer>>;
   using RendererMismatches = kdl::vector_set<ModelSpecification>;
   using RendererList = std::vector<Renderer::TexturedRenderer*>;
 

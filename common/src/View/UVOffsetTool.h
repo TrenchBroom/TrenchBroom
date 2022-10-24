@@ -24,13 +24,16 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class DragTracker;
 class MapDocument;
 class UVViewHelper;
 
-class UVOffsetTool : public ToolController, public Tool {
+class UVOffsetTool : public ToolController, public Tool
+{
 private:
   std::weak_ptr<MapDocument> m_document;
   const UVViewHelper& m_helper;

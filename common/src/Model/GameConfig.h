@@ -38,58 +38,70 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-struct MapFormatConfig {
+namespace TrenchBroom
+{
+namespace Model
+{
+struct MapFormatConfig
+{
   std::string format;
   IO::Path initialMap;
 
   kdl_reflect_decl(MapFormatConfig, format, initialMap);
 };
 
-struct PackageFormatConfig {
+struct PackageFormatConfig
+{
   std::vector<std::string> extensions;
   std::string format;
 
   kdl_reflect_decl(PackageFormatConfig, extensions, format);
 };
 
-struct FileSystemConfig {
+struct FileSystemConfig
+{
   IO::Path searchPath;
   PackageFormatConfig packageFormat;
 
   kdl_reflect_decl(FileSystemConfig, searchPath, packageFormat);
 };
 
-struct TextureFilePackageConfig {
+struct TextureFilePackageConfig
+{
   PackageFormatConfig fileFormat;
 
   kdl_reflect_decl(TextureFilePackageConfig, fileFormat);
 };
 
-struct TextureDirectoryPackageConfig {
+struct TextureDirectoryPackageConfig
+{
   IO::Path rootDirectory;
 
   kdl_reflect_decl(TextureDirectoryPackageConfig, rootDirectory);
 };
 
-using TexturePackageConfig = std::variant<TextureFilePackageConfig, TextureDirectoryPackageConfig>;
+using TexturePackageConfig =
+  std::variant<TextureFilePackageConfig, TextureDirectoryPackageConfig>;
 std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config);
 
 IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig);
 
-struct TextureConfig {
+struct TextureConfig
+{
   TexturePackageConfig package;
   PackageFormatConfig format;
   IO::Path palette;
   std::string property;
   IO::Path shaderSearchPath;
-  std::vector<std::string> excludes; // Glob patterns used to match texture names for exclusion
+  std::vector<std::string>
+    excludes; // Glob patterns used to match texture names for exclusion
 
-  kdl_reflect_decl(TextureConfig, package, format, palette, property, shaderSearchPath, excludes);
+  kdl_reflect_decl(
+    TextureConfig, package, format, palette, property, shaderSearchPath, excludes);
 };
 
-struct EntityConfig {
+struct EntityConfig
+{
   std::vector<IO::Path> defFilePaths;
   Color defaultColor;
   std::optional<EL::Expression> scaleExpression;
@@ -97,7 +109,8 @@ struct EntityConfig {
   kdl_reflect_decl(EntityConfig, defFilePaths, defaultColor, scaleExpression);
 };
 
-struct FlagConfig {
+struct FlagConfig
+{
   std::string name;
   std::string description;
   int value;
@@ -105,7 +118,8 @@ struct FlagConfig {
   kdl_reflect_decl(FlagConfig, name, description, value);
 };
 
-struct FlagsConfig {
+struct FlagsConfig
+{
   std::vector<FlagConfig> flags;
 
   kdl_reflect_decl(FlagsConfig, flags);
@@ -115,7 +129,8 @@ struct FlagsConfig {
   std::vector<std::string> flagNames(int mask = ~0) const;
 };
 
-struct FaceAttribsConfig {
+struct FaceAttribsConfig
+{
   FlagsConfig surfaceFlags;
   FlagsConfig contentFlags;
 
@@ -124,14 +139,16 @@ struct FaceAttribsConfig {
   BrushFaceAttributes defaults{BrushFaceAttributes::NoTextureName};
 };
 
-struct CompilationTool {
+struct CompilationTool
+{
   std::string name;
   std::optional<std::string> description;
 
   kdl_reflect_decl(CompilationTool, name, description);
 };
 
-struct GameConfig {
+struct GameConfig
+{
   std::string name;
   IO::Path path;
   IO::Path icon;
@@ -153,9 +170,24 @@ struct GameConfig {
   size_t maxPropertyLength{1023};
 
   kdl_reflect_decl(
-    GameConfig, name, path, icon, experimental, fileFormats, fileSystemConfig, textureConfig,
-    entityConfig, faceAttribsConfig, smartTags, softMapBounds, compilationTools, compilationConfig,
-    gameEngineConfig, compilationConfigParseFailed, gameEngineConfigParseFailed, maxPropertyLength);
+    GameConfig,
+    name,
+    path,
+    icon,
+    experimental,
+    fileFormats,
+    fileSystemConfig,
+    textureConfig,
+    entityConfig,
+    faceAttribsConfig,
+    smartTags,
+    softMapBounds,
+    compilationTools,
+    compilationConfig,
+    gameEngineConfig,
+    compilationConfigParseFailed,
+    gameEngineConfigParseFailed,
+    maxPropertyLength);
 
   IO::Path findInitialMap(const std::string& formatName) const;
   IO::Path findConfigFile(const IO::Path& filePath) const;

@@ -27,15 +27,19 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 const std::string BrushFaceAttributes::NoTextureName = "__TB_empty";
 
 BrushFaceAttributes::BrushFaceAttributes(std::string_view textureName)
   : m_textureName(textureName)
   , m_offset(vm::vec2f::zero())
   , m_scale(vm::vec2f(1.0f, 1.0f))
-  , m_rotation(0.0f) {}
+  , m_rotation(0.0f)
+{
+}
 
 BrushFaceAttributes::BrushFaceAttributes(const BrushFaceAttributes& other)
   : m_textureName(other.m_textureName)
@@ -45,7 +49,9 @@ BrushFaceAttributes::BrushFaceAttributes(const BrushFaceAttributes& other)
   , m_surfaceContents(other.m_surfaceContents)
   , m_surfaceFlags(other.m_surfaceFlags)
   , m_surfaceValue(other.m_surfaceValue)
-  , m_color(other.m_color) {}
+  , m_color(other.m_color)
+{
+}
 
 BrushFaceAttributes::BrushFaceAttributes(
   std::string_view textureName, const BrushFaceAttributes& other)
@@ -56,9 +62,12 @@ BrushFaceAttributes::BrushFaceAttributes(
   , m_surfaceContents(other.m_surfaceContents)
   , m_surfaceFlags(other.m_surfaceFlags)
   , m_surfaceValue(other.m_surfaceValue)
-  , m_color(other.m_color) {}
+  , m_color(other.m_color)
+{
+}
 
-BrushFaceAttributes& BrushFaceAttributes::operator=(BrushFaceAttributes other) {
+BrushFaceAttributes& BrushFaceAttributes::operator=(BrushFaceAttributes other)
+{
   using std::swap;
   swap(*this, other);
   return *this;
@@ -66,7 +75,8 @@ BrushFaceAttributes& BrushFaceAttributes::operator=(BrushFaceAttributes other) {
 
 kdl_reflect_impl(BrushFaceAttributes);
 
-void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs) {
+void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs)
+{
   using std::swap;
   swap(lhs.m_textureName, rhs.m_textureName);
   swap(lhs.m_offset, rhs.m_offset);
@@ -78,175 +88,239 @@ void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs) {
   swap(lhs.m_color, rhs.m_color);
 }
 
-const std::string& BrushFaceAttributes::textureName() const {
+const std::string& BrushFaceAttributes::textureName() const
+{
   return m_textureName;
 }
 
-const vm::vec2f& BrushFaceAttributes::offset() const {
+const vm::vec2f& BrushFaceAttributes::offset() const
+{
   return m_offset;
 }
 
-float BrushFaceAttributes::xOffset() const {
+float BrushFaceAttributes::xOffset() const
+{
   return m_offset.x();
 }
 
-float BrushFaceAttributes::yOffset() const {
+float BrushFaceAttributes::yOffset() const
+{
   return m_offset.y();
 }
 
 vm::vec2f BrushFaceAttributes::modOffset(
-  const vm::vec2f& offset, const vm::vec2f& textureSize) const {
+  const vm::vec2f& offset, const vm::vec2f& textureSize) const
+{
   return offset - snapDown(offset, textureSize);
 }
 
-const vm::vec2f& BrushFaceAttributes::scale() const {
+const vm::vec2f& BrushFaceAttributes::scale() const
+{
   return m_scale;
 }
 
-float BrushFaceAttributes::xScale() const {
+float BrushFaceAttributes::xScale() const
+{
   return m_scale.x();
 }
 
-float BrushFaceAttributes::yScale() const {
+float BrushFaceAttributes::yScale() const
+{
   return m_scale.y();
 }
 
-float BrushFaceAttributes::rotation() const {
+float BrushFaceAttributes::rotation() const
+{
   return m_rotation;
 }
 
-bool BrushFaceAttributes::hasSurfaceAttributes() const {
+bool BrushFaceAttributes::hasSurfaceAttributes() const
+{
   return m_surfaceContents || m_surfaceFlags || m_surfaceValue;
 }
 
-const std::optional<int>& BrushFaceAttributes::surfaceContents() const {
+const std::optional<int>& BrushFaceAttributes::surfaceContents() const
+{
   return m_surfaceContents;
 }
 
-const std::optional<int>& BrushFaceAttributes::surfaceFlags() const {
+const std::optional<int>& BrushFaceAttributes::surfaceFlags() const
+{
   return m_surfaceFlags;
 }
 
-const std::optional<float>& BrushFaceAttributes::surfaceValue() const {
+const std::optional<float>& BrushFaceAttributes::surfaceValue() const
+{
   return m_surfaceValue;
 }
 
-bool BrushFaceAttributes::hasColor() const {
+bool BrushFaceAttributes::hasColor() const
+{
   return m_color.has_value();
 }
 
-const std::optional<Color>& BrushFaceAttributes::color() const {
+const std::optional<Color>& BrushFaceAttributes::color() const
+{
   return m_color;
 }
 
-bool BrushFaceAttributes::valid() const {
-  return !vm::is_zero(m_scale.x(), vm::Cf::almost_zero()) &&
-         !vm::is_zero(m_scale.y(), vm::Cf::almost_zero());
+bool BrushFaceAttributes::valid() const
+{
+  return !vm::is_zero(m_scale.x(), vm::Cf::almost_zero())
+         && !vm::is_zero(m_scale.y(), vm::Cf::almost_zero());
 }
 
-bool BrushFaceAttributes::setTextureName(const std::string& textureName) {
-  if (textureName == m_textureName) {
+bool BrushFaceAttributes::setTextureName(const std::string& textureName)
+{
+  if (textureName == m_textureName)
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_textureName = textureName;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setOffset(const vm::vec2f& offset) {
-  if (offset == m_offset) {
+bool BrushFaceAttributes::setOffset(const vm::vec2f& offset)
+{
+  if (offset == m_offset)
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_offset = offset;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setXOffset(const float xOffset) {
-  if (xOffset == m_offset.x()) {
+bool BrushFaceAttributes::setXOffset(const float xOffset)
+{
+  if (xOffset == m_offset.x())
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_offset[0] = xOffset;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setYOffset(const float yOffset) {
-  if (yOffset == m_offset.y()) {
+bool BrushFaceAttributes::setYOffset(const float yOffset)
+{
+  if (yOffset == m_offset.y())
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_offset[1] = yOffset;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setScale(const vm::vec2f& scale) {
-  if (scale == m_scale) {
+bool BrushFaceAttributes::setScale(const vm::vec2f& scale)
+{
+  if (scale == m_scale)
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_scale = scale;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setXScale(const float xScale) {
-  if (xScale == m_scale.x()) {
+bool BrushFaceAttributes::setXScale(const float xScale)
+{
+  if (xScale == m_scale.x())
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_scale[0] = xScale;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setYScale(const float yScale) {
-  if (yScale == m_scale.y()) {
+bool BrushFaceAttributes::setYScale(const float yScale)
+{
+  if (yScale == m_scale.y())
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_scale[1] = yScale;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setRotation(const float rotation) {
-  if (rotation == m_rotation) {
+bool BrushFaceAttributes::setRotation(const float rotation)
+{
+  if (rotation == m_rotation)
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_rotation = rotation;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setSurfaceContents(const std::optional<int>& surfaceContents) {
-  if (surfaceContents == m_surfaceContents) {
+bool BrushFaceAttributes::setSurfaceContents(const std::optional<int>& surfaceContents)
+{
+  if (surfaceContents == m_surfaceContents)
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_surfaceContents = surfaceContents;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setSurfaceFlags(const std::optional<int>& surfaceFlags) {
-  if (surfaceFlags == m_surfaceFlags) {
+bool BrushFaceAttributes::setSurfaceFlags(const std::optional<int>& surfaceFlags)
+{
+  if (surfaceFlags == m_surfaceFlags)
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_surfaceFlags = surfaceFlags;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setSurfaceValue(const std::optional<float>& surfaceValue) {
-  if (surfaceValue == m_surfaceValue) {
+bool BrushFaceAttributes::setSurfaceValue(const std::optional<float>& surfaceValue)
+{
+  if (surfaceValue == m_surfaceValue)
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_surfaceValue = surfaceValue;
     return true;
   }
 }
 
-bool BrushFaceAttributes::setColor(const std::optional<Color>& color) {
-  if (color == m_color) {
+bool BrushFaceAttributes::setColor(const std::optional<Color>& color)
+{
+  if (color == m_color)
+  {
     return false;
-  } else {
+  }
+  else
+  {
     m_color = color;
     return true;
   }

@@ -22,32 +22,41 @@
 #include "Ensure.h"
 #include "View/MapViewBase.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 MapViewContainer::MapViewContainer(QWidget* parent)
   : QWidget(parent)
-  , MapView() {}
+  , MapView()
+{
+}
 
 MapViewContainer::~MapViewContainer() {}
 
-bool MapViewContainer::canMaximizeCurrentView() const {
+bool MapViewContainer::canMaximizeCurrentView() const
+{
   return doCanMaximizeCurrentView();
 }
 
-bool MapViewContainer::currentViewMaximized() const {
+bool MapViewContainer::currentViewMaximized() const
+{
   return doCurrentViewMaximized();
 }
 
-void MapViewContainer::toggleMaximizeCurrentView() {
+void MapViewContainer::toggleMaximizeCurrentView()
+{
   doToggleMaximizeCurrentView();
 }
 
-MapView* MapViewContainer::currentMapView() const {
+MapView* MapViewContainer::currentMapView() const
+{
   return doGetCurrentMapView();
 }
 
 vm::vec3 MapViewContainer::doGetPasteObjectsDelta(
-  const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
+  const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const
+{
   MapView* current = currentMapView();
   ensure(current != nullptr, "current is nullptr");
   return current->pasteObjectsDelta(bounds, referenceBounds);

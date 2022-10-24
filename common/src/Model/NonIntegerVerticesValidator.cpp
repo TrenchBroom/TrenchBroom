@@ -28,12 +28,16 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
-namespace {
+namespace TrenchBroom
+{
+namespace Model
+{
+namespace
+{
 static const auto Type = freeIssueType();
 
-IssueQuickFix makeSnapVerticesQuickFix() {
+IssueQuickFix makeSnapVerticesQuickFix()
+{
   return {"Snap Vertices", [](MapFacade& facade, const std::vector<const Issue*>&) {
             facade.snapVertices(1);
           }};
@@ -41,17 +45,21 @@ IssueQuickFix makeSnapVerticesQuickFix() {
 } // namespace
 
 NonIntegerVerticesValidator::NonIntegerVerticesValidator()
-  : Validator(Type, "Non-integer vertices") {
+  : Validator(Type, "Non-integer vertices")
+{
   addQuickFix(makeSnapVerticesQuickFix());
 }
 
 void NonIntegerVerticesValidator::doValidate(
-  BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   const auto& vertices = brushNode.brush().vertices();
   if (!std::all_of(vertices.begin(), vertices.end(), [](const auto* vertex) {
         return vm::is_integral(vertex->position());
-      })) {
-    issues.push_back(std::make_unique<Issue>(Type, brushNode, "Brush has non-integer vertices"));
+      }))
+  {
+    issues.push_back(
+      std::make_unique<Issue>(Type, brushNode, "Brush has non-integer vertices"));
   }
 }
 } // namespace Model

@@ -26,9 +26,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
-class TestParserStatus : public ParserStatus {
+namespace TrenchBroom
+{
+namespace IO
+{
+class TestParserStatus : public ParserStatus
+{
 private:
   static NullLogger _logger;
   std::map<LogLevel, std::vector<std::string>> m_messages;

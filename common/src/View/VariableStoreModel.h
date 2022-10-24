@@ -28,12 +28,16 @@
 class QModelIndex;
 class QVariant;
 
-namespace TrenchBroom {
-namespace EL {
+namespace TrenchBroom
+{
+namespace EL
+{
 class VariableStore;
 }
-namespace View {
-class VariableStoreModel : public QAbstractListModel {
+namespace View
+{
+class VariableStoreModel : public QAbstractListModel
+{
   Q_OBJECT
 private:
   std::unique_ptr<EL::VariableStore> m_variables;

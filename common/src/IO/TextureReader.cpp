@@ -28,91 +28,123 @@
 
 #include <algorithm>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 TextureReader::NameStrategy::NameStrategy() = default;
 
 TextureReader::NameStrategy::~NameStrategy() = default;
 
-TextureReader::NameStrategy* TextureReader::NameStrategy::clone() const {
+TextureReader::NameStrategy* TextureReader::NameStrategy::clone() const
+{
   return doClone();
 }
 
 std::string TextureReader::NameStrategy::textureName(
-  const std::string& textureName, const Path& path) const {
+  const std::string& textureName, const Path& path) const
+{
   return doGetTextureName(textureName, path);
 }
 
 TextureReader::TextureNameStrategy::TextureNameStrategy() = default;
 
-TextureReader::NameStrategy* TextureReader::TextureNameStrategy::doClone() const {
+TextureReader::NameStrategy* TextureReader::TextureNameStrategy::doClone() const
+{
   return new TextureNameStrategy();
 }
 
 std::string TextureReader::TextureNameStrategy::doGetTextureName(
-  const std::string& textureName, const Path& /* path */) const {
+  const std::string& textureName, const Path& /* path */) const
+{
   return textureName;
 }
 
 TextureReader::PathSuffixNameStrategy::PathSuffixNameStrategy(const size_t prefixLength)
-  : m_prefixLength(prefixLength) {}
+  : m_prefixLength(prefixLength)
+{
+}
 
-TextureReader::NameStrategy* TextureReader::PathSuffixNameStrategy::doClone() const {
+TextureReader::NameStrategy* TextureReader::PathSuffixNameStrategy::doClone() const
+{
   return new PathSuffixNameStrategy(m_prefixLength);
 }
 
 std::string TextureReader::PathSuffixNameStrategy::doGetTextureName(
-  const std::string& /* textureName */, const Path& path) const {
-  if (m_prefixLength < path.length()) {
+  const std::string& /* textureName */, const Path& path) const
+{
+  if (m_prefixLength < path.length())
+  {
     return path.suffix(path.length() - m_prefixLength).deleteExtension().asString("/");
-  } else {
+  }
+  else
+  {
     return "";
   }
 }
 
 TextureReader::StaticNameStrategy::StaticNameStrategy(const std::string& name)
-  : m_name(name) {}
+  : m_name(name)
+{
+}
 
-TextureReader::NameStrategy* TextureReader::StaticNameStrategy::doClone() const {
+TextureReader::NameStrategy* TextureReader::StaticNameStrategy::doClone() const
+{
   return new StaticNameStrategy(m_name);
 }
 
 std::string TextureReader::StaticNameStrategy::doGetTextureName(
-  const std::string& /* textureName */, const Path& /* path */) const {
+  const std::string& /* textureName */, const Path& /* path */) const
+{
   return m_name;
 }
 
-TextureReader::TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
+TextureReader::TextureReader(
+  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
   : m_nameStrategy(nameStrategy.clone())
   , m_fs(fs)
-  , m_logger(logger) {}
+  , m_logger(logger)
+{
+}
 
-TextureReader::~TextureReader() {
+TextureReader::~TextureReader()
+{
   delete m_nameStrategy;
 }
 
-Assets::Texture TextureReader::readTexture(std::shared_ptr<File> file) const {
-  try {
+Assets::Texture TextureReader::readTexture(std::shared_ptr<File> file) const
+{
+  try
+  {
     return doReadTexture(file);
-  } catch (const AssetException& e) {
+  }
+  catch (const AssetException& e)
+  {
     m_logger.error() << "Could not read texture '" << file->path() << "': " << e.what();
-    return loadDefaultTexture(m_fs, m_logger, textureName(file->path().deleteExtension()));
+    return loadDefaultTexture(
+      m_fs, m_logger, textureName(file->path().deleteExtension()));
   }
 }
 
-std::string TextureReader::textureName(const std::string& textureName, const Path& path) const {
+std::string TextureReader::textureName(
+  const std::string& textureName, const Path& path) const
+{
   return m_nameStrategy->textureName(textureName, path);
 }
 
-std::string TextureReader::textureName(const Path& path) const {
+std::string TextureReader::textureName(const Path& path) const
+{
   return m_nameStrategy->textureName(path.lastComponent().asString(), path);
 }
 
-bool TextureReader::checkTextureDimensions(const size_t width, const size_t height) {
+bool TextureReader::checkTextureDimensions(const size_t width, const size_t height)
+{
   return width <= 8192 && height <= 8192;
 }
 
-size_t TextureReader::mipSize(const size_t width, const size_t height, const size_t mipLevel) {
+size_t TextureReader::mipSize(
+  const size_t width, const size_t height, const size_t mipLevel)
+{
   const auto size = Assets::sizeAtMipLevel(width, height, mipLevel);
   return size.x() * size.y();
 }

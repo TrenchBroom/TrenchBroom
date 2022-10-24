@@ -21,12 +21,16 @@
 
 #include <QWidget>
 
-namespace TrenchBroom {
-namespace View {
-class BorderPanel : public QWidget {
+namespace TrenchBroom
+{
+namespace View
+{
+class BorderPanel : public QWidget
+{
   Q_OBJECT
 public:
-  enum Sides {
+  enum Sides
+  {
     TopSide = 1,
     RightSide = 2,
     BottomSide = 4,
@@ -39,7 +43,8 @@ private:
   int m_thickness;
 
 public:
-  explicit BorderPanel(Sides borders = AllSides, int thickness = 1, QWidget* parent = nullptr);
+  explicit BorderPanel(
+    Sides borders = AllSides, int thickness = 1, QWidget* parent = nullptr);
 
 protected:
   void paintEvent(QPaintEvent* event) override;

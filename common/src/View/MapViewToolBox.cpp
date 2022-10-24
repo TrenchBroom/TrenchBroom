@@ -33,168 +33,209 @@
 #include "View/ShearObjectsTool.h"
 #include "View/VertexTool.h"
 
-namespace TrenchBroom {
-namespace View {
-MapViewToolBox::MapViewToolBox(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl)
-  : m_document(document) {
+namespace TrenchBroom
+{
+namespace View
+{
+MapViewToolBox::MapViewToolBox(
+  std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl)
+  : m_document(document)
+{
   createTools(document, bookCtrl);
   connectObservers();
 }
 
 MapViewToolBox::~MapViewToolBox() = default;
 
-ClipTool& MapViewToolBox::clipTool() {
+ClipTool& MapViewToolBox::clipTool()
+{
   return *m_clipTool;
 }
 
-CreateComplexBrushTool& MapViewToolBox::createComplexBrushTool() {
+CreateComplexBrushTool& MapViewToolBox::createComplexBrushTool()
+{
   return *m_createComplexBrushTool;
 }
 
-CreateEntityTool& MapViewToolBox::createEntityTool() {
+CreateEntityTool& MapViewToolBox::createEntityTool()
+{
   return *m_createEntityTool;
 }
 
-CreateSimpleBrushTool& MapViewToolBox::createSimpleBrushTool() {
+CreateSimpleBrushTool& MapViewToolBox::createSimpleBrushTool()
+{
   return *m_createSimpleBrushTool;
 }
 
-MoveObjectsTool& MapViewToolBox::moveObjectsTool() {
+MoveObjectsTool& MapViewToolBox::moveObjectsTool()
+{
   return *m_moveObjectsTool;
 }
 
-ExtrudeTool& MapViewToolBox::extrudeTool() {
+ExtrudeTool& MapViewToolBox::extrudeTool()
+{
   return *m_extrudeTool;
 }
 
-RotateObjectsTool& MapViewToolBox::rotateObjectsTool() {
+RotateObjectsTool& MapViewToolBox::rotateObjectsTool()
+{
   return *m_rotateObjectsTool;
 }
 
-ScaleObjectsTool& MapViewToolBox::scaleObjectsTool() {
+ScaleObjectsTool& MapViewToolBox::scaleObjectsTool()
+{
   return *m_scaleObjectsTool;
 }
 
-ShearObjectsTool& MapViewToolBox::shearObjectsTool() {
+ShearObjectsTool& MapViewToolBox::shearObjectsTool()
+{
   return *m_shearObjectsTool;
 }
 
-VertexTool& MapViewToolBox::vertexTool() {
+VertexTool& MapViewToolBox::vertexTool()
+{
   return *m_vertexTool;
 }
 
-EdgeTool& MapViewToolBox::edgeTool() {
+EdgeTool& MapViewToolBox::edgeTool()
+{
   return *m_edgeTool;
 }
 
-FaceTool& MapViewToolBox::faceTool() {
+FaceTool& MapViewToolBox::faceTool()
+{
   return *m_faceTool;
 }
 
-void MapViewToolBox::toggleCreateComplexBrushTool() {
+void MapViewToolBox::toggleCreateComplexBrushTool()
+{
   toggleTool(createComplexBrushTool());
 }
 
-bool MapViewToolBox::createComplexBrushToolActive() const {
+bool MapViewToolBox::createComplexBrushToolActive() const
+{
   return m_createComplexBrushTool->active();
 }
 
-void MapViewToolBox::performCreateComplexBrush() {
+void MapViewToolBox::performCreateComplexBrush()
+{
   m_createComplexBrushTool->createBrush();
 }
 
-void MapViewToolBox::toggleClipTool() {
+void MapViewToolBox::toggleClipTool()
+{
   toggleTool(clipTool());
 }
 
-bool MapViewToolBox::clipToolActive() const {
+bool MapViewToolBox::clipToolActive() const
+{
   return m_clipTool->active();
 }
 
-void MapViewToolBox::toggleClipSide() {
+void MapViewToolBox::toggleClipSide()
+{
   assert(clipToolActive());
   m_clipTool->toggleSide();
 }
 
-void MapViewToolBox::performClip() {
+void MapViewToolBox::performClip()
+{
   assert(clipToolActive());
   m_clipTool->performClip();
 }
 
-void MapViewToolBox::removeLastClipPoint() {
+void MapViewToolBox::removeLastClipPoint()
+{
   assert(clipToolActive());
   m_clipTool->removeLastPoint();
 }
 
-void MapViewToolBox::toggleRotateObjectsTool() {
+void MapViewToolBox::toggleRotateObjectsTool()
+{
   toggleTool(rotateObjectsTool());
 }
 
-bool MapViewToolBox::rotateObjectsToolActive() const {
+bool MapViewToolBox::rotateObjectsToolActive() const
+{
   return m_rotateObjectsTool->active();
 }
 
-double MapViewToolBox::rotateToolAngle() const {
+double MapViewToolBox::rotateToolAngle() const
+{
   assert(rotateObjectsToolActive());
   return m_rotateObjectsTool->angle();
 }
 
-vm::vec3 MapViewToolBox::rotateToolCenter() const {
+vm::vec3 MapViewToolBox::rotateToolCenter() const
+{
   assert(rotateObjectsToolActive());
   return m_rotateObjectsTool->rotationCenter();
 }
 
-void MapViewToolBox::moveRotationCenter(const vm::vec3& delta) {
+void MapViewToolBox::moveRotationCenter(const vm::vec3& delta)
+{
   assert(rotateObjectsToolActive());
   const vm::vec3 center = m_rotateObjectsTool->rotationCenter();
   m_rotateObjectsTool->setRotationCenter(center + delta);
 }
 
-void MapViewToolBox::toggleScaleObjectsTool() {
+void MapViewToolBox::toggleScaleObjectsTool()
+{
   toggleTool(scaleObjectsTool());
 }
 
-bool MapViewToolBox::scaleObjectsToolActive() const {
+bool MapViewToolBox::scaleObjectsToolActive() const
+{
   return m_scaleObjectsTool->active();
 }
 
-void MapViewToolBox::toggleShearObjectsTool() {
+void MapViewToolBox::toggleShearObjectsTool()
+{
   toggleTool(shearObjectsTool());
 }
 
-bool MapViewToolBox::shearObjectsToolActive() const {
+bool MapViewToolBox::shearObjectsToolActive() const
+{
   return m_shearObjectsTool->active();
 }
 
-bool MapViewToolBox::anyVertexToolActive() const {
+bool MapViewToolBox::anyVertexToolActive() const
+{
   return vertexToolActive() || edgeToolActive() || faceToolActive();
 }
 
-void MapViewToolBox::toggleVertexTool() {
+void MapViewToolBox::toggleVertexTool()
+{
   toggleTool(vertexTool());
 }
 
-bool MapViewToolBox::vertexToolActive() const {
+bool MapViewToolBox::vertexToolActive() const
+{
   return m_vertexTool->active();
 }
 
-void MapViewToolBox::toggleEdgeTool() {
+void MapViewToolBox::toggleEdgeTool()
+{
   toggleTool(edgeTool());
 }
 
-bool MapViewToolBox::edgeToolActive() const {
+bool MapViewToolBox::edgeToolActive() const
+{
   return m_edgeTool->active();
 }
 
-void MapViewToolBox::toggleFaceTool() {
+void MapViewToolBox::toggleFaceTool()
+{
   toggleTool(faceTool());
 }
 
-bool MapViewToolBox::faceToolActive() const {
+bool MapViewToolBox::faceToolActive() const
+{
   return m_faceTool->active();
 }
 
-void MapViewToolBox::moveVertices(const vm::vec3& delta) {
+void MapViewToolBox::moveVertices(const vm::vec3& delta)
+{
   assert(anyVertexToolActive());
   if (vertexToolActive())
     vertexTool().moveSelection(delta);
@@ -204,7 +245,9 @@ void MapViewToolBox::moveVertices(const vm::vec3& delta) {
     faceTool().moveSelection(delta);
 }
 
-void MapViewToolBox::createTools(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl) {
+void MapViewToolBox::createTools(
+  std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl)
+{
   m_clipTool = std::make_unique<ClipTool>(document);
   m_createComplexBrushTool = std::make_unique<CreateComplexBrushTool>(document);
   m_createEntityTool = std::make_unique<CreateEntityTool>(document);
@@ -257,39 +300,47 @@ void MapViewToolBox::createTools(std::weak_ptr<MapDocument> document, QStackedLa
   registerTool(createSimpleBrushTool(), bookCtrl);
 }
 
-void MapViewToolBox::registerTool(Tool& tool, QStackedLayout* bookCtrl) {
+void MapViewToolBox::registerTool(Tool& tool, QStackedLayout* bookCtrl)
+{
   tool.createPage(bookCtrl);
   addTool(tool);
 }
 
-void MapViewToolBox::connectObservers() {
-  m_notifierConnection += toolActivatedNotifier.connect(this, &MapViewToolBox::toolActivated);
-  m_notifierConnection += toolDeactivatedNotifier.connect(this, &MapViewToolBox::toolDeactivated);
+void MapViewToolBox::connectObservers()
+{
+  m_notifierConnection +=
+    toolActivatedNotifier.connect(this, &MapViewToolBox::toolActivated);
+  m_notifierConnection +=
+    toolDeactivatedNotifier.connect(this, &MapViewToolBox::toolDeactivated);
 
   auto document = kdl::mem_lock(m_document);
-  m_notifierConnection +=
-    document->documentWasNewedNotifier.connect(this, &MapViewToolBox::documentWasNewedOrLoaded);
-  m_notifierConnection +=
-    document->documentWasLoadedNotifier.connect(this, &MapViewToolBox::documentWasNewedOrLoaded);
+  m_notifierConnection += document->documentWasNewedNotifier.connect(
+    this, &MapViewToolBox::documentWasNewedOrLoaded);
+  m_notifierConnection += document->documentWasLoadedNotifier.connect(
+    this, &MapViewToolBox::documentWasNewedOrLoaded);
 }
 
-void MapViewToolBox::toolActivated(Tool& tool) {
+void MapViewToolBox::toolActivated(Tool& tool)
+{
   updateEditorContext();
   tool.showPage();
 }
 
-void MapViewToolBox::toolDeactivated(Tool&) {
+void MapViewToolBox::toolDeactivated(Tool&)
+{
   updateEditorContext();
   m_moveObjectsTool->showPage();
 }
 
-void MapViewToolBox::updateEditorContext() {
+void MapViewToolBox::updateEditorContext()
+{
   auto document = kdl::mem_lock(m_document);
   Model::EditorContext& editorContext = document->editorContext();
   editorContext.setBlockSelection(createComplexBrushToolActive());
 }
 
-void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*) {
+void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*)
+{
   deactivateAllTools();
 }
 } // namespace View

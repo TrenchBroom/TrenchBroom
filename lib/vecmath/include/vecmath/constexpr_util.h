@@ -2,20 +2,21 @@
  Copyright 2010-2019 Kristian Duske
  Copyright 2015-2019 Eric Wasylishen
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ software and associated documentation files (the "Software"), to deal in the Software
+ without restriction, including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in all copies or
  substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
 */
 
 #pragma once
@@ -23,8 +24,10 @@
 #include <cstddef>
 #include <iterator>
 
-namespace vm {
-namespace detail {
+namespace vm
+{
+namespace detail
+{
 /**
  * Swaps the given values.
  *
@@ -32,7 +35,9 @@ namespace detail {
  * @param lhs the left hand side
  * @param rhs the right hand side
  */
-template <class T> constexpr void swap(T& lhs, T& rhs) {
+template <class T>
+constexpr void swap(T& lhs, T& rhs)
+{
   auto tmp = std::move(lhs);
   lhs = std::move(rhs);
   rhs = std::move(tmp);
@@ -45,7 +50,9 @@ template <class T> constexpr void swap(T& lhs, T& rhs) {
  * @param lhs the left hand side
  * @param rhs the right hand side
  */
-template <class I> constexpr void iter_swap(I lhs, I rhs) {
+template <class I>
+constexpr void iter_swap(I lhs, I rhs)
+{
   swap(*lhs, *rhs);
 }
 
@@ -56,15 +63,20 @@ template <class I> constexpr void iter_swap(I lhs, I rhs) {
  * @tparam C the comparator type
  * @param left the beginning of the range
  * @param right the end of the range
- * @param cmp the comparator, which must induce a strict weak ordering on the elements in the given
- * range
+ * @param cmp the comparator, which must induce a strict weak ordering on the elements in
+ * the given range
  */
-template <typename I, typename C> constexpr void sort(I left, I right, const C& cmp) {
-  if (left < right) {
+template <typename I, typename C>
+constexpr void sort(I left, I right, const C& cmp)
+{
+  if (left < right)
+  {
     auto mid = left;
 
-    for (auto i = std::next(left); i < right; ++i) {
-      if (cmp(*i, *left)) {
+    for (auto i = std::next(left); i < right; ++i)
+    {
+      if (cmp(*i, *left))
+      {
         iter_swap(++mid, i);
       }
     }

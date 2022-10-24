@@ -25,8 +25,10 @@
 
 #include <QString>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 QString pathAsQString(const IO::Path& path, std::string_view sep = Path::separator());
 Path pathFromQString(const QString& path);
 } // namespace IO

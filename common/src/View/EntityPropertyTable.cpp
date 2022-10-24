@@ -26,13 +26,18 @@
 
 #define TABLE_LOG(x)
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 EntityPropertyTable::EntityPropertyTable(QWidget* parent)
   : QTableView(parent)
-  , m_mousePressedOnSelectedCell(false) {}
+  , m_mousePressedOnSelectedCell(false)
+{
+}
 
-void EntityPropertyTable::finishEditing(QWidget* editor) {
+void EntityPropertyTable::finishEditing(QWidget* editor)
+{
   TABLE_LOG(qDebug() << "finish editing");
   commitData(editor);
   closeEditor(editor, QAbstractItemDelegate::EditNextItem);
@@ -41,47 +46,55 @@ void EntityPropertyTable::finishEditing(QWidget* editor) {
 /**
  * Just for generating tooltips, keep in sync with isInsertRowShortcut
  */
-QString EntityPropertyTable::insertRowShortcutString() {
+QString EntityPropertyTable::insertRowShortcutString()
+{
   return QKeySequence(Qt::Key_Return | Qt::CTRL).toString(QKeySequence::NativeText);
 }
 
 /**
  * Just for generating tooltips, keep in sync with isRemoveRowsShortcut
  */
-QString EntityPropertyTable::removeRowShortcutString() {
+QString EntityPropertyTable::removeRowShortcutString()
+{
   return QObject::tr("%1 or %2")
     .arg(QKeySequence(Qt::Key_Delete).toString(QKeySequence::NativeText))
     .arg(QKeySequence(Qt::Key_Backspace).toString(QKeySequence::NativeText));
 }
 
-static bool isInsertRowShortcut(QKeyEvent* event) {
+static bool isInsertRowShortcut(QKeyEvent* event)
+{
   return event->key() == Qt::Key_Return && event->modifiers() == Qt::CTRL;
 }
 
-static bool isRemoveRowsShortcut(QKeyEvent* event) {
-  return (event->key() == Qt::Key_Delete && event->modifiers() == 0) ||
-         (event->key() == Qt::Key_Backspace && event->modifiers() == 0);
+static bool isRemoveRowsShortcut(QKeyEvent* event)
+{
+  return (event->key() == Qt::Key_Delete && event->modifiers() == 0)
+         || (event->key() == Qt::Key_Backspace && event->modifiers() == 0);
 }
 
-bool EntityPropertyTable::event(QEvent* event) {
-  if (event->type() == QEvent::ShortcutOverride) {
+bool EntityPropertyTable::event(QEvent* event)
+{
+  if (event->type() == QEvent::ShortcutOverride)
+  {
     QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
-    // Accepting a QEvent::ShortcutOverride suppresses QShortcut/QAction from being triggered
-    // and causes a normal key press to be delivered to the focused widget.
+    // Accepting a QEvent::ShortcutOverride suppresses QShortcut/QAction from being
+    // triggered and causes a normal key press to be delivered to the focused widget.
 
-    // This is necessary so e.g. pressing U (UV lock menu item) types a U character into the
-    // current row, rather than activating the UV lock menu shortcut.
+    // This is necessary so e.g. pressing U (UV lock menu item) types a U character into
+    // the current row, rather than activating the UV lock menu shortcut.
     if (
-      keyEvent->key() < Qt::Key_Escape &&
-      (keyEvent->modifiers() == Qt::NoModifier || keyEvent->modifiers() == Qt::KeypadModifier)) {
+      keyEvent->key() < Qt::Key_Escape
+      && (keyEvent->modifiers() == Qt::NoModifier || keyEvent->modifiers() == Qt::KeypadModifier))
+    {
       event->setAccepted(true);
       return true;
     }
 
     // These insert/remove row shortcut are handled here so they take precedence
     // over the Delete menu action for deleting brushes.
-    if (isInsertRowShortcut(keyEvent) || isRemoveRowsShortcut(keyEvent)) {
+    if (isInsertRowShortcut(keyEvent) || isRemoveRowsShortcut(keyEvent))
+    {
       event->setAccepted(true);
       return true;
     }
@@ -91,27 +104,33 @@ bool EntityPropertyTable::event(QEvent* event) {
   return QTableView::event(event);
 }
 
-void EntityPropertyTable::keyPressEvent(QKeyEvent* event) {
-  if (isInsertRowShortcut(event)) {
+void EntityPropertyTable::keyPressEvent(QKeyEvent* event)
+{
+  if (isInsertRowShortcut(event))
+  {
     emit addRowShortcutTriggered();
     return;
   }
-  if (isRemoveRowsShortcut(event)) {
+  if (isRemoveRowsShortcut(event))
+  {
     emit removeRowsShortcutTriggered();
     return;
   }
 
-  // Set up Qt::Key_Return to open the editor. Doing this binding via a QShortcut makes it so you
-  // can't close an open editor, so do it this way.
+  // Set up Qt::Key_Return to open the editor. Doing this binding via a QShortcut makes it
+  // so you can't close an open editor, so do it this way.
   if (
-    event->key() == Qt::Key_Return &&
-    (event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::KeypadModifier) &&
-    state() != QAbstractItemView::EditingState) {
+    event->key() == Qt::Key_Return
+    && (event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::KeypadModifier)
+    && state() != QAbstractItemView::EditingState)
+  {
 
     // open the editor
     TABLE_LOG(qDebug("opening editor..."));
     edit(currentIndex());
-  } else {
+  }
+  else
+  {
     QTableView::keyPressEvent(event);
   }
 }
@@ -119,7 +138,8 @@ void EntityPropertyTable::keyPressEvent(QKeyEvent* event) {
 /**
  * The decorations (padlock icon for locked cells) goes on the right of the text
  */
-QStyleOptionViewItem EntityPropertyTable::viewOptions() const {
+QStyleOptionViewItem EntityPropertyTable::viewOptions() const
+{
   QStyleOptionViewItem options = QTableView::viewOptions();
   options.decorationPosition = QStyleOptionViewItem::Right;
   // Qt high-dpi bug: if we don't specify the size explicitly Qt, sees the larger
@@ -130,8 +150,8 @@ QStyleOptionViewItem EntityPropertyTable::viewOptions() const {
 
 /**
  * Disable keyboard searching, it's undesirable for our use case.
- * Keyboard search was causing selection navigation when typing with a disabled cell selected.
- * See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
+ * Keyboard search was causing selection navigation when typing with a disabled cell
+ * selected. See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
  */
 void EntityPropertyTable::keyboardSearch(const QString& /* search */) {}
 
@@ -140,7 +160,8 @@ void EntityPropertyTable::keyboardSearch(const QString& /* search */) {}
  * The Qt one has an undesirable delay during which keyboard input is ignored.
  * See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
  */
-void EntityPropertyTable::mousePressEvent(QMouseEvent* event) {
+void EntityPropertyTable::mousePressEvent(QMouseEvent* event)
+{
   const QModelIndex modelIndex = indexAt(event->pos());
   m_mousePressedOnSelectedCell = selectedIndexes().contains(modelIndex);
 
@@ -154,13 +175,15 @@ void EntityPropertyTable::mousePressEvent(QMouseEvent* event) {
 /**
  * See mousePressEvent
  */
-void EntityPropertyTable::mouseReleaseEvent(QMouseEvent* event) {
+void EntityPropertyTable::mouseReleaseEvent(QMouseEvent* event)
+{
   QTableView::mouseReleaseEvent(event);
 
   TABLE_LOG(qDebug() << "EntityPropertyTable::mouseReleaseEvent");
 
   const QModelIndex modelIndex = indexAt(event->pos());
-  if (selectedIndexes().contains(modelIndex) && m_mousePressedOnSelectedCell) {
+  if (selectedIndexes().contains(modelIndex) && m_mousePressedOnSelectedCell)
+  {
     TABLE_LOG(qDebug() << "opening editor");
     edit(modelIndex);
   }

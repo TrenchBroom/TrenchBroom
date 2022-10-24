@@ -34,10 +34,13 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 TEST_CASE_METHOD(
-  ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face") {
+  ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face")
+{
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
@@ -49,13 +52,15 @@ TEST_CASE_METHOD(
 
   auto rotate = Model::ChangeBrushFaceAttributesRequest{};
   rotate.addRotation(2.0);
-  for (size_t i = 0; i < 5; ++i) {
+  for (size_t i = 0; i < 5; ++i)
+  {
     document->setFaceAttributes(rotate);
   }
 
   CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 10.0f);
 
-  auto defaultFaceAttrs = Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName};
+  auto defaultFaceAttrs =
+    Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName};
   defaultFaceAttrs.setXScale(0.5f);
   defaultFaceAttrs.setYScale(2.0f);
   game->setDefaultFaceAttributes(defaultFaceAttrs);
@@ -68,18 +73,24 @@ TEST_CASE_METHOD(
   CHECK(brushNode->brush().face(faceIndex).attributes().xOffset() == 0.0f);
   CHECK(brushNode->brush().face(faceIndex).attributes().yOffset() == 0.0f);
   CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 0.0f);
-  CHECK(brushNode->brush().face(faceIndex).attributes().xScale() == defaultFaceAttrs.xScale());
-  CHECK(brushNode->brush().face(faceIndex).attributes().yScale() == defaultFaceAttrs.yScale());
+  CHECK(
+    brushNode->brush().face(faceIndex).attributes().xScale()
+    == defaultFaceAttrs.xScale());
+  CHECK(
+    brushNode->brush().face(faceIndex).attributes().yScale()
+    == defaultFaceAttrs.yScale());
 
   CHECK(brushNode->brush().face(faceIndex).textureXAxis() == initialX);
   CHECK(brushNode->brush().face(faceIndex).textureYAxis() == initialY);
 }
 
-TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo") {
+TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
+{
   auto* brushNode = createBrushNode("original");
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
-  for (const auto& face : brushNode->brush().faces()) {
+  for (const auto& face : brushNode->brush().faces())
+  {
     REQUIRE(face.attributes().textureName() == "original");
   }
 
@@ -88,29 +99,34 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
   auto setTexture1 = Model::ChangeBrushFaceAttributesRequest{};
   setTexture1.setTextureName("texture1");
   document->setFaceAttributes(setTexture1);
-  for (const auto& face : brushNode->brush().faces()) {
+  for (const auto& face : brushNode->brush().faces())
+  {
     REQUIRE(face.attributes().textureName() == "texture1");
   }
 
   auto setTexture2 = Model::ChangeBrushFaceAttributesRequest{};
   setTexture2.setTextureName("texture2");
   document->setFaceAttributes(setTexture2);
-  for (const auto& face : brushNode->brush().faces()) {
+  for (const auto& face : brushNode->brush().faces())
+  {
     REQUIRE(face.attributes().textureName() == "texture2");
   }
 
   document->undoCommand();
-  for (const auto& face : brushNode->brush().faces()) {
+  for (const auto& face : brushNode->brush().faces())
+  {
     CHECK(face.attributes().textureName() == "original");
   }
 
   document->redoCommand();
-  for (const auto& face : brushNode->brush().faces()) {
+  for (const auto& face : brushNode->brush().faces())
+  {
     CHECK(face.attributes().textureName() == "texture2");
   }
 }
 
-TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
+TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
+{
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
@@ -186,8 +202,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
   document->setFaceAttributes(copySecondToThirdFace);
 
   CHECK(
-    brushNode->brush().face(thirdFaceIndex).attributes() ==
-    brushNode->brush().face(secondFaceIndex).attributes());
+    brushNode->brush().face(thirdFaceIndex).attributes()
+    == brushNode->brush().face(secondFaceIndex).attributes());
 
   auto thirdFaceContentsFlags =
     brushNode->brush().face(thirdFaceIndex).attributes().surfaceContents();
@@ -200,13 +216,14 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
   document->setFaceAttributes(copyFirstToSecondFace);
 
   CHECK(
-    brushNode->brush().face(secondFaceIndex).attributes() ==
-    brushNode->brush().face(firstFaceIndex).attributes());
+    brushNode->brush().face(secondFaceIndex).attributes()
+    == brushNode->brush().face(firstFaceIndex).attributes());
 
   document->deselectAll();
   document->selectBrushFaces({{brushNode, thirdFaceIndex}});
   Model::ChangeBrushFaceAttributesRequest copyFirstToThirdFaceNoContents;
-  copyFirstToThirdFaceNoContents.setAllExceptContentFlags(brushNode->brush().face(firstFaceIndex));
+  copyFirstToThirdFaceNoContents.setAllExceptContentFlags(
+    brushNode->brush().face(firstFaceIndex));
   document->setFaceAttributes(copyFirstToThirdFaceNoContents);
 
   {
@@ -226,7 +243,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll") {
 }
 
 TEST_CASE_METHOD(
-  ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setTextureKeepsSurfaceFlagsUnset") {
+  ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setTextureKeepsSurfaceFlagsUnset")
+{
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
@@ -241,43 +259,53 @@ TEST_CASE_METHOD(
   CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
 }
 
-TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest") {
+TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
+{
   const int WaterFlag = 32;
   const int LavaFlag = 8;
 
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/ChangeBrushFaceAttributesTest/lavaAndWater.map"), "Quake2",
+    IO::Path("fixture/test/View/ChangeBrushFaceAttributesTest/lavaAndWater.map"),
+    "Quake2",
     Model::MapFormat::Unknown);
   REQUIRE(document->currentLayer() != nullptr);
 
-  auto* lavabrush = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(0));
+  auto* lavabrush =
+    dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(0));
   REQUIRE(lavabrush);
   CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
   CHECK(
-    lavabrush->brush().face(0).resolvedSurfaceContents() ==
-    LavaFlag); // comes from the .wal texture
+    lavabrush->brush().face(0).resolvedSurfaceContents()
+    == LavaFlag); // comes from the .wal texture
 
-  auto* waterbrush = dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(1));
+  auto* waterbrush =
+    dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(1));
   REQUIRE(waterbrush);
   CHECK(!waterbrush->brush().face(0).attributes().hasSurfaceAttributes());
   CHECK(
-    waterbrush->brush().face(0).resolvedSurfaceContents() ==
-    WaterFlag); // comes from the .wal texture
+    waterbrush->brush().face(0).resolvedSurfaceContents()
+    == WaterFlag); // comes from the .wal texture
 
-  SECTION("transfer face attributes except content flags from waterbrush to lavabrush") {
+  SECTION("transfer face attributes except content flags from waterbrush to lavabrush")
+  {
     document->selectNodes({lavabrush});
-    CHECK(document->setFaceAttributesExceptContentFlags(waterbrush->brush().face(0).attributes()));
+    CHECK(document->setFaceAttributesExceptContentFlags(
+      waterbrush->brush().face(0).attributes()));
 
-    SECTION("check lavabrush is now inheriting the water content flags") {
+    SECTION("check lavabrush is now inheriting the water content flags")
+    {
       // Note: the contents flag wasn't transferred, but because lavabrushes's
-      // content flag was "Inherit", it stays "Inherit" and now inherits the water contents
+      // content flag was "Inherit", it stays "Inherit" and now inherits the water
+      // contents
       CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
       CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == WaterFlag);
       CHECK(lavabrush->brush().face(0).attributes().textureName() == "watertest");
     }
   }
 
-  SECTION("setting a content flag when the existing one is inherited keeps the existing one") {
+  SECTION(
+    "setting a content flag when the existing one is inherited keeps the existing one")
+  {
     document->selectNodes({lavabrush});
 
     auto request = Model::ChangeBrushFaceAttributesRequest{};

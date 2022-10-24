@@ -25,12 +25,15 @@ class QWidget;
 class QTableView;
 class QSortFilterProxyModel;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class KeyboardShortcutModel;
 class MapDocument;
 
-class KeyboardPreferencePane : public PreferencePane {
+class KeyboardPreferencePane : public PreferencePane
+{
   Q_OBJECT
 private:
   QTableView* m_table;

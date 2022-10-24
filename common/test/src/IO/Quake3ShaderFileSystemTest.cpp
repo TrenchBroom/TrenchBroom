@@ -29,9 +29,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking", "[Quake3ShaderFileSystemTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking", "[Quake3ShaderFileSystemTest]")
+{
   NullLogger logger;
 
   const auto workDir = IO::Disk::getCurrentWorkingDir();
@@ -41,11 +44,12 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking", "[Quake3ShaderFileSyst
   const auto shaderSearchPath = Path("scripts");
   const auto textureSearchPaths = std::vector<Path>{texturePrefix};
 
-  // We need to add the fallback dir so that we can find "__TB_empty.png" which is automatically
-  // linked when no editor image is available.
+  // We need to add the fallback dir so that we can find "__TB_empty.png" which is
+  // automatically linked when no editor image is available.
   std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(fallbackDir);
   fs = std::make_shared<DiskFileSystem>(fs, testDir);
-  fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+  fs = std::make_shared<Quake3ShaderFileSystem>(
+    fs, shaderSearchPath, textureSearchPaths, logger);
 
   CHECK_THAT(
     fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher("")),
@@ -58,7 +62,9 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking", "[Quake3ShaderFileSyst
     }));
 }
 
-TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles", "[Quake3ShaderFileSystemTest]") {
+TEST_CASE(
+  "Quake3ShaderFileSystemTest.testSkipMalformedFiles", "[Quake3ShaderFileSystemTest]")
+{
   NullLogger logger;
 
   // There is one malformed shader script, this should be skipped.
@@ -70,11 +76,12 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles", "[Quake3ShaderFil
   const auto shaderSearchPath = Path("scripts");
   const auto textureSearchPaths = std::vector<Path>{texturePrefix};
 
-  // We need to add the fallback dir so that we can find "__TB_empty.png" which is automatically
-  // linked when no editor image is available.
+  // We need to add the fallback dir so that we can find "__TB_empty.png" which is
+  // automatically linked when no editor image is available.
   std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(fallbackDir);
   fs = std::make_shared<DiskFileSystem>(fs, testDir);
-  fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+  fs = std::make_shared<Quake3ShaderFileSystem>(
+    fs, shaderSearchPath, textureSearchPaths, logger);
 
   CHECK_THAT(
     fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher("")),

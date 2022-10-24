@@ -36,49 +36,58 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 enum class UpdateLinkedGroupsError;
-using UpdateLinkedGroupsResult = std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>;
+using UpdateLinkedGroupsResult =
+  std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>;
 
 /**
  * Updates the given target group nodes from the given source group node.
  *
- * The children of the source node are cloned (recursively) and transformed into the target nodes by
- * means of the recorded transformations of the source group and the corresponding target groups.
+ * The children of the source node are cloned (recursively) and transformed into the
+ * target nodes by means of the recorded transformations of the source group and the
+ * corresponding target groups.
  *
- * Depending on the protected property keys of the cloned entities and their corresponding entities
- * in the target groups, some entity property changes may not be propagated from the source group to
- * the target groups. Specifically, if an entity property is protected in either the cloned entity
- * or its corresponding entity in a target group, then changes to that entity property incl. removal
- * are not propagated. This also applies to numbered properties, i.e. properties whose names end in
- * a number. So if the entity property "target" is protected, then changes to the property "target2"
- * are not propagated or overwritten during propagation.
+ * Depending on the protected property keys of the cloned entities and their corresponding
+ * entities in the target groups, some entity property changes may not be propagated from
+ * the source group to the target groups. Specifically, if an entity property is protected
+ * in either the cloned entity or its corresponding entity in a target group, then changes
+ * to that entity property incl. removal are not propagated. This also applies to numbered
+ * properties, i.e. properties whose names end in a number. So if the entity property
+ * "target" is protected, then changes to the property "target2" are not propagated or
+ * overwritten during propagation.
  *
- * If this operation fails for any child and target group, then an error is returned. The operation
- * can fail if any of the following conditions arises:
+ * If this operation fails for any child and target group, then an error is returned. The
+ * operation can fail if any of the following conditions arises:
  *
  * - the transformation of the source group node is not invertible
  * - transforming any of the source node's children fails
  * - any of the transformed children is no longer within the world bounds
  *
- * If this operation succeeds, a vector of pairs is returned where each pair consists of the target
- * node that should be updated, and the new children that should replace the target node's children.
+ * If this operation succeeds, a vector of pairs is returned where each pair consists of
+ * the target node that should be updated, and the new children that should replace the
+ * target node's children.
  */
 kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroups(
-  const GroupNode& sourceGroupNode, const std::vector<Model::GroupNode*>& targetGroupNodes,
+  const GroupNode& sourceGroupNode,
+  const std::vector<Model::GroupNode*>& targetGroupNodes,
   const vm::bbox3& worldBounds);
 
 /**
  * A group of nodes that can be edited as one.
  *
- * Group nodes can be linked together via a linked group ID. All groups sharing the same linked
- * group id form a link set. When a member of a link set is changed, all other members of that link
- * set are updated to reflect these changes via `updateLinkedGroups`.
+ * Group nodes can be linked together via a linked group ID. All groups sharing the same
+ * linked group id form a link set. When a member of a link set is changed, all other
+ * members of that link set are updated to reflect these changes via `updateLinkedGroups`.
  */
-class GroupNode : public Node, public Object {
+class GroupNode : public Node, public Object
+{
 private:
-  enum class EditState {
+  enum class EditState
+  {
     Open,
     Closed,
     DescendantOpen
@@ -91,9 +100,9 @@ private:
   mutable bool m_boundsValid;
 
   /**
-   * The ID used to serialize group nodes (see MapReader and NodeSerializer). This is set by
-   * MapReader when a layer is read, or by WorldNode when a group is added that doesn't yet have a
-   * persistent ID.
+   * The ID used to serialize group nodes (see MapReader and NodeSerializer). This is set
+   * by MapReader when a layer is read, or by WorldNode when a group is added that doesn't
+   * yet have a persistent ID.
    */
   std::optional<IdType> m_persistentId;
 
@@ -149,7 +158,9 @@ private: // implement methods inherited from Node
   bool doSelectable() const override;
 
   void doPick(
-    const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
+    const EditorContext& editorContext,
+    const vm::ray3& ray,
+    PickResult& pickResult) override;
   void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
   void doAccept(NodeVisitor& visitor) override;

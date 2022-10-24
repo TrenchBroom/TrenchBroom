@@ -33,29 +33,36 @@
 #include <fstream>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 PortalFile::PortalFile() = default;
 PortalFile::~PortalFile() = default;
 
-PortalFile::PortalFile(const IO::Path& path) {
+PortalFile::PortalFile(const IO::Path& path)
+{
   load(path);
 }
 
-bool PortalFile::canLoad(const IO::Path& path) {
+bool PortalFile::canLoad(const IO::Path& path)
+{
   std::ifstream stream = openPathAsInputStream(path);
   return stream.is_open() && stream.good();
 }
 
-const std::vector<vm::polygon3f>& PortalFile::portals() const {
+const std::vector<vm::polygon3f>& PortalFile::portals() const
+{
   return m_portals;
 }
 
-void PortalFile::load(const IO::Path& path) {
+void PortalFile::load(const IO::Path& path)
+{
   static const auto lineSplitter = "() \n\t\r";
 
   std::ifstream stream = openPathAsInputStream(path);
-  if (!stream.good()) {
+  if (!stream.good())
+  {
     throw FileFormatException("Couldn't open file");
   }
 
@@ -67,7 +74,8 @@ void PortalFile::load(const IO::Path& path) {
   std::getline(stream, line);
   const std::string formatCode = kdl::str_trim(line); // trim off any trailing \r
 
-  if (formatCode == "PRT1") {
+  if (formatCode == "PRT1")
+  {
     std::getline(stream, line); // number of leafs (ignored)
     std::getline(stream, line); // number of portals
     numPortals = std::stoi(line);
@@ -77,48 +85,63 @@ void PortalFile::load(const IO::Path& path) {
     // number of solid faces -- will ignore). Otherwise is Q1/Q2 style and we
     // will rewind the stream to process this line accordingly.
     const auto componentsCheck = kdl::str_split(line, lineSplitter);
-    if (componentsCheck.size() == 1) {
+    if (componentsCheck.size() == 1)
+    {
       prt1ForQ3 = true;
-    } else {
+    }
+    else
+    {
       stream.seekg(mark);
     }
-  } else if (formatCode == "PRT2") {
+  }
+  else if (formatCode == "PRT2")
+  {
     std::getline(stream, line); // number of leafs (ignored)
     std::getline(stream, line); // number of clusters (ignored)
     std::getline(stream, line); // number of portals
     numPortals = std::stoi(line);
-  } else if (formatCode == "PRT1-AM") {
+  }
+  else if (formatCode == "PRT1-AM")
+  {
     std::getline(stream, line); // number of clusters (ignored)
     std::getline(stream, line); // number of portals
     numPortals = std::stoi(line);
     std::getline(stream, line); // number of leafs (ignored)
-  } else {
+  }
+  else
+  {
     throw FileFormatException("Unknown portal format: " + formatCode);
   }
 
-  if (!stream.good()) {
+  if (!stream.good())
+  {
     throw FileFormatException("Error reading header");
   }
 
   // read portals
-  for (int i = 0; i < numPortals; ++i) {
+  for (int i = 0; i < numPortals; ++i)
+  {
     std::getline(stream, line);
     const auto components = kdl::str_split(line, lineSplitter);
 
-    if (!stream.good() || components.size() < 3) {
+    if (!stream.good() || components.size() < 3)
+    {
       throw FileFormatException("Error reading portal");
     }
 
     std::vector<vm::vec3f> verts;
     auto ptr = prt1ForQ3 ? 4u : 3u;
     const int numPoints = std::stoi(components.at(0));
-    for (int j = 0; j < numPoints; ++j) {
-      if (ptr + 2 >= components.size()) {
+    for (int j = 0; j < numPoints; ++j)
+    {
+      if (ptr + 2 >= components.size())
+      {
         throw FileFormatException("Error reading portal");
       }
 
       const vm::vec3f vert(
-        std::stof(components.at(ptr)), std::stof(components.at(ptr + 1)),
+        std::stof(components.at(ptr)),
+        std::stof(components.at(ptr + 1)),
         std::stof(components.at(ptr + 2)));
       verts.push_back(vert);
       ptr += 3;

@@ -23,13 +23,17 @@
 
 class QWidget;
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class MapRenderer;
 }
 
-namespace View {
-class FlashSelectionAnimation : public Animation {
+namespace View
+{
+class FlashSelectionAnimation : public Animation
+{
 private:
   static const Type AnimationType;
 
@@ -37,7 +41,8 @@ private:
   QWidget* m_view;
 
 public:
-  FlashSelectionAnimation(Renderer::MapRenderer& renderer, QWidget* view, double duration);
+  FlashSelectionAnimation(
+    Renderer::MapRenderer& renderer, QWidget* view, double duration);
 
 private:
   void doUpdate(double progress) override;

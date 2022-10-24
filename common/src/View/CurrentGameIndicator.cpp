@@ -26,15 +26,19 @@
 #include <QPixmap>
 #include <QString>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget* parent)
-  : DialogHeader{parent} {
+  : DialogHeader{parent}
+{
   auto& gameFactory = Model::GameFactory::instance();
 
   const auto gamePath = gameFactory.gamePath(gameName);
   auto iconPath = gameFactory.iconPath(gameName);
-  if (iconPath.isEmpty()) {
+  if (iconPath.isEmpty())
+  {
     iconPath = IO::Path("DefaultGameIcon.svg");
   }
 

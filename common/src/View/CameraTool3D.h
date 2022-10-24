@@ -27,15 +27,19 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class PerspectiveCamera;
 }
 
-namespace View {
+namespace View
+{
 class DragTracker;
 
-class CameraTool3D : public ToolController, public Tool {
+class CameraTool3D : public ToolController, public Tool
+{
 private:
   Renderer::PerspectiveCamera& m_camera;
 

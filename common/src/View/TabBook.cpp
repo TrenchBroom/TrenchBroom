@@ -26,19 +26,25 @@
 #include <QStackedLayout>
 #include <QVBoxLayout>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 TabBookPage::TabBookPage(QWidget* parent)
-  : QWidget(parent) {}
+  : QWidget(parent)
+{
+}
 TabBookPage::~TabBookPage() {}
 
-QWidget* TabBookPage::createTabBarPage(QWidget* parent) {
+QWidget* TabBookPage::createTabBarPage(QWidget* parent)
+{
   return new QWidget(parent);
 }
 
 TabBook::TabBook(QWidget* parent)
   : QWidget(parent)
-  , m_tabBar(new TabBar(this)) {
+  , m_tabBar(new TabBar(this))
+{
   m_tabBook = new QStackedLayout();
   m_tabBook->setContentsMargins(0, 0, 0, 0);
 
@@ -53,18 +59,21 @@ TabBook::TabBook(QWidget* parent)
   connect(m_tabBook, &QStackedLayout::currentChanged, this, &TabBook::pageChanged);
 }
 
-TabBar* TabBook::tabBar() {
+TabBar* TabBook::tabBar()
+{
   return m_tabBar;
 }
 
-void TabBook::addPage(TabBookPage* page, const QString& title) {
+void TabBook::addPage(TabBookPage* page, const QString& title)
+{
   ensure(page != nullptr, "page is null");
 
   m_tabBar->addTab(page, title);
   m_tabBook->addWidget(page);
 }
 
-void TabBook::switchToPage(const int index) {
+void TabBook::switchToPage(const int index)
+{
   assert(index < m_tabBook->count());
   m_tabBook->setCurrentIndex(index);
 }

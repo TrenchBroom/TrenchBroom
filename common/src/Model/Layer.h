@@ -24,9 +24,12 @@
 #include <optional>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
-class Layer {
+namespace TrenchBroom
+{
+namespace Model
+{
+class Layer
+{
 private:
   bool m_defaultLayer;
   std::string m_name;

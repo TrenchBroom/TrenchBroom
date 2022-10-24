@@ -27,8 +27,10 @@
 #include <optional>
 #include <vector>
 
-namespace TrenchBroom::Model {
-class PointTrace {
+namespace TrenchBroom::Model
+{
+class PointTrace
+{
 private:
   std::vector<vm::vec3f> m_points;
   size_t m_current;

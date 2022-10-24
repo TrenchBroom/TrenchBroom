@@ -26,11 +26,14 @@ class QLineEdit;
 class QPushButton;
 class QRadioButton;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapFrame;
 
-class ObjExportDialog : public QDialog {
+class ObjExportDialog : public QDialog
+{
   Q_OBJECT
 private:
   MapFrame* m_mapFrame;

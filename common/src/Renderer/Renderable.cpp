@@ -19,13 +19,17 @@
 
 #include "Renderable.h"
 
-namespace TrenchBroom {
-namespace Renderer {
-void Renderable::render(RenderContext& renderContext) {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+void Renderable::render(RenderContext& renderContext)
+{
   doRender(renderContext);
 }
 
-void DirectRenderable::prepareVertices(VboManager& vboManager) {
+void DirectRenderable::prepareVertices(VboManager& vboManager)
+{
   doPrepareVertices(vboManager);
 }
 } // namespace Renderer

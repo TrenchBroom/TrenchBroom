@@ -31,13 +31,16 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 enum class LockState;
 enum class VisibilityState;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class CommandProcessor;
 
 /**
@@ -47,7 +50,8 @@ class CommandProcessor;
  * the corresponding `something()` in MapDocument would create and execute a
  * Command object which then calls `performSomething()`.
  */
-class MapDocumentCommandFacade : public MapDocument {
+class MapDocumentCommandFacade : public MapDocument
+{
 private:
   std::unique_ptr<CommandProcessor> m_commandProcessor;
 
@@ -79,7 +83,8 @@ public: // adding and removing nodes
 
   std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>
   performReplaceChildren(
-    std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>> nodes);
+    std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>
+      nodes);
 
 public: // swapping node contents
   void performSwapNodeContents(
@@ -90,7 +95,8 @@ public: // Node Visibility
     const std::vector<Model::Node*>& nodes, Model::VisibilityState visibilityState);
   std::map<Model::Node*, Model::VisibilityState> setVisibilityEnsured(
     const std::vector<Model::Node*>& nodes);
-  void restoreVisibilityState(const std::map<Model::Node*, Model::VisibilityState>& nodes);
+  void restoreVisibilityState(
+    const std::map<Model::Node*, Model::VisibilityState>& nodes);
   std::map<Model::Node*, Model::LockState> setLockState(
     const std::vector<Model::Node*>& nodes, Model::LockState lockState);
   void restoreLockState(const std::map<Model::Node*, Model::LockState>& nodes);

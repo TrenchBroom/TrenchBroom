@@ -29,15 +29,19 @@
 class QListWidget;
 class QAbstractButton;
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
 
-namespace View {
+namespace View
+{
 class MapDocument;
 
-class DirectoryTextureCollectionEditor : public QWidget {
+class DirectoryTextureCollectionEditor : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;

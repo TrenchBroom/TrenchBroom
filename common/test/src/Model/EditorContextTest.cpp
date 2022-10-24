@@ -45,9 +45,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-class EditorContextTest {
+namespace TrenchBroom
+{
+namespace Model
+{
+class EditorContextTest
+{
 protected:
   vm::bbox3d worldBounds;
   WorldNode worldNode;
@@ -55,22 +58,27 @@ protected:
 
   EditorContextTest()
     : worldBounds{8192.0}
-    , worldNode{{}, {}, MapFormat::Quake3} {}
+    , worldNode{{}, {}, MapFormat::Quake3}
+  {
+  }
 
 public:
-  GroupNode* createTopLevelGroup() {
+  GroupNode* createTopLevelGroup()
+  {
     GroupNode* group;
     std::tie(group, std::ignore) = createGroupedBrush();
     return group;
   }
 
-  EntityNode* createTopLevelPointEntity() {
+  EntityNode* createTopLevelPointEntity()
+  {
     auto* entityNode = new EntityNode{Entity{}};
     worldNode.defaultLayer()->addChild(entityNode);
     return entityNode;
   }
 
-  std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity() {
+  std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity()
+  {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
     auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
     auto* entityNode = new EntityNode{Entity{}};
@@ -79,7 +87,8 @@ public:
     return std::make_tuple(entityNode, brushNode);
   }
 
-  std::tuple<EntityNode*, PatchNode*> createTopLevelPatchEntity() {
+  std::tuple<EntityNode*, PatchNode*> createTopLevelPatchEntity()
+  {
     // clang-format off
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
@@ -93,14 +102,16 @@ public:
     return std::make_tuple(entityNode, patchNode);
   }
 
-  BrushNode* createTopLevelBrush() {
+  BrushNode* createTopLevelBrush()
+  {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
     auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
     worldNode.defaultLayer()->addChild(brushNode);
     return brushNode;
   }
 
-  PatchNode* createTopLevelPatch() {
+  PatchNode* createTopLevelPatch()
+  {
     // clang-format off
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
@@ -112,7 +123,8 @@ public:
     return patchNode;
   }
 
-  std::tuple<GroupNode*, GroupNode*> createNestedGroup() {
+  std::tuple<GroupNode*, GroupNode*> createNestedGroup()
+  {
     GroupNode* outerGroup;
     GroupNode* innerGroup;
     std::tie(outerGroup, innerGroup, std::ignore) = createdNestedGroupedBrush();
@@ -120,7 +132,8 @@ public:
     return std::make_tuple(outerGroup, innerGroup);
   }
 
-  std::tuple<GroupNode*, BrushNode*> createGroupedBrush() {
+  std::tuple<GroupNode*, BrushNode*> createGroupedBrush()
+  {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
     auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
     auto* groupNode = new GroupNode{Group{"somegroup"}};
@@ -131,7 +144,8 @@ public:
     return std::make_tuple(groupNode, brushNode);
   }
 
-  std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity() {
+  std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity()
+  {
     auto* entityNode = new EntityNode{Entity{}};
     auto* groupNode = new GroupNode{Group{"somegroup"}};
 
@@ -141,7 +155,8 @@ public:
     return std::make_tuple(groupNode, entityNode);
   }
 
-  std::tuple<GroupNode*, PatchNode*> createGroupedPatch() {
+  std::tuple<GroupNode*, PatchNode*> createGroupedPatch()
+  {
     // clang-format off
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
@@ -157,7 +172,8 @@ public:
     return std::make_tuple(groupNode, patchNode);
   }
 
-  std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
+  std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity()
+  {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
     auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
     auto* entityNode = new EntityNode{Entity{}};
@@ -170,7 +186,8 @@ public:
     return std::make_tuple(groupNode, entityNode, brushNode);
   }
 
-  std::tuple<GroupNode*, EntityNode*, PatchNode*> createGroupedPatchEntity() {
+  std::tuple<GroupNode*, EntityNode*, PatchNode*> createGroupedPatchEntity()
+  {
     // clang-format off
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
@@ -188,7 +205,8 @@ public:
     return std::make_tuple(groupNode, entityNode, patchNode);
   }
 
-  std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush() {
+  std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush()
+  {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
     auto* innerBrushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
     auto* innerGroupNode = new GroupNode{Group{"inner"}};
@@ -210,9 +228,11 @@ constexpr auto L_Inherited = LockState::Inherited;
 constexpr auto L_Locked = LockState::Locked;
 constexpr auto L_Unlocked = LockState::Unlocked;
 
-TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
+TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
+{
 
-  SECTION("World") {
+  SECTION("World")
+  {
     using T = std::tuple<VisibilityState, LockState, bool, bool, bool>;
 
     // clang-format off
@@ -235,8 +255,10 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
     CHECK(context.selectable(&worldNode) == selectable);
   }
 
-  SECTION("Layer") {
-    using T = std::tuple<VisibilityState, LockState, VisibilityState, LockState, bool, bool, bool>;
+  SECTION("Layer")
+  {
+    using T = std::
+      tuple<VisibilityState, LockState, VisibilityState, LockState, bool, bool, bool>;
 
     // clang-format off
     const auto
@@ -298,10 +320,19 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
     CHECK(context.selectable(layerNode) == selectable);
   }
 
-  SECTION("Top Level Group") {
+  SECTION("Top Level Group")
+  {
     using T = std::tuple<
-      VisibilityState, LockState, bool, bool, VisibilityState, LockState, VisibilityState, bool,
-      bool, bool>;
+      VisibilityState,
+      LockState,
+      bool,
+      bool,
+      VisibilityState,
+      LockState,
+      VisibilityState,
+      bool,
+      bool,
+      bool>;
 
     // clang-format off
     const auto
@@ -439,16 +470,25 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
 
     auto [groupNode, brushNode] = createGroupedBrush();
 
-    CAPTURE(wrldVisState, wrldLckState, open, selected, grpVisState, grpLckState, childVisState);
+    CAPTURE(
+      wrldVisState,
+      wrldLckState,
+      open,
+      selected,
+      grpVisState,
+      grpLckState,
+      childVisState);
 
     worldNode.setVisibilityState(wrldVisState);
     worldNode.setLockState(wrldLckState);
 
-    if (open) {
+    if (open)
+    {
       context.pushGroup(groupNode);
     }
 
-    if (selected) {
+    if (selected)
+    {
       groupNode->select();
     }
 
@@ -462,9 +502,17 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
     CHECK(context.selectable(groupNode) == selectable);
   }
 
-  SECTION("Top Level Brush Entity, Patch Entity") {
+  SECTION("Top Level Brush Entity, Patch Entity")
+  {
     using T = std::tuple<
-      VisibilityState, LockState, VisibilityState, LockState, VisibilityState, bool, bool, bool>;
+      VisibilityState,
+      LockState,
+      VisibilityState,
+      LockState,
+      VisibilityState,
+      bool,
+      bool,
+      bool>;
 
     // clang-format off
     const auto
@@ -557,17 +605,18 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
 
     using GetNodes = std::function<std::tuple<EntityNode*, Node*>(EditorContextTest&)>;
     const GetNodes getNodes = GENERATE_COPY(
-      GetNodes{[](auto& test) {
-        return test.createTopLevelBrushEntity();
-      }},
-      GetNodes{[](auto& test) {
-        return test.createTopLevelPatchEntity();
-      }});
+      GetNodes{[](auto& test) { return test.createTopLevelBrushEntity(); }},
+      GetNodes{[](auto& test) { return test.createTopLevelPatchEntity(); }});
 
     auto [entityNode, childNode] = getNodes(*this);
 
     CAPTURE(
-      childNode->name(), wrldVisState, wrldLckState, entVisState, entLockState, childVisState);
+      childNode->name(),
+      wrldVisState,
+      wrldLckState,
+      entVisState,
+      entLockState,
+      childVisState);
 
     worldNode.setVisibilityState(wrldVisState);
     worldNode.setLockState(wrldLckState);
@@ -582,9 +631,17 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
     CHECK(context.selectable(entityNode) == selectable);
   }
 
-  SECTION("Top Level Point Entity") {
-    using T =
-      std::tuple<VisibilityState, LockState, bool, VisibilityState, LockState, bool, bool, bool>;
+  SECTION("Top Level Point Entity")
+  {
+    using T = std::tuple<
+      VisibilityState,
+      LockState,
+      bool,
+      VisibilityState,
+      LockState,
+      bool,
+      bool,
+      bool>;
 
     // clang-format off
     const auto
@@ -665,8 +722,10 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
     CHECK(context.selectable(entityNode) == selectable);
   }
 
-  SECTION("Top Level Brush, Patch") {
-    using T = std::tuple<VisibilityState, LockState, VisibilityState, LockState, bool, bool, bool>;
+  SECTION("Top Level Brush, Patch")
+  {
+    using T = std::
+      tuple<VisibilityState, LockState, VisibilityState, LockState, bool, bool, bool>;
 
     // clang-format off
     const auto
@@ -705,12 +764,8 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
 
     using GetNode = std::function<Node*(EditorContextTest&)>;
     const GetNode getNode = GENERATE_COPY(
-      GetNode{[](auto& test) {
-        return test.createTopLevelBrush();
-      }},
-      GetNode{[](auto& test) {
-        return test.createTopLevelPatch();
-      }});
+      GetNode{[](auto& test) { return test.createTopLevelBrush(); }},
+      GetNode{[](auto& test) { return test.createTopLevelPatch(); }});
 
     auto* node = getNode(*this);
 
@@ -728,10 +783,21 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes") {
   }
 }
 
-TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes") {
-  SECTION("Nested group") {
+TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
+{
+  SECTION("Nested group")
+  {
     using T = std::tuple<
-      bool, bool, bool, bool, VisibilityState, LockState, VisibilityState, LockState, bool, bool,
+      bool,
+      bool,
+      bool,
+      bool,
+      VisibilityState,
+      LockState,
+      VisibilityState,
+      LockState,
+      bool,
+      bool,
       bool>;
 
     // clang-format off
@@ -848,7 +914,15 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes") {
 
     auto [outerGroupNode, innerGroupNode, brushNode] = createdNestedGroupedBrush();
 
-    CAPTURE(outOpen, innOpen, outSel, innSel, outVisState, outLckState, innVisState, innLckState);
+    CAPTURE(
+      outOpen,
+      innOpen,
+      outSel,
+      innSel,
+      outVisState,
+      outLckState,
+      innVisState,
+      innLckState);
 
     REQUIRE((!innOpen || outOpen)); // inner group open implies outer group open
     REQUIRE((!outSel || !innSel));  // both cannot be selected
@@ -856,19 +930,23 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes") {
     REQUIRE((!innSel || !innOpen)); // inner group selected implies it's closed
     REQUIRE((!innSel || outOpen));  // inner group selected implies outer group is open
 
-    if (outOpen) {
+    if (outOpen)
+    {
       context.pushGroup(outerGroupNode);
     }
 
-    if (innOpen) {
+    if (innOpen)
+    {
       context.pushGroup(innerGroupNode);
     }
 
-    if (outSel) {
+    if (outSel)
+    {
       outerGroupNode->select();
     }
 
-    if (innSel) {
+    if (innSel)
+    {
       innerGroupNode->select();
     }
 
@@ -882,9 +960,17 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes") {
     CHECK(context.selectable(innerGroupNode) == selectable);
   }
 
-  SECTION("Grouped Point Entity, Grouped Brush, Grouped Patch") {
-    using T =
-      std::tuple<bool, VisibilityState, LockState, VisibilityState, LockState, bool, bool, bool>;
+  SECTION("Grouped Point Entity, Grouped Brush, Grouped Patch")
+  {
+    using T = std::tuple<
+      bool,
+      VisibilityState,
+      LockState,
+      VisibilityState,
+      LockState,
+      bool,
+      bool,
+      bool>;
 
     // clang-format off
     const auto
@@ -933,21 +1019,17 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes") {
 
     using GetNodes = std::function<std::tuple<GroupNode*, Node*>(EditorContextTest&)>;
     const GetNodes getNodes = GENERATE_COPY(
-      GetNodes{[](auto& test) {
-        return test.createGroupedPointEntity();
-      }},
-      GetNodes{[](auto& test) {
-        return test.createGroupedBrush();
-      }},
-      GetNodes{[](auto& test) {
-        return test.createGroupedPatch();
-      }});
+      GetNodes{[](auto& test) { return test.createGroupedPointEntity(); }},
+      GetNodes{[](auto& test) { return test.createGroupedBrush(); }},
+      GetNodes{[](auto& test) { return test.createGroupedPatch(); }});
 
     auto [groupNode, childNode] = getNodes(*this);
 
-    CAPTURE(childNode->name(), grpOpen, grpVisState, grpLckState, entVisState, entLckState);
+    CAPTURE(
+      childNode->name(), grpOpen, grpVisState, grpLckState, entVisState, entLckState);
 
-    if (grpOpen) {
+    if (grpOpen)
+    {
       context.pushGroup(groupNode);
     }
 
@@ -961,9 +1043,17 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes") {
     CHECK(context.selectable(childNode) == selectable);
   }
 
-  SECTION("Grouped Brush Entity, Patch Entity") {
+  SECTION("Grouped Brush Entity, Patch Entity")
+  {
     using T = std::tuple<
-      bool, VisibilityState, LockState, VisibilityState, LockState, VisibilityState, bool, bool,
+      bool,
+      VisibilityState,
+      LockState,
+      VisibilityState,
+      LockState,
+      VisibilityState,
+      bool,
+      bool,
       bool>;
 
     // clang-format off
@@ -1083,20 +1173,24 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes") {
     }));
     // clang-format on
 
-    using GetNodes = std::function<std::tuple<GroupNode*, EntityNode*, Node*>(EditorContextTest&)>;
+    using GetNodes =
+      std::function<std::tuple<GroupNode*, EntityNode*, Node*>(EditorContextTest&)>;
     const GetNodes getNodes = GENERATE_COPY(
-      GetNodes{[](auto& test) {
-        return test.createGroupedBrushEntity();
-      }},
-      GetNodes{[](auto& test) {
-        return test.createGroupedPatchEntity();
-      }});
+      GetNodes{[](auto& test) { return test.createGroupedBrushEntity(); }},
+      GetNodes{[](auto& test) { return test.createGroupedPatchEntity(); }});
 
     auto [groupNode, entityNode, childNode] = getNodes(*this);
 
-    CAPTURE(childNode->name(), grpVisState, grpLckState, entVisState, entLockState, childVisState);
+    CAPTURE(
+      childNode->name(),
+      grpVisState,
+      grpLckState,
+      entVisState,
+      entLockState,
+      childVisState);
 
-    if (grpOpen) {
+    if (grpOpen)
+    {
       context.pushGroup(groupNode);
     }
 

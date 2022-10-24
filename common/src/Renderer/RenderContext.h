@@ -24,20 +24,25 @@
 
 #include <vecmath/bbox.h>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class Camera;
 class FontManager;
 class ShaderManager;
 
-enum class RenderMode {
+enum class RenderMode
+{
   Render3D,
   Render2D
 };
 
-class RenderContext {
+class RenderContext
+{
 private:
-  enum class ShowSelectionGuide {
+  enum class ShowSelectionGuide
+  {
     Show,
     Hide,
     ForceShow,
@@ -78,7 +83,9 @@ private:
 
 public:
   RenderContext(
-    RenderMode renderMode, const Camera& camera, FontManager& fontManager,
+    RenderMode renderMode,
+    const Camera& camera,
+    FontManager& fontManager,
     ShaderManager& shaderManager);
 
   bool render2D() const;

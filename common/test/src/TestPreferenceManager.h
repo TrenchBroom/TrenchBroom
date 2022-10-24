@@ -21,8 +21,10 @@
 
 #include "PreferenceManager.h"
 
-namespace TrenchBroom {
-class TestPreferenceManager : public PreferenceManager {
+namespace TrenchBroom
+{
+class TestPreferenceManager : public PreferenceManager
+{
 public:
   TestPreferenceManager() = default;
 

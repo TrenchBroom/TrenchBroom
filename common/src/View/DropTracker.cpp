@@ -19,8 +19,10 @@
 
 #include "DropTracker.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 DropTracker::~DropTracker() = default;
 }
 } // namespace TrenchBroom

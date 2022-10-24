@@ -27,13 +27,17 @@
 #include "Catch2.h"
 #include "TestLogger.h"
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 static const auto fixturePath = Path("fixture/test/IO/Wal");
 
-TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir", "[WalTextureReaderTest]") {
+TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir", "[WalTextureReaderTest]")
+{
   DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-  const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/colormap.pcx"));
+  const Assets::Palette palette =
+    Assets::Palette::loadFile(fs, Path("fixture/test/colormap.pcx"));
 
   TextureReader::PathSuffixNameStrategy nameStrategy(fixturePath.length());
   NullLogger logger;

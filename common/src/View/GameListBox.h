@@ -26,12 +26,16 @@
 
 class QPixmap;
 
-namespace TrenchBroom {
-namespace View {
-class GameListBox : public ImageListBox {
+namespace TrenchBroom
+{
+namespace View
+{
+class GameListBox : public ImageListBox
+{
   Q_OBJECT
 private:
-  struct Info {
+  struct Info
+  {
     std::string name;
     QPixmap image;
     QString title;

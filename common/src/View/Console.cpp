@@ -29,10 +29,13 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 Console::Console(QWidget* parent)
-  : TabBookPage(parent) {
+  : TabBookPage(parent)
+{
   m_textView = new QTextEdit();
   m_textView->setReadOnly(true);
   m_textView->setWordWrapMode(QTextOption::NoWrap);
@@ -43,38 +46,46 @@ Console::Console(QWidget* parent)
   setLayout(sizer);
 }
 
-void Console::doLog(const LogLevel level, const std::string& message) {
+void Console::doLog(const LogLevel level, const std::string& message)
+{
   doLog(level, QString::fromStdString(message));
 }
 
-void Console::doLog(const LogLevel level, const QString& message) {
-  if (!message.isEmpty()) {
+void Console::doLog(const LogLevel level, const QString& message)
+{
+  if (!message.isEmpty())
+  {
     logToDebugOut(level, message);
     logToConsole(level, message);
     FileLogger::instance().log(level, message);
   }
 }
 
-void Console::logToDebugOut(const LogLevel /* level */, const QString& message) {
+void Console::logToDebugOut(const LogLevel /* level */, const QString& message)
+{
   qDebug("%s", message.toStdString().c_str());
 }
 
-void Console::logToConsole(const LogLevel level, const QString& message) {
+void Console::logToConsole(const LogLevel level, const QString& message)
+{
   // NOTE: QPalette::Text is the correct color role for contrast against QPalette::Base
   // which is the background of text entry widgets
   QTextCharFormat format;
-  switch (level) {
-    case LogLevel::Debug:
-      format.setForeground(QBrush(m_textView->palette().color(QPalette::Disabled, QPalette::Text)));
-      break;
-    case LogLevel::Info:
-      break;
-    case LogLevel::Warn:
-      format.setForeground(QBrush(m_textView->palette().color(QPalette::Active, QPalette::Text)));
-      break;
-    case LogLevel::Error:
-      format.setForeground(QBrush(QColor(250, 30, 60)));
-      break;
+  switch (level)
+  {
+  case LogLevel::Debug:
+    format.setForeground(
+      QBrush(m_textView->palette().color(QPalette::Disabled, QPalette::Text)));
+    break;
+  case LogLevel::Info:
+    break;
+  case LogLevel::Warn:
+    format.setForeground(
+      QBrush(m_textView->palette().color(QPalette::Active, QPalette::Text)));
+    break;
+  case LogLevel::Error:
+    format.setForeground(QBrush(QColor(250, 30, 60)));
+    break;
   }
   format.setFont(Fonts::fixedWidthFont());
 

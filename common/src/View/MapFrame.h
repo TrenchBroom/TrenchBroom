@@ -43,24 +43,29 @@ class QSplitter;
 class QTimer;
 class QToolBar;
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class Texture;
 }
 
-namespace IO {
+namespace IO
+{
 class Path;
 }
 
-namespace Model {
+namespace Model
+{
 class Game;
 class GroupNode;
 class LayerNode;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class Action;
 class Autosaver;
 class Console;
@@ -77,7 +82,8 @@ class SignalDelayer;
 class SwitchableMapViewContainer;
 class Tool;
 
-class MapFrame : public QMainWindow {
+class MapFrame : public QMainWindow
+{
   Q_OBJECT
 private:
   FrameManager* m_frameManager;
@@ -95,8 +101,8 @@ private:
   std::unique_ptr<GLContextManager> m_contextManager;
   SwitchableMapViewContainer* m_mapView;
   /**
-   * Last focused MapViewBase. It's a QPointer to handle changing from e.g. a 2-pane map view to
-   * 1-pane.
+   * Last focused MapViewBase. It's a QPointer to handle changing from e.g. a 2-pane map
+   * view to 1-pane.
    */
   QPointer<MapViewBase> m_currentMapView;
   InfoPanel* m_infoPanel;
@@ -414,7 +420,8 @@ private:
   void triggerAutosave();
 };
 
-class DebugPaletteWindow : public QDialog {
+class DebugPaletteWindow : public QDialog
+{
   Q_OBJECT
 public:
   DebugPaletteWindow(QWidget* parent = nullptr);

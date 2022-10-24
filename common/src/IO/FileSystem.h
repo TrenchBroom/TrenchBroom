@@ -29,23 +29,27 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class File;
 class Path;
 
-class FileSystem {
+class FileSystem
+{
   deleteCopyAndMove(FileSystem);
 
 protected:
   /**
    * Next filesystem in the search path.
    *
-   * NOTE: the use of std::shared_ptr is because there is shared ownership during construction of
-   * the filesystems (std::unique_ptr would require std::move'ing the existing chain of
-   * filesystems when passing it to the FileSystem constructor, which means if the constructor
-   * throws, the existing filesystem chain gets destroyed. FileSystem constructors throw if there
-   * is an error creating the filesystem, so std::unique_ptr isn't usable with this design.)
+   * NOTE: the use of std::shared_ptr is because there is shared ownership during
+   * construction of the filesystems (std::unique_ptr would require std::move'ing the
+   * existing chain of filesystems when passing it to the FileSystem constructor, which
+   * means if the constructor throws, the existing filesystem chain gets destroyed.
+   * FileSystem constructors throw if there is an error creating the filesystem, so
+   * std::unique_ptr isn't usable with this design.)
    */
   std::shared_ptr<FileSystem> m_next;
 
@@ -64,7 +68,8 @@ public: // public API
   bool fileExists(const Path& path) const;
 
   /**
-   * Find all files with the same path and base name as the given path, regardless of the extension.
+   * Find all files with the same path and base name as the given path, regardless of the
+   * extension.
    *
    * @param path the file path
    * @param extensions a list of extensions to match
@@ -82,7 +87,8 @@ public: // public API
    * @return the paths to the items that matched the query
    */
   template <class Matcher>
-  std::vector<Path> findItems(const Path& directoryPath, const Matcher& matcher) const {
+  std::vector<Path> findItems(const Path& directoryPath, const Matcher& matcher) const
+  {
     return findItems(directoryPath, matcher, false);
   }
 
@@ -95,7 +101,8 @@ public: // public API
   std::vector<Path> findItems(const Path& directoryPath) const;
 
   /**
-   * Find all items in the given directory and any sub directories that match the given matcher.
+   * Find all items in the given directory and any sub directories that match the given
+   * matcher.
    *
    * @tparam Matcher the type of the matcher
    * @param directoryPath the path to a directory to search
@@ -103,7 +110,9 @@ public: // public API
    * @return the paths to the items that matched the query
    */
   template <class Matcher>
-  std::vector<Path> findItemsRecursively(const Path& directoryPath, const Matcher& matcher) const {
+  std::vector<Path> findItemsRecursively(
+    const Path& directoryPath, const Matcher& matcher) const
+  {
     return findItems(directoryPath, matcher, true);
   }
 
@@ -127,8 +136,8 @@ private: // private API to be used for chaining, avoids multiple checks of param
   std::shared_ptr<File> _openFile(const Path& path) const;
 
   /**
-   * Finds all items matching the given matcher at the given search path, optionally recursively.
-   * This method performs parameter checks against the search path.
+   * Finds all items matching the given matcher at the given search path, optionally
+   * recursively. This method performs parameter checks against the search path.
    *
    * Delegates the query to the next file system if one exists.
    *
@@ -139,27 +148,34 @@ private: // private API to be used for chaining, avoids multiple checks of param
    * @return the matching paths
    */
   template <class M>
-  std::vector<Path> findItems(const Path& searchPath, const M& matcher, const bool recurse) const {
-    try {
-      if (searchPath.isAbsolute()) {
+  std::vector<Path> findItems(
+    const Path& searchPath, const M& matcher, const bool recurse) const
+  {
+    try
+    {
+      if (searchPath.isAbsolute())
+      {
         throw FileSystemException("Path is absolute: '" + searchPath.asString() + "'");
       }
 
-      if (!directoryExists(searchPath)) {
+      if (!directoryExists(searchPath))
+      {
         throw FileSystemException("Directory not found: '" + searchPath.asString() + "'");
       }
 
       std::vector<Path> result;
       _findItems(searchPath, matcher, recurse, result);
       return kdl::vec_sort_and_remove_duplicates(std::move(result));
-    } catch (const PathException& e) {
+    }
+    catch (const PathException& e)
+    {
       throw FileSystemException("Invalid path: '" + searchPath.asString() + "'", e);
     }
   }
 
   /**
-   * Finds all items matching the given matcher at the given search path, optionally recursively,
-   * and adds the matches to the given result.
+   * Finds all items matching the given matcher at the given search path, optionally
+   * recursively, and adds the matches to the given result.
    *
    * Delegates the query to the next file system if one exists.
    *
@@ -171,16 +187,21 @@ private: // private API to be used for chaining, avoids multiple checks of param
    */
   template <class M>
   void _findItems(
-    const Path& searchPath, const M& matcher, const bool recurse, std::vector<Path>& result) const {
+    const Path& searchPath,
+    const M& matcher,
+    const bool recurse,
+    std::vector<Path>& result) const
+  {
     doFindItems(searchPath, matcher, recurse, result);
-    if (m_next) {
+    if (m_next)
+    {
       m_next->_findItems(searchPath, matcher, recurse, result);
     }
   }
 
   /**
-   * Finds all items matching the given matcher at the given search path, optionally recursively,
-   * and adds the matches to the given result.
+   * Finds all items matching the given matcher at the given search path, optionally
+   * recursively, and adds the matches to the given result.
    *
    * @tparam M the matcher type
    * @param searchPath the search path at which to search for matches
@@ -190,14 +211,22 @@ private: // private API to be used for chaining, avoids multiple checks of param
    */
   template <class M>
   void doFindItems(
-    const Path& searchPath, const M& matcher, const bool recurse, std::vector<Path>& result) const {
-    if (doDirectoryExists(searchPath)) {
-      for (const auto& itemPath : doGetDirectoryContents(searchPath)) {
+    const Path& searchPath,
+    const M& matcher,
+    const bool recurse,
+    std::vector<Path>& result) const
+  {
+    if (doDirectoryExists(searchPath))
+    {
+      for (const auto& itemPath : doGetDirectoryContents(searchPath))
+      {
         const auto directory = doDirectoryExists(searchPath + itemPath);
-        if (directory && recurse) {
+        if (directory && recurse)
+        {
           doFindItems(searchPath + itemPath, matcher, recurse, result);
         }
-        if (matcher(searchPath + itemPath, directory)) {
+        if (matcher(searchPath + itemPath, directory))
+        {
           result.push_back(searchPath + itemPath);
         }
       }
@@ -216,7 +245,8 @@ private: // subclassing API
   virtual std::shared_ptr<File> doOpenFile(const Path& path) const = 0;
 };
 
-class WritableFileSystem {
+class WritableFileSystem
+{
   deleteCopyAndMove(WritableFileSystem);
 
 public:
@@ -240,8 +270,10 @@ private:
   virtual void doCreateFile(const Path& path, const std::string& contents) = 0;
   virtual void doCreateDirectory(const Path& path) = 0;
   virtual void doDeleteFile(const Path& path) = 0;
-  virtual void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
-  virtual void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
+  virtual void doCopyFile(
+    const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
+  virtual void doMoveFile(
+    const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
 };
 } // namespace IO
 } // namespace TrenchBroom

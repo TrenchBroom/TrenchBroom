@@ -31,18 +31,22 @@
 
 #include <stdexcept>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 
 Color FreeImageTextureReader::getAverageColor(
-  const Assets::TextureBuffer& buffer, const GLenum format) {
+  const Assets::TextureBuffer& buffer, const GLenum format)
+{
   ensure(format == GL_RGBA || format == GL_BGRA, "expected RGBA or BGRA");
 
   const unsigned char* const data = buffer.data();
   const std::size_t bufferSize = buffer.size();
 
   Color average;
-  for (std::size_t i = 0; i < bufferSize; i += 4) {
+  for (std::size_t i = 0; i < bufferSize; i += 4)
+  {
     average = average + Color(data[i], data[i + 1], data[i + 2], data[i + 3]);
   }
   const std::size_t numPixels = bufferSize / 4;
@@ -58,42 +62,49 @@ Color FreeImageTextureReader::getAverageColor(
  * so we can handle both possible orders and map them to the relevant GL_RGBA
  * or GL_BGRA constant.
  */
-static constexpr GLenum freeImage32BPPFormatToGLFormat() {
-  if constexpr (FI_RGBA_RED == 0 && FI_RGBA_GREEN == 1 && FI_RGBA_BLUE == 2 && FI_RGBA_ALPHA == 3) {
+static constexpr GLenum freeImage32BPPFormatToGLFormat()
+{
+  if constexpr (
+    FI_RGBA_RED == 0 && FI_RGBA_GREEN == 1 && FI_RGBA_BLUE == 2 && FI_RGBA_ALPHA == 3)
+  {
 
     return GL_RGBA;
-  } else if constexpr (
-    FI_RGBA_BLUE == 0 && FI_RGBA_GREEN == 1 && FI_RGBA_RED == 2 && FI_RGBA_ALPHA == 3) {
+  }
+  else if constexpr (
+    FI_RGBA_BLUE == 0 && FI_RGBA_GREEN == 1 && FI_RGBA_RED == 2 && FI_RGBA_ALPHA == 3)
+  {
 
     return GL_BGRA;
-  } else {
+  }
+  else
+  {
     throw std::runtime_error("Expected FreeImage to use RGBA or BGRA");
   }
 }
 
 Assets::Texture FreeImageTextureReader::readTextureFromMemory(
-  const std::string& name, const uint8_t* begin, const size_t size) {
+  const std::string& name, const uint8_t* begin, const size_t size)
+{
   InitFreeImage::initialize();
 
-  auto* imageMemory = FreeImage_OpenMemory(const_cast<uint8_t*>(begin), static_cast<DWORD>(size));
-  auto memoryGuard = kdl::invoke_later{[&]() {
-    FreeImage_CloseMemory(imageMemory);
-  }};
+  auto* imageMemory =
+    FreeImage_OpenMemory(const_cast<uint8_t*>(begin), static_cast<DWORD>(size));
+  auto memoryGuard = kdl::invoke_later{[&]() { FreeImage_CloseMemory(imageMemory); }};
 
   const auto imageFormat = FreeImage_GetFileTypeFromMemory(imageMemory);
   auto* image = FreeImage_LoadFromMemory(imageFormat, imageMemory);
-  auto imageGuard = kdl::invoke_later{[&]() {
-    FreeImage_Unload(image);
-  }};
+  auto imageGuard = kdl::invoke_later{[&]() { FreeImage_Unload(image); }};
 
-  if (image == nullptr) {
+  if (image == nullptr)
+  {
     throw AssetException("FreeImage could not load image data");
   }
 
   const auto imageWidth = static_cast<size_t>(FreeImage_GetWidth(image));
   const auto imageHeight = static_cast<size_t>(FreeImage_GetHeight(image));
 
-  if (!checkTextureDimensions(imageWidth, imageHeight)) {
+  if (!checkTextureDimensions(imageWidth, imageHeight))
+  {
     throw AssetException("Invalid texture dimensions");
   }
 
@@ -107,12 +118,14 @@ Assets::Texture FreeImageTextureReader::readTextureFromMemory(
   Assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
 
   if (
-    FreeImage_GetColorType(image) != FIC_RGBALPHA ||
-    FreeImage_GetLine(image) / FreeImage_GetWidth(image) != 4) {
+    FreeImage_GetColorType(image) != FIC_RGBALPHA
+    || FreeImage_GetLine(image) / FreeImage_GetWidth(image) != 4)
+  {
     FreeImage_Unload(std::exchange(image, FreeImage_ConvertTo32Bits(image)));
   }
 
-  if (image == nullptr) {
+  if (image == nullptr)
+  {
     throw AssetException("Unsupported pixel format");
   }
 
@@ -124,21 +137,30 @@ Assets::Texture FreeImageTextureReader::readTextureFromMemory(
   const auto outBytesPerRow = static_cast<int>(imageWidth * 4);
 
   FreeImage_ConvertToRawBits(
-    outBytes, image, outBytesPerRow, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK,
+    outBytes,
+    image,
+    outBytesPerRow,
+    32,
+    FI_RGBA_RED_MASK,
+    FI_RGBA_GREEN_MASK,
+    FI_RGBA_BLUE_MASK,
     TRUE);
 
   const auto textureType = Assets::Texture::selectTextureType(masked);
   const Color averageColor = getAverageColor(buffers.at(0), format);
 
-  return Assets::Texture{name,   imageWidth, imageHeight, averageColor, std::move(buffers),
-                         format, textureType};
+  return Assets::Texture{
+    name, imageWidth, imageHeight, averageColor, std::move(buffers), format, textureType};
 }
 
 FreeImageTextureReader::FreeImageTextureReader(
   const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader(nameStrategy, fs, logger) {}
+  : TextureReader(nameStrategy, fs, logger)
+{
+}
 
-Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
+Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const
+{
   auto reader = file->reader().buffer();
 
   InitFreeImage::initialize();

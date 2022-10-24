@@ -35,23 +35,28 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 enum class PitchType;
 class EntityModelFrame;
 struct ModelSpecification;
 } // namespace Assets
 
-namespace Model {
+namespace Model
+{
 struct EntityPropertyConfig;
 
-class EntityNode : public EntityNodeBase, public Object {
+class EntityNode : public EntityNodeBase, public Object
+{
 public:
   static const HitType::Type EntityHitType;
   static const vm::bbox3 DefaultBounds;
 
 private:
-  struct CachedBounds {
+  struct CachedBounds
+  {
     vm::bbox3 modelBounds;
     vm::bbox3 logicalBounds;
     vm::bbox3 physicalBounds;
@@ -91,7 +96,9 @@ private: // implement Node interface
   bool doSelectable() const override;
 
   void doPick(
-    const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
+    const EditorContext& editorContext,
+    const vm::ray3& ray,
+    PickResult& pickResult) override;
   void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
   void doAccept(NodeVisitor& visitor) override;

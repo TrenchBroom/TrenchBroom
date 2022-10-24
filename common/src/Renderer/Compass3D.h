@@ -21,11 +21,15 @@
 
 #include "Renderer/Compass.h"
 
-namespace TrenchBroom {
-namespace Renderer {
-class Compass3D : public Compass {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+class Compass3D : public Compass
+{
 private:
-  void doRenderCompass(RenderContext& renderContext, const vm::mat4x4f& transform) override;
+  void doRenderCompass(
+    RenderContext& renderContext, const vm::mat4x4f& transform) override;
 };
 } // namespace Renderer
 } // namespace TrenchBroom

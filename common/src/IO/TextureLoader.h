@@ -25,26 +25,31 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class Palette;
 class TextureCollection;
 class TextureManager;
 } // namespace Assets
 
-namespace Model {
+namespace Model
+{
 struct TextureConfig;
 }
 
-namespace IO {
+namespace IO
+{
 class FileSystem;
 class Path;
 class TextureCollectionLoader;
 class TextureReader;
 
-class TextureLoader {
+class TextureLoader
+{
 private:
   std::vector<std::string> m_textureExtensions;
   std::unique_ptr<TextureReader> m_textureReader;
@@ -52,23 +57,29 @@ private:
 
 public:
   TextureLoader(
-    const FileSystem& gameFS, const std::vector<Path>& fileSearchPaths,
-    const Model::TextureConfig& textureConfig, Logger& logger);
+    const FileSystem& gameFS,
+    const std::vector<Path>& fileSearchPaths,
+    const Model::TextureConfig& textureConfig,
+    Logger& logger);
   ~TextureLoader();
 
 private:
-  static std::vector<std::string> getTextureExtensions(const Model::TextureConfig& textureConfig);
+  static std::vector<std::string> getTextureExtensions(
+    const Model::TextureConfig& textureConfig);
   static std::unique_ptr<TextureReader> createTextureReader(
     const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
   static Assets::Palette loadPalette(
     const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
   static std::unique_ptr<TextureCollectionLoader> createTextureCollectionLoader(
-    const FileSystem& gameFS, const std::vector<Path>& fileSearchPaths,
-    const Model::TextureConfig& textureConfig, Logger& logger);
+    const FileSystem& gameFS,
+    const std::vector<Path>& fileSearchPaths,
+    const Model::TextureConfig& textureConfig,
+    Logger& logger);
 
 public:
   Assets::TextureCollection loadTextureCollection(const Path& path);
-  void loadTextures(const std::vector<Path>& paths, Assets::TextureManager& textureManager);
+  void loadTextures(
+    const std::vector<Path>& paths, Assets::TextureManager& textureManager);
 
   deleteCopyAndMove(TextureLoader);
 };

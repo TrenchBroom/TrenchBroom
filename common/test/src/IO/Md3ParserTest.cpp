@@ -36,15 +36,19 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("Md3ParserTest.loadValidMd3", "[Md3ParserTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("Md3ParserTest.loadValidMd3", "[Md3ParserTest]")
+{
   NullLogger logger;
   const auto shaderSearchPath = Path("scripts");
   const auto textureSearchPaths = std::vector<Path>{Path("models")};
   std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(
     IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Md3/bfg"));
-  fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+  fs = std::make_shared<Quake3ShaderFileSystem>(
+    fs, shaderSearchPath, textureSearchPaths, logger);
 
   const auto md3Path = IO::Path("models/weapons2/bfg/bfg.md3");
   const auto md3File = fs->openFile(md3Path);
@@ -64,8 +68,10 @@ TEST_CASE("Md3ParserTest.loadValidMd3", "[Md3ParserTest]") {
   CHECK(frame != nullptr);
   CHECK(vm::is_equal(
     vm::bbox3f(
-      vm::vec3f(-10.234375, -10.765625, -9.4375), vm::vec3f(30.34375, 10.765625, 11.609375)),
-    frame->bounds(), 0.01f));
+      vm::vec3f(-10.234375, -10.765625, -9.4375),
+      vm::vec3f(30.34375, 10.765625, 11.609375)),
+    frame->bounds(),
+    0.01f));
 
   const auto* surface1 = model->surface("x_bfg");
   CHECK(surface1 != nullptr);

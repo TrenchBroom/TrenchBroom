@@ -29,9 +29,12 @@
 
 #include <vecmath/bbox.h>
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("NodeReaderTest.parseFaceAsNode", "[NodeReaderTest]") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("NodeReaderTest.parseFaceAsNode", "[NodeReaderTest]")
+{
   const std::string data(R"(
 ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 )");
@@ -43,7 +46,8 @@ TEST_CASE("NodeReaderTest.parseFaceAsNode", "[NodeReaderTest]") {
   CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
 }
 
-TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat", "[NodeReaderTest]") {
+TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat", "[NodeReaderTest]")
+{
   const std::string data(R"(
 // entity 0
 {
@@ -71,10 +75,13 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat", "[NodeReaderTest]") 
   REQUIRE(brushNode != nullptr);
 
   Brush brush = brushNode->brush();
-  CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
+  CHECK(
+    dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem())
+    != nullptr);
 }
 
-TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups", "[NodeReaderTest]") {
+TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups", "[NodeReaderTest]")
+{
   // Data comes from copying a Group in 2020.2
   const std::string data(R"(// entity 0
 {
@@ -108,7 +115,9 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups", "[NodeReader
   REQUIRE(brushNode != nullptr);
 
   const Brush brush = brushNode->brush();
-  CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
+  CHECK(
+    dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem())
+    != nullptr);
 }
 } // namespace Model
 } // namespace TrenchBroom

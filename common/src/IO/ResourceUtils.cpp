@@ -44,51 +44,69 @@
 #include <QSvgRenderer>
 #include <QThread>
 
-namespace TrenchBroom {
-namespace IO {
-Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger, const std::string& name) {
+namespace TrenchBroom
+{
+namespace IO
+{
+Assets::Texture loadDefaultTexture(
+  const FileSystem& fs, Logger& logger, const std::string& name)
+{
   // recursion guard
   static bool executing = false;
-  if (!executing) {
+  if (!executing)
+  {
     const kdl::set_temp set_executing(executing);
 
-    try {
+    try
+    {
       const auto file = fs.openFile(Path("textures/__TB_empty.png"));
-      FreeImageTextureReader imageReader(IO::TextureReader::StaticNameStrategy(name), fs, logger);
+      FreeImageTextureReader imageReader(
+        IO::TextureReader::StaticNameStrategy(name), fs, logger);
       return imageReader.readTexture(file);
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
       logger.error() << "Could not load default texture: " << e.what();
       // fall through to return an empty texture
     }
-  } else {
+  }
+  else
+  {
     logger.error() << "Could not load default texture";
   }
   return Assets::Texture(name, 32, 32);
 }
 
-static QString imagePathToString(const Path& imagePath) {
-  const Path fullPath =
-    imagePath.isAbsolute() ? imagePath : SystemPaths::findResourceFile(Path("images") + imagePath);
+static QString imagePathToString(const Path& imagePath)
+{
+  const Path fullPath = imagePath.isAbsolute()
+                          ? imagePath
+                          : SystemPaths::findResourceFile(Path("images") + imagePath);
   return pathAsQString(fullPath);
 }
 
-QPixmap loadPixmapResource(const std::string& name) {
+QPixmap loadPixmapResource(const std::string& name)
+{
   return loadPixmapResource(Path(name));
 }
 
-QPixmap loadPixmapResource(const Path& imagePath) {
+QPixmap loadPixmapResource(const Path& imagePath)
+{
   const QString imagePathString = imagePathToString(imagePath);
   return QPixmap(imagePathString);
 }
 
-static QImage createDisabledState(const QImage& image) {
+static QImage createDisabledState(const QImage& image)
+{
   // Convert to greyscale, divide the opacity by 3
   auto disabledImage = image.convertToFormat(QImage::Format_ARGB32);
   const int w = disabledImage.width();
   const int h = disabledImage.height();
-  for (int y = 0; y < h; ++y) {
+  for (int y = 0; y < h; ++y)
+  {
     QRgb* row = reinterpret_cast<QRgb*>(disabledImage.scanLine(y));
-    for (int x = 0; x < w; ++x) {
+    for (int x = 0; x < w; ++x)
+    {
       const QRgb oldPixel = row[x];
       const int grey = (qRed(oldPixel) + qGreen(oldPixel) + qBlue(oldPixel)) / 3;
       const int alpha = qAlpha(oldPixel) / 3;
@@ -100,9 +118,14 @@ static QImage createDisabledState(const QImage& image) {
 }
 
 static void renderSvgToIcon(
-  QSvgRenderer& svgSource, QIcon& icon, const QIcon::State state, const bool invert,
-  const qreal devicePixelRatio) {
-  if (!svgSource.isValid()) {
+  QSvgRenderer& svgSource,
+  QIcon& icon,
+  const QIcon::State state,
+  const bool invert,
+  const qreal devicePixelRatio)
+{
+  if (!svgSource.isValid())
+  {
     return;
   }
 
@@ -117,7 +140,8 @@ static void renderSvgToIcon(
   }
   image.setDevicePixelRatio(devicePixelRatio);
 
-  if (invert && image.isGrayscale()) {
+  if (invert && image.isGrayscale())
+  {
     image.invertPixels();
   }
 
@@ -125,11 +149,12 @@ static void renderSvgToIcon(
   icon.addPixmap(QPixmap::fromImage(createDisabledState(image)), QIcon::Disabled, state);
 }
 
-QIcon loadSVGIcon(const Path& imagePath) {
+QIcon loadSVGIcon(const Path& imagePath)
+{
   // Simple caching layer.
-  // Without it, the .svg files would be read from disk and decoded each time this is called, which
-  // is slow. We never evict from the cache which is assumed to be OK because this is just used for
-  // icons and there's a relatively small set of them.
+  // Without it, the .svg files would be read from disk and decoded each time this is
+  // called, which is slow. We never evict from the cache which is assumed to be OK
+  // because this is just used for icons and there's a relatively small set of them.
 
   ensure(
     qApp->thread() == QThread::currentThread(),
@@ -138,7 +163,8 @@ QIcon loadSVGIcon(const Path& imagePath) {
   static std::map<Path, QIcon> cache;
   {
     auto it = cache.find(imagePath);
-    if (it != cache.end()) {
+    if (it != cache.end())
+    {
       return it->second;
     }
   }
@@ -149,20 +175,25 @@ QIcon loadSVGIcon(const Path& imagePath) {
 
   // Cache miss, load the icon
   QIcon result;
-  if (!imagePath.isEmpty()) {
-    const auto onPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_on"));
+  if (!imagePath.isEmpty())
+  {
+    const auto onPath =
+      imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_on"));
     const auto offPath =
       imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_off"));
     const auto imagePathString = imagePathToString(imagePath);
 
-    if (!onPath.isEmpty() && !offPath.isEmpty()) {
+    if (!onPath.isEmpty() && !offPath.isEmpty())
+    {
       QSvgRenderer onRenderer(onPath);
-      if (!onRenderer.isValid()) {
+      if (!onRenderer.isValid())
+      {
         qWarning() << "Failed to load SVG " << onPath;
       }
 
       QSvgRenderer offRenderer(offPath);
-      if (!offRenderer.isValid()) {
+      if (!offRenderer.isValid())
+      {
         qWarning() << "Failed to load SVG " << offPath;
       }
 
@@ -170,15 +201,20 @@ QIcon loadSVGIcon(const Path& imagePath) {
       renderSvgToIcon(onRenderer, result, QIcon::On, darkTheme, 2.0);
       renderSvgToIcon(offRenderer, result, QIcon::Off, darkTheme, 1.0);
       renderSvgToIcon(offRenderer, result, QIcon::Off, darkTheme, 2.0);
-    } else if (!imagePathString.isEmpty()) {
+    }
+    else if (!imagePathString.isEmpty())
+    {
       QSvgRenderer renderer(imagePathString);
-      if (!renderer.isValid()) {
+      if (!renderer.isValid())
+      {
         qWarning() << "Failed to load SVG " << imagePathString;
       }
 
       renderSvgToIcon(renderer, result, QIcon::Off, darkTheme, 1.0);
       renderSvgToIcon(renderer, result, QIcon::Off, darkTheme, 2.0);
-    } else {
+    }
+    else
+    {
       qWarning() << "Couldn't find image for path: " << pathAsQString(imagePath);
     }
   }

@@ -40,13 +40,15 @@
 #include "../../test/src/Catch2.h"
 #include "BenchmarkUtils.h"
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 using AABB = AABBTree<double, 3, Model::Node*>;
 using BOX = AABB::Box;
 
-TEST_CASE("AABBTreeBenchmark.benchBuildTree", "[AABBTreeBenchmark]") {
-  const auto mapPath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/benchmark/AABBTree/ne_ruins.map");
+TEST_CASE("AABBTreeBenchmark.benchBuildTree", "[AABBTreeBenchmark]")
+{
+  const auto mapPath = IO::Disk::getCurrentWorkingDir()
+                       + IO::Path("fixture/benchmark/AABBTree/ne_ruins.map");
   const auto file = IO::Disk::openFile(mapPath);
   auto fileReader = file->reader().buffer();
 
@@ -59,7 +61,8 @@ TEST_CASE("AABBTreeBenchmark.benchBuildTree", "[AABBTreeBenchmark]") {
   std::vector<AABB> trees(100);
   timeLambda(
     [&world, &trees]() {
-      for (auto& tree : trees) {
+      for (auto& tree : trees)
+      {
         world->accept(kdl::overload(
           [](auto&& thisLambda, Model::WorldNode* world_) {
             world_->visitChildren(thisLambda);
@@ -74,12 +77,8 @@ TEST_CASE("AABBTreeBenchmark.benchBuildTree", "[AABBTreeBenchmark]") {
             entity->visitChildren(thisLambda);
             tree.insert(entity->physicalBounds(), entity);
           },
-          [&](Model::BrushNode* brush) {
-            tree.insert(brush->physicalBounds(), brush);
-          },
-          [&](Model::PatchNode* patch) {
-            tree.insert(patch->physicalBounds(), patch);
-          }));
+          [&](Model::BrushNode* brush) { tree.insert(brush->physicalBounds(), brush); },
+          [&](Model::PatchNode* patch) { tree.insert(patch->physicalBounds(), patch); }));
       }
     },
     "Add objects to AABB tree");

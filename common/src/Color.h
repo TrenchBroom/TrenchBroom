@@ -24,8 +24,10 @@
 #include <optional>
 #include <string>
 
-namespace TrenchBroom {
-class Color : public vm::vec<float, 4> {
+namespace TrenchBroom
+{
+class Color : public vm::vec<float, 4>
+{
 public:
   static std::optional<Color> parse(const std::string& str);
   std::string toString() const;
@@ -43,7 +45,9 @@ public:
   float b() const;
   float a() const;
 
-  template <typename T> Color& mix(const Color& other, const T f) {
+  template <typename T>
+  Color& mix(const Color& other, const T f)
+  {
     const float c =
       static_cast<float>(vm::max(static_cast<T>(0.0), vm::min(static_cast<T>(1.0), f)));
     const float d = 1.0f - c;
@@ -52,9 +56,13 @@ public:
     return *this;
   }
 
-  Color mixed(const Color& other, const float f) const { return Color(*this).mix(other, f); }
+  Color mixed(const Color& other, const float f) const
+  {
+    return Color(*this).mix(other, f);
+  }
 
-  friend Color mixAlpha(const Color& color, const float f) {
+  friend Color mixAlpha(const Color& color, const float f)
+  {
     return Color(color.r(), color.g(), color.b(), f * color.a());
   }
 

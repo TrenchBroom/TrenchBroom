@@ -29,16 +29,20 @@ class QLabel;
 class QAbstractButton;
 class QListWidget;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class LayerNode;
 class Node;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class MapDocument;
 
-class LayerListBoxWidget : public ControlListBoxItemRenderer {
+class LayerListBoxWidget : public ControlListBoxItemRenderer
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -52,7 +56,9 @@ private:
 
 public:
   LayerListBoxWidget(
-    std::weak_ptr<MapDocument> document, Model::LayerNode* layer, QWidget* parent = nullptr);
+    std::weak_ptr<MapDocument> document,
+    Model::LayerNode* layer,
+    QWidget* parent = nullptr);
 
   void updateItem() override;
 
@@ -73,7 +79,8 @@ signals:
   void layerRightClicked(Model::LayerNode* layer);
 };
 
-class LayerListBox : public ControlListBox {
+class LayerListBox : public ControlListBox
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;

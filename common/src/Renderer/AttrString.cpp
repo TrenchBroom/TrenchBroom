@@ -23,41 +23,51 @@
 
 #include <algorithm>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 AttrString::LineFunc::~LineFunc() {}
 
-void AttrString::LineFunc::process(const std::string& str, const Justify justify) {
-  switch (justify) {
-    case Justify::Left:
-      justifyLeft(str);
-      break;
-    case Justify::Right:
-      justifyRight(str);
-      break;
-    case Justify::Center:
-      center(str);
-      break;
-      switchDefault();
+void AttrString::LineFunc::process(const std::string& str, const Justify justify)
+{
+  switch (justify)
+  {
+  case Justify::Left:
+    justifyLeft(str);
+    break;
+  case Justify::Right:
+    justifyRight(str);
+    break;
+  case Justify::Center:
+    center(str);
+    break;
+    switchDefault();
   }
 }
 
 AttrString::Line::Line(const std::string& i_string, Justify i_justify)
   : string(i_string)
-  , justify(i_justify) {}
+  , justify(i_justify)
+{
+}
 
 AttrString::AttrString() {}
 
-AttrString::AttrString(const std::string& string) {
+AttrString::AttrString(const std::string& string)
+{
   appendLeftJustified(string);
 }
 
-bool AttrString::operator<(const AttrString& other) const {
+bool AttrString::operator<(const AttrString& other) const
+{
   return compare(other) < 0;
 }
 
-int AttrString::compare(const AttrString& other) const {
-  for (size_t i = 0; i < std::min(m_lines.size(), other.m_lines.size()); ++i) {
+int AttrString::compare(const AttrString& other) const
+{
+  for (size_t i = 0; i < std::min(m_lines.size(), other.m_lines.size()); ++i)
+  {
     const Line& myLine = m_lines[i];
     const Line& otherLine = other.m_lines[i];
 
@@ -80,20 +90,24 @@ int AttrString::compare(const AttrString& other) const {
   return 0;
 }
 
-void AttrString::lines(LineFunc& func) const {
+void AttrString::lines(LineFunc& func) const
+{
   for (size_t i = 0; i < m_lines.size(); ++i)
     func.process(m_lines[i].string, m_lines[i].justify);
 }
 
-void AttrString::appendLeftJustified(const std::string& string) {
+void AttrString::appendLeftJustified(const std::string& string)
+{
   m_lines.push_back(Line(string, Justify::Left));
 }
 
-void AttrString::appendRightJustified(const std::string& string) {
+void AttrString::appendRightJustified(const std::string& string)
+{
   m_lines.push_back(Line(string, Justify::Right));
 }
 
-void AttrString::appendCentered(const std::string& string) {
+void AttrString::appendCentered(const std::string& string)
+{
   m_lines.push_back(Line(string, Justify::Center));
 }
 } // namespace Renderer

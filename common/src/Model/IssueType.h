@@ -19,8 +19,10 @@
 
 #pragma once
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 using IssueType = int;
 
 IssueType freeIssueType();

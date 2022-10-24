@@ -27,22 +27,27 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushFace;
 class BrushNode;
 class PickResult;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class ClipTool;
 
-class ClipToolControllerBase : public ToolControllerGroup {
+class ClipToolControllerBase : public ToolControllerGroup
+{
 protected:
   ClipTool& m_tool;
 
@@ -59,18 +64,21 @@ private:
   void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const override;
   void render(
-    const InputState& inputState, Renderer::RenderContext& renderContext,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
 
   bool cancel() override;
 };
 
-class ClipToolController2D : public ClipToolControllerBase {
+class ClipToolController2D : public ClipToolControllerBase
+{
 public:
   explicit ClipToolController2D(ClipTool& tool);
 };
 
-class ClipToolController3D : public ClipToolControllerBase {
+class ClipToolController3D : public ClipToolControllerBase
+{
 public:
   explicit ClipToolController3D(ClipTool& tool);
 };

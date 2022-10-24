@@ -29,21 +29,28 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-namespace {
+namespace TrenchBroom
+{
+namespace Model
+{
+namespace
+{
 static const auto Type = freeIssueType();
 } // namespace
 
 MissingClassnameValidator::MissingClassnameValidator()
-  : Validator{Type, "Missing entity classname"} {
+  : Validator{Type, "Missing entity classname"}
+{
   addQuickFix(makeDeleteNodesQuickFix());
 }
 
 void MissingClassnameValidator::doValidate(
-  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
-  if (!entityNode.entity().hasProperty(EntityPropertyKeys::Classname)) {
-    issues.push_back(std::make_unique<Issue>(Type, entityNode, "Entity has no classname property"));
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
+  if (!entityNode.entity().hasProperty(EntityPropertyKeys::Classname))
+  {
+    issues.push_back(
+      std::make_unique<Issue>(Type, entityNode, "Entity has no classname property"));
   }
 }
 } // namespace Model

@@ -21,17 +21,20 @@
 
 #include "IO/TextureReader.h"
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace IO {
+namespace IO
+{
 class File;
 class FileSystem;
 
 /**
  * Heretic 2 .m8 format
  */
-class M8TextureReader : public TextureReader {
+class M8TextureReader : public TextureReader
+{
 public:
   M8TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
 

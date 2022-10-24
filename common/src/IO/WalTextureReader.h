@@ -23,23 +23,28 @@
 #include "Assets/TextureBuffer.h"
 #include "IO/TextureReader.h"
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Color;
 class Logger;
 
-namespace IO {
+namespace IO
+{
 class File;
 class FileSystem;
 class Path;
 class Reader;
 
-class WalTextureReader : public TextureReader {
+class WalTextureReader : public TextureReader
+{
 private:
   mutable Assets::Palette m_palette;
 
 public:
   WalTextureReader(
-    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger,
+    const NameStrategy& nameStrategy,
+    const FileSystem& fs,
+    Logger& logger,
     const Assets::Palette& palette = Assets::Palette());
 
 private:
@@ -47,10 +52,20 @@ private:
   Assets::Texture readQ2Wal(BufferedReader& reader, const Path& path) const;
   Assets::Texture readDkWal(BufferedReader& reader, const Path& path) const;
   size_t readMipOffsets(
-    size_t maxMipLevels, size_t offsets[], size_t width, size_t height, Reader& reader) const;
+    size_t maxMipLevels,
+    size_t offsets[],
+    size_t width,
+    size_t height,
+    Reader& reader) const;
   static bool readMips(
-    const Assets::Palette& palette, size_t mipLevels, const size_t offsets[], size_t width,
-    size_t height, BufferedReader& reader, Assets::TextureBufferList& buffers, Color& averageColor,
+    const Assets::Palette& palette,
+    size_t mipLevels,
+    const size_t offsets[],
+    size_t width,
+    size_t height,
+    BufferedReader& reader,
+    Assets::TextureBufferList& buffers,
+    Color& averageColor,
     Assets::PaletteTransparency transparency);
 };
 } // namespace IO

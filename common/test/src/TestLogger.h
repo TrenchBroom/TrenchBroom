@@ -24,8 +24,10 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom {
-class TestLogger : public Logger {
+namespace TrenchBroom
+{
+class TestLogger : public Logger
+{
 private:
   std::unordered_map<LogLevel, std::size_t> m_messages;
 

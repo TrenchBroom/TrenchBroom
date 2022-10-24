@@ -26,23 +26,35 @@
 #include <vecmath/ray.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 OrthographicCamera::OrthographicCamera()
   : Camera()
-  , m_zoomedViewport(this->viewport()) {}
+  , m_zoomedViewport(this->viewport())
+{
+}
 
 OrthographicCamera::OrthographicCamera(
-  const float nearPlane, const float farPlane, const Viewport& viewport, const vm::vec3f& position,
-  const vm::vec3f& direction, const vm::vec3f& up)
+  const float nearPlane,
+  const float farPlane,
+  const Viewport& viewport,
+  const vm::vec3f& position,
+  const vm::vec3f& direction,
+  const vm::vec3f& up)
   : Camera(nearPlane, farPlane, viewport, position, direction, up)
-  , m_zoomedViewport(this->viewport()) {}
+  , m_zoomedViewport(this->viewport())
+{
+}
 
-const OrthographicCamera::Viewport& OrthographicCamera::zoomedViewport() const {
+const OrthographicCamera::Viewport& OrthographicCamera::zoomedViewport() const
+{
   return m_zoomedViewport;
 }
 
-std::vector<vm::vec3> OrthographicCamera::viewportVertices() const {
+std::vector<vm::vec3> OrthographicCamera::viewportVertices() const
+{
   const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
   const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
 
@@ -54,12 +66,14 @@ std::vector<vm::vec3> OrthographicCamera::viewportVertices() const {
   return result;
 }
 
-Camera::ProjectionType OrthographicCamera::doGetProjectionType() const {
+Camera::ProjectionType OrthographicCamera::doGetProjectionType() const
+{
   return Projection_Orthographic;
 }
 
 void OrthographicCamera::doValidateMatrices(
-  vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const {
+  vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const
+{
   const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
   const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
 
@@ -67,7 +81,8 @@ void OrthographicCamera::doValidateMatrices(
   viewMatrix = vm::view_matrix(direction(), up()) * vm::translation_matrix(-position());
 }
 
-vm::ray3f OrthographicCamera::doGetPickRay(const vm::vec3f& point) const {
+vm::ray3f OrthographicCamera::doGetPickRay(const vm::vec3f& point) const
+{
   const auto v = point - position();
   const auto d = dot(v, direction());
   const auto o = point - d * direction();
@@ -75,8 +90,11 @@ vm::ray3f OrthographicCamera::doGetPickRay(const vm::vec3f& point) const {
 }
 
 void OrthographicCamera::doComputeFrustumPlanes(
-  vm::plane3f& topPlane, vm::plane3f& rightPlane, vm::plane3f& bottomPlane,
-  vm::plane3f& leftPlane) const {
+  vm::plane3f& topPlane,
+  vm::plane3f& rightPlane,
+  vm::plane3f& bottomPlane,
+  vm::plane3f& leftPlane) const
+{
   const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
   const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
 
@@ -88,21 +106,31 @@ void OrthographicCamera::doComputeFrustumPlanes(
 }
 
 void OrthographicCamera::doRenderFrustum(
-  RenderContext&, VboManager& /* vboManager */, const float /* size */,
-  const Color& /* color */) const {}
+  RenderContext&,
+  VboManager& /* vboManager */,
+  const float /* size */,
+  const Color& /* color */) const
+{
+}
 
-float OrthographicCamera::doPickFrustum(const float /* size */, const vm::ray3f& /* ray */) const {
+float OrthographicCamera::doPickFrustum(
+  const float /* size */, const vm::ray3f& /* ray */) const
+{
   return vm::nan<float>();
 }
 
-float OrthographicCamera::doGetPerspectiveScalingFactor(const vm::vec3f& /* position */) const {
+float OrthographicCamera::doGetPerspectiveScalingFactor(
+  const vm::vec3f& /* position */) const
+{
   return 1.0f / zoom();
 }
 
-void OrthographicCamera::doUpdateZoom() {
+void OrthographicCamera::doUpdateZoom()
+{
   const auto& unzoomedViewport = viewport();
   m_zoomedViewport = Viewport(
-    unzoomedViewport.x, unzoomedViewport.y,
+    unzoomedViewport.x,
+    unzoomedViewport.y,
     static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.width) / zoom())),
     static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.height) / zoom())));
 }

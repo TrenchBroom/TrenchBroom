@@ -26,15 +26,20 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Node;
 } // namespace Model
 
-namespace View {
-class AddRemoveNodesCommand : public UpdateLinkedGroupsCommandBase {
+namespace View
+{
+class AddRemoveNodesCommand : public UpdateLinkedGroupsCommandBase
+{
 private:
-  enum class Action {
+  enum class Action
+  {
     Add,
     Remove
   };
@@ -59,7 +64,8 @@ private:
   static std::string makeName(Action action);
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(
+    MapDocumentCommandFacade* document) override;
 
   void doAction(MapDocumentCommandFacade* document);
   void undoAction(MapDocumentCommandFacade* document);

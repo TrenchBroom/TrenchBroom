@@ -21,16 +21,20 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class EntityDefinition;
 }
 
-namespace IO {
+namespace IO
+{
 class ParserStatus;
 class Path;
 
-class EntityDefinitionLoader {
+class EntityDefinitionLoader
+{
 public:
   virtual ~EntityDefinitionLoader();
   std::vector<Assets::EntityDefinition*> loadEntityDefinitions(

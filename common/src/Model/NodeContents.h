@@ -27,9 +27,12 @@
 
 #include <variant>
 
-namespace TrenchBroom {
-namespace Model {
-class NodeContents {
+namespace TrenchBroom
+{
+namespace Model
+{
+class NodeContents
+{
 private:
   std::variant<Layer, Group, Entity, Brush, BezierPatch> m_contents;
 

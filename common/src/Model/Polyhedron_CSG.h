@@ -23,18 +23,24 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 template <typename T, typename FP, typename VP>
-Polyhedron<T, FP, VP> Polyhedron<T, FP, VP>::intersect(Polyhedron other) const {
-  if (!polyhedron() || !other.polyhedron()) {
+Polyhedron<T, FP, VP> Polyhedron<T, FP, VP>::intersect(Polyhedron other) const
+{
+  if (!polyhedron() || !other.polyhedron())
+  {
     return Polyhedron();
   }
 
-  for (const Face* currentFace : m_faces) {
+  for (const Face* currentFace : m_faces)
+  {
     const vm::plane<T, 3>& plane = currentFace->plane();
     const ClipResult result = other.clip(plane);
-    if (result.empty()) {
+    if (result.empty())
+    {
       return Polyhedron();
     }
   }
@@ -44,12 +50,15 @@ Polyhedron<T, FP, VP> Polyhedron<T, FP, VP>::intersect(Polyhedron other) const {
 
 template <typename T, typename FP, typename VP>
 std::vector<Polyhedron<T, FP, VP>> Polyhedron<T, FP, VP>::subtract(
-  const Polyhedron& subtrahend) const {
+  const Polyhedron& subtrahend) const
+{
   Subtract subtract(*this, subtrahend);
   return subtract.result();
 }
 
-template <typename T, typename FP, typename VP> class Polyhedron<T, FP, VP>::Subtract {
+template <typename T, typename FP, typename VP>
+class Polyhedron<T, FP, VP>::Subtract
+{
 private:
   const Polyhedron& m_minuend;
   Polyhedron m_subtrahend;
@@ -62,10 +71,14 @@ private:
 public:
   Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend)
     : m_minuend(minuend)
-    , m_subtrahend(subtrahend) {
-    if (clipSubtrahend()) {
+    , m_subtrahend(subtrahend)
+  {
+    if (clipSubtrahend())
+    {
       subtract();
-    } else {
+    }
+    else
+    {
       // minuend and subtrahend are disjoint
       m_fragments = {minuend};
     }
@@ -79,13 +92,16 @@ private:
    * (and therefore aren't useful for the subtraction).
    * This is an optimization that might result in better quality subtractions.
    *
-   * If the entire subtrahend is clipped away (i.e. the minuend and subtrahend are disjoint),
-   * returns false. Otherwise, returns true.
+   * If the entire subtrahend is clipped away (i.e. the minuend and subtrahend are
+   * disjoint), returns false. Otherwise, returns true.
    */
-  bool clipSubtrahend() {
-    for (const Face* face : m_minuend.faces()) {
+  bool clipSubtrahend()
+  {
+    for (const Face* face : m_minuend.faces())
+    {
       const ClipResult result = m_subtrahend.clip(face->plane());
-      if (result.empty()) {
+      if (result.empty())
+      {
         return false;
       }
     }
@@ -93,7 +109,8 @@ private:
     return true;
   }
 
-  void subtract() {
+  void subtract()
+  {
     const PlaneList planes = sortPlanes(findSubtrahendPlanes());
 
     assert(m_fragments.empty());
@@ -103,43 +120,54 @@ private:
   /**
    * Returns a vector containing the planes of all of the subtrahend's faces.
    */
-  PlaneList findSubtrahendPlanes() const {
+  PlaneList findSubtrahendPlanes() const
+  {
     PlaneList result;
     result.reserve(m_subtrahend.faceCount());
 
-    for (const auto* face : m_subtrahend.faces()) {
+    for (const auto* face : m_subtrahend.faces())
+    {
       result.push_back(face->plane());
     }
 
     return result;
   }
 
-  static PlaneList sortPlanes(PlaneList planes) {
+  static PlaneList sortPlanes(PlaneList planes)
+  {
     auto it = std::begin(planes);
     it = sortPlanes(
-      it, std::end(planes),
+      it,
+      std::end(planes),
       {vm::vec<T, 3>::pos_x(), vm::vec<T, 3>::pos_y(), vm::vec<T, 3>::pos_z()});
     it = sortPlanes(
-      it, std::end(planes),
+      it,
+      std::end(planes),
       {vm::vec<T, 3>::pos_y(), vm::vec<T, 3>::pos_x(), vm::vec<T, 3>::pos_z()});
     sortPlanes(
-      it, std::end(planes),
+      it,
+      std::end(planes),
       {vm::vec<T, 3>::pos_z(), vm::vec<T, 3>::pos_x(), vm::vec<T, 3>::pos_y()});
 
     return planes;
   }
 
   static typename PlaneList::iterator sortPlanes(
-    typename PlaneList::iterator begin, typename PlaneList::iterator end,
-    const std::vector<vm::vec<T, 3>>& axes) {
-    if (begin == end) {
+    typename PlaneList::iterator begin,
+    typename PlaneList::iterator end,
+    const std::vector<vm::vec<T, 3>>& axes)
+  {
+    if (begin == end)
+    {
       return end;
     }
 
     auto it = begin;
-    while (it != end) {
+    while (it != end)
+    {
       auto next = selectPlanes(it, end, axes);
-      if (next == it || next == end) {
+      if (next == it || next == end)
+      {
         break; // no further progress
       }
       it = next;
@@ -149,36 +177,45 @@ private:
   }
 
   static typename PlaneList::iterator selectPlanes(
-    typename PlaneList::iterator begin, typename PlaneList::iterator end,
-    const std::vector<vm::vec<T, 3>>& axes) {
+    typename PlaneList::iterator begin,
+    typename PlaneList::iterator end,
+    const std::vector<vm::vec<T, 3>>& axes)
+  {
     assert(begin != end);
     assert(!axes.empty());
 
     vm::vec<T, 3> axis = axes.front();
     auto bestIt = end;
-    for (auto it = begin; it != end; ++it) {
+    for (auto it = begin; it != end; ++it)
+    {
       auto newBestIt = selectPlane(it, bestIt, end, axis);
 
       // Resolve ambiguities if necessary.
       for (auto axIt = std::next(std::begin(axes)), axEnd = std::end(axes);
-           newBestIt == end && axIt != axEnd; ++axIt) {
+           newBestIt == end && axIt != axEnd;
+           ++axIt)
+      {
         const vm::vec<T, 3>& altAxis = *axIt;
         newBestIt = selectPlane(it, bestIt, end, altAxis);
-        if (newBestIt != end) {
+        if (newBestIt != end)
+        {
           break;
         }
       }
 
-      if (newBestIt != end) {
+      if (newBestIt != end)
+      {
         bestIt = newBestIt;
       }
     }
 
-    if (bestIt == end) {
+    if (bestIt == end)
+    {
       return end;
     }
 
-    if (vm::abs(dot(bestIt->normal, axis)) < 0.5) {
+    if (vm::abs(dot(bestIt->normal, axis)) < 0.5)
+    {
       return begin;
     }
 
@@ -187,19 +224,23 @@ private:
     std::iter_swap(begin++, bestIt);
 
     bestIt = end;
-    for (auto it = begin; it != end; ++it) {
+    for (auto it = begin; it != end; ++it)
+    {
       const T bestDot = bestIt != end ? dot(bestIt->normal, axis) : 0.0;
       const T curDot = dot(it->normal, axis);
 
-      if (curDot > bestDot) {
+      if (curDot > bestDot)
+      {
         bestIt = it;
       }
-      if (bestDot == 1.0) {
+      if (bestDot == 1.0)
+      {
         break;
       }
     }
 
-    if (bestIt != end) {
+    if (bestIt != end)
+    {
       std::iter_swap(begin++, bestIt);
     }
 
@@ -207,8 +248,8 @@ private:
   }
 
   /**
-   * From the two given planes, select the one whose normal is closer to the given axis (or its
-   * opposite), and return its iterator.
+   * From the two given planes, select the one whose normal is closer to the given axis
+   * (or its opposite), and return its iterator.
    *
    * @param curIt a plane
    * @param bestIt the current best plane, or an end iterator
@@ -217,27 +258,39 @@ private:
    * @return an iterator to the new best plane
    */
   static typename PlaneList::iterator selectPlane(
-    typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt,
-    typename PlaneList::iterator end, const vm::vec<T, 3>& axis) {
+    typename PlaneList::iterator curIt,
+    typename PlaneList::iterator bestIt,
+    typename PlaneList::iterator end,
+    const vm::vec<T, 3>& axis)
+  {
     const T curDot = vm::dot(curIt->normal, axis);
-    if (curDot == 0.0) {
+    if (curDot == 0.0)
+    {
       return bestIt;
     }
-    if (curDot == 1.0) {
+    if (curDot == 1.0)
+    {
       return curIt;
     }
 
     const T bestDot = bestIt != end ? vm::dot(bestIt->normal, axis) : 0.0;
-    if (vm::abs(curDot) > vm::abs(bestDot)) {
+    if (vm::abs(curDot) > vm::abs(bestDot))
+    {
       return curIt;
-    } else if (vm::abs(curDot) < vm::abs(bestDot)) {
+    }
+    else if (vm::abs(curDot) < vm::abs(bestDot))
+    {
       return bestIt; // implies bestIt != end
-    } else {
+    }
+    else
+    {
       // vm::abs(curDot) == vm::abs(bestDot), resolve ambiguities.
 
       assert(bestIt != end); // Because curDot != 0.0, the same is true for bestDot!
-      if (bestDot < 0.0 && curDot > 0.0) {
-        // Prefer best matches pointing towards the direction of the axis, not the opposite.
+      if (bestDot < 0.0 && curDot > 0.0)
+      {
+        // Prefer best matches pointing towards the direction of the axis, not the
+        // opposite.
         return curIt;
       }
 
@@ -247,9 +300,12 @@ private:
   }
 
   void doSubtract(
-    const Fragments& fragments, typename PlaneList::const_iterator curPlaneIt,
-    typename PlaneList::const_iterator endPlaneIt) {
-    if (fragments.empty() || curPlaneIt == endPlaneIt) {
+    const Fragments& fragments,
+    typename PlaneList::const_iterator curPlaneIt,
+    typename PlaneList::const_iterator endPlaneIt)
+  {
+    if (fragments.empty() || curPlaneIt == endPlaneIt)
+    {
       // no more fragments to process or all of `minutendFragments`
       // are now behind all of subtrahendPlanes so they can be discarded.
       return;
@@ -262,19 +318,22 @@ private:
     // currentPlane, and those behind
     Fragments backFragments;
 
-    for (const Polyhedron& fragment : fragments) {
+    for (const Polyhedron& fragment : fragments)
+    {
       // the front fragments go directly into the result set.
       Polyhedron<T, FP, VP> fragmentInFront = fragment;
       const auto frontClipResult = fragmentInFront.clip(curPlaneInv);
 
-      if (!frontClipResult.empty()) { // Polyhedron::clip() keeps the part behind the plane.
+      if (!frontClipResult.empty())
+      { // Polyhedron::clip() keeps the part behind the plane.
         m_fragments.push_back(std::move(fragmentInFront));
       }
 
       // back fragments need to be clipped by the rest of the subtrahend planes
       Polyhedron<T, FP, VP> fragmentBehind = fragment;
       const auto backClipResult = fragmentBehind.clip(curPlane);
-      if (!backClipResult.empty()) {
+      if (!backClipResult.empty())
+      {
         backFragments.push_back(std::move(fragmentBehind));
       }
     }

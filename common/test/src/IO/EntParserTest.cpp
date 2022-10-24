@@ -34,11 +34,15 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 static void assertPropertyDefinition(
-  const std::string& key, const Assets::PropertyDefinitionType expectedType,
-  const Assets::EntityDefinition* entityDefinition) {
+  const std::string& key,
+  const Assets::PropertyDefinitionType expectedType,
+  const Assets::EntityDefinition* entityDefinition)
+{
   const auto* propDefinition = entityDefinition->propertyDefinition(key);
   UNSCOPED_INFO("Missing property definition for '" + key + "' key");
   CHECK(propDefinition != nullptr);
@@ -47,12 +51,14 @@ static void assertPropertyDefinition(
   CHECK(propDefinition->type() == expectedType);
 }
 
-TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]")
+{
   const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
   const std::vector<Path> cfgFiles =
     Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
 
-  for (const Path& path : cfgFiles) {
+  for (const Path& path : cfgFiles)
+  {
     CAPTURE(path);
 
     auto file = Disk::openFile(path);
@@ -84,7 +90,8 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]") {
   }
 }
 
-TEST_CASE("EntParserTest.parseEmptyFile", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseEmptyFile", "[EntParserTest]")
+{
   const std::string file = "";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
   EntParser parser(file, defaultColor);
@@ -95,7 +102,8 @@ TEST_CASE("EntParserTest.parseEmptyFile", "[EntParserTest]") {
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseWhitespaceFile", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseWhitespaceFile", "[EntParserTest]")
+{
   const std::string file = "     \n  \t \n  ";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
   EntParser parser(file, defaultColor);
@@ -106,7 +114,8 @@ TEST_CASE("EntParserTest.parseWhitespaceFile", "[EntParserTest]") {
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseMalformedXML", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseMalformedXML", "[EntParserTest]")
+{
   const std::string file =
     R"(<?xml version="1.0"?>
 <classes>
@@ -119,7 +128,8 @@ TEST_CASE("EntParserTest.parseMalformedXML", "[EntParserTest]") {
   CHECK_THROWS_AS(parser.parseDefinitions(status), ParserException);
 }
 
-TEST_CASE("EntParserTest.parseSimplePointEntityDefinition", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseSimplePointEntityDefinition", "[EntParserTest]")
+{
   const std::string file = R"(
 <?xml version="1.0"?>
 <!--
@@ -182,7 +192,8 @@ Updated: 2011-03-02
 
   UNSCOPED_INFO("Expected matching bounds");
   CHECK(vm::is_equal(
-    vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)), pointDefinition->bounds(),
+    vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)),
+    pointDefinition->bounds(),
     0.01));
 
   UNSCOPED_INFO("Expected three property definitions");
@@ -219,8 +230,8 @@ Updated: 2011-03-02
 
   UNSCOPED_INFO("Expected property definition's long description to match element text");
   CHECK(
-    anglesDefinition->longDescription() ==
-    "Individual control of PITCH, YAW, and ROLL (default 0 0 0).");
+    anglesDefinition->longDescription()
+    == "Individual control of PITCH, YAW, and ROLL (default 0 0 0).");
 
   const auto* scaleDefinition = dynamic_cast<const Assets::FloatPropertyDefinition*>(
     pointDefinition->propertyDefinition("_scale"));
@@ -241,13 +252,14 @@ Updated: 2011-03-02
 
   UNSCOPED_INFO("Expected property definition's long description to match element text");
   CHECK(
-    scaleDefinition->longDescription() ==
-    "Scaling factor (default 64), good values are between 50 and 300, depending on the map.");
+    scaleDefinition->longDescription()
+    == "Scaling factor (default 64), good values are between 50 and 300, depending on the map.");
 
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseSimpleGroupEntityDefinition", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseSimpleGroupEntityDefinition", "[EntParserTest]")
+{
   const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -334,7 +346,8 @@ Target this entity with a misc_model to have the model attached to the entity (s
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseListPropertyDefinition", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseListPropertyDefinition", "[EntParserTest]")
+{
   const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -373,8 +386,9 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition", "[EntParserTest]") {
   UNSCOPED_INFO("Expected one property definitions");
   CHECK(pointDefinition->propertyDefinitions().size() == 1u);
 
-  const auto* colorIndexDefinition = dynamic_cast<const Assets::ChoicePropertyDefinition*>(
-    pointDefinition->propertyDefinition("count"));
+  const auto* colorIndexDefinition =
+    dynamic_cast<const Assets::ChoicePropertyDefinition*>(
+      pointDefinition->propertyDefinition("count"));
   UNSCOPED_INFO("Missing property definition for 'count' key");
   CHECK(colorIndexDefinition != nullptr);
 
@@ -412,7 +426,8 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition", "[EntParserTest]") {
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition", "[EntParserTest]")
+{
   const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -451,7 +466,8 @@ TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition", "[EntParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseLegacyModelDefinition", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseLegacyModelDefinition", "[EntParserTest]")
+{
   const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -473,12 +489,15 @@ TEST_CASE("EntParserTest.parseLegacyModelDefinition", "[EntParserTest]") {
   CHECK(pointDefinition != nullptr);
 
   const auto& modelDefinition = pointDefinition->modelDefinition();
-  CHECK(modelDefinition.defaultModelSpecification().path == Path("models/powerups/ammo/bfgam.md3"));
+  CHECK(
+    modelDefinition.defaultModelSpecification().path
+    == Path("models/powerups/ammo/bfgam.md3"));
 
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseELStaticModelDefinition", "[EntParserTest]") {
+TEST_CASE("EntParserTest.parseELStaticModelDefinition", "[EntParserTest]")
+{
   const std::string file = R"(
             <?xml version="1.0"?>
             <classes>
@@ -501,7 +520,8 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition", "[EntParserTest]") {
 
   const auto& modelDefinition = pointDefinition->modelDefinition();
   CHECK(
-    modelDefinition.defaultModelSpecification().path == Path("models/powerups/ammo/bfgam2.md3"));
+    modelDefinition.defaultModelSpecification().path
+    == Path("models/powerups/ammo/bfgam2.md3"));
 
   kdl::vec_clear_and_delete(definitions);
 }

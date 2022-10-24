@@ -1,20 +1,21 @@
 /*
  Copyright 2020 Kristian Duske
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ software and associated documentation files (the "Software"), to deal in the Software
+ without restriction, including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in all copies or
  substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
 */
 
 #pragma once
@@ -25,80 +26,94 @@
 
 #include <tuple>
 
-namespace kdl {
-namespace detail {
-template <typename Result1, typename Result2> struct combine_tuple_results {};
+namespace kdl
+{
+namespace detail
+{
+template <typename Result1, typename Result2>
+struct combine_tuple_results
+{
+};
 
 template <typename Value1, typename... Errors1, typename... Values2, typename... Errors2>
 struct combine_tuple_results<
-  kdl::result<Value1, Errors1...>, kdl::result<std::tuple<Values2...>, Errors2...>> {
+  kdl::result<Value1, Errors1...>,
+  kdl::result<std::tuple<Values2...>, Errors2...>>
+{
   using result = typename make_result_type<
     std::tuple<Value1, Values2...>,
     typename meta_remove_duplicates<Errors1..., Errors2...>::result>::type;
 };
 
-template <typename Result> struct tuple_wrap {};
+template <typename Result>
+struct tuple_wrap
+{
+};
 
-template <typename Value, typename... Errors> struct tuple_wrap<kdl::result<Value, Errors...>> {
-  using result = typename make_result_type<std::tuple<Value>, meta_type_list<Errors...>>::type;
+template <typename Value, typename... Errors>
+struct tuple_wrap<kdl::result<Value, Errors...>>
+{
+  using result =
+    typename make_result_type<std::tuple<Value>, meta_type_list<Errors...>>::type;
 };
 } // namespace detail
 
 /**
  * Base case for combine_results.
  *
- * Given a result of `result<Value, Errors...>`, returns a result of type `result<std::tuple<Value>,
- * Errors...>` that wraps the success value or error contained in the given result.
+ * Given a result of `result<Value, Errors...>`, returns a result of type
+ * `result<std::tuple<Value>, Errors...>` that wraps the success value or error contained
+ * in the given result.
  */
-template <typename Result> auto combine_results(Result&& result) {
-  using result_type = typename detail::tuple_wrap<std::remove_reference_t<Result>>::result;
+template <typename Result>
+auto combine_results(Result&& result)
+{
+  using result_type =
+    typename detail::tuple_wrap<std::remove_reference_t<Result>>::result;
   using value_type = typename std::remove_reference_t<Result>::value_type;
 
   return result.visit(kdl::overload(
-    [](value_type&& v) {
-      return result_type(std::make_tuple(std::move(v)));
-    },
-    [](const value_type& v) {
-      return result_type(std::make_tuple(v));
-    },
-    [](auto&& e) {
-      return result_type(std::forward<decltype(e)>(e));
-    }));
+    [](value_type&& v) { return result_type(std::make_tuple(std::move(v))); },
+    [](const value_type& v) { return result_type(std::make_tuple(v)); },
+    [](auto&& e) { return result_type(std::forward<decltype(e)>(e)); }));
 }
 
 /**
- * Combines all of the given results into a single result that has a tuple of the given results'
- * value types as its own value type, and the union of the given results' error types as its error
- * types.
+ * Combines all of the given results into a single result that has a tuple of the given
+ * results' value types as its own value type, and the union of the given results' error
+ * types as its error types.
  *
  * Given three results of types
  * - result<int, err1, err2>
  * - result<float, err1, err3>
  * - result<bool, err4>,
  *
- * this function returns a result of type `result<std::tuple<int, float, bool>, err1, err2, err3,
- * err4>`. If all of the given results are successful, then the returned result contains a tuple of
- * the given results's success values as its own success value. If any of the given results is a
- * failure, then the returned result contains the error of the first failure result.
+ * this function returns a result of type `result<std::tuple<int, float, bool>, err1,
+ * err2, err3, err4>`. If all of the given results are successful, then the returned
+ * result contains a tuple of the given results's success values as its own success value.
+ * If any of the given results is a failure, then the returned result contains the error
+ * of the first failure result.
  *
- * Results passed as lvalue references will have their value or error copied into the returned
- * result, while results passed as rvalue references will have their value or error moved into the
- * returned result.
+ * Results passed as lvalue references will have their value or error copied into the
+ * returned result, while results passed as rvalue references will have their value or
+ * error moved into the returned result.
  *
  * @tparam FirstResult the type of the first result
  * @tparam MoreResults the types of the other results
  * @param firstResult the first result
  * @param moreResults the other results
- * @return a result wrapping either a tuple of the success values of the given results, or an error
- * otherwise
+ * @return a result wrapping either a tuple of the success values of the given results, or
+ * an error otherwise
  */
 template <typename FirstResult, typename... MoreResults>
-auto combine_results(FirstResult&& firstResult, MoreResults&&... moreResults) {
+auto combine_results(FirstResult&& firstResult, MoreResults&&... moreResults)
+{
   using first_value_type = typename std::remove_reference_t<FirstResult>::value_type;
   using combined_more_result_type =
     decltype(combine_results(std::forward<MoreResults>(moreResults)...));
   using result_type = typename detail::combine_tuple_results<
-    std::remove_reference_t<FirstResult>, combined_more_result_type>::result;
+    std::remove_reference_t<FirstResult>,
+    combined_more_result_type>::result;
 
   return std::forward<FirstResult>(firstResult)
     .visit(kdl::overload(
@@ -106,8 +121,8 @@ auto combine_results(FirstResult&& firstResult, MoreResults&&... moreResults) {
         return combine_results(std::forward<MoreResults>(moreResults)...)
           .visit(kdl::overload(
             [&](typename combined_more_result_type::value_type&& remainingValues) {
-              return result_type(
-                std::tuple_cat(std::make_tuple(std::move(firstValue)), std::move(remainingValues)));
+              return result_type(std::tuple_cat(
+                std::make_tuple(std::move(firstValue)), std::move(remainingValues)));
             },
             [&](const typename combined_more_result_type::value_type& remainingValues) {
               return result_type(
@@ -125,7 +140,8 @@ auto combine_results(FirstResult&& firstResult, MoreResults&&... moreResults) {
                 std::tuple_cat(std::make_tuple(firstValue), std::move(remainingValues)));
             },
             [&](const typename combined_more_result_type::value_type& remainingValues) {
-              return result_type(std::tuple_cat(std::make_tuple(firstValue), remainingValues));
+              return result_type(
+                std::tuple_cat(std::make_tuple(firstValue), remainingValues));
             },
             [](auto&& combinedError) {
               return result_type(std::forward<decltype(combinedError)>(combinedError));

@@ -34,23 +34,28 @@
 
 class QWidget;
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
 
-namespace Model {
+namespace Model
+{
 class BrushFaceHandle;
 class Node;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class ActiveShader;
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class MapDocument;
 class Selection;
 class UVRotateTool;
@@ -61,11 +66,12 @@ class UVOffsetTool;
 class UVCameraTool;
 
 /**
- A view which allows the user to manipulate the texture projection interactively with the mouse. The
- user can change texture offsets, scaling factors and rotation. If supported by the map format, the
- user can manipulate the texture axes as well.
+ A view which allows the user to manipulate the texture projection interactively with the
+ mouse. The user can change texture offsets, scaling factors and rotation. If supported by
+ the map format, the user can manipulate the texture axes as well.
  */
-class UVView : public RenderView, public ToolBoxConnector {
+class UVView : public RenderView, public ToolBoxConnector
+{
   Q_OBJECT
 public:
   static const Model::HitType::Type FaceHitType;
@@ -106,12 +112,15 @@ private:
   void setupGL(Renderer::RenderContext& renderContext);
 
   class RenderTexture;
-  void renderTexture(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderTexture(
+    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
-  void renderFace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderFace(
+    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
   void renderTextureAxes(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-  void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderToolBox(
+    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
 public: // implement InputEventProcessor interface
   void processEvent(const KeyEvent& event) override;

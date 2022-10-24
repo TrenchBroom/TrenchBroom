@@ -34,9 +34,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("EntityTest.modelScaleExpressionThrows") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("EntityTest.modelScaleExpressionThrows")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3914
 
   const auto modelExpression = IO::ELParser{IO::ELParser::Mode::Strict, R"(
@@ -48,7 +51,12 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows") {
                                  .parse();
 
   auto definition = Assets::PointEntityDefinition{
-    "some_name", Color{}, vm::bbox3{32.0}, "", {}, Assets::ModelDefinition{modelExpression}};
+    "some_name",
+    Color{},
+    vm::bbox3{32.0},
+    "",
+    {},
+    Assets::ModelDefinition{modelExpression}};
   const auto propertyConfig = EntityPropertyConfig{};
 
   auto entity = Entity{};

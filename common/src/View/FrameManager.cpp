@@ -31,32 +31,41 @@
 
 #include <QApplication>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 FrameManager::FrameManager(const bool singleFrame)
   : QObject()
-  , m_singleFrame(singleFrame) {
+  , m_singleFrame(singleFrame)
+{
   connect(qApp, &QApplication::focusChanged, this, &FrameManager::onFocusChange);
 }
 
 FrameManager::~FrameManager() = default;
 
-MapFrame* FrameManager::newFrame() {
+MapFrame* FrameManager::newFrame()
+{
   return createOrReuseFrame();
 }
 
-std::vector<MapFrame*> FrameManager::frames() const {
+std::vector<MapFrame*> FrameManager::frames() const
+{
   return m_frames;
 }
 
-MapFrame* FrameManager::topFrame() const {
+MapFrame* FrameManager::topFrame() const
+{
   return m_frames.empty() ? nullptr : m_frames.front();
 }
 
-bool FrameManager::closeAllFrames() {
+bool FrameManager::closeAllFrames()
+{
   auto framesCopy = m_frames;
-  for (MapFrame* frame : framesCopy) {
-    if (!frame->close()) {
+  for (MapFrame* frame : framesCopy)
+  {
+    if (!frame->close())
+    {
       return false;
     }
   }
@@ -64,28 +73,34 @@ bool FrameManager::closeAllFrames() {
   return true;
 }
 
-bool FrameManager::allFramesClosed() const {
+bool FrameManager::allFramesClosed() const
+{
   return m_frames.empty();
 }
 
-void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now) {
-  if (now == nullptr) {
+void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now)
+{
+  if (now == nullptr)
+  {
     return;
   }
 
-  // The QApplication::focusChanged signal also notifies us of focus changes between child widgets,
-  // so get the top-level widget with QWidget::window()
+  // The QApplication::focusChanged signal also notifies us of focus changes between child
+  // widgets, so get the top-level widget with QWidget::window()
   auto* frame = dynamic_cast<MapFrame*>(now->window());
-  if (frame != nullptr) {
+  if (frame != nullptr)
+  {
     auto it = std::find(std::begin(m_frames), std::end(m_frames), frame);
 
     // Focus can switch to a frame after FrameManager::removeFrame is called,
     // in that case just ignore the focus change.
-    if (it == std::end(m_frames)) {
+    if (it == std::end(m_frames))
+    {
       return;
     }
 
-    if (it != std::begin(m_frames)) {
+    if (it != std::begin(m_frames))
+    {
       assert(topFrame() != frame);
       m_frames.erase(it);
       m_frames.insert(std::begin(m_frames), frame);
@@ -93,16 +108,19 @@ void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now) {
   }
 }
 
-MapFrame* FrameManager::createOrReuseFrame() {
+MapFrame* FrameManager::createOrReuseFrame()
+{
   assert(!m_singleFrame || m_frames.size() <= 1);
-  if (!m_singleFrame || m_frames.empty()) {
+  if (!m_singleFrame || m_frames.empty())
+  {
     auto document = MapDocumentCommandFacade::newMapDocument();
     createFrame(document);
   }
   return topFrame();
 }
 
-MapFrame* FrameManager::createFrame(std::shared_ptr<MapDocument> document) {
+MapFrame* FrameManager::createFrame(std::shared_ptr<MapDocument> document)
+{
   auto* frame = new MapFrame(this, std::move(document));
   frame->positionOnScreen(topFrame());
   m_frames.insert(std::begin(m_frames), frame);
@@ -112,13 +130,15 @@ MapFrame* FrameManager::createFrame(std::shared_ptr<MapDocument> document) {
   return frame;
 }
 
-void FrameManager::removeFrame(MapFrame* frame) {
+void FrameManager::removeFrame(MapFrame* frame)
+{
   // This is called from MapFrame::closeEvent
 
   auto it = std::find(std::begin(m_frames), std::end(m_frames), frame);
-  if (it == std::end(m_frames)) {
-    // On OS X, we sometimes get two close events for a frame when terminating the app from the
-    // dock.
+  if (it == std::end(m_frames))
+  {
+    // On OS X, we sometimes get two close events for a frame when terminating the app
+    // from the dock.
     return;
   }
 

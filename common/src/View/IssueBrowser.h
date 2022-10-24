@@ -29,19 +29,23 @@ class QCheckBox;
 class QStackedLayout;
 class QWidget;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushFaceHandle;
 class Issue;
 class Node;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class FlagsPopupEditor;
 class IssueBrowserView;
 class MapDocument;
 
-class IssueBrowser : public TabBookPage {
+class IssueBrowser : public TabBookPage
+{
   Q_OBJECT
 private:
   static const int SelectObjectsCommandId = 1;

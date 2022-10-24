@@ -23,15 +23,18 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-class PropertyValueWithDoubleQuotationMarksValidator : public Validator {
+namespace TrenchBroom
+{
+namespace Model
+{
+class PropertyValueWithDoubleQuotationMarksValidator : public Validator
+{
 public:
   PropertyValueWithDoubleQuotationMarksValidator();
 
 private:
-  void doValidate(
-    EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues)
+    const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

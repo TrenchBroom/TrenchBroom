@@ -24,20 +24,25 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class RenderContext;
 class RenderBatch;
 class VboManager;
 
-class LinkRenderer : public DirectRenderable {
+class LinkRenderer : public DirectRenderable
+{
 public:
   using LineVertex = GLVertexTypes::P3C4::Vertex;
 
-  struct ArrowPositionName {
+  struct ArrowPositionName
+  {
     static inline const auto name = std::string{"arrowPosition"};
   };
-  struct LineDirName {
+  struct LineDirName
+  {
     static inline const auto name = std::string{"lineDir"};
   };
 
@@ -45,8 +50,8 @@ public:
     GLVertexAttributeTypes::P3, // vertex of the arrow (exposed in shader as gl_Vertex)
     GLVertexAttributeTypes::C4, // arrow color (exposed in shader as gl_Color)
     GLVertexAttributeUser<ArrowPositionName, GL_FLOAT, 3, false>,    // arrow position
-    GLVertexAttributeUser<LineDirName, GL_FLOAT, 3, false>>::Vertex; // direction the arrow is
-                                                                     // pointing
+    GLVertexAttributeUser<LineDirName, GL_FLOAT, 3, false>>::Vertex; // direction the
+                                                                     // arrow is pointing
 private:
   VertexArray m_lines;
   VertexArray m_arrows;

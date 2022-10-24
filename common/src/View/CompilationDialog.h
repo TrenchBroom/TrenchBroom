@@ -27,12 +27,15 @@ class QLabel;
 class QPushButton;
 class QTextEdit;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class CompilationProfileManager;
 class MapFrame;
 
-class CompilationDialog : public QDialog {
+class CompilationDialog : public QDialog
+{
   Q_OBJECT
 private:
   MapFrame* m_mapFrame;

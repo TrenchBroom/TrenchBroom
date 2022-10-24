@@ -21,11 +21,14 @@
 
 #include "View/VertexToolControllerBase.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class EdgeTool;
 
-class EdgeToolController : public VertexToolControllerBase<EdgeTool> {
+class EdgeToolController : public VertexToolControllerBase<EdgeTool>
+{
 private:
   class SelectEdgePart;
   class MoveEdgePart;

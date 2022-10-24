@@ -29,17 +29,22 @@
 #include <ostream>
 #include <string>
 
-namespace TrenchBroom {
-namespace EL {
+namespace TrenchBroom
+{
+namespace EL
+{
 
-void VariableStore::appendToStream(std::ostream& str) const {
+void VariableStore::appendToStream(std::ostream& str) const
+{
   str << "{\n";
 
   const auto& allNames = names();
-  for (size_t i = 0; i < allNames.size(); ++i) {
+  for (size_t i = 0; i < allNames.size(); ++i)
+  {
     const auto& name = allNames[i];
     str << "  " << name << ": " << value(name);
-    if (i < allNames.size() - 1) {
+    if (i < allNames.size() - 1)
+    {
       str << ", ";
     }
   }
@@ -47,83 +52,107 @@ void VariableStore::appendToStream(std::ostream& str) const {
   str << "}";
 }
 
-std::ostream& operator<<(std::ostream& lhs, const VariableStore& rhs) {
+std::ostream& operator<<(std::ostream& lhs, const VariableStore& rhs)
+{
   rhs.appendToStream(lhs);
   return lhs;
 }
 
-bool operator==(const VariableStore& lhs, const VariableStore& rhs) {
+bool operator==(const VariableStore& lhs, const VariableStore& rhs)
+{
   const auto names = lhs.names();
-  return names == rhs.names() &&
-         std::all_of(std::begin(names), std::end(names), [&](const auto& name) {
-           return lhs.value(name) == rhs.value(name);
-         });
+  return names == rhs.names()
+         && std::all_of(std::begin(names), std::end(names), [&](const auto& name) {
+              return lhs.value(name) == rhs.value(name);
+            });
 }
 
-bool operator!=(const VariableStore& lhs, const VariableStore& rhs) {
+bool operator!=(const VariableStore& lhs, const VariableStore& rhs)
+{
   return !(lhs == rhs);
 }
 
 VariableTable::VariableTable() = default;
 
 VariableTable::VariableTable(Table variables)
-  : m_variables(std::move(variables)) {}
+  : m_variables(std::move(variables))
+{
+}
 
-VariableStore* VariableTable::clone() const {
+VariableStore* VariableTable::clone() const
+{
   return new VariableTable(m_variables);
 }
 
-size_t VariableTable::size() const {
+size_t VariableTable::size() const
+{
   return m_variables.size();
 }
 
-Value VariableTable::value(const std::string& name) const {
+Value VariableTable::value(const std::string& name) const
+{
   auto it = m_variables.find(name);
-  if (it != std::end(m_variables)) {
+  if (it != std::end(m_variables))
+  {
     return it->second;
-  } else {
+  }
+  else
+  {
     return Value::Undefined;
   }
 }
 
-std::vector<std::string> VariableTable::names() const {
+std::vector<std::string> VariableTable::names() const
+{
   return kdl::map_keys(m_variables);
 }
 
-void VariableTable::declare(const std::string& name, const Value& value) {
-  if (!m_variables.try_emplace(name, value).second) {
+void VariableTable::declare(const std::string& name, const Value& value)
+{
+  if (!m_variables.try_emplace(name, value).second)
+  {
     throw EvaluationError("Variable '" + name + "' already declared");
   }
 }
 
-void VariableTable::assign(const std::string& name, const Value& value) {
+void VariableTable::assign(const std::string& name, const Value& value)
+{
   auto it = m_variables.find(name);
-  if (it == std::end(m_variables)) {
+  if (it == std::end(m_variables))
+  {
     throw EvaluationError("Cannot assign to undeclared variable '" + name + "'");
-  } else {
+  }
+  else
+  {
     it->second = value;
   }
 }
 
 NullVariableStore::NullVariableStore() = default;
 
-VariableStore* NullVariableStore::clone() const {
+VariableStore* NullVariableStore::clone() const
+{
   return new NullVariableStore();
 }
 
-size_t NullVariableStore::size() const {
+size_t NullVariableStore::size() const
+{
   return 0;
 }
 
-Value NullVariableStore::value(const std::string& /* name */) const {
+Value NullVariableStore::value(const std::string& /* name */) const
+{
   return Value::Null;
 }
 
-std::vector<std::string> NullVariableStore::names() const {
+std::vector<std::string> NullVariableStore::names() const
+{
   return std::vector<std::string>();
 }
 
-void NullVariableStore::declare(const std::string& /* name */, const Value& /* value */) {}
+void NullVariableStore::declare(const std::string& /* name */, const Value& /* value */)
+{
+}
 void NullVariableStore::assign(const std::string& /* name */, const Value& /* value */) {}
 } // namespace EL
 } // namespace TrenchBroom

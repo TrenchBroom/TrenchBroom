@@ -33,41 +33,51 @@
 #include <map>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-namespace {
+namespace TrenchBroom
+{
+namespace Model
+{
+namespace
+{
 static const auto Type = freeIssueType();
 
-IssueQuickFix makeMoveBrushesToWorldQuickFix() {
-  return {"Move Brushes to World", [](MapFacade& facade, const std::vector<const Issue*>& issues) {
-            auto affectedNodes = std::vector<Node*>{};
-            auto nodesToReparent = std::map<Node*, std::vector<Node*>>{};
+IssueQuickFix makeMoveBrushesToWorldQuickFix()
+{
+  return {
+    "Move Brushes to World",
+    [](MapFacade& facade, const std::vector<const Issue*>& issues) {
+      auto affectedNodes = std::vector<Node*>{};
+      auto nodesToReparent = std::map<Node*, std::vector<Node*>>{};
 
-            for (const auto* issue : issues) {
-              auto& node = issue->node();
-              nodesToReparent[node.parent()] = node.children();
+      for (const auto* issue : issues)
+      {
+        auto& node = issue->node();
+        nodesToReparent[node.parent()] = node.children();
 
-              affectedNodes.push_back(&node);
-              affectedNodes = kdl::vec_concat(std::move(affectedNodes), node.children());
-            }
+        affectedNodes.push_back(&node);
+        affectedNodes = kdl::vec_concat(std::move(affectedNodes), node.children());
+      }
 
-            facade.deselectAll();
-            facade.reparentNodes(nodesToReparent);
-            facade.selectNodes(affectedNodes);
-          }};
+      facade.deselectAll();
+      facade.reparentNodes(nodesToReparent);
+      facade.selectNodes(affectedNodes);
+    }};
 }
 } // namespace
 
 PointEntityWithBrushesValidator::PointEntityWithBrushesValidator()
-  : Validator{Type, "Point entity with brushes"} {
+  : Validator{Type, "Point entity with brushes"}
+{
   addQuickFix(makeMoveBrushesToWorldQuickFix());
 }
 
 void PointEntityWithBrushesValidator::doValidate(
-  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   const auto* definition =
     dynamic_cast<const Assets::PointEntityDefinition*>(entityNode.entity().definition());
-  if (definition && entityNode.hasChildren()) {
+  if (definition && entityNode.hasChildren())
+  {
     issues.push_back(
       std::make_unique<Issue>(Type, entityNode, entityNode.name() + " contains brushes"));
   }

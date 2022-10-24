@@ -25,15 +25,19 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class OrthographicCamera;
 }
 
-namespace View {
+namespace View
+{
 class DragTracker;
 
-class CameraTool2D : public ToolController, public Tool {
+class CameraTool2D : public ToolController, public Tool
+{
 private:
   Renderer::OrthographicCamera& m_camera;
   vm::vec2f m_lastMousePos;

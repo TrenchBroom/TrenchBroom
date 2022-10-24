@@ -37,9 +37,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest]") {
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest]")
+{
   document->setEnabledTextureCollections(
     std::vector<IO::Path>{IO::Path("fixture/test/IO/Wad/cr8_czg.wad")});
 
@@ -50,11 +53,13 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest
   CHECK(texture != nullptr);
   CHECK(texture->usageCount() == 6u);
 
-  for (const Model::BrushFace& face : brushNode->brush().faces()) {
+  for (const Model::BrushFace& face : brushNode->brush().faces())
+  {
     CHECK(face.texture() == texture);
   }
 
-  SECTION("translate brush") {
+  SECTION("translate brush")
+  {
     document->selectNodes({brushNode});
     document->translateObjects(vm::vec3(1, 1, 1));
     CHECK(texture->usageCount() == 6u);
@@ -63,7 +68,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest
     CHECK(texture->usageCount() == 6u);
   }
 
-  SECTION("delete brush") {
+  SECTION("delete brush")
+  {
     document->selectNodes({brushNode});
     document->deleteObjects();
     CHECK(texture->usageCount() == 0u);
@@ -72,7 +78,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest
     CHECK(texture->usageCount() == 6u);
   }
 
-  SECTION("select top face, move texture") {
+  SECTION("select top face, move texture")
+  {
     auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
     REQUIRE(topFaceIndex.has_value());
 
@@ -91,13 +98,16 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore", "[UndoTest
     REQUIRE(!document->hasSelectedBrushFaces());
   }
 
-  for (const Model::BrushFace& face : brushNode->brush().faces()) {
+  for (const Model::BrushFace& face : brushNode->brush().faces())
+  {
     CHECK(face.texture() == texture);
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation", "[UndoTest]") {
-  auto* entityNode = new Model::EntityNode{{}, {{Model::EntityPropertyKeys::Classname, "test"}}};
+TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation", "[UndoTest]")
+{
+  auto* entityNode =
+    new Model::EntityNode{{}, {{Model::EntityPropertyKeys::Classname, "test"}}};
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   CHECK(!entityNode->entity().hasProperty("angle"));

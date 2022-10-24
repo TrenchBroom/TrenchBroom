@@ -33,21 +33,28 @@
 
 #include <cassert>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 MoveObjectsTool::MoveObjectsTool(std::weak_ptr<MapDocument> document)
   : Tool(true)
   , m_document(document)
-  , m_duplicateObjects(false) {}
+  , m_duplicateObjects(false)
+{
+}
 
-const Grid& MoveObjectsTool::grid() const {
+const Grid& MoveObjectsTool::grid() const
+{
   return kdl::mem_lock(m_document)->grid();
 }
 
-bool MoveObjectsTool::startMove(const InputState& inputState) {
+bool MoveObjectsTool::startMove(const InputState& inputState)
+{
   auto document = kdl::mem_lock(m_document);
 
-  if (!document->selectedBrushFaces().empty()) {
+  if (!document->selectedBrushFaces().empty())
+  {
     return false;
   }
 
@@ -58,41 +65,52 @@ bool MoveObjectsTool::startMove(const InputState& inputState) {
   return true;
 }
 
-MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState&, const vm::vec3& delta) {
+MoveObjectsTool::MoveResult MoveObjectsTool::move(
+  const InputState&, const vm::vec3& delta)
+{
   auto document = kdl::mem_lock(m_document);
   const auto& worldBounds = document->worldBounds();
   const auto bounds = document->selectionBounds();
-  if (!worldBounds.contains(bounds.translate(delta))) {
+  if (!worldBounds.contains(bounds.translate(delta)))
+  {
     return MR_Deny;
   }
 
-  if (m_duplicateObjects) {
+  if (m_duplicateObjects)
+  {
     m_duplicateObjects = false;
     document->duplicateObjects();
   }
 
-  if (!document->translateObjects(delta)) {
+  if (!document->translateObjects(delta))
+  {
     return MR_Deny;
-  } else {
+  }
+  else
+  {
     return MR_Continue;
   }
 }
 
-void MoveObjectsTool::endMove(const InputState&) {
+void MoveObjectsTool::endMove(const InputState&)
+{
   auto document = kdl::mem_lock(m_document);
   document->commitTransaction();
 }
 
-void MoveObjectsTool::cancelMove() {
+void MoveObjectsTool::cancelMove()
+{
   auto document = kdl::mem_lock(m_document);
   document->cancelTransaction();
 }
 
-bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const {
+bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const
+{
   return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
 }
 
-QWidget* MoveObjectsTool::doCreatePage(QWidget* parent) {
+QWidget* MoveObjectsTool::doCreatePage(QWidget* parent)
+{
   return new MoveObjectsToolPage(m_document, parent);
 }
 } // namespace View

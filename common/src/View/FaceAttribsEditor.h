@@ -31,13 +31,16 @@ class QLabel;
 class QLineEdit;
 class QGridLayout;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushFaceHandle;
 class Node;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class FlagsPopupEditor;
 class GLContextManager;
 class MapDocument;
@@ -46,7 +49,8 @@ class SignalDelayer;
 class SpinControl;
 class UVEditor;
 
-class FaceAttribsEditor : public QWidget {
+class FaceAttribsEditor : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -84,7 +88,8 @@ private:
 
 public:
   FaceAttribsEditor(
-    std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    std::weak_ptr<MapDocument> document,
+    GLContextManager& contextManager,
     QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
@@ -132,8 +137,10 @@ private:
   void showColorAttribEditor();
   void hideColorAttribEditor();
 
-  void getSurfaceFlags(QList<int>& values, QStringList& names, QStringList& descriptions) const;
-  void getContentFlags(QList<int>& values, QStringList& names, QStringList& descriptions) const;
+  void getSurfaceFlags(
+    QList<int>& values, QStringList& names, QStringList& descriptions) const;
+  void getContentFlags(
+    QList<int>& values, QStringList& names, QStringList& descriptions) const;
 };
 } // namespace View
 } // namespace TrenchBroom

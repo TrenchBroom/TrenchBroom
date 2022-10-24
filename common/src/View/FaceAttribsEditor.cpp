@@ -55,8 +55,10 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 FaceAttribsEditor::FaceAttribsEditor(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget(parent)
@@ -85,208 +87,261 @@ FaceAttribsEditor::FaceAttribsEditor(
   , m_colorEditorLayout(nullptr)
   , m_colorEditor(nullptr)
   , m_colorUnsetButton(nullptr)
-  , m_updateControlsSignalDelayer{new SignalDelayer{this}} {
+  , m_updateControlsSignalDelayer{new SignalDelayer{this}}
+{
   createGui(contextManager);
   bindEvents();
   connectObservers();
   updateIncrements();
 }
 
-bool FaceAttribsEditor::cancelMouseDrag() {
+bool FaceAttribsEditor::cancelMouseDrag()
+{
   return m_uvEditor->cancelMouseDrag();
 }
 
-void FaceAttribsEditor::xOffsetChanged(const double value) {
+void FaceAttribsEditor::xOffsetChanged(const double value)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.setXOffset(static_cast<float>(value));
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::yOffsetChanged(const double value) {
+void FaceAttribsEditor::yOffsetChanged(const double value)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.setYOffset(static_cast<float>(value));
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::rotationChanged(const double value) {
+void FaceAttribsEditor::rotationChanged(const double value)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.setRotation(static_cast<float>(value));
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::xScaleChanged(const double value) {
+void FaceAttribsEditor::xScaleChanged(const double value)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.setXScale(static_cast<float>(value));
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::yScaleChanged(const double value) {
+void FaceAttribsEditor::yScaleChanged(const double value)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.setYScale(static_cast<float>(value));
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
 void FaceAttribsEditor::surfaceFlagChanged(
-  const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */) {
+  const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
-  if (setFlag & value) {
+  if (setFlag & value)
+  {
     request.setSurfaceFlags(value);
-  } else {
+  }
+  else
+  {
     request.unsetSurfaceFlags(value);
   }
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
 void FaceAttribsEditor::contentFlagChanged(
-  const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */) {
+  const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
-  if (setFlag & value) {
+  if (setFlag & value)
+  {
     request.setContentFlags(value);
-  } else {
+  }
+  else
+  {
     request.unsetContentFlags(value);
   }
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::surfaceValueChanged(const double value) {
+void FaceAttribsEditor::surfaceValueChanged(const double value)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.setSurfaceValue(static_cast<float>(value));
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::colorValueChanged(const QString& /* text */) {
+void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   const std::string str = m_colorEditor->text().toStdString();
-  if (!kdl::str_is_blank(str)) {
-    if (const auto color = Color::parse(str)) {
+  if (!kdl::str_is_blank(str))
+  {
+    if (const auto color = Color::parse(str))
+    {
       Model::ChangeBrushFaceAttributesRequest request;
       request.setColor(*color);
-      if (!document->setFaceAttributes(request)) {
+      if (!document->setFaceAttributes(request))
+      {
         updateControls();
       }
     }
-  } else {
+  }
+  else
+  {
     Model::ChangeBrushFaceAttributesRequest request;
     request.setColor(Color());
-    if (!document->setFaceAttributes(request)) {
+    if (!document->setFaceAttributes(request))
+    {
       updateControls();
     }
   }
 }
 
-void FaceAttribsEditor::surfaceFlagsUnset() {
+void FaceAttribsEditor::surfaceFlagsUnset()
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.replaceSurfaceFlags(std::nullopt);
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::contentFlagsUnset() {
+void FaceAttribsEditor::contentFlagsUnset()
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.replaceContentFlags(std::nullopt);
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::surfaceValueUnset() {
+void FaceAttribsEditor::surfaceValueUnset()
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.setSurfaceValue(std::nullopt);
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::colorValueUnset() {
+void FaceAttribsEditor::colorValueUnset()
+{
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces()) {
+  if (!document->hasAnySelectedBrushFaces())
+  {
     return;
   }
 
   Model::ChangeBrushFaceAttributesRequest request;
   request.setColor(std::nullopt);
-  if (!document->setFaceAttributes(request)) {
+  if (!document->setFaceAttributes(request))
+  {
     updateControls();
   }
 }
 
-void FaceAttribsEditor::updateIncrements() {
+void FaceAttribsEditor::updateIncrements()
+{
   auto document = kdl::mem_lock(m_document);
   Grid& grid = document->grid();
 
@@ -295,7 +350,8 @@ void FaceAttribsEditor::updateIncrements() {
   m_rotationEditor->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
 }
 
-static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button) {
+static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button)
+{
   auto* wrapper = new QWidget();
   auto* rowLayout = new QHBoxLayout();
   rowLayout->setContentsMargins(0, 0, 0, 0);
@@ -306,7 +362,8 @@ static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button) 
   return wrapper;
 }
 
-void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
+void FaceAttribsEditor::createGui(GLContextManager& contextManager)
+{
   m_uvEditor = new UVEditor(m_document, contextManager);
 
   auto* textureNameLabel = new QLabel("Texture");
@@ -358,21 +415,24 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
   m_surfaceValueEditor->setRange(min, max);
   m_surfaceValueEditor->setIncrements(1.0, 10.0, 100.0);
   m_surfaceValueEditor->setDigits(0, 6);
-  m_surfaceValueUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset surface value"));
+  m_surfaceValueUnsetButton =
+    createBitmapButton("ResetTexture.svg", tr("Unset surface value"));
   m_surfaceValueEditorLayout =
     createUnsetButtonLayout(m_surfaceValueEditor, m_surfaceValueUnsetButton);
 
   m_surfaceFlagsLabel = new QLabel("Surface");
   makeEmphasized(m_surfaceFlagsLabel);
   m_surfaceFlagsEditor = new FlagsPopupEditor(2, this);
-  m_surfaceFlagsUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset surface flags"));
+  m_surfaceFlagsUnsetButton =
+    createBitmapButton("ResetTexture.svg", tr("Unset surface flags"));
   m_surfaceFlagsEditorLayout =
     createUnsetButtonLayout(m_surfaceFlagsEditor, m_surfaceFlagsUnsetButton);
 
   m_contentFlagsLabel = new QLabel("Content");
   makeEmphasized(m_contentFlagsLabel);
   m_contentFlagsEditor = new FlagsPopupEditor(2, this);
-  m_contentFlagsUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset content flags"));
+  m_contentFlagsUnsetButton =
+    createBitmapButton("ResetTexture.svg", tr("Unset content flags"));
   m_contentFlagsEditorLayout =
     createUnsetButtonLayout(m_contentFlagsEditor, m_contentFlagsUnsetButton);
 
@@ -387,7 +447,9 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
 
   auto* faceAttribsLayout = new QGridLayout();
   faceAttribsLayout->setContentsMargins(
-    LayoutConstants::NarrowHMargin, LayoutConstants::MediumVMargin, LayoutConstants::NarrowHMargin,
+    LayoutConstants::NarrowHMargin,
+    LayoutConstants::MediumVMargin,
+    LayoutConstants::NarrowHMargin,
     LayoutConstants::MediumVMargin);
   faceAttribsLayout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
   faceAttribsLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
@@ -451,106 +513,149 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
   setLayout(outerLayout);
 }
 
-void FaceAttribsEditor::bindEvents() {
+void FaceAttribsEditor::bindEvents()
+{
   connect(
-    m_xOffsetEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    m_xOffsetEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
     &FaceAttribsEditor::xOffsetChanged);
   connect(
-    m_yOffsetEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    m_yOffsetEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
     &FaceAttribsEditor::yOffsetChanged);
   connect(
-    m_xScaleEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    m_xScaleEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
     &FaceAttribsEditor::xScaleChanged);
   connect(
-    m_yScaleEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    m_yScaleEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
     &FaceAttribsEditor::yScaleChanged);
   connect(
-    m_rotationEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    m_rotationEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
     &FaceAttribsEditor::rotationChanged);
   connect(
-    m_surfaceValueEditor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    m_surfaceValueEditor,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
     &FaceAttribsEditor::surfaceValueChanged);
   connect(
-    m_surfaceFlagsEditor, &FlagsPopupEditor::flagChanged, this,
+    m_surfaceFlagsEditor,
+    &FlagsPopupEditor::flagChanged,
+    this,
     &FaceAttribsEditor::surfaceFlagChanged);
   connect(
-    m_contentFlagsEditor, &FlagsPopupEditor::flagChanged, this,
+    m_contentFlagsEditor,
+    &FlagsPopupEditor::flagChanged,
+    this,
     &FaceAttribsEditor::contentFlagChanged);
-  connect(m_colorEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::colorValueChanged);
   connect(
-    m_surfaceValueUnsetButton, &QAbstractButton::clicked, this,
+    m_colorEditor, &QLineEdit::textEdited, this, &FaceAttribsEditor::colorValueChanged);
+  connect(
+    m_surfaceValueUnsetButton,
+    &QAbstractButton::clicked,
+    this,
     &FaceAttribsEditor::surfaceValueUnset);
   connect(
-    m_surfaceFlagsUnsetButton, &QAbstractButton::clicked, this,
+    m_surfaceFlagsUnsetButton,
+    &QAbstractButton::clicked,
+    this,
     &FaceAttribsEditor::surfaceFlagsUnset);
   connect(
-    m_contentFlagsUnsetButton, &QAbstractButton::clicked, this,
+    m_contentFlagsUnsetButton,
+    &QAbstractButton::clicked,
+    this,
     &FaceAttribsEditor::contentFlagsUnset);
-  connect(m_colorUnsetButton, &QAbstractButton::clicked, this, &FaceAttribsEditor::colorValueUnset);
   connect(
-    m_updateControlsSignalDelayer, &SignalDelayer::processSignal, this,
+    m_colorUnsetButton,
+    &QAbstractButton::clicked,
+    this,
+    &FaceAttribsEditor::colorValueUnset);
+  connect(
+    m_updateControlsSignalDelayer,
+    &SignalDelayer::processSignal,
+    this,
     &FaceAttribsEditor::updateControls);
 }
 
-void FaceAttribsEditor::connectObservers() {
+void FaceAttribsEditor::connectObservers()
+{
   auto document = kdl::mem_lock(m_document);
-  m_notifierConnection +=
-    document->documentWasNewedNotifier.connect(this, &FaceAttribsEditor::documentWasNewed);
-  m_notifierConnection +=
-    document->documentWasLoadedNotifier.connect(this, &FaceAttribsEditor::documentWasLoaded);
+  m_notifierConnection += document->documentWasNewedNotifier.connect(
+    this, &FaceAttribsEditor::documentWasNewed);
+  m_notifierConnection += document->documentWasLoadedNotifier.connect(
+    this, &FaceAttribsEditor::documentWasLoaded);
   m_notifierConnection +=
     document->nodesDidChangeNotifier.connect(this, &FaceAttribsEditor::nodesDidChange);
-  m_notifierConnection +=
-    document->brushFacesDidChangeNotifier.connect(this, &FaceAttribsEditor::brushFacesDidChange);
-  m_notifierConnection +=
-    document->selectionDidChangeNotifier.connect(this, &FaceAttribsEditor::selectionDidChange);
+  m_notifierConnection += document->brushFacesDidChangeNotifier.connect(
+    this, &FaceAttribsEditor::brushFacesDidChange);
+  m_notifierConnection += document->selectionDidChangeNotifier.connect(
+    this, &FaceAttribsEditor::selectionDidChange);
   m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
     this, &FaceAttribsEditor::textureCollectionsDidChange);
-  m_notifierConnection +=
-    document->grid().gridDidChangeNotifier.connect(this, &FaceAttribsEditor::updateIncrements);
+  m_notifierConnection += document->grid().gridDidChangeNotifier.connect(
+    this, &FaceAttribsEditor::updateIncrements);
 }
 
-void FaceAttribsEditor::documentWasNewed(MapDocument*) {
+void FaceAttribsEditor::documentWasNewed(MapDocument*)
+{
   updateControls();
 }
 
-void FaceAttribsEditor::documentWasLoaded(MapDocument*) {
+void FaceAttribsEditor::documentWasLoaded(MapDocument*)
+{
   updateControls();
 }
 
-void FaceAttribsEditor::nodesDidChange(const std::vector<Model::Node*>&) {
+void FaceAttribsEditor::nodesDidChange(const std::vector<Model::Node*>&)
+{
   updateControlsDelayed();
 }
 
-void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
+void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
+{
   updateControlsDelayed();
 }
 
-void FaceAttribsEditor::selectionDidChange(const Selection&) {
+void FaceAttribsEditor::selectionDidChange(const Selection&)
+{
   updateControlsDelayed();
 }
 
-void FaceAttribsEditor::textureCollectionsDidChange() {
+void FaceAttribsEditor::textureCollectionsDidChange()
+{
   updateControls();
 }
 
-static void disableAndSetPlaceholder(QDoubleSpinBox* box, const QString& text) {
+static void disableAndSetPlaceholder(QDoubleSpinBox* box, const QString& text)
+{
   box->setSpecialValueText(text);
   box->setValue(box->minimum());
   box->setEnabled(false);
 }
 
-static void setValueOrMulti(QDoubleSpinBox* box, const bool multi, const double value) {
-  if (multi) {
+static void setValueOrMulti(QDoubleSpinBox* box, const bool multi, const double value)
+{
+  if (multi)
+  {
     box->setSpecialValueText("multi");
     box->setValue(box->minimum());
-  } else {
+  }
+  else
+  {
     box->setSpecialValueText("");
     box->setValue(value);
   }
 }
 
-void FaceAttribsEditor::updateControls() {
+void FaceAttribsEditor::updateControls()
+{
   // block signals emitted when updating the editor values
   const QSignalBlocker blockXOffsetEditor(m_xOffsetEditor);
   const QSignalBlocker blockYOffsetEditor(m_yOffsetEditor);
@@ -562,34 +667,44 @@ void FaceAttribsEditor::updateControls() {
   const QSignalBlocker blockContentFlagsEditor(m_contentFlagsEditor);
   const QSignalBlocker blockColorEditor(m_colorEditor);
 
-  if (hasSurfaceFlags()) {
+  if (hasSurfaceFlags())
+  {
     showSurfaceFlagsEditor();
     QList<int> values;
     QStringList surfaceFlagLabels, surfaceFlagTooltips;
     getSurfaceFlags(values, surfaceFlagLabels, surfaceFlagTooltips);
     m_surfaceFlagsEditor->setFlags(values, surfaceFlagLabels, surfaceFlagTooltips);
-  } else {
+  }
+  else
+  {
     hideSurfaceFlagsEditor();
   }
 
-  if (hasContentFlags()) {
+  if (hasContentFlags())
+  {
     showContentFlagsEditor();
     QList<int> values;
     QStringList contentFlagLabels, contentFlagTooltips;
     getContentFlags(values, contentFlagLabels, contentFlagTooltips);
     m_contentFlagsEditor->setFlags(values, contentFlagLabels, contentFlagTooltips);
-  } else {
+  }
+  else
+  {
     hideContentFlagsEditor();
   }
 
-  if (hasColorAttribs()) {
+  if (hasColorAttribs())
+  {
     showColorAttribEditor();
-  } else {
+  }
+  else
+  {
     hideColorAttribEditor();
   }
 
   const auto faceHandles = kdl::mem_lock(m_document)->allSelectedBrushFaces();
-  if (!faceHandles.empty()) {
+  if (!faceHandles.empty())
+  {
     bool textureMulti = false;
     bool xOffsetMulti = false;
     bool yOffsetMulti = false;
@@ -617,7 +732,8 @@ void FaceAttribsEditor::updateControls() {
     bool hasSurfaceContents = firstFace.attributes().surfaceContents().has_value();
     bool hasColorValue = firstFace.attributes().hasColor();
 
-    for (size_t i = 1; i < faceHandles.size(); i++) {
+    for (size_t i = 1; i < faceHandles.size(); i++)
+    {
       const Model::BrushFace& face = faceHandles[i].face();
       textureMulti |= (textureName != face.attributes().textureName());
       xOffsetMulti |= (xOffset != face.attributes().xOffset());
@@ -635,7 +751,10 @@ void FaceAttribsEditor::updateControls() {
       combineFlags(
         sizeof(int) * 8, face.resolvedSurfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
       combineFlags(
-        sizeof(int) * 8, face.resolvedSurfaceContents(), setSurfaceContents, mixedSurfaceContents);
+        sizeof(int) * 8,
+        face.resolvedSurfaceContents(),
+        setSurfaceContents,
+        mixedSurfaceContents);
     }
 
     m_xOffsetEditor->setEnabled(true);
@@ -648,26 +767,35 @@ void FaceAttribsEditor::updateControls() {
     m_contentFlagsEditor->setEnabled(true);
     m_colorEditor->setEnabled(true);
 
-    if (textureMulti) {
+    if (textureMulti)
+    {
       m_textureName->setText("multi");
       m_textureName->setEnabled(false);
       m_textureSize->setText("multi");
       m_textureSize->setEnabled(false);
-    } else {
-      if (textureName == Model::BrushFaceAttributes::NoTextureName) {
+    }
+    else
+    {
+      if (textureName == Model::BrushFaceAttributes::NoTextureName)
+      {
         m_textureName->setText("none");
         m_textureName->setEnabled(false);
         m_textureSize->setText("");
         m_textureSize->setEnabled(false);
-      } else {
+      }
+      else
+      {
         const Assets::Texture* texture = firstFace.texture();
-        if (texture != nullptr) {
+        if (texture != nullptr)
+        {
           m_textureName->setText(QString::fromStdString(textureName));
           m_textureSize->setText(
             QStringLiteral("%1 * %2").arg(texture->width()).arg(texture->height()));
           m_textureName->setEnabled(true);
           m_textureSize->setEnabled(true);
-        } else {
+        }
+        else
+        {
           m_textureName->setText(QString::fromStdString(textureName) + " (not found)");
           m_textureName->setEnabled(false);
           m_textureSize->setEnabled(false);
@@ -679,16 +807,23 @@ void FaceAttribsEditor::updateControls() {
     setValueOrMulti(m_rotationEditor, rotationMulti, static_cast<double>(rotation));
     setValueOrMulti(m_xScaleEditor, xScaleMulti, static_cast<double>(xScale));
     setValueOrMulti(m_yScaleEditor, yScaleMulti, static_cast<double>(yScale));
-    setValueOrMulti(m_surfaceValueEditor, surfaceValueMulti, static_cast<double>(surfaceValue));
-    if (hasColorValue) {
-      if (colorValueMulti) {
+    setValueOrMulti(
+      m_surfaceValueEditor, surfaceValueMulti, static_cast<double>(surfaceValue));
+    if (hasColorValue)
+    {
+      if (colorValueMulti)
+      {
         m_colorEditor->setPlaceholderText("multi");
         m_colorEditor->setText("");
-      } else {
+      }
+      else
+      {
         m_colorEditor->setPlaceholderText("");
         m_colorEditor->setText(QString::fromStdString(kdl::str_to_string(*colorValue)));
       }
-    } else {
+    }
+    else
+    {
       m_colorEditor->setPlaceholderText("");
       m_colorEditor->setText("");
     }
@@ -699,7 +834,9 @@ void FaceAttribsEditor::updateControls() {
     m_surfaceFlagsUnsetButton->setEnabled(hasSurfaceFlags);
     m_contentFlagsUnsetButton->setEnabled(hasSurfaceContents);
     m_colorUnsetButton->setEnabled(hasColorValue);
-  } else {
+  }
+  else
+  {
     disableAndSetPlaceholder(m_xOffsetEditor, "n/a");
     disableAndSetPlaceholder(m_yOffsetEditor, "n/a");
     disableAndSetPlaceholder(m_xScaleEditor, "n/a");
@@ -721,68 +858,84 @@ void FaceAttribsEditor::updateControls() {
   }
 }
 
-void FaceAttribsEditor::updateControlsDelayed() {
+void FaceAttribsEditor::updateControlsDelayed()
+{
   m_updateControlsSignalDelayer->queueSignal();
 }
 
-bool FaceAttribsEditor::hasSurfaceFlags() const {
+bool FaceAttribsEditor::hasSurfaceFlags() const
+{
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
   return !game->surfaceFlags().flags.empty();
 }
 
-bool FaceAttribsEditor::hasContentFlags() const {
+bool FaceAttribsEditor::hasContentFlags() const
+{
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
   return !game->contentFlags().flags.empty();
 }
 
-void FaceAttribsEditor::showSurfaceFlagsEditor() {
+void FaceAttribsEditor::showSurfaceFlagsEditor()
+{
   m_surfaceValueLabel->show();
   m_surfaceValueEditorLayout->show();
   m_surfaceFlagsLabel->show();
   m_surfaceFlagsEditorLayout->show();
 }
 
-void FaceAttribsEditor::showContentFlagsEditor() {
+void FaceAttribsEditor::showContentFlagsEditor()
+{
   m_contentFlagsLabel->show();
   m_contentFlagsEditorLayout->show();
 }
 
-void FaceAttribsEditor::hideSurfaceFlagsEditor() {
+void FaceAttribsEditor::hideSurfaceFlagsEditor()
+{
   m_surfaceValueLabel->hide();
   m_surfaceValueEditorLayout->hide();
   m_surfaceFlagsLabel->hide();
   m_surfaceFlagsEditorLayout->hide();
 }
 
-void FaceAttribsEditor::hideContentFlagsEditor() {
+void FaceAttribsEditor::hideContentFlagsEditor()
+{
   m_contentFlagsLabel->hide();
   m_contentFlagsEditorLayout->hide();
 }
 
-bool FaceAttribsEditor::hasColorAttribs() const {
+bool FaceAttribsEditor::hasColorAttribs() const
+{
   auto document = kdl::mem_lock(m_document);
   return document->world()->mapFormat() == Model::MapFormat::Daikatana;
 }
 
-void FaceAttribsEditor::showColorAttribEditor() {
+void FaceAttribsEditor::showColorAttribEditor()
+{
   m_colorLabel->show();
   m_colorEditorLayout->show();
 }
 
-void FaceAttribsEditor::hideColorAttribEditor() {
+void FaceAttribsEditor::hideColorAttribEditor()
+{
   m_colorLabel->hide();
   m_colorEditorLayout->hide();
 }
 
 void getFlags(
-  const std::vector<Model::FlagConfig>& flags, QList<int>& values, QStringList& names,
+  const std::vector<Model::FlagConfig>& flags,
+  QList<int>& values,
+  QStringList& names,
   QStringList& descriptions);
 void getFlags(
-  const std::vector<Model::FlagConfig>& flags, QList<int>& values, QStringList& names,
-  QStringList& descriptions) {
-  for (const auto& flag : flags) {
+  const std::vector<Model::FlagConfig>& flags,
+  QList<int>& values,
+  QStringList& names,
+  QStringList& descriptions)
+{
+  for (const auto& flag : flags)
+  {
     values.push_back(flag.value);
     names.push_back(QString::fromStdString(flag.name));
     descriptions.push_back(QString::fromStdString(flag.description));
@@ -790,7 +943,8 @@ void getFlags(
 }
 
 void FaceAttribsEditor::getSurfaceFlags(
-  QList<int>& values, QStringList& names, QStringList& descriptions) const {
+  QList<int>& values, QStringList& names, QStringList& descriptions) const
+{
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
   const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
@@ -798,7 +952,8 @@ void FaceAttribsEditor::getSurfaceFlags(
 }
 
 void FaceAttribsEditor::getContentFlags(
-  QList<int>& values, QStringList& names, QStringList& descriptions) const {
+  QList<int>& values, QStringList& names, QStringList& descriptions) const
+{
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
   const Model::FlagsConfig& contentFlags = game->contentFlags();

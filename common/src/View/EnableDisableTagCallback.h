@@ -26,9 +26,12 @@
 
 #include <QObject>
 
-namespace TrenchBroom {
-namespace View {
-class EnableDisableTagCallback : public QObject, public Model::TagMatcherCallback {
+namespace TrenchBroom
+{
+namespace View
+{
+class EnableDisableTagCallback : public QObject, public Model::TagMatcherCallback
+{
   Q_OBJECT
 private:
   size_t m_selectedOption;

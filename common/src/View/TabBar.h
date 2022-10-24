@@ -29,12 +29,15 @@ class QHBoxLayout;
 class QLabel;
 class QStackedLayout;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class TabBook;
 class TabBookPage;
 
-class TabBarButton : public QWidget {
+class TabBarButton : public QWidget
+{
   Q_OBJECT
 private:
   QLabel* m_label;
@@ -58,7 +61,8 @@ private:
   void updateState();
 };
 
-class TabBar : public ContainerBar {
+class TabBar : public ContainerBar
+{
   Q_OBJECT
 private:
   using ButtonList = std::vector<TabBarButton*>;

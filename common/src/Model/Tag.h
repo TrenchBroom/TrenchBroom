@@ -29,17 +29,20 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class ConstTagVisitor;
 class TagManager;
 class TagVisitor;
 
 /**
- * This class represents an attribute of a tag. A tag can have multiple attributes, but the names
- * must be unique.
+ * This class represents an attribute of a tag. A tag can have multiple attributes, but
+ * the names must be unique.
  */
-class TagAttribute {
+class TagAttribute
+{
 public:
   using AttributeType = unsigned long;
 
@@ -73,12 +76,14 @@ public:
 };
 
 /**
- * Tags can be attached to any class that implement the Taggable interface. Each tag has a name and
- * a type, whereby the type is just a unique unsigned integer that acts as a bitmask index.
+ * Tags can be attached to any class that implement the Taggable interface. Each tag has a
+ * name and a type, whereby the type is just a unique unsigned integer that acts as a
+ * bitmask index.
  *
  * Furthermore, a tag can have attributes.
  */
-class Tag {
+class Tag
+{
 protected:
   size_t m_index;
   std::string m_name;
@@ -95,7 +100,8 @@ protected:
 
 public:
   /**
-   * Creates a new tag with the given name and attributes. The tag's type will be set automatically.
+   * Creates a new tag with the given name and attributes. The tag's type will be set
+   * automatically.
    *
    * @param name the tag's name
    * @param attributes the tag's attributes
@@ -147,10 +153,11 @@ public:
 std::ostream& operator<<(std::ostream& str, const Tag& tag);
 
 /**
- * Tag references are used to store the tags attached to an object implementing the Taggable
- * interface.
+ * Tag references are used to store the tags attached to an object implementing the
+ * Taggable interface.
  */
-class TagReference {
+class TagReference
+{
 private:
   const Tag* m_tag;
 
@@ -177,7 +184,8 @@ public:
 /**
  * Implementing this interface gives a class the ability to be tagged.
  */
-class Taggable {
+class Taggable
+{
 private:
   TagType::Type m_tagMask;
   kdl::vector_set<TagReference> m_tags;
@@ -241,8 +249,8 @@ public:
   bool removeTag(const Tag& tag);
 
   /**
-   * Clears the tags of this object and adds all matching smart tags registered with the given tag
-   * manager.
+   * Clears the tags of this object and adds all matching smart tags registered with the
+   * given tag manager.
    *
    * @param tagManager the tag manager
    */
@@ -261,7 +269,8 @@ public:
   virtual void clearTags();
 
   /**
-   * Indicates whether any of the tags associated with this object has the given tag attribute.
+   * Indicates whether any of the tags associated with this object has the given tag
+   * attribute.
    *
    * @param attribute the attribute to check
    * @return true if any tag of this object has the given attribute and false otherwise
@@ -295,7 +304,8 @@ class MapFacade;
 /**
  * A mechanism to query user input when enabling or disabling a tag matcher.
  */
-class TagMatcherCallback {
+class TagMatcherCallback
+{
 public:
   virtual ~TagMatcherCallback();
   virtual size_t selectOption(const std::vector<std::string>& options) = 0;
@@ -304,13 +314,15 @@ public:
 /**
  * Decides whether a taggable object should be tagged with a particular smart tag.
  */
-class TagMatcher {
+class TagMatcher
+{
 public:
   virtual ~TagMatcher();
 
 public:
   /**
-   * Evaluates this tag matcher against the given taggable by calling Taggable::evaluateTagMatcher.
+   * Evaluates this tag matcher against the given taggable by calling
+   * Taggable::evaluateTagMatcher.
    *
    * @param taggable the taggable to match against
    * @return true if this matcher matches the given taggable and false otherwise
@@ -334,16 +346,20 @@ public:
   virtual void disable(TagMatcherCallback& callback, MapFacade& facade) const;
 
   /**
-   * Indicates whether this tag matcher can modify the selection so that it would match it.
+   * Indicates whether this tag matcher can modify the selection so that it would match
+   * it.
    *
-   * @return true if this tag matcher can modify the selection appropriately and false otherwise
+   * @return true if this tag matcher can modify the selection appropriately and false
+   * otherwise
    */
   virtual bool canEnable() const;
 
   /**
-   * Indicates whether this tag matcher can modify the selection so that it would not match it.
+   * Indicates whether this tag matcher can modify the selection so that it would not
+   * match it.
    *
-   * @return true if this tag matcher can modify the selection appropriately and false otherwise
+   * @return true if this tag matcher can modify the selection appropriately and false
+   * otherwise
    */
   virtual bool canDisable() const;
 
@@ -360,7 +376,8 @@ std::ostream& operator<<(std::ostream& str, const TagMatcher& matcher);
 /**
  * A smart tag is applied to any object that satisfies a matcher automatically.
  */
-class SmartTag : public Tag {
+class SmartTag : public Tag
+{
 private:
   std::unique_ptr<TagMatcher> m_matcher;
 
@@ -373,7 +390,8 @@ public:
    * @param matcher the matcher that decides whether to apply this tag to a given taggable
    */
   SmartTag(
-    const std::string& name, std::vector<TagAttribute> attributes,
+    const std::string& name,
+    std::vector<TagAttribute> attributes,
     std::unique_ptr<TagMatcher> matcher);
 
   SmartTag(const SmartTag& other);
@@ -414,14 +432,16 @@ public:
   void disable(TagMatcherCallback& callback, MapFacade& facade) const;
 
   /**
-   * Indicates whether this tag supports modifying the selection so that it would match it.
+   * Indicates whether this tag supports modifying the selection so that it would match
+   * it.
    *
    * @return true if this tag can modify the selection appropriately and false otherwise
    */
   bool canEnable() const;
 
   /**
-   * Indicates whether this tag supports modifying the selection so that it would not match it.
+   * Indicates whether this tag supports modifying the selection so that it would not
+   * match it.
    *
    * @return true if this tag can modify the selection appropriately and false otherwise
    */

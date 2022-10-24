@@ -19,10 +19,13 @@
 
 #pragma once
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class TagAttribute;
-namespace TagAttributes {
+namespace TagAttributes
+{
 extern const TagAttribute Transparency;
 }
 } // namespace Model

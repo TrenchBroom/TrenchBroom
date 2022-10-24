@@ -31,62 +31,81 @@
 #include <cassert>
 #include <istream>
 
-namespace TrenchBroom::Model {
+namespace TrenchBroom::Model
+{
 
 PointTrace::PointTrace(std::vector<vm::vec3f> points)
   : m_points{std::move(points)}
-  , m_current{0} {
+  , m_current{0}
+{
   ensure(!m_points.empty(), "Point trace is not empty");
 }
 
-bool PointTrace::hasNextPoint() const {
+bool PointTrace::hasNextPoint() const
+{
   return m_current < m_points.size() - 1;
 }
 
-bool PointTrace::hasPreviousPoint() const {
+bool PointTrace::hasPreviousPoint() const
+{
   return m_current > 0;
 }
 
-const std::vector<vm::vec3f>& PointTrace::points() const {
+const std::vector<vm::vec3f>& PointTrace::points() const
+{
   return m_points;
 }
 
-const vm::vec3f& PointTrace::currentPoint() const {
+const vm::vec3f& PointTrace::currentPoint() const
+{
   return m_points[m_current];
 }
 
-const vm::vec3f PointTrace::currentDirection() const {
-  if (m_points.size() <= 1) {
+const vm::vec3f PointTrace::currentDirection() const
+{
+  if (m_points.size() <= 1)
+  {
     return vm::vec3f::pos_x();
-  } else if (m_current >= m_points.size() - 1) {
+  }
+  else if (m_current >= m_points.size() - 1)
+  {
     return vm::normalize(m_points[m_points.size() - 1] - m_points[m_points.size() - 2]);
-  } else {
+  }
+  else
+  {
     return vm::normalize(m_points[m_current + 1] - m_points[m_current]);
   }
 }
 
-void PointTrace::advance() {
-  if (hasNextPoint()) {
+void PointTrace::advance()
+{
+  if (hasNextPoint())
+  {
     ++m_current;
   }
 }
 
-void PointTrace::retreat() {
-  if (hasPreviousPoint()) {
+void PointTrace::retreat()
+{
+  if (hasPreviousPoint())
+  {
     --m_current;
   }
 }
 
-static std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points) {
+static std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
+{
   assert(points.size() > 1);
 
   auto result = std::vector<vm::vec3f>{points[0]};
 
-  auto it = std::find_if(std::next(std::begin(points)), std::end(points), [&](const auto& p) {
-    return p != points[0];
-  });
+  auto it =
+    std::find_if(std::next(std::begin(points)), std::end(points), [&](const auto& p) {
+      return p != points[0];
+    });
 
-  if (it == std::end(points)) {
+  if (it == std::end(points))
+  {
     return result;
   }
 
@@ -94,13 +113,17 @@ static std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
   ++it;
 
   auto ray = vm::ray3f{result[0], vm::normalize(result[1] - result[0])};
-  while (it != std::end(points)) {
+  while (it != std::end(points))
+  {
     const auto& cur = *it;
     const auto dist = vm::squared_distance(ray, cur).distance;
-    if (dist > 1.0f) {
+    if (dist > 1.0f)
+    {
       ray = vm::ray3f{result.back(), vm::normalize(cur - result.back())};
       result.push_back(cur);
-    } else {
+    }
+    else
+    {
       result.back() = cur;
     }
     ++it;
@@ -110,10 +133,13 @@ static std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
   return result;
 }
 
-static std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& points) {
+static std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& points)
+{
   auto segmentizedPoints = std::vector<vm::vec3f>{};
-  if (points.size() > 1) {
-    for (size_t i = 0; i < points.size() - 1; ++i) {
+  if (points.size() > 1)
+  {
+    for (size_t i = 0; i < points.size() - 1; ++i)
+    {
       const auto& curPoint = points[i];
       const auto& nextPoint = points[i + 1];
       const auto dir = vm::normalize(nextPoint - curPoint);
@@ -121,7 +147,8 @@ static std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& poi
       segmentizedPoints.push_back(curPoint);
       const auto dist = length(nextPoint - curPoint);
       const auto segments = static_cast<size_t>(dist / 64.0f);
-      for (unsigned int j = 1; j < segments; ++j) {
+      for (unsigned int j = 1; j < segments; ++j)
+      {
         segmentizedPoints.push_back(curPoint + dir * static_cast<float>(j) * 64.0f);
       }
     }
@@ -132,18 +159,21 @@ static std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& poi
 
 kdl_reflect_impl(PointTrace);
 
-std::optional<PointTrace> loadPointFile(std::istream& stream) {
+std::optional<PointTrace> loadPointFile(std::istream& stream)
+{
   const auto str = std::string{std::istreambuf_iterator<char>{stream}, {}};
 
   auto points = std::vector<vm::vec3f>{};
   vm::parse_all<float, 3>(str, std::back_inserter(points));
 
-  if (points.size() < 2) {
+  if (points.size() < 2)
+  {
     return std::nullopt;
   }
 
   points = smoothPoints(points);
-  if (points.size() < 2) {
+  if (points.size() < 2)
+  {
     return std::nullopt;
   }
 

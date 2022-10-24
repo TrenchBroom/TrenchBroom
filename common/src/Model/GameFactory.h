@@ -27,28 +27,34 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-template <typename T> class Preference;
+template <typename T>
+class Preference;
 
-namespace IO {
+namespace IO
+{
 class Path;
 class WritableDiskFileSystem;
 } // namespace IO
 
-namespace Model {
+namespace Model
+{
 class CompilationConfig;
 class Game;
 struct GameConfig;
 class GameEngineConfig;
 
-struct GamePathConfig {
+struct GamePathConfig
+{
   std::vector<IO::Path> gameConfigSearchDirs;
   IO::Path userGameDir;
 };
 
-class GameFactory {
+class GameFactory
+{
 private:
   using ConfigMap = std::map<std::string, GameConfig>;
   using GamePathMap = std::map<std::string, Preference<IO::Path>>;
@@ -65,16 +71,18 @@ public:
   static GameFactory& instance();
 
   /**
-   * Initializes the game factory, must be called once when the application starts. Initialization
-   * comprises building a file system to find the builtin and user-provided game configurations and
-   * loading them.
+   * Initializes the game factory, must be called once when the application starts.
+   * Initialization comprises building a file system to find the builtin and user-provided
+   * game configurations and loading them.
    *
-   * If the file system cannot be built, a FileSystemException is thrown. Since this is a fatal
-   * error, the caller should inform the user of the error and terminate the application.
+   * If the file system cannot be built, a FileSystemException is thrown. Since this is a
+   * fatal error, the caller should inform the user of the error and terminate the
+   * application.
    *
-   * If a game configuration cannot be loaded due to parsing errors, the errors are collected in a
-   * string list, but loading game configurations continues. The string list is then thrown and
-   * should be caught by the caller to inform the user of any errors.
+   * If a game configuration cannot be loaded due to parsing errors, the errors are
+   * collected in a string list, but loading game configurations continues. The string
+   * list is then thrown and should be caught by the caller to inform the user of any
+   * errors.
    *
    * The given path config is used to build the file systems.
    *
@@ -90,7 +98,8 @@ public:
    *
    * @throw GameException if no game with the given name exists
    */
-  void saveGameEngineConfig(const std::string& gameName, const GameEngineConfig& gameEngineConfig);
+  void saveGameEngineConfig(
+    const std::string& gameName, const GameEngineConfig& gameEngineConfig);
   /**
    * Saves the compilation configurations for the game with the given name.
    *
@@ -101,7 +110,9 @@ public:
    * @throw GameException if no config with the given name exists
    */
   void saveCompilationConfig(
-    const std::string& gameName, const CompilationConfig& compilationConfig, Logger& logger);
+    const std::string& gameName,
+    const CompilationConfig& compilationConfig,
+    Logger& logger);
 
   const std::vector<std::string>& gameList() const;
   size_t gameCount() const;
@@ -113,7 +124,8 @@ public:
   bool setGamePath(const std::string& gameName, const IO::Path& gamePath);
   bool isGamePathPreference(const std::string& gameName, const IO::Path& prefPath) const;
 
-  IO::Path compilationToolPath(const std::string& gameName, const std::string& toolName) const;
+  IO::Path compilationToolPath(
+    const std::string& gameName, const std::string& toolName) const;
   bool setCompilationToolPath(
     const std::string& gameName, const std::string& toolName, const IO::Path& gamePath);
 
@@ -121,12 +133,12 @@ public:
   const GameConfig& gameConfig(const std::string& gameName) const;
 
   /**
-   * Scans the map file at the given path to find game type and map format comments and returns the
-   * name of the game and the map format.
+   * Scans the map file at the given path to find game type and map format comments and
+   * returns the name of the game and the map format.
    *
-   * If no game comment is found or the game is unknown, an empty string is returned as the game
-   * name. If no map format comment is found or the format is unknown, MapFormat::Unknown is
-   * returned as the map format.
+   * If no game comment is found or the game is unknown, an empty string is returned as
+   * the game name. If no map format comment is found or the format is unknown,
+   * MapFormat::Unknown is returned as the map format.
    */
   std::pair<std::string, MapFormat> detectGame(const IO::Path& path) const;
 
@@ -149,7 +161,8 @@ private:
 
   void writeCompilationConfig(
     GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger);
-  void writeGameEngineConfig(GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig);
+  void writeGameEngineConfig(
+    GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig);
 };
 } // namespace Model
 } // namespace TrenchBroom

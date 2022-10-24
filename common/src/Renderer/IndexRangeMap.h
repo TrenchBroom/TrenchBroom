@@ -27,19 +27,23 @@
 #include <functional>
 #include <memory>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class VertexArray;
 
 /**
- * Manages ranges of primitives that consist of vertices stored in a vertex array. For each
- * primitive type, multiple ranges of vertices can be stored, each range having an offset and a
- * length. When rendered using a vertex array, each of the ranges is rendered using the vertices in
- * the array at the range recorded here.
+ * Manages ranges of primitives that consist of vertices stored in a vertex array. For
+ * each primitive type, multiple ranges of vertices can be stored, each range having an
+ * offset and a length. When rendered using a vertex array, each of the ranges is rendered
+ * using the vertices in the array at the range recorded here.
  */
-class IndexRangeMap {
+class IndexRangeMap
+{
 private:
-  struct IndicesAndCounts {
+  struct IndicesAndCounts
+  {
     /**
      * The offsets of the ranges stored here.
      */
@@ -64,14 +68,15 @@ private:
 
 public:
   /**
-   * This helper structure is used to initialize the internal data structures of an index range map
-   * to the correct sizes, avoiding the need for costly reallocation of data buffers as data is
-   * added.
+   * This helper structure is used to initialize the internal data structures of an index
+   * range map to the correct sizes, avoiding the need for costly reallocation of data
+   * buffers as data is added.
    *
-   * To record the correct sizes, call the inc method with the same parameters for every expected
-   * call to the add method of the index range map itself.
+   * To record the correct sizes, call the inc method with the same parameters for every
+   * expected call to the add method of the index range map itself.
    */
-  class Size {
+  class Size
+  {
   private:
     friend class IndexRangeMap;
 
@@ -98,22 +103,22 @@ private:
 
 public:
   /**
-   * Creates a new empty index range map that allows for dynamic growth. Note that dynamic growth
-   * may incur a performance cost as data buffers are reallocated when they grow.
+   * Creates a new empty index range map that allows for dynamic growth. Note that dynamic
+   * growth may incur a performance cost as data buffers are reallocated when they grow.
    */
   IndexRangeMap();
 
   /**
-   * Creates a new index range map and initialize the internal data structures to the sizes recorded
-   * in the given size helper.
+   * Creates a new index range map and initialize the internal data structures to the
+   * sizes recorded in the given size helper.
    *
    * @param size the sizes to initialize this range map to
    */
   explicit IndexRangeMap(const Size& size);
 
   /**
-   * Creates a new index range map containing a single range of the given primitive type, starting
-   * at the given index and with the given number of vertices.
+   * Creates a new index range map containing a single range of the given primitive type,
+   * starting at the given index and with the given number of vertices.
    *
    * @param primType the primitive type
    * @param index the start index of the range
@@ -122,8 +127,8 @@ public:
   IndexRangeMap(PrimType primType, size_t index, size_t count);
 
   /**
-   * Returns the size of this index range map. An index range map initialized with the returned size
-   * can hold exactly the same data as this index range map.
+   * Returns the size of this index range map. An index range map initialized with the
+   * returned size can hold exactly the same data as this index range map.
    *
    * @return the size of this index range map
    */
@@ -146,8 +151,8 @@ public:
   void add(const IndexRangeMap& other);
 
   /**
-   * Renders the primitives stored in this index range map using the vertices in the given vertex
-   * array.
+   * Renders the primitives stored in this index range map using the vertices in the given
+   * vertex array.
    *
    * @param vertexArray the vertex array to render with
    */
@@ -158,7 +163,8 @@ public:
    *
    * @param func the function to invoke
    */
-  void forEachPrimitive(std::function<void(PrimType, size_t index, size_t count)> func) const;
+  void forEachPrimitive(
+    std::function<void(PrimType, size_t index, size_t count)> func) const;
 };
 } // namespace Renderer
 } // namespace TrenchBroom

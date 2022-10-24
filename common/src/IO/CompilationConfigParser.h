@@ -27,17 +27,21 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class CompilationConfig;
 class CompilationProfile;
 class CompilationTask;
 } // namespace Model
 
-namespace IO {
+namespace IO
+{
 class Path;
 
-class CompilationConfigParser : public ConfigParserBase {
+class CompilationConfigParser : public ConfigParserBase
+{
 public:
   explicit CompilationConfigParser(std::string_view str, const Path& path = Path(""));
 
@@ -48,7 +52,8 @@ private:
     const EL::Value& value) const;
   std::unique_ptr<Model::CompilationProfile> parseProfile(const EL::Value& value) const;
 
-  std::vector<std::unique_ptr<Model::CompilationTask>> parseTasks(const EL::Value& value) const;
+  std::vector<std::unique_ptr<Model::CompilationTask>> parseTasks(
+    const EL::Value& value) const;
   std::unique_ptr<Model::CompilationTask> parseTask(const EL::Value& value) const;
   std::unique_ptr<Model::CompilationTask> parseExportTask(const EL::Value& value) const;
   std::unique_ptr<Model::CompilationTask> parseCopyTask(const EL::Value& value) const;

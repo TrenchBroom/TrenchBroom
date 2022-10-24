@@ -22,30 +22,42 @@
 
 #include <kdl/memory_utils.h>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 NotifierConnection::NotifierConnection() = default;
 
-NotifierConnection::NotifierConnection(std::weak_ptr<NotifierStateBase> notifier, const size_t id)
-  : m_connections{{std::move(notifier), id}} {}
+NotifierConnection::NotifierConnection(
+  std::weak_ptr<NotifierStateBase> notifier, const size_t id)
+  : m_connections{{std::move(notifier), id}}
+{
+}
 
 NotifierConnection::NotifierConnection(NotifierConnection&&) noexcept = default;
 
-NotifierConnection& NotifierConnection::operator=(NotifierConnection&&) noexcept = default;
+NotifierConnection& NotifierConnection::operator=(NotifierConnection&&) noexcept =
+  default;
 
-NotifierConnection::~NotifierConnection() {
+NotifierConnection::~NotifierConnection()
+{
   disconnect();
 }
 
-NotifierConnection& NotifierConnection::operator+=(NotifierConnection&& other) {
+NotifierConnection& NotifierConnection::operator+=(NotifierConnection&& other)
+{
   m_connections.insert(
-    std::end(m_connections), std::begin(other.m_connections), std::end(other.m_connections));
+    std::end(m_connections),
+    std::begin(other.m_connections),
+    std::end(other.m_connections));
   other.m_connections.clear();
   return *this;
 }
 
-void NotifierConnection::disconnect() {
-  for (auto& [notifier, id] : m_connections) {
-    if (!kdl::mem_expired(notifier)) {
+void NotifierConnection::disconnect()
+{
+  for (auto& [notifier, id] : m_connections)
+  {
+    if (!kdl::mem_expired(notifier))
+    {
       kdl::mem_lock(notifier)->disconnect(id);
     }
   }

@@ -21,8 +21,10 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-TEST_CASE("StackWalkerTest.testStackTraceSymbols", "[StackWalkerTest]") {
+namespace TrenchBroom
+{
+TEST_CASE("StackWalkerTest.testStackTraceSymbols", "[StackWalkerTest]")
+{
   const std::string stackTrace = TrenchBroomStackWalker::getStackTrace();
 
   // FIXME: doesn't work on CI right now

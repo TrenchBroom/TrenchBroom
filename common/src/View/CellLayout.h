@@ -26,9 +26,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
-struct LayoutBounds {
+namespace TrenchBroom
+{
+namespace View
+{
+struct LayoutBounds
+{
   float x;
   float y;
   float width;
@@ -43,7 +46,8 @@ struct LayoutBounds {
   bool intersectsY(float rangeY, float rangeHeight) const;
 };
 
-class LayoutCell {
+class LayoutCell
+{
 private:
   std::any m_item;
   float m_x;
@@ -60,17 +64,29 @@ private:
 
 public:
   LayoutCell(
-    float x, float y, float itemWidth, float itemHeight, float titleWidth, float titleHeight,
-    float titleMargin, float maxUpScale, float minWidth, float maxWidth, float minHeight,
+    float x,
+    float y,
+    float itemWidth,
+    float itemHeight,
+    float titleWidth,
+    float titleHeight,
+    float titleMargin,
+    float maxUpScale,
+    float minWidth,
+    float maxWidth,
+    float minHeight,
     float maxHeight);
 
   std::any& item();
   const std::any& item() const;
   void setItem(std::any item);
 
-  template <typename T> const T& itemAs() const {
+  template <typename T>
+  const T& itemAs() const
+  {
     const T* result = std::any_cast<T>(&m_item);
-    if (!result) {
+    if (!result)
+    {
       throw std::bad_any_cast{};
     }
     return *result;
@@ -89,10 +105,12 @@ public:
     float maxUpScale, float minWidth, float maxWidth, float minHeight, float maxHeight);
 
 private:
-  void doLayout(float maxUpScale, float minWidth, float maxWidth, float minHeight, float maxHeight);
+  void doLayout(
+    float maxUpScale, float minWidth, float maxWidth, float minHeight, float maxHeight);
 };
 
-class LayoutRow {
+class LayoutRow
+{
 private:
   float m_cellMargin;
   float m_titleMargin;
@@ -109,8 +127,16 @@ private:
 
 public:
   LayoutRow(
-    float x, float y, float cellMargin, float titleMargin, float maxWidth, size_t maxCells,
-    float maxUpScale, float minCellWidth, float maxCellWidth, float minCellHeight,
+    float x,
+    float y,
+    float cellMargin,
+    float titleMargin,
+    float maxWidth,
+    size_t maxCells,
+    float maxUpScale,
+    float minCellWidth,
+    float maxCellWidth,
+    float minCellHeight,
     float maxCellHeight);
 
   const LayoutBounds& bounds() const;
@@ -120,15 +146,21 @@ public:
 
   bool intersectsY(float y, float height) const;
 
-  bool canAddItem(float itemWidth, float itemHeight, float titleWidth, float titleHeight) const;
+  bool canAddItem(
+    float itemWidth, float itemHeight, float titleWidth, float titleHeight) const;
   void addItem(
-    std::any item, float itemWidth, float itemHeight, float titleWidth, float titleHeight);
+    std::any item,
+    float itemWidth,
+    float itemHeight,
+    float titleWidth,
+    float titleHeight);
 
 private:
   void readjustItems();
 };
 
-class LayoutGroup {
+class LayoutGroup
+{
 private:
   std::string m_item;
   float m_cellMargin;
@@ -147,14 +179,34 @@ private:
 
 public:
   LayoutGroup(
-    std::string item, float x, float y, float cellMargin, float titleMargin, float rowMargin,
-    float titleHeight, float width, size_t maxCellsPerRow, float maxUpScale, float minCellWidth,
-    float maxCellWidth, float minCellHeight, float maxCellHeight);
+    std::string item,
+    float x,
+    float y,
+    float cellMargin,
+    float titleMargin,
+    float rowMargin,
+    float titleHeight,
+    float width,
+    size_t maxCellsPerRow,
+    float maxUpScale,
+    float minCellWidth,
+    float maxCellWidth,
+    float minCellHeight,
+    float maxCellHeight);
 
   LayoutGroup(
-    float x, float y, float cellMargin, float titleMargin, float rowMargin, float width,
-    size_t maxCellsPerRow, float maxUpScale, float minCellWidth, float maxCellWidth,
-    float minCellHeight, float maxCellHeight);
+    float x,
+    float y,
+    float cellMargin,
+    float titleMargin,
+    float rowMargin,
+    float width,
+    size_t maxCellsPerRow,
+    float maxUpScale,
+    float minCellWidth,
+    float maxCellWidth,
+    float minCellHeight,
+    float maxCellHeight);
 
   const std::string& item() const;
 
@@ -171,10 +223,15 @@ public:
   bool intersectsY(float y, float height) const;
 
   void addItem(
-    std::any item, float itemWidth, float itemHeight, float titleWidth, float titleHeight);
+    std::any item,
+    float itemWidth,
+    float itemHeight,
+    float titleWidth,
+    float titleHeight);
 };
 
-class CellLayout {
+class CellLayout
+{
 private:
   float m_width;
   float m_cellMargin;
@@ -225,7 +282,8 @@ public:
   float width() const;
   float height();
 
-  LayoutBounds titleBoundsForVisibleRect(const LayoutGroup& group, float y, float height) const;
+  LayoutBounds titleBoundsForVisibleRect(
+    const LayoutGroup& group, float y, float height) const;
   float rowPosition(float y, int offset);
 
   void invalidate();
@@ -237,7 +295,11 @@ public:
 
   void addGroup(std::string groupItem, float titleHeight);
   void addItem(
-    std::any item, float itemWidth, float itemHeight, float titleWidth, float titleHeight);
+    std::any item,
+    float itemWidth,
+    float itemHeight,
+    float titleWidth,
+    float titleHeight);
 
   void clear();
 

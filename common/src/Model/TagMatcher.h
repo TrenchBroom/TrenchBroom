@@ -32,15 +32,18 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushNode;
 class BrushFace;
 class ChangeBrushFaceAttributesRequest;
 class Game;
 class MapFacade;
 
-class MatchVisitor : public ConstTagVisitor {
+class MatchVisitor : public ConstTagVisitor
+{
 private:
   bool m_matches;
 
@@ -53,29 +56,36 @@ protected:
   void setMatches();
 };
 
-class BrushFaceMatchVisitor : public MatchVisitor {
+class BrushFaceMatchVisitor : public MatchVisitor
+{
 private:
   std::function<bool(const BrushFace&)> m_matcher;
 
 public:
   explicit BrushFaceMatchVisitor(std::function<bool(const BrushFace&)> matcher)
-    : m_matcher(std::move(matcher)) {}
+    : m_matcher(std::move(matcher))
+  {
+  }
 
   void visit(const BrushFace& face) override;
 };
 
-class BrushMatchVisitor : public MatchVisitor {
+class BrushMatchVisitor : public MatchVisitor
+{
 private:
   std::function<bool(const BrushNode&)> m_matcher;
 
 public:
   explicit BrushMatchVisitor(std::function<bool(const BrushNode&)> matcher)
-    : m_matcher(std::move(matcher)) {}
+    : m_matcher(std::move(matcher))
+  {
+  }
 
   void visit(const BrushNode& brush) override;
 };
 
-class TextureTagMatcher : public TagMatcher {
+class TextureTagMatcher : public TagMatcher
+{
 public:
   void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
   bool canEnable() const override;
@@ -85,7 +95,8 @@ private:
   virtual bool matchesTexture(const Assets::Texture* texture) const = 0;
 };
 
-class TextureNameTagMatcher : public TextureTagMatcher {
+class TextureNameTagMatcher : public TextureTagMatcher
+{
 private:
   std::string m_pattern;
 
@@ -100,7 +111,8 @@ private:
   bool matchesTextureName(std::string_view textureName) const;
 };
 
-class SurfaceParmTagMatcher : public TextureTagMatcher {
+class SurfaceParmTagMatcher : public TextureTagMatcher
+{
 private:
   kdl::vector_set<std::string> m_parameters;
 
@@ -115,7 +127,8 @@ private:
   bool matchesTexture(const Assets::Texture* texture) const override;
 };
 
-class FlagsTagMatcher : public TagMatcher {
+class FlagsTagMatcher : public TagMatcher
+{
 protected:
   using GetFlags = std::function<int(const BrushFace&)>;
   using SetFlags = std::function<void(ChangeBrushFaceAttributesRequest&, int)>;
@@ -130,7 +143,10 @@ protected:
 
 protected:
   FlagsTagMatcher(
-    int flags, GetFlags getFlags, SetFlags setFlags, SetFlags unsetFlags,
+    int flags,
+    GetFlags getFlags,
+    SetFlags setFlags,
+    SetFlags unsetFlags,
     GetFlagNames getFlagNames);
 
 public:
@@ -142,19 +158,22 @@ public:
   void appendToStream(std::ostream& str) const override;
 };
 
-class ContentFlagsTagMatcher : public FlagsTagMatcher {
+class ContentFlagsTagMatcher : public FlagsTagMatcher
+{
 public:
   explicit ContentFlagsTagMatcher(int flags);
   std::unique_ptr<TagMatcher> clone() const override;
 };
 
-class SurfaceFlagsTagMatcher : public FlagsTagMatcher {
+class SurfaceFlagsTagMatcher : public FlagsTagMatcher
+{
 public:
   explicit SurfaceFlagsTagMatcher(int flags);
   std::unique_ptr<TagMatcher> clone() const override;
 };
 
-class EntityClassNameTagMatcher : public TagMatcher {
+class EntityClassNameTagMatcher : public TagMatcher
+{
 private:
   std::string m_pattern;
   /**

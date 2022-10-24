@@ -21,11 +21,14 @@
 
 #include "View/ToolController.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class CreateComplexBrushTool;
 
-class CreateComplexBrushToolController3D : public ToolControllerGroup {
+class CreateComplexBrushToolController3D : public ToolControllerGroup
+{
 private:
   CreateComplexBrushTool& m_tool;
 
@@ -42,7 +45,8 @@ private:
   bool doShouldHandleMouseDrag(const InputState& inputState) const override;
 
   void render(
-    const InputState& inputState, Renderer::RenderContext& renderContext,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
 
   bool cancel() override;

@@ -27,17 +27,22 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EntityNodeBase;
 }
 
-namespace View {
+namespace View
+{
 class MapDocument;
 
-enum class ValueType {
+enum class ValueType
+{
   /**
-   * No entities have this key set; the provided value is the default from the entity definition
+   * No entities have this key set; the provided value is the default from the entity
+   * definition
    */
   Unset,
   /**
@@ -54,7 +59,8 @@ enum class ValueType {
   MultipleValues
 };
 
-enum class PropertyProtection {
+enum class PropertyProtection
+{
   NotProtectable,
   Protected,
   NotProtected,
@@ -64,7 +70,8 @@ enum class PropertyProtection {
 /**
  * Viewmodel (as in MVVM) for a single row in the table
  */
-class PropertyRow {
+class PropertyRow
+{
 private:
   std::string m_key;
   std::string m_value;
@@ -95,15 +102,18 @@ public:
   static PropertyRow rowForEntityNodes(
     const std::string& key, const std::vector<Model::EntityNodeBase*>& nodes);
   static std::vector<std::string> allKeys(
-    const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows,
+    const std::vector<Model::EntityNodeBase*>& nodes,
+    bool showDefaultRows,
     const bool showPreservedProperties);
   static std::map<std::string, PropertyRow> rowsForEntityNodes(
-    const std::vector<Model::EntityNodeBase*>& nodes, bool showDefaultRows,
+    const std::vector<Model::EntityNodeBase*>& nodes,
+    bool showDefaultRows,
     const bool showPreservedProperties);
   /**
    * Suggests a new, unused property name of the form "property X".
    */
-  static std::string newPropertyKeyForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes);
+  static std::string newPropertyKeyForEntityNodes(
+    const std::vector<Model::EntityNodeBase*>& nodes);
 };
 
 /**
@@ -113,18 +123,19 @@ public:
  *
  * 1. MapDocument is modified, or entities are added/removed from the list that
  * EntityPropertyGridTable is observing
- * 2. EntityPropertyGridTable observes the change, and builds a list of PropertyRow for the new
- * state
- * 3. The new state and old state are diffed, and the necessary QAbstractTableModel methods called
- *    to update the view correctly (preserving selection, etc.)
+ * 2. EntityPropertyGridTable observes the change, and builds a list of PropertyRow for
+ * the new state
+ * 3. The new state and old state are diffed, and the necessary QAbstractTableModel
+ * methods called to update the view correctly (preserving selection, etc.)
  *
- * All edits to the table flow this way; the EntityPropertyGridTable is never modified in response
- * to a UI action.
+ * All edits to the table flow this way; the EntityPropertyGridTable is never modified in
+ * response to a UI action.
  *
  * The order of m_rows is not significant; it's expected that there is a sort proxy model
  * used on top of this model.
  */
-class EntityPropertyModel : public QAbstractTableModel {
+class EntityPropertyModel : public QAbstractTableModel
+{
   Q_OBJECT
 public:
   static const int ColumnProtected = 0;
@@ -174,9 +185,13 @@ public: // QAbstractTableModel overrides
 private: // helpers
   bool hasRowWithPropertyKey(const std::string& propertyKey) const;
   bool renameProperty(
-    size_t rowIndex, const std::string& newKey, const std::vector<Model::EntityNodeBase*>& nodes);
+    size_t rowIndex,
+    const std::string& newKey,
+    const std::vector<Model::EntityNodeBase*>& nodes);
   bool updateProperty(
-    size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& nodes);
+    size_t rowIndex,
+    const std::string& newValue,
+    const std::vector<Model::EntityNodeBase*>& nodes);
   bool setProtectedProperty(size_t rowIndex, bool newValue);
 
 public: // EntityPropertyGrid helpers

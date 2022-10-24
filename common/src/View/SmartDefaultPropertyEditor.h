@@ -24,14 +24,17 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapDocument;
 
 /**
  * Placeholder for when there is no smart editor. Just an empty QWidget.
  */
-class SmartDefaultPropertyEditor : public SmartPropertyEditor {
+class SmartDefaultPropertyEditor : public SmartPropertyEditor
+{
   Q_OBJECT
 public:
   explicit SmartDefaultPropertyEditor(

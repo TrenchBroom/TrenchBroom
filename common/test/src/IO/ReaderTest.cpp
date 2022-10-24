@@ -27,20 +27,25 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-static const char* buff() {
+namespace TrenchBroom
+{
+namespace IO
+{
+static const char* buff()
+{
   static const auto* result = "abcdefghij_";
   return result;
 }
 
-static std::shared_ptr<File> file() {
+static std::shared_ptr<File> file()
+{
   static auto result =
     Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/10byte"));
   return result;
 }
 
-static void createEmpty(Reader&& r) {
+static void createEmpty(Reader&& r)
+{
   CHECK(r.size() == 0U);
   CHECK(r.position() == 0U);
   CHECK_NOTHROW(r.seekFromBegin(0U));
@@ -52,17 +57,20 @@ static void createEmpty(Reader&& r) {
   CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
 }
 
-TEST_CASE("BufferReaderTest.createEmpty", "[BufferReaderTest]") {
+TEST_CASE("BufferReaderTest.createEmpty", "[BufferReaderTest]")
+{
   createEmpty(Reader::from(buff(), buff()));
 }
 
-TEST_CASE("FileReaderTest.createEmpty", "[FileReaderTest]") {
+TEST_CASE("FileReaderTest.createEmpty", "[FileReaderTest]")
+{
   const auto emptyFile =
     Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/empty"));
   createEmpty(emptyFile->reader());
 }
 
-static void createNonEmpty(Reader&& r) {
+static void createNonEmpty(Reader&& r)
+{
   CHECK(r.size() == 10U);
   CHECK(r.position() == 0U);
   CHECK(r.canRead(0U));
@@ -86,15 +94,18 @@ static void createNonEmpty(Reader&& r) {
   CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
 }
 
-TEST_CASE("BufferReaderTest.createNonEmpty", "[BufferReaderTest]") {
+TEST_CASE("BufferReaderTest.createNonEmpty", "[BufferReaderTest]")
+{
   createNonEmpty(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.createNonEmpty", "[FileReaderTest]") {
+TEST_CASE("FileReaderTest.createNonEmpty", "[FileReaderTest]")
+{
   createNonEmpty(file()->reader());
 }
 
-static void seekFromBegin(Reader&& r) {
+static void seekFromBegin(Reader&& r)
+{
   r.seekFromBegin(0U);
   CHECK(r.position() == 0U);
 
@@ -108,15 +119,18 @@ static void seekFromBegin(Reader&& r) {
   CHECK(r.position() == 2U);
 }
 
-TEST_CASE("BufferReaderTest.seekFromBegin", "[BufferReaderTest]") {
+TEST_CASE("BufferReaderTest.seekFromBegin", "[BufferReaderTest]")
+{
   seekFromBegin(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.seekFromBegin", "[FileReaderTest]") {
+TEST_CASE("FileReaderTest.seekFromBegin", "[FileReaderTest]")
+{
   seekFromBegin(file()->reader());
 }
 
-static void seekFromEnd(Reader&& r) {
+static void seekFromEnd(Reader&& r)
+{
   r.seekFromEnd(0U);
   CHECK(r.position() == 10U);
 
@@ -130,15 +144,18 @@ static void seekFromEnd(Reader&& r) {
   CHECK(r.position() == 0U);
 }
 
-TEST_CASE("BufferReaderTest.seekFromEnd", "[BufferReaderTest]") {
+TEST_CASE("BufferReaderTest.seekFromEnd", "[BufferReaderTest]")
+{
   seekFromEnd(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.seekFromEnd", "[FileReaderTest]") {
+TEST_CASE("FileReaderTest.seekFromEnd", "[FileReaderTest]")
+{
   seekFromEnd(file()->reader());
 }
 
-static void seekForward(Reader&& r) {
+static void seekForward(Reader&& r)
+{
   r.seekForward(1U);
   CHECK(r.position() == 1U);
 
@@ -149,15 +166,18 @@ static void seekForward(Reader&& r) {
   CHECK(r.position() == 2U);
 }
 
-TEST_CASE("BufferReaderTest.seekForward", "[BufferReaderTest]") {
+TEST_CASE("BufferReaderTest.seekForward", "[BufferReaderTest]")
+{
   seekForward(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.seekForward", "[FileReaderTest]") {
+TEST_CASE("FileReaderTest.seekForward", "[FileReaderTest]")
+{
   seekForward(file()->reader());
 }
 
-static void subReader(Reader&& r) {
+static void subReader(Reader&& r)
+{
   auto s = r.subReaderFromBegin(5, 3);
 
   CHECK(s.size() == 3U);
@@ -176,11 +196,13 @@ static void subReader(Reader&& r) {
   CHECK(s.position() == 3U);
 }
 
-TEST_CASE("BufferReaderTest.subReader", "[BufferReaderTest]") {
+TEST_CASE("BufferReaderTest.subReader", "[BufferReaderTest]")
+{
   subReader(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.subReader", "[FileReaderTest]") {
+TEST_CASE("FileReaderTest.subReader", "[FileReaderTest]")
+{
   subReader(file()->reader());
 }
 } // namespace IO

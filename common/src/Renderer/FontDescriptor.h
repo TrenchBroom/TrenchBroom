@@ -23,9 +23,12 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace Renderer {
-class FontDescriptor {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+class FontDescriptor
+{
 private:
   IO::Path m_path;
   size_t m_size;
@@ -34,7 +37,9 @@ private:
 
 public:
   FontDescriptor(
-    const IO::Path& path, const size_t size, unsigned char minChar = ' ',
+    const IO::Path& path,
+    const size_t size,
+    unsigned char minChar = ' ',
     unsigned char maxChar = '~');
 
   int compare(const FontDescriptor& other) const;

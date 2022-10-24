@@ -23,14 +23,17 @@
 
 #include <memory>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace IO {
+namespace IO
+{
 class FileSystem;
 class Path;
 
-class WadFileSystem : public ImageFileSystem {
+class WadFileSystem : public ImageFileSystem
+{
 private:
   Logger& m_logger;
 

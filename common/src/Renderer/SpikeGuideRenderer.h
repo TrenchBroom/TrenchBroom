@@ -30,18 +30,23 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Picker;
 }
 
-namespace View {
+namespace View
+{
 // FIXME: Renderer should not depend on View
 class MapDocument;
 } // namespace View
 
-namespace Renderer {
-class SpikeGuideRenderer : public DirectRenderable {
+namespace Renderer
+{
+class SpikeGuideRenderer : public DirectRenderable
+{
 private:
   Color m_color;
 
@@ -60,7 +65,8 @@ public:
   SpikeGuideRenderer();
 
   void setColor(const Color& color);
-  void add(const vm::ray3& ray, FloatType length, std::shared_ptr<View::MapDocument> document);
+  void add(
+    const vm::ray3& ray, FloatType length, std::shared_ptr<View::MapDocument> document);
   void clear();
 
 private:

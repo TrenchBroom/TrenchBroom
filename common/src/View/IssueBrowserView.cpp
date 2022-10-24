@@ -44,19 +44,23 @@
 #include <QMenu>
 #include <QTableView>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 IssueBrowserView::IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget(parent)
   , m_document(document)
   , m_hiddenIssueTypes(0)
   , m_showHiddenIssues(false)
-  , m_valid(false) {
+  , m_valid(false)
+{
   createGui();
   bindEvents();
 }
 
-void IssueBrowserView::createGui() {
+void IssueBrowserView::createGui()
+{
   m_tableModel = new IssueBrowserModel(this);
 
   m_tableView = new QTableView(nullptr);
@@ -75,39 +79,47 @@ void IssueBrowserView::createGui() {
   setLayout(layout);
 }
 
-int IssueBrowserView::hiddenIssueTypes() const {
+int IssueBrowserView::hiddenIssueTypes() const
+{
   return m_hiddenIssueTypes;
 }
 
-void IssueBrowserView::setHiddenIssueTypes(const int hiddenIssueTypes) {
+void IssueBrowserView::setHiddenIssueTypes(const int hiddenIssueTypes)
+{
   if (hiddenIssueTypes == m_hiddenIssueTypes)
     return;
   m_hiddenIssueTypes = hiddenIssueTypes;
   invalidate();
 }
 
-void IssueBrowserView::setShowHiddenIssues(const bool show) {
+void IssueBrowserView::setShowHiddenIssues(const bool show)
+{
   m_showHiddenIssues = show;
   invalidate();
 }
 
-void IssueBrowserView::reload() {
+void IssueBrowserView::reload()
+{
   invalidate();
 }
 
-void IssueBrowserView::deselectAll() {
+void IssueBrowserView::deselectAll()
+{
   m_tableView->clearSelection();
 }
 
 /**
  * Updates the MapDocument selection to match the table view
  */
-void IssueBrowserView::updateSelection() {
+void IssueBrowserView::updateSelection()
+{
   auto document = kdl::mem_lock(m_document);
 
   std::vector<Model::Node*> nodes;
-  for (const Model::Issue* issue : collectIssues(getSelection())) {
-    if (!issue->addSelectableNodes(nodes)) {
+  for (const Model::Issue* issue : collectIssues(getSelection()))
+  {
+    if (!issue->addSelectableNodes(nodes))
+    {
       nodes.clear();
       break;
     }
@@ -117,15 +129,21 @@ void IssueBrowserView::updateSelection() {
   document->selectNodes(nodes);
 }
 
-void IssueBrowserView::updateIssues() {
+void IssueBrowserView::updateIssues()
+{
   auto document = kdl::mem_lock(m_document);
-  if (document->world() != nullptr) {
+  if (document->world() != nullptr)
+  {
     const auto validators = document->world()->registeredValidators();
 
     auto issues = std::vector<const Model::Issue*>{};
     const auto collectIssues = [&](auto* node) {
-      for (auto* issue : node->issues(validators)) {
-        if (m_showHiddenIssues || (!issue->hidden() && (issue->type() & m_hiddenIssueTypes) == 0)) {
+      for (auto* issue : node->issues(validators))
+      {
+        if (
+          m_showHiddenIssues
+          || (!issue->hidden() && (issue->type() & m_hiddenIssueTypes) == 0))
+        {
           issues.push_back(issue);
         }
       }
@@ -148,12 +166,8 @@ void IssueBrowserView::updateIssues() {
         collectIssues(entity);
         entity->visitChildren(thisLambda);
       },
-      [&](Model::BrushNode* brush) {
-        collectIssues(brush);
-      },
-      [&](Model::PatchNode* patch) {
-        collectIssues(patch);
-      }));
+      [&](Model::BrushNode* brush) { collectIssues(brush); },
+      [&](Model::PatchNode* patch) { collectIssues(patch); }));
 
     issues = kdl::vec_sort(std::move(issues), [](const auto* lhs, const auto* rhs) {
       return lhs->seqId() > rhs->seqId();
@@ -162,25 +176,30 @@ void IssueBrowserView::updateIssues() {
   }
 }
 
-void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix& quickFix) {
+void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix& quickFix)
+{
   auto document = kdl::mem_lock(m_document);
   const auto issues = collectIssues(getSelection());
 
-  auto transaction = Transaction{document, "Apply Quick Fix (" + quickFix.description() + ")"};
+  auto transaction =
+    Transaction{document, "Apply Quick Fix (" + quickFix.description() + ")"};
   updateSelection();
   quickFix.apply(*document, issues);
   transaction.commit();
 }
 
 std::vector<const Model::Issue*> IssueBrowserView::collectIssues(
-  const QList<QModelIndex>& indices) const {
+  const QList<QModelIndex>& indices) const
+{
   // Use a vector_set to filter out duplicates.
   // The QModelIndex list returned by getSelection() contains duplicates
   // (not sure why, current row and selected row?)
   kdl::vector_set<const Model::Issue*> result;
   result.reserve(static_cast<size_t>(indices.size()));
-  for (QModelIndex index : indices) {
-    if (index.isValid()) {
+  for (QModelIndex index : indices)
+  {
+    if (index.isValid())
+    {
       const auto row = static_cast<size_t>(index.row());
       result.insert(m_tableModel->issues().at(row));
     }
@@ -189,17 +208,22 @@ std::vector<const Model::Issue*> IssueBrowserView::collectIssues(
 }
 
 std::vector<const Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
-  const QList<QModelIndex>& indices) const {
-  if (indices.empty()) {
+  const QList<QModelIndex>& indices) const
+{
+  if (indices.empty())
+  {
     return {};
   }
 
   Model::IssueType issueTypes = ~static_cast<Model::IssueType>(0);
-  for (QModelIndex index : indices) {
-    if (!index.isValid()) {
+  for (QModelIndex index : indices)
+  {
+    if (!index.isValid())
+    {
       continue;
     }
-    const Model::Issue* issue = m_tableModel->issues().at(static_cast<size_t>(index.row()));
+    const Model::Issue* issue =
+      m_tableModel->issues().at(static_cast<size_t>(index.row()));
     issueTypes &= issue->type();
   }
 
@@ -208,40 +232,54 @@ std::vector<const Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
   return world->quickFixes(issueTypes);
 }
 
-Model::IssueType IssueBrowserView::issueTypeMask() const {
+Model::IssueType IssueBrowserView::issueTypeMask() const
+{
   Model::IssueType result = ~static_cast<Model::IssueType>(0);
-  for (const Model::Issue* issue : collectIssues(getSelection())) {
+  for (const Model::Issue* issue : collectIssues(getSelection()))
+  {
     result &= issue->type();
   }
   return result;
 }
 
-void IssueBrowserView::setIssueVisibility(const bool show) {
+void IssueBrowserView::setIssueVisibility(const bool show)
+{
   auto document = kdl::mem_lock(m_document);
-  for (const auto* issue : collectIssues(getSelection())) {
+  for (const auto* issue : collectIssues(getSelection()))
+  {
     document->setIssueHidden(*issue, !show);
   }
 
   invalidate();
 }
 
-QList<QModelIndex> IssueBrowserView::getSelection() const {
+QList<QModelIndex> IssueBrowserView::getSelection() const
+{
   return m_tableView->selectionModel()->selectedIndexes();
 }
 
-void IssueBrowserView::bindEvents() {
+void IssueBrowserView::bindEvents()
+{
   m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(
-    m_tableView, &QWidget::customContextMenuRequested, this, &IssueBrowserView::itemRightClicked);
+    m_tableView,
+    &QWidget::customContextMenuRequested,
+    this,
+    &IssueBrowserView::itemRightClicked);
 
   connect(
-    m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+    m_tableView->selectionModel(),
+    &QItemSelectionModel::selectionChanged,
+    this,
     &IssueBrowserView::itemSelectionChanged);
 }
 
-void IssueBrowserView::itemRightClicked(const QPoint& pos) {
-  const QList<QModelIndex> selectedIndexes = m_tableView->selectionModel()->selectedIndexes();
-  if (selectedIndexes.empty()) {
+void IssueBrowserView::itemRightClicked(const QPoint& pos)
+{
+  const QList<QModelIndex> selectedIndexes =
+    m_tableView->selectionModel()->selectedIndexes();
+  if (selectedIndexes.empty())
+  {
     return;
   }
 
@@ -250,14 +288,17 @@ void IssueBrowserView::itemRightClicked(const QPoint& pos) {
   popupMenu->addAction(tr("Hide"), this, &IssueBrowserView::hideIssues);
 
   const auto quickFixes = collectQuickFixes(selectedIndexes);
-  if (!quickFixes.empty()) {
+  if (!quickFixes.empty())
+  {
     auto* quickFixMenu = new QMenu();
     quickFixMenu->setTitle(tr("Fix"));
 
-    for (const auto* quickFix : quickFixes) {
-      quickFixMenu->addAction(QString::fromStdString(quickFix->description()), this, [=]() {
-        this->applyQuickFix(*quickFix);
-      });
+    for (const auto* quickFix : quickFixes)
+    {
+      quickFixMenu->addAction(
+        QString::fromStdString(quickFix->description()), this, [=]() {
+          this->applyQuickFix(*quickFix);
+        });
     }
 
     popupMenu->addSeparator();
@@ -269,26 +310,32 @@ void IssueBrowserView::itemRightClicked(const QPoint& pos) {
   popupMenu->popup(m_tableView->viewport()->mapToGlobal(pos));
 }
 
-void IssueBrowserView::itemSelectionChanged() {
+void IssueBrowserView::itemSelectionChanged()
+{
   updateSelection();
 }
 
-void IssueBrowserView::showIssues() {
+void IssueBrowserView::showIssues()
+{
   setIssueVisibility(true);
 }
 
-void IssueBrowserView::hideIssues() {
+void IssueBrowserView::hideIssues()
+{
   setIssueVisibility(false);
 }
 
-void IssueBrowserView::invalidate() {
+void IssueBrowserView::invalidate()
+{
   m_valid = false;
 
   QMetaObject::invokeMethod(this, "validate", Qt::QueuedConnection);
 }
 
-void IssueBrowserView::validate() {
-  if (!m_valid) {
+void IssueBrowserView::validate()
+{
+  if (!m_valid)
+  {
     m_valid = true;
 
     updateIssues();
@@ -299,51 +346,70 @@ void IssueBrowserView::validate() {
 
 IssueBrowserModel::IssueBrowserModel(QObject* parent)
   : QAbstractTableModel(parent)
-  , m_issues() {}
+  , m_issues()
+{
+}
 
-void IssueBrowserModel::setIssues(std::vector<const Model::Issue*> issues) {
+void IssueBrowserModel::setIssues(std::vector<const Model::Issue*> issues)
+{
   beginResetModel();
   m_issues = std::move(issues);
   endResetModel();
 }
 
-const std::vector<const Model::Issue*>& IssueBrowserModel::issues() {
+const std::vector<const Model::Issue*>& IssueBrowserModel::issues()
+{
   return m_issues;
 }
 
-int IssueBrowserModel::rowCount(const QModelIndex& parent) const {
-  if (parent.isValid()) {
+int IssueBrowserModel::rowCount(const QModelIndex& parent) const
+{
+  if (parent.isValid())
+  {
     return 0;
   }
   return static_cast<int>(m_issues.size());
 }
 
-int IssueBrowserModel::columnCount(const QModelIndex& parent) const {
-  if (parent.isValid()) {
+int IssueBrowserModel::columnCount(const QModelIndex& parent) const
+{
+  if (parent.isValid())
+  {
     return 0;
   }
   return 2;
 }
 
-QVariant IssueBrowserModel::data(const QModelIndex& index, int role) const {
+QVariant IssueBrowserModel::data(const QModelIndex& index, int role) const
+{
   if (
-    !index.isValid() || index.row() < 0 || index.row() >= static_cast<int>(m_issues.size()) ||
-    index.column() < 0 || index.column() >= 2) {
+    !index.isValid() || index.row() < 0
+    || index.row() >= static_cast<int>(m_issues.size()) || index.column() < 0
+    || index.column() >= 2)
+  {
     return QVariant();
   }
 
   const Model::Issue* issue = m_issues.at(static_cast<size_t>(index.row()));
 
-  if (role == Qt::DisplayRole) {
-    if (index.column() == 0) {
-      if (issue->lineNumber() > 0) {
+  if (role == Qt::DisplayRole)
+  {
+    if (index.column() == 0)
+    {
+      if (issue->lineNumber() > 0)
+      {
         return QVariant::fromValue<size_t>(issue->lineNumber());
       }
-    } else {
+    }
+    else
+    {
       return QVariant(QString::fromStdString(issue->description()));
     }
-  } else if (role == Qt::FontRole) {
-    if (issue->hidden()) {
+  }
+  else if (role == Qt::FontRole)
+  {
+    if (issue->hidden())
+    {
       // hidden issues are italic
       QFont italicFont;
       italicFont.setItalic(true);
@@ -355,15 +421,22 @@ QVariant IssueBrowserModel::data(const QModelIndex& index, int role) const {
   return QVariant();
 }
 
-QVariant IssueBrowserModel::headerData(int section, Qt::Orientation orientation, int role) const {
-  if (role != Qt::DisplayRole) {
+QVariant IssueBrowserModel::headerData(
+  int section, Qt::Orientation orientation, int role) const
+{
+  if (role != Qt::DisplayRole)
+  {
     return QVariant();
   }
 
-  if (orientation == Qt::Horizontal) {
-    if (section == 0) {
+  if (orientation == Qt::Horizontal)
+  {
+    if (section == 0)
+    {
       return QVariant(tr("Line"));
-    } else if (section == 1) {
+    }
+    else if (section == 1)
+    {
       return QVariant(tr("Description"));
     }
   }

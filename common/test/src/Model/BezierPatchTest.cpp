@@ -30,11 +30,18 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("BezierPatch.evaluate") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("BezierPatch.evaluate")
+{
   using T = std::tuple<
-    size_t, size_t, std::vector<BezierPatch::Point>, size_t, std::vector<BezierPatch::Point>>;
+    size_t,
+    size_t,
+    std::vector<BezierPatch::Point>,
+    size_t,
+    std::vector<BezierPatch::Point>>;
 
   // clang-format off
   const auto
@@ -53,7 +60,8 @@ TEST_CASE("BezierPatch.evaluate") {
   CHECK(patch.evaluate(subdiv) == expectedGrid);
 }
 
-TEST_CASE("BezierPatch.transform") {
+TEST_CASE("BezierPatch.transform")
+{
   // clang-format off
   auto patch = BezierPatch{3, 3, { {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
                                    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},

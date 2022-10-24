@@ -24,32 +24,46 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace EL {
+namespace TrenchBroom
+{
+namespace EL
+{
 EvaluationContext::EvaluationContext()
-  : m_store(std::make_unique<VariableTable>()) {}
+  : m_store(std::make_unique<VariableTable>())
+{
+}
 
 EvaluationContext::EvaluationContext(const VariableStore& store)
-  : m_store(store.clone()) {}
+  : m_store(store.clone())
+{
+}
 
 EvaluationContext::~EvaluationContext() = default;
 
-Value EvaluationContext::variableValue(const std::string& name) const {
+Value EvaluationContext::variableValue(const std::string& name) const
+{
   return m_store->value(name);
 }
 
-void EvaluationContext::declareVariable(const std::string& name, const Value& value) {
+void EvaluationContext::declareVariable(const std::string& name, const Value& value)
+{
   m_store->declare(name, value);
 }
 
 EvaluationStack::EvaluationStack(const EvaluationContext& next)
-  : m_next(next) {}
+  : m_next(next)
+{
+}
 
-Value EvaluationStack::variableValue(const std::string& name) const {
+Value EvaluationStack::variableValue(const std::string& name) const
+{
   const Value& value = EvaluationContext::variableValue(name);
-  if (value != Value::Undefined) {
+  if (value != Value::Undefined)
+  {
     return value;
-  } else {
+  }
+  else
+  {
     return m_next.variableValue(name);
   }
 }

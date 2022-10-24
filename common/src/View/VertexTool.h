@@ -27,27 +27,33 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class PickResult;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class Camera;
 class RenderContext;
 class RenderBatch;
 class RenderService;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class BrushVertexCommandBase;
 class Grid;
 class Lasso;
 class Selection;
 
-class VertexTool : public VertexToolBase<vm::vec3> {
+class VertexTool : public VertexToolBase<vm::vec3>
+{
 private:
-  enum class Mode {
+  enum class Mode
+  {
     Move,
     SplitEdge,
     SplitFace
@@ -73,8 +79,10 @@ private:
   using VertexToolBase::findIncidentBrushes;
 
 public:
-  void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
-    const override;
+  void pick(
+    const vm::ray3& pickRay,
+    const Renderer::Camera& camera,
+    Model::PickResult& pickResult) const override;
 
 public: // Handle selection
   bool deselectAll() override;
@@ -101,7 +109,8 @@ public: // Vertex moving
 
 public: // Rendering
   void renderGuide(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch,
+    Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch,
     const vm::vec3& position) const override;
 
 private: // Tool interface

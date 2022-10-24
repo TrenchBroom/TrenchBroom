@@ -25,13 +25,17 @@
 
 class QKeyEvent;
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class Camera;
 }
 
-namespace View {
-class FlyModeHelper {
+namespace View
+{
+class FlyModeHelper
+{
 private:
   Renderer::Camera& m_camera;
 

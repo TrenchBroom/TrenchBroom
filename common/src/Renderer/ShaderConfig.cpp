@@ -22,24 +22,32 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 ShaderConfig::ShaderConfig(
-  const std::string& name, const std::vector<std::string>& vertexShaders,
+  const std::string& name,
+  const std::vector<std::string>& vertexShaders,
   const std::vector<std::string>& fragmentShaders)
   : m_name(name)
   , m_vertexShaders(vertexShaders)
-  , m_fragmentShaders(fragmentShaders) {}
+  , m_fragmentShaders(fragmentShaders)
+{
+}
 
-const std::string& ShaderConfig::name() const {
+const std::string& ShaderConfig::name() const
+{
   return m_name;
 }
 
-const std::vector<std::string>& ShaderConfig::vertexShaders() const {
+const std::vector<std::string>& ShaderConfig::vertexShaders() const
+{
   return m_vertexShaders;
 }
 
-const std::vector<std::string>& ShaderConfig::fragmentShaders() const {
+const std::vector<std::string>& ShaderConfig::fragmentShaders() const
+{
   return m_fragmentShaders;
 }
 } // namespace Renderer

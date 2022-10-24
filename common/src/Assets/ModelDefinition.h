@@ -29,17 +29,21 @@
 #include <iosfwd>
 #include <optional>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 
-namespace ModelSpecificationKeys {
+namespace ModelSpecificationKeys
+{
 constexpr auto Path = "path";
 constexpr auto Skin = "skin";
 constexpr auto Frame = "frame";
 constexpr auto Scale = "scale";
 } // namespace ModelSpecificationKeys
 
-struct ModelSpecification {
+struct ModelSpecification
+{
   IO::Path path;
   size_t skinIndex;
   size_t frameIndex;
@@ -50,7 +54,8 @@ struct ModelSpecification {
   kdl_reflect_decl(ModelSpecification, path, skinIndex, frameIndex);
 };
 
-class ModelDefinition {
+class ModelDefinition
+{
 private:
   EL::Expression m_expression;
 
@@ -62,7 +67,8 @@ public:
   void append(const ModelDefinition& other);
 
   /**
-   * Evaluates the model expresion, using the given variable store to interpolate variables.
+   * Evaluates the model expresion, using the given variable store to interpolate
+   * variables.
    *
    * @param variableStore the variable store to use when interpolating variables
    * @return the model specification
@@ -81,9 +87,10 @@ public:
   ModelSpecification defaultModelSpecification() const;
 
   /**
-   * Evaluates the model expression using the given variable store to interpolate variables, and
-   * returns the scale value configured for the model, if any. If the model expression doesn't have
-   * its own scale expression, then the given scale expression is used instead.
+   * Evaluates the model expression using the given variable store to interpolate
+   * variables, and returns the scale value configured for the model, if any. If the model
+   * expression doesn't have its own scale expression, then the given scale expression is
+   * used instead.
    *
    * @throws EL::Exception if the expression could not be evaluated
    */
@@ -99,7 +106,8 @@ public:
  * an error occurs.
  */
 vm::vec3 safeGetModelScale(
-  const ModelDefinition& definition, const EL::VariableStore& variableStore,
+  const ModelDefinition& definition,
+  const EL::VariableStore& variableStore,
   const std::optional<EL::Expression>& defaultScaleExpression);
 } // namespace Assets
 } // namespace TrenchBroom

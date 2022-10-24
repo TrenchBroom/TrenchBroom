@@ -40,31 +40,39 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 using AABB = AABBTree<double, 3, Node*>;
 using BOX = AABB::Box;
 
-static auto makeTreeBuilder(AABB& tree, vm::bbox3::builder& totalBounds) {
+static auto makeTreeBuilder(AABB& tree, vm::bbox3::builder& totalBounds)
+{
   const auto insert = [&](auto* node) {
-    if (!tree.empty()) {
+    if (!tree.empty())
+    {
       const auto oldBounds = tree.bounds();
 
       tree.insert(node->physicalBounds(), node);
       totalBounds.add(node->physicalBounds());
 
-      if (!tree.bounds().contains(oldBounds)) {
+      if (!tree.bounds().contains(oldBounds))
+      {
         UNSCOPED_INFO(
-          "Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds << " -> "
-                          << tree.bounds());
+          "Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds
+                          << " -> " << tree.bounds());
         REQUIRE(tree.bounds().contains(oldBounds));
       }
-    } else {
+    }
+    else
+    {
       tree.insert(node->physicalBounds(), node);
       totalBounds.add(node->physicalBounds());
     }
 
-    if (!tree.contains(node)) {
+    if (!tree.contains(node))
+    {
       tree.print(std::cout);
       UNSCOPED_INFO(
         "Node " << node << " with bounds " << node->physicalBounds() << " at line "
@@ -77,28 +85,19 @@ static auto makeTreeBuilder(AABB& tree, vm::bbox3::builder& totalBounds) {
   };
 
   return kdl::overload(
-    [](auto&& thisLambda, WorldNode* world) {
-      world->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, GroupNode* group) {
-      group->visitChildren(thisLambda);
-    },
+    [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
     [=](auto&& thisLambda, EntityNode* entity) { // capture insert helper lambda by value!
       insert(entity);
       entity->visitChildren(thisLambda);
     },
-    [=](BrushNode* brush) {
-      insert(brush);
-    },
-    [=](PatchNode* patch) {
-      insert(patch);
-    });
+    [=](BrushNode* brush) { insert(brush); },
+    [=](PatchNode* patch) { insert(patch); });
 }
 
-TEST_CASE("AABBTreeStressTest.parseMapTest", "[AABBTreeStressTest]") {
+TEST_CASE("AABBTreeStressTest.parseMapTest", "[AABBTreeStressTest]")
+{
   const auto mapPath =
     IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Map/rtz_q1.map");
   const auto file = IO::Disk::openFile(mapPath);

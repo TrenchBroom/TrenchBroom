@@ -21,22 +21,26 @@
 
 #include <ostream>
 
-namespace TrenchBroom {
-namespace Model {
-std::ostream& operator<<(std::ostream& str, const UpdateLinkedGroupsError& e) {
-  switch (e) {
-    case UpdateLinkedGroupsError::TransformIsNotInvertible:
-      str << "Group transformation is not invertible";
-      break;
-    case UpdateLinkedGroupsError::TransformFailed:
-      str << "Failed to transform a linked node";
-      break;
-    case UpdateLinkedGroupsError::UpdateExceedsWorldBounds:
-      str << "Updating a linked node would exceed world bounds";
-      break;
-    case UpdateLinkedGroupsError::UpdateIsInconsistent:
-      str << "Cannot update multiple members of the same link set";
-      break;
+namespace TrenchBroom
+{
+namespace Model
+{
+std::ostream& operator<<(std::ostream& str, const UpdateLinkedGroupsError& e)
+{
+  switch (e)
+  {
+  case UpdateLinkedGroupsError::TransformIsNotInvertible:
+    str << "Group transformation is not invertible";
+    break;
+  case UpdateLinkedGroupsError::TransformFailed:
+    str << "Failed to transform a linked node";
+    break;
+  case UpdateLinkedGroupsError::UpdateExceedsWorldBounds:
+    str << "Updating a linked node would exceed world bounds";
+    break;
+  case UpdateLinkedGroupsError::UpdateIsInconsistent:
+    str << "Cannot update multiple members of the same link set";
+    break;
   }
   return str;
 }

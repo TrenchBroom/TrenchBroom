@@ -19,25 +19,29 @@
 
 #pragma once
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class InputState;
 
 /**
  * Defines the protocol for handling mouse dragging in the tool system.
  */
-class DragTracker {
+class DragTracker
+{
 public:
   virtual ~DragTracker();
 
   /**
-   * Called when a modifier key is pressed or released. The given input state represents the state
-   * after the key was pressed or released.
+   * Called when a modifier key is pressed or released. The given input state represents
+   * the state after the key was pressed or released.
    */
   virtual void modifierKeyChange(const InputState& inputState);
 
@@ -47,8 +51,8 @@ public:
   virtual void mouseScroll(const InputState& inputState);
 
   /**
-   * Called when a drag took place. This does not always have to correspond to a mouse movement;
-   * sometimes these events are synthesized.
+   * Called when a drag took place. This does not always have to correspond to a mouse
+   * movement; sometimes these events are synthesized.
    */
   virtual bool drag(const InputState& inputState) = 0;
 
@@ -72,7 +76,8 @@ public:
    * Called once during every render pass.
    */
   virtual void render(
-    const InputState& inputState, Renderer::RenderContext& renderContext,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) const;
 };
 } // namespace View

@@ -42,21 +42,26 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("NodeCollectionTest.empty") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("NodeCollectionTest.empty")
+{
   auto nodeCollection = NodeCollection{};
   CHECK(nodeCollection.empty());
 
   auto entityNode = EntityNode{Entity{}};
   nodeCollection.addNode(&entityNode);
   REQUIRE_THAT(
-    nodeCollection.nodes(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{&entityNode}));
+    nodeCollection.nodes(),
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{&entityNode}));
 
   CHECK_FALSE(nodeCollection.empty());
 }
 
-TEST_CASE("NodeCollection.counts") {
+TEST_CASE("NodeCollection.counts")
+{
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3{8192.0};
 
@@ -90,7 +95,8 @@ TEST_CASE("NodeCollection.counts") {
   CHECK(nodeCollection.patchCount() == 1u);
 }
 
-TEST_CASE("NodeCollection.has") {
+TEST_CASE("NodeCollection.has")
+{
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3{8192.0};
 
@@ -120,7 +126,8 @@ TEST_CASE("NodeCollection.has") {
   REQUIRE_FALSE(nodeCollection.hasPatches());
   REQUIRE_FALSE(nodeCollection.hasOnlyPatches());
 
-  SECTION("layer") {
+  SECTION("layer")
+  {
     nodeCollection.addNode(&layerNode);
     CHECK(nodeCollection.hasLayers());
     CHECK(nodeCollection.hasOnlyLayers());
@@ -130,7 +137,8 @@ TEST_CASE("NodeCollection.has") {
     CHECK_FALSE(nodeCollection.hasOnlyLayers());
   }
 
-  SECTION("groups") {
+  SECTION("groups")
+  {
     nodeCollection.addNode(&groupNode);
     CHECK(nodeCollection.hasGroups());
     CHECK(nodeCollection.hasOnlyGroups());
@@ -140,7 +148,8 @@ TEST_CASE("NodeCollection.has") {
     CHECK_FALSE(nodeCollection.hasOnlyGroups());
   }
 
-  SECTION("entities") {
+  SECTION("entities")
+  {
     nodeCollection.addNode(&entityNode);
     CHECK(nodeCollection.hasEntities());
     CHECK(nodeCollection.hasOnlyEntities());
@@ -150,8 +159,10 @@ TEST_CASE("NodeCollection.has") {
     CHECK_FALSE(nodeCollection.hasOnlyEntities());
   }
 
-  SECTION("brushes") {
-    SECTION("only top level") {
+  SECTION("brushes")
+  {
+    SECTION("only top level")
+    {
       nodeCollection.addNode(&brushNode);
       CHECK(nodeCollection.hasBrushes());
       CHECK(nodeCollection.hasOnlyBrushes());
@@ -161,12 +172,14 @@ TEST_CASE("NodeCollection.has") {
       CHECK_FALSE(nodeCollection.hasOnlyBrushes());
     }
 
-    SECTION("nested brushes") {
+    SECTION("nested brushes")
+    {
       auto* entityNodePtr = static_cast<Node*>(&entityNode);
       auto* groupNodePtr = static_cast<Node*>(&groupNode);
       auto* node = GENERATE_COPY(entityNodePtr, groupNodePtr);
 
-      SECTION("adding already nested brush") {
+      SECTION("adding already nested brush")
+      {
         node->addChild(brushNode.clone(worldBounds));
 
         nodeCollection.addNode(node);
@@ -174,7 +187,8 @@ TEST_CASE("NodeCollection.has") {
         CHECK_FALSE(nodeCollection.hasOnlyBrushes());
       }
 
-      SECTION("adding brushes to containers") {
+      SECTION("adding brushes to containers")
+      {
         nodeCollection.addNode(node);
         REQUIRE_FALSE(nodeCollection.hasBrushes());
         REQUIRE_FALSE(nodeCollection.hasOnlyBrushes());
@@ -186,7 +200,8 @@ TEST_CASE("NodeCollection.has") {
     }
   }
 
-  SECTION("patches") {
+  SECTION("patches")
+  {
     nodeCollection.addNode(&patchNode);
     CHECK(nodeCollection.hasPatches());
     CHECK(nodeCollection.hasOnlyPatches());
@@ -197,7 +212,8 @@ TEST_CASE("NodeCollection.has") {
   }
 }
 
-TEST_CASE("NodeCollection.iterators") {
+TEST_CASE("NodeCollection.iterators")
+{
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3{8192.0};
 
@@ -228,7 +244,8 @@ TEST_CASE("NodeCollection.iterators") {
       std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode}));
 }
 
-TEST_CASE("NodeCollection.collections") {
+TEST_CASE("NodeCollection.collections")
+{
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3{8192.0};
 
@@ -254,14 +271,17 @@ TEST_CASE("NodeCollection.collections") {
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
   CHECK_THAT(
-    nodeCollection.nodes(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{
-                              &layerNode, &groupNode, &entityNode, &brushNode, &patchNode}));
+    nodeCollection.nodes(),
+    Catch::Matchers::UnorderedEquals(
+      std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode}));
 
   CHECK_THAT(
-    nodeCollection.layers(), Catch::Matchers::UnorderedEquals(std::vector<LayerNode*>{&layerNode}));
+    nodeCollection.layers(),
+    Catch::Matchers::UnorderedEquals(std::vector<LayerNode*>{&layerNode}));
 
   CHECK_THAT(
-    nodeCollection.groups(), Catch::Matchers::UnorderedEquals(std::vector<GroupNode*>{&groupNode}));
+    nodeCollection.groups(),
+    Catch::Matchers::UnorderedEquals(std::vector<GroupNode*>{&groupNode}));
 
   CHECK_THAT(
     nodeCollection.entities(),
@@ -275,13 +295,14 @@ TEST_CASE("NodeCollection.collections") {
     nodeCollection.patches(),
     Catch::Matchers::UnorderedEquals(std::vector<PatchNode*>{&patchNode}));
 
-  SECTION("nested brushes") {
-    auto* brushInLayer =
-      new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
-    auto* brushInGroup =
-      new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
-    auto* brushInEntity =
-      new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  SECTION("nested brushes")
+  {
+    auto* brushInLayer = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    auto* brushInGroup = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    auto* brushInEntity = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
     layerNode.addChild(brushInLayer);
     groupNode.addChild(brushInGroup);
@@ -289,7 +310,8 @@ TEST_CASE("NodeCollection.collections") {
   }
 }
 
-TEST_CASE("NodeCollection.addNode") {
+TEST_CASE("NodeCollection.addNode")
+{
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3{8192.0};
 
@@ -312,38 +334,44 @@ TEST_CASE("NodeCollection.addNode") {
     std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
-  SECTION("layer") {
+  SECTION("layer")
+  {
     nodeCollection.addNode(&layerNode);
     CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode});
     CHECK(nodeCollection.layers() == std::vector<LayerNode*>{&layerNode});
   }
 
-  SECTION("group") {
+  SECTION("group")
+  {
     nodeCollection.addNode(&groupNode);
     CHECK(nodeCollection.nodes() == std::vector<Node*>{&groupNode});
     CHECK(nodeCollection.groups() == std::vector<GroupNode*>{&groupNode});
   }
 
-  SECTION("entity") {
+  SECTION("entity")
+  {
     nodeCollection.addNode(&entityNode);
     CHECK(nodeCollection.nodes() == std::vector<Node*>{&entityNode});
     CHECK(nodeCollection.entities() == std::vector<EntityNode*>{&entityNode});
   }
 
-  SECTION("brush") {
+  SECTION("brush")
+  {
     nodeCollection.addNode(&brushNode);
     CHECK(nodeCollection.nodes() == std::vector<Node*>{&brushNode});
     CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{&brushNode});
   }
 
-  SECTION("patch") {
+  SECTION("patch")
+  {
     nodeCollection.addNode(&patchNode);
     CHECK(nodeCollection.nodes() == std::vector<Node*>{&patchNode});
     CHECK(nodeCollection.patches() == std::vector<PatchNode*>{&patchNode});
   }
 }
 
-TEST_CASE("NodeCollection.addNodes") {
+TEST_CASE("NodeCollection.addNodes")
+{
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3{8192.0};
 
@@ -369,8 +397,8 @@ TEST_CASE("NodeCollection.addNodes") {
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
   CHECK(
-    nodeCollection.nodes() ==
-    std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+    nodeCollection.nodes()
+    == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
   CHECK(nodeCollection.layers() == std::vector<LayerNode*>{&layerNode});
   CHECK(nodeCollection.groups() == std::vector<GroupNode*>{&groupNode});
   CHECK(nodeCollection.entities() == std::vector<EntityNode*>{&entityNode});
@@ -378,7 +406,8 @@ TEST_CASE("NodeCollection.addNodes") {
   CHECK(nodeCollection.patches() == std::vector<PatchNode*>{&patchNode});
 }
 
-TEST_CASE("NodeCollection.removeNode") {
+TEST_CASE("NodeCollection.removeNode")
+{
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3{8192.0};
 
@@ -398,50 +427,57 @@ TEST_CASE("NodeCollection.removeNode") {
   auto nodeCollection = NodeCollection{};
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
   REQUIRE(
-    nodeCollection.nodes() ==
-    std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+    nodeCollection.nodes()
+    == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
-  SECTION("layer") {
+  SECTION("layer")
+  {
     nodeCollection.removeNode(&layerNode);
     CHECK(
-      nodeCollection.nodes() ==
-      std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode});
+      nodeCollection.nodes()
+      == std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode});
     CHECK(nodeCollection.layers() == std::vector<LayerNode*>{});
   }
 
-  SECTION("group") {
+  SECTION("group")
+  {
     nodeCollection.removeNode(&groupNode);
     CHECK(
-      nodeCollection.nodes() ==
-      std::vector<Node*>{&layerNode, &entityNode, &brushNode, &patchNode});
+      nodeCollection.nodes()
+      == std::vector<Node*>{&layerNode, &entityNode, &brushNode, &patchNode});
     CHECK(nodeCollection.groups() == std::vector<GroupNode*>{});
   }
 
-  SECTION("entity") {
+  SECTION("entity")
+  {
     nodeCollection.removeNode(&entityNode);
     CHECK(
-      nodeCollection.nodes() == std::vector<Node*>{&layerNode, &groupNode, &brushNode, &patchNode});
+      nodeCollection.nodes()
+      == std::vector<Node*>{&layerNode, &groupNode, &brushNode, &patchNode});
     CHECK(nodeCollection.entities() == std::vector<EntityNode*>{});
   }
 
-  SECTION("brush") {
+  SECTION("brush")
+  {
     nodeCollection.removeNode(&brushNode);
     CHECK(
-      nodeCollection.nodes() ==
-      std::vector<Node*>{&layerNode, &groupNode, &entityNode, &patchNode});
+      nodeCollection.nodes()
+      == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &patchNode});
     CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{});
   }
 
-  SECTION("patch") {
+  SECTION("patch")
+  {
     nodeCollection.removeNode(&patchNode);
     CHECK(
-      nodeCollection.nodes() ==
-      std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode});
+      nodeCollection.nodes()
+      == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode});
     CHECK(nodeCollection.patches() == std::vector<PatchNode*>{});
   }
 }
 
-TEST_CASE("NodeCollection.clear") {
+TEST_CASE("NodeCollection.clear")
+{
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3{8192.0};
 
@@ -461,8 +497,8 @@ TEST_CASE("NodeCollection.clear") {
   auto nodeCollection = NodeCollection{};
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
   REQUIRE(
-    nodeCollection.nodes() ==
-    std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+    nodeCollection.nodes()
+    == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
   nodeCollection.clear();
 

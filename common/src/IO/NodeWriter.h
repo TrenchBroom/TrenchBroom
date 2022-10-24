@@ -24,8 +24,10 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushNode;
 class BrushFace;
 class EntityNode;
@@ -34,10 +36,12 @@ class Node;
 class WorldNode;
 } // namespace Model
 
-namespace IO {
+namespace IO
+{
 class NodeSerializer;
 
-class NodeWriter {
+class NodeWriter
+{
 private:
   using EntityBrushesMap = std::map<Model::EntityNode*, std::vector<Model::BrushNode*>>;
 

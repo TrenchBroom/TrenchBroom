@@ -21,13 +21,16 @@
 
 #include "Renderer/GLVertexType.h"
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class IndexRangeMap;
 class TexturedIndexRangeMap;
 } // namespace Renderer
 
-namespace Assets {
+namespace Assets
+{
 class EntityModel;
 class EntityModelLoadedFrame;
 class EntityModelSurface;

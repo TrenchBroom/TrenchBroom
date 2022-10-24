@@ -36,16 +36,20 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace EL {
+namespace TrenchBroom
+{
+namespace EL
+{
 using V = Value;
 
-static Value evaluate(const std::string& expression, const MapType& variables = {}) {
+static Value evaluate(const std::string& expression, const MapType& variables = {})
+{
   const auto context = EvaluationContext{VariableTable{variables}};
   return IO::ELParser::parseStrict(expression).evaluate(context);
 }
 
-TEST_CASE("ExpressionTest.testValueLiterals", "[ExpressionTest]") {
+TEST_CASE("ExpressionTest.testValueLiterals", "[ExpressionTest]")
+{
   using T = std::tuple<std::string, Value>;
 
   // clang-format off
@@ -66,7 +70,8 @@ TEST_CASE("ExpressionTest.testValueLiterals", "[ExpressionTest]") {
   CHECK(evaluate(expression) == expectedValue);
 }
 
-TEST_CASE("ExpressionTest.testVariableExpression", "[ExpressionTest]") {
+TEST_CASE("ExpressionTest.testVariableExpression", "[ExpressionTest]")
+{
   using T = std::tuple<std::string, MapType, Value>;
 
   // clang-format off
@@ -84,7 +89,8 @@ TEST_CASE("ExpressionTest.testVariableExpression", "[ExpressionTest]") {
   CHECK(evaluate(expression, variables) == expectedValue);
 }
 
-TEST_CASE("ExpressionTest.testArrayExpression", "[ExpressionTest]") {
+TEST_CASE("ExpressionTest.testArrayExpression", "[ExpressionTest]")
+{
   using T = std::tuple<std::string, MapType, ArrayType>;
 
   // clang-format off
@@ -101,7 +107,8 @@ TEST_CASE("ExpressionTest.testArrayExpression", "[ExpressionTest]") {
   CHECK(evaluate(expression, variables) == Value{expectedValue});
 }
 
-TEST_CASE("ExpressionTest.testMapExpression", "[ExpressionTest]") {
+TEST_CASE("ExpressionTest.testMapExpression", "[ExpressionTest]")
+{
   using T = std::tuple<std::string, MapType, MapType>;
 
   // clang-format off
@@ -119,7 +126,8 @@ TEST_CASE("ExpressionTest.testMapExpression", "[ExpressionTest]") {
   CHECK(evaluate(expression, variables) == Value{expectedValue});
 }
 
-TEST_CASE("ExpressionTest.testOperators", "[ExpressionTest]") {
+TEST_CASE("ExpressionTest.testOperators", "[ExpressionTest]")
+{
   using T = std::tuple<std::string, std::variant<Value, EvaluationError>>;
 
   // clang-format off
@@ -630,15 +638,19 @@ TEST_CASE("ExpressionTest.testOperators", "[ExpressionTest]") {
 
   CAPTURE(expression);
 
-  if (std::holds_alternative<Value>(expectedValueOrError)) {
+  if (std::holds_alternative<Value>(expectedValueOrError))
+  {
     const auto expectedValue = std::get<Value>(expectedValueOrError);
     CHECK(evaluate(expression) == expectedValue);
-  } else {
+  }
+  else
+  {
     CHECK_THROWS_AS(evaluate(expression), EvaluationError);
   }
 }
 
-TEST_CASE("ExpressionTest.testOperatorPrecedence", "[ExpressionTest]") {
+TEST_CASE("ExpressionTest.testOperatorPrecedence", "[ExpressionTest]")
+{
   using T = std::tuple<std::string, Value>;
 
   // clang-format off
@@ -678,7 +690,8 @@ TEST_CASE("ExpressionTest.testOperatorPrecedence", "[ExpressionTest]") {
   CHECK(evaluate(expression) == expectedValue);
 }
 
-TEST_CASE("ExpressionTest.testOptimize") {
+TEST_CASE("ExpressionTest.testOptimize")
+{
   using T = std::tuple<std::string, Expression>;
 
   // clang-format off

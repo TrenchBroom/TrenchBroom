@@ -39,9 +39,12 @@
 #include "Catch2.h"
 #include "TestUtils.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("WorldReaderTest.parseFailure_1424", "[WorldReaderTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("WorldReaderTest.parseFailure_1424", "[WorldReaderTest]")
+{
   const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -65,7 +68,8 @@ TEST_CASE("WorldReaderTest.parseFailure_1424", "[WorldReaderTest]") {
   CHECK(world != nullptr);
 }
 
-TEST_CASE("WorldReaderTest.parseProblematicBrush1", "[WorldReaderTest]") {
+TEST_CASE("WorldReaderTest.parseProblematicBrush1", "[WorldReaderTest]")
+{
   const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -89,37 +93,57 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush1", "[WorldReaderTest]") {
   Model::Node* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
-  Model::BrushNode* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  Model::BrushNode* brushNode =
+    static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
   CHECK(
     findFaceByPoints(
-      faces, vm::vec3(308.0, 108.0, 176.0), vm::vec3(308.0, 132.0, 176.0),
-      vm::vec3(252.0, 132.0, 176.0)) != nullptr);
+      faces,
+      vm::vec3(308.0, 108.0, 176.0),
+      vm::vec3(308.0, 132.0, 176.0),
+      vm::vec3(252.0, 132.0, 176.0))
+    != nullptr);
   CHECK(
     findFaceByPoints(
-      faces, vm::vec3(252.0, 132.0, 208.0), vm::vec3(308.0, 132.0, 208.0),
-      vm::vec3(308.0, 108.0, 208.0)) != nullptr);
+      faces,
+      vm::vec3(252.0, 132.0, 208.0),
+      vm::vec3(308.0, 132.0, 208.0),
+      vm::vec3(308.0, 108.0, 208.0))
+    != nullptr);
   CHECK(
     findFaceByPoints(
-      faces, vm::vec3(288.0, 152.0, 176.0), vm::vec3(288.0, 152.0, 208.0),
-      vm::vec3(288.0, 120.0, 208.0)) != nullptr);
+      faces,
+      vm::vec3(288.0, 152.0, 176.0),
+      vm::vec3(288.0, 152.0, 208.0),
+      vm::vec3(288.0, 120.0, 208.0))
+    != nullptr);
   CHECK(
     findFaceByPoints(
-      faces, vm::vec3(288.0, 122.0, 176.0), vm::vec3(288.0, 122.0, 208.0),
-      vm::vec3(308.0, 102.0, 208.0)) != nullptr);
+      faces,
+      vm::vec3(288.0, 122.0, 176.0),
+      vm::vec3(288.0, 122.0, 208.0),
+      vm::vec3(308.0, 102.0, 208.0))
+    != nullptr);
   CHECK(
     findFaceByPoints(
-      faces, vm::vec3(308.0, 100.0, 176.0), vm::vec3(308.0, 100.0, 208.0),
-      vm::vec3(324.0, 116.0, 208.0)) != nullptr);
+      faces,
+      vm::vec3(308.0, 100.0, 176.0),
+      vm::vec3(308.0, 100.0, 208.0),
+      vm::vec3(324.0, 116.0, 208.0))
+    != nullptr);
   CHECK(
     findFaceByPoints(
-      faces, vm::vec3(287.0, 152.0, 208.0), vm::vec3(287.0, 152.0, 176.0),
-      vm::vec3(323.0, 116.0, 176.0)) != nullptr);
+      faces,
+      vm::vec3(287.0, 152.0, 208.0),
+      vm::vec3(287.0, 152.0, 176.0),
+      vm::vec3(323.0, 116.0, 176.0))
+    != nullptr);
 }
 
-TEST_CASE("WorldReaderTest.parseProblematicBrush2", "[WorldReaderTest]") {
+TEST_CASE("WorldReaderTest.parseProblematicBrush2", "[WorldReaderTest]")
+{
   const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -142,11 +166,13 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush2", "[WorldReaderTest]") {
   CHECK(world->childCount() == 1u);
   Model::Node* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  Model::BrushNode* brush =
+    static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brush, false);
 }
 
-TEST_CASE("WorldReaderTest.parseProblematicBrush3", "[WorldReaderTest]") {
+TEST_CASE("WorldReaderTest.parseProblematicBrush3", "[WorldReaderTest]")
+{
   const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -169,7 +195,8 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush3", "[WorldReaderTest]") {
   CHECK(world->childCount() == 1u);
   Model::Node* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  Model::BrushNode* brush =
+    static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brush, false);
 }
 } // namespace IO

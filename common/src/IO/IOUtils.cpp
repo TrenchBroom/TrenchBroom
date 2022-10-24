@@ -31,9 +31,12 @@
 #include <streambuf>
 #include <string>
 
-namespace TrenchBroom {
-namespace IO {
-FILE* openPathAsFILE(const Path& path, const std::string& mode) {
+namespace TrenchBroom
+{
+namespace IO
+{
+FILE* openPathAsFILE(const Path& path, const std::string& mode)
+{
   // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
   // to open a Unicode path. We will use Qt to help convert the Path to a UTF-16 encoded
   // wchar array.
@@ -52,7 +55,8 @@ FILE* openPathAsFILE(const Path& path, const std::string& mode) {
 #endif
 }
 
-std::ofstream openPathAsOutputStream(const Path& path, const std::ios::openmode mode) {
+std::ofstream openPathAsOutputStream(const Path& path, const std::ios::openmode mode)
+{
 #ifdef _WIN32
   return std::ofstream(pathAsQString(path).toStdWString().c_str(), mode);
 #else
@@ -60,7 +64,8 @@ std::ofstream openPathAsOutputStream(const Path& path, const std::ios::openmode 
 #endif
 }
 
-std::ifstream openPathAsInputStream(const Path& path, const std::ios::openmode mode) {
+std::ifstream openPathAsInputStream(const Path& path, const std::ios::openmode mode)
+{
 #ifdef _WIN32
   return std::ifstream(pathAsQString(path).toStdWString().c_str(), mode);
 #else
@@ -68,38 +73,46 @@ std::ifstream openPathAsInputStream(const Path& path, const std::ios::openmode m
 #endif
 }
 
-size_t fileSize(std::FILE* file) {
+size_t fileSize(std::FILE* file)
+{
   ensure(file != nullptr, "file is null");
   const auto pos = std::ftell(file);
-  if (pos < 0) {
+  if (pos < 0)
+  {
     throw FileSystemException("ftell failed");
   }
 
-  if (std::fseek(file, 0, SEEK_END) != 0) {
+  if (std::fseek(file, 0, SEEK_END) != 0)
+  {
     throw FileSystemException("fseek failed");
   }
 
   const auto size = std::ftell(file);
-  if (size < 0) {
+  if (size < 0)
+  {
     throw FileSystemException("ftell failed");
   }
 
-  if (std::fseek(file, pos, SEEK_SET) != 0) {
+  if (std::fseek(file, pos, SEEK_SET) != 0)
+  {
     throw FileSystemException("fseek failed");
   }
 
   return static_cast<size_t>(size);
 }
 
-std::string readGameComment(std::istream& stream) {
+std::string readGameComment(std::istream& stream)
+{
   return readInfoComment(stream, "Game");
 }
 
-std::string readFormatComment(std::istream& stream) {
+std::string readFormatComment(std::istream& stream)
+{
   return readInfoComment(stream, "Format");
 }
 
-std::string readInfoComment(std::istream& stream, const std::string& name) {
+std::string readInfoComment(std::istream& stream, const std::string& name)
+{
   static const size_t MaxChars = 64;
   const std::string expectedHeader = "// " + name + ": ";
   char buf[MaxChars];
@@ -116,14 +129,16 @@ std::string readInfoComment(std::istream& stream, const std::string& name) {
     return "";
 
   auto result = line.substr(expectedHeader.size());
-  if (result.size() > 0u && result.back() == '\r') {
+  if (result.size() > 0u && result.back() == '\r')
+  {
     result = result.substr(0u, result.size() - 1u);
   }
   return result;
 }
 
 void writeGameComment(
-  std::ostream& stream, const std::string& gameName, const std::string& mapFormat) {
+  std::ostream& stream, const std::string& gameName, const std::string& mapFormat)
+{
   stream << "// Game: " << gameName << "\n"
          << "// Format: " << mapFormat << "\n";
 }

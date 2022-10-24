@@ -28,33 +28,42 @@
 #include <QLabel>
 #include <QRadioButton>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 ChoosePathTypeDialog::ChoosePathTypeDialog()
   : QDialog(nullptr)
   , m_absPath("")
   , m_docRelativePath("")
   , m_gameRelativePath("")
-  , m_appRelativePath("") {
+  , m_appRelativePath("")
+{
   createGui();
 }
 
 ChoosePathTypeDialog::ChoosePathTypeDialog(
-  QWidget* parent, const IO::Path& absPath, const IO::Path& docPath, const IO::Path& gamePath)
+  QWidget* parent,
+  const IO::Path& absPath,
+  const IO::Path& docPath,
+  const IO::Path& gamePath)
   : QDialog(parent)
   , m_absPath(absPath)
   , m_docRelativePath(makeRelativePath(absPath, docPath.deleteLastComponent()))
   , m_gameRelativePath(makeRelativePath(absPath, gamePath))
-  , m_appRelativePath(makeRelativePath(absPath, IO::SystemPaths::appDirectory())) {
+  , m_appRelativePath(makeRelativePath(absPath, IO::SystemPaths::appDirectory()))
+{
   createGui();
 }
 
-void ChoosePathTypeDialog::createGui() {
+void ChoosePathTypeDialog::createGui()
+{
   setWindowTitle(tr("Path Type"));
   setWindowIconTB(this);
 
-  QLabel* infoText = new QLabel(tr("Paths can be stored either as absolute paths or as relative "
-                                   "paths. Please choose how you want to store this path."));
+  QLabel* infoText =
+    new QLabel(tr("Paths can be stored either as absolute paths or as relative "
+                  "paths. Please choose how you want to store this path."));
   infoText->setMaximumWidth(370);
   infoText->setWordWrap(true);
 
@@ -91,7 +100,9 @@ void ChoosePathTypeDialog::createGui() {
 
   auto* innerLayout = new QVBoxLayout();
   innerLayout->setContentsMargins(
-    LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin,
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin,
+    LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
   innerLayout->setSpacing(0);
 
@@ -118,7 +129,8 @@ void ChoosePathTypeDialog::createGui() {
   outerLayout->setSpacing(LayoutConstants::MediumVMargin);
   outerLayout->addLayout(innerLayout);
 
-  auto* okCancelButtons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+  auto* okCancelButtons =
+    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   outerLayout->addLayout(wrapDialogButtonBox(okCancelButtons));
 
   insertTitleBarSeparator(outerLayout);
@@ -129,7 +141,8 @@ void ChoosePathTypeDialog::createGui() {
   connect(okCancelButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-const IO::Path& ChoosePathTypeDialog::path() const {
+const IO::Path& ChoosePathTypeDialog::path() const
+{
   if (m_docRelativeRadio->isChecked())
     return m_docRelativePath;
   if (m_appRelativeRadio->isChecked())
@@ -140,7 +153,8 @@ const IO::Path& ChoosePathTypeDialog::path() const {
 }
 
 IO::Path ChoosePathTypeDialog::makeRelativePath(
-  const IO::Path& absPath, const IO::Path& newRootPath) {
+  const IO::Path& absPath, const IO::Path& newRootPath)
+{
   if (!newRootPath.canMakeRelative(absPath))
     return IO::Path("");
   return newRootPath.makeRelative(absPath);

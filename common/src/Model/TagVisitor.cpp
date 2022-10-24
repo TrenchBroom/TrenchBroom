@@ -19,8 +19,10 @@
 
 #include "TagVisitor.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 TagVisitor::~TagVisitor() = default;
 void TagVisitor::visit(WorldNode&) {}
 void TagVisitor::visit(LayerNode&) {}

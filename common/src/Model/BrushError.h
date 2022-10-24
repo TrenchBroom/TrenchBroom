@@ -21,9 +21,12 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom {
-namespace Model {
-enum class BrushError {
+namespace TrenchBroom
+{
+namespace Model
+{
+enum class BrushError
+{
   EmptyBrush,
   IncompleteBrush,
   InvalidBrush,

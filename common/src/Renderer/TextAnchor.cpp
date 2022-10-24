@@ -24,13 +24,16 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 TextAnchor::~TextAnchor() {}
 
 TextAnchor3D::~TextAnchor3D() {}
 
-vm::vec3f TextAnchor3D::offset(const Camera& camera, const vm::vec2f& size) const {
+vm::vec3f TextAnchor3D::offset(const Camera& camera, const vm::vec2f& size) const
+{
   const vm::vec2f halfSize = size / 2.0f;
   const TextAlignment::Type a = alignment();
   const vm::vec2f factors = alignmentFactors(a);
@@ -41,11 +44,13 @@ vm::vec3f TextAnchor3D::offset(const Camera& camera, const vm::vec2f& size) cons
   return offset;
 }
 
-vm::vec3f TextAnchor3D::position(const Camera& /* camera */) const {
+vm::vec3f TextAnchor3D::position(const Camera& /* camera */) const
+{
   return basePosition();
 }
 
-vm::vec2f TextAnchor3D::alignmentFactors(const TextAlignment::Type a) const {
+vm::vec2f TextAnchor3D::alignmentFactors(const TextAlignment::Type a) const
+{
   vm::vec2f factors;
   if ((a & TextAlignment::Left))
     factors[0] = +0.5f;
@@ -58,26 +63,34 @@ vm::vec2f TextAnchor3D::alignmentFactors(const TextAlignment::Type a) const {
   return factors;
 }
 
-vm::vec2f TextAnchor3D::extraOffsets(const TextAlignment::Type /* a */) const {
+vm::vec2f TextAnchor3D::extraOffsets(const TextAlignment::Type /* a */) const
+{
   return vm::vec2f::zero();
 }
 
-vm::vec3f SimpleTextAnchor::basePosition() const {
+vm::vec3f SimpleTextAnchor::basePosition() const
+{
   return m_position;
 }
 
-TextAlignment::Type SimpleTextAnchor::alignment() const {
+TextAlignment::Type SimpleTextAnchor::alignment() const
+{
   return m_alignment;
 }
 
-vm::vec2f SimpleTextAnchor::extraOffsets(const TextAlignment::Type /* a */) const {
+vm::vec2f SimpleTextAnchor::extraOffsets(const TextAlignment::Type /* a */) const
+{
   return m_extraOffsets;
 }
 
 SimpleTextAnchor::SimpleTextAnchor(
-  const vm::vec3f& position, const TextAlignment::Type alignment, const vm::vec2f& extraOffsets)
+  const vm::vec3f& position,
+  const TextAlignment::Type alignment,
+  const vm::vec2f& extraOffsets)
   : m_position(position)
   , m_alignment(alignment)
-  , m_extraOffsets(extraOffsets) {}
+  , m_extraOffsets(extraOffsets)
+{
+}
 } // namespace Renderer
 } // namespace TrenchBroom

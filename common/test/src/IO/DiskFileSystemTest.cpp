@@ -34,15 +34,18 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-static TestEnvironment makeTestEnvironment() {
+namespace TrenchBroom
+{
+namespace IO
+{
+static TestEnvironment makeTestEnvironment()
+{
   // have a non-ASCII character in the directory name to help catch
   // filename encoding bugs
   const auto hiraganaLetterSmallA = QString(static_cast<QChar>(0x3041));
-  const auto dir =
-    (QString::fromStdString(Catch::getResultCapture().getCurrentTestName()) + hiraganaLetterSmallA)
-      .toStdString();
+  const auto dir = (QString::fromStdString(Catch::getResultCapture().getCurrentTestName())
+                    + hiraganaLetterSmallA)
+                     .toStdString();
 
   return TestEnvironment{
     dir, [](TestEnvironment& env) {
@@ -58,14 +61,15 @@ static TestEnvironment makeTestEnvironment() {
     }};
 }
 
-TEST_CASE("FileSystemTest.makeAbsolute", "[FileSystemTest]") {
+TEST_CASE("FileSystemTest.makeAbsolute", "[FileSystemTest]")
+{
   const auto env = makeTestEnvironment();
 
   auto fs = std::make_shared<DiskFileSystem>(env.dir() + Path("anotherDir"));
   fs = std::make_shared<DiskFileSystem>(fs, env.dir() + Path("dir1"));
 
-  // Existing files should be resolved against the first file system in the chain that contains
-  // them:
+  // Existing files should be resolved against the first file system in the chain that
+  // contains them:
   const auto absPathExisting = fs->makeAbsolute(Path("test3.map"));
   CHECK(absPathExisting == env.dir() + Path("anotherDir/test3.map"));
 
@@ -74,36 +78,41 @@ TEST_CASE("FileSystemTest.makeAbsolute", "[FileSystemTest]") {
   CHECK(absPathNotExisting == env.dir() + Path("dir1/asdf.map"));
 }
 
-TEST_CASE("DiskTest.fixPath", "[DiskTest]") {
+TEST_CASE("DiskTest.fixPath", "[DiskTest]")
+{
   const auto env = makeTestEnvironment();
 
   CHECK_THROWS_AS(Disk::fixPath(Path("asdf/blah")), FileSystemException);
   CHECK_THROWS_AS(Disk::fixPath(Path("/../../test")), FileSystemException);
-  if (Disk::isCaseSensitive()) {
+  if (Disk::isCaseSensitive())
+  {
     // FIXME: behaviour should be made consistent between case-sensitive/case-insensitive
     // filesystems fixPath should probably also never throw?
     CHECK_THROWS_AS(
       Disk::fixPath(env.dir() + Path("anotherDir/test3.map/asdf")), FileSystemException);
     CHECK(
-      env.dir() + Path("anotherDir/test3.map") ==
-      Disk::fixPath(env.dir() + Path("ANOTHERdir/TEST3.MAP")));
+      env.dir() + Path("anotherDir/test3.map")
+      == Disk::fixPath(env.dir() + Path("ANOTHERdir/TEST3.MAP")));
   }
 
   CHECK(
-    env.dir() + Path("anotherDir/test3.map") ==
-    Disk::fixPath(env.dir() + Path("anotherDir/subDirTest/../test3.map")));
+    env.dir() + Path("anotherDir/test3.map")
+    == Disk::fixPath(env.dir() + Path("anotherDir/subDirTest/../test3.map")));
 
   // on case sensitive file systems, this should also work
-  CHECK(QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("TEST.txt")))));
+  CHECK(
+    QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("TEST.txt")))));
   CHECK(QFileInfo::exists(IO::pathAsQString(
     Disk::fixPath(env.dir() + Path("anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")))));
 }
 
-TEST_CASE("DiskTest.directoryExists", "[DiskTest]") {
+TEST_CASE("DiskTest.directoryExists", "[DiskTest]")
+{
   const auto env = makeTestEnvironment();
 
   CHECK_THROWS_AS(Disk::directoryExists(Path("asdf/bleh")), FileSystemException);
-  if (Disk::isCaseSensitive()) {
+  if (Disk::isCaseSensitive())
+  {
     // FIXME: behaviour should be made consistent between case-sensitive/case-insensitive
     // filesystems directoryExists should probably also never throw?
     CHECK_THROWS_AS(
@@ -113,12 +122,14 @@ TEST_CASE("DiskTest.directoryExists", "[DiskTest]") {
 
   CHECK(Disk::directoryExists(env.dir() + Path("anotherDir")));
   CHECK(Disk::directoryExists(env.dir() + Path("anotherDir/subDirTest")));
-  CHECK(!Disk::directoryExists(env.dir() + Path("anotherDir/test3.map"))); // not a directory
   CHECK(
-    !Disk::directoryExists(env.dir() + Path("anotherDir/asdf"))); // asdf directory doesn't exist
+    !Disk::directoryExists(env.dir() + Path("anotherDir/test3.map"))); // not a directory
+  CHECK(!Disk::directoryExists(
+    env.dir() + Path("anotherDir/asdf"))); // asdf directory doesn't exist
 }
 
-TEST_CASE("DiskTest.fileExists", "[DiskTest]") {
+TEST_CASE("DiskTest.fileExists", "[DiskTest]")
+{
   const auto env = makeTestEnvironment();
 
   CHECK_THROWS_AS(Disk::fileExists(Path("asdf/bleh")), FileSystemException);
@@ -127,7 +138,8 @@ TEST_CASE("DiskTest.fileExists", "[DiskTest]") {
   CHECK(Disk::fileExists(env.dir() + Path("anotherDir/subDirTest/test2.map")));
 }
 
-TEST_CASE("DiskTest.getDirectoryContents", "[DiskTest]") {
+TEST_CASE("DiskTest.getDirectoryContents", "[DiskTest]")
+{
   const auto env = makeTestEnvironment();
 
   CHECK_THROWS_AS(Disk::getDirectoryContents(Path("asdf/bleh")), FileSystemException);
@@ -135,27 +147,32 @@ TEST_CASE("DiskTest.getDirectoryContents", "[DiskTest]") {
     Disk::getDirectoryContents(env.dir() + Path("does/not/exist")), FileSystemException);
 
   CHECK_THAT(
-    Disk::getDirectoryContents(env.dir()), Catch::UnorderedEquals(std::vector<Path>{
-                                             Path("dir1"),
-                                             Path("dir2"),
-                                             Path("anotherDir"),
-                                             Path("test.txt"),
-                                             Path("test2.map"),
-                                           }));
+    Disk::getDirectoryContents(env.dir()),
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("dir1"),
+      Path("dir2"),
+      Path("anotherDir"),
+      Path("test.txt"),
+      Path("test2.map"),
+    }));
 }
 
-TEST_CASE("DiskTest.openFile", "[DiskTest]") {
+TEST_CASE("DiskTest.openFile", "[DiskTest]")
+{
   const auto env = makeTestEnvironment();
 
   CHECK_THROWS_AS(Disk::openFile(Path("asdf/bleh")), FileSystemException);
-  CHECK_THROWS_AS(Disk::openFile(env.dir() + Path("does/not/exist")), FileNotFoundException);
+  CHECK_THROWS_AS(
+    Disk::openFile(env.dir() + Path("does/not/exist")), FileNotFoundException);
 
-  CHECK_THROWS_AS(Disk::openFile(env.dir() + Path("does_not_exist.txt")), FileNotFoundException);
+  CHECK_THROWS_AS(
+    Disk::openFile(env.dir() + Path("does_not_exist.txt")), FileNotFoundException);
   CHECK(Disk::openFile(env.dir() + Path("test.txt")) != nullptr);
   CHECK(Disk::openFile(env.dir() + Path("anotherDir/subDirTest/test2.map")) != nullptr);
 }
 
-TEST_CASE("DiskTest.resolvePath", "[DiskTest]") {
+TEST_CASE("DiskTest.resolvePath", "[DiskTest]")
+{
   const auto env = makeTestEnvironment();
 
   std::vector<Path> rootPaths;
@@ -170,14 +187,17 @@ TEST_CASE("DiskTest.resolvePath", "[DiskTest]") {
   paths.push_back(Path("adk3kdk/bhb"));
 
   CHECK(Disk::resolvePath(rootPaths, paths[0]) == env.dir() + Path("test.txt"));
-  CHECK(Disk::resolvePath(rootPaths, paths[1]) == env.dir() + Path("anotherDir/test3.map"));
   CHECK(
-    Disk::resolvePath(rootPaths, paths[2]) == env.dir() + Path("anotherDir/subDirTest/test2.map"));
+    Disk::resolvePath(rootPaths, paths[1]) == env.dir() + Path("anotherDir/test3.map"));
+  CHECK(
+    Disk::resolvePath(rootPaths, paths[2])
+    == env.dir() + Path("anotherDir/subDirTest/test2.map"));
   CHECK(Disk::resolvePath(rootPaths, paths[3]) == Path(""));
   CHECK(Disk::resolvePath(rootPaths, paths[4]) == Path(""));
 }
 
-TEST_CASE("DiskFileSystemTest.createDiskFileSystem", "[DiskFileSystemTest]") {
+TEST_CASE("DiskFileSystemTest.createDiskFileSystem", "[DiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
 
   CHECK_THROWS_AS(DiskFileSystem(env.dir() + Path("asdf"), true), FileSystemException);
@@ -191,7 +211,8 @@ TEST_CASE("DiskFileSystemTest.createDiskFileSystem", "[DiskFileSystemTest]") {
   CHECK(fs.makeAbsolute(Path("")) == fs.root());
 }
 
-TEST_CASE("DiskFileSystemTest.directoryExists", "[DiskFileSystemTest]") {
+TEST_CASE("DiskFileSystemTest.directoryExists", "[DiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
 
@@ -211,12 +232,14 @@ TEST_CASE("DiskFileSystemTest.directoryExists", "[DiskFileSystemTest]") {
   CHECK_FALSE(fs.directoryExists(Path("fasdf")));
 }
 
-TEST_CASE("DiskFileSystemTest.fileExists", "[DiskFileSystemTest]") {
+TEST_CASE("DiskFileSystemTest.fileExists", "[DiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
 
 #if defined _WIN32
-  CHECK_THROWS_AS(fs.fileExists(Path("C:\\does_not_exist_i_hope.txt")), FileSystemException);
+  CHECK_THROWS_AS(
+    fs.fileExists(Path("C:\\does_not_exist_i_hope.txt")), FileSystemException);
 #else
   CHECK_THROWS_AS(fs.fileExists(Path("/does_not_exist_i_hope.txt")), FileSystemException);
 #endif
@@ -231,20 +254,23 @@ TEST_CASE("DiskFileSystemTest.fileExists", "[DiskFileSystemTest]") {
   CHECK_FALSE(fs.fileExists(Path("fdfdf.blah")));
 }
 
-TEST_CASE("DiskFileSystemTest.getDirectoryContents", "[DiskFileSystemTest]") {
+TEST_CASE("DiskFileSystemTest.getDirectoryContents", "[DiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
 
   CHECK_THROWS_AS(fs.getDirectoryContents(Path("asdf/bleh")), FileSystemException);
 
   CHECK_THAT(
-    fs.getDirectoryContents(Path("anotherDir")), Catch::UnorderedEquals(std::vector<Path>{
-                                                   Path("subDirTest"),
-                                                   Path("test3.map"),
-                                                 }));
+    fs.getDirectoryContents(Path("anotherDir")),
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("subDirTest"),
+      Path("test3.map"),
+    }));
 }
 
-TEST_CASE("DiskFileSystemTest.findItems", "[DiskFileSystemTest]") {
+TEST_CASE("DiskFileSystemTest.findItems", "[DiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
 
@@ -256,27 +282,31 @@ TEST_CASE("DiskFileSystemTest.findItems", "[DiskFileSystemTest]") {
   CHECK_THROWS_AS(fs.findItems(Path("..")), FileSystemException);
 
   CHECK_THAT(
-    fs.findItems(Path(".")), Catch::UnorderedEquals(std::vector<Path>{
-                               Path("./dir1"),
-                               Path("./dir2"),
-                               Path("./anotherDir"),
-                               Path("./test.txt"),
-                               Path("./test2.map"),
-                             }));
+    fs.findItems(Path(".")),
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("./dir1"),
+      Path("./dir2"),
+      Path("./anotherDir"),
+      Path("./test.txt"),
+      Path("./test2.map"),
+    }));
 
   CHECK_THAT(
-    fs.findItems(Path(""), FileExtensionMatcher("TXT")), Catch::UnorderedEquals(std::vector<Path>{
-                                                           Path("test.txt"),
-                                                         }));
+    fs.findItems(Path(""), FileExtensionMatcher("TXT")),
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("test.txt"),
+    }));
 
   CHECK_THAT(
-    fs.findItems(Path("anotherDir")), Catch::UnorderedEquals(std::vector<Path>{
-                                        Path("anotherDir/subDirTest"),
-                                        Path("anotherDir/test3.map"),
-                                      }));
+    fs.findItems(Path("anotherDir")),
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("anotherDir/subDirTest"),
+      Path("anotherDir/test3.map"),
+    }));
 }
 
-TEST_CASE("DiskFileSystemTest.findItemsRecursively", "[DiskFileSystemTest]") {
+TEST_CASE("DiskFileSystemTest.findItemsRecursively", "[DiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
 
@@ -288,16 +318,17 @@ TEST_CASE("DiskFileSystemTest.findItemsRecursively", "[DiskFileSystemTest]") {
   CHECK_THROWS_AS(fs.findItemsRecursively(Path("..")), FileSystemException);
 
   CHECK_THAT(
-    fs.findItemsRecursively(Path(".")), Catch::UnorderedEquals(std::vector<Path>{
-                                          Path("./dir1"),
-                                          Path("./dir2"),
-                                          Path("./anotherDir"),
-                                          Path("./anotherDir/subDirTest"),
-                                          Path("./anotherDir/subDirTest/test2.map"),
-                                          Path("./anotherDir/test3.map"),
-                                          Path("./test.txt"),
-                                          Path("./test2.map"),
-                                        }));
+    fs.findItemsRecursively(Path(".")),
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("./dir1"),
+      Path("./dir2"),
+      Path("./anotherDir"),
+      Path("./anotherDir/subDirTest"),
+      Path("./anotherDir/subDirTest/test2.map"),
+      Path("./anotherDir/test3.map"),
+      Path("./test.txt"),
+      Path("./test2.map"),
+    }));
 
   CHECK_THAT(
     fs.findItemsRecursively(Path(""), FileExtensionMatcher("MAP")),
@@ -308,16 +339,18 @@ TEST_CASE("DiskFileSystemTest.findItemsRecursively", "[DiskFileSystemTest]") {
     }));
 
   CHECK_THAT(
-    fs.findItemsRecursively(Path("anotherDir")), Catch::UnorderedEquals(std::vector<Path>{
-                                                   Path("anotherDir/subDirTest"),
-                                                   Path("anotherDir/subDirTest/test2.map"),
-                                                   Path("anotherDir/test3.map"),
-                                                 }));
+    fs.findItemsRecursively(Path("anotherDir")),
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("anotherDir/subDirTest"),
+      Path("anotherDir/subDirTest/test2.map"),
+      Path("anotherDir/test3.map"),
+    }));
 }
 
 // getDirectoryContents gets tested thoroughly by the tests for the find* methods
 
-TEST_CASE("DiskFileSystemTest.openFile", "[DiskFileSystemTest]") {
+TEST_CASE("DiskFileSystemTest.openFile", "[DiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
 
@@ -342,10 +375,13 @@ TEST_CASE("DiskFileSystemTest.openFile", "[DiskFileSystemTest]") {
 }
 
 TEST_CASE(
-  "WritableDiskFileSystemTest.createWritableDiskFileSystem", "[WritableDiskFileSystemTest]") {
+  "WritableDiskFileSystemTest.createWritableDiskFileSystem",
+  "[WritableDiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
 
-  CHECK_THROWS_AS(WritableDiskFileSystem(env.dir() + Path("asdf"), false), FileSystemException);
+  CHECK_THROWS_AS(
+    WritableDiskFileSystem(env.dir() + Path("asdf"), false), FileSystemException);
   CHECK_NOTHROW(WritableDiskFileSystem(env.dir() + Path("asdf"), true));
   CHECK_NOTHROW(WritableDiskFileSystem(env.dir(), true));
 
@@ -356,14 +392,17 @@ TEST_CASE(
   CHECK(fs.makeAbsolute(Path("")) == env.dir());
 }
 
-TEST_CASE("WritableDiskFileSystemTest.createDirectory", "[WritableDiskFileSystemTest]") {
+TEST_CASE("WritableDiskFileSystemTest.createDirectory", "[WritableDiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32
-  CHECK_THROWS_AS(fs.createDirectory(Path("c:\\hopefully_nothing_here")), FileSystemException);
+  CHECK_THROWS_AS(
+    fs.createDirectory(Path("c:\\hopefully_nothing_here")), FileSystemException);
 #else
-  CHECK_THROWS_AS(fs.createDirectory(Path("/hopefully_nothing_here")), FileSystemException);
+  CHECK_THROWS_AS(
+    fs.createDirectory(Path("/hopefully_nothing_here")), FileSystemException);
 #endif
   CHECK_THROWS_AS(fs.createDirectory(Path("")), FileSystemException);
   CHECK_THROWS_AS(fs.createDirectory(Path(".")), FileSystemException);
@@ -381,14 +420,17 @@ TEST_CASE("WritableDiskFileSystemTest.createDirectory", "[WritableDiskFileSystem
   CHECK(fs.directoryExists(Path("newDir/yetAnotherDir")));
 }
 
-TEST_CASE("WritableDiskFileSystemTest.deleteFile", "[WritableDiskFileSystemTest]") {
+TEST_CASE("WritableDiskFileSystemTest.deleteFile", "[WritableDiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   WritableDiskFileSystem fs(env.dir(), false);
 
 #if defined _WIN32
-  CHECK_THROWS_AS(fs.deleteFile(Path("c:\\hopefully_nothing_here.txt")), FileSystemException);
+  CHECK_THROWS_AS(
+    fs.deleteFile(Path("c:\\hopefully_nothing_here.txt")), FileSystemException);
 #else
-  CHECK_THROWS_AS(fs.deleteFile(Path("/hopefully_nothing_here.txt")), FileSystemException);
+  CHECK_THROWS_AS(
+    fs.deleteFile(Path("/hopefully_nothing_here.txt")), FileSystemException);
 #endif
   CHECK_THROWS_AS(fs.deleteFile(Path("")), FileSystemException);
   CHECK_THROWS_AS(fs.deleteFile(Path(".")), FileSystemException);
@@ -407,7 +449,8 @@ TEST_CASE("WritableDiskFileSystemTest.deleteFile", "[WritableDiskFileSystemTest]
   CHECK_FALSE(fs.fileExists(Path("anotherDir/subDirTest/test2.map")));
 }
 
-TEST_CASE("WritableDiskFileSystemTest.moveFile", "[WritableDiskFileSystemTest]") {
+TEST_CASE("WritableDiskFileSystemTest.moveFile", "[WritableDiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   WritableDiskFileSystem fs(env.dir(), false);
 
@@ -415,16 +458,21 @@ TEST_CASE("WritableDiskFileSystemTest.moveFile", "[WritableDiskFileSystemTest]")
   CHECK_THROWS_AS(
     fs.moveFile(Path("c:\\hopefully_nothing_here.txt"), Path("dest.txt"), false),
     FileSystemException);
-  CHECK_THROWS_AS(fs.moveFile(Path("test.txt"), Path("C:\\dest.txt"), false), FileSystemException);
+  CHECK_THROWS_AS(
+    fs.moveFile(Path("test.txt"), Path("C:\\dest.txt"), false), FileSystemException);
 #else
   CHECK_THROWS_AS(
-    fs.moveFile(Path("/hopefully_nothing_here.txt"), Path("dest.txt"), false), FileSystemException);
-  CHECK_THROWS_AS(fs.moveFile(Path("test.txt"), Path("/dest.txt"), false), FileSystemException);
+    fs.moveFile(Path("/hopefully_nothing_here.txt"), Path("dest.txt"), false),
+    FileSystemException);
+  CHECK_THROWS_AS(
+    fs.moveFile(Path("test.txt"), Path("/dest.txt"), false), FileSystemException);
 #endif
 
-  CHECK_THROWS_AS(fs.moveFile(Path("test.txt"), Path("test2.map"), false), FileSystemException);
   CHECK_THROWS_AS(
-    fs.moveFile(Path("test.txt"), Path("anotherDir/test3.map"), false), FileSystemException);
+    fs.moveFile(Path("test.txt"), Path("test2.map"), false), FileSystemException);
+  CHECK_THROWS_AS(
+    fs.moveFile(Path("test.txt"), Path("anotherDir/test3.map"), false),
+    FileSystemException);
   CHECK_THROWS_AS(
     fs.moveFile(Path("test.txt"), Path("anotherDir/../anotherDir/./test3.map"), false),
     FileSystemException);
@@ -436,14 +484,16 @@ TEST_CASE("WritableDiskFileSystemTest.moveFile", "[WritableDiskFileSystemTest]")
   fs.moveFile(Path("test2.txt"), Path("test2.map"), true);
   CHECK_FALSE(fs.fileExists(Path("test2.txt")));
   CHECK(fs.fileExists(Path("test2.map")));
-  // we're trusting that the file is actually overwritten (should really test the contents here...)
+  // we're trusting that the file is actually overwritten (should really test the contents
+  // here...)
 
   fs.moveFile(Path("test2.map"), Path("dir1/test2.map"), true);
   CHECK_FALSE(fs.fileExists(Path("test2.map")));
   CHECK(fs.fileExists(Path("dir1/test2.map")));
 }
 
-TEST_CASE("WritableDiskFileSystemTest.copyFile", "[WritableDiskFileSystemTest]") {
+TEST_CASE("WritableDiskFileSystemTest.copyFile", "[WritableDiskFileSystemTest]")
+{
   const auto env = makeTestEnvironment();
   WritableDiskFileSystem fs(env.dir(), false);
 
@@ -451,16 +501,21 @@ TEST_CASE("WritableDiskFileSystemTest.copyFile", "[WritableDiskFileSystemTest]")
   CHECK_THROWS_AS(
     fs.copyFile(Path("c:\\hopefully_nothing_here.txt"), Path("dest.txt"), false),
     FileSystemException);
-  CHECK_THROWS_AS(fs.copyFile(Path("test.txt"), Path("C:\\dest.txt"), false), FileSystemException);
+  CHECK_THROWS_AS(
+    fs.copyFile(Path("test.txt"), Path("C:\\dest.txt"), false), FileSystemException);
 #else
   CHECK_THROWS_AS(
-    fs.copyFile(Path("/hopefully_nothing_here.txt"), Path("dest.txt"), false), FileSystemException);
-  CHECK_THROWS_AS(fs.copyFile(Path("test.txt"), Path("/dest.txt"), false), FileSystemException);
+    fs.copyFile(Path("/hopefully_nothing_here.txt"), Path("dest.txt"), false),
+    FileSystemException);
+  CHECK_THROWS_AS(
+    fs.copyFile(Path("test.txt"), Path("/dest.txt"), false), FileSystemException);
 #endif
 
-  CHECK_THROWS_AS(fs.copyFile(Path("test.txt"), Path("test2.map"), false), FileSystemException);
   CHECK_THROWS_AS(
-    fs.copyFile(Path("test.txt"), Path("anotherDir/test3.map"), false), FileSystemException);
+    fs.copyFile(Path("test.txt"), Path("test2.map"), false), FileSystemException);
+  CHECK_THROWS_AS(
+    fs.copyFile(Path("test.txt"), Path("anotherDir/test3.map"), false),
+    FileSystemException);
   CHECK_THROWS_AS(
     fs.copyFile(Path("test.txt"), Path("anotherDir/../anotherDir/./test3.map"), false),
     FileSystemException);
@@ -472,7 +527,8 @@ TEST_CASE("WritableDiskFileSystemTest.copyFile", "[WritableDiskFileSystemTest]")
   fs.copyFile(Path("test2.txt"), Path("test2.map"), true);
   CHECK(fs.fileExists(Path("test2.txt")));
   CHECK(fs.fileExists(Path("test2.map")));
-  // we're trusting that the file is actually overwritten (should really test the contents here...)
+  // we're trusting that the file is actually overwritten (should really test the contents
+  // here...)
 
   fs.copyFile(Path("test2.map"), Path("dir1/test2.map"), true);
   CHECK(fs.fileExists(Path("test2.map")));

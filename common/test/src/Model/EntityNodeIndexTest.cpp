@@ -28,24 +28,30 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 static std::vector<EntityNodeBase*> findExactExact(
-  const EntityNodeIndex& index, const std::string& name, const std::string& value) {
+  const EntityNodeIndex& index, const std::string& name, const std::string& value)
+{
   return index.findEntityNodes(EntityNodeIndexQuery::exact(name), value);
 }
 
 static std::vector<EntityNodeBase*> findNumberedExact(
-  const EntityNodeIndex& index, const std::string& name, const std::string& value) {
+  const EntityNodeIndex& index, const std::string& name, const std::string& value)
+{
   return index.findEntityNodes(EntityNodeIndexQuery::numbered(name), value);
 }
 
-TEST_CASE("EntityNodeIndexTest.addEntityNode", "[EntityNodeIndexTest]") {
+TEST_CASE("EntityNodeIndexTest.addEntityNode", "[EntityNodeIndexTest]")
+{
   EntityNodeIndex index;
 
   EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
 
-  EntityNode* entity2 = new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
+  EntityNode* entity2 =
+    new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
@@ -65,12 +71,14 @@ TEST_CASE("EntityNodeIndexTest.addEntityNode", "[EntityNodeIndexTest]") {
   delete entity2;
 }
 
-TEST_CASE("EntityNodeIndexTest.removeEntityNode", "[EntityNodeIndexTest]") {
+TEST_CASE("EntityNodeIndexTest.removeEntityNode", "[EntityNodeIndexTest]")
+{
   EntityNodeIndex index;
 
   EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
 
-  EntityNode* entity2 = new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
+  EntityNode* entity2 =
+    new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
@@ -85,24 +93,27 @@ TEST_CASE("EntityNodeIndexTest.removeEntityNode", "[EntityNodeIndexTest]") {
   delete entity2;
 }
 
-TEST_CASE("EntityNodeIndexTest.addProperty", "[EntityNodeIndexTest]") {
+TEST_CASE("EntityNodeIndexTest.addProperty", "[EntityNodeIndexTest]")
+{
   EntityNodeIndex index;
 
   EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
 
   EntityNode* entity2 = new EntityNode(
-    {}, {
-          {"test", "somevalue"},
-        });
+    {},
+    {
+      {"test", "somevalue"},
+    });
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
 
   entity2->setEntity(Entity(
-    {}, {
-          {"test", "somevalue"},
-          {"other", "someothervalue"},
-        }));
+    {},
+    {
+      {"test", "somevalue"},
+      {"other", "someothervalue"},
+    }));
   index.addProperty(entity2, "other", "someothervalue");
 
   CHECK(findExactExact(index, "test", "notfound").empty());
@@ -120,12 +131,14 @@ TEST_CASE("EntityNodeIndexTest.addProperty", "[EntityNodeIndexTest]") {
   delete entity2;
 }
 
-TEST_CASE("EntityNodeIndexTest.removeProperty", "[EntityNodeIndexTest]") {
+TEST_CASE("EntityNodeIndexTest.removeProperty", "[EntityNodeIndexTest]")
+{
   EntityNodeIndex index;
 
   EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
 
-  EntityNode* entity2 = new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
+  EntityNode* entity2 =
+    new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
@@ -143,10 +156,12 @@ TEST_CASE("EntityNodeIndexTest.removeProperty", "[EntityNodeIndexTest]") {
   delete entity2;
 }
 
-TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty", "[EntityNodeIndexTest]") {
+TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty", "[EntityNodeIndexTest]")
+{
   EntityNodeIndex index;
 
-  EntityNode* entity1 = new EntityNode({}, {{"test1", "somevalue"}, {"test2", "somevalue"}});
+  EntityNode* entity1 =
+    new EntityNode({}, {{"test1", "somevalue"}, {"test2", "somevalue"}});
 
   index.addEntityNode(entity1);
 
@@ -159,7 +174,8 @@ TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty", "[EntityNodeIndexTest
   delete entity1;
 }
 
-TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty", "[EntityNodeIndexTest]") {
+TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty", "[EntityNodeIndexTest]")
+{
   EntityNodeIndex index;
 
   EntityNode* entity1 = new EntityNode({}, {{"delay", "3.5"}});
@@ -175,25 +191,30 @@ TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty", "[EntityNodeIndexTest]")
   delete entity1;
 }
 
-TEST_CASE("EntityNodeIndexTest.allKeys", "[EntityNodeIndexTest]") {
+TEST_CASE("EntityNodeIndexTest.allKeys", "[EntityNodeIndexTest]")
+{
   EntityNodeIndex index;
 
   EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
 
-  EntityNode* entity2 = new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
+  EntityNode* entity2 =
+    new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
 
-  CHECK_THAT(index.allKeys(), Catch::UnorderedEquals(std::vector<std::string>{"test", "other"}));
+  CHECK_THAT(
+    index.allKeys(), Catch::UnorderedEquals(std::vector<std::string>{"test", "other"}));
 }
 
-TEST_CASE("EntityNodeIndexTest.allValuesForKeys", "[EntityNodeIndexTest]") {
+TEST_CASE("EntityNodeIndexTest.allValuesForKeys", "[EntityNodeIndexTest]")
+{
   EntityNodeIndex index;
 
   EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
 
-  EntityNode* entity2 = new EntityNode({}, {{"test", "somevalue2"}, {"other", "someothervalue"}});
+  EntityNode* entity2 =
+    new EntityNode({}, {{"test", "somevalue2"}, {"other", "someothervalue"}});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);

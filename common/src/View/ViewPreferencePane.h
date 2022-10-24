@@ -24,11 +24,14 @@
 class QCheckBox;
 class QComboBox;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class SliderWithLabel;
 
-class ViewPreferencePane : public PreferencePane {
+class ViewPreferencePane : public PreferencePane
+{
   Q_OBJECT
 private:
   QComboBox* m_layoutCombo;

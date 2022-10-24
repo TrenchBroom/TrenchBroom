@@ -41,8 +41,10 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 FaceInspector::FaceInspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : TabBookPage(parent)
@@ -50,26 +52,31 @@ FaceInspector::FaceInspector(
   , m_splitter(nullptr)
   , m_faceAttribsEditor(nullptr)
   , m_textureBrowser(nullptr)
-  , m_textureCollectionsEditor(nullptr) {
+  , m_textureCollectionsEditor(nullptr)
+{
   createGui(document, contextManager);
 }
 
-FaceInspector::~FaceInspector() {
+FaceInspector::~FaceInspector()
+{
   saveWindowState(m_splitter);
   saveWindowState(m_textureCollectionsEditor);
 }
 
-bool FaceInspector::cancelMouseDrag() {
+bool FaceInspector::cancelMouseDrag()
+{
   return m_faceAttribsEditor->cancelMouseDrag();
 }
 
-void FaceInspector::revealTexture(const Assets::Texture* texture) {
+void FaceInspector::revealTexture(const Assets::Texture* texture)
+{
   m_textureBrowser->revealTexture(texture);
   m_textureBrowser->setSelectedTexture(texture);
 }
 
 void FaceInspector::createGui(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
+  std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
+{
   m_splitter = new Splitter(Qt::Vertical);
   m_splitter->setObjectName("FaceInspector_Splitter");
 
@@ -91,19 +98,25 @@ void FaceInspector::createGui(
   setLayout(layout);
 
   connect(
-    m_textureBrowser, &TextureBrowser::textureSelected, this, &FaceInspector::textureSelected);
+    m_textureBrowser,
+    &TextureBrowser::textureSelected,
+    this,
+    &FaceInspector::textureSelected);
 
   restoreWindowState(m_splitter);
 }
 
 QWidget* FaceInspector::createFaceAttribsEditor(
-  QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
-  m_faceAttribsEditor = new FaceAttribsEditor(std::move(document), contextManager, parent);
+  QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
+{
+  m_faceAttribsEditor =
+    new FaceAttribsEditor(std::move(document), contextManager, parent);
   return m_faceAttribsEditor;
 }
 
 QWidget* FaceInspector::createTextureBrowser(
-  QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
+  QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
+{
   TitledPanel* panel = new TitledPanel(tr("Texture Browser"), parent);
   m_textureBrowser = new TextureBrowser(std::move(document), contextManager);
 
@@ -117,7 +130,8 @@ QWidget* FaceInspector::createTextureBrowser(
 }
 
 CollapsibleTitledPanel* FaceInspector::createTextureCollectionEditor(
-  QWidget* parent, std::weak_ptr<MapDocument> document) {
+  QWidget* parent, std::weak_ptr<MapDocument> document)
+{
   auto* panel = new CollapsibleTitledPanel(tr("Texture Collections"), true, parent);
   panel->setObjectName("FaceInspector_TextureCollections");
 
@@ -134,41 +148,59 @@ CollapsibleTitledPanel* FaceInspector::createTextureCollectionEditor(
 }
 
 static bool allFacesHaveTexture(
-  const std::vector<Model::BrushFaceHandle>& faceHandles, const Assets::Texture* texture) {
-  for (const Model::BrushFaceHandle& faceHandle : faceHandles) {
-    if (faceHandle.face().texture() != texture) {
+  const std::vector<Model::BrushFaceHandle>& faceHandles, const Assets::Texture* texture)
+{
+  for (const Model::BrushFaceHandle& faceHandle : faceHandles)
+  {
+    if (faceHandle.face().texture() != texture)
+    {
       return false;
     }
   }
   return true;
 }
 
-void FaceInspector::textureSelected(const Assets::Texture* texture) {
+void FaceInspector::textureSelected(const Assets::Texture* texture)
+{
   auto document = kdl::mem_lock(m_document);
   const std::vector<Model::BrushFaceHandle> faces = document->allSelectedBrushFaces();
 
-  if (texture != nullptr) {
-    if (faces.empty()) {
-      if (document->currentTextureName() == texture->name()) {
+  if (texture != nullptr)
+  {
+    if (faces.empty())
+    {
+      if (document->currentTextureName() == texture->name())
+      {
         document->setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
-      } else {
+      }
+      else
+      {
         document->setCurrentTextureName(texture->name());
       }
-    } else {
-      if (allFacesHaveTexture(faces, texture)) {
+    }
+    else
+    {
+      if (allFacesHaveTexture(faces, texture))
+      {
         texture = nullptr;
         document->setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
-      } else {
+      }
+      else
+      {
         document->setCurrentTextureName(texture->name());
       }
     }
   }
 
-  if (!faces.empty()) {
+  if (!faces.empty())
+  {
     Model::ChangeBrushFaceAttributesRequest request;
-    if (texture == nullptr) {
+    if (texture == nullptr)
+    {
       request.setTextureName(Model::BrushFaceAttributes::NoTextureName);
-    } else {
+    }
+    else
+    {
       request.setTextureName(texture->name());
     }
     document->setFaceAttributes(request);

@@ -26,9 +26,12 @@
 class QWidget;
 class QWidget;
 
-namespace TrenchBroom {
-namespace View {
-class MultiMapView : public MapViewContainer {
+namespace TrenchBroom
+{
+namespace View
+{
+class MultiMapView : public MapViewContainer
+{
 private:
   using MapViewList = std::vector<MapView*>;
   MapViewList m_mapViews;

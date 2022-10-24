@@ -28,18 +28,22 @@
 #include <QObject>
 #include <QProcess> // for QProcess::ProcessError
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class CompilationCopyFiles;
 class CompilationExportMap;
 class CompilationProfile;
 class CompilationRunTool;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class CompilationContext;
 
-class CompilationTaskRunner : public QObject {
+class CompilationTaskRunner : public QObject
+{
   Q_OBJECT
 protected:
   CompilationContext& m_context;
@@ -67,7 +71,8 @@ private:
   deleteCopyAndMove(CompilationTaskRunner);
 };
 
-class CompilationExportMapTaskRunner : public CompilationTaskRunner {
+class CompilationExportMapTaskRunner : public CompilationTaskRunner
+{
   Q_OBJECT
 private:
   std::unique_ptr<const Model::CompilationExportMap> m_task;
@@ -84,7 +89,8 @@ private:
   deleteCopyAndMove(CompilationExportMapTaskRunner);
 };
 
-class CompilationCopyFilesTaskRunner : public CompilationTaskRunner {
+class CompilationCopyFilesTaskRunner : public CompilationTaskRunner
+{
   Q_OBJECT
 private:
   std::unique_ptr<const Model::CompilationCopyFiles> m_task;
@@ -101,7 +107,8 @@ private:
   deleteCopyAndMove(CompilationCopyFilesTaskRunner);
 };
 
-class CompilationRunToolTaskRunner : public CompilationTaskRunner {
+class CompilationRunToolTaskRunner : public CompilationTaskRunner
+{
   Q_OBJECT
 private:
   std::unique_ptr<const Model::CompilationRunTool> m_task;
@@ -109,7 +116,8 @@ private:
   bool m_terminated;
 
 public:
-  CompilationRunToolTaskRunner(CompilationContext& context, const Model::CompilationRunTool& task);
+  CompilationRunToolTaskRunner(
+    CompilationContext& context, const Model::CompilationRunTool& task);
   ~CompilationRunToolTaskRunner() override;
 
 private:
@@ -128,7 +136,8 @@ private slots:
   deleteCopyAndMove(CompilationRunToolTaskRunner);
 };
 
-class CompilationRunner : public QObject {
+class CompilationRunner : public QObject
+{
   Q_OBJECT
 private:
   using TaskRunnerList = std::vector<std::unique_ptr<CompilationTaskRunner>>;
@@ -139,7 +148,8 @@ private:
 
 public:
   CompilationRunner(
-    std::unique_ptr<CompilationContext> context, const Model::CompilationProfile* profile,
+    std::unique_ptr<CompilationContext> context,
+    const Model::CompilationProfile* profile,
     QObject* parent = nullptr);
   ~CompilationRunner() override;
 

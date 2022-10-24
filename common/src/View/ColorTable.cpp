@@ -27,12 +27,15 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 ColorTable::ColorTable(const int cellSize, QWidget* parent)
   : QWidget(parent)
   , m_cellSize(cellSize)
-  , m_cellSpacing(2) {
+  , m_cellSpacing(2)
+{
   assert(m_cellSize > 0);
 
   auto sizePolicy = QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -40,19 +43,22 @@ ColorTable::ColorTable(const int cellSize, QWidget* parent)
   setSizePolicy(sizePolicy);
 }
 
-void ColorTable::setColors(const std::vector<QColor>& colors) {
+void ColorTable::setColors(const std::vector<QColor>& colors)
+{
   m_colors = colors;
   m_selectedColors.clear();
 
   updateGeometry();
 }
 
-void ColorTable::setSelection(const std::vector<QColor>& colors) {
+void ColorTable::setSelection(const std::vector<QColor>& colors)
+{
   m_selectedColors = colors;
   update();
 }
 
-void ColorTable::paintEvent(QPaintEvent* /* event */) {
+void ColorTable::paintEvent(QPaintEvent* /* event */)
+{
   const auto virtualSize = size();
   const auto cols = computeCols(virtualSize.width());
   const auto rows = computeRows(cols);
@@ -64,14 +70,18 @@ void ColorTable::paintEvent(QPaintEvent* /* event */) {
   QPainter dc(this);
 
   auto it = std::begin(m_colors);
-  for (int row = 0; row < rows; ++row) {
-    for (int col = 0; col < cols; ++col) {
-      if (it != std::end(m_colors)) {
+  for (int row = 0; row < rows; ++row)
+  {
+    for (int col = 0; col < cols; ++col)
+    {
+      if (it != std::end(m_colors))
+      {
         const auto& color = *it;
 
         if (
-          std::find(std::begin(m_selectedColors), std::end(m_selectedColors), color) !=
-          std::end(m_selectedColors)) {
+          std::find(std::begin(m_selectedColors), std::end(m_selectedColors), color)
+          != std::end(m_selectedColors))
+        {
           dc.setPen(QColor(Qt::red));
           dc.setBrush(QColor(Qt::red));
           dc.drawRect(x - 1, y - 1, m_cellSize + 2, m_cellSize + 2);
@@ -90,7 +100,8 @@ void ColorTable::paintEvent(QPaintEvent* /* event */) {
   }
 }
 
-void ColorTable::mouseReleaseEvent(QMouseEvent* event) {
+void ColorTable::mouseReleaseEvent(QMouseEvent* event)
+{
   const auto virtualSize = size();
   const auto cols = computeCols(virtualSize.width());
 
@@ -99,36 +110,45 @@ void ColorTable::mouseReleaseEvent(QMouseEvent* event) {
   const auto row = (pos.y() - m_cellSpacing) / (m_cellSize + m_cellSpacing);
 
   const auto index = static_cast<size_t>(row * cols + col);
-  if (index < m_colors.size()) {
+  if (index < m_colors.size())
+  {
     const auto& color = m_colors[index];
     emit colorTableSelected(color);
   }
 }
 
-bool ColorTable::hasHeightForWidth() const {
+bool ColorTable::hasHeightForWidth() const
+{
   return true;
 }
 
-int ColorTable::heightForWidth(const int w) const {
+int ColorTable::heightForWidth(const int w) const
+{
   const auto cols = computeCols(w);
   const auto rows = computeRows(cols);
   const auto height = computeHeight(rows);
   return height;
 }
 
-int ColorTable::computeCols(const int width) const {
+int ColorTable::computeCols(const int width) const
+{
   return (width - m_cellSpacing) / (m_cellSize + m_cellSpacing);
 }
 
-int ColorTable::computeRows(const int cols) const {
-  if (cols == 0) {
+int ColorTable::computeRows(const int cols) const
+{
+  if (cols == 0)
+  {
     return 0;
-  } else {
+  }
+  else
+  {
     return (static_cast<int>(m_colors.size()) + cols - 1) / cols;
   }
 }
 
-int ColorTable::computeHeight(const int rows) const {
+int ColorTable::computeHeight(const int rows) const
+{
   return m_cellSpacing + rows * (m_cellSize + m_cellSpacing);
 }
 } // namespace View

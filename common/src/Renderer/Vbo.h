@@ -25,12 +25,15 @@
 #include <type_traits>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 /**
  * Wrapper around an OpenGL buffer
  */
-class Vbo {
+class Vbo
+{
 private:
   friend class VboManager;
 
@@ -65,11 +68,15 @@ public:
   void bind();
   void unbind();
 
-  template <typename T> size_t writeElements(const size_t address, const std::vector<T>& elements) {
+  template <typename T>
+  size_t writeElements(const size_t address, const std::vector<T>& elements)
+  {
     return writeArray(address, elements.data(), elements.size());
   }
 
-  template <typename T> size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
+  template <typename T>
+  size_t writeBuffer(const size_t address, const std::vector<T>& buffer)
+  {
     return writeArray(address, buffer.data(), buffer.size());
   }
 
@@ -83,7 +90,8 @@ public:
    * @return          number of bytes written
    */
   template <typename T>
-  size_t writeArray(const size_t address, const T* array, const size_t count) {
+  size_t writeArray(const size_t address, const T* array, const size_t count)
+  {
     const size_t size = count * sizeof(T);
     assert(address + size <= m_capacity);
 

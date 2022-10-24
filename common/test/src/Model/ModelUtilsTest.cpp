@@ -50,9 +50,12 @@
 #include "Catch2.h"
 #include "TestUtils.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("ModelUtils.findContainingLayer") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("ModelUtils.findContainingLayer")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -61,8 +64,8 @@ TEST_CASE("ModelUtils.findContainingLayer") {
   auto* layerNode = new LayerNode{Layer{"layer"}};
   auto* groupNode = new GroupNode{Group{"group"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -83,7 +86,8 @@ TEST_CASE("ModelUtils.findContainingLayer") {
   CHECK(findContainingLayer(patchNode) == layerNode);
 }
 
-TEST_CASE("ModelUtils.findContainingGroup") {
+TEST_CASE("ModelUtils.findContainingGroup")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -93,8 +97,8 @@ TEST_CASE("ModelUtils.findContainingGroup") {
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -116,7 +120,8 @@ TEST_CASE("ModelUtils.findContainingGroup") {
   CHECK(findContainingGroup(patchNode) == outerGroupNode);
 }
 
-TEST_CASE("ModelUtils.findOutermostClosedGroup") {
+TEST_CASE("ModelUtils.findOutermostClosedGroup")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -126,8 +131,8 @@ TEST_CASE("ModelUtils.findOutermostClosedGroup") {
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -140,7 +145,8 @@ TEST_CASE("ModelUtils.findOutermostClosedGroup") {
   outerGroupNode->addChildren({innerGroupNode, patchNode});
   worldNode.defaultLayer()->addChild(outerGroupNode);
 
-  SECTION("All groups closed") {
+  SECTION("All groups closed")
+  {
     CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
     CHECK(findOutermostClosedGroup(layerNode) == nullptr);
     CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
@@ -150,7 +156,8 @@ TEST_CASE("ModelUtils.findOutermostClosedGroup") {
     CHECK(findOutermostClosedGroup(patchNode) == outerGroupNode);
   }
 
-  SECTION("Outer group open") {
+  SECTION("Outer group open")
+  {
     outerGroupNode->open();
 
     CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
@@ -162,7 +169,8 @@ TEST_CASE("ModelUtils.findOutermostClosedGroup") {
     CHECK(findOutermostClosedGroup(patchNode) == nullptr);
   }
 
-  SECTION("Both groups open") {
+  SECTION("Both groups open")
+  {
     outerGroupNode->open();
     innerGroupNode->open();
 
@@ -176,7 +184,8 @@ TEST_CASE("ModelUtils.findOutermostClosedGroup") {
   }
 }
 
-TEST_CASE("ModelUtils.findLinkedGroups") {
+TEST_CASE("ModelUtils.findLinkedGroups")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -216,11 +225,12 @@ TEST_CASE("ModelUtils.findLinkedGroups") {
       std::vector<Model::GroupNode*>{groupNode1, linkedGroupNode1_1}));
   CHECK_THAT(
     findLinkedGroups(worldNode, "group2"),
-    Catch::Matchers::UnorderedEquals(
-      std::vector<Model::GroupNode*>{groupNode2, linkedGroupNode2_1, linkedGroupNode2_2}));
+    Catch::Matchers::UnorderedEquals(std::vector<Model::GroupNode*>{
+      groupNode2, linkedGroupNode2_1, linkedGroupNode2_2}));
 }
 
-TEST_CASE("ModelUtils.findAllLinkedGroups") {
+TEST_CASE("ModelUtils.findAllLinkedGroups")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -258,10 +268,15 @@ TEST_CASE("ModelUtils.findAllLinkedGroups") {
   CHECK_THAT(
     findAllLinkedGroups(worldNode),
     Catch::Matchers::UnorderedEquals(std::vector<Model::GroupNode*>{
-      groupNode1, linkedGroupNode1_1, groupNode2, linkedGroupNode2_1, linkedGroupNode2_2}));
+      groupNode1,
+      linkedGroupNode1_1,
+      groupNode2,
+      linkedGroupNode2_1,
+      linkedGroupNode2_2}));
 }
 
-TEST_CASE("ModelUtils.collectWithParents") {
+TEST_CASE("ModelUtils.collectWithParents")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -271,8 +286,8 @@ TEST_CASE("ModelUtils.collectWithParents") {
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -287,7 +302,8 @@ TEST_CASE("ModelUtils.collectWithParents") {
   worldNode.addChild(layerNode);
 
   CHECK_THAT(collectParents({&worldNode}), Catch::UnorderedEquals(std::vector<Node*>{}));
-  CHECK_THAT(collectParents({layerNode}), Catch::UnorderedEquals(std::vector<Node*>{&worldNode}));
+  CHECK_THAT(
+    collectParents({layerNode}), Catch::UnorderedEquals(std::vector<Node*>{&worldNode}));
   CHECK_THAT(
     collectParents({outerGroupNode}),
     Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode}));
@@ -295,11 +311,13 @@ TEST_CASE("ModelUtils.collectWithParents") {
     collectParents({innerGroupNode}),
     Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
   CHECK_THAT(
-    collectParents({entityNode}), Catch::UnorderedEquals(std::vector<Node*>{
-                                    &worldNode, layerNode, outerGroupNode, innerGroupNode}));
+    collectParents({entityNode}),
+    Catch::UnorderedEquals(
+      std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
   CHECK_THAT(
-    collectParents({brushNode}), Catch::UnorderedEquals(std::vector<Node*>{
-                                   &worldNode, layerNode, outerGroupNode, innerGroupNode}));
+    collectParents({brushNode}),
+    Catch::UnorderedEquals(
+      std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
   CHECK_THAT(
     collectParents({patchNode}),
     Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
@@ -309,7 +327,8 @@ TEST_CASE("ModelUtils.collectWithParents") {
       std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
 }
 
-TEST_CASE("ModelUtils.collectNodes") {
+TEST_CASE("ModelUtils.collectNodes")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -319,8 +338,8 @@ TEST_CASE("ModelUtils.collectNodes") {
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -346,17 +365,24 @@ TEST_CASE("ModelUtils.collectNodes") {
   */
 
   CHECK_THAT(
-    collectNodes({&worldNode}), Catch::Equals(std::vector<Node*>{
-                                  &worldNode, worldNode.defaultLayer(), layerNode, outerGroupNode,
-                                  innerGroupNode, entityNode, brushNode, patchNode}));
+    collectNodes({&worldNode}),
+    Catch::Equals(std::vector<Node*>{
+      &worldNode,
+      worldNode.defaultLayer(),
+      layerNode,
+      outerGroupNode,
+      innerGroupNode,
+      entityNode,
+      brushNode,
+      patchNode}));
   CHECK_THAT(
     collectNodes({layerNode}),
     Catch::Equals(std::vector<Node*>{
       layerNode, outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
   CHECK_THAT(
     collectNodes({outerGroupNode}),
-    Catch::Equals(
-      std::vector<Node*>{outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
+    Catch::Equals(std::vector<Node*>{
+      outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
   CHECK_THAT(
     collectNodes({innerGroupNode}),
     Catch::Equals(std::vector<Node*>{innerGroupNode, entityNode, brushNode}));
@@ -366,11 +392,18 @@ TEST_CASE("ModelUtils.collectNodes") {
   CHECK_THAT(
     collectNodes({innerGroupNode, outerGroupNode}),
     Catch::Equals(std::vector<Node*>{
-      innerGroupNode, entityNode, brushNode, outerGroupNode, innerGroupNode, entityNode, brushNode,
+      innerGroupNode,
+      entityNode,
+      brushNode,
+      outerGroupNode,
+      innerGroupNode,
+      entityNode,
+      brushNode,
       patchNode}));
 }
 
-TEST_CASE("ModelUtils.collectTouchingNodes") {
+TEST_CASE("ModelUtils.collectTouchingNodes")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -407,7 +440,8 @@ TEST_CASE("ModelUtils.collectTouchingNodes") {
   REQUIRE(touchesAll.intersects(&patchNode));
 
   auto touchesNothing = BrushNode{touchesAll.brush()};
-  transformNode(touchesNothing, vm::translation_matrix(vm::vec3d{128, 0, 0}), worldBounds);
+  transformNode(
+    touchesNothing, vm::translation_matrix(vm::vec3d{128, 0, 0}), worldBounds);
   REQUIRE_FALSE(touchesNothing.intersects(&worldNode));
   REQUIRE_FALSE(touchesNothing.intersects(&layerNode));
   REQUIRE_FALSE(touchesNothing.intersects(&groupNode));
@@ -424,12 +458,13 @@ TEST_CASE("ModelUtils.collectTouchingNodes") {
   REQUIRE(touchesBrush.intersects(&brushNode));
   REQUIRE_FALSE(touchesBrush.intersects(&patchNode));
 
-  const auto allNodes =
-    std::vector<Node*>{&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode};
+  const auto allNodes = std::vector<Node*>{
+    &worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode};
 
   CHECK_THAT(
     collectTouchingNodes(allNodes, {&touchesAll}),
-    Catch::Matchers::Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
+    Catch::Matchers::Equals(
+      std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
 
   CHECK_THAT(
     collectTouchingNodes(allNodes, {&touchesNothing}),
@@ -441,10 +476,12 @@ TEST_CASE("ModelUtils.collectTouchingNodes") {
 
   CHECK_THAT(
     collectTouchingNodes(allNodes, {&touchesBrush, &touchesAll}),
-    Catch::Matchers::Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
+    Catch::Matchers::Equals(
+      std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
 }
 
-TEST_CASE("ModelUtils.collectContainedNodes") {
+TEST_CASE("ModelUtils.collectContainedNodes")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -481,7 +518,8 @@ TEST_CASE("ModelUtils.collectContainedNodes") {
   REQUIRE(containsAll.contains(&patchNode));
 
   auto containsNothing = BrushNode{containsAll.brush()};
-  transformNode(containsNothing, vm::translation_matrix(vm::vec3d{-64, 0, 0}), worldBounds);
+  transformNode(
+    containsNothing, vm::translation_matrix(vm::vec3d{-64, 0, 0}), worldBounds);
   REQUIRE_FALSE(containsNothing.contains(&worldNode));
   REQUIRE_FALSE(containsNothing.contains(&layerNode));
   REQUIRE_FALSE(containsNothing.contains(&groupNode));
@@ -498,12 +536,13 @@ TEST_CASE("ModelUtils.collectContainedNodes") {
   REQUIRE_FALSE(containsPatch.contains(&brushNode));
   REQUIRE(containsPatch.contains(&patchNode));
 
-  const auto allNodes =
-    std::vector<Node*>{&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode};
+  const auto allNodes = std::vector<Node*>{
+    &worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode};
 
   CHECK_THAT(
     collectContainedNodes(allNodes, {&containsAll}),
-    Catch::Matchers::Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
+    Catch::Matchers::Equals(
+      std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
 
   CHECK_THAT(
     collectContainedNodes(allNodes, {&containsNothing}),
@@ -515,10 +554,12 @@ TEST_CASE("ModelUtils.collectContainedNodes") {
 
   CHECK_THAT(
     collectContainedNodes(allNodes, {&containsPatch, &containsAll}),
-    Catch::Matchers::Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
+    Catch::Matchers::Equals(
+      std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
 }
 
-TEST_CASE("ModelUtils.collectSelectedNodes") {
+TEST_CASE("ModelUtils.collectSelectedNodes")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -528,8 +569,8 @@ TEST_CASE("ModelUtils.collectSelectedNodes") {
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -553,7 +594,8 @@ TEST_CASE("ModelUtils.collectSelectedNodes") {
       + patchNode
   + layerNode
   */
-  CHECK_THAT(collectSelectedNodes({&worldNode}), Catch::Matchers::Equals(std::vector<Node*>{}));
+  CHECK_THAT(
+    collectSelectedNodes({&worldNode}), Catch::Matchers::Equals(std::vector<Node*>{}));
 
   brushNode->select();
   patchNode->select();
@@ -567,7 +609,8 @@ TEST_CASE("ModelUtils.collectSelectedNodes") {
     Catch::Matchers::Equals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
-    collectSelectedNodes({innerGroupNode}), Catch::Matchers::Equals(std::vector<Node*>{brushNode}));
+    collectSelectedNodes({innerGroupNode}),
+    Catch::Matchers::Equals(std::vector<Node*>{brushNode}));
 
   CHECK_THAT(
     collectSelectedNodes({innerGroupNode, patchNode}),
@@ -580,11 +623,12 @@ TEST_CASE("ModelUtils.collectSelectedNodes") {
   innerGroupNode->select();
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode, innerGroupNode}),
-    Catch::Matchers::Equals(
-      std::vector<Node*>{innerGroupNode, brushNode, patchNode, innerGroupNode, brushNode}));
+    Catch::Matchers::Equals(std::vector<Node*>{
+      innerGroupNode, brushNode, patchNode, innerGroupNode, brushNode}));
 }
 
-TEST_CASE("ModelUtils.collectSelectableNodes") {
+TEST_CASE("ModelUtils.collectSelectableNodes")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -594,8 +638,8 @@ TEST_CASE("ModelUtils.collectSelectableNodes") {
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -612,7 +656,8 @@ TEST_CASE("ModelUtils.collectSelectableNodes") {
   auto editorContext = EditorContext{};
 
   CHECK_THAT(
-    collectSelectableNodes({}, editorContext), Catch::Matchers::Equals(std::vector<Node*>{}));
+    collectSelectableNodes({}, editorContext),
+    Catch::Matchers::Equals(std::vector<Node*>{}));
 
   CHECK_THAT(
     collectSelectableNodes({&worldNode}, editorContext),
@@ -633,29 +678,33 @@ TEST_CASE("ModelUtils.collectSelectableNodes") {
     Catch::Matchers::Equals(std::vector<Node*>{outerGroupNode, entityNode, brushNode}));
 }
 
-TEST_CASE("ModelUtils.collectBrushFaces") {
+TEST_CASE("ModelUtils.collectBrushFaces")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   worldNode.defaultLayer()->addChild(brushNode);
 
   CHECK_THAT(
-    collectBrushFaces({&worldNode}), Catch::Matchers::UnorderedEquals(toHandles(brushNode)));
+    collectBrushFaces({&worldNode}),
+    Catch::Matchers::UnorderedEquals(toHandles(brushNode)));
 }
 
-TEST_CASE("ModelUtils.collectSelectedBrushFaces") {
+TEST_CASE("ModelUtils.collectSelectedBrushFaces")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
-  SECTION("Face selection") {
-    auto* brushNode =
-      new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  SECTION("Face selection")
+  {
+    auto* brushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
     worldNode.defaultLayer()->addChild(brushNode);
     brushNode->selectFace(0);
@@ -667,11 +716,12 @@ TEST_CASE("ModelUtils.collectSelectedBrushFaces") {
         std::vector<Model::BrushFaceHandle>{{brushNode, 0}, {brushNode, 1}}));
   }
 
-  SECTION("Node selection") {
-    auto* selectedBrushNode =
-      new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
-    auto* unselectedBrushNode =
-      new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  SECTION("Node selection")
+  {
+    auto* selectedBrushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    auto* unselectedBrushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
     worldNode.defaultLayer()->addChild(selectedBrushNode);
     worldNode.defaultLayer()->addChild(unselectedBrushNode);
@@ -681,15 +731,16 @@ TEST_CASE("ModelUtils.collectSelectedBrushFaces") {
   }
 }
 
-TEST_CASE("ModelUtils.collectSelectableBrushFaces") {
+TEST_CASE("ModelUtils.collectSelectableBrushFaces")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto* selectableBrushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
-  auto* unselectableBrushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* selectableBrushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* unselectableBrushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   worldNode.defaultLayer()->addChild(selectableBrushNode);
   worldNode.defaultLayer()->addChild(unselectableBrushNode);
@@ -702,7 +753,8 @@ TEST_CASE("ModelUtils.collectSelectableBrushFaces") {
     Catch::Matchers::UnorderedEquals(toHandles(selectableBrushNode)));
 }
 
-TEST_CASE("ModelUtils.computeLogicalBounds") {
+TEST_CASE("ModelUtils.computeLogicalBounds")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -712,8 +764,8 @@ TEST_CASE("ModelUtils.computeLogicalBounds") {
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -732,17 +784,21 @@ TEST_CASE("ModelUtils.computeLogicalBounds") {
   CHECK(computeLogicalBounds({&worldNode}) == vm::bbox3d{});
   CHECK(computeLogicalBounds({layerNode}) == vm::bbox3d{});
   CHECK(
-    computeLogicalBounds({entityNode}) == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
+    computeLogicalBounds({entityNode})
+    == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
   CHECK(
-    computeLogicalBounds({brushNode}) ==
-    vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
-  CHECK(computeLogicalBounds({patchNode}) == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 2}});
+    computeLogicalBounds({brushNode})
+    == vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
   CHECK(
-    computeLogicalBounds({entityNode, brushNode}) ==
-    vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
+    computeLogicalBounds({patchNode})
+    == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 2}});
+  CHECK(
+    computeLogicalBounds({entityNode, brushNode})
+    == vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
 }
 
-TEST_CASE("ModelUtils.computePhysicalBounds") {
+TEST_CASE("ModelUtils.computePhysicalBounds")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -752,8 +808,8 @@ TEST_CASE("ModelUtils.computePhysicalBounds") {
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -772,17 +828,21 @@ TEST_CASE("ModelUtils.computePhysicalBounds") {
   CHECK(computePhysicalBounds({&worldNode}) == vm::bbox3d{});
   CHECK(computePhysicalBounds({layerNode}) == vm::bbox3d{});
   CHECK(
-    computePhysicalBounds({entityNode}) == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
+    computePhysicalBounds({entityNode})
+    == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
   CHECK(
-    computePhysicalBounds({brushNode}) ==
-    vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
-  CHECK(computePhysicalBounds({patchNode}) == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 1}});
+    computePhysicalBounds({brushNode})
+    == vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
   CHECK(
-    computePhysicalBounds({entityNode, brushNode}) ==
-    vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
+    computePhysicalBounds({patchNode})
+    == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 1}});
+  CHECK(
+    computePhysicalBounds({entityNode, brushNode})
+    == vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
 }
 
-TEST_CASE("ModelUtils.filterNodes") {
+TEST_CASE("ModelUtils.filterNodes")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -807,17 +867,20 @@ TEST_CASE("ModelUtils.filterNodes") {
      {2, 2, 0}},
     "texture"}};
 
-  SECTION("Filter brush nodes") {
+  SECTION("Filter brush nodes")
+  {
     CHECK(
-      filterBrushNodes({&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode}) ==
-      std::vector<Model::BrushNode*>{&brushNode});
+      filterBrushNodes(
+        {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
+      == std::vector<Model::BrushNode*>{&brushNode});
   }
 
-  SECTION("Filter entity nodes") {
+  SECTION("Filter entity nodes")
+  {
     CHECK(
       filterEntityNodes(
-        {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode}) ==
-      std::vector<Model::EntityNode*>{&entityNode});
+        {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
+      == std::vector<Model::EntityNode*>{&entityNode});
   }
 }
 } // namespace Model

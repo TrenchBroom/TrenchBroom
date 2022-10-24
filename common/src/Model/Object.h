@@ -21,13 +21,16 @@
 
 #include "FloatType.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class GroupNode;
 class LayerNode;
 class Node;
 
-class Object {
+class Object
+{
 protected:
   Object();
 

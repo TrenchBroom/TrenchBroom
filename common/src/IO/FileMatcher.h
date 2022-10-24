@@ -22,11 +22,14 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 
-class FileTypeMatcher {
+class FileTypeMatcher
+{
 private:
   bool m_files;
   bool m_directories;
@@ -36,7 +39,8 @@ public:
   bool operator()(const Path& path, bool directory) const;
 };
 
-class FileExtensionMatcher {
+class FileExtensionMatcher
+{
 private:
   std::vector<std::string> m_extensions;
 
@@ -46,17 +50,20 @@ public:
   bool operator()(const Path& path, bool directory) const;
 };
 
-class FileBasenameMatcher : public FileExtensionMatcher {
+class FileBasenameMatcher : public FileExtensionMatcher
+{
 private:
   std::string m_basename;
 
 public:
   FileBasenameMatcher(const std::string& basename, const std::string& extension);
-  FileBasenameMatcher(const std::string& basename, const std::vector<std::string>& extensions);
+  FileBasenameMatcher(
+    const std::string& basename, const std::vector<std::string>& extensions);
   bool operator()(const Path& path, bool directory) const;
 };
 
-class FileNameMatcher {
+class FileNameMatcher
+{
 private:
   std::string m_pattern;
 
@@ -65,7 +72,8 @@ public:
   bool operator()(const Path& path, bool directory) const;
 };
 
-class ExecutableFileMatcher {
+class ExecutableFileMatcher
+{
 public:
   bool operator()(const Path& path, bool directory) const;
 };

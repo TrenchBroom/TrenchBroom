@@ -34,19 +34,25 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 ImageSpriteParser::ImageSpriteParser(
   std::string name, std::shared_ptr<File> file, const FileSystem& fs)
   : m_name{std::move(name)}
   , m_file{std::move(file)}
-  , m_fs{fs} {}
+  , m_fs{fs}
+{
+}
 
-bool ImageSpriteParser::canParse(const Path& path) {
+bool ImageSpriteParser::canParse(const Path& path)
+{
   return kdl::str_to_lower(path.extension()) == "png";
 }
 
-std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger& logger) {
+std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger& logger)
+{
   auto textureReader =
     FreeImageTextureReader{TextureReader::StaticNameStrategy{m_name}, m_fs, logger};
 
@@ -63,17 +69,20 @@ std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger
   return model;
 }
 
-void ImageSpriteParser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger&) {
+void ImageSpriteParser::doLoadFrame(
+  const size_t frameIndex, Assets::EntityModel& model, Logger&)
+{
   auto& surface = model.surface(0);
 
-  if (const auto* texture = surface.skin(0)) {
+  if (const auto* texture = surface.skin(0))
+  {
     const auto w = static_cast<float>(texture->width());
     const auto h = static_cast<float>(texture->height());
     const auto x = w / 2.0f;
     const auto y = h / 2.0f;
 
-    auto& frame =
-      model.loadFrame(frameIndex, m_name, vm::bbox3f{vm::vec3f{-x, -y, 0}, vm::vec3f{x, y, 0}});
+    auto& frame = model.loadFrame(
+      frameIndex, m_name, vm::bbox3f{vm::vec3f{-x, -y, 0}, vm::vec3f{x, y, 0}});
 
     const auto triangles = std::vector<Assets::EntityModelVertex>{
       Assets::EntityModelVertex{{-x, -y, 0}, {0, 1}},
@@ -88,7 +97,8 @@ void ImageSpriteParser::doLoadFrame(const size_t frameIndex, Assets::EntityModel
     auto size = Renderer::IndexRangeMap::Size{};
     size.inc(Renderer::PrimType::Triangles, 2);
 
-    auto builder = Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{6, size};
+    auto builder =
+      Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{6, size};
     builder.addTriangles(triangles);
 
     surface.addIndexedMesh(frame, builder.vertices(), builder.indices());

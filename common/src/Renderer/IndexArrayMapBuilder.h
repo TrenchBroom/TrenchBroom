@@ -24,14 +24,18 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 /**
- * Builds an index array map by recording rendering primitives. The recorded data can be used to
- * create an index array that can be uploaded to video card memory, and to render the recorded
- * primitives with the indices from that array using the constructed index array map.
+ * Builds an index array map by recording rendering primitives. The recorded data can be
+ * used to create an index array that can be uploaded to video card memory, and to render
+ * the recorded primitives with the indices from that array using the constructed index
+ * array map.
  */
-class IndexArrayMapBuilder {
+class IndexArrayMapBuilder
+{
 public:
   using Index = GLuint;
   using IndexList = std::vector<Index>;
@@ -42,7 +46,8 @@ private:
 
 public:
   /**
-   * Creates a new builder with the internal index array map initialized to the given size.
+   * Creates a new builder with the internal index array map initialized to the given
+   * size.
    *
    * @param size the size to initialize to
    */
@@ -77,7 +82,8 @@ public:
   void addPoint(Index i);
 
   /**
-   * Adds multiple points, represented by the vertices in a vertex array at the given indices.
+   * Adds multiple points, represented by the vertices in a vertex array at the given
+   * indices.
    *
    * @param indices the indices to record
    */
@@ -92,9 +98,9 @@ public:
   void addLine(Index i1, Index i2);
 
   /**
-   * Adds multiple lines, each represented by two vertices in a vertex array. The given index array
-   * contains pairs of indices, where each pair consists of the index of the first and the index of
-   * the second vertex.
+   * Adds multiple lines, each represented by two vertices in a vertex array. The given
+   * index array contains pairs of indices, where each pair consists of the index of the
+   * first and the index of the second vertex.
    *
    * @param indices a list of indices containing the pairs of vertex indices to record
    */
@@ -110,9 +116,9 @@ public:
   void addTriangle(Index i1, Index i2, Index i3);
 
   /**
-   * Adds multiple triangles, each represented by three vertices in a vertex array. The given index
-   * array contains triples of indices, where each triple consists of the indices of the three
-   * vertices making up the triangle to add.
+   * Adds multiple triangles, each represented by three vertices in a vertex array. The
+   * given index array contains triples of indices, where each triple consists of the
+   * indices of the three vertices making up the triangle to add.
    *
    * @param indices a list of indices containing the triples of vertex indices to record
    */
@@ -129,18 +135,19 @@ public:
   void addQuad(Index, Index i1, Index i2, Index i3, Index i4);
 
   /**
-   * Adds multiple quads, each represented by four vertices in a vertex array. The given index array
-   * contains four-tuples of indices, where each tuple consists of the indices of the four vertices
-   * making up the quad to add.
+   * Adds multiple quads, each represented by four vertices in a vertex array. The given
+   * index array contains four-tuples of indices, where each tuple consists of the indices
+   * of the four vertices making up the quad to add.
    *
-   * @param indices a list of indices containing the four-tuples of vertex indices to record
+   * @param indices a list of indices containing the four-tuples of vertex indices to
+   * record
    */
   void addQuads(const IndexList& indices);
 
   /**
-   * Adds multiple quads by adding a range of indices specified by the given base index and length.
-   * Specifically, a call to this method records a sequence of indices which is computed using the
-   * given base index and vertex count as follows.
+   * Adds multiple quads by adding a range of indices specified by the given base index
+   * and length. Specifically, a call to this method records a sequence of indices which
+   * is computed using the given base index and vertex count as follows.
    *
    * index 1 = baseIndex + 0;
    * index 2 = baseIndex + 1;
@@ -153,18 +160,18 @@ public:
   void addQuads(Index baseIndex, size_t vertexCount);
 
   /**
-   * Adds a polygon with the given indices. Note that the polygon is translated to a set of
-   * triangles and no actual polygon is recorded at all.
+   * Adds a polygon with the given indices. Note that the polygon is translated to a set
+   * of triangles and no actual polygon is recorded at all.
    *
    * @param indices the indices of the vertices making up the polygon to add
    */
   void addPolygon(const IndexList& indices);
 
   /**
-   * Adds a polygon with indices computed from the given range. The polygons vertices are expected
-   * to be stored sequentially in a vertex array, starting at the given base index. The given vertex
-   * count indicates the number of vertices to add. Note that the polygon is translated to a set of
-   * triangles.
+   * Adds a polygon with indices computed from the given range. The polygons vertices are
+   * expected to be stored sequentially in a vertex array, starting at the given base
+   * index. The given vertex count indicates the number of vertices to add. Note that the
+   * polygon is translated to a set of triangles.
    *
    * @param baseIndex the index of the first vertex of the polygon
    * @param vertexCount the number of vertices of the polygon

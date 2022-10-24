@@ -25,10 +25,13 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 #ifdef _WIN32
-TEST_CASE("PathTest.constructWithString", "[PathTest]") {
+TEST_CASE("PathTest.constructWithString", "[PathTest]")
+{
   CHECK(Path("").asString() == std::string(""));
   CHECK(Path(" ").asString() == std::string(""));
   CHECK(Path("c:\\").asString() == std::string("c:"));
@@ -41,7 +44,8 @@ TEST_CASE("PathTest.constructWithString", "[PathTest]") {
   CHECK(Path(".\\asdf").asString() == std::string(".\\asdf"));
 }
 
-TEST_CASE("PathTest.concatenate", "[PathTest]") {
+TEST_CASE("PathTest.concatenate", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("") + Path("c:\\"), PathException);
   CHECK_THROWS_AS(Path("") + Path("c:\\asdf"), PathException);
   CHECK_THROWS_AS(Path("asdf") + Path("c:\\asdf"), PathException);
@@ -54,7 +58,8 @@ TEST_CASE("PathTest.concatenate", "[PathTest]") {
   CHECK(Path("asdf") + Path("hey") == Path("asdf\\hey"));
 }
 
-TEST_CASE("PathTest.isEmpty", "[PathTest]") {
+TEST_CASE("PathTest.isEmpty", "[PathTest]")
+{
   CHECK(Path("").isEmpty());
   CHECK_FALSE(Path("asdf").isEmpty());
   CHECK_FALSE(Path("c:").isEmpty());
@@ -63,7 +68,8 @@ TEST_CASE("PathTest.isEmpty", "[PathTest]") {
   CHECK_FALSE(Path("c:\\.").isEmpty());
 }
 
-TEST_CASE("PathTest.getLastComponent", "[PathTest]") {
+TEST_CASE("PathTest.getLastComponent", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").lastComponent().asString(), PathException);
   CHECK(Path("c:\\asdf").lastComponent().asString() == "asdf");
   CHECK(Path("asdf").lastComponent() == Path("asdf"));
@@ -71,21 +77,25 @@ TEST_CASE("PathTest.getLastComponent", "[PathTest]") {
   CHECK(Path("/").lastComponent() == Path(""));
 }
 
-TEST_CASE("PathTest.deleteLastComponent", "[PathTest]") {
+TEST_CASE("PathTest.deleteLastComponent", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").deleteLastComponent(), PathException);
   CHECK(Path("c:\\asdf").deleteLastComponent() == Path("c:\\"));
   CHECK(Path("asdf").deleteLastComponent() == Path(""));
-  CHECK(Path("c:\\this\\is\\a\\path.map").deleteLastComponent() == Path("c:\\this\\is\\a"));
+  CHECK(
+    Path("c:\\this\\is\\a\\path.map").deleteLastComponent() == Path("c:\\this\\is\\a"));
 }
 
-TEST_CASE("PathTest.getFirstComponent", "[PathTest]") {
+TEST_CASE("PathTest.getFirstComponent", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").firstComponent(), PathException);
   CHECK(Path("/asdf").firstComponent().asString() == "\\");
   CHECK(Path("c:\\asdf\\blah").firstComponent().asString() == "c:");
   CHECK(Path("asdf\\bbab").firstComponent().asString() == "asdf");
 }
 
-TEST_CASE("PathTest.deleteFirstComponent", "[PathTest]") {
+TEST_CASE("PathTest.deleteFirstComponent", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").deleteFirstComponent(), PathException);
   CHECK(Path("\\").deleteFirstComponent() == Path(""));
   CHECK(Path("\\asdf").deleteFirstComponent() == Path("asdf"));
@@ -95,7 +105,8 @@ TEST_CASE("PathTest.deleteFirstComponent", "[PathTest]") {
   CHECK(Path("asdf/blah").deleteFirstComponent() == Path("blah"));
 }
 
-TEST_CASE("PathTest.subPath", "[PathTest]") {
+TEST_CASE("PathTest.subPath", "[PathTest]")
+{
   CHECK(Path("").subPath(0, 0) == Path(""));
   CHECK_THROWS_AS(Path("test\\blah").subPath(1, 2), PathException);
   CHECK(Path("test\\blah").subPath(0, 2) == Path("test\\blah"));
@@ -105,16 +116,19 @@ TEST_CASE("PathTest.subPath", "[PathTest]") {
   CHECK(Path("test\\blah").subPath(1, 1) == Path("blah"));
 }
 
-TEST_CASE("PathTest.getExtension", "[PathTest]") {
+TEST_CASE("PathTest.getExtension", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").extension(), PathException);
   CHECK(Path("asdf").extension() == std::string(""));
   CHECK(Path("asdf.map").extension() == std::string("map"));
   CHECK(Path("c:\\this\\is\\a\\path.map").extension() == std::string("map"));
-  CHECK(Path("c:\\this\\is\\a\\path.map.textfile").extension() == std::string("textfile"));
+  CHECK(
+    Path("c:\\this\\is\\a\\path.map.textfile").extension() == std::string("textfile"));
   CHECK(Path("c:\\").extension() == std::string(""));
 }
 
-TEST_CASE("PathTest.deleteExtension", "[PathTest]") {
+TEST_CASE("PathTest.deleteExtension", "[PathTest]")
+{
   CHECK(Path{}.deleteExtension() == Path{});
   CHECK(Path{"asdf"}.deleteExtension() == Path{"asdf"});
   CHECK(Path{"asdf.jpeg"}.deleteExtension() == Path{"asdf"});
@@ -122,7 +136,8 @@ TEST_CASE("PathTest.deleteExtension", "[PathTest]") {
   CHECK(Path{"x\\asdf.jpeg"}.deleteExtension() == Path{"x\\asdf"});
 }
 
-TEST_CASE("PathTest.addExtension", "[PathTest]") {
+TEST_CASE("PathTest.addExtension", "[PathTest]")
+{
   const auto test = Path("c:\\").addExtension("map").asString();
   const auto test2 = test;
   const auto test3 = test + test2;
@@ -134,44 +149,55 @@ TEST_CASE("PathTest.addExtension", "[PathTest]") {
   CHECK(Path("c:\\").addExtension("map") == Path("c:\\.map"));
 }
 
-TEST_CASE("PathTest.makeAbsolute", "[PathTest]") {
+TEST_CASE("PathTest.makeAbsolute", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("c:\\asdf").makeAbsolute(Path("c:\\hello")), PathException);
   CHECK_THROWS_AS(Path("asdf").makeAbsolute(Path("hello")), PathException);
   CHECK(Path("c:\\asdf").makeAbsolute(Path("hello")) == Path("c:\\asdf\\hello"));
 }
 
-TEST_CASE("PathTest.makeRelative", "[PathTest]") {
+TEST_CASE("PathTest.makeRelative", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").makeRelative(), PathException);
   CHECK_THROWS_AS(Path("models\\barrel\\skin.tga").makeRelative(), PathException);
   CHECK(Path("C:").makeRelative() == Path(""));
   CHECK(Path("C:\\").makeRelative() == Path(""));
-  CHECK(Path("C:\\models\\barrel\\skin.tga").makeRelative() == Path("models\\barrel\\skin.tga"));
+  CHECK(
+    Path("C:\\models\\barrel\\skin.tga").makeRelative()
+    == Path("models\\barrel\\skin.tga"));
 }
 
-TEST_CASE("PathTest.makeRelativeWithAbsolutePath", "[PathTest]") {
+TEST_CASE("PathTest.makeRelativeWithAbsolutePath", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("c:\\asdf").makeRelative(Path("asdf\\hello")), PathException);
   CHECK_THROWS_AS(Path("asdf").makeRelative(Path("c:\\asdf\\hello")), PathException);
   CHECK_THROWS_AS(Path("asdf").makeRelative(Path("c:\\")), PathException);
   CHECK_THROWS_AS(Path("c:\\asdf").makeRelative(Path("d:\\asdf\\test")), PathException);
   CHECK_THROWS_AS(Path("\\").makeRelative(Path("\\")), PathException);
-  CHECK(Path("c:\\asdf").makeRelative(Path("c:\\hurr\\hello")) == Path("..\\hurr\\hello"));
   CHECK(
-    Path("c:\\asdf\\test\\blah").makeRelative(Path("c:\\asdf\\test\\hello")) == Path("..\\hello"));
+    Path("c:\\asdf").makeRelative(Path("c:\\hurr\\hello")) == Path("..\\hurr\\hello"));
+  CHECK(
+    Path("c:\\asdf\\test\\blah").makeRelative(Path("c:\\asdf\\test\\hello"))
+    == Path("..\\hello"));
   CHECK(Path("c:\\asdf").makeRelative(Path("c:\\asdf\\hello")) == Path("hello"));
   CHECK(Path("c:\\.\\asdf").makeRelative(Path("c:\\asdf\\hello")) == Path("hello"));
   CHECK(Path("c:\\.\\asdf").makeRelative(Path("c:\\asdf\\hello")) == Path("hello"));
-  CHECK(Path("c:\\asdf\\test\\..").makeRelative(Path("c:\\asdf\\.\\hello")) == Path("hello"));
   CHECK(
-    Path("c:\\asdf\\test\\..\\").makeRelative(Path("c:\\asdf\\hurr\\..\\hello")) == Path("hello"));
+    Path("c:\\asdf\\test\\..").makeRelative(Path("c:\\asdf\\.\\hello")) == Path("hello"));
+  CHECK(
+    Path("c:\\asdf\\test\\..\\").makeRelative(Path("c:\\asdf\\hurr\\..\\hello"))
+    == Path("hello"));
 }
 
-TEST_CASE("PathTest.makeCanonical", "[PathTest]") {
+TEST_CASE("PathTest.makeCanonical", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("c:\\..").makeCanonical(), PathException);
   CHECK_THROWS_AS(Path("c:\\asdf\\..\\..").makeCanonical(), PathException);
   CHECK(Path("c:\\asdf\\test\\..").makeCanonical() == Path("c:\\asdf"));
 }
 
-TEST_CASE("PathTest.canMakeRelative", "[PathTest]") {
+TEST_CASE("PathTest.canMakeRelative", "[PathTest]")
+{
   // copied from makeRelative test
   CHECK_FALSE(Path("c:\\asdf").canMakeRelative(Path("asdf\\hello")));
   CHECK_FALSE(Path("asdf").canMakeRelative(Path("c:\\asdf\\hello")));
@@ -187,17 +213,20 @@ TEST_CASE("PathTest.canMakeRelative", "[PathTest]") {
   CHECK(Path("c:\\asdf\\test\\..\\").canMakeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
 }
 
-TEST_CASE("PathTest.pathAsQString", "[PathTest]") {
+TEST_CASE("PathTest.pathAsQString", "[PathTest]")
+{
   CHECK(pathAsQString(Path("c:\\asdf\\test")) == QString::fromLatin1("c:\\asdf\\test"));
   CHECK(pathAsQString(Path("asdf\\test")) == QString::fromLatin1("asdf\\test"));
 }
 
-TEST_CASE("PathTest.pathFromQString", "[PathTest]") {
+TEST_CASE("PathTest.pathFromQString", "[PathTest]")
+{
   CHECK(pathFromQString(QString::fromLatin1("c:\\asdf\\test")) == Path("c:\\asdf\\test"));
   CHECK(pathFromQString(QString::fromLatin1("asdf\\test")) == Path("asdf\\test"));
 }
 #else
-TEST_CASE("PathTest.constructWithString", "[PathTest]") {
+TEST_CASE("PathTest.constructWithString", "[PathTest]")
+{
   CHECK(Path("").asString() == std::string(""));
   CHECK(Path(" ").asString() == std::string(""));
   CHECK(Path("/").asString() == std::string("/"));
@@ -210,7 +239,8 @@ TEST_CASE("PathTest.constructWithString", "[PathTest]") {
   CHECK(Path("./asdf").asString() == std::string("./asdf"));
 }
 
-TEST_CASE("PathTest.concatenate", "[PathTest]") {
+TEST_CASE("PathTest.concatenate", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("") + Path("/"), PathException);
   CHECK_THROWS_AS(Path("") + Path("/asdf"), PathException);
   CHECK_THROWS_AS(Path("asdf") + Path("/asdf"), PathException);
@@ -223,7 +253,8 @@ TEST_CASE("PathTest.concatenate", "[PathTest]") {
   CHECK(Path("asdf") + Path("hey") == Path("asdf/hey"));
 }
 
-TEST_CASE("PathTest.isEmpty", "[PathTest]") {
+TEST_CASE("PathTest.isEmpty", "[PathTest]")
+{
   CHECK(Path("").isEmpty());
   CHECK_FALSE(Path("asdf").isEmpty());
   CHECK_FALSE(Path("/").isEmpty());
@@ -232,7 +263,8 @@ TEST_CASE("PathTest.isEmpty", "[PathTest]") {
   CHECK_FALSE(Path("/.").isEmpty());
 }
 
-TEST_CASE("PathTest.getLastComponent", "[PathTest]") {
+TEST_CASE("PathTest.getLastComponent", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").lastComponent().asString(), PathException);
   CHECK(Path("/asdf").lastComponent().asString() == "asdf");
   CHECK(Path("asdf").lastComponent() == Path("asdf"));
@@ -240,7 +272,8 @@ TEST_CASE("PathTest.getLastComponent", "[PathTest]") {
   CHECK(Path("/").lastComponent() == Path(""));
 }
 
-TEST_CASE("PathTest.deleteLastComponent", "[PathTest]") {
+TEST_CASE("PathTest.deleteLastComponent", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").deleteLastComponent(), PathException);
   CHECK(Path("/asdf").deleteLastComponent() == Path("/"));
   CHECK(Path("asdf").deleteLastComponent() == Path(""));
@@ -248,21 +281,24 @@ TEST_CASE("PathTest.deleteLastComponent", "[PathTest]") {
   CHECK(Path("/").deleteLastComponent() == Path("/"));
 }
 
-TEST_CASE("PathTest.getFirstComponet", "[PathTest]") {
+TEST_CASE("PathTest.getFirstComponet", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").firstComponent(), PathException);
   CHECK(Path("/").firstComponent().asString() == "/");
   CHECK(Path("/asdf").firstComponent().asString() == "/");
   CHECK(Path("asdf").firstComponent().asString() == "asdf");
 }
 
-TEST_CASE("PathTest.deleteFirstComponent", "[PathTest]") {
+TEST_CASE("PathTest.deleteFirstComponent", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").deleteFirstComponent(), PathException);
   CHECK(Path("/").deleteFirstComponent() == Path(""));
   CHECK(Path("/asdf").deleteFirstComponent() == Path("asdf"));
   CHECK(Path("asdf/blah").deleteFirstComponent() == Path("blah"));
 }
 
-TEST_CASE("PathTest.subPath", "[PathTest]") {
+TEST_CASE("PathTest.subPath", "[PathTest]")
+{
   CHECK(Path("").subPath(0, 0) == Path(""));
   CHECK_THROWS_AS(Path("test/blah").subPath(1, 2), PathException);
   CHECK(Path("test/blah").subPath(0, 2) == Path("test/blah"));
@@ -272,7 +308,8 @@ TEST_CASE("PathTest.subPath", "[PathTest]") {
   CHECK(Path("test/blah").subPath(1, 1) == Path("blah"));
 }
 
-TEST_CASE("PathTest.getExtension", "[PathTest]") {
+TEST_CASE("PathTest.getExtension", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").extension(), PathException);
   CHECK(Path("asdf").extension() == std::string(""));
   CHECK(Path("asdf.map").extension() == std::string("map"));
@@ -281,7 +318,8 @@ TEST_CASE("PathTest.getExtension", "[PathTest]") {
   CHECK(Path("/").extension() == std::string(""));
 }
 
-TEST_CASE("PathTest.deleteExtension", "[PathTest]") {
+TEST_CASE("PathTest.deleteExtension", "[PathTest]")
+{
   CHECK(Path{}.deleteExtension() == Path{});
   CHECK(Path{"asdf"}.deleteExtension() == Path{"asdf"});
   CHECK(Path{"asdf.jpeg"}.deleteExtension() == Path{"asdf"});
@@ -289,7 +327,8 @@ TEST_CASE("PathTest.deleteExtension", "[PathTest]") {
   CHECK(Path{"x/asdf.jpeg"}.deleteExtension() == Path{"x/asdf"});
 }
 
-TEST_CASE("PathTest.addExtension", "[PathTest]") {
+TEST_CASE("PathTest.addExtension", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").addExtension("map"), PathException);
   CHECK(Path("/asdf").addExtension("") == Path("/asdf."));
   CHECK(Path("/asdf").addExtension("map") == Path("/asdf.map"));
@@ -297,39 +336,46 @@ TEST_CASE("PathTest.addExtension", "[PathTest]") {
   CHECK(Path("/").addExtension("map") == Path("/.map"));
 }
 
-TEST_CASE("PathTest.makeAbsolute", "[PathTest]") {
+TEST_CASE("PathTest.makeAbsolute", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("/asdf").makeAbsolute(Path("/hello")), PathException);
   CHECK_THROWS_AS(Path("asdf").makeAbsolute(Path("hello")), PathException);
   CHECK(Path("/asdf").makeAbsolute(Path("hello")) == Path("/asdf/hello"));
 }
 
-TEST_CASE("PathTest.makeRelative", "[PathTest]") {
+TEST_CASE("PathTest.makeRelative", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("").makeRelative(), PathException);
   CHECK_THROWS_AS(Path("models/barrel/skin.tga").makeRelative(), PathException);
   CHECK(Path("/").makeRelative() == Path(""));
   CHECK(Path("/models/barrel/skin.tga").makeRelative() == Path("models/barrel/skin.tga"));
 }
 
-TEST_CASE("PathTest.makeRelativeWithAbsolutePath", "[PathTest]") {
+TEST_CASE("PathTest.makeRelativeWithAbsolutePath", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("/asdf").makeRelative(Path("asdf/hello")), PathException);
   CHECK_THROWS_AS(Path("asdf").makeRelative(Path("/asdf/hello")), PathException);
   CHECK_THROWS_AS(Path("asdf").makeRelative(Path("/")), PathException);
-  CHECK(Path("/asdf/test/blah").makeRelative(Path("/asdf/test/hello")) == Path("../hello"));
+  CHECK(
+    Path("/asdf/test/blah").makeRelative(Path("/asdf/test/hello")) == Path("../hello"));
   CHECK(Path("/asdf").makeRelative(Path("/hurr/hello")) == Path("../hurr/hello"));
   CHECK(Path("/asdf").makeRelative(Path("/asdf/hello")) == Path("hello"));
   CHECK(Path("/./asdf").makeRelative(Path("/asdf/hello")) == Path("hello"));
   CHECK(Path("/./asdf").makeRelative(Path("/asdf/hello")) == Path("hello"));
   CHECK(Path("/asdf/test/..").makeRelative(Path("/asdf/./hello")) == Path("hello"));
-  CHECK(Path("/asdf/test/../").makeRelative(Path("/asdf/hurr/../hello")) == Path("hello"));
+  CHECK(
+    Path("/asdf/test/../").makeRelative(Path("/asdf/hurr/../hello")) == Path("hello"));
 }
 
-TEST_CASE("PathTest.makeCanonical", "[PathTest]") {
+TEST_CASE("PathTest.makeCanonical", "[PathTest]")
+{
   CHECK_THROWS_AS(Path("/..").makeCanonical(), PathException);
   CHECK_THROWS_AS(Path("/asdf/../..").makeCanonical(), PathException);
   CHECK(Path("/asdf/test/..").makeCanonical() == Path("/asdf"));
 }
 
-TEST_CASE("PathTest.operatorLT", "[PathTest]") {
+TEST_CASE("PathTest.operatorLT", "[PathTest]")
+{
   CHECK_FALSE(Path("") < Path(""));
   CHECK_FALSE(Path("/") < Path(""));
   CHECK_FALSE(Path("/") < Path("/"));
@@ -344,12 +390,14 @@ TEST_CASE("PathTest.operatorLT", "[PathTest]") {
   CHECK_FALSE(Path("dir/dir2/dir3") < Path("dir/dir2"));
 }
 
-TEST_CASE("PathTest.pathAsQString", "[PathTest]") {
+TEST_CASE("PathTest.pathAsQString", "[PathTest]")
+{
   CHECK(pathAsQString(Path("/asdf/test")) == QString::fromLatin1("/asdf/test"));
   CHECK(pathAsQString(Path("asdf/test")) == QString::fromLatin1("asdf/test"));
 }
 
-TEST_CASE("PathTest.pathFromQString", "[PathTest]") {
+TEST_CASE("PathTest.pathFromQString", "[PathTest]")
+{
   CHECK(pathFromQString(QString::fromLatin1("/asdf/test")) == Path("/asdf/test"));
   CHECK(pathFromQString(QString::fromLatin1("asdf/test")) == Path("asdf/test"));
 }

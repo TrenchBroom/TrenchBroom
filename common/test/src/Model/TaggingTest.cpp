@@ -30,9 +30,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]")
+{
   const vm::bbox3 worldBounds{4096.0};
   WorldNode world{{}, {}, MapFormat::Standard};
 

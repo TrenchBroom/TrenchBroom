@@ -1,34 +1,38 @@
 /*
  Copyright 2010-2019 Kristian Duske
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ software and associated documentation files (the "Software"), to deal in the Software
+ without restriction, including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in all copies or
  substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
 */
 #pragma once
 
 #include <type_traits>
 #include <utility>
 
-namespace kdl {
+namespace kdl
+{
 /**
- * RAII class that temporarily sets a value and resets it to its original value when going out of
- * scope.
+ * RAII class that temporarily sets a value and resets it to its original value when going
+ * out of scope.
  *
  * @tparam T the type of the value to set
  */
-template <typename T> class set_temp {
+template <typename T>
+class set_temp
+{
 private:
   T& m_value;
   T m_oldValue;
@@ -42,7 +46,8 @@ public:
    */
   set_temp(T& value, T newValue)
     : m_value(value)
-    , m_oldValue(std::move(m_value)) {
+    , m_oldValue(std::move(m_value))
+  {
     m_value = std::move(newValue);
   }
 
@@ -54,7 +59,9 @@ public:
    */
   template <typename B, typename std::enable_if_t<std::is_same_v<B, bool>>* = nullptr>
   explicit set_temp(B& value)
-    : set_temp(value, true) {}
+    : set_temp(value, true)
+  {
+  }
 
   /**
    * Resets the original value.
@@ -62,14 +69,17 @@ public:
   ~set_temp() { m_value = std::move(m_oldValue); }
 };
 
-template <typename B> set_temp(B& value) -> set_temp<bool>;
+template <typename B>
+set_temp(B& value) -> set_temp<bool>;
 
 /**
  * RAII class that sets a value when going out of scope.
  *
  * @tparam T the type of the value to set
  */
-template <typename T> class set_later {
+template <typename T>
+class set_later
+{
 private:
   T& m_value;
   T m_newValue;
@@ -83,7 +93,9 @@ public:
    */
   set_later(T& value, T newValue)
     : m_value(value)
-    , m_newValue(std::move(newValue)) {}
+    , m_newValue(std::move(newValue))
+  {
+  }
 
   /**
    * Sets the new value.
@@ -91,14 +103,17 @@ public:
   ~set_later() { m_value = std::move(m_newValue); }
 };
 
-template <typename T> set_later(T& value, T newValue) -> set_later<T>;
+template <typename T>
+set_later(T& value, T newValue) -> set_later<T>;
 
 /**
  * RAII class that increases a value and decreases it again when going out of scope.
  *
  * @tparam T the type of the value to change
  */
-template <typename T> class inc_temp {
+template <typename T>
+class inc_temp
+{
 private:
   T& m_value;
 
@@ -109,7 +124,8 @@ public:
    * @param value the value
    */
   explicit inc_temp(T& value)
-    : m_value(value) {
+    : m_value(value)
+  {
     ++m_value;
   }
 
@@ -119,14 +135,17 @@ public:
   ~inc_temp() { --m_value; }
 };
 
-template <typename T> inc_temp(T& value) -> inc_temp<T>;
+template <typename T>
+inc_temp(T& value) -> inc_temp<T>;
 
 /**
  * RAII class that decreases a value and increases it again when going out of scope.
  *
  * @tparam T the type of the value to change
  */
-template <typename T> class dec_temp {
+template <typename T>
+class dec_temp
+{
 private:
   T& m_value;
 
@@ -137,7 +156,8 @@ public:
    * @param value the value
    */
   explicit dec_temp(T& value)
-    : m_value(value) {
+    : m_value(value)
+  {
     --m_value;
   }
 
@@ -147,5 +167,6 @@ public:
   ~dec_temp() { ++m_value; }
 };
 
-template <typename T> dec_temp(T& value) -> dec_temp<T>;
+template <typename T>
+dec_temp(T& value) -> dec_temp<T>;
 } // namespace kdl

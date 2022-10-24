@@ -24,9 +24,12 @@
 class QWidget;
 class QStackedLayout;
 
-namespace TrenchBroom {
-namespace View {
-class Tool {
+namespace TrenchBroom
+{
+namespace View
+{
+class Tool
+{
 private:
   bool m_active;
 

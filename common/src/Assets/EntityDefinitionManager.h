@@ -23,24 +23,29 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class EntityDefinitionLoader;
 class ParserStatus;
 class Path;
 } // namespace IO
 
-namespace Model {
+namespace Model
+{
 class EntityNodeBase;
 }
 
-namespace Assets {
+namespace Assets
+{
 class EntityDefinition;
 class EntityDefinitionGroup;
 enum class EntityDefinitionSortOrder;
 enum class EntityDefinitionType;
 
-class EntityDefinitionManager {
+class EntityDefinitionManager
+{
 private:
   using Cache = std::map<std::string, EntityDefinition*>;
   std::vector<EntityDefinition*> m_definitions;
@@ -51,7 +56,9 @@ public:
   ~EntityDefinitionManager();
 
   void loadDefinitions(
-    const IO::Path& path, const IO::EntityDefinitionLoader& loader, IO::ParserStatus& status);
+    const IO::Path& path,
+    const IO::EntityDefinitionLoader& loader,
+    IO::ParserStatus& status);
   void setDefinitions(const std::vector<EntityDefinition*>& newDefinitions);
   void clear();
 

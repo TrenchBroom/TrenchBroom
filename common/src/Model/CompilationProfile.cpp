@@ -29,108 +29,138 @@
 #include <ostream>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
-CompilationProfile::CompilationProfile(const std::string& name, const std::string& workDirSpec)
+namespace TrenchBroom
+{
+namespace Model
+{
+CompilationProfile::CompilationProfile(
+  const std::string& name, const std::string& workDirSpec)
   : m_name(name)
-  , m_workDirSpec(workDirSpec) {}
+  , m_workDirSpec(workDirSpec)
+{
+}
 
 CompilationProfile::CompilationProfile(
-  const std::string& name, const std::string& workDirSpec,
+  const std::string& name,
+  const std::string& workDirSpec,
   std::vector<std::unique_ptr<CompilationTask>> tasks)
   : m_name(name)
   , m_workDirSpec(workDirSpec)
-  , m_tasks(std::move(tasks)) {}
+  , m_tasks(std::move(tasks))
+{
+}
 
 CompilationProfile::~CompilationProfile() = default;
 
-std::unique_ptr<CompilationProfile> CompilationProfile::clone() const {
+std::unique_ptr<CompilationProfile> CompilationProfile::clone() const
+{
   std::vector<std::unique_ptr<CompilationTask>> clones;
   clones.reserve(m_tasks.size());
 
-  for (const auto& original : m_tasks) {
+  for (const auto& original : m_tasks)
+  {
     clones.push_back(std::unique_ptr<CompilationTask>(original->clone()));
   }
 
   return std::make_unique<CompilationProfile>(m_name, m_workDirSpec, std::move(clones));
 }
 
-bool operator==(const CompilationProfile& lhs, const CompilationProfile& rhs) {
-  if (lhs.m_name != rhs.m_name) {
+bool operator==(const CompilationProfile& lhs, const CompilationProfile& rhs)
+{
+  if (lhs.m_name != rhs.m_name)
+  {
     return false;
   }
-  if (lhs.m_workDirSpec != rhs.m_workDirSpec) {
+  if (lhs.m_workDirSpec != rhs.m_workDirSpec)
+  {
     return false;
   }
   return kdl::const_deref_range{lhs.m_tasks} == kdl::const_deref_range{rhs.m_tasks};
 }
 
-bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs) {
+bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs)
+{
   return !(lhs == rhs);
 }
 
-std::ostream& operator<<(std::ostream& str, const CompilationProfile& profile) {
+std::ostream& operator<<(std::ostream& str, const CompilationProfile& profile)
+{
   kdl::struct_stream{str} << "CompilationProfile"
-                          << "m_name" << profile.m_name << "m_workDirSpec" << profile.m_workDirSpec
-                          << "m_tasks" << kdl::const_deref_range{profile.m_tasks};
+                          << "m_name" << profile.m_name << "m_workDirSpec"
+                          << profile.m_workDirSpec << "m_tasks"
+                          << kdl::const_deref_range{profile.m_tasks};
   return str;
 }
 
-const std::string& CompilationProfile::name() const {
+const std::string& CompilationProfile::name() const
+{
   return m_name;
 }
 
-void CompilationProfile::setName(const std::string& name) {
+void CompilationProfile::setName(const std::string& name)
+{
   m_name = name;
 }
 
-const std::string& CompilationProfile::workDirSpec() const {
+const std::string& CompilationProfile::workDirSpec() const
+{
   return m_workDirSpec;
 }
 
-void CompilationProfile::setWorkDirSpec(const std::string& workDirSpec) {
+void CompilationProfile::setWorkDirSpec(const std::string& workDirSpec)
+{
   m_workDirSpec = workDirSpec;
 }
 
-size_t CompilationProfile::taskCount() const {
+size_t CompilationProfile::taskCount() const
+{
   return m_tasks.size();
 }
 
-CompilationTask* CompilationProfile::task(const size_t index) const {
+CompilationTask* CompilationProfile::task(const size_t index) const
+{
   assert(index < taskCount());
   return m_tasks[index].get();
 }
 
-size_t CompilationProfile::indexOfTask(CompilationTask* task) const {
-  auto result = kdl::vec_index_of(m_tasks, [=](const auto& ptr) {
-    return ptr.get() == task;
-  });
+size_t CompilationProfile::indexOfTask(CompilationTask* task) const
+{
+  auto result =
+    kdl::vec_index_of(m_tasks, [=](const auto& ptr) { return ptr.get() == task; });
   return result.value();
 }
 
-void CompilationProfile::addTask(std::unique_ptr<CompilationTask> task) {
+void CompilationProfile::addTask(std::unique_ptr<CompilationTask> task)
+{
   insertTask(m_tasks.size(), std::move(task));
 }
 
-void CompilationProfile::insertTask(const size_t index, std::unique_ptr<CompilationTask> task) {
+void CompilationProfile::insertTask(
+  const size_t index, std::unique_ptr<CompilationTask> task)
+{
   assert(index <= m_tasks.size());
   ensure(task != nullptr, "task is null");
 
-  if (index == m_tasks.size()) {
+  if (index == m_tasks.size())
+  {
     m_tasks.push_back(std::move(task));
-  } else {
+  }
+  else
+  {
     auto it = std::begin(m_tasks);
     std::advance(it, static_cast<int>(index));
     m_tasks.insert(it, std::move(task));
   }
 }
 
-void CompilationProfile::removeTask(const size_t index) {
+void CompilationProfile::removeTask(const size_t index)
+{
   assert(index < taskCount());
   m_tasks = kdl::vec_erase_at(std::move(m_tasks), index);
 }
 
-void CompilationProfile::moveTaskUp(const size_t index) {
+void CompilationProfile::moveTaskUp(const size_t index)
+{
   assert(index > 0);
   assert(index < taskCount());
 
@@ -143,7 +173,8 @@ void CompilationProfile::moveTaskUp(const size_t index) {
   std::iter_swap(it, pr);
 }
 
-void CompilationProfile::moveTaskDown(const size_t index) {
+void CompilationProfile::moveTaskDown(const size_t index)
+{
   assert(index < taskCount() - 1);
 
   auto it = std::begin(m_tasks);
@@ -155,26 +186,34 @@ void CompilationProfile::moveTaskDown(const size_t index) {
   std::iter_swap(it, nx);
 }
 
-void CompilationProfile::accept(CompilationTaskVisitor& visitor) {
-  for (auto& task : m_tasks) {
+void CompilationProfile::accept(CompilationTaskVisitor& visitor)
+{
+  for (auto& task : m_tasks)
+  {
     task->accept(visitor);
   }
 }
 
-void CompilationProfile::accept(ConstCompilationTaskVisitor& visitor) const {
-  for (auto& task : m_tasks) {
+void CompilationProfile::accept(ConstCompilationTaskVisitor& visitor) const
+{
+  for (auto& task : m_tasks)
+  {
     task->accept(visitor);
   }
 }
 
-void CompilationProfile::accept(const CompilationTaskConstVisitor& visitor) {
-  for (auto& task : m_tasks) {
+void CompilationProfile::accept(const CompilationTaskConstVisitor& visitor)
+{
+  for (auto& task : m_tasks)
+  {
     task->accept(visitor);
   }
 }
 
-void CompilationProfile::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-  for (auto& task : m_tasks) {
+void CompilationProfile::accept(const ConstCompilationTaskConstVisitor& visitor) const
+{
+  for (auto& task : m_tasks)
+  {
     task->accept(visitor);
   }
 }

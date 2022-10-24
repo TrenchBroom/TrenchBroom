@@ -23,20 +23,25 @@
 
 #include <unordered_map>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class IndexArray;
 class TextureRenderFunc;
 
 /**
- * Manages ranges of textured primitives to be rendered using indices stored in an IndexArray
- * instance. To avoid costly texture switching, the instances are grouped by their textures.
+ * Manages ranges of textured primitives to be rendered using indices stored in an
+ * IndexArray instance. To avoid costly texture switching, the instances are grouped by
+ * their textures.
  */
-class TexturedIndexArrayMap {
+class TexturedIndexArrayMap
+{
 public:
   using Texture = Assets::Texture;
 
@@ -45,10 +50,11 @@ private:
 
 public:
   /**
-   * Helper class that allows to record sizing information to initialize a texture index array map
-   * to the desired size.
+   * Helper class that allows to record sizing information to initialize a texture index
+   * array map to the desired size.
    */
-  class Size {
+  class Size
+  {
   private:
     friend class TexturedIndexArrayMap;
 
@@ -95,52 +101,55 @@ private:
 
 public:
   /**
-   * Creates a new empty index array map that allows for dynamic growth. Note that dynamic growth
-   * can incur performance costs when data buffers have to be reallocated as they grow.
+   * Creates a new empty index array map that allows for dynamic growth. Note that dynamic
+   * growth can incur performance costs when data buffers have to be reallocated as they
+   * grow.
    */
   TexturedIndexArrayMap();
 
   /**
-   * Creates a new textured index array map and initializes the internal data structures using the
-   * given size information.
+   * Creates a new textured index array map and initializes the internal data structures
+   * using the given size information.
    *
    * @param size the size to initialize to
    */
   explicit TexturedIndexArrayMap(const Size& size);
 
   /**
-   * Returns the size of this textured index array map. A textured index array map initialized with
-   * the returned size can hold exactly the same data as this textured index array map.
+   * Returns the size of this textured index array map. A textured index array map
+   * initialized with the returned size can hold exactly the same data as this textured
+   * index array map.
    *
    * @return the size of this textured index array map
    */
   Size size() const;
 
   /**
-   * Adds the given number of primitives of the given type to this range map with the given texture.
-   * Effectively, the range of primitives of the given type that has been recorded so far with the
-   * given texture is extended by the given number of indices.
+   * Adds the given number of primitives of the given type to this range map with the
+   * given texture. Effectively, the range of primitives of the given type that has been
+   * recorded so far with the given texture is extended by the given number of indices.
    *
    * @param texture the texture for the primitive
    * @param primType the type of primitive
    * @param count the number of indices
-   * @return the offset of the next block that would be recorded for the given primitive type
+   * @return the offset of the next block that would be recorded for the given primitive
+   * type
    */
   size_t add(const Texture* texture, PrimType primType, size_t count);
 
   /**
-   * Renders the recorded primitives using the indices stored in the given index array. The
-   * primitives are batched by their associated textures.
+   * Renders the recorded primitives using the indices stored in the given index array.
+   * The primitives are batched by their associated textures.
    *
    * @param indexArray the index array to render
    */
   void render(IndexArray& indexArray);
 
   /**
-   * Renders the recorded primitives using the indices stored in the given index array. The
-   * primitives are batched by their associated textures. The given render function type provides
-   * two callbacks. One is called before all primitives with a given texture is rendered, and one is
-   * called afterwards.
+   * Renders the recorded primitives using the indices stored in the given index array.
+   * The primitives are batched by their associated textures. The given render function
+   * type provides two callbacks. One is called before all primitives with a given texture
+   * is rendered, and one is called afterwards.
    *
    * @param indexArray the index array to render
    * @param func the texture callbacks

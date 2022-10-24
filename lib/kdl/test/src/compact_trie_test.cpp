@@ -1,20 +1,21 @@
 /*
  Copyright 2010-2019 Kristian Duske
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ software and associated documentation files (the "Software"), to deal in the Software
+ without restriction, including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in all copies or
  substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
 */
 
 #include "kdl/compact_trie.h"
@@ -24,18 +25,23 @@
 
 #include <catch2/catch.hpp>
 
-namespace kdl {
+namespace kdl
+{
 using test_index = compact_trie<std::string>;
 
 static void assertMatches(
-  const test_index& index, const std::string& pattern, std::vector<std::string> expectedMatches) {
+  const test_index& index,
+  const std::string& pattern,
+  std::vector<std::string> expectedMatches)
+{
   std::vector<std::string> matches;
   index.find_matches(pattern, std::back_inserter(matches));
 
   CHECK_THAT(matches, Catch::UnorderedEquals(expectedMatches));
 }
 
-TEST_CASE("compact_trie_test.insert", "[compact_trie_test]") {
+TEST_CASE("compact_trie_test.insert", "[compact_trie_test]")
+{
   test_index index;
   index.insert("key", "value");
   index.insert("key2", "value");
@@ -70,7 +76,8 @@ TEST_CASE("compact_trie_test.insert", "[compact_trie_test]") {
   assertMatches(index, "*", {"value", "value", "value2", "value3", "value4", "value4"});
 }
 
-TEST_CASE("compact_trie_test.remove", "[compact_trie_test]") {
+TEST_CASE("compact_trie_test.remove", "[compact_trie_test]")
+{
   test_index index;
   index.insert("andrew", "value");
   index.insert("andreas", "value");
@@ -106,7 +113,8 @@ TEST_CASE("compact_trie_test.remove", "[compact_trie_test]") {
   assertMatches(index, "*", {});
 }
 
-TEST_CASE("compact_trie_test.find_matches_with_exact_pattern", "[compact_trie_test]") {
+TEST_CASE("compact_trie_test.find_matches_with_exact_pattern", "[compact_trie_test]")
+{
   test_index index;
   index.insert("key", "value");
   index.insert("key2", "value");
@@ -125,7 +133,8 @@ TEST_CASE("compact_trie_test.find_matches_with_exact_pattern", "[compact_trie_te
   assertMatches(index, "", {});
 }
 
-TEST_CASE("compact_trie_test.find_matches_with_wildcards", "[compact_trie_test]") {
+TEST_CASE("compact_trie_test.find_matches_with_wildcards", "[compact_trie_test]")
+{
   test_index index;
   index.insert("key", "value");
   index.insert("key2", "value");
@@ -163,7 +172,8 @@ TEST_CASE("compact_trie_test.find_matches_with_wildcards", "[compact_trie_test]"
   assertMatches(index, "t*%*", {});
 }
 
-TEST_CASE("compact_trie_test.find_matches_with_digit_suffix", "[compact_trie_test]") {
+TEST_CASE("compact_trie_test.find_matches_with_digit_suffix", "[compact_trie_test]")
+{
   test_index index;
   index.insert("key", "value");
   index.insert("key2", "value");
@@ -181,7 +191,8 @@ TEST_CASE("compact_trie_test.find_matches_with_digit_suffix", "[compact_trie_tes
   assertMatches(index, "k%*", {});
 }
 
-TEST_CASE("compact_trie_test.get_keys", "[compact_trie_test]") {
+TEST_CASE("compact_trie_test.get_keys", "[compact_trie_test]")
+{
   test_index index;
   index.insert("key", "value");
   index.insert("key2", "value");
@@ -194,6 +205,7 @@ TEST_CASE("compact_trie_test.get_keys", "[compact_trie_test]") {
 
   CHECK_THAT(
     keys,
-    Catch::UnorderedEquals(std::vector<std::string>{"key", "key2", "key22", "key22bs", "k1"}));
+    Catch::UnorderedEquals(
+      std::vector<std::string>{"key", "key2", "key22", "key22bs", "k1"}));
 }
 } // namespace kdl

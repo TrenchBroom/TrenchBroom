@@ -27,16 +27,20 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EntityNode;
 class PickResult;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class MapDocument;
 
-class CreateEntityTool : public Tool {
+class CreateEntityTool : public Tool
+{
 private:
   std::weak_ptr<MapDocument> m_document;
   Model::EntityNode* m_entity;
@@ -50,7 +54,8 @@ public:
   void commitEntity();
 
   void updateEntityPosition2D(const vm::ray3& pickRay);
-  void updateEntityPosition3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
+  void updateEntityPosition3D(
+    const vm::ray3& pickRay, const Model::PickResult& pickResult);
 };
 } // namespace View
 } // namespace TrenchBroom

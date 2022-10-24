@@ -28,37 +28,47 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
-namespace {
+namespace TrenchBroom
+{
+namespace Model
+{
+namespace
+{
 static const auto Type = freeIssueType();
 
 void validateInternal(
-  const vm::bbox3& bounds, Node& node, std::vector<std::unique_ptr<Issue>>& issues) {
-  if (!bounds.contains(node.logicalBounds())) {
-    issues.push_back(std::make_unique<Issue>(Type, node, "Object is out of world bounds"));
+  const vm::bbox3& bounds, Node& node, std::vector<std::unique_ptr<Issue>>& issues)
+{
+  if (!bounds.contains(node.logicalBounds()))
+  {
+    issues.push_back(
+      std::make_unique<Issue>(Type, node, "Object is out of world bounds"));
   }
 }
 } // namespace
 
 WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3& bounds)
   : Validator{Type, "Objects out of world bounds"}
-  , m_bounds{bounds} {
+  , m_bounds{bounds}
+{
   addQuickFix(makeDeleteNodesQuickFix());
 }
 
 void WorldBoundsValidator::doValidate(
-  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   validateInternal(m_bounds, entityNode, issues);
 }
 
 void WorldBoundsValidator::doValidate(
-  BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   validateInternal(m_bounds, brushNode, issues);
 }
 
 void WorldBoundsValidator::doValidate(
-  PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   validateInternal(m_bounds, patchNode, issues);
 }
 } // namespace Model

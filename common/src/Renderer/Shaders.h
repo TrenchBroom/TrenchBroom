@@ -21,9 +21,12 @@
 
 #include "Renderer/ShaderConfig.h"
 
-namespace TrenchBroom {
-namespace Renderer {
-namespace Shaders {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+namespace Shaders
+{
 extern const ShaderConfig Grid2DShader;
 extern const ShaderConfig VaryingPCShader;
 extern const ShaderConfig VaryingPUniformCShader;

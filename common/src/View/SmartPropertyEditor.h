@@ -25,15 +25,19 @@
 
 #include <QWidget>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EntityNodeBase;
 }
 
-namespace View {
+namespace View
+{
 class MapDocument;
 
-class SmartPropertyEditor : public QWidget {
+class SmartPropertyEditor : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -43,7 +47,8 @@ private:
   bool m_active;
 
 public:
-  explicit SmartPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit SmartPropertyEditor(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
   virtual ~SmartPropertyEditor();
 
   bool usesPropertyKey(const std::string& propertyKey) const;

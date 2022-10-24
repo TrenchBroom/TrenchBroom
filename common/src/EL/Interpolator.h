@@ -24,9 +24,12 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace EL {
-class Interpolator : private IO::ELParser {
+namespace TrenchBroom
+{
+namespace EL
+{
+class Interpolator : private IO::ELParser
+{
 public:
   explicit Interpolator(const std::string& str);
 

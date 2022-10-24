@@ -24,20 +24,24 @@
 
 #include <memory>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Renderer {
+namespace Renderer
+{
 class MapRenderer;
 }
 
-namespace View {
+namespace View
+{
 class CyclingMapView;
 class GLContextManager;
 class MapDocument;
 class MapViewToolBox;
 
-class OnePaneMapView : public MultiMapView {
+class OnePaneMapView : public MultiMapView
+{
 private:
   Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
@@ -47,13 +51,18 @@ private:
 
 public:
   explicit OnePaneMapView(
-    Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
-    Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager,
+    Logger* logger,
+    std::weak_ptr<MapDocument> document,
+    MapViewToolBox& toolBox,
+    Renderer::MapRenderer& mapRenderer,
+    GLContextManager& contextManager,
     QWidget* parent = nullptr);
 
 private:
   void createGui(
-    MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
+    MapViewToolBox& toolBox,
+    Renderer::MapRenderer& mapRenderer,
+    GLContextManager& contextManager);
 };
 } // namespace View
 } // namespace TrenchBroom

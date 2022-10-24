@@ -29,60 +29,76 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 CreateEntityToolController::CreateEntityToolController(CreateEntityTool& tool)
-  : m_tool(tool) {}
+  : m_tool(tool)
+{
+}
 
 CreateEntityToolController::~CreateEntityToolController() = default;
 
-Tool& CreateEntityToolController::tool() {
+Tool& CreateEntityToolController::tool()
+{
   return m_tool;
 }
 
-const Tool& CreateEntityToolController::tool() const {
+const Tool& CreateEntityToolController::tool() const
+{
   return m_tool;
 }
 
 std::unique_ptr<DropTracker> CreateEntityToolController::acceptDrop(
-  const InputState& inputState, const std::string& payload) {
+  const InputState& inputState, const std::string& payload)
+{
   const auto parts = kdl::str_split(payload, ":");
-  if (parts.size() != 2 || parts[0] != "entity") {
+  if (parts.size() != 2 || parts[0] != "entity")
+  {
     return nullptr;
   }
 
-  if (!m_tool.createEntity(parts[1])) {
+  if (!m_tool.createEntity(parts[1]))
+  {
     return nullptr;
   }
 
   return createDropTracker(inputState);
 }
 
-bool CreateEntityToolController::cancel() {
+bool CreateEntityToolController::cancel()
+{
   return false;
 }
 
-namespace {
-class CreateEntityDropTracker : public DropTracker {
+namespace
+{
+class CreateEntityDropTracker : public DropTracker
+{
 private:
   CreateEntityTool& m_tool;
   std::function<void(const InputState&, CreateEntityTool& tool)> m_updateEntityPosition;
 
 public:
   explicit CreateEntityDropTracker(
-    const InputState& inputState, CreateEntityTool& tool,
+    const InputState& inputState,
+    CreateEntityTool& tool,
     std::function<void(const InputState&, CreateEntityTool& tool)> updateEntityPosition)
     : m_tool{tool}
-    , m_updateEntityPosition{std::move(updateEntityPosition)} {
+    , m_updateEntityPosition{std::move(updateEntityPosition)}
+  {
     m_updateEntityPosition(inputState, m_tool);
   }
 
-  bool move(const InputState& inputState) override {
+  bool move(const InputState& inputState) override
+  {
     m_updateEntityPosition(inputState, m_tool);
     return true;
   }
 
-  bool drop(const InputState&) override {
+  bool drop(const InputState&) override
+  {
     m_tool.commitEntity();
     return true;
   }
@@ -92,23 +108,31 @@ public:
 } // namespace
 
 CreateEntityToolController2D::CreateEntityToolController2D(CreateEntityTool& tool)
-  : CreateEntityToolController(tool) {}
+  : CreateEntityToolController(tool)
+{
+}
 
 std::unique_ptr<DropTracker> CreateEntityToolController2D::createDropTracker(
-  const InputState& inputState) const {
-  return std::make_unique<CreateEntityDropTracker>(inputState, m_tool, [](const auto& is, auto& t) {
-    t.updateEntityPosition2D(is.pickRay());
-  });
+  const InputState& inputState) const
+{
+  return std::make_unique<CreateEntityDropTracker>(
+    inputState, m_tool, [](const auto& is, auto& t) {
+      t.updateEntityPosition2D(is.pickRay());
+    });
 }
 
 CreateEntityToolController3D::CreateEntityToolController3D(CreateEntityTool& tool)
-  : CreateEntityToolController(tool) {}
+  : CreateEntityToolController(tool)
+{
+}
 
 std::unique_ptr<DropTracker> CreateEntityToolController3D::createDropTracker(
-  const InputState& inputState) const {
-  return std::make_unique<CreateEntityDropTracker>(inputState, m_tool, [](const auto& is, auto& t) {
-    t.updateEntityPosition3D(is.pickRay(), is.pickResult());
-  });
+  const InputState& inputState) const
+{
+  return std::make_unique<CreateEntityDropTracker>(
+    inputState, m_tool, [](const auto& is, auto& t) {
+      t.updateEntityPosition3D(is.pickRay(), is.pickResult());
+    });
 }
 } // namespace View
 } // namespace TrenchBroom

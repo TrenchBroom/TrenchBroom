@@ -30,27 +30,37 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 TextureFont::TextureFont(
-  std::unique_ptr<FontTexture> texture, const std::vector<FontGlyph>& glyphs, const int lineHeight,
-  const unsigned char firstChar, const unsigned char charCount)
+  std::unique_ptr<FontTexture> texture,
+  const std::vector<FontGlyph>& glyphs,
+  const int lineHeight,
+  const unsigned char firstChar,
+  const unsigned char charCount)
   : m_texture(std::move(texture))
   , m_glyphs(glyphs)
   , m_lineHeight(lineHeight)
   , m_firstChar(firstChar)
-  , m_charCount(charCount) {}
+  , m_charCount(charCount)
+{
+}
 
 TextureFont::~TextureFont() = default;
 
-class MeasureString : public AttrString::LineFunc {
+class MeasureString : public AttrString::LineFunc
+{
 private:
   const TextureFont& m_font;
   vm::vec2f m_size;
 
 public:
   explicit MeasureString(const TextureFont& font)
-    : m_font(font) {}
+    : m_font(font)
+  {
+  }
 
   const vm::vec2f& size() const { return m_size; }
 
@@ -61,21 +71,25 @@ private:
 
   void center(const std::string& str) override { measure(str); }
 
-  void measure(const std::string& str) {
+  void measure(const std::string& str)
+  {
     const auto size = m_font.measure(str);
     m_size[0] = std::max(m_size[0], size[0]);
     m_size[1] += size[1];
   }
 };
 
-class MeasureLines : public AttrString::LineFunc {
+class MeasureLines : public AttrString::LineFunc
+{
 private:
   const TextureFont& m_font;
   std::vector<vm::vec2f> m_sizes;
 
 public:
   explicit MeasureLines(const TextureFont& font)
-    : m_font(font) {}
+    : m_font(font)
+  {
+  }
 
   const std::vector<vm::vec2f>& sizes() const { return m_sizes; }
 
@@ -89,7 +103,8 @@ private:
   void measure(const std::string& str) { m_sizes.push_back(m_font.measure(str)); }
 };
 
-class MakeQuads : public AttrString::LineFunc {
+class MakeQuads : public AttrString::LineFunc
+{
 private:
   const TextureFont& m_font;
 
@@ -105,15 +120,19 @@ private:
 
 public:
   MakeQuads(
-    const TextureFont& font, const bool clockwise, const vm::vec2f& offset,
+    const TextureFont& font,
+    const bool clockwise,
+    const vm::vec2f& offset,
     const std::vector<vm::vec2f>& sizes)
     : m_font(font)
     , m_clockwise(clockwise)
     , m_offset(offset)
     , m_sizes(sizes)
     , m_index(0)
-    , m_y(0.0f) {
-    for (size_t i = 0; i < m_sizes.size(); ++i) {
+    , m_y(0.0f)
+  {
+    for (size_t i = 0; i < m_sizes.size(); ++i)
+    {
       m_maxSize = max(m_maxSize, m_sizes[i]);
       m_y += m_sizes[i].y();
     }
@@ -125,19 +144,23 @@ public:
 private:
   void justifyLeft(const std::string& str) override { makeQuads(str, 0.0f); }
 
-  void justifyRight(const std::string& str) override {
+  void justifyRight(const std::string& str) override
+  {
     const auto w = m_sizes[m_index].x();
     makeQuads(str, m_maxSize.x() - w);
   }
 
-  void center(const std::string& str) override {
+  void center(const std::string& str) override
+  {
     const auto w = m_sizes[m_index].x();
     makeQuads(str, (m_maxSize.x() - w) / 2.0f);
   }
 
-  void makeQuads(const std::string& str, const float x) {
+  void makeQuads(const std::string& str, const float x)
+  {
     const auto offset = m_offset + vm::vec2f(x, m_y);
-    m_vertices = kdl::vec_concat(std::move(m_vertices), m_font.quads(str, m_clockwise, offset));
+    m_vertices =
+      kdl::vec_concat(std::move(m_vertices), m_font.quads(str, m_clockwise, offset));
 
     m_y -= m_sizes[m_index].y();
     m_index++;
@@ -145,7 +168,8 @@ private:
 };
 
 std::vector<vm::vec2f> TextureFont::quads(
-  const AttrString& string, const bool clockwise, const vm::vec2f& offset) const {
+  const AttrString& string, const bool clockwise, const vm::vec2f& offset) const
+{
   MeasureLines measureLines(*this);
   string.lines(measureLines);
   const auto& sizes = measureLines.sizes();
@@ -155,33 +179,39 @@ std::vector<vm::vec2f> TextureFont::quads(
   return makeQuads.vertices();
 }
 
-vm::vec2f TextureFont::measure(const AttrString& string) const {
+vm::vec2f TextureFont::measure(const AttrString& string) const
+{
   MeasureString measureString(*this);
   string.lines(measureString);
   return measureString.size();
 }
 
 std::vector<vm::vec2f> TextureFont::quads(
-  const std::string& string, const bool clockwise, const vm::vec2f& offset) const {
+  const std::string& string, const bool clockwise, const vm::vec2f& offset) const
+{
   std::vector<vm::vec2f> result;
   result.reserve(string.length() * 4 * 2);
 
   auto x = static_cast<int>(vm::round(offset.x()));
   auto y = static_cast<int>(vm::round(offset.y()));
-  for (size_t i = 0; i < string.length(); i++) {
+  for (size_t i = 0; i < string.length(); i++)
+  {
     auto c = string[i];
-    if (c == '\n') {
+    if (c == '\n')
+    {
       x = 0;
       y += m_lineHeight;
       continue;
     }
 
-    if (c < m_firstChar || c >= m_firstChar + m_charCount) {
+    if (c < m_firstChar || c >= m_firstChar + m_charCount)
+    {
       c = ' '; // space
     }
 
     const auto& glyph = m_glyphs[static_cast<size_t>(c - m_firstChar)];
-    if (c != ' ') {
+    if (c != ' ')
+    {
       glyph.appendVertices(result, x, y, m_texture->size(), clockwise);
     }
 
@@ -190,21 +220,25 @@ std::vector<vm::vec2f> TextureFont::quads(
   return result;
 }
 
-vm::vec2f TextureFont::measure(const std::string& string) const {
+vm::vec2f TextureFont::measure(const std::string& string) const
+{
   vm::vec2f result;
 
   int x = 0;
   int y = 0;
-  for (size_t i = 0; i < string.length(); i++) {
+  for (size_t i = 0; i < string.length(); i++)
+  {
     char c = string[i];
-    if (c == '\n') {
+    if (c == '\n')
+    {
       result[0] = std::max(result[0], static_cast<float>(x));
       x = 0;
       y += m_lineHeight;
       continue;
     }
 
-    if (c < m_firstChar || c >= m_firstChar + m_charCount) {
+    if (c < m_firstChar || c >= m_firstChar + m_charCount)
+    {
       c = 32; // space
     }
 
@@ -217,11 +251,13 @@ vm::vec2f TextureFont::measure(const std::string& string) const {
   return result;
 }
 
-void TextureFont::activate() {
+void TextureFont::activate()
+{
   m_texture->activate();
 }
 
-void TextureFont::deactivate() {
+void TextureFont::deactivate()
+{
   m_texture->deactivate();
 }
 } // namespace Renderer

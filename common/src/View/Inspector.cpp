@@ -29,8 +29,10 @@
 
 #include <QVBoxLayout>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 Inspector::Inspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget(parent)
@@ -38,7 +40,8 @@ Inspector::Inspector(
   , m_mapInspector(nullptr)
   , m_entityInspector(nullptr)
   , m_faceInspector(nullptr)
-  , m_syncTabBarEventFilter(nullptr) {
+  , m_syncTabBarEventFilter(nullptr)
+{
   m_tabBook = new TabBook();
 
   m_mapInspector = new MapInspector(document);
@@ -55,23 +58,29 @@ Inspector::Inspector(
   setLayout(layout);
 }
 
-void Inspector::connectTopWidgets(MapViewBar* mapViewBar) {
-  if (m_syncTabBarEventFilter != nullptr) {
+void Inspector::connectTopWidgets(MapViewBar* mapViewBar)
+{
+  if (m_syncTabBarEventFilter != nullptr)
+  {
     delete std::exchange(m_syncTabBarEventFilter, nullptr);
   }
 
-  m_syncTabBarEventFilter = new SyncHeightEventFilter(mapViewBar, m_tabBook->tabBar(), this);
+  m_syncTabBarEventFilter =
+    new SyncHeightEventFilter(mapViewBar, m_tabBook->tabBar(), this);
 }
 
-void Inspector::switchToPage(const InspectorPage page) {
+void Inspector::switchToPage(const InspectorPage page)
+{
   m_tabBook->switchToPage(static_cast<int>(page));
 }
 
-bool Inspector::cancelMouseDrag() {
+bool Inspector::cancelMouseDrag()
+{
   return m_faceInspector->cancelMouseDrag();
 }
 
-FaceInspector* Inspector::faceInspector() {
+FaceInspector* Inspector::faceInspector()
+{
   return m_faceInspector;
 }
 } // namespace View

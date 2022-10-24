@@ -25,16 +25,20 @@
 
 #include <miniz/miniz.h>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 
-class ZipFileSystem : public ImageFileSystem {
+class ZipFileSystem : public ImageFileSystem
+{
 private:
   mz_zip_archive m_archive;
 
 private:
-  class ZipCompressedFile : public FileEntry {
+  class ZipCompressedFile : public FileEntry
+  {
   private:
     ZipFileSystem* m_owner;
     mz_uint m_fileIndex;

@@ -27,12 +27,15 @@ class QAction;
 class QMenu;
 class QMenuBar;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 /**
  * Builds actions for a menu and saves them in the given ActionMap.
  */
-class MenuBuilderBase {
+class MenuBuilderBase
+{
 protected:
   using ActionMap = std::map<const Action*, QAction*>;
   using TriggerFn = std::function<void(const Action&)>;
@@ -54,7 +57,8 @@ protected:
   QAction* findOrCreateQAction(const Action* tAction);
 };
 
-class MainMenuBuilder : public MenuVisitor, public MenuBuilderBase {
+class MainMenuBuilder : public MenuVisitor, public MenuBuilderBase
+{
 private:
   QMenuBar& m_menuBar;
 

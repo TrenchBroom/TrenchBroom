@@ -33,19 +33,23 @@ class QAbstractButton;
 class QShortcut;
 class QSortFilterProxyModel;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EntityNode;
 class Node;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class EntityPropertyModel;
 class EntityPropertyTable;
 class MapDocument;
 class Selection;
 
-struct PropertyGridSelection {
+struct PropertyGridSelection
+{
   std::string propertyKey;
   int column;
 };
@@ -54,7 +58,8 @@ struct PropertyGridSelection {
  * Panel with the entity property table, and the toolbar below it (add/remove icons,
  * "show default properties" checkbox, etc.)
  */
-class EntityPropertyGrid : public QWidget {
+class EntityPropertyGrid : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -71,7 +76,8 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityPropertyGrid(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit EntityPropertyGrid(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
 private:
   void backupSelection();

@@ -28,17 +28,21 @@
 #include <memory>
 #include <unordered_map>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class BrushIndexArray;
 class BrushVertexArray;
 class RenderBatch;
 
-class FaceRenderer : public IndexedRenderable {
+class FaceRenderer : public IndexedRenderable
+{
 private:
   struct RenderFunc;
 
@@ -57,7 +61,8 @@ public:
   FaceRenderer();
   FaceRenderer(
     std::shared_ptr<BrushVertexArray> vertexArray,
-    std::shared_ptr<TextureToBrushIndicesMap> indexArrayMap, const Color& faceColor);
+    std::shared_ptr<TextureToBrushIndicesMap> indexArrayMap,
+    const Color& faceColor);
 
   FaceRenderer(const FaceRenderer& other);
   FaceRenderer& operator=(FaceRenderer other);

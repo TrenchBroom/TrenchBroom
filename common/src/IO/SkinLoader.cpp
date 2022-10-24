@@ -36,49 +36,67 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace IO {
-Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger) {
+namespace TrenchBroom
+{
+namespace IO
+{
+Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger)
+{
   return loadSkin(path, fs, logger, Assets::Palette());
 }
 
 Assets::Texture loadSkin(
-  const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette) {
+  const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette)
+{
   const TextureReader::StaticNameStrategy nameStrategy(path.basename());
 
-  try {
+  try
+  {
     const auto file = fs.openFile(path);
     const std::string extension = kdl::str_to_lower(path.extension());
 
-    if (extension == "wal") {
+    if (extension == "wal")
+    {
       WalTextureReader reader(nameStrategy, fs, logger, palette);
       return reader.readTexture(file);
-    } else {
+    }
+    else
+    {
       FreeImageTextureReader reader(nameStrategy, fs, logger);
       return reader.readTexture(file);
     }
-  } catch (Exception& e) {
+  }
+  catch (Exception& e)
+  {
     logger.error() << "Could not load skin '" << path << "': " << e.what();
     return loadDefaultTexture(fs, logger, nameStrategy.textureName("", path));
   }
 }
 
-Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger) {
+Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger)
+{
   const TextureReader::PathSuffixNameStrategy nameStrategy(0u);
 
-  if (!path.isEmpty()) {
+  if (!path.isEmpty())
+  {
     logger.debug() << "Loading shader '" << path << "'";
-    try {
-      const auto file = fs.fileExists(path.deleteExtension()) ? fs.openFile(path.deleteExtension())
-                                                              : fs.openFile(path);
+    try
+    {
+      const auto file = fs.fileExists(path.deleteExtension())
+                          ? fs.openFile(path.deleteExtension())
+                          : fs.openFile(path);
 
       Quake3ShaderTextureReader reader(nameStrategy, fs, logger);
       return reader.readTexture(file);
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
       logger.error() << "Could not load shader '" << path << "': " << e.what();
       // fall through to return the default texture
     }
-  } else {
+  }
+  else
+  {
     logger.warn() << "Could not load shader: Path is empty";
   }
   const auto name = nameStrategy.textureName("", path);

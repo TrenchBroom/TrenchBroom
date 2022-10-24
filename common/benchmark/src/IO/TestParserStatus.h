@@ -25,9 +25,12 @@
 #include <map>
 #include <string>
 
-namespace TrenchBroom {
-namespace IO {
-class TestParserStatus : public ParserStatus {
+namespace TrenchBroom
+{
+namespace IO
+{
+class TestParserStatus : public ParserStatus
+{
 private:
   static NullLogger _logger;
   using StatusCounts = std::map<LogLevel, size_t>;

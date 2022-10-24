@@ -33,23 +33,28 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-static void setLayerSortIndex(Model::LayerNode& layerNode, int sortIndex) {
+namespace TrenchBroom
+{
+namespace View
+{
+static void setLayerSortIndex(Model::LayerNode& layerNode, int sortIndex)
+{
   auto layer = layerNode.layer();
   layer.setSortIndex(sortIndex);
   layerNode.setLayer(layer);
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.defaultLayerSortIndexImmutable", "[LayerNodesTest]") {
+  MapDocumentTest, "LayerNodeTest.defaultLayerSortIndexImmutable", "[LayerNodesTest]")
+{
   Model::LayerNode* defaultLayerNode = document->world()->defaultLayer();
   setLayerSortIndex(*defaultLayerNode, 555);
 
   CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer", "[LayerNodesTest]") {
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer", "[LayerNodesTest]")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();
@@ -66,7 +71,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer", "[LayerNodesTest]
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLayer", "[LayerNodesTest]") {
+  MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLayer", "[LayerNodesTest]")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();
@@ -77,7 +83,8 @@ TEST_CASE_METHOD(
   document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
-  Model::EntityNode* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  Model::EntityNode* entity =
+    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   CHECK(entity->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1);
 
@@ -92,7 +99,9 @@ TEST_CASE_METHOD(
   CHECK(document->currentLayer() == layerNode2);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer", "[LayerNodesTest]") {
+TEST_CASE_METHOD(
+  MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer", "[LayerNodesTest]")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();
@@ -103,7 +112,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer", "
   document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
-  Model::EntityNode* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  Model::EntityNode* entity =
+    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   CHECK(entity->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1);
 
@@ -119,7 +129,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer", "
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisible", "[LayerNodesTest]") {
+  MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisible", "[LayerNodesTest]")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();
@@ -132,7 +143,8 @@ TEST_CASE_METHOD(
   document->setCurrentLayer(layerNode1);
 
   // Create an entity in layer1
-  Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  Model::EntityNode* entity1 =
+    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   CHECK(entity1->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1u);
 
@@ -146,8 +158,10 @@ TEST_CASE_METHOD(
   CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
   CHECK(!entity1->visible());
 
-  // Create another entity in layer1. It will be visible, while entity1 will still be hidden.
-  Model::EntityNode* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  // Create another entity in layer1. It will be visible, while entity1 will still be
+  // hidden.
+  Model::EntityNode* entity2 =
+    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   CHECK(entity2->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2u);
 
@@ -189,7 +203,10 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.duplicatedObjectInHiddenLayerIsVisible", "[LayerNodesTest]") {
+  MapDocumentTest,
+  "LayerNodeTest.duplicatedObjectInHiddenLayerIsVisible",
+  "[LayerNodesTest]")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();
@@ -201,7 +218,8 @@ TEST_CASE_METHOD(
   document->hideLayers({layerNode1});
 
   // Create entity1 and brush1 in the hidden layer1
-  Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  Model::EntityNode* entity1 =
+    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   Model::BrushNode* brush1 = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brush1}}});
 
@@ -234,7 +252,8 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnlocked", "[LayerNodesTest]") {
+  MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnlocked", "[LayerNodesTest]")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();
@@ -260,8 +279,8 @@ TEST_CASE_METHOD(
   CHECK(entity1->lockState() == Model::LockState::Inherited);
   CHECK(entity1->locked());
 
-  // Create another entity in layer1. It will be unlocked, while entity1 will still be locked
-  // (inherited).
+  // Create another entity in layer1. It will be unlocked, while entity1 will still be
+  // locked (inherited).
   auto* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   CHECK(entity2->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2u);
@@ -304,7 +323,8 @@ TEST_CASE_METHOD(
   CHECK(!entity1->locked());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer", "[LayerNodesTest]") {
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer", "[LayerNodesTest]")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();
@@ -321,7 +341,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer", "[LayerNodesTest]")
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
 
-  SECTION("check canMoveLayer") {
+  SECTION("check canMoveLayer")
+  {
     // defaultLayer() can never be moved
     CHECK(!document->canMoveLayer(document->world()->defaultLayer(), 1));
     CHECK(document->canMoveLayer(layerNode0, 0));
@@ -331,27 +352,32 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer", "[LayerNodesTest]")
     CHECK(!document->canMoveLayer(layerNode0, 3));
   }
 
-  SECTION("moveLayer by 0 has no effect") {
+  SECTION("moveLayer by 0 has no effect")
+  {
     document->moveLayer(layerNode0, 0);
     CHECK(layerNode0->layer().sortIndex() == 0);
   }
-  SECTION("moveLayer by invalid negative amount is clamped") {
+  SECTION("moveLayer by invalid negative amount is clamped")
+  {
     document->moveLayer(layerNode0, -1000);
     CHECK(layerNode0->layer().sortIndex() == 0);
   }
-  SECTION("moveLayer by 1") {
+  SECTION("moveLayer by 1")
+  {
     document->moveLayer(layerNode0, 1);
     CHECK(layerNode1->layer().sortIndex() == 0);
     CHECK(layerNode0->layer().sortIndex() == 1);
     CHECK(layerNode2->layer().sortIndex() == 2);
   }
-  SECTION("moveLayer by 2") {
+  SECTION("moveLayer by 2")
+  {
     document->moveLayer(layerNode0, 2);
     CHECK(layerNode1->layer().sortIndex() == 0);
     CHECK(layerNode2->layer().sortIndex() == 1);
     CHECK(layerNode0->layer().sortIndex() == 2);
   }
-  SECTION("moveLayer by invalid positive amount is clamped") {
+  SECTION("moveLayer by invalid positive amount is clamped")
+  {
     document->moveLayer(layerNode0, 1000);
     CHECK(layerNode1->layer().sortIndex() == 0);
     CHECK(layerNode2->layer().sortIndex() == 1);
@@ -359,7 +385,9 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer", "[LayerNodesTest]")
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerNodesTest]") {
+TEST_CASE_METHOD(
+  MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerNodesTest]")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();
@@ -369,7 +397,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerN
 
   auto* defaultLayer = document->world()->defaultLayer();
 
-  GIVEN("A top level node") {
+  GIVEN("A top level node")
+  {
     using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
     const auto createNode = GENERATE_COPY(
       CreateNode{[](const auto& test) {
@@ -377,40 +406,40 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerN
         groupNode->addChild(test.createBrushNode());
         return groupNode;
       }},
-      CreateNode{[](const auto&) {
-        return new Model::EntityNode{Model::Entity{}};
-      }},
-      CreateNode{[](const auto& test) {
-        return test.createBrushNode();
-      }},
-      CreateNode{[](const auto& test) {
-        return test.createPatchNode();
-      }});
+      CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
+      CreateNode{[](const auto& test) { return test.createBrushNode(); }},
+      CreateNode{[](const auto& test) { return test.createPatchNode(); }});
 
     auto* node = createNode(*this);
     document->addNodes({{document->parentForNodes(), {node}}});
 
     REQUIRE(Model::findContainingLayer(node) == defaultLayer);
 
-    WHEN("The node is moved to another layer") {
+    WHEN("The node is moved to another layer")
+    {
       document->selectNodes({node});
       document->moveSelectionToLayer(customLayer);
 
-      THEN("The group node is in the target layer") {
+      THEN("The group node is in the target layer")
+      {
         CHECK(Model::findContainingLayer(node) == customLayer);
 
-        AND_THEN("The node is selected") {
+        AND_THEN("The node is selected")
+        {
           CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{node});
         }
       }
 
-      AND_WHEN("The operation is undone") {
+      AND_WHEN("The operation is undone")
+      {
         document->undoCommand();
 
-        THEN("The node is back in the original layer") {
+        THEN("The node is back in the original layer")
+        {
           CHECK(Model::findContainingLayer(node) == defaultLayer);
 
-          AND_THEN("The node is selected") {
+          AND_THEN("The node is selected")
+          {
             CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{node});
           }
         }
@@ -418,7 +447,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerN
     }
   }
 
-  GIVEN("A brush entity node") {
+  GIVEN("A brush entity node")
+  {
     auto* entityNode = new Model::EntityNode{Model::Entity{}};
     auto* childNode1 = createBrushNode();
     auto* childNode2 = createPatchNode();
@@ -428,7 +458,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerN
 
     REQUIRE(Model::findContainingLayer(entityNode) == defaultLayer);
 
-    WHEN("Any child node is selected and moved to another layer") {
+    WHEN("Any child node is selected and moved to another layer")
+    {
       // clang-format off
       const auto [selectChild1, selectChild2] = GENERATE(
         std::make_tuple(true, true),
@@ -437,37 +468,45 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerN
       );
       // clang-format on
 
-      if (selectChild1) {
+      if (selectChild1)
+      {
         document->selectNodes({childNode1});
       }
-      if (selectChild2) {
+      if (selectChild2)
+      {
         document->selectNodes({childNode2});
       }
 
       const auto selectedNodes = document->selectedNodes().nodes();
       document->moveSelectionToLayer(customLayer);
 
-      THEN("The brush entity node is moved to the target layer") {
+      THEN("The brush entity node is moved to the target layer")
+      {
         CHECK(Model::findContainingLayer(entityNode) == customLayer);
         CHECK(childNode1->parent() == entityNode);
         CHECK(childNode2->parent() == entityNode);
 
-        AND_THEN("The child nodes are selected") {
+        AND_THEN("The child nodes are selected")
+        {
           CHECK(document->selectedNodes().nodes() == entityNode->children());
         }
       }
 
-      AND_WHEN("The operation is undone") {
+      AND_WHEN("The operation is undone")
+      {
         document->undoCommand();
 
-        THEN("The brush entity node is back in the original layer") {
+        THEN("The brush entity node is back in the original layer")
+        {
           CHECK(Model::findContainingLayer(entityNode) == defaultLayer);
           CHECK(childNode1->parent() == entityNode);
           CHECK(childNode2->parent() == entityNode);
 
-          AND_THEN("The originally selected nodes are selected") {
+          AND_THEN("The originally selected nodes are selected")
+          {
             CHECK_THAT(
-              document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
+              document->selectedNodes().nodes(),
+              Catch::Matchers::UnorderedEquals(selectedNodes));
           }
         }
       }
@@ -475,7 +514,9 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerN
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.setCurrentLayerCollation", "[LayerNodesTest]") {
+TEST_CASE_METHOD(
+  MapDocumentTest, "LayerNodeTest.setCurrentLayerCollation", "[LayerNodesTest]")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();

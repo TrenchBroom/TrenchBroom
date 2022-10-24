@@ -26,18 +26,22 @@
 
 class QTextEdit;
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class VariableTable;
 
-namespace Model {
+namespace Model
+{
 class CompilationProfile;
 }
 
-namespace View {
+namespace View
+{
 class CompilationRunner;
 class MapDocument;
 
-class CompilationRun : public QObject {
+class CompilationRun : public QObject
+{
   Q_OBJECT
 private:
   CompilationRunner* m_currentRun;
@@ -48,18 +52,22 @@ public:
 
   bool running() const;
   void run(
-    const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document,
+    const Model::CompilationProfile* profile,
+    std::shared_ptr<MapDocument> document,
     QTextEdit* currentOutput);
   void test(
-    const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document,
+    const Model::CompilationProfile* profile,
+    std::shared_ptr<MapDocument> document,
     QTextEdit* currentOutput);
   void terminate();
 
 private:
   bool doIsRunning() const;
   void run(
-    const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document,
-    QTextEdit* currentOutput, bool test);
+    const Model::CompilationProfile* profile,
+    std::shared_ptr<MapDocument> document,
+    QTextEdit* currentOutput,
+    bool test);
 
 private:
   std::string buildWorkDir(

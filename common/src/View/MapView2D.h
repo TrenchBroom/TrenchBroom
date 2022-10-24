@@ -26,14 +26,17 @@
 
 #include <memory>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Model {
+namespace Model
+{
 class PickResult;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class MapRenderer;
 class OrthographicCamera;
 class RenderBatch;
@@ -41,11 +44,14 @@ class RenderContext;
 enum class RenderMode;
 } // namespace Renderer
 
-namespace View {
-class MapView2D : public MapViewBase {
+namespace View
+{
+class MapView2D : public MapViewBase
+{
   Q_OBJECT
 public:
-  typedef enum {
+  typedef enum
+  {
     ViewPlane_XY,
     ViewPlane_XZ,
     ViewPlane_YZ
@@ -58,8 +64,12 @@ private:
 
 public:
   MapView2D(
-    std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer,
-    GLContextManager& contextManager, ViewPlane viewPlane, Logger* logger);
+    std::weak_ptr<MapDocument> document,
+    MapViewToolBox& toolBox,
+    Renderer::MapRenderer& renderer,
+    GLContextManager& contextManager,
+    ViewPlane viewPlane,
+    Logger* logger);
 
 private:
   void initializeCamera(ViewPlane viewPlane);
@@ -88,7 +98,9 @@ private: // implement MapView interface
 
   void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
   void animateCamera(
-    const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up,
+    const vm::vec3f& position,
+    const vm::vec3f& direction,
+    const vm::vec3f& up,
     const int duration = DefaultCameraAnimationDuration);
 
   void doMoveCameraToCurrentTracePoint() override;
@@ -107,10 +119,12 @@ private: // implement MapViewBase interface
   void doRenderGrid(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
   void doRenderMap(
-    Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext,
+    Renderer::MapRenderer& renderer,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
   void doRenderTools(
-    MapViewToolBox& toolBox, Renderer::RenderContext& renderContext,
+    MapViewToolBox& toolBox,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
   void doRenderExtras(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;

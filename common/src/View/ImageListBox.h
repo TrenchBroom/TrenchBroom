@@ -24,11 +24,14 @@
 class QLabel;
 class QPixmap;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class ElidedLabel;
 
-class ImageListBoxItemRenderer : public ControlListBoxItemRenderer {
+class ImageListBoxItemRenderer : public ControlListBoxItemRenderer
+{
   Q_OBJECT
 private:
   ElidedLabel* m_titleLabel;
@@ -41,10 +44,12 @@ public:
   void updateItem() override;
 };
 
-class ImageListBox : public ControlListBox {
+class ImageListBox : public ControlListBox
+{
   Q_OBJECT
 public:
-  explicit ImageListBox(const QString& emptyText, bool showSeparator, QWidget* parent = nullptr);
+  explicit ImageListBox(
+    const QString& emptyText, bool showSeparator, QWidget* parent = nullptr);
 
 private:
   ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;

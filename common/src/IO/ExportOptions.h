@@ -26,22 +26,27 @@
 
 #include <variant>
 
-namespace TrenchBroom {
-namespace IO {
-struct MapExportOptions {
+namespace TrenchBroom
+{
+namespace IO
+{
+struct MapExportOptions
+{
   Path exportPath;
 
   kdl_reflect_decl(MapExportOptions, exportPath);
 };
 
-enum class ObjMtlPathMode {
+enum class ObjMtlPathMode
+{
   RelativeToGamePath,
   RelativeToExportPath
 };
 
 std::ostream& operator<<(std::ostream& lhs, ObjMtlPathMode rhs);
 
-struct ObjExportOptions {
+struct ObjExportOptions
+{
   Path exportPath;
   ObjMtlPathMode mtlPathMode;
 

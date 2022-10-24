@@ -31,26 +31,32 @@ class QCheckBox;
 class QWidget;
 class QButtonGroup;
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class EntityDefinition;
 class EntityDefinitionManager;
 } // namespace Assets
 
-namespace IO {
+namespace IO
+{
 class Path;
 }
 
-namespace Model {
+namespace Model
+{
 class EditorContext;
 class SmartTag;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class MapDocument;
 class PopupButton;
 
-class EntityDefinitionCheckBoxList : public QWidget {
+class EntityDefinitionCheckBoxList : public QWidget
+{
   Q_OBJECT
 private:
   using CheckBoxList = std::vector<QCheckBox*>;
@@ -63,7 +69,8 @@ private:
 
 public:
   EntityDefinitionCheckBoxList(
-    Assets::EntityDefinitionManager& entityDefinitionManager, Model::EditorContext& editorContext,
+    Assets::EntityDefinitionManager& entityDefinitionManager,
+    Model::EditorContext& editorContext,
     QWidget* parent = nullptr);
 
   void refresh();
@@ -78,7 +85,8 @@ private:
   void createGui();
 };
 
-class ViewEditor : public QWidget {
+class ViewEditor : public QWidget
+{
   Q_OBJECT
 private:
   using CheckBoxList = std::vector<QCheckBox*>;
@@ -155,14 +163,16 @@ private:
   void restoreDefaultsClicked();
 };
 
-class ViewPopupEditor : public QWidget {
+class ViewPopupEditor : public QWidget
+{
   Q_OBJECT
 private:
   PopupButton* m_button;
   ViewEditor* m_editor;
 
 public:
-  explicit ViewPopupEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit ViewPopupEditor(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 };
 } // namespace View
 } // namespace TrenchBroom

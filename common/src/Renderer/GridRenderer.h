@@ -26,13 +26,16 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class OrthographicCamera;
 class RenderContext;
 class VboManager;
 
-class GridRenderer : public DirectRenderable {
+class GridRenderer : public DirectRenderable
+{
 private:
   using Vertex = GLVertexTypes::P3::Vertex;
   VertexArray m_vertexArray;

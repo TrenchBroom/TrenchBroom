@@ -27,20 +27,25 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate") {
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
+{
   // delete default brush
   document->selectAllNodes();
   document->deleteObjects();
 
-  GIVEN("An unrelated top level node") {
+  GIVEN("An unrelated top level node")
+  {
     auto* nodeToHide = new Model::EntityNode{Model::Entity{}};
     document->addNodes({{document->parentForNodes(), {nodeToHide}}});
 
     REQUIRE(!nodeToHide->hidden());
 
-    AND_GIVEN("Another top level node that should be isolated") {
+    AND_GIVEN("Another top level node that should be isolated")
+    {
       using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
       const auto createNode = GENERATE_COPY(
         CreateNode{[](const auto& test) {
@@ -48,48 +53,48 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate") {
           groupNode->addChild(test.createBrushNode());
           return groupNode;
         }},
-        CreateNode{[](const auto&) {
-          return new Model::EntityNode{Model::Entity{}};
-        }},
-        CreateNode{[](const auto& test) {
-          return test.createBrushNode();
-        }},
-        CreateNode{[](const auto& test) {
-          return test.createPatchNode();
-        }});
+        CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
+        CreateNode{[](const auto& test) { return test.createBrushNode(); }},
+        CreateNode{[](const auto& test) { return test.createPatchNode(); }});
 
       auto* nodeToIsolate = createNode(*this);
       document->addNodes({{document->parentForNodes(), {nodeToIsolate}}});
 
       REQUIRE(!nodeToIsolate->hidden());
 
-      WHEN("The node is isolated") {
+      WHEN("The node is isolated")
+      {
         document->selectNodes({nodeToIsolate});
 
         const auto selectedNodes = document->selectedNodes().nodes();
         document->isolate();
 
-        THEN("The node is isolated and selected") {
+        THEN("The node is isolated and selected")
+        {
           CHECK_FALSE(nodeToIsolate->hidden());
           CHECK(nodeToHide->hidden());
           CHECK(nodeToIsolate->selected());
         }
 
-        AND_WHEN("The operation is undone") {
+        AND_WHEN("The operation is undone")
+        {
           document->undoCommand();
 
-          THEN("All nodes are visible again and selection is restored") {
+          THEN("All nodes are visible again and selection is restored")
+          {
             CHECK_FALSE(nodeToIsolate->hidden());
             CHECK_FALSE(nodeToHide->hidden());
 
             CHECK_THAT(
-              document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
+              document->selectedNodes().nodes(),
+              Catch::Matchers::UnorderedEquals(selectedNodes));
           }
         }
       }
     }
 
-    AND_GIVEN("A top level brush entity") {
+    AND_GIVEN("A top level brush entity")
+    {
       auto* childNode1 = createBrushNode();
       auto* childNode2 = createPatchNode();
 
@@ -104,14 +109,19 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate") {
       REQUIRE_FALSE(childNode1->hidden());
       REQUIRE_FALSE(childNode2->hidden());
 
-      WHEN("Any child node is isolated") {
+      WHEN("Any child node is isolated")
+      {
         const auto [selectChild1, selectChild2] = GENERATE(
-          std::make_tuple(true, true), std::make_tuple(true, false), std::make_tuple(false, true));
+          std::make_tuple(true, true),
+          std::make_tuple(true, false),
+          std::make_tuple(false, true));
 
-        if (selectChild1) {
+        if (selectChild1)
+        {
           document->selectNodes({childNode1});
         }
-        if (selectChild2) {
+        if (selectChild2)
+        {
           document->selectNodes({childNode2});
         }
         REQUIRE_FALSE(entityNode->selected());
@@ -120,12 +130,14 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate") {
         document->isolate();
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/3117
-        THEN("The containining entity node is visible") {
+        THEN("The containining entity node is visible")
+        {
           CHECK(!entityNode->hidden());
 
           AND_THEN("The top level node is hidden") { CHECK(nodeToHide->hidden()); }
 
-          AND_THEN("Any selected child node is visible and selected") {
+          AND_THEN("Any selected child node is visible and selected")
+          {
             CHECK(childNode1->hidden() != selectChild1);
             CHECK(childNode2->hidden() != selectChild2);
             CHECK(childNode1->selected() == selectChild1);
@@ -133,17 +145,20 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate") {
           }
         }
 
-        AND_WHEN("The operation is undone") {
+        AND_WHEN("The operation is undone")
+        {
           document->undoCommand();
 
-          THEN("All nodes are visible and selection is restored") {
+          THEN("All nodes are visible and selection is restored")
+          {
             CHECK_FALSE(nodeToHide->hidden());
             CHECK_FALSE(entityNode->hidden());
             CHECK_FALSE(childNode1->hidden());
             CHECK_FALSE(childNode2->hidden());
 
             CHECK_THAT(
-              document->selectedNodes().nodes(), Catch::Matchers::UnorderedEquals(selectedNodes));
+              document->selectedNodes().nodes(),
+              Catch::Matchers::UnorderedEquals(selectedNodes));
           }
         }
       }

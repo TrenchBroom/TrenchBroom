@@ -25,8 +25,10 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushNode;
 class BrushFace;
 class EntityProperty;
@@ -37,7 +39,8 @@ class PatchNode;
 class WorldNode;
 } // namespace Model
 
-namespace IO {
+namespace IO
+{
 /**
  * Interface for stream-based serialization of a map, with public functions to
  * write different types of nodes to the output stream.
@@ -53,7 +56,8 @@ namespace IO {
  *
  * You may not reuse the NodeSerializer after that point.
  */
-class NodeSerializer {
+class NodeSerializer
+{
 protected:
   using ObjectNo = unsigned int;
 
@@ -93,19 +97,24 @@ public:
   void defaultLayer(const Model::WorldNode& world);
   void customLayer(const Model::LayerNode* layer);
   void group(
-    const Model::GroupNode* group, const std::vector<Model::EntityProperty>& parentProperties);
+    const Model::GroupNode* group,
+    const std::vector<Model::EntityProperty>& parentProperties);
 
   void entity(
-    const Model::Node* node, const std::vector<Model::EntityProperty>& properties,
-    const std::vector<Model::EntityProperty>& parentProperties, const Model::Node* brushParent);
+    const Model::Node* node,
+    const std::vector<Model::EntityProperty>& properties,
+    const std::vector<Model::EntityProperty>& parentProperties,
+    const Model::Node* brushParent);
   void entity(
-    const Model::Node* node, const std::vector<Model::EntityProperty>& properties,
+    const Model::Node* node,
+    const std::vector<Model::EntityProperty>& properties,
     const std::vector<Model::EntityProperty>& parentProperties,
     const std::vector<Model::BrushNode*>& entityBrushes);
 
 private:
   void beginEntity(
-    const Model::Node* node, const std::vector<Model::EntityProperty>& properties,
+    const Model::Node* node,
+    const std::vector<Model::EntityProperty>& properties,
     const std::vector<Model::EntityProperty>& extraAttributes);
   void beginEntity(const Model::Node* node);
   void endEntity(const Model::Node* node);

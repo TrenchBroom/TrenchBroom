@@ -24,14 +24,17 @@
 
 #include <vecmath/forward.h>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Color;
 
-namespace Renderer {
+namespace Renderer
+{
 class Camera;
 class RenderBatch;
 
-class Compass : public DirectRenderable {
+class Compass : public DirectRenderable
+{
 private:
   static const size_t m_segments;
   static const float m_shaftLength;

@@ -32,48 +32,61 @@
 #include <kdl/memory_utils.h>
 #include <kdl/result.h>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 CreateComplexBrushTool::CreateComplexBrushTool(std::weak_ptr<MapDocument> document)
   : CreateBrushToolBase(false, document)
-  , m_polyhedron(std::make_unique<Model::Polyhedron3>()) {}
+  , m_polyhedron(std::make_unique<Model::Polyhedron3>())
+{
+}
 
-const Model::Polyhedron3& CreateComplexBrushTool::polyhedron() const {
+const Model::Polyhedron3& CreateComplexBrushTool::polyhedron() const
+{
   return *m_polyhedron;
 }
 
-void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron) {
+void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
+{
   *m_polyhedron = polyhedron;
-  if (m_polyhedron->closed()) {
+  if (m_polyhedron->closed())
+  {
     auto document = kdl::mem_lock(m_document);
     const auto game = document->game();
     const Model::BrushBuilder builder(
-      document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
+      document->world()->mapFormat(),
+      document->worldBounds(),
+      game->defaultFaceAttribs());
 
     builder.createBrush(*m_polyhedron, document->currentTextureName())
-      .and_then([&](Model::Brush&& b) {
-        updateBrush(new Model::BrushNode(std::move(b)));
-      })
+      .and_then(
+        [&](Model::Brush&& b) { updateBrush(new Model::BrushNode(std::move(b))); })
       .handle_errors([&](const Model::BrushError e) {
         updateBrush(nullptr);
         document->error() << "Could not update brush: " << e;
       });
-  } else {
+  }
+  else
+  {
     updateBrush(nullptr);
   }
 }
 
-bool CreateComplexBrushTool::doActivate() {
+bool CreateComplexBrushTool::doActivate()
+{
   update(Model::Polyhedron3());
   return true;
 }
 
-bool CreateComplexBrushTool::doDeactivate() {
+bool CreateComplexBrushTool::doDeactivate()
+{
   update(Model::Polyhedron3());
   return true;
 }
 
-void CreateComplexBrushTool::doBrushWasCreated() {
+void CreateComplexBrushTool::doBrushWasCreated()
+{
   update(Model::Polyhedron3());
 }
 } // namespace View

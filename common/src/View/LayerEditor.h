@@ -26,16 +26,20 @@
 
 class QAbstractButton;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class LayerNode;
 }
 
-namespace View {
+namespace View
+{
 class LayerListBox;
 class MapDocument;
 
-class LayerEditor : public QWidget {
+class LayerEditor : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;

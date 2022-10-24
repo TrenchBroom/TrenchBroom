@@ -55,26 +55,31 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 const Model::HitType::Type UVView::FaceHitType = Model::HitType::freeType();
 
 UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
   : RenderView(contextManager)
   , m_document(document)
-  , m_helper(m_camera) {
+  , m_helper(m_camera)
+{
   setToolBox(m_toolBox);
   createTools();
   m_toolBox.disable();
   connectObservers();
 }
 
-void UVView::setSubDivisions(const vm::vec2i& subDivisions) {
+void UVView::setSubDivisions(const vm::vec2i& subDivisions)
+{
   m_helper.setSubDivisions(subDivisions);
   update();
 }
 
-void UVView::createTools() {
+void UVView::createTools()
+{
   addTool(std::make_unique<UVRotateTool>(m_document, m_helper));
   addTool(std::make_unique<UVOriginTool>(m_helper));
   addTool(std::make_unique<UVScaleTool>(m_document, m_helper));
@@ -83,11 +88,13 @@ void UVView::createTools() {
   addTool(std::make_unique<UVCameraTool>(m_camera));
 }
 
-void UVView::connectObservers() {
+void UVView::connectObservers()
+{
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection +=
     document->documentWasClearedNotifier.connect(this, &UVView::documentWasCleared);
-  m_notifierConnection += document->nodesDidChangeNotifier.connect(this, &UVView::nodesDidChange);
+  m_notifierConnection +=
+    document->nodesDidChangeNotifier.connect(this, &UVView::nodesDidChange);
   m_notifierConnection +=
     document->brushFacesDidChangeNotifier.connect(this, &UVView::brushFacesDidChange);
   m_notifierConnection +=
@@ -99,61 +106,79 @@ void UVView::connectObservers() {
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &UVView::preferenceDidChange);
 
-  m_notifierConnection += m_camera.cameraDidChangeNotifier.connect(this, &UVView::cameraDidChange);
+  m_notifierConnection +=
+    m_camera.cameraDidChangeNotifier.connect(this, &UVView::cameraDidChange);
 }
 
-void UVView::selectionDidChange(const Selection&) {
+void UVView::selectionDidChange(const Selection&)
+{
   auto document = kdl::mem_lock(m_document);
   const auto faces = document->selectedBrushFaces();
-  if (faces.size() != 1) {
+  if (faces.size() != 1)
+  {
     m_helper.setFaceHandle(std::nullopt);
-  } else {
+  }
+  else
+  {
     m_helper.setFaceHandle(faces.back());
   }
 
-  if (m_helper.valid()) {
+  if (m_helper.valid())
+  {
     m_toolBox.enable();
-  } else {
+  }
+  else
+  {
     m_toolBox.disable();
   }
 
   update();
 }
 
-void UVView::documentWasCleared(MapDocument*) {
+void UVView::documentWasCleared(MapDocument*)
+{
   m_helper.setFaceHandle(std::nullopt);
   m_toolBox.disable();
   update();
 }
 
-void UVView::nodesDidChange(const std::vector<Model::Node*>&) {
+void UVView::nodesDidChange(const std::vector<Model::Node*>&)
+{
   update();
 }
 
-void UVView::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
+void UVView::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
+{
   update();
 }
 
-void UVView::gridDidChange() {
+void UVView::gridDidChange()
+{
   update();
 }
 
-void UVView::preferenceDidChange(const IO::Path&) {
+void UVView::preferenceDidChange(const IO::Path&)
+{
   update();
 }
 
-void UVView::cameraDidChange(const Renderer::Camera*) {
+void UVView::cameraDidChange(const Renderer::Camera*)
+{
   update();
 }
 
-void UVView::doUpdateViewport(int x, int y, int width, int height) {
-  if (m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height))) {
+void UVView::doUpdateViewport(int x, int y, int width, int height)
+{
+  if (m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height)))
+  {
     m_helper.cameraViewportChanged();
   }
 }
 
-void UVView::doRender() {
-  if (m_helper.valid()) {
+void UVView::doRender()
+{
+  if (m_helper.valid())
+  {
     auto document = kdl::mem_lock(m_document);
     document->commitPendingAssets();
 
@@ -171,15 +196,18 @@ void UVView::doRender() {
   }
 }
 
-bool UVView::doShouldRenderFocusIndicator() const {
+bool UVView::doShouldRenderFocusIndicator() const
+{
   return false;
 }
 
-const Color& UVView::getBackgroundColor() {
+const Color& UVView::getBackgroundColor()
+{
   return pref(Preferences::BrowserBackgroundColor);
 }
 
-void UVView::setupGL(Renderer::RenderContext& renderContext) {
+void UVView::setupGL(Renderer::RenderContext& renderContext)
+{
   const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
   const qreal r = devicePixelRatioF();
   const int x = static_cast<int>(viewport.x * r);
@@ -189,9 +217,12 @@ void UVView::setupGL(Renderer::RenderContext& renderContext) {
 
   glAssert(glViewport(x, y, width, height));
 
-  if (pref(Preferences::EnableMSAA)) {
+  if (pref(Preferences::EnableMSAA))
+  {
     glAssert(glEnable(GL_MULTISAMPLE));
-  } else {
+  }
+  else
+  {
     glAssert(glDisable(GL_MULTISAMPLE));
   }
   glAssert(glEnable(GL_BLEND));
@@ -200,7 +231,8 @@ void UVView::setupGL(Renderer::RenderContext& renderContext) {
   glAssert(glDisable(GL_DEPTH_TEST));
 }
 
-class UVView::RenderTexture : public Renderer::DirectRenderable {
+class UVView::RenderTexture : public Renderer::DirectRenderable
+{
 private:
   using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
 
@@ -210,10 +242,13 @@ private:
 public:
   RenderTexture(const UVViewHelper& helper)
     : m_helper(helper)
-    , m_vertexArray(Renderer::VertexArray::move(getVertices())) {}
+    , m_vertexArray(Renderer::VertexArray::move(getVertices()))
+  {
+  }
 
 private:
-  std::vector<Vertex> getVertices() const {
+  std::vector<Vertex> getVertices() const
+  {
     const auto normal = vm::vec3f(m_helper.face()->boundary().normal);
 
     const auto& camera = m_helper.camera();
@@ -238,11 +273,13 @@ private:
   }
 
 private:
-  void doPrepareVertices(Renderer::VboManager& vboManager) override {
+  void doPrepareVertices(Renderer::VboManager& vboManager) override
+  {
     m_vertexArray.prepare(vboManager);
   }
 
-  void doRender(Renderer::RenderContext& renderContext) override {
+  void doRender(Renderer::RenderContext& renderContext) override
+  {
     const auto& offset = m_helper.face()->attributes().offset();
     const auto& scale = m_helper.face()->attributes().scale();
     const auto toTex = m_helper.face()->toTexCoordSystemMatrix(offset, scale, true);
@@ -252,7 +289,8 @@ private:
 
     texture->activate();
 
-    Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::UVViewShader);
+    Renderer::ActiveShader shader(
+      renderContext.shaderManager(), Renderer::Shaders::UVViewShader);
     shader.set("ApplyTexture", true);
     shader.set("Color", texture->averageColor());
     shader.set("Brightness", pref(Preferences::Brightness));
@@ -260,7 +298,8 @@ private:
     shader.set("GridSizes", vm::vec2f(texture->width(), texture->height()));
     shader.set(
       "GridColor",
-      vm::vec4f(Renderer::gridColorForTexture(texture), 0.6f)); // TODO: make this a preference
+      vm::vec4f(
+        Renderer::gridColorForTexture(texture), 0.6f)); // TODO: make this a preference
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f(toTex));
     shader.set("GridDivider", vm::vec2f(m_helper.subDivisions()));
@@ -273,7 +312,8 @@ private:
   }
 };
 
-void UVView::renderTexture(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+void UVView::renderTexture(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+{
   const Assets::Texture* texture = m_helper.face()->texture();
   if (texture == nullptr)
     return;
@@ -281,7 +321,8 @@ void UVView::renderTexture(Renderer::RenderContext&, Renderer::RenderBatch& rend
   renderBatch.addOneShot(new RenderTexture(m_helper));
 }
 
-void UVView::renderFace(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+void UVView::renderFace(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+{
   assert(m_helper.valid());
 
   const auto faceVertices = m_helper.face()->vertices();
@@ -290,7 +331,8 @@ void UVView::renderFace(Renderer::RenderContext&, Renderer::RenderBatch& renderB
   std::vector<Vertex> edgeVertices;
   edgeVertices.reserve(faceVertices.size());
 
-  for (const auto* vertex : faceVertices) {
+  for (const auto* vertex : faceVertices)
+  {
     edgeVertices.push_back(Vertex(vm::vec3f(vertex->position())));
   }
 
@@ -301,15 +343,19 @@ void UVView::renderFace(Renderer::RenderContext&, Renderer::RenderBatch& renderB
   edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
 }
 
-void UVView::renderTextureAxes(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
+void UVView::renderTextureAxes(
+  Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+{
   assert(m_helper.valid());
 
   const auto& normal = m_helper.face()->boundary().normal;
 
   const auto xAxis = vm::vec3f(
-    m_helper.face()->textureXAxis() - dot(m_helper.face()->textureXAxis(), normal) * normal);
+    m_helper.face()->textureXAxis()
+    - dot(m_helper.face()->textureXAxis(), normal) * normal);
   const auto yAxis = vm::vec3f(
-    m_helper.face()->textureYAxis() - dot(m_helper.face()->textureYAxis(), normal) * normal);
+    m_helper.face()->textureYAxis()
+    - dot(m_helper.face()->textureYAxis(), normal) * normal);
   const auto center = vm::vec3f(m_helper.face()->boundsCenter());
 
   const auto length = 32.0f / m_helper.cameraZoom();
@@ -327,35 +373,43 @@ void UVView::renderTextureAxes(Renderer::RenderContext&, Renderer::RenderBatch& 
 }
 
 void UVView::renderToolBox(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+{
   renderTools(renderContext, renderBatch);
 }
 
-void UVView::processEvent(const KeyEvent& event) {
+void UVView::processEvent(const KeyEvent& event)
+{
   ToolBoxConnector::processEvent(event);
 }
 
-void UVView::processEvent(const MouseEvent& event) {
+void UVView::processEvent(const MouseEvent& event)
+{
   ToolBoxConnector::processEvent(event);
 }
 
-void UVView::processEvent(const CancelEvent& event) {
+void UVView::processEvent(const CancelEvent& event)
+{
   ToolBoxConnector::processEvent(event);
 }
 
-PickRequest UVView::doGetPickRequest(const float x, const float y) const {
+PickRequest UVView::doGetPickRequest(const float x, const float y) const
+{
   return PickRequest(vm::ray3(m_camera.pickRay(x, y)), m_camera);
 }
 
-Model::PickResult UVView::doPick(const vm::ray3& pickRay) const {
+Model::PickResult UVView::doPick(const vm::ray3& pickRay) const
+{
   Model::PickResult pickResult = Model::PickResult::byDistance();
   if (!m_helper.valid())
     return pickResult;
 
   const FloatType distance = m_helper.face()->intersectWithRay(pickRay);
-  if (!vm::is_nan(distance)) {
+  if (!vm::is_nan(distance))
+  {
     const vm::vec3 hitPoint = vm::point_at_distance(pickRay, distance);
-    pickResult.addHit(Model::Hit(UVView::FaceHitType, distance, hitPoint, m_helper.face()));
+    pickResult.addHit(
+      Model::Hit(UVView::FaceHitType, distance, hitPoint, m_helper.face()));
   }
   return pickResult;
 }

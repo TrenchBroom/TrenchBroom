@@ -29,16 +29,22 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 ShaderManager::ShaderManager()
-  : m_currentProgram(nullptr) {}
+  : m_currentProgram(nullptr)
+{
+}
 
 ShaderManager::~ShaderManager() = default;
 
-ShaderProgram& ShaderManager::program(const ShaderConfig& config) {
+ShaderProgram& ShaderManager::program(const ShaderConfig& config)
+{
   auto it = m_programs.find(&config);
-  if (it != std::end(m_programs)) {
+  if (it != std::end(m_programs))
+  {
     return *it->second;
   }
 
@@ -48,23 +54,28 @@ ShaderProgram& ShaderManager::program(const ShaderConfig& config) {
   return *(result.first->second);
 }
 
-ShaderProgram* ShaderManager::currentProgram() {
+ShaderProgram* ShaderManager::currentProgram()
+{
   return m_currentProgram;
 }
 
-void ShaderManager::setCurrentProgram(ShaderProgram* program) {
+void ShaderManager::setCurrentProgram(ShaderProgram* program)
+{
   m_currentProgram = program;
 }
 
-std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config) {
+std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
+{
   auto program = std::make_unique<ShaderProgram>(this, config.name());
 
-  for (const auto& path : config.vertexShaders()) {
+  for (const auto& path : config.vertexShaders())
+  {
     Shader& shader = loadShader(path, GL_VERTEX_SHADER);
     program->attach(shader);
   }
 
-  for (const auto& path : config.fragmentShaders()) {
+  for (const auto& path : config.fragmentShaders())
+  {
     Shader& shader = loadShader(path, GL_FRAGMENT_SHADER);
     program->attach(shader);
   }
@@ -72,13 +83,16 @@ std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& 
   return program;
 }
 
-Shader& ShaderManager::loadShader(const std::string& name, const GLenum type) {
+Shader& ShaderManager::loadShader(const std::string& name, const GLenum type)
+{
   auto it = m_shaders.find(name);
-  if (it != std::end(m_shaders)) {
+  if (it != std::end(m_shaders))
+  {
     return *it->second;
   }
 
-  const auto shaderPath = IO::SystemPaths::findResourceFile(IO::Path("shader") + IO::Path(name));
+  const auto shaderPath =
+    IO::SystemPaths::findResourceFile(IO::Path("shader") + IO::Path(name));
   auto result = m_shaders.emplace(name, std::make_unique<Shader>(shaderPath, type));
   assert(result.second);
 

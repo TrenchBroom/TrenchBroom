@@ -28,13 +28,17 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapDocument; // FIXME: Renderer should not depend on View
 }
 
-namespace Renderer {
-class BoundsGuideRenderer : public DirectRenderable {
+namespace Renderer
+{
+class BoundsGuideRenderer : public DirectRenderable
+{
 private:
   static const FloatType SpikeLength;
 

@@ -34,9 +34,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("HlMipTextureReaderTest.testLoadWad", "[HlMipTextureReaderTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("HlMipTextureReaderTest.testLoadWad", "[HlMipTextureReaderTest]")
+{
   using TexInfo = std::tuple<std::string, size_t, size_t>;
 
   // clang-format off

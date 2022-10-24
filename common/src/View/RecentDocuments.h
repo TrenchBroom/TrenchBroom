@@ -27,13 +27,17 @@
 
 class QMenu;
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
 
-namespace View {
-class RecentDocuments : public QObject {
+namespace View
+{
+class RecentDocuments : public QObject
+{
   Q_OBJECT
 private:
   using MenuList = std::vector<QMenu*>;

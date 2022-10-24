@@ -21,8 +21,10 @@
 
 #include <QWidget>
 
-namespace TrenchBroom::View {
-class AppInfoPanel : public QWidget {
+namespace TrenchBroom::View
+{
+class AppInfoPanel : public QWidget
+{
   Q_OBJECT
 public:
   explicit AppInfoPanel(QWidget* parent = nullptr);

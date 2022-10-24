@@ -21,15 +21,19 @@
 
 #include "Renderer/ShaderManager.h"
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 
 ActiveShader::ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig)
-  : m_program(shaderManager.program(shaderConfig)) {
+  : m_program(shaderManager.program(shaderConfig))
+{
   m_program.activate();
 }
 
-ActiveShader::~ActiveShader() {
+ActiveShader::~ActiveShader()
+{
   m_program.deactivate();
 }
 } // namespace Renderer

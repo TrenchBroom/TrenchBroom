@@ -33,17 +33,21 @@ class QWindow;
 class QFocusEvent;
 class QMouseEvent;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class PickResult;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class DragTracker;
 class DropTracker;
 class InputState;
@@ -51,7 +55,8 @@ class Tool;
 class ToolController;
 class ToolChain;
 
-class ToolBox : public QObject {
+class ToolBox : public QObject
+{
   Q_OBJECT
 private:
   std::unique_ptr<DragTracker> m_dragTracker;
@@ -80,7 +85,8 @@ protected:
   void addTool(Tool& tool);
 
 public: // picking
-  void pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult);
+  void pick(
+    ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult);
 
 public: // event handling
   bool dragEnter(ToolChain* chain, const InputState& inputState, const std::string& text);
@@ -125,9 +131,13 @@ public: // tool management
 
 public: // rendering
   void setRenderOptions(
-    ToolChain* chain, const InputState& inputState, Renderer::RenderContext& renderContext);
+    ToolChain* chain,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext);
   void renderTools(
-    ToolChain* chain, const InputState& inputState, Renderer::RenderContext& renderContext,
+    ToolChain* chain,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch);
 
 private:

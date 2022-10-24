@@ -26,19 +26,23 @@
 class QSplitter;
 class QWidget;
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace View {
+namespace View
+{
 class CollapsibleTitledPanel;
 class FaceAttribsEditor;
 class GLContextManager;
 class MapDocument;
 class TextureBrowser;
 
-class FaceInspector : public TabBookPage {
+class FaceInspector : public TabBookPage
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -49,7 +53,8 @@ private:
 
 public:
   FaceInspector(
-    std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    std::weak_ptr<MapDocument> document,
+    GLContextManager& contextManager,
     QWidget* parent = nullptr);
   ~FaceInspector() override;
 
@@ -59,9 +64,13 @@ public:
 private:
   void createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
   QWidget* createFaceAttribsEditor(
-    QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+    QWidget* parent,
+    std::weak_ptr<MapDocument> document,
+    GLContextManager& contextManager);
   QWidget* createTextureBrowser(
-    QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+    QWidget* parent,
+    std::weak_ptr<MapDocument> document,
+    GLContextManager& contextManager);
   CollapsibleTitledPanel* createTextureCollectionEditor(
     QWidget* parent, std::weak_ptr<MapDocument> document);
 

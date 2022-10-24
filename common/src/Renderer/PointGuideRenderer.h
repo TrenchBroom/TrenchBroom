@@ -28,16 +28,20 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapDocument;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderContext;
 class VboManager;
 
-class PointGuideRenderer : public DirectRenderable {
+class PointGuideRenderer : public DirectRenderable
+{
 private:
   static const FloatType SpikeLength;
 

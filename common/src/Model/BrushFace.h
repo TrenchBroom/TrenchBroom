@@ -39,19 +39,23 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Model {
+namespace Model
+{
 class TexCoordSystem;
 class TexCoordSystemSnapshot;
 enum class WrapStyle;
 enum class BrushError;
 enum class MapFormat;
 
-class BrushFace : public Taggable {
+class BrushFace : public Taggable
+{
 public:
   /*
    * The order of points, when looking from outside the face:
@@ -69,14 +73,16 @@ private:
   /**
    * For use in VertexList transformation below.
    */
-  struct TransformHalfEdgeToVertex {
+  struct TransformHalfEdgeToVertex
+  {
     const BrushVertex* operator()(const BrushHalfEdge* halfEdge) const;
   };
 
   /**
    * For use in EdgeList transformation below.
    */
-  struct TransformHalfEdgeToEdge {
+  struct TransformHalfEdgeToEdge
+  {
     const BrushEdge* operator()(const BrushHalfEdge* halfEdge) const;
   };
 
@@ -112,57 +118,77 @@ public:
   kdl_reflect_decl(BrushFace, m_points, m_boundary, m_attributes, m_textureReference);
 
   /**
-   * Creates a face using TB's default texture projection for the given map format and the given
-   * plane.
+   * Creates a face using TB's default texture projection for the given map format and the
+   * given plane.
    *
-   * Used when creating new faces when we don't have a particular texture alignment to request.
-   * On Valve format maps, this differs from createFromStandard() by creating a face-aligned
-   * texture projection, whereas createFromStandard() creates an axis-aligned texture projection.
+   * Used when creating new faces when we don't have a particular texture alignment to
+   * request. On Valve format maps, this differs from createFromStandard() by creating a
+   * face-aligned texture projection, whereas createFromStandard() creates an axis-aligned
+   * texture projection.
    *
    * The returned face has a TexCoordSystem matching the given format.
    */
   static kdl::result<BrushFace, BrushError> create(
-    const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2,
-    const BrushFaceAttributes& attributes, MapFormat mapFormat);
+    const vm::vec3& point0,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const BrushFaceAttributes& attributes,
+    MapFormat mapFormat);
 
   /**
-   * Creates a face from a Standard texture projection, converting it to Valve if necessary.
+   * Creates a face from a Standard texture projection, converting it to Valve if
+   * necessary.
    *
    * Used when loading/pasting a Standard format map.
    *
    * The returned face has a TexCoordSystem matching the given format.
    */
   static kdl::result<BrushFace, BrushError> createFromStandard(
-    const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2,
-    const BrushFaceAttributes& attributes, MapFormat mapFormat);
+    const vm::vec3& point0,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const BrushFaceAttributes& attributes,
+    MapFormat mapFormat);
 
   /**
-   * Creates a face from a Valve texture projection, converting it to Standard if necessary.
+   * Creates a face from a Valve texture projection, converting it to Standard if
+   * necessary.
    *
    * Used when loading/pasting a Valve format map.
    *
    * The returned face has a TexCoordSystem matching the given format.
    */
   static kdl::result<BrushFace, BrushError> createFromValve(
-    const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3,
-    const BrushFaceAttributes& attributes, const vm::vec3& texAxisX, const vm::vec3& texAxisY,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const vm::vec3& point3,
+    const BrushFaceAttributes& attributes,
+    const vm::vec3& texAxisX,
+    const vm::vec3& texAxisY,
     MapFormat mapFormat);
 
   static kdl::result<BrushFace, BrushError> create(
-    const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2,
-    const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
+    const vm::vec3& point0,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const BrushFaceAttributes& attributes,
+    std::unique_ptr<TexCoordSystem> texCoordSystem);
 
   BrushFace(
-    const BrushFace::Points& points, const vm::plane3& boundary,
-    const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
+    const BrushFace::Points& points,
+    const vm::plane3& boundary,
+    const BrushFaceAttributes& attributes,
+    std::unique_ptr<TexCoordSystem> texCoordSystem);
 
   static void sortFaces(std::vector<BrushFace>& faces);
 
   std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
   void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
   void copyTexCoordSystemFromFace(
-    const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attributes,
-    const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);
+    const TexCoordSystemSnapshot& coordSystemSnapshot,
+    const BrushFaceAttributes& attributes,
+    const vm::plane3& sourceFacePlane,
+    WrapStyle wrapStyle);
 
   const BrushFace::Points& points() const;
   const vm::plane3& boundary() const;
@@ -203,7 +229,8 @@ public:
   void rotateTexture(float angle);
   void shearTexture(const vm::vec2f& factors);
   void flipTexture(
-    const vm::vec3& cameraUp, const vm::vec3& cameraRight,
+    const vm::vec3& cameraUp,
+    const vm::vec3& cameraRight,
     vm::direction cameraRelativeFlipDirection);
 
   kdl::result<void, BrushError> transform(const vm::mat4x4& transform, bool lockTexture);

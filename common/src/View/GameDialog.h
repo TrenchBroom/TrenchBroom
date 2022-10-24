@@ -30,18 +30,23 @@ class QComboBox;
 class QPushButton;
 class QWidget;
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
 
-namespace View {
+namespace View
+{
 class GameListBox;
 
-class GameDialog : public QDialog {
+class GameDialog : public QDialog
+{
   Q_OBJECT
 private:
-  enum class DialogType {
+  enum class DialogType
+  {
     Open,
     New
   };
@@ -71,10 +76,14 @@ private slots:
 
 protected:
   GameDialog(
-    const QString& title, const QString& infoText, DialogType type, QWidget* parent = nullptr);
+    const QString& title,
+    const QString& infoText,
+    DialogType type,
+    QWidget* parent = nullptr);
 
   void createGui(const QString& title, const QString& infoText);
-  QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);
+  QWidget* createInfoPanel(
+    QWidget* parent, const QString& title, const QString& infoText);
   QWidget* createSelectionPanel(QWidget* parent);
 
 private:

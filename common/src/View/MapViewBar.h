@@ -26,12 +26,15 @@
 class QStackedLayout;
 class QLabel;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapDocument;
 class ViewPopupEditor;
 
-class MapViewBar : public ContainerBar {
+class MapViewBar : public ContainerBar
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;

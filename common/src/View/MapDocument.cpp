@@ -131,17 +131,23 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 template <typename T>
 static auto findLinkedGroupsRecursively(
-  Model::WorldNode& worldNode, const std::vector<T*>& nodes, const bool includeGivenNodes) {
+  Model::WorldNode& worldNode, const std::vector<T*>& nodes, const bool includeGivenNodes)
+{
   auto result = std::vector<Model::GroupNode*>{};
 
   const auto addGroupNode = [&](Model::GroupNode* groupNode) {
-    while (groupNode) {
-      if (const auto linkedGroupId = groupNode->group().linkedGroupId()) {
-        if (Model::findLinkedGroups(worldNode, *linkedGroupId).size() > 1u) {
+    while (groupNode)
+    {
+      if (const auto linkedGroupId = groupNode->group().linkedGroupId())
+      {
+        if (Model::findLinkedGroups(worldNode, *linkedGroupId).size() > 1u)
+        {
           result.emplace_back(groupNode);
           return;
         }
@@ -151,119 +157,129 @@ static auto findLinkedGroupsRecursively(
   };
 
   Model::Node::visitAll(
-    nodes, kdl::overload(
-             [](const Model::WorldNode*) {}, [](const Model::LayerNode*) {},
-             [&](Model::GroupNode* groupNode) {
-               if (includeGivenNodes) {
-                 addGroupNode(groupNode);
-               } else {
-                 addGroupNode(groupNode->containingGroup());
-               }
-             },
-             [&](Model::EntityNode* entityNode) {
-               addGroupNode(entityNode->containingGroup());
-             },
-             [&](Model::BrushNode* brushNode) {
-               addGroupNode(brushNode->containingGroup());
-             },
-             [&](Model::PatchNode* patchNode) {
-               addGroupNode(patchNode->containingGroup());
-             }));
+    nodes,
+    kdl::overload(
+      [](const Model::WorldNode*) {},
+      [](const Model::LayerNode*) {},
+      [&](Model::GroupNode* groupNode) {
+        if (includeGivenNodes)
+        {
+          addGroupNode(groupNode);
+        }
+        else
+        {
+          addGroupNode(groupNode->containingGroup());
+        }
+      },
+      [&](Model::EntityNode* entityNode) { addGroupNode(entityNode->containingGroup()); },
+      [&](Model::BrushNode* brushNode) { addGroupNode(brushNode->containingGroup()); },
+      [&](Model::PatchNode* patchNode) { addGroupNode(patchNode->containingGroup()); }));
 
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
 template <typename T>
-static auto findContainingLinkedGroups(Model::WorldNode& worldNode, const std::vector<T*>& nodes) {
+static auto findContainingLinkedGroups(
+  Model::WorldNode& worldNode, const std::vector<T*>& nodes)
+{
   return findLinkedGroupsRecursively(worldNode, nodes, false);
 }
 
 template <typename T>
-static auto findAllLinkedGroups(Model::WorldNode& worldNode, const std::vector<T*>& nodes) {
+static auto findAllLinkedGroups(Model::WorldNode& worldNode, const std::vector<T*>& nodes)
+{
   return findLinkedGroupsRecursively(worldNode, nodes, true);
 }
 
 /**
- * Applies the given lambda to a copy of the contents of each of the given nodes and returns a
- * vector of pairs of the original node and the modified contents.
+ * Applies the given lambda to a copy of the contents of each of the given nodes and
+ * returns a vector of pairs of the original node and the modified contents.
  *
  * The lambda L needs three overloads:
  * - bool operator()(Model::Entity&);
  * - bool operator()(Model::Brush&);
  * - bool operator()(Model::BezierPatch&);
  *
- * The given node contents should be modified in place and the lambda should return true if it was
- * applied successfully and false otherwise.
+ * The given node contents should be modified in place and the lambda should return true
+ * if it was applied successfully and false otherwise.
  *
- * Returns a vector of pairs which map each node to its modified contents if the lambda succeeded
- * for every given node, or an empty optional otherwise.
+ * Returns a vector of pairs which map each node to its modified contents if the lambda
+ * succeeded for every given node, or an empty optional otherwise.
  */
 template <typename N, typename L>
-static std::optional<std::vector<std::pair<Model::Node*, Model::NodeContents>>> applyToNodeContents(
-  const std::vector<N*>& nodes, L lambda) {
-  using NodeContentType =
-    std::variant<Model::Layer, Model::Group, Model::Entity, Model::Brush, Model::BezierPatch>;
+static std::optional<std::vector<std::pair<Model::Node*, Model::NodeContents>>>
+applyToNodeContents(const std::vector<N*>& nodes, L lambda)
+{
+  using NodeContentType = std::
+    variant<Model::Layer, Model::Group, Model::Entity, Model::Brush, Model::BezierPatch>;
 
   auto newNodes = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
   newNodes.reserve(nodes.size());
 
   bool success = true;
-  std::transform(std::begin(nodes), std::end(nodes), std::back_inserter(newNodes), [&](auto* node) {
-    NodeContentType nodeContents = node->accept(kdl::overload(
-      [](const Model::WorldNode* worldNode) -> NodeContentType {
-        return worldNode->entity();
-      },
-      [](const Model::LayerNode* layerNode) -> NodeContentType {
-        return layerNode->layer();
-      },
-      [](const Model::GroupNode* groupNode) -> NodeContentType {
-        return groupNode->group();
-      },
-      [](const Model::EntityNode* entityNode) -> NodeContentType {
-        return entityNode->entity();
-      },
-      [](const Model::BrushNode* brushNode) -> NodeContentType {
-        return brushNode->brush();
-      },
-      [](const Model::PatchNode* patchNode) -> NodeContentType {
-        return patchNode->patch();
-      }));
+  std::transform(
+    std::begin(nodes), std::end(nodes), std::back_inserter(newNodes), [&](auto* node) {
+      NodeContentType nodeContents = node->accept(kdl::overload(
+        [](const Model::WorldNode* worldNode) -> NodeContentType {
+          return worldNode->entity();
+        },
+        [](const Model::LayerNode* layerNode) -> NodeContentType {
+          return layerNode->layer();
+        },
+        [](const Model::GroupNode* groupNode) -> NodeContentType {
+          return groupNode->group();
+        },
+        [](const Model::EntityNode* entityNode) -> NodeContentType {
+          return entityNode->entity();
+        },
+        [](const Model::BrushNode* brushNode) -> NodeContentType {
+          return brushNode->brush();
+        },
+        [](const Model::PatchNode* patchNode) -> NodeContentType {
+          return patchNode->patch();
+        }));
 
-    success = success && std::visit(lambda, nodeContents);
-    return std::make_pair(node, Model::NodeContents(std::move(nodeContents)));
-  });
+      success = success && std::visit(lambda, nodeContents);
+      return std::make_pair(node, Model::NodeContents(std::move(nodeContents)));
+    });
 
   return success ? std::make_optional(newNodes) : std::nullopt;
 }
 
 /**
- * Applies the given lambda to a copy of the contents of each of the given nodes and swaps the node
- * contents if the given lambda succeeds for all node contents.
+ * Applies the given lambda to a copy of the contents of each of the given nodes and swaps
+ * the node contents if the given lambda succeeds for all node contents.
  *
  * The lambda L needs three overloads:
  * - bool operator()(Model::Entity&);
  * - bool operator()(Model::Brush&);
  * - bool operator()(Model::BezierPatch&);
  *
- * The given node contents should be modified in place and the lambda should return true if it was
- * applied successfully and false otherwise.
+ * The given node contents should be modified in place and the lambda should return true
+ * if it was applied successfully and false otherwise.
  *
- * For each linked group in the given list of linked groups, its changes are distributed to the
- * connected members of its link set.
+ * For each linked group in the given list of linked groups, its changes are distributed
+ * to the connected members of its link set.
  *
- * Returns true if the given lambda could be applied successfully to all node contents and false
- * otherwise. If the lambda fails, then no node contents will be swapped, and the original nodes
- * remain unmodified.
+ * Returns true if the given lambda could be applied successfully to all node contents and
+ * false otherwise. If the lambda fails, then no node contents will be swapped, and the
+ * original nodes remain unmodified.
  */
 template <typename N, typename L>
 static bool applyAndSwap(
-  MapDocument& document, const std::string& commandName, const std::vector<N*>& nodes,
-  std::vector<Model::GroupNode*> changedLinkedGroups, L lambda) {
-  if (nodes.empty()) {
+  MapDocument& document,
+  const std::string& commandName,
+  const std::vector<N*>& nodes,
+  std::vector<Model::GroupNode*> changedLinkedGroups,
+  L lambda)
+{
+  if (nodes.empty())
+  {
     return true;
   }
 
-  if (auto newNodes = applyToNodeContents(nodes, std::move(lambda))) {
+  if (auto newNodes = applyToNodeContents(nodes, std::move(lambda)))
+  {
     return document.swapNodeContents(
       commandName, std::move(*newNodes), std::move(changedLinkedGroups));
   }
@@ -274,28 +290,32 @@ static bool applyAndSwap(
 /**
  * Applies the given lambda to a copy of each of the given faces.
  *
- * Specifically, each brush node of the given faces has its contents copied and the lambda applied
- * to the copied faces. If the lambda succeeds for each face, the node contents are subsequently
- * swapped.
+ * Specifically, each brush node of the given faces has its contents copied and the lambda
+ * applied to the copied faces. If the lambda succeeds for each face, the node contents
+ * are subsequently swapped.
  *
  * The lambda L needs to accept brush faces:
  * - bool operator()(Model::BrushFace&);
  *
- * The given node contents should be modified in place and the lambda should return true if it was
- * applied successfully and false otherwise.
+ * The given node contents should be modified in place and the lambda should return true
+ * if it was applied successfully and false otherwise.
  *
- * For each linked group in the given list of linked groups, its changes are distributed to the
- * connected members of its link set.
+ * For each linked group in the given list of linked groups, its changes are distributed
+ * to the connected members of its link set.
  *
- * Returns true if the given lambda could be applied successfully to each face and false otherwise.
- * If the lambda fails, then no node contents will be swapped, and the original nodes remain
- * unmodified.
+ * Returns true if the given lambda could be applied successfully to each face and false
+ * otherwise. If the lambda fails, then no node contents will be swapped, and the original
+ * nodes remain unmodified.
  */
 template <typename L>
 static bool applyAndSwap(
-  MapDocument& document, const std::string& commandName,
-  const std::vector<Model::BrushFaceHandle>& faces, L lambda) {
-  if (faces.empty()) {
+  MapDocument& document,
+  const std::string& commandName,
+  const std::vector<Model::BrushFaceHandle>& faces,
+  L lambda)
+{
+  if (faces.empty())
+  {
     return true;
   }
 
@@ -305,7 +325,8 @@ static bool applyAndSwap(
   std::for_each(std::begin(faces), std::end(faces), [&](const auto& faceHandle) {
     auto* brushNode = faceHandle.node();
     auto it = brushes.find(brushNode);
-    if (it == std::end(brushes)) {
+    if (it == std::end(brushes))
+    {
       it = brushes.emplace(brushNode, brushNode->brush()).first;
     }
 
@@ -313,19 +334,21 @@ static bool applyAndSwap(
     success = success && lambda(brush.face(faceHandle.faceIndex()));
   });
 
-  if (success) {
+  if (success)
+  {
     auto newNodes = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
     newNodes.reserve(brushes.size());
 
-    for (auto& [brushNode, brush] : brushes) {
+    for (auto& [brushNode, brush] : brushes)
+    {
       newNodes.emplace_back(brushNode, Model::NodeContents(std::move(brush)));
     }
 
-    auto changedLinkedGroups =
-      findContainingLinkedGroups(*document.world(), kdl::vec_transform(newNodes, [](const auto& p) {
-        return p.first;
-      }));
-    document.swapNodeContents(commandName, std::move(newNodes), std::move(changedLinkedGroups));
+    auto changedLinkedGroups = findContainingLinkedGroups(
+      *document.world(),
+      kdl::vec_transform(newNodes, [](const auto& p) { return p.first; }));
+    document.swapNodeContents(
+      commandName, std::move(newNodes), std::move(changedLinkedGroups));
   }
 
   return success;
@@ -354,41 +377,51 @@ MapDocument::MapDocument()
   , m_lastSelectionBounds(0.0, 32.0)
   , m_selectionBoundsValid(true)
   , m_viewEffectsService(nullptr)
-  , m_repeatStack(std::make_unique<RepeatStack>()) {
+  , m_repeatStack(std::make_unique<RepeatStack>())
+{
   connectObservers();
 }
 
-MapDocument::~MapDocument() {
-  if (isPointFileLoaded()) {
+MapDocument::~MapDocument()
+{
+  if (isPointFileLoaded())
+  {
     unloadPointFile();
   }
-  if (isPortalFileLoaded()) {
+  if (isPortalFileLoaded())
+  {
     unloadPortalFile();
   }
   clearWorld();
 }
 
-Logger& MapDocument::logger() {
+Logger& MapDocument::logger()
+{
   return *this;
 }
 
-std::shared_ptr<Model::Game> MapDocument::game() const {
+std::shared_ptr<Model::Game> MapDocument::game() const
+{
   return m_game;
 }
 
-const vm::bbox3& MapDocument::worldBounds() const {
+const vm::bbox3& MapDocument::worldBounds() const
+{
   return m_worldBounds;
 }
 
-Model::WorldNode* MapDocument::world() const {
+Model::WorldNode* MapDocument::world() const
+{
   return m_world.get();
 }
 
-bool MapDocument::isGamePathPreference(const IO::Path& path) const {
+bool MapDocument::isGamePathPreference(const IO::Path& path) const
+{
   return m_game.get() != nullptr && m_game->isGamePathPreference(path);
 }
 
-Model::LayerNode* MapDocument::currentLayer() const {
+Model::LayerNode* MapDocument::currentLayer() const
+{
   ensure(m_currentLayer != nullptr, "currentLayer is null");
   return m_currentLayer;
 }
@@ -396,7 +429,8 @@ Model::LayerNode* MapDocument::currentLayer() const {
 /**
  * Sets the current layer immediately, without adding a Command to the undo stack.
  */
-Model::LayerNode* MapDocument::performSetCurrentLayer(Model::LayerNode* currentLayer) {
+Model::LayerNode* MapDocument::performSetCurrentLayer(Model::LayerNode* currentLayer)
+{
   ensure(currentLayer != nullptr, "currentLayer is null");
 
   Model::LayerNode* oldCurrentLayer = m_currentLayer;
@@ -406,13 +440,15 @@ Model::LayerNode* MapDocument::performSetCurrentLayer(Model::LayerNode* currentL
   return oldCurrentLayer;
 }
 
-void MapDocument::setCurrentLayer(Model::LayerNode* currentLayer) {
+void MapDocument::setCurrentLayer(Model::LayerNode* currentLayer)
+{
   ensure(m_currentLayer != nullptr, "old currentLayer is null");
   ensure(currentLayer != nullptr, "new currentLayer is null");
 
   auto transaction = Transaction{*this, "Set Current Layer"};
 
-  while (currentGroup() != nullptr) {
+  while (currentGroup() != nullptr)
+  {
     closeGroup();
   }
 
@@ -424,34 +460,42 @@ void MapDocument::setCurrentLayer(Model::LayerNode* currentLayer) {
   transaction.commit();
 }
 
-bool MapDocument::canSetCurrentLayer(Model::LayerNode* currentLayer) const {
+bool MapDocument::canSetCurrentLayer(Model::LayerNode* currentLayer) const
+{
   return m_currentLayer != currentLayer;
 }
 
-Model::GroupNode* MapDocument::currentGroup() const {
+Model::GroupNode* MapDocument::currentGroup() const
+{
   return m_editorContext->currentGroup();
 }
 
-Model::Node* MapDocument::currentGroupOrWorld() const {
+Model::Node* MapDocument::currentGroupOrWorld() const
+{
   Model::Node* result = currentGroup();
-  if (result == nullptr) {
+  if (result == nullptr)
+  {
     result = m_world.get();
   }
   return result;
 }
 
-Model::Node* MapDocument::parentForNodes(const std::vector<Model::Node*>& nodes) const {
-  if (nodes.empty()) {
+Model::Node* MapDocument::parentForNodes(const std::vector<Model::Node*>& nodes) const
+{
+  if (nodes.empty())
+  {
     // No reference nodes, so return either the current group (if open) or current layer
     Model::Node* result = currentGroup();
-    if (result == nullptr) {
+    if (result == nullptr)
+    {
       result = currentLayer();
     }
     return result;
   }
 
   Model::GroupNode* parentGroup = Model::findContainingGroup(nodes.at(0));
-  if (parentGroup != nullptr) {
+  if (parentGroup != nullptr)
+  {
     return parentGroup;
   }
 
@@ -460,56 +504,69 @@ Model::Node* MapDocument::parentForNodes(const std::vector<Model::Node*>& nodes)
   return parentLayer;
 }
 
-Model::EditorContext& MapDocument::editorContext() const {
+Model::EditorContext& MapDocument::editorContext() const
+{
   return *m_editorContext;
 }
 
-Assets::EntityDefinitionManager& MapDocument::entityDefinitionManager() {
+Assets::EntityDefinitionManager& MapDocument::entityDefinitionManager()
+{
   return *m_entityDefinitionManager;
 }
 
-Assets::EntityModelManager& MapDocument::entityModelManager() {
+Assets::EntityModelManager& MapDocument::entityModelManager()
+{
   return *m_entityModelManager;
 }
 
-Assets::TextureManager& MapDocument::textureManager() {
+Assets::TextureManager& MapDocument::textureManager()
+{
   return *m_textureManager;
 }
 
-Grid& MapDocument::grid() const {
+Grid& MapDocument::grid() const
+{
   return *m_grid;
 }
 
-std::optional<PointFile>& MapDocument::pointFile() {
+std::optional<PointFile>& MapDocument::pointFile()
+{
   return m_pointFile;
 }
 
-Model::PortalFile* MapDocument::portalFile() const {
+Model::PortalFile* MapDocument::portalFile() const
+{
   return m_portalFile.get();
 }
 
-void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService) {
+void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService)
+{
   m_viewEffectsService = viewEffectsService;
 }
 
-void MapDocument::createTagActions() {
+void MapDocument::createTagActions()
+{
   const auto& actionManager = ActionManager::instance();
   m_tagActions = actionManager.createTagActions(m_tagManager->smartTags());
 }
 
-void MapDocument::clearTagActions() {
+void MapDocument::clearTagActions()
+{
   m_tagActions.clear();
 }
 
-void MapDocument::createEntityDefinitionActions() {
+void MapDocument::createEntityDefinitionActions()
+{
   const auto& actionManager = ActionManager::instance();
   m_entityDefinitionActions =
     actionManager.createEntityDefinitionActions(m_entityDefinitionManager->definitions());
 }
 
 void MapDocument::newDocument(
-  const Model::MapFormat mapFormat, const vm::bbox3& worldBounds,
-  std::shared_ptr<Model::Game> game) {
+  const Model::MapFormat mapFormat,
+  const vm::bbox3& worldBounds,
+  std::shared_ptr<Model::Game> game)
+{
   info("Creating new document");
 
   clearRepeatableCommands();
@@ -528,8 +585,11 @@ void MapDocument::newDocument(
 }
 
 void MapDocument::loadDocument(
-  const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game,
-  const IO::Path& path) {
+  const Model::MapFormat mapFormat,
+  const vm::bbox3& worldBounds,
+  std::shared_ptr<Model::Game> game,
+  const IO::Path& path)
+{
   info("Loading document from " + path.asString());
 
   clearRepeatableCommands();
@@ -545,33 +605,40 @@ void MapDocument::loadDocument(
   documentWasLoadedNotifier(this);
 }
 
-void MapDocument::saveDocument() {
+void MapDocument::saveDocument()
+{
   doSaveDocument(m_path);
 }
 
-void MapDocument::saveDocumentAs(const IO::Path& path) {
+void MapDocument::saveDocumentAs(const IO::Path& path)
+{
   doSaveDocument(path);
 }
 
-void MapDocument::saveDocumentTo(const IO::Path& path) {
+void MapDocument::saveDocumentTo(const IO::Path& path)
+{
   ensure(m_game.get() != nullptr, "game is null");
   ensure(m_world != nullptr, "world is null");
   m_game->writeMap(*m_world, path);
 }
 
-void MapDocument::exportDocumentAs(const IO::ExportOptions& options) {
+void MapDocument::exportDocumentAs(const IO::ExportOptions& options)
+{
   m_game->exportMap(*m_world, options);
 }
 
-void MapDocument::doSaveDocument(const IO::Path& path) {
+void MapDocument::doSaveDocument(const IO::Path& path)
+{
   saveDocumentTo(path);
   setLastSaveModificationCount();
   setPath(path);
   documentWasSavedNotifier(this);
 }
 
-void MapDocument::clearDocument() {
-  if (m_world != nullptr) {
+void MapDocument::clearDocument()
+{
+  if (m_world != nullptr)
+  {
     documentWillBeClearedNotifier(this);
 
     m_editorContext->reset();
@@ -585,50 +652,60 @@ void MapDocument::clearDocument() {
   }
 }
 
-MapTextEncoding MapDocument::encoding() const {
+MapTextEncoding MapDocument::encoding() const
+{
   return MapTextEncoding::Quake;
 }
 
-std::string MapDocument::serializeSelectedNodes() {
+std::string MapDocument::serializeSelectedNodes()
+{
   std::stringstream stream;
   m_game->writeNodesToStream(*m_world, m_selectedNodes.nodes(), stream);
   return stream.str();
 }
 
-std::string MapDocument::serializeSelectedBrushFaces() {
+std::string MapDocument::serializeSelectedBrushFaces()
+{
   std::stringstream stream;
-  const auto faces = kdl::vec_transform(m_selectedBrushFaces, [](const auto& h) {
-    return h.face();
-  });
+  const auto faces =
+    kdl::vec_transform(m_selectedBrushFaces, [](const auto& h) { return h.face(); });
   m_game->writeBrushFacesToStream(*m_world, faces, stream);
   return stream.str();
 }
 
-PasteType MapDocument::paste(const std::string& str) {
+PasteType MapDocument::paste(const std::string& str)
+{
   // Try parsing as entities, then as brushes, in all compatible formats
   const std::vector<Model::Node*> nodes =
     m_game->parseNodes(str, m_world->mapFormat(), m_worldBounds, logger());
-  if (!nodes.empty()) {
-    if (pasteNodes(nodes)) {
+  if (!nodes.empty())
+  {
+    if (pasteNodes(nodes))
+    {
       return PasteType::Node;
     }
     return PasteType::Failed;
   }
 
   // Try parsing as brush faces
-  try {
+  try
+  {
     const std::vector<Model::BrushFace> faces =
       m_game->parseBrushFaces(str, m_world->mapFormat(), m_worldBounds, logger());
-    if (!faces.empty() && pasteBrushFaces(faces)) {
+    if (!faces.empty() && pasteBrushFaces(faces))
+    {
       return PasteType::BrushFace;
     }
-  } catch (const ParserException& e) {
+  }
+  catch (const ParserException& e)
+  {
     error() << "Could not parse clipboard contents: " << e.what();
   }
   return PasteType::Failed;
 }
 
-static std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root) {
+static std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root)
+{
   auto result = std::vector<Model::IdType>{};
   root.accept(kdl::overload(
     [](auto&& thisLambda, const Model::WorldNode* worldNode) {
@@ -638,23 +715,27 @@ static std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root)
       layerNode->visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
-      if (const auto persistentId = groupNode->persistentId()) {
+      if (const auto persistentId = groupNode->persistentId())
+      {
         result.push_back(*persistentId);
       }
       groupNode->visitChildren(thisLambda);
     },
-    [](const Model::EntityNode*) {}, [](const Model::BrushNode*) {},
+    [](const Model::EntityNode*) {},
+    [](const Model::BrushNode*) {},
     [](const Model::PatchNode*) {}));
   return result;
 }
 
-bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
+bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
+{
   auto nodesToDetach = std::vector<Model::Node*>{};
   auto nodesToDelete = std::vector<Model::Node*>{};
   auto nodesToAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
 
   auto* parent = parentForNodes();
-  for (auto* node : nodes) {
+  for (auto* node : nodes)
+  {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, Model::WorldNode* world) {
         world->visitChildren(thisLambda);
@@ -671,11 +752,14 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
       },
       [&](auto&& thisLambda, Model::EntityNode* entityNode) {
         if (Model::isWorldspawn(
-              entityNode->entity().classname(), entityNode->entity().properties())) {
+              entityNode->entity().classname(), entityNode->entity().properties()))
+        {
           entityNode->visitChildren(thisLambda);
           nodesToDetach.push_back(entityNode);
           nodesToDelete.push_back(entityNode);
-        } else {
+        }
+        else
+        {
           nodesToDetach.push_back(entityNode);
           nodesToAdd[parent].push_back(entityNode);
         }
@@ -690,9 +774,11 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
       }));
   }
 
-  for (auto* node : nodesToDetach) {
+  for (auto* node : nodesToDetach)
+  {
     auto* nodeParent = node->parent();
-    if (nodeParent != nullptr) {
+    if (nodeParent != nullptr)
+    {
       nodeParent->removeChild(node);
     }
   }
@@ -700,8 +786,10 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
 
   // Clean up persistent IDs of any groups being pasted
   auto persistentGroupIds = kdl::vector_set(allPersistentGroupIds(*m_world.get()));
-  for (auto& [newParent, nodesToAddToParent] : nodesToAdd) {
-    for (auto* node : nodesToAddToParent) {
+  for (auto& [newParent, nodesToAddToParent] : nodesToAdd)
+  {
+    for (auto* node : nodesToAddToParent)
+    {
       node->accept(kdl::overload(
         [&](auto&& thisLambda, Model::WorldNode* worldNode) {
           worldNode->visitChildren(thisLambda);
@@ -710,15 +798,20 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
           layerNode->visitChildren(thisLambda);
         },
         [&](auto&& thisLambda, Model::GroupNode* groupNode) {
-          if (const auto persistentGroupId = groupNode->persistentId()) {
-            if (!persistentGroupIds.insert(*persistentGroupId).second) {
-              // a group with this ID is already in the map or being pasted, so reset the ID
+          if (const auto persistentGroupId = groupNode->persistentId())
+          {
+            if (!persistentGroupIds.insert(*persistentGroupId).second)
+            {
+              // a group with this ID is already in the map or being pasted, so reset the
+              // ID
               groupNode->resetPersistentId();
             }
           }
           groupNode->visitChildren(thisLambda);
         },
-        [](Model::EntityNode*) {}, [](Model::BrushNode*) {}, [](Model::PatchNode*) {}));
+        [](Model::EntityNode*) {},
+        [](Model::BrushNode*) {},
+        [](Model::PatchNode*) {}));
     }
   }
 
@@ -734,44 +827,54 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
   return true;
 }
 
-bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces) {
+bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces)
+{
   assert(!faces.empty());
   return setFaceAttributesExceptContentFlags(faces.back().attributes());
 }
 
-void MapDocument::loadPointFile(const IO::Path path) {
+void MapDocument::loadPointFile(const IO::Path path)
+{
   static_assert(
     !std::is_reference<decltype(path)>::value,
     "path must be passed by value because reloadPointFile() passes m_pointFilePath");
 
-  if (isPointFileLoaded()) {
+  if (isPointFileLoaded())
+  {
     unloadPointFile();
   }
 
   auto file = IO::openPathAsInputStream(path);
-  if (auto trace = Model::loadPointFile(file)) {
+  if (auto trace = Model::loadPointFile(file))
+  {
     m_pointFile = PointFile{*trace, path};
     info() << "Loaded point file " << path;
     pointFileWasLoadedNotifier();
-  } else {
+  }
+  else
+  {
     warn() << "Failed to load point file " << path;
   }
 }
 
-bool MapDocument::isPointFileLoaded() const {
+bool MapDocument::isPointFileLoaded() const
+{
   return m_pointFile != std::nullopt;
 }
 
-bool MapDocument::canReloadPointFile() const {
+bool MapDocument::canReloadPointFile() const
+{
   return isPointFileLoaded();
 }
 
-void MapDocument::reloadPointFile() {
+void MapDocument::reloadPointFile()
+{
   assert(isPointFileLoaded());
   loadPointFile(m_pointFile->path);
 }
 
-void MapDocument::unloadPointFile() {
+void MapDocument::unloadPointFile()
+{
   assert(isPointFileLoaded());
   m_pointFile = std::nullopt;
 
@@ -779,46 +882,59 @@ void MapDocument::unloadPointFile() {
   pointFileWasUnloadedNotifier();
 }
 
-void MapDocument::loadPortalFile(const IO::Path path) {
+void MapDocument::loadPortalFile(const IO::Path path)
+{
   static_assert(
     !std::is_reference<decltype(path)>::value,
     "path must be passed by value because reloadPortalFile() passes m_portalFilePath");
 
-  if (!Model::PortalFile::canLoad(path)) {
+  if (!Model::PortalFile::canLoad(path))
+  {
     return;
   }
 
-  if (isPortalFileLoaded()) {
+  if (isPortalFileLoaded())
+  {
     unloadPortalFile();
   }
 
-  try {
+  try
+  {
     m_portalFilePath = path;
     m_portalFile = std::make_unique<Model::PortalFile>(path);
-  } catch (const std::exception& exception) {
-    info("Couldn't load portal file " + m_portalFilePath.asString() + ": " + exception.what());
+  }
+  catch (const std::exception& exception)
+  {
+    info(
+      "Couldn't load portal file " + m_portalFilePath.asString() + ": "
+      + exception.what());
   }
 
-  if (isPortalFileLoaded()) {
+  if (isPortalFileLoaded())
+  {
     info("Loaded portal file " + m_portalFilePath.asString());
     portalFileWasLoadedNotifier();
   }
 }
 
-bool MapDocument::isPortalFileLoaded() const {
+bool MapDocument::isPortalFileLoaded() const
+{
   return m_portalFile != nullptr;
 }
 
-bool MapDocument::canReloadPortalFile() const {
+bool MapDocument::canReloadPortalFile() const
+{
   return m_portalFile != nullptr && Model::PortalFile::canLoad(m_portalFilePath);
 }
 
-void MapDocument::reloadPortalFile() {
+void MapDocument::reloadPortalFile()
+{
   assert(isPortalFileLoaded());
   loadPortalFile(m_portalFilePath);
 }
 
-void MapDocument::unloadPortalFile() {
+void MapDocument::unloadPortalFile()
+{
   assert(isPortalFileLoaded());
   m_portalFile = nullptr;
   m_portalFilePath = IO::Path();
@@ -827,24 +943,30 @@ void MapDocument::unloadPortalFile() {
   portalFileWasUnloadedNotifier();
 }
 
-bool MapDocument::hasSelection() const {
+bool MapDocument::hasSelection() const
+{
   return hasSelectedNodes() || hasSelectedBrushFaces();
 }
 
-bool MapDocument::hasSelectedNodes() const {
+bool MapDocument::hasSelectedNodes() const
+{
   return !m_selectedNodes.empty();
 }
 
-bool MapDocument::hasSelectedBrushFaces() const {
+bool MapDocument::hasSelectedBrushFaces() const
+{
   return !m_selectedBrushFaces.empty();
 }
 
-bool MapDocument::hasAnySelectedBrushFaces() const {
+bool MapDocument::hasAnySelectedBrushFaces() const
+{
   return hasSelectedBrushFaces() || selectedNodes().hasBrushes();
 }
 
-std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const {
-  if (!hasSelection()) {
+std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const
+{
+  if (!hasSelection())
+  {
     return m_world ? std::vector<Model::EntityNodeBase*>({m_world.get()})
                    : std::vector<Model::EntityNodeBase*>{};
   }
@@ -855,69 +977,63 @@ std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const 
     nodes.push_back(entity);
   };
 
-  for (auto* node : m_selectedNodes) {
+  for (auto* node : m_selectedNodes)
+  {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, Model::WorldNode* world) {
         nodes.push_back(world);
         world->visitChildren(thisLambda);
       },
-      [&](auto&& thisLambda, Model::LayerNode* layer) {
-        layer->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, Model::GroupNode* group) {
-        group->visitChildren(thisLambda);
-      },
-      [&](Model::EntityNode* entity) {
-        addEntity(entity);
-      },
-      [&](Model::BrushNode* brush) {
-        addEntity(brush->entity());
-      },
-      [&](Model::PatchNode* patch) {
-        addEntity(patch->entity());
-      }));
+      [&](
+        auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+      [&](
+        auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+      [&](Model::EntityNode* entity) { addEntity(entity); },
+      [&](Model::BrushNode* brush) { addEntity(brush->entity()); },
+      [&](Model::PatchNode* patch) { addEntity(patch->entity()); }));
   }
 
   return kdl::vec_sort_and_remove_duplicates(std::move(nodes));
 }
 
-std::vector<Model::BrushNode*> MapDocument::allSelectedBrushNodes() const {
+std::vector<Model::BrushNode*> MapDocument::allSelectedBrushNodes() const
+{
   auto brushes = std::vector<Model::BrushNode*>{};
-  for (auto* node : m_selectedNodes.nodes()) {
+  for (auto* node : m_selectedNodes.nodes())
+  {
     node->accept(kdl::overload(
-      [](auto&& thisLambda, Model::WorldNode* world) {
-        world->visitChildren(thisLambda);
-      },
-      [](auto&& thisLambda, Model::LayerNode* layer) {
-        layer->visitChildren(thisLambda);
-      },
-      [](auto&& thisLambda, Model::GroupNode* group) {
-        group->visitChildren(thisLambda);
-      },
+      [](
+        auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+      [](
+        auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+      [](
+        auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
       [](auto&& thisLambda, Model::EntityNode* entity) {
         entity->visitChildren(thisLambda);
       },
-      [&](Model::BrushNode* brush) {
-        brushes.push_back(brush);
-      },
+      [&](Model::BrushNode* brush) { brushes.push_back(brush); },
       [&](Model::PatchNode*) {}));
   }
   return brushes;
 }
 
-bool MapDocument::hasAnySelectedBrushNodes() const {
+bool MapDocument::hasAnySelectedBrushNodes() const
+{
   // This is just an optimization of `!allSelectedBrushNodes().empty()`
   // that stops after finding the first brush
   const auto visitChildrenAndExitEarly = [](auto&& thisLambda, const auto* node) {
-    for (const auto* child : node->children()) {
-      if (child->accept(thisLambda)) {
+    for (const auto* child : node->children())
+    {
+      if (child->accept(thisLambda))
+      {
         return true;
       }
     }
     return false;
   };
 
-  for (const auto* node : m_selectedNodes.nodes()) {
+  for (const auto* node : m_selectedNodes.nodes())
+  {
     const auto hasBrush = node->accept(kdl::overload(
       [&](auto&& thisLambda, const Model::WorldNode* world) -> bool {
         return visitChildrenAndExitEarly(thisLambda, world);
@@ -931,13 +1047,10 @@ bool MapDocument::hasAnySelectedBrushNodes() const {
       [&](auto&& thisLambda, const Model::EntityNode* entity) -> bool {
         return visitChildrenAndExitEarly(thisLambda, entity);
       },
-      [](const Model::BrushNode*) -> bool {
-        return true;
-      },
-      [](const Model::PatchNode*) -> bool {
-        return false;
-      }));
-    if (hasBrush) {
+      [](const Model::BrushNode*) -> bool { return true; },
+      [](const Model::PatchNode*) -> bool { return false; }));
+    if (hasBrush)
+    {
       return true;
     }
   }
@@ -945,66 +1058,80 @@ bool MapDocument::hasAnySelectedBrushNodes() const {
   return false;
 }
 
-const Model::NodeCollection& MapDocument::selectedNodes() const {
+const Model::NodeCollection& MapDocument::selectedNodes() const
+{
   return m_selectedNodes;
 }
 
-std::vector<Model::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const {
+std::vector<Model::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const
+{
   if (hasSelectedBrushFaces())
     return selectedBrushFaces();
 
   const auto faces = Model::collectBrushFaces(m_selectedNodes.nodes());
-  return Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces).facesToSelect;
+  return Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces)
+    .facesToSelect;
 }
 
-std::vector<Model::BrushFaceHandle> MapDocument::selectedBrushFaces() const {
+std::vector<Model::BrushFaceHandle> MapDocument::selectedBrushFaces() const
+{
   return m_selectedBrushFaces;
 }
 
-const vm::bbox3& MapDocument::referenceBounds() const {
+const vm::bbox3& MapDocument::referenceBounds() const
+{
   if (hasSelectedNodes())
     return selectionBounds();
   return lastSelectionBounds();
 }
 
-const vm::bbox3& MapDocument::lastSelectionBounds() const {
+const vm::bbox3& MapDocument::lastSelectionBounds() const
+{
   return m_lastSelectionBounds;
 }
 
-const vm::bbox3& MapDocument::selectionBounds() const {
+const vm::bbox3& MapDocument::selectionBounds() const
+{
   if (!m_selectionBoundsValid)
     validateSelectionBounds();
   return m_selectionBounds;
 }
 
-const std::string& MapDocument::currentTextureName() const {
+const std::string& MapDocument::currentTextureName() const
+{
   return m_currentTextureName;
 }
 
-void MapDocument::setCurrentTextureName(const std::string& currentTextureName) {
+void MapDocument::setCurrentTextureName(const std::string& currentTextureName)
+{
   if (m_currentTextureName == currentTextureName)
     return;
   m_currentTextureName = currentTextureName;
   currentTextureNameDidChangeNotifier(m_currentTextureName);
 }
 
-void MapDocument::selectAllNodes() {
+void MapDocument::selectAllNodes()
+{
   m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::selectAllNodes());
 }
 
-void MapDocument::selectSiblings() {
+void MapDocument::selectSiblings()
+{
   const auto& nodes = selectedNodes().nodes();
-  if (nodes.empty()) {
+  if (nodes.empty())
+  {
     return;
   }
 
   auto visited = std::unordered_set<Model::Node*>{};
   auto nodesToSelect = std::vector<Model::Node*>{};
 
-  for (auto* node : nodes) {
+  for (auto* node : nodes)
+  {
     auto* parent = node->parent();
-    if (visited.insert(parent).second) {
+    if (visited.insert(parent).second)
+    {
       nodesToSelect = kdl::vec_concat(
         std::move(nodesToSelect),
         Model::collectSelectableNodes(parent->children(), editorContext()));
@@ -1017,43 +1144,48 @@ void MapDocument::selectSiblings() {
   transaction.commit();
 }
 
-void MapDocument::selectTouching(const bool del) {
+void MapDocument::selectTouching(const bool del)
+{
   const auto nodes = kdl::vec_filter(
     Model::collectTouchingNodes(
       std::vector<Model::Node*>{m_world.get()}, m_selectedNodes.brushes()),
-    [&](Model::Node* node) {
-      return m_editorContext->selectable(node);
-    });
+    [&](Model::Node* node) { return m_editorContext->selectable(node); });
 
   auto transaction = Transaction{*this, "Select Touching"};
-  if (del) {
+  if (del)
+  {
     deleteObjects();
-  } else {
+  }
+  else
+  {
     deselectAll();
   }
   selectNodes(nodes);
   transaction.commit();
 }
 
-void MapDocument::selectInside(const bool del) {
+void MapDocument::selectInside(const bool del)
+{
   const auto nodes = kdl::vec_filter(
     Model::collectContainedNodes(
       std::vector<Model::Node*>{m_world.get()}, m_selectedNodes.brushes()),
-    [&](Model::Node* node) {
-      return m_editorContext->selectable(node);
-    });
+    [&](Model::Node* node) { return m_editorContext->selectable(node); });
 
   auto transaction = Transaction{*this, "Select Inside"};
-  if (del) {
+  if (del)
+  {
     deleteObjects();
-  } else {
+  }
+  else
+  {
     deselectAll();
   }
   selectNodes(nodes);
   transaction.commit();
 }
 
-void MapDocument::selectInverse() {
+void MapDocument::selectInverse()
+{
   // This only selects nodes that have no selected children (or parents).
   // This is because if a brush entity only 1 selected child and 1 unselected,
   // we treat it as partially selected and don't want to try to select the entity if the
@@ -1062,19 +1194,16 @@ void MapDocument::selectInverse() {
   auto nodesToSelect = std::vector<Model::Node*>{};
   const auto collectNode = [&](auto* node) {
     if (
-      !node->transitivelySelected() && !node->descendantSelected() &&
-      m_editorContext->selectable(node)) {
+      !node->transitivelySelected() && !node->descendantSelected()
+      && m_editorContext->selectable(node))
+    {
       nodesToSelect.push_back(node);
     }
   };
 
   currentGroupOrWorld()->accept(kdl::overload(
-    [](auto&& thisLambda, Model::WorldNode* world) {
-      world->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
+    [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
     [&](auto&& thisLambda, Model::GroupNode* group) {
       collectNode(group);
       group->visitChildren(thisLambda);
@@ -1083,12 +1212,8 @@ void MapDocument::selectInverse() {
       collectNode(entity);
       entity->visitChildren(thisLambda);
     },
-    [&](Model::BrushNode* brush) {
-      collectNode(brush);
-    },
-    [&](Model::PatchNode* patch) {
-      collectNode(patch);
-    }));
+    [&](Model::BrushNode* brush) { collectNode(brush); },
+    [&](Model::PatchNode* patch) { collectNode(patch); }));
 
   auto transaction = Transaction{*this, "Select Inverse"};
   deselectAll();
@@ -1096,12 +1221,16 @@ void MapDocument::selectInverse() {
   transaction.commit();
 }
 
-void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positions) {
+void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positions)
+{
   const auto nodes = kdl::vec_filter(
-    Model::collectSelectableNodes(std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
+    Model::collectSelectableNodes(
+      std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
     [&](const auto* node) {
-      for (const size_t position : positions) {
-        if (node->containsLine(position)) {
+      for (const size_t position : positions)
+      {
+        if (node->containsLine(position))
+        {
           return true;
         }
       }
@@ -1114,30 +1243,34 @@ void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positio
   transaction.commit();
 }
 
-void MapDocument::selectNodes(const std::vector<Model::Node*>& nodes) {
+void MapDocument::selectNodes(const std::vector<Model::Node*>& nodes)
+{
   m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::select(nodes));
 }
 
-void MapDocument::selectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) {
+void MapDocument::selectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles)
+{
   m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::select(handles));
-  if (!handles.empty()) {
+  if (!handles.empty())
+  {
     setCurrentTextureName(handles.back().face().attributes().textureName());
   }
 }
 
-void MapDocument::convertToFaceSelection() {
+void MapDocument::convertToFaceSelection()
+{
   m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::convertToFaces());
 }
 
-void MapDocument::selectFacesWithTexture(const Assets::Texture* texture) {
+void MapDocument::selectFacesWithTexture(const Assets::Texture* texture)
+{
   const auto faces = kdl::vec_filter(
-    Model::collectSelectableBrushFaces(std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
-    [&](const auto& faceHandle) {
-      return faceHandle.face().texture() == texture;
-    });
+    Model::collectSelectableBrushFaces(
+      std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
+    [&](const auto& faceHandle) { return faceHandle.face().texture() == texture; });
 
   auto transaction = Transaction{*this, "Select Faces with Texture"};
   deselectAll();
@@ -1145,10 +1278,11 @@ void MapDocument::selectFacesWithTexture(const Assets::Texture* texture) {
   transaction.commit();
 }
 
-void MapDocument::selectTall(const vm::axis::type cameraAxis) {
+void MapDocument::selectTall(const vm::axis::type cameraAxis)
+{
   const vm::vec3 cameraAbsDirection = vm::vec3::axis(cameraAxis);
-  const vm::bbox3 tallBounds =
-    worldBounds().expand(-1.0); // we can't make a brush that is exactly as large as worldBounds
+  const vm::bbox3 tallBounds = worldBounds().expand(
+    -1.0); // we can't make a brush that is exactly as large as worldBounds
 
   const FloatType min = vm::dot(tallBounds.min, cameraAbsDirection);
   const FloatType max = vm::dot(tallBounds.max, cameraAbsDirection);
@@ -1169,12 +1303,14 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis) {
       std::vector<vm::vec3> tallVertices;
       tallVertices.reserve(2 * selectionBrush.vertexCount());
 
-      for (const Model::BrushVertex* vertex : selectionBrush.vertices()) {
+      for (const Model::BrushVertex* vertex : selectionBrush.vertices())
+      {
         tallVertices.push_back(minPlane.project_point(vertex->position()));
         tallVertices.push_back(maxPlane.project_point(vertex->position()));
       }
 
-      return brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
+      return brushBuilder
+        .createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
         .and_then([](Model::Brush&& brush) {
           return std::make_unique<Model::BrushNode>(std::move(brush));
         });
@@ -1186,14 +1322,9 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis) {
 
       const auto nodesToSelect = kdl::vec_filter(
         Model::collectContainedNodes(
-          std::vector<Model::Node*>{world()}, kdl::vec_transform(
-                                                tallBrushes,
-                                                [](const auto& b) {
-                                                  return b.get();
-                                                })),
-        [&](const auto* node) {
-          return editorContext().selectable(node);
-        });
+          std::vector<Model::Node*>{world()},
+          kdl::vec_transform(tallBrushes, [](const auto& b) { return b.get(); })),
+        [&](const auto* node) { return editorContext().selectable(node); });
       selectNodes(nodesToSelect);
 
       transaction.commit();
@@ -1203,40 +1334,49 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis) {
     });
 }
 
-void MapDocument::deselectAll() {
-  if (hasSelection()) {
+void MapDocument::deselectAll()
+{
+  if (hasSelection())
+  {
     m_repeatStack->clearOnNextPush();
     executeAndStore(SelectionCommand::deselectAll());
   }
 }
 
-void MapDocument::deselectNodes(const std::vector<Model::Node*>& nodes) {
+void MapDocument::deselectNodes(const std::vector<Model::Node*>& nodes)
+{
   m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::deselect(nodes));
 }
 
-void MapDocument::deselectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) {
+void MapDocument::deselectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles)
+{
   m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::deselect(handles));
 }
 
-void MapDocument::updateLastSelectionBounds() {
+void MapDocument::updateLastSelectionBounds()
+{
   const auto currentSelectionBounds = selectionBounds();
-  if (currentSelectionBounds.is_valid() && !currentSelectionBounds.is_empty()) {
+  if (currentSelectionBounds.is_valid() && !currentSelectionBounds.is_empty())
+  {
     m_lastSelectionBounds = selectionBounds();
   }
 }
 
-void MapDocument::invalidateSelectionBounds() {
+void MapDocument::invalidateSelectionBounds()
+{
   m_selectionBoundsValid = false;
 }
 
-void MapDocument::validateSelectionBounds() const {
+void MapDocument::validateSelectionBounds() const
+{
   m_selectionBounds = computeLogicalBounds(m_selectedNodes.nodes());
   m_selectionBoundsValid = true;
 }
 
-void MapDocument::clearSelection() {
+void MapDocument::clearSelection()
+{
   m_selectedNodes.clear();
   m_selectedBrushFaces.clear();
 }
@@ -1249,15 +1389,18 @@ void MapDocument::clearSelection() {
  * @return the added nodes
  */
 std::vector<Model::Node*> MapDocument::addNodes(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) {
-  for (const auto& [parent, children] : nodes) {
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
+{
+  for (const auto& [parent, children] : nodes)
+  {
     assert(parent == m_world.get() || parent->isDescendantOf(m_world.get()));
     unused(parent);
   }
 
   auto transaction = Transaction{*this, "Add Objects"};
   const auto result = executeAndStore(AddRemoveNodesCommand::add(nodes));
-  if (!result->success()) {
+  if (!result->success())
+  {
     transaction.cancel();
     return {};
   }
@@ -1266,7 +1409,8 @@ std::vector<Model::Node*> MapDocument::addNodes(
   const auto addedNodes = collectChildren(nodes);
   ensureVisible(addedNodes);
   ensureUnlocked(addedNodes);
-  if (!transaction.commit()) {
+  if (!transaction.commit())
+  {
     return {};
   }
 
@@ -1274,45 +1418,54 @@ std::vector<Model::Node*> MapDocument::addNodes(
 }
 
 static std::vector<std::string> getLinkedGroupIdsRecursively(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& parentChildrenMap) {
+  const std::map<Model::Node*, std::vector<Model::Node*>>& parentChildrenMap)
+{
   std::vector<std::string> linkedGroupIds;
-  for (const auto& [parent, children] : parentChildrenMap) {
+  for (const auto& [parent, children] : parentChildrenMap)
+  {
     Model::Node::visitAll(
-      children, kdl::overload(
-                  [](auto&& thisLambda, const Model::WorldNode* worldNode) {
-                    worldNode->visitChildren(thisLambda);
-                  },
-                  [](auto&& thisLambda, const Model::LayerNode* layerNode) {
-                    layerNode->visitChildren(thisLambda);
-                  },
-                  [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
-                    if (const auto& linkedGroupId = groupNode->group().linkedGroupId()) {
-                      linkedGroupIds.push_back(*linkedGroupId);
-                    }
-                    groupNode->visitChildren(thisLambda);
-                  },
-                  [](const Model::EntityNode*) {}, [](const Model::BrushNode*) {},
-                  [](const Model::PatchNode*) {}));
+      children,
+      kdl::overload(
+        [](auto&& thisLambda, const Model::WorldNode* worldNode) {
+          worldNode->visitChildren(thisLambda);
+        },
+        [](auto&& thisLambda, const Model::LayerNode* layerNode) {
+          layerNode->visitChildren(thisLambda);
+        },
+        [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
+          if (const auto& linkedGroupId = groupNode->group().linkedGroupId())
+          {
+            linkedGroupIds.push_back(*linkedGroupId);
+          }
+          groupNode->visitChildren(thisLambda);
+        },
+        [](const Model::EntityNode*) {},
+        [](const Model::BrushNode*) {},
+        [](const Model::PatchNode*) {}));
   }
 
   return kdl::vec_sort_and_remove_duplicates(std::move(linkedGroupIds));
 }
 
 /**
- * Removes the given nodes. If this causes any groups/entities to become empty, removes them as
- * well.
+ * Removes the given nodes. If this causes any groups/entities to become empty, removes
+ * them as well.
  *
  * Ownership of the removed nodes is transferred to the undo system.
  */
-void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes) {
+void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes)
+{
   auto removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
   auto linkedGroupIdsOfRemovedGroups = std::vector<std::string>{};
-  const auto changedLinkedGroups = findAllLinkedGroups(*m_world, kdl::map_keys(removableNodes));
+  const auto changedLinkedGroups =
+    findAllLinkedGroups(*m_world, kdl::map_keys(removableNodes));
 
   auto transaction = Transaction{*this};
-  while (!removableNodes.empty()) {
+  while (!removableNodes.empty())
+  {
     linkedGroupIdsOfRemovedGroups = kdl::vec_concat(
-      std::move(linkedGroupIdsOfRemovedGroups), getLinkedGroupIdsRecursively(removableNodes));
+      std::move(linkedGroupIdsOfRemovedGroups),
+      getLinkedGroupIdsRecursively(removableNodes));
 
     closeRemovedGroups(removableNodes);
     executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
@@ -1322,42 +1475,41 @@ void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes) {
   setHasPendingChanges(changedLinkedGroups, true);
 
   auto singletonLinkSetsAfterRemoval = std::vector<Model::GroupNode*>{};
-  for (const auto& linkedGroupId : linkedGroupIdsOfRemovedGroups) {
+  for (const auto& linkedGroupId : linkedGroupIdsOfRemovedGroups)
+  {
     const auto linkedGroups = Model::findLinkedGroups(*m_world, linkedGroupId);
-    if (linkedGroups.size() == 1u) {
+    if (linkedGroups.size() == 1u)
+    {
       singletonLinkSetsAfterRemoval.push_back(linkedGroups.front());
     }
   }
 
   applyAndSwap(
-    *this, "Reset Linked Group ID", singletonLinkSetsAfterRemoval,
+    *this,
+    "Reset Linked Group ID",
+    singletonLinkSetsAfterRemoval,
     findContainingLinkedGroups(*m_world, singletonLinkSetsAfterRemoval),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
       [&](Model::Group& group) {
         group.resetLinkedGroupId();
         return true;
       },
-      [](Model::Entity&) {
-        return true;
-      },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Entity&) { return true; },
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 
   assertResult(transaction.commit());
 }
 
 std::map<Model::Node*, std::vector<Model::Node*>> MapDocument::collectRemovableParents(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) const {
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) const
+{
   std::map<Model::Node*, std::vector<Model::Node*>> result;
-  for (const auto& [node, children] : nodes) {
-    if (node->removeIfEmpty() && !node->hasChildren()) {
+  for (const auto& [node, children] : nodes)
+  {
+    if (node->removeIfEmpty() && !node->hasChildren())
+    {
       Model::Node* parent = node->parent();
       ensure(parent != nullptr, "parent is null");
       result[parent].push_back(node);
@@ -1366,14 +1518,17 @@ std::map<Model::Node*, std::vector<Model::Node*>> MapDocument::collectRemovableP
   return result;
 }
 
-struct MapDocument::CompareByAncestry {
-  bool operator()(const Model::Node* lhs, const Model::Node* rhs) const {
+struct MapDocument::CompareByAncestry
+{
+  bool operator()(const Model::Node* lhs, const Model::Node* rhs) const
+  {
     return lhs->isAncestorOf(rhs);
   }
 };
 
 std::vector<Model::Node*> MapDocument::removeImplicitelyRemovedNodes(
-  std::vector<Model::Node*> nodes) const {
+  std::vector<Model::Node*> nodes) const
+{
   if (nodes.empty())
     return nodes;
 
@@ -1383,7 +1538,8 @@ std::vector<Model::Node*> MapDocument::removeImplicitelyRemovedNodes(
   result.reserve(nodes.size());
   result.push_back(nodes.front());
 
-  for (size_t i = 1; i < nodes.size(); ++i) {
+  for (size_t i = 1; i < nodes.size(); ++i)
+  {
     Model::Node* node = nodes[i];
     if (!node->isDescendantOf(result))
       result.push_back(node);
@@ -1393,10 +1549,14 @@ std::vector<Model::Node*> MapDocument::removeImplicitelyRemovedNodes(
 }
 
 void MapDocument::closeRemovedGroups(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& toRemove) {
-  for (const auto& [parent, nodes] : toRemove) {
-    for (const Model::Node* node : nodes) {
-      if (node == currentGroup()) {
+  const std::map<Model::Node*, std::vector<Model::Node*>>& toRemove)
+{
+  for (const auto& [parent, nodes] : toRemove)
+  {
+    for (const Model::Node* node : nodes)
+    {
+      if (node == currentGroup())
+      {
         closeGroup();
         closeRemovedGroups(toRemove);
         return;
@@ -1406,35 +1566,42 @@ void MapDocument::closeRemovedGroups(
 }
 
 bool MapDocument::reparentNodes(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) {
-  if (!checkReparenting(nodesToAdd)) {
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd)
+{
+  if (!checkReparenting(nodesToAdd))
+  {
     return false;
   }
 
   auto nodesToRemove = std::map<Model::Node*, std::vector<Model::Node*>>{};
-  for (const auto& [newParent, children] : nodesToAdd) {
+  for (const auto& [newParent, children] : nodesToAdd)
+  {
     nodesToRemove = kdl::map_merge(nodesToRemove, Model::parentChildrenMap(children));
   }
 
   const auto changedLinkedGroups = findAllLinkedGroups(
     *m_world, kdl::vec_concat(kdl::map_keys(nodesToAdd), kdl::map_keys(nodesToRemove)));
 
-  if (!checkLinkedGroupsToUpdate(changedLinkedGroups)) {
+  if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
+  {
     return false;
   }
 
   auto transaction = Transaction{*this, "Reparent Objects"};
 
   // This handles two main cases:
-  // - creating brushes in a hidden layer, and then grouping / ungrouping them keeps them visible
-  // - creating brushes in a hidden layer, then moving them to a hidden layer, should downgrade them
+  // - creating brushes in a hidden layer, and then grouping / ungrouping them keeps them
+  // visible
+  // - creating brushes in a hidden layer, then moving them to a hidden layer, should
+  // downgrade them
   //   to inherited and hide them
-  for (auto& [newParent, nodes] : nodesToAdd) {
+  for (auto& [newParent, nodes] : nodesToAdd)
+  {
     auto* newParentLayer = Model::findContainingLayer(newParent);
 
-    const auto nodesToDowngrade = kdl::vec_filter(Model::collectNodes(nodes), [&](auto* node) {
-      return Model::findContainingLayer(node) != newParentLayer;
-    });
+    const auto nodesToDowngrade = kdl::vec_filter(
+      Model::collectNodes(nodes),
+      [&](auto* node) { return Model::findContainingLayer(node) != newParentLayer; });
 
     downgradeUnlockedToInherit(nodesToDowngrade);
     downgradeShownToInherit(nodesToDowngrade);
@@ -1442,7 +1609,8 @@ bool MapDocument::reparentNodes(
 
   const auto result =
     executeAndStore(ReparentNodesCommand::reparent(std::move(nodesToAdd), nodesToRemove));
-  if (!result->success()) {
+  if (!result->success())
+  {
     transaction.cancel();
     return false;
   }
@@ -1450,7 +1618,8 @@ bool MapDocument::reparentNodes(
   setHasPendingChanges(changedLinkedGroups, true);
 
   auto removableNodes = collectRemovableParents(nodesToRemove);
-  while (!removableNodes.empty()) {
+  while (!removableNodes.empty())
+  {
     closeRemovedGroups(removableNodes);
     executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
 
@@ -1461,16 +1630,20 @@ bool MapDocument::reparentNodes(
 }
 
 bool MapDocument::checkReparenting(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const {
-  for (const auto& [newParent, children] : nodesToAdd) {
-    if (!newParent->canAddChildren(std::begin(children), std::end(children))) {
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const
+{
+  for (const auto& [newParent, children] : nodesToAdd)
+  {
+    if (!newParent->canAddChildren(std::begin(children), std::end(children)))
+    {
       return false;
     }
   }
   return true;
 }
 
-void MapDocument::deleteObjects() {
+void MapDocument::deleteObjects()
+{
   const auto nodes = m_selectedNodes.nodes();
 
   auto transaction = Transaction{*this, "Delete Objects"};
@@ -1480,61 +1653,59 @@ void MapDocument::deleteObjects() {
 }
 
 /**
- * Returns whether, for UI reasons, duplicating the given node should also cause its parent to be
- * duplicated.
+ * Returns whether, for UI reasons, duplicating the given node should also cause its
+ * parent to be duplicated.
  *
  * Applies when duplicating a brush inside a brush entity.
  */
-static bool shouldCloneParentWhenCloningNode(const Model::Node* node) {
+static bool shouldCloneParentWhenCloningNode(const Model::Node* node)
+{
   return node->parent()->accept(kdl::overload(
-    [](const Model::WorldNode*) {
-      return false;
-    },
-    [](const Model::LayerNode*) {
-      return false;
-    },
-    [](const Model::GroupNode*) {
-      return false;
-    },
-    [&](const Model::EntityNode*) {
-      return true;
-    },
-    [](const Model::BrushNode*) {
-      return false;
-    },
-    [](const Model::PatchNode*) {
-      return false;
-    }));
+    [](const Model::WorldNode*) { return false; },
+    [](const Model::LayerNode*) { return false; },
+    [](const Model::GroupNode*) { return false; },
+    [&](const Model::EntityNode*) { return true; },
+    [](const Model::BrushNode*) { return false; },
+    [](const Model::PatchNode*) { return false; }));
 }
 
-void MapDocument::duplicateObjects() {
+void MapDocument::duplicateObjects()
+{
   auto nodesToAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
   auto nodesToSelect = std::vector<Model::Node*>{};
   auto newParentMap = std::map<Model::Node*, Model::Node*>{};
 
-  for (Model::Node* original : selectedNodes().nodes()) {
+  for (Model::Node* original : selectedNodes().nodes())
+  {
     Model::Node* suggestedParent = parentForNodes(std::vector<Model::Node*>{original});
     Model::Node* clone = original->cloneRecursively(m_worldBounds);
 
-    if (shouldCloneParentWhenCloningNode(original)) {
-      // e.g. original is a brush in a brush entity, so we need to clone the entity (parent)
-      // see if the parent was already cloned and if not, clone it and store it
+    if (shouldCloneParentWhenCloningNode(original))
+    {
+      // e.g. original is a brush in a brush entity, so we need to clone the entity
+      // (parent) see if the parent was already cloned and if not, clone it and store it
       Model::Node* parent = original->parent();
       Model::Node* newParent = nullptr;
       const auto it = newParentMap.find(parent);
-      if (it != std::end(newParentMap)) {
+      if (it != std::end(newParentMap))
+      {
         // parent was already cloned
         newParent = it->second;
-      } else {
+      }
+      else
+      {
         // parent was not cloned yet
         newParent = parent->clone(m_worldBounds);
         newParentMap.insert({parent, newParent});
         nodesToAdd[suggestedParent].push_back(newParent);
       }
 
-      // the hierarchy will look like (parent -> child): suggestedParent -> newParent -> clone
+      // the hierarchy will look like (parent -> child): suggestedParent -> newParent ->
+      // clone
       newParent->addChild(clone);
-    } else {
+    }
+    else
+    {
       nodesToAdd[suggestedParent].push_back(clone);
     }
 
@@ -1545,52 +1716,60 @@ void MapDocument::duplicateObjects() {
     auto transaction = Transaction{*this, "Duplicate Objects"};
     deselectAll();
 
-    if (addNodes(nodesToAdd).empty()) {
+    if (addNodes(nodesToAdd).empty())
+    {
       transaction.cancel();
       return;
     }
 
     selectNodes(nodesToSelect);
-    if (!transaction.commit()) {
+    if (!transaction.commit())
+    {
       return;
     }
   }
 
-  if (m_viewEffectsService) {
+  if (m_viewEffectsService)
+  {
     m_viewEffectsService->flashSelection();
   }
-  m_repeatStack->push([=]() {
-    this->duplicateObjects();
-  });
+  m_repeatStack->push([=]() { this->duplicateObjects(); });
 }
 
 Model::EntityNode* MapDocument::createPointEntity(
-  const Assets::PointEntityDefinition* definition, const vm::vec3& delta) {
+  const Assets::PointEntityDefinition* definition, const vm::vec3& delta)
+{
   ensure(definition != nullptr, "definition is null");
 
   auto* entityNode = new Model::EntityNode{Model::Entity{
-    m_world->entityPropertyConfig(), {{Model::EntityPropertyKeys::Classname, definition->name()}}}};
+    m_world->entityPropertyConfig(),
+    {{Model::EntityPropertyKeys::Classname, definition->name()}}}};
 
   auto transaction = Transaction{*this, "Create " + definition->name()};
   deselectAll();
-  if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
+  if (addNodes({{parentForNodes(), {entityNode}}}).empty())
+  {
     transaction.cancel();
     return nullptr;
   }
   selectNodes({entityNode});
-  if (!translateObjects(delta)) {
+  if (!translateObjects(delta))
+  {
     transaction.cancel();
     return nullptr;
   }
 
-  if (!transaction.commit()) {
+  if (!transaction.commit())
+  {
     return nullptr;
   }
 
   return entityNode;
 }
 
-Model::EntityNode* MapDocument::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
+Model::EntityNode* MapDocument::createBrushEntity(
+  const Assets::BrushEntityDefinition* definition)
+{
   ensure(definition != nullptr, "definition is null");
 
   const auto brushes = selectedNodes().brushes();
@@ -1601,38 +1780,47 @@ Model::EntityNode* MapDocument::createBrushEntity(const Assets::BrushEntityDefin
   // if all brushes belong to the same entity, and that entity is not worldspawn, copy its
   // properties
   auto* entityTemplate = brushes.front()->entity();
-  if (entityTemplate != m_world.get()) {
-    for (auto* brush : brushes) {
-      if (brush->entity() != entityTemplate) {
+  if (entityTemplate != m_world.get())
+  {
+    for (auto* brush : brushes)
+    {
+      if (brush->entity() != entityTemplate)
+      {
         entityTemplate = nullptr;
         break;
       }
     }
 
-    if (entityTemplate != nullptr) {
+    if (entityTemplate != nullptr)
+    {
       entity = entityTemplate->entity();
     }
   }
 
   entity.addOrUpdateProperty(
-    m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Classname, definition->name());
+    m_world->entityPropertyConfig(),
+    Model::EntityPropertyKeys::Classname,
+    definition->name());
   auto* entityNode = new Model::EntityNode{std::move(entity)};
 
   const auto nodes = kdl::vec_element_cast<Model::Node*>(brushes);
 
   auto transaction = Transaction{*this, "Create " + definition->name()};
   deselectAll();
-  if (addNodes({{parentForNodes(), {entityNode}}}).empty()) {
+  if (addNodes({{parentForNodes(), {entityNode}}}).empty())
+  {
     transaction.cancel();
     return nullptr;
   }
-  if (!reparentNodes({{entityNode, nodes}})) {
+  if (!reparentNodes({{entityNode, nodes}}))
+  {
     transaction.cancel();
     return nullptr;
   }
   selectNodes(nodes);
 
-  if (!transaction.commit()) {
+  if (!transaction.commit())
+  {
     return nullptr;
   }
 
@@ -1640,41 +1828,42 @@ Model::EntityNode* MapDocument::createBrushEntity(const Assets::BrushEntityDefin
 }
 
 static std::vector<Model::Node*> collectGroupableNodes(
-  const std::vector<Model::Node*>& selectedNodes, const Model::EntityNodeBase* world) {
+  const std::vector<Model::Node*>& selectedNodes, const Model::EntityNodeBase* world)
+{
   std::vector<Model::Node*> result;
   const auto addNode = [&](auto&& thisLambda, auto* node) {
-    if (node->entity() == world) {
+    if (node->entity() == world)
+    {
       result.push_back(node);
-    } else {
+    }
+    else
+    {
       node->visitParent(thisLambda);
     }
   };
 
   Model::Node::visitAll(
-    selectedNodes, kdl::overload(
-                     [](Model::WorldNode*) {}, [](Model::LayerNode*) {},
-                     [&](Model::GroupNode* group) {
-                       result.push_back(group);
-                     },
-                     [&](Model::EntityNode* entity) {
-                       result.push_back(entity);
-                     },
-                     [&](auto&& thisLambda, Model::BrushNode* brush) {
-                       addNode(thisLambda, brush);
-                     },
-                     [&](auto&& thisLambda, Model::PatchNode* patch) {
-                       addNode(thisLambda, patch);
-                     }));
+    selectedNodes,
+    kdl::overload(
+      [](Model::WorldNode*) {},
+      [](Model::LayerNode*) {},
+      [&](Model::GroupNode* group) { result.push_back(group); },
+      [&](Model::EntityNode* entity) { result.push_back(entity); },
+      [&](auto&& thisLambda, Model::BrushNode* brush) { addNode(thisLambda, brush); },
+      [&](auto&& thisLambda, Model::PatchNode* patch) { addNode(thisLambda, patch); }));
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
-Model::GroupNode* MapDocument::groupSelection(const std::string& name) {
-  if (!hasSelectedNodes()) {
+Model::GroupNode* MapDocument::groupSelection(const std::string& name)
+{
+  if (!hasSelectedNodes())
+  {
     return nullptr;
   }
 
   const auto nodes = collectGroupableNodes(selectedNodes().nodes(), world());
-  if (nodes.empty()) {
+  if (nodes.empty())
+  {
     return nullptr;
   }
 
@@ -1682,21 +1871,27 @@ Model::GroupNode* MapDocument::groupSelection(const std::string& name) {
 
   auto transaction = Transaction{*this, "Group Selected Objects"};
   deselectAll();
-  if (addNodes({{parentForNodes(nodes), {group}}}).empty() || !reparentNodes({{group, nodes}})) {
+  if (
+    addNodes({{parentForNodes(nodes), {group}}}).empty()
+    || !reparentNodes({{group, nodes}}))
+  {
     transaction.cancel();
     return nullptr;
   }
   selectNodes({group});
 
-  if (!transaction.commit()) {
+  if (!transaction.commit())
+  {
     return nullptr;
   }
 
   return group;
 }
 
-void MapDocument::mergeSelectedGroupsWithGroup(Model::GroupNode* group) {
-  if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups()) {
+void MapDocument::mergeSelectedGroupsWithGroup(Model::GroupNode* group)
+{
+  if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
+  {
     return;
   }
 
@@ -1704,10 +1899,13 @@ void MapDocument::mergeSelectedGroupsWithGroup(Model::GroupNode* group) {
 
   auto transaction = Transaction{*this, "Merge Groups"};
   deselectAll();
-  for (auto groupToMerge : groupsToMerge) {
-    if (groupToMerge != group) {
+  for (auto groupToMerge : groupsToMerge)
+  {
+    if (groupToMerge != group)
+    {
       const auto children = groupToMerge->children();
-      if (!reparentNodes({{group, children}})) {
+      if (!reparentNodes({{group, children}}))
+      {
         transaction.cancel();
         return;
       }
@@ -1718,8 +1916,10 @@ void MapDocument::mergeSelectedGroupsWithGroup(Model::GroupNode* group) {
   transaction.commit();
 }
 
-void MapDocument::ungroupSelection() {
-  if (!hasSelectedNodes()) {
+void MapDocument::ungroupSelection()
+{
+  if (!hasSelectedNodes())
+  {
     return;
   }
 
@@ -1733,25 +1933,22 @@ void MapDocument::ungroupSelection() {
 
   auto success = true;
   Model::Node::visitAll(
-    selectedNodes, kdl::overload(
-                     [](Model::WorldNode*) {}, [](Model::LayerNode*) {},
-                     [&](Model::GroupNode* group) {
-                       auto* parent = group->parent();
-                       const auto children = group->children();
-                       success = success && reparentNodes({{parent, children}});
-                       nodesToReselect = kdl::vec_concat(std::move(nodesToReselect), children);
-                     },
-                     [&](Model::EntityNode* entity) {
-                       nodesToReselect.push_back(entity);
-                     },
-                     [&](Model::BrushNode* brush) {
-                       nodesToReselect.push_back(brush);
-                     },
-                     [&](Model::PatchNode* patch) {
-                       nodesToReselect.push_back(patch);
-                     }));
+    selectedNodes,
+    kdl::overload(
+      [](Model::WorldNode*) {},
+      [](Model::LayerNode*) {},
+      [&](Model::GroupNode* group) {
+        auto* parent = group->parent();
+        const auto children = group->children();
+        success = success && reparentNodes({{parent, children}});
+        nodesToReselect = kdl::vec_concat(std::move(nodesToReselect), children);
+      },
+      [&](Model::EntityNode* entity) { nodesToReselect.push_back(entity); },
+      [&](Model::BrushNode* brush) { nodesToReselect.push_back(brush); },
+      [&](Model::PatchNode* patch) { nodesToReselect.push_back(patch); }));
 
-  if (!success) {
+  if (!success)
+  {
     transaction.cancel();
     return;
   }
@@ -1760,41 +1957,41 @@ void MapDocument::ungroupSelection() {
   transaction.commit();
 }
 
-void MapDocument::renameGroups(const std::string& name) {
+void MapDocument::renameGroups(const std::string& name)
+{
   if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
     return;
 
   const auto commandName =
     kdl::str_plural("Rename ", m_selectedNodes.groupCount(), "Group", "Groups");
   applyAndSwap(
-    *this, commandName, m_selectedNodes.groups(), {},
+    *this,
+    commandName,
+    m_selectedNodes.groups(),
+    {},
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
       [&](Model::Group& group) {
         group.setName(name);
         return true;
       },
-      [](Model::Entity&) {
-        return true;
-      },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Entity&) { return true; },
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 }
 
-void MapDocument::openGroup(Model::GroupNode* group) {
+void MapDocument::openGroup(Model::GroupNode* group)
+{
   auto transaction = Transaction{*this, "Open Group"};
 
   deselectAll();
   auto* previousGroup = m_editorContext->currentGroup();
-  if (previousGroup == nullptr) {
+  if (previousGroup == nullptr)
+  {
     lock(std::vector<Model::Node*>{m_world.get()});
-  } else {
+  }
+  else
+  {
     resetLock(std::vector<Model::Node*>{previousGroup});
   }
   unlock(std::vector<Model::Node*>{group});
@@ -1803,7 +2000,8 @@ void MapDocument::openGroup(Model::GroupNode* group) {
   transaction.commit();
 }
 
-void MapDocument::closeGroup() {
+void MapDocument::closeGroup()
+{
   auto transaction = Transaction{*this, "Open Group"};
 
   deselectAll();
@@ -1812,83 +2010,88 @@ void MapDocument::closeGroup() {
   executeAndStore(CurrentGroupCommand::pop());
 
   auto* currentGroup = m_editorContext->currentGroup();
-  if (currentGroup != nullptr) {
+  if (currentGroup != nullptr)
+  {
     unlock(std::vector<Model::Node*>{currentGroup});
-  } else {
+  }
+  else
+  {
     unlock(std::vector<Model::Node*>{m_world.get()});
   }
 
   transaction.commit();
 }
 
-Model::GroupNode* MapDocument::createLinkedDuplicate() {
-  if (!canCreateLinkedDuplicate()) {
+Model::GroupNode* MapDocument::createLinkedDuplicate()
+{
+  if (!canCreateLinkedDuplicate())
+  {
     return nullptr;
   }
 
   auto transaction = Transaction{*this, "Create Linked Duplicate"};
 
   auto* groupNode = m_selectedNodes.groups().front();
-  if (!groupNode->group().linkedGroupId()) {
+  if (!groupNode->group().linkedGroupId())
+  {
     applyAndSwap(
-      *this, "Set Linked Group ID", m_selectedNodes.groups(),
+      *this,
+      "Set Linked Group ID",
+      m_selectedNodes.groups(),
       findContainingLinkedGroups(*m_world, m_selectedNodes.groups()),
       kdl::overload(
-        [](Model::Layer&) {
-          return true;
-        },
+        [](Model::Layer&) { return true; },
         [&](Model::Group& group) {
           group.setLinkedGroupId(generateUuid());
           return true;
         },
-        [](Model::Entity&) {
-          return true;
-        },
-        [](Model::Brush&) {
-          return true;
-        },
-        [](Model::BezierPatch&) {
-          return true;
-        }));
+        [](Model::Entity&) { return true; },
+        [](Model::Brush&) { return true; },
+        [](Model::BezierPatch&) { return true; }));
   }
 
-  auto* groupNodeClone = static_cast<Model::GroupNode*>(groupNode->cloneRecursively(m_worldBounds));
+  auto* groupNodeClone =
+    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(m_worldBounds));
   auto* suggestedParent = parentForNodes(std::vector<Model::Node*>{groupNode});
-  if (addNodes({{suggestedParent, {groupNodeClone}}}).empty()) {
+  if (addNodes({{suggestedParent, {groupNodeClone}}}).empty())
+  {
     transaction.cancel();
     return nullptr;
   }
 
-  if (!transaction.commit()) {
+  if (!transaction.commit())
+  {
     return nullptr;
   }
 
   return groupNodeClone;
 }
 
-bool MapDocument::canCreateLinkedDuplicate() const {
+bool MapDocument::canCreateLinkedDuplicate() const
+{
   return m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groupCount() == 1u;
 }
 
-void MapDocument::selectLinkedGroups() {
-  if (!canSelectLinkedGroups()) {
+void MapDocument::selectLinkedGroups()
+{
+  if (!canSelectLinkedGroups())
+  {
     return;
   }
 
-  const auto linkedGroupIdsToSelect = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-    kdl::vec_filter(
-      m_selectedNodes.groups(),
-      [](const auto* g) {
-        return g->group().linkedGroupId().has_value();
-      }),
-    [](const auto* g) {
-      return *g->group().linkedGroupId();
-    }));
+  const auto linkedGroupIdsToSelect =
+    kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+      kdl::vec_filter(
+        m_selectedNodes.groups(),
+        [](const auto* g) { return g->group().linkedGroupId().has_value(); }),
+      [](const auto* g) { return *g->group().linkedGroupId(); }));
 
   auto groupNodesToSelect = std::vector<Model::Node*>{};
-  for (const auto& linkedGroupId : linkedGroupIdsToSelect) {
+  for (const auto& linkedGroupId : linkedGroupIdsToSelect)
+  {
     groupNodesToSelect = kdl::vec_concat(
-      std::move(groupNodesToSelect), Model::findLinkedGroups(*m_world.get(), linkedGroupId));
+      std::move(groupNodesToSelect),
+      Model::findLinkedGroups(*m_world.get(), linkedGroupId));
   }
 
   groupNodesToSelect = kdl::vec_sort_and_remove_duplicates(std::move(groupNodesToSelect));
@@ -1899,13 +2102,17 @@ void MapDocument::selectLinkedGroups() {
   transaction.commit();
 }
 
-bool MapDocument::canSelectLinkedGroups() const {
-  if (!m_selectedNodes.hasOnlyGroups()) {
+bool MapDocument::canSelectLinkedGroups() const
+{
+  if (!m_selectedNodes.hasOnlyGroups())
+  {
     return false;
   }
 
-  for (const auto* groupNode : m_selectedNodes.groups()) {
-    if (!groupNode->group().linkedGroupId()) {
+  for (const auto* groupNode : m_selectedNodes.groups())
+  {
+    if (!groupNode->group().linkedGroupId())
+    {
       return false;
     }
   }
@@ -1913,66 +2120,65 @@ bool MapDocument::canSelectLinkedGroups() const {
   return true;
 }
 
-void MapDocument::linkGroups(const std::vector<Model::GroupNode*>& groupNodes) {
+void MapDocument::linkGroups(const std::vector<Model::GroupNode*>& groupNodes)
+{
   const auto newLinkedGroupId = generateUuid();
   applyAndSwap(
-    *this, "Set Linked Group ID", groupNodes, findContainingLinkedGroups(*m_world, groupNodes),
+    *this,
+    "Set Linked Group ID",
+    groupNodes,
+    findContainingLinkedGroups(*m_world, groupNodes),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
       [&](Model::Group& group) {
         group.setLinkedGroupId(newLinkedGroupId);
         return true;
       },
-      [](Model::Entity&) {
-        return true;
-      },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Entity&) { return true; },
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 }
 
-void MapDocument::unlinkGroups(const std::vector<Model::GroupNode*>& groupNodes) {
+void MapDocument::unlinkGroups(const std::vector<Model::GroupNode*>& groupNodes)
+{
   applyAndSwap(
-    *this, "Reset Linked Group ID", groupNodes, findContainingLinkedGroups(*m_world, groupNodes),
+    *this,
+    "Reset Linked Group ID",
+    groupNodes,
+    findContainingLinkedGroups(*m_world, groupNodes),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
       [&](Model::Group& group) {
         group.resetLinkedGroupId();
         return true;
       },
-      [](Model::Entity&) {
-        return true;
-      },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Entity&) { return true; },
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 }
 
-void MapDocument::separateLinkedGroups() {
+void MapDocument::separateLinkedGroups()
+{
   auto transaction = Transaction{*this, "Separate Linked Groups"};
   separateSelectedLinkedGroups(true);
   transaction.commit();
 }
 
-bool MapDocument::canSeparateLinkedGroups() const {
+bool MapDocument::canSeparateLinkedGroups() const
+{
   const auto& selectedGroupNodes = m_selectedNodes.groups();
   return std::any_of(
-    std::begin(selectedGroupNodes), std::end(selectedGroupNodes), [&](const auto* groupNode) {
-      if (const auto linkedGroupId = groupNode->group().linkedGroupId()) {
+    std::begin(selectedGroupNodes),
+    std::end(selectedGroupNodes),
+    [&](const auto* groupNode) {
+      if (const auto linkedGroupId = groupNode->group().linkedGroupId())
+      {
         const auto linkedGroups = Model::findLinkedGroups(*m_world, *linkedGroupId);
-        return linkedGroups.size() > 1u &&
-               std::any_of(
-                 std::begin(linkedGroups), std::end(linkedGroups), [](const auto* linkedGroupNode) {
+        return linkedGroups.size() > 1u
+               && std::any_of(
+                 std::begin(linkedGroups),
+                 std::end(linkedGroups),
+                 [](const auto* linkedGroupNode) {
                    return !linkedGroupNode->selected();
                  });
       }
@@ -1980,8 +2186,10 @@ bool MapDocument::canSeparateLinkedGroups() const {
     });
 }
 
-bool MapDocument::canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) const {
-  if (nodes.empty()) {
+bool MapDocument::canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) const
+{
+  if (nodes.empty())
+  {
     return false;
   }
 
@@ -1990,13 +2198,17 @@ bool MapDocument::canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) 
 }
 
 void MapDocument::setHasPendingChanges(
-  const std::vector<Model::GroupNode*>& groupNodes, const bool hasPendingChanges) {
-  for (auto* groupNode : groupNodes) {
+  const std::vector<Model::GroupNode*>& groupNodes, const bool hasPendingChanges)
+{
+  for (auto* groupNode : groupNodes)
+  {
     groupNode->setHasPendingChanges(hasPendingChanges);
   }
 }
 
-static std::vector<Model::GroupNode*> collectLinkedGroupsWithPendingChanges(Model::Node& node) {
+static std::vector<Model::GroupNode*> collectLinkedGroupsWithPendingChanges(
+  Model::Node& node)
+{
   auto result = std::vector<Model::GroupNode*>{};
 
   node.accept(kdl::overload(
@@ -2007,22 +2219,31 @@ static std::vector<Model::GroupNode*> collectLinkedGroupsWithPendingChanges(Mode
       layerNode->visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, Model::GroupNode* groupNode) {
-      if (groupNode->hasPendingChanges() && groupNode->group().linkedGroupId().has_value()) {
+      if (
+        groupNode->hasPendingChanges() && groupNode->group().linkedGroupId().has_value())
+      {
         result.push_back(groupNode);
-      } else {
+      }
+      else
+      {
         groupNode->visitChildren(thisLambda);
       }
     },
-    [](const Model::EntityNode*) {}, [](const Model::BrushNode*) {},
+    [](const Model::EntityNode*) {},
+    [](const Model::BrushNode*) {},
     [](const Model::PatchNode*) {}));
 
   return result;
 }
 
-bool MapDocument::updateLinkedGroups() {
-  if (isCurrentDocumentStateObservable()) {
-    if (const auto allChangedLinkedGroups = collectLinkedGroupsWithPendingChanges(*m_world);
-        !allChangedLinkedGroups.empty()) {
+bool MapDocument::updateLinkedGroups()
+{
+  if (isCurrentDocumentStateObservable())
+  {
+    if (const auto allChangedLinkedGroups =
+          collectLinkedGroupsWithPendingChanges(*m_world);
+        !allChangedLinkedGroups.empty())
+    {
       setHasPendingChanges(allChangedLinkedGroups, false);
 
       auto command = std::make_unique<UpdateLinkedGroupsCommand>(allChangedLinkedGroups);
@@ -2034,21 +2255,22 @@ bool MapDocument::updateLinkedGroups() {
   return true;
 }
 
-void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups) {
-  const auto selectedGroupsWithLinkGroupIds =
-    kdl::vec_filter(m_selectedNodes.groups(), [](const auto& g) {
-      return g->group().linkedGroupId() != std::nullopt;
-    });
-  auto selectedLinkedGroupIds =
-    kdl::vec_transform(selectedGroupsWithLinkGroupIds, [](const auto& g) {
-      return *g->group().linkedGroupId();
-    });
-  selectedLinkedGroupIds = kdl::vec_sort_and_remove_duplicates(std::move(selectedLinkedGroupIds));
+void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
+{
+  const auto selectedGroupsWithLinkGroupIds = kdl::vec_filter(
+    m_selectedNodes.groups(),
+    [](const auto& g) { return g->group().linkedGroupId() != std::nullopt; });
+  auto selectedLinkedGroupIds = kdl::vec_transform(
+    selectedGroupsWithLinkGroupIds,
+    [](const auto& g) { return *g->group().linkedGroupId(); });
+  selectedLinkedGroupIds =
+    kdl::vec_sort_and_remove_duplicates(std::move(selectedLinkedGroupIds));
 
   auto groupsToUnlink = std::vector<Model::GroupNode*>{};
   auto groupsToRelink = std::vector<std::vector<Model::GroupNode*>>{};
 
-  for (const auto& linkedGroupId : selectedLinkedGroupIds) {
+  for (const auto& linkedGroupId : selectedLinkedGroupIds)
+  {
     auto linkedGroups = Model::findLinkedGroups(*m_world, linkedGroupId);
 
     // partition the linked groups into selected and unselected ones
@@ -2057,70 +2279,83 @@ void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups) {
         return linkedGroupNode->selected();
       });
 
-    auto selectedLinkedGroups = std::vector<Model::GroupNode*>(std::begin(linkedGroups), it);
-    auto unselectedLinkedGroups = std::vector<Model::GroupNode*>(it, std::end(linkedGroups));
+    auto selectedLinkedGroups =
+      std::vector<Model::GroupNode*>(std::begin(linkedGroups), it);
+    auto unselectedLinkedGroups =
+      std::vector<Model::GroupNode*>(it, std::end(linkedGroups));
 
     assert(!selectedLinkedGroups.empty());
-    if (!unselectedLinkedGroups.empty()) {
-      if (selectedLinkedGroups.size() == 1u) {
+    if (!unselectedLinkedGroups.empty())
+    {
+      if (selectedLinkedGroups.size() == 1u)
+      {
         // unset the linked group ID later
         groupsToUnlink.push_back(selectedLinkedGroups.front());
-      } else if (relinkGroups) {
+      }
+      else if (relinkGroups)
+      {
         groupsToRelink.push_back(std::move(selectedLinkedGroups));
-      } else {
+      }
+      else
+      {
         groupsToUnlink =
           kdl::vec_concat(std::move(groupsToUnlink), std::move(selectedLinkedGroups));
       }
 
-      if (unselectedLinkedGroups.size() == 1u) {
+      if (unselectedLinkedGroups.size() == 1u)
+      {
         // unset the linked group ID later
         groupsToUnlink.push_back(unselectedLinkedGroups.front());
       }
-    } else if (!relinkGroups) {
-      // all members of a link group are being separated, and we don't want to relink them, so we
-      // need to reset their linked group IDs
-      groupsToUnlink = kdl::vec_concat(std::move(groupsToUnlink), std::move(selectedLinkedGroups));
+    }
+    else if (!relinkGroups)
+    {
+      // all members of a link group are being separated, and we don't want to relink
+      // them, so we need to reset their linked group IDs
+      groupsToUnlink =
+        kdl::vec_concat(std::move(groupsToUnlink), std::move(selectedLinkedGroups));
     }
   }
 
   unlinkGroups(groupsToUnlink);
-  for (const auto& groupNodes : groupsToRelink) {
+  for (const auto& groupNodes : groupsToRelink)
+  {
     linkGroups(groupNodes);
   }
 }
 
-void MapDocument::renameLayer(Model::LayerNode* layerNode, const std::string& name) {
+void MapDocument::renameLayer(Model::LayerNode* layerNode, const std::string& name)
+{
   applyAndSwap(
-    *this, "Rename Layer", std::vector<Model::Node*>{layerNode}, {},
+    *this,
+    "Rename Layer",
+    std::vector<Model::Node*>{layerNode},
+    {},
     kdl::overload(
       [&](Model::Layer& layer) {
         layer.setName(name);
         return true;
       },
-      [](Model::Group&) {
-        return true;
-      },
-      [](Model::Entity&) {
-        return true;
-      },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Group&) { return true; },
+      [](Model::Entity&) { return true; },
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 }
 
-bool MapDocument::moveLayerByOne(Model::LayerNode* layerNode, MoveDirection direction) {
+bool MapDocument::moveLayerByOne(Model::LayerNode* layerNode, MoveDirection direction)
+{
   const std::vector<Model::LayerNode*> sorted = m_world->customLayersUserSorted();
 
   const auto maybeIndex = kdl::vec_index_of(sorted, layerNode);
-  if (!maybeIndex.has_value()) {
+  if (!maybeIndex.has_value())
+  {
     return false;
   }
 
-  const int newIndex = static_cast<int>(*maybeIndex) + (direction == MoveDirection::Down ? 1 : -1);
-  if (newIndex < 0 || newIndex >= static_cast<int>(sorted.size())) {
+  const int newIndex =
+    static_cast<int>(*maybeIndex) + (direction == MoveDirection::Down ? 1 : -1);
+  if (newIndex < 0 || newIndex >= static_cast<int>(sorted.size()))
+  {
     return false;
   }
 
@@ -2144,14 +2379,17 @@ bool MapDocument::moveLayerByOne(Model::LayerNode* layerNode, MoveDirection dire
   return true;
 }
 
-void MapDocument::moveLayer(Model::LayerNode* layer, const int offset) {
+void MapDocument::moveLayer(Model::LayerNode* layer, const int offset)
+{
   ensure(layer != m_world->defaultLayer(), "attempted to move default layer");
 
   auto transaction = Transaction{*this, "Move Layer"};
 
   const auto direction = (offset > 0) ? MoveDirection::Down : MoveDirection::Up;
-  for (int i = 0; i < std::abs(offset); ++i) {
-    if (!moveLayerByOne(layer, direction)) {
+  for (int i = 0; i < std::abs(offset); ++i)
+  {
+    if (!moveLayerByOne(layer, direction))
+    {
       break;
     }
   }
@@ -2159,17 +2397,20 @@ void MapDocument::moveLayer(Model::LayerNode* layer, const int offset) {
   transaction.commit();
 }
 
-bool MapDocument::canMoveLayer(Model::LayerNode* layer, const int offset) const {
+bool MapDocument::canMoveLayer(Model::LayerNode* layer, const int offset) const
+{
   ensure(layer != nullptr, "null layer");
 
   Model::WorldNode* world = this->world();
-  if (layer == world->defaultLayer()) {
+  if (layer == world->defaultLayer())
+  {
     return false;
   }
 
   const std::vector<Model::LayerNode*> sorted = world->customLayersUserSorted();
   const auto maybeIndex = kdl::vec_index_of(sorted, layer);
-  if (!maybeIndex.has_value()) {
+  if (!maybeIndex.has_value())
+  {
     return false;
   }
 
@@ -2177,7 +2418,8 @@ bool MapDocument::canMoveLayer(Model::LayerNode* layer, const int offset) const 
   return (newIndex >= 0 && newIndex < static_cast<int>(sorted.size()));
 }
 
-void MapDocument::moveSelectionToLayer(Model::LayerNode* layer) {
+void MapDocument::moveSelectionToLayer(Model::LayerNode* layer)
+{
   const auto& selectedNodes = this->selectedNodes().nodes();
 
   auto nodesToMove = std::vector<Model::Node*>{};
@@ -2186,13 +2428,18 @@ void MapDocument::moveSelectionToLayer(Model::LayerNode* layer) {
   const auto addBrushOrPatchNode = [&](auto* node) {
     assert(node->selected());
 
-    if (!node->containedInGroup()) {
+    if (!node->containedInGroup())
+    {
       auto* entity = node->entity();
-      if (entity == m_world.get()) {
+      if (entity == m_world.get())
+      {
         nodesToMove.push_back(node);
         nodesToSelect.push_back(node);
-      } else {
-        if (!kdl::vec_contains(nodesToMove, entity)) {
+      }
+      else
+      {
+        if (!kdl::vec_contains(nodesToMove, entity))
+        {
           nodesToMove.push_back(entity);
           nodesToSelect = kdl::vec_concat(std::move(nodesToSelect), entity->children());
         }
@@ -2200,13 +2447,16 @@ void MapDocument::moveSelectionToLayer(Model::LayerNode* layer) {
     }
   };
 
-  for (auto* node : selectedNodes) {
+  for (auto* node : selectedNodes)
+  {
     node->accept(kdl::overload(
-      [](Model::WorldNode*) {}, [](Model::LayerNode*) {},
+      [](Model::WorldNode*) {},
+      [](Model::LayerNode*) {},
       [&](Model::GroupNode* group) {
         assert(group->selected());
 
-        if (!group->containedInGroup()) {
+        if (!group->containedInGroup())
+        {
           nodesToMove.push_back(group);
           nodesToSelect.push_back(group);
         }
@@ -2214,40 +2464,42 @@ void MapDocument::moveSelectionToLayer(Model::LayerNode* layer) {
       [&](Model::EntityNode* entity) {
         assert(entity->selected());
 
-        if (!entity->containedInGroup()) {
+        if (!entity->containedInGroup())
+        {
           nodesToMove.push_back(entity);
           nodesToSelect.push_back(entity);
         }
       },
-      [&](Model::BrushNode* brush) {
-        addBrushOrPatchNode(brush);
-      },
-      [&](Model::PatchNode* patch) {
-        addBrushOrPatchNode(patch);
-      }));
+      [&](Model::BrushNode* brush) { addBrushOrPatchNode(brush); },
+      [&](Model::PatchNode* patch) { addBrushOrPatchNode(patch); }));
   }
 
-  if (!nodesToMove.empty()) {
+  if (!nodesToMove.empty())
+  {
     auto transaction = Transaction{*this, "Move Nodes to " + layer->name()};
     deselectAll();
-    if (!reparentNodes({{layer, nodesToMove}})) {
+    if (!reparentNodes({{layer, nodesToMove}}))
+    {
       transaction.cancel();
       return;
     }
-    if (!layer->hidden() && !layer->locked()) {
+    if (!layer->hidden() && !layer->locked())
+    {
       selectNodes(nodesToSelect);
     }
     transaction.commit();
   }
 }
 
-bool MapDocument::canMoveSelectionToLayer(Model::LayerNode* layer) const {
+bool MapDocument::canMoveSelectionToLayer(Model::LayerNode* layer) const
+{
   ensure(layer != nullptr, "null layer");
   const auto& nodes = selectedNodes().nodes();
 
-  const bool isAnyNodeInGroup = std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) {
-    return Model::findContainingGroup(node) != nullptr;
-  });
+  const bool isAnyNodeInGroup =
+    std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) {
+      return Model::findContainingGroup(node) != nullptr;
+    });
   const bool isAnyNodeInOtherLayer =
     std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) {
       return Model::findContainingLayer(node) != layer;
@@ -2256,19 +2508,21 @@ bool MapDocument::canMoveSelectionToLayer(Model::LayerNode* layer) const {
   return !nodes.empty() && !isAnyNodeInGroup && isAnyNodeInOtherLayer;
 }
 
-void MapDocument::hideLayers(const std::vector<Model::LayerNode*>& layers) {
+void MapDocument::hideLayers(const std::vector<Model::LayerNode*>& layers)
+{
   auto transaction = Transaction{*this, "Hide Layers"};
   hide(std::vector<Model::Node*>{std::begin(layers), std::end(layers)});
   transaction.commit();
 }
 
-bool MapDocument::canHideLayers(const std::vector<Model::LayerNode*>& layers) const {
-  return std::any_of(layers.begin(), layers.end(), [](const auto* layer) {
-    return layer->visible();
-  });
+bool MapDocument::canHideLayers(const std::vector<Model::LayerNode*>& layers) const
+{
+  return std::any_of(
+    layers.begin(), layers.end(), [](const auto* layer) { return layer->visible(); });
 }
 
-void MapDocument::isolateLayers(const std::vector<Model::LayerNode*>& layers) {
+void MapDocument::isolateLayers(const std::vector<Model::LayerNode*>& layers)
+{
   const auto allLayers = world()->allLayers();
 
   auto transaction = Transaction{*this, "Isolate Layers"};
@@ -2277,32 +2531,33 @@ void MapDocument::isolateLayers(const std::vector<Model::LayerNode*>& layers) {
   transaction.commit();
 }
 
-bool MapDocument::canIsolateLayers(const std::vector<Model::LayerNode*>& layers) const {
+bool MapDocument::canIsolateLayers(const std::vector<Model::LayerNode*>& layers) const
+{
   const auto allLayers = m_world->allLayers();
   return std::any_of(allLayers.begin(), allLayers.end(), [&](const auto* layer) {
     return kdl::vec_contains(layers, layer) != layer->visible();
   });
 }
 
-void MapDocument::isolate() {
+void MapDocument::isolate()
+{
   auto selectedNodes = std::vector<Model::Node*>{};
   auto unselectedNodes = std::vector<Model::Node*>{};
 
   const auto collectNode = [&](auto* node) {
-    if (node->transitivelySelected() || node->descendantSelected()) {
+    if (node->transitivelySelected() || node->descendantSelected())
+    {
       selectedNodes.push_back(node);
-    } else {
+    }
+    else
+    {
       unselectedNodes.push_back(node);
     }
   };
 
   m_world->accept(kdl::overload(
-    [](auto&& thisLambda, Model::WorldNode* world) {
-      world->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
+    [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
     [&](auto&& thisLambda, Model::GroupNode* group) {
       collectNode(group);
       group->visitChildren(thisLambda);
@@ -2311,12 +2566,8 @@ void MapDocument::isolate() {
       collectNode(entity);
       entity->visitChildren(thisLambda);
     },
-    [&](Model::BrushNode* brush) {
-      collectNode(brush);
-    },
-    [&](Model::PatchNode* patch) {
-      collectNode(patch);
-    }));
+    [&](Model::BrushNode* brush) { collectNode(brush); },
+    [&](Model::PatchNode* patch) { collectNode(patch); }));
 
   auto transaction = Transaction{*this, "Isolate Objects"};
   executeAndStore(SetVisibilityCommand::hide(unselectedNodes));
@@ -2324,27 +2575,34 @@ void MapDocument::isolate() {
   transaction.commit();
 }
 
-void MapDocument::setOmitLayerFromExport(Model::LayerNode* layerNode, const bool omitFromExport) {
-  const auto commandName = omitFromExport ? "Omit Layer from Export" : "Include Layer in Export";
+void MapDocument::setOmitLayerFromExport(
+  Model::LayerNode* layerNode, const bool omitFromExport)
+{
+  const auto commandName =
+    omitFromExport ? "Omit Layer from Export" : "Include Layer in Export";
 
   auto layer = layerNode->layer();
   layer.setOmitFromExport(omitFromExport);
   swapNodeContents(commandName, {{layerNode, Model::NodeContents(std::move(layer))}}, {});
 }
 
-void MapDocument::selectAllInLayers(const std::vector<Model::LayerNode*>& layers) {
-  const auto nodes =
-    Model::collectSelectableNodes(kdl::vec_element_cast<Model::Node*>(layers), editorContext());
+void MapDocument::selectAllInLayers(const std::vector<Model::LayerNode*>& layers)
+{
+  const auto nodes = Model::collectSelectableNodes(
+    kdl::vec_element_cast<Model::Node*>(layers), editorContext());
 
   deselectAll();
   selectNodes(nodes);
 }
 
-bool MapDocument::canSelectAllInLayers(const std::vector<Model::LayerNode*>& /* layers */) const {
+bool MapDocument::canSelectAllInLayers(
+  const std::vector<Model::LayerNode*>& /* layers */) const
+{
   return editorContext().canChangeSelection();
 }
 
-void MapDocument::hide(const std::vector<Model::Node*> nodes) {
+void MapDocument::hide(const std::vector<Model::Node*> nodes)
+{
   auto transaction = Transaction{*this, "Hide Objects"};
 
   // Deselect any selected nodes inside `nodes`
@@ -2357,28 +2615,34 @@ void MapDocument::hide(const std::vector<Model::Node*> nodes) {
   transaction.commit();
 }
 
-void MapDocument::hideSelection() {
+void MapDocument::hideSelection()
+{
   hide(m_selectedNodes.nodes());
 }
 
-void MapDocument::show(const std::vector<Model::Node*>& nodes) {
+void MapDocument::show(const std::vector<Model::Node*>& nodes)
+{
   executeAndStore(SetVisibilityCommand::show(nodes));
 }
 
-void MapDocument::showAll() {
+void MapDocument::showAll()
+{
   resetVisibility(
     Model::collectDescendants(kdl::vec_element_cast<Model::Node*>(m_world->allLayers())));
 }
 
-void MapDocument::ensureVisible(const std::vector<Model::Node*>& nodes) {
+void MapDocument::ensureVisible(const std::vector<Model::Node*>& nodes)
+{
   executeAndStore(SetVisibilityCommand::ensureVisible(nodes));
 }
 
-void MapDocument::resetVisibility(const std::vector<Model::Node*>& nodes) {
+void MapDocument::resetVisibility(const std::vector<Model::Node*>& nodes)
+{
   executeAndStore(SetVisibilityCommand::reset(nodes));
 }
 
-void MapDocument::lock(const std::vector<Model::Node*>& nodes) {
+void MapDocument::lock(const std::vector<Model::Node*>& nodes)
+{
   auto transaction = Transaction{*this, "Lock Objects"};
 
   // Deselect any selected nodes or faces inside `nodes`
@@ -2392,22 +2656,26 @@ void MapDocument::lock(const std::vector<Model::Node*>& nodes) {
   transaction.commit();
 }
 
-void MapDocument::unlock(const std::vector<Model::Node*>& nodes) {
+void MapDocument::unlock(const std::vector<Model::Node*>& nodes)
+{
   executeAndStore(SetLockStateCommand::unlock(nodes));
 }
 
 /**
  * Unlocks only those nodes from the given list whose lock state resolves to "locked"
  */
-void MapDocument::ensureUnlocked(const std::vector<Model::Node*>& nodes) {
+void MapDocument::ensureUnlocked(const std::vector<Model::Node*>& nodes)
+{
   auto nodesToUnlock = std::vector<Model::Node*>{};
-  std::copy_if(nodes.begin(), nodes.end(), std::back_inserter(nodesToUnlock), [](auto* node) {
-    return node->locked();
-  });
+  std::copy_if(
+    nodes.begin(), nodes.end(), std::back_inserter(nodesToUnlock), [](auto* node) {
+      return node->locked();
+    });
   unlock(nodesToUnlock);
 }
 
-void MapDocument::resetLock(const std::vector<Model::Node*>& nodes) {
+void MapDocument::resetLock(const std::vector<Model::Node*>& nodes)
+{
   executeAndStore(SetLockStateCommand::reset(nodes));
 }
 
@@ -2415,39 +2683,46 @@ void MapDocument::resetLock(const std::vector<Model::Node*>& nodes) {
  * This is called to clear the forced Visibility_Shown that was set on newly created nodes
  * so they could be visible if created in a hidden layer
  */
-void MapDocument::downgradeShownToInherit(const std::vector<Model::Node*>& nodes) {
+void MapDocument::downgradeShownToInherit(const std::vector<Model::Node*>& nodes)
+{
   auto nodesToReset = std::vector<Model::Node*>{};
-  std::copy_if(nodes.begin(), nodes.end(), std::back_inserter(nodesToReset), [](auto* node) {
-    return node->visibilityState() == Model::VisibilityState::Shown;
-  });
+  std::copy_if(
+    nodes.begin(), nodes.end(), std::back_inserter(nodesToReset), [](auto* node) {
+      return node->visibilityState() == Model::VisibilityState::Shown;
+    });
   resetVisibility(nodesToReset);
 }
 
 /**
  * See downgradeShownToInherit
  */
-void MapDocument::downgradeUnlockedToInherit(const std::vector<Model::Node*>& nodes) {
+void MapDocument::downgradeUnlockedToInherit(const std::vector<Model::Node*>& nodes)
+{
   auto nodesToReset = std::vector<Model::Node*>{};
-  std::copy_if(nodes.begin(), nodes.end(), std::back_inserter(nodesToReset), [](auto* node) {
-    return node->lockState() == Model::LockState::Unlocked;
-  });
+  std::copy_if(
+    nodes.begin(), nodes.end(), std::back_inserter(nodesToReset), [](auto* node) {
+      return node->lockState() == Model::LockState::Unlocked;
+    });
   resetLock(nodesToReset);
 }
 
 bool MapDocument::swapNodeContents(
   const std::string& commandName,
   std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap,
-  std::vector<Model::GroupNode*> changedLinkedGroups) {
+  std::vector<Model::GroupNode*> changedLinkedGroups)
+{
 
-  if (!checkLinkedGroupsToUpdate(changedLinkedGroups)) {
+  if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
+  {
     return false;
   }
 
   auto transaction = Transaction{*this};
-  const auto result =
-    executeAndStore(std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap)));
+  const auto result = executeAndStore(
+    std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap)));
 
-  if (!result->success()) {
+  if (!result->success())
+  {
     transaction.cancel();
     return false;
   }
@@ -2458,43 +2733,48 @@ bool MapDocument::swapNodeContents(
 
 bool MapDocument::swapNodeContents(
   const std::string& commandName,
-  std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap) {
-  auto changedLinkedGroups =
-    findContainingLinkedGroups(*m_world, kdl::vec_transform(nodesToSwap, [](const auto& p) {
-      return p.first;
-    }));
+  std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap)
+{
+  auto changedLinkedGroups = findContainingLinkedGroups(
+    *m_world, kdl::vec_transform(nodesToSwap, [](const auto& p) { return p.first; }));
 
-  return swapNodeContents(commandName, std::move(nodesToSwap), std::move(changedLinkedGroups));
+  return swapNodeContents(
+    commandName, std::move(nodesToSwap), std::move(changedLinkedGroups));
 }
 
 bool MapDocument::transformObjects(
-  const std::string& commandName, const vm::mat4x4& transformation) {
+  const std::string& commandName, const vm::mat4x4& transformation)
+{
   auto nodesToTransform = std::vector<Model::Node*>{};
 
   const auto addEntity = [&](auto* node) {
-    if (auto* entity = node->entity()) {
-      if (entity->childSelectionCount() == entity->childCount()) {
+    if (auto* entity = node->entity())
+    {
+      if (entity->childSelectionCount() == entity->childCount())
+      {
         nodesToTransform.push_back(entity);
       }
     }
   };
 
-  for (auto* node : m_selectedNodes) {
+  for (auto* node : m_selectedNodes)
+  {
     node->accept(kdl::overload(
-      [&](auto&& thisLambda, Model::WorldNode* world) {
-        world->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, Model::LayerNode* layer) {
-        layer->visitChildren(thisLambda);
-      },
+      [&](
+        auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+      [&](
+        auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
       [&](auto&& thisLambda, Model::GroupNode* group) {
         nodesToTransform.push_back(group);
         group->visitChildren(thisLambda);
       },
       [&](auto&& thisLambda, Model::EntityNode* entity) {
-        if (!entity->hasChildren()) {
+        if (!entity->hasChildren())
+        {
           nodesToTransform.push_back(entity);
-        } else {
+        }
+        else
+        {
           entity->visitChildren(thisLambda);
         }
       },
@@ -2515,8 +2795,8 @@ bool MapDocument::transformObjects(
     kdl::result<std::pair<Model::Node*, Model::NodeContents>, Model::BrushError>;
 
   const bool lockTexturesPref = pref(Preferences::TextureLock);
-  auto transformResults =
-    kdl::vec_parallel_transform(nodesToTransform, [&](Model::Node* node) -> TransformResult {
+  auto transformResults = kdl::vec_parallel_transform(
+    nodesToTransform, [&](Model::Node* node) -> TransformResult {
       return node->accept(kdl::overload(
         [&](Model::WorldNode*) -> TransformResult {
           ensure(false, "Unexpected world node");
@@ -2552,75 +2832,89 @@ bool MapDocument::transformObjects(
     });
 
   bool transformFailed = false;
-  auto nodesToUpdate =
-    kdl::collect_values(std::move(transformResults), kdl::overload([&](const Model::BrushError& e) {
-                          error() << "Could not transform brush: " << e;
-                          transformFailed = true;
-                        }));
+  auto nodesToUpdate = kdl::collect_values(
+    std::move(transformResults), kdl::overload([&](const Model::BrushError& e) {
+      error() << "Could not transform brush: " << e;
+      transformFailed = true;
+    }));
 
-  if (transformFailed) {
+  if (transformFailed)
+  {
     return false;
   }
 
   const auto success = swapNodeContents(
-    commandName, std::move(nodesToUpdate),
+    commandName,
+    std::move(nodesToUpdate),
     findContainingLinkedGroups(*m_world, m_selectedNodes.nodes()));
 
-  if (success) {
-    m_repeatStack->push([=]() {
-      this->transformObjects(commandName, transformation);
-    });
+  if (success)
+  {
+    m_repeatStack->push([=]() { this->transformObjects(commandName, transformation); });
     return true;
   }
   return false;
 }
 
-bool MapDocument::translateObjects(const vm::vec3& delta) {
+bool MapDocument::translateObjects(const vm::vec3& delta)
+{
   return transformObjects("Translate Objects", vm::translation_matrix(delta));
 }
 
 bool MapDocument::rotateObjects(
-  const vm::vec3& center, const vm::vec3& axis, const FloatType angle) {
-  const auto transformation = vm::translation_matrix(center) * vm::rotation_matrix(axis, angle) *
-                              vm::translation_matrix(-center);
+  const vm::vec3& center, const vm::vec3& axis, const FloatType angle)
+{
+  const auto transformation = vm::translation_matrix(center)
+                              * vm::rotation_matrix(axis, angle)
+                              * vm::translation_matrix(-center);
   return transformObjects("Rotate Objects", transformation);
 }
 
-bool MapDocument::scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) {
+bool MapDocument::scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox)
+{
   const auto transformation = vm::scale_bbox_matrix(oldBBox, newBBox);
   return transformObjects("Scale Objects", transformation);
 }
 
-bool MapDocument::scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) {
-  const auto transformation = vm::translation_matrix(center) * vm::scaling_matrix(scaleFactors) *
-                              vm::translation_matrix(-center);
+bool MapDocument::scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors)
+{
+  const auto transformation = vm::translation_matrix(center)
+                              * vm::scaling_matrix(scaleFactors)
+                              * vm::translation_matrix(-center);
   return transformObjects("Scale Objects", transformation);
 }
 
 bool MapDocument::shearObjects(
-  const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) {
+  const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta)
+{
   const auto transformation = vm::shear_bbox_matrix(box, sideToShear, delta);
   return transformObjects("Scale Objects", transformation);
 }
 
-bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis) {
-  const auto transformation = vm::translation_matrix(center) * vm::mirror_matrix<FloatType>(axis) *
-                              vm::translation_matrix(-center);
+bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis)
+{
+  const auto transformation = vm::translation_matrix(center)
+                              * vm::mirror_matrix<FloatType>(axis)
+                              * vm::translation_matrix(-center);
   return transformObjects("Flip Objects", transformation);
 }
 
-namespace {
-struct CreateAndSelectBrushError {
+namespace
+{
+struct CreateAndSelectBrushError
+{
   [[maybe_unused]] friend std::ostream& operator<<(
-    std::ostream& lhs, const CreateAndSelectBrushError&) {
+    std::ostream& lhs, const CreateAndSelectBrushError&)
+  {
     return lhs << "Could not add brush to document";
   }
 };
 } // namespace
 
-bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
-  const auto builder =
-    Model::BrushBuilder{m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
+bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
+{
+  const auto builder = Model::BrushBuilder{
+    m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
 
   return builder.createBrush(points, currentTextureName())
     .and_then([&](Model::Brush&& b) -> kdl::result<void, CreateAndSelectBrushError> {
@@ -2628,68 +2922,82 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
 
       auto transaction = Transaction{*this, "Create Brush"};
       deselectAll();
-      if (addNodes({{parentForNodes(), {brushNode}}}).empty()) {
+      if (addNodes({{parentForNodes(), {brushNode}}}).empty())
+      {
         transaction.cancel();
         return CreateAndSelectBrushError{};
       }
       selectNodes({brushNode});
-      if (!transaction.commit()) {
+      if (!transaction.commit())
+      {
         return CreateAndSelectBrushError{};
       }
 
       return {};
     })
-    .handle_errors([&](const auto& e) {
-      error() << "Could not create brush: " << e;
-    });
+    .handle_errors([&](const auto& e) { error() << "Could not create brush: " << e; });
 }
 
-bool MapDocument::csgConvexMerge() {
-  if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes()) {
+bool MapDocument::csgConvexMerge()
+{
+  if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes())
+  {
     return false;
   }
 
   auto points = std::vector<vm::vec3>{};
 
-  if (hasSelectedBrushFaces()) {
-    for (const auto& handle : selectedBrushFaces()) {
-      for (const auto* vertex : handle.face().vertices()) {
+  if (hasSelectedBrushFaces())
+  {
+    for (const auto& handle : selectedBrushFaces())
+    {
+      for (const auto* vertex : handle.face().vertices())
+      {
         points.push_back(vertex->position());
       }
     }
-  } else if (selectedNodes().hasOnlyBrushes()) {
-    for (const auto* brushNode : selectedNodes().brushes()) {
-      for (const auto* vertex : brushNode->brush().vertices()) {
+  }
+  else if (selectedNodes().hasOnlyBrushes())
+  {
+    for (const auto* brushNode : selectedNodes().brushes())
+    {
+      for (const auto* vertex : brushNode->brush().vertices())
+      {
         points.push_back(vertex->position());
       }
     }
   }
 
   auto polyhedron = Model::Polyhedron3{std::move(points)};
-  if (!polyhedron.polyhedron() || !polyhedron.closed()) {
+  if (!polyhedron.polyhedron() || !polyhedron.closed())
+  {
     return false;
   }
 
-  const auto builder =
-    Model::BrushBuilder{m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
+  const auto builder = Model::BrushBuilder{
+    m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
   return builder.createBrush(polyhedron, currentTextureName())
     .and_then([&](Model::Brush&& b) {
-      b.cloneFaceAttributesFrom(
-        kdl::vec_transform(selectedNodes().brushes(), [](const auto* brushNode) {
-          return &brushNode->brush();
-        }));
+      b.cloneFaceAttributesFrom(kdl::vec_transform(
+        selectedNodes().brushes(),
+        [](const auto* brushNode) { return &brushNode->brush(); }));
 
       // The nodelist is either empty or contains only brushes.
       const auto toRemove = selectedNodes().nodes();
 
-      // We could be merging brushes that have different parents; use the parent of the first
-      // brush.
+      // We could be merging brushes that have different parents; use the parent of the
+      // first brush.
       Model::Node* parentNode = nullptr;
-      if (!selectedNodes().brushes().empty()) {
+      if (!selectedNodes().brushes().empty())
+      {
         parentNode = selectedNodes().brushes().front()->parent();
-      } else if (!selectedBrushFaces().empty()) {
+      }
+      else if (!selectedBrushFaces().empty())
+      {
         parentNode = selectedBrushFaces().front().node()->parent();
-      } else {
+      }
+      else
+      {
         parentNode = parentForNodes();
       }
 
@@ -2697,7 +3005,8 @@ bool MapDocument::csgConvexMerge() {
 
       auto transaction = Transaction{*this, "CSG Convex Merge"};
       deselectAll();
-      if (addNodes({{parentNode, {brushNode}}}).empty()) {
+      if (addNodes({{parentNode, {brushNode}}}).empty())
+      {
         transaction.cancel();
         return;
       }
@@ -2705,14 +3014,15 @@ bool MapDocument::csgConvexMerge() {
       selectNodes({brushNode});
       transaction.commit();
     })
-    .handle_errors([&](const Model::BrushError e) {
-      error() << "Could not create brush: " << e;
-    });
+    .handle_errors(
+      [&](const Model::BrushError e) { error() << "Could not create brush: " << e; });
 }
 
-bool MapDocument::csgSubtract() {
+bool MapDocument::csgSubtract()
+{
   const auto subtrahendNodes = std::vector<Model::BrushNode*>{selectedNodes().brushes()};
-  if (subtrahendNodes.empty()) {
+  if (subtrahendNodes.empty())
+  {
     return false;
   }
 
@@ -2721,23 +3031,24 @@ bool MapDocument::csgSubtract() {
   selectTouching(false);
 
   const auto minuendNodes = std::vector<Model::BrushNode*>{selectedNodes().brushes()};
-  const auto subtrahends = kdl::vec_transform(subtrahendNodes, [](const auto* subtrahendNode) {
-    return &subtrahendNode->brush();
-  });
+  const auto subtrahends = kdl::vec_transform(
+    subtrahendNodes, [](const auto* subtrahendNode) { return &subtrahendNode->brush(); });
 
   auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-  auto toRemove = std::vector<Model::Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
+  auto toRemove =
+    std::vector<Model::Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
 
-  for (auto* minuendNode : minuendNodes) {
+  for (auto* minuendNode : minuendNodes)
+  {
     const auto& minuend = minuendNode->brush();
-    auto currentSubtractionResults =
-      minuend.subtract(m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
-    auto currentBrushes =
-      kdl::collect_values(std::move(currentSubtractionResults), [&](const Model::BrushError& e) {
-        error() << "Could not create brush: " << e;
-      });
+    auto currentSubtractionResults = minuend.subtract(
+      m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
+    auto currentBrushes = kdl::collect_values(
+      std::move(currentSubtractionResults),
+      [&](const Model::BrushError& e) { error() << "Could not create brush: " << e; });
 
-    if (!currentBrushes.empty()) {
+    if (!currentBrushes.empty())
+    {
       auto resultNodes = kdl::vec_transform(std::move(currentBrushes), [&](auto b) {
         return new Model::BrushNode{std::move(b)};
       });
@@ -2756,23 +3067,27 @@ bool MapDocument::csgSubtract() {
   return transaction.commit();
 }
 
-bool MapDocument::csgIntersect() {
+bool MapDocument::csgIntersect()
+{
   const auto brushes = selectedNodes().brushes();
-  if (brushes.size() < 2u) {
+  if (brushes.size() < 2u)
+  {
     return false;
   }
 
   auto intersection = brushes.front()->brush();
 
   bool valid = true;
-  for (auto it = std::next(std::begin(brushes)), end = std::end(brushes); it != end && valid;
-       ++it) {
+  for (auto it = std::next(std::begin(brushes)), end = std::end(brushes);
+       it != end && valid;
+       ++it)
+  {
     auto* brushNode = *it;
     const auto& brush = brushNode->brush();
-    valid =
-      intersection.intersect(m_worldBounds, brush).handle_errors([&](const Model::BrushError e) {
-        error() << "Could not intersect brushes: " << e;
-      });
+    valid = intersection.intersect(m_worldBounds, brush)
+              .handle_errors([&](const Model::BrushError e) {
+                error() << "Could not intersect brushes: " << e;
+              });
   }
 
   const auto toRemove = std::vector<Model::Node*>{std::begin(brushes), std::end(brushes)};
@@ -2780,63 +3095,72 @@ bool MapDocument::csgIntersect() {
   auto transaction = Transaction{*this, "CSG Intersect"};
   deselectNodes(toRemove);
 
-  if (valid) {
+  if (valid)
+  {
     auto* intersectionNode = new Model::BrushNode{std::move(intersection)};
-    if (addNodes({{parentForNodes(toRemove), {intersectionNode}}}).empty()) {
+    if (addNodes({{parentForNodes(toRemove), {intersectionNode}}}).empty())
+    {
       transaction.cancel();
       return false;
     }
     removeNodes(toRemove);
     selectNodes({intersectionNode});
-  } else {
+  }
+  else
+  {
     removeNodes(toRemove);
   }
 
   return transaction.commit();
 }
 
-bool MapDocument::csgHollow() {
+bool MapDocument::csgHollow()
+{
   const auto brushNodes = selectedNodes().brushes();
-  if (brushNodes.empty()) {
+  if (brushNodes.empty())
+  {
     return false;
   }
 
   bool didHollowAnything = false;
-  auto fragmentsAndSourceNodes = kdl::vec_transform(brushNodes, [&](Model::BrushNode* brushNode) {
-    const auto& originalBrush = brushNode->brush();
+  auto fragmentsAndSourceNodes =
+    kdl::vec_transform(brushNodes, [&](Model::BrushNode* brushNode) {
+      const auto& originalBrush = brushNode->brush();
 
-    auto shrunkenBrush = originalBrush;
-    auto fragments = std::vector<Model::Brush>{};
-    shrunkenBrush.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
-      .and_then([&]() {
-        didHollowAnything = true;
+      auto shrunkenBrush = originalBrush;
+      auto fragments = std::vector<Model::Brush>{};
+      shrunkenBrush
+        .expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
+        .and_then([&]() {
+          didHollowAnything = true;
 
-        auto subtractionResults = originalBrush.subtract(
-          m_world->mapFormat(), m_worldBounds, currentTextureName(), shrunkenBrush);
-        fragments =
-          kdl::collect_values(std::move(subtractionResults), [&](const Model::BrushError& e) {
-            error() << "Could not create brush: " << e;
-          });
-      })
-      .handle_errors([&](const Model::BrushError& e) {
-        error() << "Could not hollow brush: " << e;
-        fragments = {originalBrush};
-      });
+          auto subtractionResults = originalBrush.subtract(
+            m_world->mapFormat(), m_worldBounds, currentTextureName(), shrunkenBrush);
+          fragments = kdl::collect_values(
+            std::move(subtractionResults), [&](const Model::BrushError& e) {
+              error() << "Could not create brush: " << e;
+            });
+        })
+        .handle_errors([&](const Model::BrushError& e) {
+          error() << "Could not hollow brush: " << e;
+          fragments = {originalBrush};
+        });
 
-    return std::make_pair(brushNode, std::move(fragments));
-  });
+      return std::make_pair(brushNode, std::move(fragments));
+    });
 
-  if (!didHollowAnything) {
+  if (!didHollowAnything)
+  {
     return false;
   }
 
   auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
   auto toRemove = std::vector<Model::Node*>{};
 
-  for (auto& [sourceNode, fragments] : fragmentsAndSourceNodes) {
-    auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
-      return new Model::BrushNode{std::move(b)};
-    });
+  for (auto& [sourceNode, fragments] : fragmentsAndSourceNodes)
+  {
+    auto fragmentNodes = kdl::vec_transform(
+      std::move(fragments), [](auto&& b) { return new Model::BrushNode{std::move(b)}; });
 
     auto& toAddForParent = toAdd[sourceNode->parent()];
     toAddForParent = kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
@@ -2846,7 +3170,8 @@ bool MapDocument::csgHollow() {
   auto transaction = Transaction{*this, "CSG Hollow"};
   deselectAll();
   const auto added = addNodes(toAdd);
-  if (added.empty()) {
+  if (added.empty())
+  {
     transaction.cancel();
     return false;
   }
@@ -2856,22 +3181,29 @@ bool MapDocument::csgHollow() {
   return transaction.commit();
 }
 
-namespace {
-struct ReplaceClippedBrushesError {
+namespace
+{
+struct ReplaceClippedBrushesError
+{
   [[maybe_unused]] friend std::ostream& operator<<(
-    std::ostream& lhs, const ReplaceClippedBrushesError&) {
+    std::ostream& lhs, const ReplaceClippedBrushesError&)
+  {
     return lhs << "Could not replace brushes in document";
   }
 };
 } // namespace
 
-bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3) {
+bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3)
+{
   return kdl::for_each_result(
            m_selectedNodes.brushes(),
            [&](const Model::BrushNode* originalBrush) {
              auto clippedBrush = originalBrush->brush();
              return Model::BrushFace::create(
-                      p1, p2, p3, Model::BrushFaceAttributes{currentTextureName()},
+                      p1,
+                      p2,
+                      p3,
+                      Model::BrushFaceAttributes{currentTextureName()},
                       m_world->mapFormat())
                .and_then([&](Model::BrushFace&& clipFace) {
                  return clippedBrush.clip(m_worldBounds, std::move(clipFace));
@@ -2880,143 +3212,135 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
                  return std::make_pair(originalBrush->parent(), std::move(clippedBrush));
                });
            })
-    .and_then([&](auto&& clippedBrushAndParents) -> kdl::result<void, ReplaceClippedBrushesError> {
-      auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-      const auto toRemove = kdl::vec_element_cast<Model::Node*>(m_selectedNodes.brushes());
+    .and_then(
+      [&](
+        auto&& clippedBrushAndParents) -> kdl::result<void, ReplaceClippedBrushesError> {
+        auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+        const auto toRemove =
+          kdl::vec_element_cast<Model::Node*>(m_selectedNodes.brushes());
 
-      for (auto& [parentNode, clippedBrush] : clippedBrushAndParents) {
-        toAdd[parentNode].push_back(new Model::BrushNode{std::move(clippedBrush)});
-      }
+        for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
+        {
+          toAdd[parentNode].push_back(new Model::BrushNode{std::move(clippedBrush)});
+        }
 
-      auto transaction = Transaction{*this, "Clip Brushes"};
-      deselectAll();
-      removeNodes(toRemove);
+        auto transaction = Transaction{*this, "Clip Brushes"};
+        deselectAll();
+        removeNodes(toRemove);
 
-      const auto addedNodes = addNodes(toAdd);
-      if (addedNodes.empty()) {
-        transaction.cancel();
-        return ReplaceClippedBrushesError{};
-      }
-      selectNodes(addedNodes);
-      if (!transaction.commit()) {
-        return ReplaceClippedBrushesError{};
-      }
-      return {};
-    })
-    .handle_errors([&](const auto& e) {
-      error() << "Could not clip brushes: " << e;
-    });
+        const auto addedNodes = addNodes(toAdd);
+        if (addedNodes.empty())
+        {
+          transaction.cancel();
+          return ReplaceClippedBrushesError{};
+        }
+        selectNodes(addedNodes);
+        if (!transaction.commit())
+        {
+          return ReplaceClippedBrushesError{};
+        }
+        return {};
+      })
+    .handle_errors([&](const auto& e) { error() << "Could not clip brushes: " << e; });
 }
 
 bool MapDocument::setProperty(
-  const std::string& key, const std::string& value, const bool defaultToProtected) {
+  const std::string& key, const std::string& value, const bool defaultToProtected)
+{
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
-    *this, "Set Property", entityNodes, findContainingLinkedGroups(*m_world, entityNodes),
+    *this,
+    "Set Property",
+    entityNodes,
+    findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
-        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, value, defaultToProtected);
+        entity.addOrUpdateProperty(
+          m_world->entityPropertyConfig(), key, value, defaultToProtected);
         return true;
       },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 }
 
-bool MapDocument::renameProperty(const std::string& oldKey, const std::string& newKey) {
+bool MapDocument::renameProperty(const std::string& oldKey, const std::string& newKey)
+{
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
-    *this, "Rename Property", entityNodes, findContainingLinkedGroups(*m_world, entityNodes),
+    *this,
+    "Rename Property",
+    entityNodes,
+    findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
         entity.renameProperty(m_world->entityPropertyConfig(), oldKey, newKey);
         return true;
       },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 }
 
-bool MapDocument::removeProperty(const std::string& key) {
+bool MapDocument::removeProperty(const std::string& key)
+{
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
-    *this, "Remove Property", entityNodes, findContainingLinkedGroups(*m_world, entityNodes),
+    *this,
+    "Remove Property",
+    entityNodes,
+    findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
         entity.removeProperty(m_world->entityPropertyConfig(), key);
         return true;
       },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 }
 
-bool MapDocument::convertEntityColorRange(const std::string& key, Assets::ColorRange::Type range) {
+bool MapDocument::convertEntityColorRange(
+  const std::string& key, Assets::ColorRange::Type range)
+{
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
-    *this, "Convert Color", entityNodes, findContainingLinkedGroups(*m_world, entityNodes),
+    *this,
+    "Convert Color",
+    entityNodes,
+    findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
-        if (const auto* oldValue = entity.property(key)) {
+        if (const auto* oldValue = entity.property(key))
+        {
           entity.addOrUpdateProperty(
-            m_world->entityPropertyConfig(), key, Model::convertEntityColor(*oldValue, range));
+            m_world->entityPropertyConfig(),
+            key,
+            Model::convertEntityColor(*oldValue, range));
         }
         return true;
       },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 }
 
 bool MapDocument::updateSpawnflag(
-  const std::string& key, const size_t flagIndex, const bool setFlag) {
+  const std::string& key, const size_t flagIndex, const bool setFlag)
+{
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
-    *this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", entityNodes,
+    *this,
+    setFlag ? "Set Spawnflag" : "Unset Spawnflag",
+    entityNodes,
     findContainingLinkedGroups(*m_world, entityNodes),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
         const auto* strValue = entity.property(key);
         int intValue = strValue ? kdl::str_to_int(*strValue).value_or(0) : 0;
@@ -3028,26 +3352,29 @@ bool MapDocument::updateSpawnflag(
 
         return true;
       },
-      [](Model::Brush&) {
-        return true;
-      },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
 }
 
 /**
- * Search the given linked groups for an entity node at the given node path, and return its
- * unprotected value for the given property key.
+ * Search the given linked groups for an entity node at the given node path, and return
+ * its unprotected value for the given property key.
  */
 static std::optional<std::string> findUnprotectedPropertyValue(
-  const std::string& key, const Model::NodePath& nodePath,
-  const std::vector<Model::GroupNode*> linkedGroups) {
-  for (const auto* linkedGroup : linkedGroups) {
-    if (const auto* node = linkedGroup->resolvePath(nodePath)) {
-      if (const auto* entityNode = dynamic_cast<const Model::EntityNode*>(node)) {
-        if (!kdl::vec_contains(entityNode->entity().protectedProperties(), key)) {
-          if (const auto* value = entityNode->entity().property(key)) {
+  const std::string& key,
+  const Model::NodePath& nodePath,
+  const std::vector<Model::GroupNode*> linkedGroups)
+{
+  for (const auto* linkedGroup : linkedGroups)
+  {
+    if (const auto* node = linkedGroup->resolvePath(nodePath))
+    {
+      if (const auto* entityNode = dynamic_cast<const Model::EntityNode*>(node))
+      {
+        if (!kdl::vec_contains(entityNode->entity().protectedProperties(), key))
+        {
+          if (const auto* value = entityNode->entity().property(key))
+          {
             return *value;
           }
         }
@@ -3058,19 +3385,26 @@ static std::optional<std::string> findUnprotectedPropertyValue(
 }
 
 /**
- * Find the unprotected property value of the given key in the corresponding linked nodes of the
- * given entity nodes. This value is used to restore the original value when a property is set
- * from protected to unprotected.
+ * Find the unprotected property value of the given key in the corresponding linked nodes
+ * of the given entity nodes. This value is used to restore the original value when a
+ * property is set from protected to unprotected.
  */
 static std::optional<std::string> findUnprotectedPropertyValue(
-  const std::string& key, const Model::EntityNodeBase& entityNode, Model::WorldNode& worldNode) {
-  if (const auto* containingLinkedGroup = Model::findContainingLinkedGroup(entityNode)) {
-    if (const auto linkedGroupId = containingLinkedGroup->group().linkedGroupId()) {
+  const std::string& key,
+  const Model::EntityNodeBase& entityNode,
+  Model::WorldNode& worldNode)
+{
+  if (const auto* containingLinkedGroup = Model::findContainingLinkedGroup(entityNode))
+  {
+    if (const auto linkedGroupId = containingLinkedGroup->group().linkedGroupId())
+    {
       const auto linkedGroups = Model::findLinkedGroups(worldNode, *linkedGroupId);
-      const auto pathFromContainingLinkedGroup = entityNode.pathFrom(*containingLinkedGroup);
+      const auto pathFromContainingLinkedGroup =
+        entityNode.pathFrom(*containingLinkedGroup);
       if (
         const auto newValue =
-          findUnprotectedPropertyValue(key, pathFromContainingLinkedGroup, linkedGroups)) {
+          findUnprotectedPropertyValue(key, pathFromContainingLinkedGroup, linkedGroups))
+      {
         return newValue;
       }
     }
@@ -3078,17 +3412,25 @@ static std::optional<std::string> findUnprotectedPropertyValue(
   return std::nullopt;
 }
 
-bool MapDocument::setProtectedProperty(const std::string& key, const bool value) {
+bool MapDocument::setProtectedProperty(const std::string& key, const bool value)
+{
   const auto entityNodes = allSelectedEntityNodes();
 
   auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
-  for (auto* entityNode : entityNodes) {
+  for (auto* entityNode : entityNodes)
+  {
     auto entity = entityNode->entity();
     auto protectedProperties = entity.protectedProperties();
-    if (value && !kdl::vec_contains(protectedProperties, key)) {
+    if (value && !kdl::vec_contains(protectedProperties, key))
+    {
       protectedProperties.push_back(key);
-    } else if (!value && kdl::vec_contains(protectedProperties, key)) {
-      if (const auto newValue = findUnprotectedPropertyValue(key, *entityNode, *m_world.get())) {
+    }
+    else if (!value && kdl::vec_contains(protectedProperties, key))
+    {
+      if (
+        const auto newValue =
+          findUnprotectedPropertyValue(key, *entityNode, *m_world.get()))
+      {
         entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, *newValue);
       }
 
@@ -3099,36 +3441,46 @@ bool MapDocument::setProtectedProperty(const std::string& key, const bool value)
   }
 
   return swapNodeContents(
-    "Set Protected Property", nodesToUpdate, findContainingLinkedGroups(*m_world, entityNodes));
+    "Set Protected Property",
+    nodesToUpdate,
+    findContainingLinkedGroups(*m_world, entityNodes));
 }
 
-bool MapDocument::clearProtectedProperties() {
+bool MapDocument::clearProtectedProperties()
+{
   const auto entityNodes = allSelectedEntityNodes();
 
   auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
-  for (auto* entityNode : entityNodes) {
-    if (entityNode->entity().protectedProperties().empty()) {
+  for (auto* entityNode : entityNodes)
+  {
+    if (entityNode->entity().protectedProperties().empty())
+    {
       continue;
     }
 
     const auto* containingLinkedGroup = Model::findContainingLinkedGroup(*entityNode);
-    if (containingLinkedGroup == nullptr) {
+    if (containingLinkedGroup == nullptr)
+    {
       continue;
     }
 
     const auto& linkedGroupId = containingLinkedGroup->group().linkedGroupId();
-    if (!linkedGroupId.has_value()) {
+    if (!linkedGroupId.has_value())
+    {
       continue;
     }
 
     const auto linkedGroups = Model::findLinkedGroups(*m_world.get(), *linkedGroupId);
-    const auto pathFromContainingLinkedGroup = entityNode->pathFrom(*containingLinkedGroup);
+    const auto pathFromContainingLinkedGroup =
+      entityNode->pathFrom(*containingLinkedGroup);
 
     auto entity = entityNode->entity();
-    for (const auto& key : entity.protectedProperties()) {
+    for (const auto& key : entity.protectedProperties())
+    {
       if (
         const auto newValue =
-          findUnprotectedPropertyValue(key, pathFromContainingLinkedGroup, linkedGroups)) {
+          findUnprotectedPropertyValue(key, pathFromContainingLinkedGroup, linkedGroups))
+      {
         entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, *newValue);
       }
     }
@@ -3138,68 +3490,75 @@ bool MapDocument::clearProtectedProperties() {
   }
 
   return swapNodeContents(
-    "Clear Protected Properties", nodesToUpdate, findContainingLinkedGroups(*m_world, entityNodes));
+    "Clear Protected Properties",
+    nodesToUpdate,
+    findContainingLinkedGroups(*m_world, entityNodes));
 }
 
-bool MapDocument::canClearProtectedProperties() const {
+bool MapDocument::canClearProtectedProperties() const
+{
   const auto entityNodes = allSelectedEntityNodes();
-  if (entityNodes.empty() || (entityNodes.size() == 1u && entityNodes.front() == m_world.get())) {
+  if (
+    entityNodes.empty()
+    || (entityNodes.size() == 1u && entityNodes.front() == m_world.get()))
+  {
     return false;
   }
 
   return canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes));
 }
 
-bool MapDocument::extrudeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
+bool MapDocument::extrudeBrushes(
+  const std::vector<vm::polygon3>& faces, const vm::vec3& delta)
+{
   const auto nodes = m_selectedNodes.nodes();
   return applyAndSwap(
-    *this, "Resize Brushes", nodes, findContainingLinkedGroups(*m_world, nodes),
+    *this,
+    "Resize Brushes",
+    nodes,
+    findContainingLinkedGroups(*m_world, nodes),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
-      [](Model::Entity&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
+      [](Model::Entity&) { return true; },
       [&](Model::Brush& brush) {
         const auto faceIndex = brush.findFace(faces);
-        if (!faceIndex) {
+        if (!faceIndex)
+        {
           // we allow resizing only some of the brushes
           return true;
         }
 
-        return brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
+        return brush
+          .moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
           .visit(kdl::overload(
-            [&]() {
-              return m_worldBounds.contains(brush.bounds());
-            },
+            [&]() { return m_worldBounds.contains(brush.bounds()); },
             [&](const Model::BrushError e) {
               error() << "Could not resize brush: " << e;
               return false;
             }));
       },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::BezierPatch&) { return true; }));
 }
 
-bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes) {
+bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes)
+{
   Model::ChangeBrushFaceAttributesRequest request;
   request.setAll(attributes);
   return setFaceAttributes(request);
 }
 
 bool MapDocument::setFaceAttributesExceptContentFlags(
-  const Model::BrushFaceAttributes& attributes) {
+  const Model::BrushFaceAttributes& attributes)
+{
   Model::ChangeBrushFaceAttributesRequest request;
   request.setAllExceptContentFlags(attributes);
   return setFaceAttributes(request);
 }
 
-bool MapDocument::setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
+bool MapDocument::setFaceAttributes(
+  const Model::ChangeBrushFaceAttributesRequest& request)
+{
   return applyAndSwap(
     *this, request.name(), allSelectedBrushFaces(), [&](Model::BrushFace& brushFace) {
       request.evaluate(brushFace);
@@ -3209,99 +3568,116 @@ bool MapDocument::setFaceAttributes(const Model::ChangeBrushFaceAttributesReques
 
 bool MapDocument::copyTexCoordSystemFromFace(
   const Model::TexCoordSystemSnapshot& coordSystemSnapshot,
-  const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane,
-  const Model::WrapStyle wrapStyle) {
+  const Model::BrushFaceAttributes& attribs,
+  const vm::plane3& sourceFacePlane,
+  const Model::WrapStyle wrapStyle)
+{
   return applyAndSwap(
     *this, "Copy Texture Alignment", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
+      face.copyTexCoordSystemFromFace(
+        coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
       return true;
     });
 }
 
 bool MapDocument::moveTextures(
-  const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
-  return applyAndSwap(*this, "Move Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-    face.moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
-    return true;
-  });
-}
-
-bool MapDocument::rotateTextures(const float angle) {
-  return applyAndSwap(*this, "Rotate Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-    face.rotateTexture(angle);
-    return true;
-  });
-}
-
-bool MapDocument::shearTextures(const vm::vec2f& factors) {
-  return applyAndSwap(*this, "Shear Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-    face.shearTexture(factors);
-    return true;
-  });
-}
-
-bool MapDocument::flipTextures(
-  const vm::vec3f& cameraUp, const vm::vec3f& cameraRight,
-  const vm::direction cameraRelativeFlipDirection) {
-  const bool isHFlip =
-    (cameraRelativeFlipDirection == vm::direction::left ||
-     cameraRelativeFlipDirection == vm::direction::right);
+  const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta)
+{
   return applyAndSwap(
-    *this, isHFlip ? "Flip Textures Horizontally" : "Flip Textures Vertically",
-    m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.flipTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
+    *this, "Move Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
       return true;
     });
 }
 
-bool MapDocument::snapVertices(const FloatType snapTo) {
+bool MapDocument::rotateTextures(const float angle)
+{
+  return applyAndSwap(
+    *this, "Rotate Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.rotateTexture(angle);
+      return true;
+    });
+}
+
+bool MapDocument::shearTextures(const vm::vec2f& factors)
+{
+  return applyAndSwap(
+    *this, "Shear Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.shearTexture(factors);
+      return true;
+    });
+}
+
+bool MapDocument::flipTextures(
+  const vm::vec3f& cameraUp,
+  const vm::vec3f& cameraRight,
+  const vm::direction cameraRelativeFlipDirection)
+{
+  const bool isHFlip =
+    (cameraRelativeFlipDirection == vm::direction::left
+     || cameraRelativeFlipDirection == vm::direction::right);
+  return applyAndSwap(
+    *this,
+    isHFlip ? "Flip Textures Horizontally" : "Flip Textures Vertically",
+    m_selectedBrushFaces,
+    [&](Model::BrushFace& face) {
+      face.flipTexture(
+        vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
+      return true;
+    });
+}
+
+bool MapDocument::snapVertices(const FloatType snapTo)
+{
   size_t succeededBrushCount = 0;
   size_t failedBrushCount = 0;
 
   const auto allSelectedBrushes = allSelectedBrushNodes();
   const bool applyAndSwapSuccess = applyAndSwap(
-    *this, "Snap Brush Vertices", allSelectedBrushes,
+    *this,
+    "Snap Brush Vertices",
+    allSelectedBrushes,
     findContainingLinkedGroups(*m_world, allSelectedBrushes),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
-      [](Model::Entity&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
+      [](Model::Entity&) { return true; },
       [&](Model::Brush& originalBrush) {
-        if (originalBrush.canSnapVertices(m_worldBounds, snapTo)) {
+        if (originalBrush.canSnapVertices(m_worldBounds, snapTo))
+        {
           originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
-            .and_then([&]() {
-              succeededBrushCount += 1;
-            })
+            .and_then([&]() { succeededBrushCount += 1; })
             .handle_errors([&](const Model::BrushError e) {
               error() << "Could not snap vertices: " << e;
               failedBrushCount += 1;
             });
-        } else {
+        }
+        else
+        {
           failedBrushCount += 1;
         }
         return true;
       },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::BezierPatch&) { return true; }));
 
-  if (!applyAndSwapSuccess) {
+  if (!applyAndSwapSuccess)
+  {
     return false;
   }
-  if (succeededBrushCount > 0) {
+  if (succeededBrushCount > 0)
+  {
     info(kdl::str_to_string(
-      "Snapped vertices of ", succeededBrushCount, " ",
+      "Snapped vertices of ",
+      succeededBrushCount,
+      " ",
       kdl::str_plural(succeededBrushCount, "brush", "brushes")));
   }
-  if (failedBrushCount > 0) {
+  if (failedBrushCount > 0)
+  {
     info(kdl::str_to_string(
-      "Failed to snap vertices of ", failedBrushCount, " ",
+      "Failed to snap vertices of ",
+      failedBrushCount,
+      " ",
       kdl::str_plural(failedBrushCount, "brush", "brushes")));
   }
 
@@ -3309,33 +3685,30 @@ bool MapDocument::snapVertices(const FloatType snapTo) {
 }
 
 MapDocument::MoveVerticesResult MapDocument::moveVertices(
-  std::vector<vm::vec3> vertexPositions, const vm::vec3& delta) {
+  std::vector<vm::vec3> vertexPositions, const vm::vec3& delta)
+{
   auto newVertexPositions = std::vector<vm::vec3>{};
   auto newNodes = applyToNodeContents(
     m_selectedNodes.nodes(),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
-      [](Model::Entity&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
+      [](Model::Entity&) { return true; },
       [&](Model::Brush& brush) {
-        const auto verticesToMove = kdl::vec_filter(vertexPositions, [&](const auto& vertex) {
-          return brush.hasVertex(vertex);
-        });
-        if (verticesToMove.empty()) {
+        const auto verticesToMove = kdl::vec_filter(
+          vertexPositions, [&](const auto& vertex) { return brush.hasVertex(vertex); });
+        if (verticesToMove.empty())
+        {
           return true;
         }
 
-        if (!brush.canMoveVertices(m_worldBounds, verticesToMove, delta)) {
+        if (!brush.canMoveVertices(m_worldBounds, verticesToMove, delta))
+        {
           return false;
         }
 
-        return brush.moveVertices(m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
+        return brush
+          .moveVertices(m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
           .and_then([&]() {
             auto newPositions = brush.findClosestVertexPositions(verticesToMove + delta);
             newVertexPositions =
@@ -3345,40 +3718,43 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
             error() << "Could not move brush vertices: " << e;
           });
       },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::BezierPatch&) { return true; }));
 
-  if (newNodes) {
+  if (newNodes)
+  {
     kdl::vec_sort_and_remove_duplicates(newVertexPositions);
 
     const auto commandName =
       kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
     auto transaction = Transaction{*this, commandName};
 
-    const auto changedLinkedGroups =
-      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
-        return p.first;
-      }));
+    const auto changedLinkedGroups = findContainingLinkedGroups(
+      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
-      commandName, std::move(*newNodes), std::move(vertexPositions),
+      commandName,
+      std::move(*newNodes),
+      std::move(vertexPositions),
       std::move(newVertexPositions)));
 
-    if (!result->success()) {
+    if (!result->success())
+    {
       transaction.cancel();
       return MoveVerticesResult{false, false};
     }
 
     setHasPendingChanges(changedLinkedGroups, true);
 
-    if (!transaction.commit()) {
+    if (!transaction.commit())
+    {
       return MoveVerticesResult{false, false};
     }
 
-    const auto* moveVerticesResult = dynamic_cast<BrushVertexCommandResult*>(result.get());
+    const auto* moveVerticesResult =
+      dynamic_cast<BrushVertexCommandResult*>(result.get());
     ensure(
-      moveVerticesResult != nullptr, "command processor returned unexpected command result type");
+      moveVerticesResult != nullptr,
+      "command processor returned unexpected command result type");
 
     return MoveVerticesResult(
       moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices());
@@ -3387,38 +3763,34 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
   return MoveVerticesResult(false, false);
 }
 
-bool MapDocument::moveEdges(std::vector<vm::segment3> edgePositions, const vm::vec3& delta) {
+bool MapDocument::moveEdges(
+  std::vector<vm::segment3> edgePositions, const vm::vec3& delta)
+{
   auto newEdgePositions = std::vector<vm::segment3>{};
   auto newNodes = applyToNodeContents(
     m_selectedNodes.nodes(),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
-      [](Model::Entity&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
+      [](Model::Entity&) { return true; },
       [&](Model::Brush& brush) {
-        const auto edgesToMove = kdl::vec_filter(edgePositions, [&](const auto& edge) {
-          return brush.hasEdge(edge);
-        });
-        if (edgesToMove.empty()) {
+        const auto edgesToMove = kdl::vec_filter(
+          edgePositions, [&](const auto& edge) { return brush.hasEdge(edge); });
+        if (edgesToMove.empty())
+        {
           return true;
         }
 
-        if (!brush.canMoveEdges(m_worldBounds, edgesToMove, delta)) {
+        if (!brush.canMoveEdges(m_worldBounds, edgesToMove, delta))
+        {
           return false;
         }
 
-        return brush.moveEdges(m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
+        return brush
+          .moveEdges(m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
           .and_then([&]() {
-            auto newPositions =
-              brush.findClosestEdgePositions(kdl::vec_transform(edgesToMove, [&](const auto& edge) {
-                return edge.translate(delta);
-              }));
+            auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(
+              edgesToMove, [&](const auto& edge) { return edge.translate(delta); }));
             newEdgePositions =
               kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
           })
@@ -3426,26 +3798,27 @@ bool MapDocument::moveEdges(std::vector<vm::segment3> edgePositions, const vm::v
             error() << "Could not move brush edges: " << e;
           });
       },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::BezierPatch&) { return true; }));
 
-  if (newNodes) {
+  if (newNodes)
+  {
     kdl::vec_sort_and_remove_duplicates(newEdgePositions);
 
     const auto commandName =
       kdl::str_plural(edgePositions.size(), "Move Brush Edge", "Move Brush Edges");
     auto transaction = Transaction{*this, commandName};
 
-    const auto changedLinkedGroups =
-      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
-        return p.first;
-      }));
+    const auto changedLinkedGroups = findContainingLinkedGroups(
+      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushEdgeCommand>(
-      commandName, std::move(*newNodes), std::move(edgePositions), std::move(newEdgePositions)));
+      commandName,
+      std::move(*newNodes),
+      std::move(edgePositions),
+      std::move(newEdgePositions)));
 
-    if (!result->success()) {
+    if (!result->success())
+    {
       transaction.cancel();
       return false;
     }
@@ -3457,38 +3830,34 @@ bool MapDocument::moveEdges(std::vector<vm::segment3> edgePositions, const vm::v
   return false;
 }
 
-bool MapDocument::moveFaces(std::vector<vm::polygon3> facePositions, const vm::vec3& delta) {
+bool MapDocument::moveFaces(
+  std::vector<vm::polygon3> facePositions, const vm::vec3& delta)
+{
   auto newFacePositions = std::vector<vm::polygon3>{};
   auto newNodes = applyToNodeContents(
     m_selectedNodes.nodes(),
     kdl::overload(
-      [](Model::Layer&) {
-        return true;
-      },
-      [](Model::Group&) {
-        return true;
-      },
-      [](Model::Entity&) {
-        return true;
-      },
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
+      [](Model::Entity&) { return true; },
       [&](Model::Brush& brush) {
-        const auto facesToMove = kdl::vec_filter(facePositions, [&](const auto& face) {
-          return brush.hasFace(face);
-        });
-        if (facesToMove.empty()) {
+        const auto facesToMove = kdl::vec_filter(
+          facePositions, [&](const auto& face) { return brush.hasFace(face); });
+        if (facesToMove.empty())
+        {
           return true;
         }
 
-        if (!brush.canMoveFaces(m_worldBounds, facesToMove, delta)) {
+        if (!brush.canMoveFaces(m_worldBounds, facesToMove, delta))
+        {
           return false;
         }
 
-        return brush.moveFaces(m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
+        return brush
+          .moveFaces(m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
           .and_then([&]() {
-            auto newPositions =
-              brush.findClosestFacePositions(kdl::vec_transform(facesToMove, [&](const auto& face) {
-                return face.translate(delta);
-              }));
+            auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(
+              facesToMove, [&](const auto& face) { return face.translate(delta); }));
             newFacePositions =
               kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
           })
@@ -3496,26 +3865,27 @@ bool MapDocument::moveFaces(std::vector<vm::polygon3> facePositions, const vm::v
             error() << "Could not move brush faces: " << e;
           });
       },
-      [](Model::BezierPatch&) {
-        return true;
-      }));
+      [](Model::BezierPatch&) { return true; }));
 
-  if (newNodes) {
+  if (newNodes)
+  {
     kdl::vec_sort_and_remove_duplicates(newFacePositions);
 
     const auto commandName =
       kdl::str_plural(facePositions.size(), "Move Brush Face", "Move Brush Faces");
     auto transaction = Transaction{*this, commandName};
 
-    auto changedLinkedGroups =
-      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
-        return p.first;
-      }));
+    auto changedLinkedGroups = findContainingLinkedGroups(
+      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushFaceCommand>(
-      commandName, std::move(*newNodes), std::move(facePositions), std::move(newFacePositions)));
+      commandName,
+      std::move(*newNodes),
+      std::move(facePositions),
+      std::move(newFacePositions)));
 
-    if (!result->success()) {
+    if (!result->success())
+    {
       transaction.cancel();
       return false;
     }
@@ -3527,46 +3897,43 @@ bool MapDocument::moveFaces(std::vector<vm::polygon3> facePositions, const vm::v
   return false;
 }
 
-bool MapDocument::addVertex(const vm::vec3& vertexPosition) {
+bool MapDocument::addVertex(const vm::vec3& vertexPosition)
+{
   auto newNodes = applyToNodeContents(
-    m_selectedNodes.nodes(), kdl::overload(
-                               [](Model::Layer&) {
-                                 return true;
-                               },
-                               [](Model::Group&) {
-                                 return true;
-                               },
-                               [](Model::Entity&) {
-                                 return true;
-                               },
-                               [&](Model::Brush& brush) {
-                                 if (!brush.canAddVertex(m_worldBounds, vertexPosition)) {
-                                   return false;
-                                 }
+    m_selectedNodes.nodes(),
+    kdl::overload(
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
+      [](Model::Entity&) { return true; },
+      [&](Model::Brush& brush) {
+        if (!brush.canAddVertex(m_worldBounds, vertexPosition))
+        {
+          return false;
+        }
 
-                                 return brush.addVertex(m_worldBounds, vertexPosition)
-                                   .handle_errors([&](const Model::BrushError e) {
-                                     error() << "Could not add brush vertex: " << e;
-                                   });
-                               },
-                               [](Model::BezierPatch&) {
-                                 return true;
-                               }));
+        return brush.addVertex(m_worldBounds, vertexPosition)
+          .handle_errors([&](const Model::BrushError e) {
+            error() << "Could not add brush vertex: " << e;
+          });
+      },
+      [](Model::BezierPatch&) { return true; }));
 
-  if (newNodes) {
+  if (newNodes)
+  {
     const auto commandName = "Add Brush Vertex";
     auto transaction = Transaction{*this, commandName};
 
-    const auto changedLinkedGroups =
-      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
-        return p.first;
-      }));
+    const auto changedLinkedGroups = findContainingLinkedGroups(
+      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
-      commandName, std::move(*newNodes), std::vector<vm::vec3>{},
+      commandName,
+      std::move(*newNodes),
+      std::vector<vm::vec3>{},
       std::vector<vm::vec3>{vertexPosition}));
 
-    if (!result->success()) {
+    if (!result->success())
+    {
       transaction.cancel();
       return false;
     }
@@ -3579,52 +3946,49 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition) {
 }
 
 bool MapDocument::removeVertices(
-  const std::string& commandName, std::vector<vm::vec3> vertexPositions) {
+  const std::string& commandName, std::vector<vm::vec3> vertexPositions)
+{
   auto newNodes = applyToNodeContents(
-    m_selectedNodes.nodes(), kdl::overload(
-                               [](Model::Layer&) {
-                                 return true;
-                               },
-                               [](Model::Group&) {
-                                 return true;
-                               },
-                               [](Model::Entity&) {
-                                 return true;
-                               },
-                               [&](Model::Brush& brush) {
-                                 const auto verticesToRemove =
-                                   kdl::vec_filter(vertexPositions, [&](const auto& vertex) {
-                                     return brush.hasVertex(vertex);
-                                   });
-                                 if (verticesToRemove.empty()) {
-                                   return true;
-                                 }
+    m_selectedNodes.nodes(),
+    kdl::overload(
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
+      [](Model::Entity&) { return true; },
+      [&](Model::Brush& brush) {
+        const auto verticesToRemove = kdl::vec_filter(
+          vertexPositions, [&](const auto& vertex) { return brush.hasVertex(vertex); });
+        if (verticesToRemove.empty())
+        {
+          return true;
+        }
 
-                                 if (!brush.canRemoveVertices(m_worldBounds, verticesToRemove)) {
-                                   return false;
-                                 }
+        if (!brush.canRemoveVertices(m_worldBounds, verticesToRemove))
+        {
+          return false;
+        }
 
-                                 return brush.removeVertices(m_worldBounds, verticesToRemove)
-                                   .handle_errors([&](const Model::BrushError e) {
-                                     error() << "Could not remove brush vertices: " << e;
-                                   });
-                               },
-                               [](Model::BezierPatch&) {
-                                 return true;
-                               }));
+        return brush.removeVertices(m_worldBounds, verticesToRemove)
+          .handle_errors([&](const Model::BrushError e) {
+            error() << "Could not remove brush vertices: " << e;
+          });
+      },
+      [](Model::BezierPatch&) { return true; }));
 
-  if (newNodes) {
+  if (newNodes)
+  {
     auto transaction = Transaction{*this, commandName};
 
-    auto changedLinkedGroups =
-      findContainingLinkedGroups(*m_world, kdl::vec_transform(*newNodes, [](const auto& p) {
-        return p.first;
-      }));
+    auto changedLinkedGroups = findContainingLinkedGroups(
+      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
-      commandName, std::move(*newNodes), std::move(vertexPositions), std::vector<vm::vec3>{}));
+      commandName,
+      std::move(*newNodes),
+      std::move(vertexPositions),
+      std::vector<vm::vec3>{}));
 
-    if (!result->success()) {
+    if (!result->success())
+    {
       transaction.cancel();
       return false;
     }
@@ -3636,23 +4000,31 @@ bool MapDocument::removeVertices(
   return false;
 }
 
-void MapDocument::printVertices() {
-  if (hasSelectedBrushFaces()) {
-    for (const auto& handle : m_selectedBrushFaces) {
+void MapDocument::printVertices()
+{
+  if (hasSelectedBrushFaces())
+  {
+    for (const auto& handle : m_selectedBrushFaces)
+    {
       std::stringstream str;
       str.precision(17);
-      for (const Model::BrushVertex* vertex : handle.face().vertices()) {
+      for (const Model::BrushVertex* vertex : handle.face().vertices())
+      {
         str << "(" << vertex->position() << ") ";
       }
       info(str.str());
     }
-  } else if (selectedNodes().hasBrushes()) {
-    for (const Model::BrushNode* brushNode : selectedNodes().brushes()) {
+  }
+  else if (selectedNodes().hasBrushes())
+  {
+    for (const Model::BrushNode* brushNode : selectedNodes().brushes())
+    {
       const Model::Brush& brush = brushNode->brush();
 
       std::stringstream str;
       str.precision(17);
-      for (const Model::BrushVertex* vertex : brush.vertices()) {
+      for (const Model::BrushVertex* vertex : brush.vertices())
+      {
         str << vertex->position() << " ";
       }
       info(str.str());
@@ -3660,84 +4032,104 @@ void MapDocument::printVertices() {
   }
 }
 
-class ThrowExceptionCommand : public UndoableCommand {
+class ThrowExceptionCommand : public UndoableCommand
+{
 public:
   using Ptr = std::shared_ptr<ThrowExceptionCommand>;
 
 public:
   ThrowExceptionCommand()
-    : UndoableCommand("Throw Exception", false) {}
+    : UndoableCommand("Throw Exception", false)
+  {
+  }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override {
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override
+  {
     throw CommandProcessorException();
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override {
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override
+  {
     return std::make_unique<CommandResult>(true);
   }
 };
 
-bool MapDocument::throwExceptionDuringCommand() {
+bool MapDocument::throwExceptionDuringCommand()
+{
   const auto result = executeAndStore(std::make_unique<ThrowExceptionCommand>());
   return result->success();
 }
 
-bool MapDocument::canUndoCommand() const {
+bool MapDocument::canUndoCommand() const
+{
   return doCanUndoCommand();
 }
 
-bool MapDocument::canRedoCommand() const {
+bool MapDocument::canRedoCommand() const
+{
   return doCanRedoCommand();
 }
 
-const std::string& MapDocument::undoCommandName() const {
+const std::string& MapDocument::undoCommandName() const
+{
   return doGetUndoCommandName();
 }
 
-const std::string& MapDocument::redoCommandName() const {
+const std::string& MapDocument::redoCommandName() const
+{
   return doGetRedoCommandName();
 }
 
-void MapDocument::undoCommand() {
+void MapDocument::undoCommand()
+{
   doUndoCommand();
-  // Undo/redo in the repeat system is not supported for now, so just clear the repeat stack
+  // Undo/redo in the repeat system is not supported for now, so just clear the repeat
+  // stack
   m_repeatStack->clear();
 }
 
-void MapDocument::redoCommand() {
+void MapDocument::redoCommand()
+{
   doRedoCommand();
   m_repeatStack->clear();
 }
 
-bool MapDocument::canRepeatCommands() const {
+bool MapDocument::canRepeatCommands() const
+{
   return m_repeatStack->size() > 0u;
 }
 
-void MapDocument::repeatCommands() {
+void MapDocument::repeatCommands()
+{
   m_repeatStack->repeat();
 }
 
-void MapDocument::clearRepeatableCommands() {
+void MapDocument::clearRepeatableCommands()
+{
   m_repeatStack->clear();
 }
 
-void MapDocument::startTransaction(std::string name, const TransactionScope scope) {
+void MapDocument::startTransaction(std::string name, const TransactionScope scope)
+{
   debug("Starting transaction '" + name + "'");
   doStartTransaction(std::move(name), scope);
   m_repeatStack->startTransaction();
 }
 
-void MapDocument::rollbackTransaction() {
+void MapDocument::rollbackTransaction()
+{
   debug("Rolling back transaction");
   doRollbackTransaction();
   m_repeatStack->rollbackTransaction();
 }
 
-bool MapDocument::commitTransaction() {
+bool MapDocument::commitTransaction()
+{
   debug("Committing transaction");
 
-  if (!updateLinkedGroups()) {
+  if (!updateLinkedGroups())
+  {
     rollbackTransaction();
     return false;
   }
@@ -3747,7 +4139,8 @@ bool MapDocument::commitTransaction() {
   return true;
 }
 
-void MapDocument::cancelTransaction() {
+void MapDocument::cancelTransaction()
+{
   debug("Cancelling transaction");
   doRollbackTransaction();
   m_repeatStack->rollbackTransaction();
@@ -3755,35 +4148,43 @@ void MapDocument::cancelTransaction() {
   m_repeatStack->commitTransaction();
 }
 
-std::unique_ptr<CommandResult> MapDocument::execute(std::unique_ptr<Command>&& command) {
+std::unique_ptr<CommandResult> MapDocument::execute(std::unique_ptr<Command>&& command)
+{
   return doExecute(std::move(command));
 }
 
 std::unique_ptr<CommandResult> MapDocument::executeAndStore(
-  std::unique_ptr<UndoableCommand>&& command) {
+  std::unique_ptr<UndoableCommand>&& command)
+{
   return doExecuteAndStore(std::move(command));
 }
 
-void MapDocument::commitPendingAssets() {
+void MapDocument::commitPendingAssets()
+{
   m_textureManager->commitChanges();
 }
 
-void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const {
+void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const
+{
   if (m_world != nullptr)
     m_world->pick(*m_editorContext, pickRay, pickResult);
 }
 
-std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point) const {
+std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point) const
+{
   std::vector<Model::Node*> result;
-  if (m_world != nullptr) {
+  if (m_world != nullptr)
+  {
     m_world->findNodesContaining(point, result);
   }
   return result;
 }
 
 void MapDocument::createWorld(
-  const Model::MapFormat mapFormat, const vm::bbox3& worldBounds,
-  std::shared_ptr<Model::Game> game) {
+  const Model::MapFormat mapFormat,
+  const vm::bbox3& worldBounds,
+  std::shared_ptr<Model::Game> game)
+{
   m_worldBounds = worldBounds;
   m_game = game;
   m_world = m_game->newMap(mapFormat, m_worldBounds, logger());
@@ -3794,8 +4195,11 @@ void MapDocument::createWorld(
 }
 
 void MapDocument::loadWorld(
-  const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game,
-  const IO::Path& path) {
+  const Model::MapFormat mapFormat,
+  const vm::bbox3& worldBounds,
+  std::shared_ptr<Model::Game> game,
+  const IO::Path& path)
+{
   m_worldBounds = worldBounds;
   m_game = game;
   m_world = m_game->loadMap(mapFormat, m_worldBounds, path, logger());
@@ -3805,56 +4209,73 @@ void MapDocument::loadWorld(
   setPath(path);
 }
 
-void MapDocument::clearWorld() {
+void MapDocument::clearWorld()
+{
   m_world.reset();
   m_currentLayer = nullptr;
 }
 
-Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
-  if (m_world != nullptr) {
+Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const
+{
+  if (m_world != nullptr)
+  {
     return m_game->extractEntityDefinitionFile(m_world->entity());
-  } else {
+  }
+  else
+  {
     return Assets::EntityDefinitionFileSpec();
   }
 }
 
-std::vector<Assets::EntityDefinitionFileSpec> MapDocument::allEntityDefinitionFiles() const {
+std::vector<Assets::EntityDefinitionFileSpec> MapDocument::allEntityDefinitionFiles()
+  const
+{
   return m_game->allEntityDefinitionFiles();
 }
 
-void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
+void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec)
+{
   // to avoid backslashes being misinterpreted as escape sequences
   const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
   auto entity = m_world->entity();
   entity.addOrUpdateProperty(
-    m_world->entityPropertyConfig(), Model::EntityPropertyKeys::EntityDefinitions, formatted);
+    m_world->entityPropertyConfig(),
+    Model::EntityPropertyKeys::EntityDefinitions,
+    formatted);
   swapNodeContents(
     "Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}}, {});
 }
 
-void MapDocument::setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions) {
+void MapDocument::setEntityDefinitions(
+  const std::vector<Assets::EntityDefinition*>& definitions)
+{
   m_entityDefinitionManager->setDefinitions(definitions);
 }
 
-std::vector<IO::Path> MapDocument::enabledTextureCollections() const {
+std::vector<IO::Path> MapDocument::enabledTextureCollections() const
+{
   return m_game->extractTextureCollections(m_world->entity());
 }
 
-std::vector<IO::Path> MapDocument::availableTextureCollections() const {
+std::vector<IO::Path> MapDocument::availableTextureCollections() const
+{
   return m_game->findTextureCollections();
 }
 
-void MapDocument::setEnabledTextureCollections(const std::vector<IO::Path>& paths) {
+void MapDocument::setEnabledTextureCollections(const std::vector<IO::Path>& paths)
+{
   auto entity = m_world->entity();
   m_game->updateTextureCollections(entity, paths);
   swapNodeContents(
     "Set Texture Collections", {{world(), Model::NodeContents(std::move(entity))}}, {});
 }
 
-void MapDocument::reloadTextureCollections() {
+void MapDocument::reloadTextureCollections()
+{
   const auto nodes = std::vector<Model::Node*>{m_world.get()};
-  NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+  NotifyBeforeAndAfter notifyNodes(
+    nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
   NotifyBeforeAndAfter notifyTextureCollections(
     textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
 
@@ -3864,16 +4285,19 @@ void MapDocument::reloadTextureCollections() {
   initializeAllNodeTags(this);
 }
 
-void MapDocument::reloadEntityDefinitions() {
+void MapDocument::reloadEntityDefinitions()
+{
   const auto nodes = std::vector<Model::Node*>{m_world.get()};
-  NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+  NotifyBeforeAndAfter notifyNodes(
+    nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
   NotifyBeforeAndAfter notifyEntityDefinitions(
     entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
 
   info("Reloading entity definitions");
 }
 
-void MapDocument::loadAssets() {
+void MapDocument::loadAssets()
+{
   loadEntityDefinitions();
   setEntityDefinitions();
   loadEntityModels();
@@ -3881,83 +4305,99 @@ void MapDocument::loadAssets() {
   setTextures();
 }
 
-void MapDocument::unloadAssets() {
+void MapDocument::unloadAssets()
+{
   unloadEntityDefinitions();
   unloadEntityModels();
   unloadTextures();
 }
 
-void MapDocument::loadEntityDefinitions() {
+void MapDocument::loadEntityDefinitions()
+{
   const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
-  try {
+  try
+  {
     const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
     IO::SimpleParserStatus status(logger());
     m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
     info("Loaded entity definition file " + path.lastComponent().asString());
 
     createEntityDefinitionActions();
-  } catch (const Exception& e) {
-    if (spec.builtin()) {
+  }
+  catch (const Exception& e)
+  {
+    if (spec.builtin())
+    {
       error() << "Could not load builtin entity definition file '" << spec.path()
               << "': " << e.what();
-    } else {
+    }
+    else
+    {
       error() << "Could not load external entity definition file '" << spec.path()
               << "': " << e.what();
     }
   }
 }
 
-void MapDocument::unloadEntityDefinitions() {
+void MapDocument::unloadEntityDefinitions()
+{
   unsetEntityDefinitions();
   m_entityDefinitionManager->clear();
   m_entityDefinitionActions.clear();
 }
 
-void MapDocument::loadEntityModels() {
+void MapDocument::loadEntityModels()
+{
   m_entityModelManager->setLoader(m_game.get());
   setEntityModels();
 }
 
-void MapDocument::unloadEntityModels() {
+void MapDocument::unloadEntityModels()
+{
   clearEntityModels();
   m_entityModelManager->setLoader(nullptr);
 }
 
-void MapDocument::reloadTextures() {
+void MapDocument::reloadTextures()
+{
   unloadTextures();
   m_game->reloadShaders();
   loadTextures();
 }
 
-void MapDocument::loadTextures() {
-  try {
+void MapDocument::loadTextures()
+{
+  try
+  {
     const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-    m_game->loadTextureCollections(m_world->entity(), docDir, *m_textureManager, logger());
-  } catch (const Exception& e) { error(e.what()); }
+    m_game->loadTextureCollections(
+      m_world->entity(), docDir, *m_textureManager, logger());
+  }
+  catch (const Exception& e)
+  {
+    error(e.what());
+  }
 }
 
-void MapDocument::unloadTextures() {
+void MapDocument::unloadTextures()
+{
   unsetTextures();
   m_textureManager->clear();
 }
 
-static auto makeSetTexturesVisitor(Assets::TextureManager& manager) {
+static auto makeSetTexturesVisitor(Assets::TextureManager& manager)
+{
   return kdl::overload(
-    [](auto&& thisLambda, Model::WorldNode* world) {
-      world->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::GroupNode* group) {
-      group->visitChildren(thisLambda);
-    },
+    [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
     [](auto&& thisLambda, Model::EntityNode* entity) {
       entity->visitChildren(thisLambda);
     },
     [&](Model::BrushNode* brushNode) {
       const Model::Brush& brush = brushNode->brush();
-      for (size_t i = 0u; i < brush.faceCount(); ++i) {
+      for (size_t i = 0u; i < brush.faceCount(); ++i)
+      {
         const Model::BrushFace& face = brush.face(i);
         Assets::Texture* texture = manager.texture(face.attributes().textureName());
         brushNode->setFaceTexture(i, texture);
@@ -3969,43 +4409,41 @@ static auto makeSetTexturesVisitor(Assets::TextureManager& manager) {
     });
 }
 
-static auto makeUnsetTexturesVisitor() {
+static auto makeUnsetTexturesVisitor()
+{
   return kdl::overload(
-    [](auto&& thisLambda, Model::WorldNode* world) {
-      world->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::GroupNode* group) {
-      group->visitChildren(thisLambda);
-    },
+    [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
     [](auto&& thisLambda, Model::EntityNode* entity) {
       entity->visitChildren(thisLambda);
     },
     [](Model::BrushNode* brushNode) {
       const Model::Brush& brush = brushNode->brush();
-      for (size_t i = 0u; i < brush.faceCount(); ++i) {
+      for (size_t i = 0u; i < brush.faceCount(); ++i)
+      {
         brushNode->setFaceTexture(i, nullptr);
       }
     },
-    [](Model::PatchNode* patchNode) {
-      patchNode->setTexture(nullptr);
-    });
+    [](Model::PatchNode* patchNode) { patchNode->setTexture(nullptr); });
 }
 
-void MapDocument::setTextures() {
+void MapDocument::setTextures()
+{
   m_world->accept(makeSetTexturesVisitor(*m_textureManager));
   textureUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::setTextures(const std::vector<Model::Node*>& nodes) {
+void MapDocument::setTextures(const std::vector<Model::Node*>& nodes)
+{
   Model::Node::visitAll(nodes, makeSetTexturesVisitor(*m_textureManager));
   textureUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles) {
-  for (const auto& faceHandle : faceHandles) {
+void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles)
+{
+  for (const auto& faceHandle : faceHandles)
+  {
     Model::BrushNode* node = faceHandle.node();
     const Model::BrushFace& face = faceHandle.face();
     Assets::Texture* texture = m_textureManager->texture(face.attributes().textureName());
@@ -4014,17 +4452,20 @@ void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHan
   textureUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::unsetTextures() {
+void MapDocument::unsetTextures()
+{
   m_world->accept(makeUnsetTexturesVisitor());
   textureUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::unsetTextures(const std::vector<Model::Node*>& nodes) {
+void MapDocument::unsetTextures(const std::vector<Model::Node*>& nodes)
+{
   Model::Node::visitAll(nodes, makeUnsetTexturesVisitor());
   textureUsageCountsDidChangeNotifier();
 }
 
-static auto makeSetEntityDefinitionsVisitor(Assets::EntityDefinitionManager& manager) {
+static auto makeSetEntityDefinitionsVisitor(Assets::EntityDefinitionManager& manager)
+{
   // this helper lambda must be captured by value
   const auto setEntityDefinition = [&](auto* node) {
     auto* definition = manager.definition(node);
@@ -4036,53 +4477,50 @@ static auto makeSetEntityDefinitionsVisitor(Assets::EntityDefinitionManager& man
       setEntityDefinition(world);
       world->visitChildren(thisLambda);
     },
-    [](auto&& thisLambda, Model::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::GroupNode* group) {
-      group->visitChildren(thisLambda);
-    },
-    [=](Model::EntityNode* entity) {
-      setEntityDefinition(entity);
-    },
-    [](Model::BrushNode*) {}, [](Model::PatchNode*) {});
+    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+    [=](Model::EntityNode* entity) { setEntityDefinition(entity); },
+    [](Model::BrushNode*) {},
+    [](Model::PatchNode*) {});
 }
 
-static auto makeUnsetEntityDefinitionsVisitor() {
+static auto makeUnsetEntityDefinitionsVisitor()
+{
   return kdl::overload(
     [](auto&& thisLambda, Model::WorldNode* world) {
       world->setDefinition(nullptr);
       world->visitChildren(thisLambda);
     },
-    [](auto&& thisLambda, Model::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::GroupNode* group) {
-      group->visitChildren(thisLambda);
-    },
-    [](Model::EntityNode* entity) {
-      entity->setDefinition(nullptr);
-    },
-    [](Model::BrushNode*) {}, [](Model::PatchNode*) {});
+    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+    [](Model::EntityNode* entity) { entity->setDefinition(nullptr); },
+    [](Model::BrushNode*) {},
+    [](Model::PatchNode*) {});
 }
 
-void MapDocument::setEntityDefinitions() {
+void MapDocument::setEntityDefinitions()
+{
   m_world->accept(makeSetEntityDefinitionsVisitor(*m_entityDefinitionManager));
 }
 
-void MapDocument::setEntityDefinitions(const std::vector<Model::Node*>& nodes) {
-  Model::Node::visitAll(nodes, makeSetEntityDefinitionsVisitor(*m_entityDefinitionManager));
+void MapDocument::setEntityDefinitions(const std::vector<Model::Node*>& nodes)
+{
+  Model::Node::visitAll(
+    nodes, makeSetEntityDefinitionsVisitor(*m_entityDefinitionManager));
 }
 
-void MapDocument::unsetEntityDefinitions() {
+void MapDocument::unsetEntityDefinitions()
+{
   m_world->accept(makeUnsetEntityDefinitionsVisitor());
 }
 
-void MapDocument::unsetEntityDefinitions(const std::vector<Model::Node*>& nodes) {
+void MapDocument::unsetEntityDefinitions(const std::vector<Model::Node*>& nodes)
+{
   Model::Node::visitAll(nodes, makeUnsetEntityDefinitionsVisitor());
 }
 
-void MapDocument::reloadEntityDefinitionsInternal() {
+void MapDocument::reloadEntityDefinitionsInternal()
+{
   unloadEntityDefinitions();
   clearEntityModels();
   loadEntityDefinitions();
@@ -4090,74 +4528,73 @@ void MapDocument::reloadEntityDefinitionsInternal() {
   setEntityModels();
 }
 
-void MapDocument::clearEntityModels() {
+void MapDocument::clearEntityModels()
+{
   unsetEntityModels();
   m_entityModelManager->clear();
 }
 
-static auto makeSetEntityModelsVisitor(Logger& logger, Assets::EntityModelManager& manager) {
+static auto makeSetEntityModelsVisitor(
+  Logger& logger, Assets::EntityModelManager& manager)
+{
   return kdl::overload(
-    [](auto&& thisLambda, Model::WorldNode* world) {
-      world->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::GroupNode* group) {
-      group->visitChildren(thisLambda);
-    },
+    [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
     [&](Model::EntityNode* entityNode) {
-      const auto modelSpec =
-        Assets::safeGetModelSpecification(logger, entityNode->entity().classname(), [&]() {
+      const auto modelSpec = Assets::safeGetModelSpecification(
+        logger, entityNode->entity().classname(), [&]() {
           return entityNode->entity().modelSpecification();
         });
       const auto* frame = manager.frame(modelSpec);
       entityNode->setModelFrame(frame);
     },
-    [](Model::BrushNode*) {}, [](Model::PatchNode*) {});
+    [](Model::BrushNode*) {},
+    [](Model::PatchNode*) {});
 }
 
-static auto makeUnsetEntityModelsVisitor() {
+static auto makeUnsetEntityModelsVisitor()
+{
   return kdl::overload(
-    [](auto&& thisLambda, Model::WorldNode* world) {
-      world->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::GroupNode* group) {
-      group->visitChildren(thisLambda);
-    },
-    [](Model::EntityNode* entity) {
-      entity->setModelFrame(nullptr);
-    },
-    [](Model::BrushNode*) {}, [](Model::PatchNode*) {});
+    [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+    [](Model::EntityNode* entity) { entity->setModelFrame(nullptr); },
+    [](Model::BrushNode*) {},
+    [](Model::PatchNode*) {});
 }
 
-void MapDocument::setEntityModels() {
+void MapDocument::setEntityModels()
+{
   m_world->accept(makeSetEntityModelsVisitor(*this, *m_entityModelManager));
 }
 
-void MapDocument::setEntityModels(const std::vector<Model::Node*>& nodes) {
+void MapDocument::setEntityModels(const std::vector<Model::Node*>& nodes)
+{
   Model::Node::visitAll(nodes, makeSetEntityModelsVisitor(*this, *m_entityModelManager));
 }
 
-void MapDocument::unsetEntityModels() {
+void MapDocument::unsetEntityModels()
+{
   m_world->accept(makeUnsetEntityModelsVisitor());
 }
 
-void MapDocument::unsetEntityModels(const std::vector<Model::Node*>& nodes) {
+void MapDocument::unsetEntityModels(const std::vector<Model::Node*>& nodes)
+{
   Model::Node::visitAll(nodes, makeUnsetEntityModelsVisitor());
 }
 
-std::vector<IO::Path> MapDocument::externalSearchPaths() const {
+std::vector<IO::Path> MapDocument::externalSearchPaths() const
+{
   std::vector<IO::Path> searchPaths;
-  if (!m_path.isEmpty() && m_path.isAbsolute()) {
+  if (!m_path.isEmpty() && m_path.isAbsolute())
+  {
     searchPaths.push_back(m_path.deleteLastComponent());
   }
 
   const IO::Path gamePath = m_game->gamePath();
-  if (!gamePath.isEmpty()) {
+  if (!gamePath.isEmpty())
+  {
     searchPaths.push_back(gamePath);
   }
 
@@ -4165,72 +4602,93 @@ std::vector<IO::Path> MapDocument::externalSearchPaths() const {
   return searchPaths;
 }
 
-void MapDocument::updateGameSearchPaths() {
+void MapDocument::updateGameSearchPaths()
+{
   const std::vector<IO::Path> additionalSearchPaths = IO::Path::asPaths(mods());
   m_game->setAdditionalSearchPaths(additionalSearchPaths, logger());
 }
 
-std::vector<std::string> MapDocument::mods() const {
+std::vector<std::string> MapDocument::mods() const
+{
   return m_game->extractEnabledMods(m_world->entity());
 }
 
-void MapDocument::setMods(const std::vector<std::string>& mods) {
+void MapDocument::setMods(const std::vector<std::string>& mods)
+{
   auto entity = m_world->entity();
-  if (mods.empty()) {
-    entity.removeProperty(m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Mods);
-  } else {
+  if (mods.empty())
+  {
+    entity.removeProperty(
+      m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Mods);
+  }
+  else
+  {
     const std::string newValue = kdl::str_join(mods, ";");
     entity.addOrUpdateProperty(
       m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Mods, newValue);
   }
-  swapNodeContents("Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}}, {});
+  swapNodeContents(
+    "Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}}, {});
 }
 
-std::string MapDocument::defaultMod() const {
+std::string MapDocument::defaultMod() const
+{
   return m_game->defaultMod();
 }
 
 /**
  * Note if bounds.source is SoftMapBoundsType::Game, bounds.bounds is ignored.
  */
-void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds) {
+void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds)
+{
   auto entity = world()->entity();
-  switch (bounds.source) {
-    case Model::Game::SoftMapBoundsType::Map:
-      if (!bounds.bounds.has_value()) {
-        // Set the worldspawn key EntityPropertyKeys::SoftMaxMapSize's value to the empty string
-        // to indicate that we are overriding the Game's bounds with unlimited.
-        entity.addOrUpdateProperty(
-          m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds,
-          Model::EntityPropertyValues::NoSoftMapBounds);
-      } else {
-        entity.addOrUpdateProperty(
-          m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds,
-          IO::serializeSoftMapBoundsString(*bounds.bounds));
-      }
-      break;
-    case Model::Game::SoftMapBoundsType::Game:
-      // Unset the map's setting
-      entity.removeProperty(
-        m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds);
-      break;
-      switchDefault();
+  switch (bounds.source)
+  {
+  case Model::Game::SoftMapBoundsType::Map:
+    if (!bounds.bounds.has_value())
+    {
+      // Set the worldspawn key EntityPropertyKeys::SoftMaxMapSize's value to the empty
+      // string to indicate that we are overriding the Game's bounds with unlimited.
+      entity.addOrUpdateProperty(
+        m_world->entityPropertyConfig(),
+        Model::EntityPropertyKeys::SoftMapBounds,
+        Model::EntityPropertyValues::NoSoftMapBounds);
+    }
+    else
+    {
+      entity.addOrUpdateProperty(
+        m_world->entityPropertyConfig(),
+        Model::EntityPropertyKeys::SoftMapBounds,
+        IO::serializeSoftMapBoundsString(*bounds.bounds));
+    }
+    break;
+  case Model::Game::SoftMapBoundsType::Game:
+    // Unset the map's setting
+    entity.removeProperty(
+      m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds);
+    break;
+    switchDefault();
   }
-  swapNodeContents("Set Soft Map Bounds", {{world(), Model::NodeContents(std::move(entity))}}, {});
+  swapNodeContents(
+    "Set Soft Map Bounds", {{world(), Model::NodeContents(std::move(entity))}}, {});
 }
 
-Model::Game::SoftMapBounds MapDocument::softMapBounds() const {
-  if (!m_world) {
+Model::Game::SoftMapBounds MapDocument::softMapBounds() const
+{
+  if (!m_world)
+  {
     return {Model::Game::SoftMapBoundsType::Game, std::nullopt};
   }
   return m_game->extractSoftMapBounds(m_world->entity());
 }
 
-void MapDocument::setIssueHidden(const Model::Issue& issue, const bool hidden) {
+void MapDocument::setIssueHidden(const Model::Issue& issue, const bool hidden)
+{
   doSetIssueHidden(issue, hidden);
 }
 
-void MapDocument::registerValidators() {
+void MapDocument::registerValidators()
+{
   ensure(m_world != nullptr, "world is null");
   ensure(m_game.get() != nullptr, "game is null");
 
@@ -4244,8 +4702,10 @@ void MapDocument::registerValidators() {
   m_world->registerValidator(std::make_unique<Model::LinkTargetValidator>());
   m_world->registerValidator(std::make_unique<Model::NonIntegerVerticesValidator>());
   m_world->registerValidator(std::make_unique<Model::MixedBrushContentsValidator>());
-  m_world->registerValidator(std::make_unique<Model::WorldBoundsValidator>(worldBounds()));
-  m_world->registerValidator(std::make_unique<Model::SoftMapBoundsValidator>(m_game, *m_world));
+  m_world->registerValidator(
+    std::make_unique<Model::WorldBoundsValidator>(worldBounds()));
+  m_world->registerValidator(
+    std::make_unique<Model::SoftMapBoundsValidator>(m_game, *m_world));
   m_world->registerValidator(std::make_unique<Model::EmptyPropertyKeyValidator>());
   m_world->registerValidator(std::make_unique<Model::EmptyPropertyValueValidator>());
   m_world->registerValidator(
@@ -4259,34 +4719,41 @@ void MapDocument::registerValidators() {
   m_world->registerValidator(std::make_unique<Model::InvalidTextureScaleValidator>());
 }
 
-void MapDocument::registerSmartTags() {
+void MapDocument::registerSmartTags()
+{
   ensure(m_game.get() != nullptr, "game is null");
 
   m_tagManager->clearSmartTags();
   m_tagManager->registerSmartTags(m_game->smartTags());
 }
 
-const std::vector<Model::SmartTag>& MapDocument::smartTags() const {
+const std::vector<Model::SmartTag>& MapDocument::smartTags() const
+{
   return m_tagManager->smartTags();
 }
 
-bool MapDocument::isRegisteredSmartTag(const std::string& name) const {
+bool MapDocument::isRegisteredSmartTag(const std::string& name) const
+{
   return m_tagManager->isRegisteredSmartTag(name);
 }
 
-const Model::SmartTag& MapDocument::smartTag(const std::string& name) const {
+const Model::SmartTag& MapDocument::smartTag(const std::string& name) const
+{
   return m_tagManager->smartTag(name);
 }
 
-bool MapDocument::isRegisteredSmartTag(const size_t index) const {
+bool MapDocument::isRegisteredSmartTag(const size_t index) const
+{
   return m_tagManager->isRegisteredSmartTag(index);
 }
 
-const Model::SmartTag& MapDocument::smartTag(const size_t index) const {
+const Model::SmartTag& MapDocument::smartTag(const size_t index) const
+{
   return m_tagManager->smartTag(index);
 }
 
-static auto makeInitializeNodeTagsVisitor(Model::TagManager& tagManager) {
+static auto makeInitializeNodeTagsVisitor(Model::TagManager& tagManager)
+{
   return kdl::overload(
     [&](auto&& thisLambda, Model::WorldNode* world) {
       world->initializeTags(tagManager);
@@ -4304,15 +4771,12 @@ static auto makeInitializeNodeTagsVisitor(Model::TagManager& tagManager) {
       entity->initializeTags(tagManager);
       entity->visitChildren(thisLambda);
     },
-    [&](Model::BrushNode* brush) {
-      brush->initializeTags(tagManager);
-    },
-    [&](Model::PatchNode* patch) {
-      patch->initializeTags(tagManager);
-    });
+    [&](Model::BrushNode* brush) { brush->initializeTags(tagManager); },
+    [&](Model::PatchNode* patch) { patch->initializeTags(tagManager); });
 }
 
-static auto makeClearNodeTagsVisitor() {
+static auto makeClearNodeTagsVisitor()
+{
   return kdl::overload(
     [](auto&& thisLambda, Model::WorldNode* world) {
       world->clearTags();
@@ -4330,170 +4794,194 @@ static auto makeClearNodeTagsVisitor() {
       entity->clearTags();
       entity->visitChildren(thisLambda);
     },
-    [](Model::BrushNode* brush) {
-      brush->clearTags();
-    },
-    [](Model::PatchNode* patch) {
-      patch->clearTags();
-    });
+    [](Model::BrushNode* brush) { brush->clearTags(); },
+    [](Model::PatchNode* patch) { patch->clearTags(); });
 }
 
-void MapDocument::initializeAllNodeTags(MapDocument* document) {
+void MapDocument::initializeAllNodeTags(MapDocument* document)
+{
   assert(document == this);
   unused(document);
   m_world->accept(makeInitializeNodeTagsVisitor(*m_tagManager));
 }
 
-void MapDocument::initializeNodeTags(const std::vector<Model::Node*>& nodes) {
+void MapDocument::initializeNodeTags(const std::vector<Model::Node*>& nodes)
+{
   Model::Node::visitAll(nodes, makeInitializeNodeTagsVisitor(*m_tagManager));
 }
 
-void MapDocument::clearNodeTags(const std::vector<Model::Node*>& nodes) {
+void MapDocument::clearNodeTags(const std::vector<Model::Node*>& nodes)
+{
   Model::Node::visitAll(nodes, makeClearNodeTagsVisitor());
 }
 
-void MapDocument::updateNodeTags(const std::vector<Model::Node*>& nodes) {
-  for (auto* node : nodes) {
+void MapDocument::updateNodeTags(const std::vector<Model::Node*>& nodes)
+{
+  for (auto* node : nodes)
+  {
     node->updateTags(*m_tagManager);
   }
 }
 
-void MapDocument::updateFaceTags(const std::vector<Model::BrushFaceHandle>& faceHandles) {
-  for (const auto& faceHandle : faceHandles) {
+void MapDocument::updateFaceTags(const std::vector<Model::BrushFaceHandle>& faceHandles)
+{
+  for (const auto& faceHandle : faceHandles)
+  {
     Model::BrushNode* node = faceHandle.node();
     node->updateFaceTags(faceHandle.faceIndex(), *m_tagManager);
   }
 }
 
-void MapDocument::updateAllFaceTags() {
+void MapDocument::updateAllFaceTags()
+{
   m_world->accept(kdl::overload(
-    [](auto&& thisLambda, Model::WorldNode* world) {
-      world->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, Model::GroupNode* group) {
-      group->visitChildren(thisLambda);
-    },
+    [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
     [](auto&& thisLambda, Model::EntityNode* entity) {
       entity->visitChildren(thisLambda);
     },
-    [&](Model::BrushNode* brush) {
-      brush->initializeTags(*m_tagManager);
-    },
+    [&](Model::BrushNode* brush) { brush->initializeTags(*m_tagManager); },
     [](Model::PatchNode*) {}));
 }
 
-bool MapDocument::persistent() const {
+bool MapDocument::persistent() const
+{
   return m_path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(m_path));
 }
 
-std::string MapDocument::filename() const {
-  if (m_path.isEmpty()) {
+std::string MapDocument::filename() const
+{
+  if (m_path.isEmpty())
+  {
     return "";
   }
   return m_path.lastComponent().asString();
 }
 
-const IO::Path& MapDocument::path() const {
+const IO::Path& MapDocument::path() const
+{
   return m_path;
 }
 
-void MapDocument::setPath(const IO::Path& path) {
+void MapDocument::setPath(const IO::Path& path)
+{
   m_path = path;
 }
 
-bool MapDocument::modified() const {
+bool MapDocument::modified() const
+{
   return m_modificationCount != m_lastSaveModificationCount;
 }
 
-size_t MapDocument::modificationCount() const {
+size_t MapDocument::modificationCount() const
+{
   return m_modificationCount;
 }
 
-void MapDocument::setLastSaveModificationCount() {
+void MapDocument::setLastSaveModificationCount()
+{
   m_lastSaveModificationCount = m_modificationCount;
   documentModificationStateDidChangeNotifier();
 }
 
-void MapDocument::clearModificationCount() {
+void MapDocument::clearModificationCount()
+{
   m_lastSaveModificationCount = m_modificationCount = 0;
   documentModificationStateDidChangeNotifier();
 }
 
-void MapDocument::connectObservers() {
-  m_notifierConnection +=
-    textureCollectionsWillChangeNotifier.connect(this, &MapDocument::textureCollectionsWillChange);
-  m_notifierConnection +=
-    textureCollectionsDidChangeNotifier.connect(this, &MapDocument::textureCollectionsDidChange);
+void MapDocument::connectObservers()
+{
+  m_notifierConnection += textureCollectionsWillChangeNotifier.connect(
+    this, &MapDocument::textureCollectionsWillChange);
+  m_notifierConnection += textureCollectionsDidChangeNotifier.connect(
+    this, &MapDocument::textureCollectionsDidChange);
+
+  m_notifierConnection += entityDefinitionsWillChangeNotifier.connect(
+    this, &MapDocument::entityDefinitionsWillChange);
+  m_notifierConnection += entityDefinitionsDidChangeNotifier.connect(
+    this, &MapDocument::entityDefinitionsDidChange);
 
   m_notifierConnection +=
-    entityDefinitionsWillChangeNotifier.connect(this, &MapDocument::entityDefinitionsWillChange);
+    modsWillChangeNotifier.connect(this, &MapDocument::modsWillChange);
   m_notifierConnection +=
-    entityDefinitionsDidChangeNotifier.connect(this, &MapDocument::entityDefinitionsDidChange);
-
-  m_notifierConnection += modsWillChangeNotifier.connect(this, &MapDocument::modsWillChange);
-  m_notifierConnection += modsDidChangeNotifier.connect(this, &MapDocument::modsDidChange);
+    modsDidChangeNotifier.connect(this, &MapDocument::modsDidChange);
 
   PreferenceManager& prefs = PreferenceManager::instance();
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &MapDocument::preferenceDidChange);
-  m_notifierConnection +=
-    m_editorContext->editorContextDidChangeNotifier.connect(editorContextDidChangeNotifier);
+  m_notifierConnection += m_editorContext->editorContextDidChangeNotifier.connect(
+    editorContextDidChangeNotifier);
   m_notifierConnection += commandDoneNotifier.connect(this, &MapDocument::commandDone);
-  m_notifierConnection += commandUndoneNotifier.connect(this, &MapDocument::commandUndone);
-  m_notifierConnection += transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
-  m_notifierConnection += transactionUndoneNotifier.connect(this, &MapDocument::transactionUndone);
+  m_notifierConnection +=
+    commandUndoneNotifier.connect(this, &MapDocument::commandUndone);
+  m_notifierConnection +=
+    transactionDoneNotifier.connect(this, &MapDocument::transactionDone);
+  m_notifierConnection +=
+    transactionUndoneNotifier.connect(this, &MapDocument::transactionUndone);
 
   // tag management
   m_notifierConnection +=
     documentWasNewedNotifier.connect(this, &MapDocument::initializeAllNodeTags);
   m_notifierConnection +=
     documentWasLoadedNotifier.connect(this, &MapDocument::initializeAllNodeTags);
-  m_notifierConnection += nodesWereAddedNotifier.connect(this, &MapDocument::initializeNodeTags);
-  m_notifierConnection += nodesWillBeRemovedNotifier.connect(this, &MapDocument::clearNodeTags);
-  m_notifierConnection += nodesDidChangeNotifier.connect(this, &MapDocument::updateNodeTags);
-  m_notifierConnection += brushFacesDidChangeNotifier.connect(this, &MapDocument::updateFaceTags);
-  m_notifierConnection += modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
+  m_notifierConnection +=
+    nodesWereAddedNotifier.connect(this, &MapDocument::initializeNodeTags);
+  m_notifierConnection +=
+    nodesWillBeRemovedNotifier.connect(this, &MapDocument::clearNodeTags);
+  m_notifierConnection +=
+    nodesDidChangeNotifier.connect(this, &MapDocument::updateNodeTags);
+  m_notifierConnection +=
+    brushFacesDidChangeNotifier.connect(this, &MapDocument::updateFaceTags);
+  m_notifierConnection +=
+    modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
   m_notifierConnection +=
     textureCollectionsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
 }
 
-void MapDocument::textureCollectionsWillChange() {
+void MapDocument::textureCollectionsWillChange()
+{
   unsetTextures();
 }
 
-void MapDocument::textureCollectionsDidChange() {
+void MapDocument::textureCollectionsDidChange()
+{
   loadTextures();
   setTextures();
 }
 
-void MapDocument::entityDefinitionsWillChange() {
+void MapDocument::entityDefinitionsWillChange()
+{
   unloadEntityDefinitions();
   clearEntityModels();
 }
 
-void MapDocument::entityDefinitionsDidChange() {
+void MapDocument::entityDefinitionsDidChange()
+{
   loadEntityDefinitions();
   setEntityDefinitions();
   setEntityModels();
 }
 
-void MapDocument::modsWillChange() {
+void MapDocument::modsWillChange()
+{
   unsetEntityModels();
   unsetEntityDefinitions();
   clearEntityModels();
 }
 
-void MapDocument::modsDidChange() {
+void MapDocument::modsDidChange()
+{
   updateGameSearchPaths();
   setEntityDefinitions();
   setEntityModels();
 }
 
-void MapDocument::preferenceDidChange(const IO::Path& path) {
-  if (isGamePathPreference(path)) {
+void MapDocument::preferenceDidChange(const IO::Path& path)
+{
+  if (isGamePathPreference(path))
+  {
     const Model::GameFactory& gameFactory = Model::GameFactory::instance();
     const IO::Path newGamePath = gameFactory.gamePath(m_game->gameName());
     m_game->setGamePath(newGamePath, logger());
@@ -4503,8 +4991,11 @@ void MapDocument::preferenceDidChange(const IO::Path& path) {
 
     reloadTextures();
     setTextures();
-  } else if (
-    path == Preferences::TextureMinFilter.path() || path == Preferences::TextureMagFilter.path()) {
+  }
+  else if (
+    path == Preferences::TextureMinFilter.path()
+    || path == Preferences::TextureMagFilter.path())
+  {
     m_entityModelManager->setTextureMode(
       pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
     m_textureManager->setTextureMode(
@@ -4512,41 +5003,53 @@ void MapDocument::preferenceDidChange(const IO::Path& path) {
   }
 }
 
-void MapDocument::commandDone(Command& command) {
+void MapDocument::commandDone(Command& command)
+{
   debug() << "Command '" << command.name() << "' executed";
 }
 
-void MapDocument::commandUndone(UndoableCommand& command) {
+void MapDocument::commandUndone(UndoableCommand& command)
+{
   debug() << "Command '" << command.name() << "' undone";
 }
 
-void MapDocument::transactionDone(const std::string& name) {
+void MapDocument::transactionDone(const std::string& name)
+{
   debug() << "Transaction '" << name << "' executed";
 }
 
-void MapDocument::transactionUndone(const std::string& name) {
+void MapDocument::transactionUndone(const std::string& name)
+{
   debug() << "Transaction '" << name << "' undone";
 }
 
 Transaction::Transaction(std::weak_ptr<MapDocument> document, std::string name)
-  : Transaction{kdl::mem_lock(document), std::move(name)} {}
+  : Transaction{kdl::mem_lock(document), std::move(name)}
+{
+}
 
 Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name)
-  : Transaction{*document, std::move(name)} {}
+  : Transaction{*document, std::move(name)}
+{
+}
 
 Transaction::Transaction(MapDocument& document, std::string name)
   : m_document{document}
-  , m_state{TransactionState::Running} {
+  , m_state{TransactionState::Running}
+{
   begin(std::move(name));
 }
 
-Transaction::~Transaction() {
+Transaction::~Transaction()
+{
   assert(m_state != TransactionState::Running);
 }
 
-bool Transaction::commit() {
+bool Transaction::commit()
+{
   assert(m_state == TransactionState::Running);
-  if (m_document.commitTransaction()) {
+  if (m_document.commitTransaction())
+  {
     m_state = TransactionState::Committed;
     return true;
   }
@@ -4555,17 +5058,20 @@ bool Transaction::commit() {
   return false;
 }
 
-void Transaction::rollback() {
+void Transaction::rollback()
+{
   assert(m_state == TransactionState::Running);
   m_document.rollbackTransaction();
 }
 
-void Transaction::cancel() {
+void Transaction::cancel()
+{
   assert(m_state == TransactionState::Running);
   m_state = TransactionState::Cancelled;
 }
 
-void Transaction::begin(std::string name) {
+void Transaction::begin(std::string name)
+{
   m_document.startTransaction(std::move(name), TransactionScope::Oneshot);
 }
 } // namespace View

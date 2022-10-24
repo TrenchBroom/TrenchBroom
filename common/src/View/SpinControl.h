@@ -21,9 +21,12 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDoubleSpinBox>
 
-namespace TrenchBroom {
-namespace View {
-class SpinControl : public QDoubleSpinBox {
+namespace TrenchBroom
+{
+namespace View
+{
+class SpinControl : public QDoubleSpinBox
+{
   Q_OBJECT
 private:
   double m_regularIncrement;
@@ -41,7 +44,8 @@ public: // QDoubleSpinBox overrides
   QString textFromValue(double val) const override;
 
 public:
-  void setIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
+  void setIncrements(
+    double regularIncrement, double shiftIncrement, double ctrlIncrement);
   void setDigits(int minDigits, int maxDigits);
 
 private:

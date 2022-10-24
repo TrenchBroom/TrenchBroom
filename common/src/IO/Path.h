@@ -24,11 +24,15 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
-class Path {
+namespace TrenchBroom
+{
+namespace IO
+{
+class Path
+{
 public:
-  static constexpr std::string_view separator() {
+  static constexpr std::string_view separator()
+  {
 #ifdef _WIN32
     return std::string_view("\\");
 #else
@@ -36,15 +40,21 @@ public:
 #endif
   }
 
-  template <typename StringLess> class Less {
+  template <typename StringLess>
+  class Less
+  {
   private:
     StringLess m_less;
 
   public:
-    bool operator()(const Path& lhs, const Path& rhs) const {
+    bool operator()(const Path& lhs, const Path& rhs) const
+    {
       return std::lexicographical_compare(
-        std::begin(lhs.m_components), std::end(lhs.m_components), std::begin(rhs.m_components),
-        std::end(rhs.m_components), m_less);
+        std::begin(lhs.m_components),
+        std::end(lhs.m_components),
+        std::begin(rhs.m_components),
+        std::end(rhs.m_components),
+        m_less);
     }
   };
 
@@ -103,9 +113,9 @@ public:
   Path makeAbsolute(const Path& relativePath) const;
 
   /**
-   * Return a relative path if this path is absolute. On Windows, this means that the returned path
-   * has no drive specification (i.e. 'C:\'), and on other systems, this means that the returned
-   * path will not have a leading forward slash anymore.
+   * Return a relative path if this path is absolute. On Windows, this means that the
+   * returned path has no drive specification (i.e. 'C:\'), and on other systems, this
+   * means that the returned path will not have a leading forward slash anymore.
    *
    * @return the relative path
    */

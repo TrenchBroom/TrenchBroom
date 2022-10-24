@@ -24,16 +24,20 @@
 class QLineEdit;
 class QStackedWidget;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class GameEngineProfile;
 }
 
-namespace View {
+namespace View
+{
 /**
  * Editor widget for a single game engine profile.
  */
-class GameEngineProfileEditor : public QWidget {
+class GameEngineProfileEditor : public QWidget
+{
   Q_OBJECT
 private:
   Model::GameEngineProfile* m_profile;

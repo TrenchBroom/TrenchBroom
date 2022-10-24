@@ -21,28 +21,39 @@
 
 #include <memory>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class EntityModel;
 }
 
-namespace IO {
+namespace IO
+{
 class Path;
 
-class EntityModelLoader {
+class EntityModelLoader
+{
 public:
   virtual ~EntityModelLoader();
-  std::unique_ptr<Assets::EntityModel> initializeModel(const Path& path, Logger& logger) const;
+  std::unique_ptr<Assets::EntityModel> initializeModel(
+    const Path& path, Logger& logger) const;
   void loadFrame(
-    const Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const;
+    const Path& path,
+    size_t frameIndex,
+    Assets::EntityModel& model,
+    Logger& logger) const;
 
 private:
   virtual std::unique_ptr<Assets::EntityModel> doInitializeModel(
     const Path& path, Logger& logger) const = 0;
   virtual void doLoadFrame(
-    const Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const = 0;
+    const Path& path,
+    size_t frameIndex,
+    Assets::EntityModel& model,
+    Logger& logger) const = 0;
 };
 } // namespace IO
 } // namespace TrenchBroom

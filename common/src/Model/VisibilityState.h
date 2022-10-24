@@ -21,9 +21,12 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom {
-namespace Model {
-enum class VisibilityState {
+namespace TrenchBroom
+{
+namespace Model
+{
+enum class VisibilityState
+{
   Inherited = 1,
   Hidden = 2,
   Shown = 4

@@ -24,51 +24,59 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 HitQuery::HitQuery(const std::vector<Hit>& hits)
   : m_hits{&hits}
-  , m_include{[](const Hit&) {
-    return true;
-  }}
-  , m_exclude{[](const Hit&) {
-    return false;
-  }} {}
+  , m_include{[](const Hit&) { return true; }}
+  , m_exclude{[](const Hit&) { return false; }}
+{
+}
 
-HitQuery HitQuery::type(const HitType::Type typeMask) && {
+HitQuery HitQuery::type(const HitType::Type typeMask) &&
+{
   m_include = std::move(m_include) && HitFilters::type(typeMask);
   return std::move(*this);
 }
 
-HitQuery HitQuery::occluded(const HitType::Type typeMask) && {
+HitQuery HitQuery::occluded(const HitType::Type typeMask) &&
+{
   m_exclude = HitFilters::type(typeMask);
   return std::move(*this);
 }
 
-HitQuery HitQuery::selected() && {
+HitQuery HitQuery::selected() &&
+{
   m_include = std::move(m_include) && HitFilters::selected();
   return std::move(*this);
 }
 
-HitQuery HitQuery::transitivelySelected() && {
+HitQuery HitQuery::transitivelySelected() &&
+{
   m_include = std::move(m_include) && HitFilters::transitivelySelected();
   return std::move(*this);
 }
 
-HitQuery HitQuery::minDistance(const FloatType minDistance_) && {
+HitQuery HitQuery::minDistance(const FloatType minDistance_) &&
+{
   m_include = std::move(m_include) && HitFilters::minDistance(minDistance_);
   return std::move(*this);
 }
 
-bool HitQuery::empty() const {
+bool HitQuery::empty() const
+{
   return m_hits->empty();
 }
 
-const Hit& HitQuery::first() const {
+const Hit& HitQuery::first() const
+{
   return firstHit(m_include, *m_hits);
 }
 
-std::vector<Hit> HitQuery::all() const {
+std::vector<Hit> HitQuery::all() const
+{
   return allHits(m_include, *m_hits);
 }
 } // namespace Model

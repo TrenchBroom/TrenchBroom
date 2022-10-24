@@ -24,12 +24,15 @@
 
 #include <kdl/bitset.h>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class EntityDefinition;
 }
 
-namespace Model {
+namespace Model
+{
 class EntityNodeBase;
 class BrushNode;
 class BrushFace;
@@ -41,7 +44,8 @@ class Object;
 class PatchNode;
 class WorldNode;
 
-class EditorContext {
+class EditorContext
+{
 private:
   TagType::Type m_hiddenTags;
   kdl::bitset m_hiddenEntityDefinitions;

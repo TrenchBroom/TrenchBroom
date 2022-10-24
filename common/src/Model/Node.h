@@ -34,8 +34,10 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EditorContext;
 class EntityNodeBase;
 struct EntityPropertyConfig;
@@ -47,13 +49,15 @@ class PickResult;
 class Validator;
 enum class VisibilityState;
 
-struct NodePath {
+struct NodePath
+{
   std::vector<std::size_t> indices;
 
   kdl_reflect_decl(NodePath, indices);
 };
 
-class Node : public Taggable {
+class Node : public Taggable
+{
 private:
   Node* m_parent;
   std::vector<Node*> m_children;
@@ -90,31 +94,32 @@ public: // getters
   /**
    * Returns a path from the given ancestor to this node.
    *
-   * If the given node is not an ancestor of this node, then the returned path is undefined.
+   * If the given node is not an ancestor of this node, then the returned path is
+   * undefined.
    */
   NodePath pathFrom(const Node& fromAncestor) const;
 
   /**
    * Resolves the given path starting at this node.
    *
-   * Returns the descendant of this node to which the given path resolves or null if the given
-   * path is not valid from this node.
+   * Returns the descendant of this node to which the given path resolves or null if the
+   * given path is not valid from this node.
    */
   Node* resolvePath(const NodePath& path);
   const Node* resolvePath(const NodePath& path) const;
 
   /**
-   * Returns a box that encloses the "logical" part of this node and its children; these are the
-   * bounds that are used in game (for entities, the bounds specified in the entity definition
-   * file), and used for grid snapping, for example. Nodes can render or hit test outside of these
-   * logicalBounds if necessary (see `physicalBounds()`).
+   * Returns a box that encloses the "logical" part of this node and its children; these
+   * are the bounds that are used in game (for entities, the bounds specified in the
+   * entity definition file), and used for grid snapping, for example. Nodes can render or
+   * hit test outside of these logicalBounds if necessary (see `physicalBounds()`).
    */
   const vm::bbox3& logicalBounds() const;
   /**
-   * Returns a box that encloses all rendering and hit testing for this node and its children.
-   * Equal to or larger than `logicalBounds()`.
-   * Currently, the only case where this differs from `logicalBounds()` is with entity models that
-   * extend beyond the bounds specified in the .fgd.
+   * Returns a box that encloses all rendering and hit testing for this node and its
+   * children. Equal to or larger than `logicalBounds()`. Currently, the only case where
+   * this differs from `logicalBounds()` is with entity models that extend beyond the
+   * bounds specified in the .fgd.
    */
   const vm::bbox3& physicalBounds() const;
 
@@ -130,13 +135,16 @@ public: // cloning and snapshots
 protected:
   void cloneAttributes(Node* node) const;
 
-  static std::vector<Node*> clone(const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
+  static std::vector<Node*> clone(
+    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
   static std::vector<Node*> cloneRecursively(
     const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
 
   template <typename I, typename O>
-  static void clone(const vm::bbox3& worldBounds, I cur, I end, O result) {
-    while (cur != end) {
+  static void clone(const vm::bbox3& worldBounds, I cur, I end, O result)
+  {
+    while (cur != end)
+    {
       const Node* node = *cur;
       result++ = node->clone(worldBounds);
       ++cur;
@@ -144,8 +152,10 @@ protected:
   }
 
   template <typename I, typename O>
-  static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result) {
-    while (cur != end) {
+  static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result)
+  {
+    while (cur != end)
+    {
       const Node* node = *cur;
       result++ = node->cloneRecursively(worldBounds);
       ++cur;
@@ -174,10 +184,13 @@ public: // tree management
 public:
   void addChildren(const std::vector<Node*>& children);
 
-  template <typename I> void addChildren(I cur, I end, size_t count = 0) {
+  template <typename I>
+  void addChildren(I cur, I end, size_t count = 0)
+  {
     m_children.reserve(m_children.size() + count);
     size_t descendantCountDelta = 0;
-    while (cur != end) {
+    while (cur != end)
+    {
       Node* child = *cur;
       doAddChild(child);
       descendantCountDelta += child->descendantCount() + 1;
@@ -191,9 +204,12 @@ public:
   std::vector<std::unique_ptr<Node>> replaceChildren(
     std::vector<std::unique_ptr<Node>> newChildren);
 
-  template <typename I> void removeChildren(I cur, I end) {
+  template <typename I>
+  void removeChildren(I cur, I end)
+  {
     size_t descendantCountDelta = 0;
-    while (cur != end) {
+    while (cur != end)
+    {
       Node* child = *cur;
       doRemoveChild(child);
       descendantCountDelta += child->descendantCount() + 1;
@@ -207,16 +223,22 @@ public:
   bool canAddChild(const Node* child) const;
   bool canRemoveChild(const Node* child) const;
 
-  template <typename I> bool canAddChildren(I cur, I end) const {
-    while (cur != end) {
+  template <typename I>
+  bool canAddChildren(I cur, I end) const
+  {
+    while (cur != end)
+    {
       if (!canAddChild(*cur++))
         return false;
     }
     return true;
   }
 
-  template <typename I> bool canRemoveChildren(I cur, I end) const {
-    while (cur != end) {
+  template <typename I>
+  bool canRemoveChildren(I cur, I end) const
+  {
+    while (cur != end)
+    {
       if (!canRemoveChild(*cur++))
         return false;
     }
@@ -248,7 +270,8 @@ private:
   void ancestorDidChange();
 
 protected: // notification for parents
-  class NotifyNodeChange {
+  class NotifyNodeChange
+  {
   private:
     Node& m_node;
 
@@ -262,7 +285,8 @@ protected: // notification for parents
   void nodeDidChange();
 
   friend class NotifyPhysicalBoundsChange;
-  class NotifyPhysicalBoundsChange {
+  class NotifyPhysicalBoundsChange
+  {
   private:
     Node& m_node;
 
@@ -367,7 +391,9 @@ public: // visitors
    *
    * Passes a non-const pointer to this node to the lambda.
    */
-  template <typename L> auto accept(const L& lambda) {
+  template <typename L>
+  auto accept(const L& lambda)
+  {
     NodeLambdaVisitor<L> visitor(lambda);
     doAccept(visitor);
     return visitor.result();
@@ -379,55 +405,75 @@ public: // visitors
    *
    * Passes a const pointer to this node to the lambda.
    */
-  template <typename L> auto accept(const L& lambda) const {
+  template <typename L>
+  auto accept(const L& lambda) const
+  {
     ConstNodeLambdaVisitor<L> visitor(lambda);
     doAccept(visitor);
     return visitor.result();
   }
 
   /**
-   * Visit this node's parent with the given lambda and return the lambda's return value or
-   * nothing if the lambda doesn't return anything.
+   * Visit this node's parent with the given lambda and return the lambda's return value
+   * or nothing if the lambda doesn't return anything.
    *
    * If the lambda returns a value and not void, the value is wrapped in std::optional. If
    * this node does not have a parent, then an empty optional is returned.
    *
    * Passes a non-const pointer to this node's parent to the lambda.
    */
-  template <typename L> auto visitParent(const L& lambda) {
-    if constexpr (NodeLambdaHasResult_v<L>) {
+  template <typename L>
+  auto visitParent(const L& lambda)
+  {
+    if constexpr (NodeLambdaHasResult_v<L>)
+    {
       using R = typename NodeLambdaVisitorResult<L>::R;
-      if (auto* parent = this->parent()) {
+      if (auto* parent = this->parent())
+      {
         return std::optional<R>{parent->accept(lambda)};
-      } else {
+      }
+      else
+      {
         return std::optional<R>{};
       }
-    } else {
-      if (auto* parent = this->parent()) {
+    }
+    else
+    {
+      if (auto* parent = this->parent())
+      {
         parent->accept(lambda);
       }
     }
   }
 
   /**
-   * Visit this node's parent with the given lambda and return the lambda's return value or
-   * nothing if the lambda doesn't return anything.
+   * Visit this node's parent with the given lambda and return the lambda's return value
+   * or nothing if the lambda doesn't return anything.
    *
    * If the lambda returns a value and not void, the value is wrapped in std::optional. If
    * this node does not have a parent, then an empty optional is returned.
    *
    * Passes a const pointer to this node's parent to the lambda.
    */
-  template <typename L> auto visitParent(const L& lambda) const {
-    if constexpr (NodeLambdaHasResult_v<L>) {
+  template <typename L>
+  auto visitParent(const L& lambda) const
+  {
+    if constexpr (NodeLambdaHasResult_v<L>)
+    {
       using R = typename NodeLambdaVisitorResult<L>::R;
-      if (const auto* parent = this->parent()) {
+      if (const auto* parent = this->parent())
+      {
         return std::optional<R>{parent->accept(lambda)};
-      } else {
+      }
+      else
+      {
         return std::optional<R>{};
       }
-    } else {
-      if (const auto* parent = this->parent()) {
+    }
+    else
+    {
+      if (const auto* parent = this->parent())
+      {
         parent->accept(lambda);
       }
     }
@@ -437,8 +483,10 @@ public: // visitors
    * Visit every node in the given vector with the given lambda.
    */
   template <typename N, typename L>
-  static void visitAll(const std::vector<N*>& nodes, const L& lambda) {
-    for (auto* node : nodes) {
+  static void visitAll(const std::vector<N*>& nodes, const L& lambda)
+  {
+    for (auto* node : nodes)
+    {
       node->accept(lambda);
     }
   }
@@ -446,25 +494,37 @@ public: // visitors
   /**
    * Visit all children of this node with the given lambda.
    */
-  template <typename L> void visitChildren(const L& lambda) { visitAll(m_children, lambda); }
+  template <typename L>
+  void visitChildren(const L& lambda)
+  {
+    visitAll(m_children, lambda);
+  }
 
   /**
    * Visit all children of this node with the given lambda.
    */
-  template <typename L> void visitChildren(const L& lambda) const { visitAll(m_children, lambda); }
+  template <typename L>
+  void visitChildren(const L& lambda) const
+  {
+    visitAll(m_children, lambda);
+  }
 
 public: // entity property configuration access
   const EntityPropertyConfig& entityPropertyConfig() const;
 
 protected: // index management
   void findEntityNodesWithProperty(
-    const std::string& key, const std::string& value, std::vector<EntityNodeBase*>& result) const;
+    const std::string& key,
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
   void findEntityNodesWithNumberedProperty(
-    const std::string& prefix, const std::string& value,
+    const std::string& prefix,
+    const std::string& value,
     std::vector<EntityNodeBase*>& result) const;
 
   void addToIndex(EntityNodeBase* node, const std::string& key, const std::string& value);
-  void removeFromIndex(EntityNodeBase* node, const std::string& key, const std::string& value);
+  void removeFromIndex(
+    EntityNodeBase* node, const std::string& key, const std::string& value);
 
 private: // subclassing interface
   virtual const std::string& doGetName() const = 0;
@@ -510,7 +570,8 @@ private: // subclassing interface
 
   virtual void doPick(
     const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) = 0;
-  virtual void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) = 0;
+  virtual void doFindNodesContaining(
+    const vm::vec3& point, std::vector<Node*>& result) = 0;
 
   virtual void doAccept(NodeVisitor& visitor) = 0;
   virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
@@ -518,12 +579,16 @@ private: // subclassing interface
   virtual const EntityPropertyConfig& doGetEntityPropertyConfig() const;
 
   virtual void doFindEntityNodesWithProperty(
-    const std::string& key, const std::string& value, std::vector<EntityNodeBase*>& result) const;
+    const std::string& key,
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
   virtual void doFindEntityNodesWithNumberedProperty(
-    const std::string& prefix, const std::string& value,
+    const std::string& prefix,
+    const std::string& value,
     std::vector<EntityNodeBase*>& result) const;
 
-  virtual void doAddToIndex(EntityNodeBase* node, const std::string& key, const std::string& value);
+  virtual void doAddToIndex(
+    EntityNodeBase* node, const std::string& key, const std::string& value);
   virtual void doRemoveFromIndex(
     EntityNodeBase* node, const std::string& key, const std::string& value);
 };

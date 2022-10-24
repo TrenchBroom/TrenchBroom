@@ -27,15 +27,18 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 // Disable a clang warning when using ASSERT_DEATH
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-TEST_CASE("TexCoordSystemTest.testSnapshotTypeSafety", "[TexCoordSystemTest]") {
+TEST_CASE("TexCoordSystemTest.testSnapshotTypeSafety", "[TexCoordSystemTest]")
+{
   BrushFaceAttributes attribs("");
 
   ParaxialTexCoordSystem paraxial(vm::vec3::pos_z(), attribs);

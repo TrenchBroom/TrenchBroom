@@ -30,23 +30,28 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class PropertyDefinition;
 class FlagsPropertyDefinition;
 class FlagsPropertyOption;
 
-enum class EntityDefinitionType {
+enum class EntityDefinitionType
+{
   PointEntity,
   BrushEntity
 };
 
-enum class EntityDefinitionSortOrder {
+enum class EntityDefinitionSortOrder
+{
   Name,
   Usage
 };
 
-class EntityDefinition {
+class EntityDefinition
+{
 protected:
   using PropertyDefinitionPtr = std::shared_ptr<PropertyDefinition>;
   using PropertyDefinitionList = std::vector<PropertyDefinitionPtr>;
@@ -85,24 +90,31 @@ public:
     const EntityDefinition* entityDefinition, const std::string& propertyKey);
 
   static std::vector<EntityDefinition*> filterAndSort(
-    const std::vector<EntityDefinition*>& definitions, EntityDefinitionType type,
+    const std::vector<EntityDefinition*>& definitions,
+    EntityDefinitionType type,
     EntityDefinitionSortOrder prder = EntityDefinitionSortOrder::Name);
 
 protected:
   EntityDefinition(
-    const std::string& name, const Color& color, const std::string& description,
+    const std::string& name,
+    const Color& color,
+    const std::string& description,
     const PropertyDefinitionList& propertyDefinitions);
 };
 
-class PointEntityDefinition : public EntityDefinition {
+class PointEntityDefinition : public EntityDefinition
+{
 private:
   vm::bbox3 m_bounds;
   ModelDefinition m_modelDefinition;
 
 public:
   PointEntityDefinition(
-    const std::string& name, const Color& color, const vm::bbox3& bounds,
-    const std::string& description, const PropertyDefinitionList& propertyDefinitions,
+    const std::string& name,
+    const Color& color,
+    const vm::bbox3& bounds,
+    const std::string& description,
+    const PropertyDefinitionList& propertyDefinitions,
     const ModelDefinition& modelDefinition);
 
   EntityDefinitionType type() const override;
@@ -110,10 +122,13 @@ public:
   const ModelDefinition& modelDefinition() const;
 };
 
-class BrushEntityDefinition : public EntityDefinition {
+class BrushEntityDefinition : public EntityDefinition
+{
 public:
   BrushEntityDefinition(
-    const std::string& name, const Color& color, const std::string& description,
+    const std::string& name,
+    const Color& color,
+    const std::string& description,
     const PropertyDefinitionList& propertyDefinitions);
   EntityDefinitionType type() const override;
 };

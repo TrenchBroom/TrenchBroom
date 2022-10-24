@@ -25,10 +25,13 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 // see https://github.com/TrenchBroom/TrenchBroom/issues/2244
-TEST_CASE_METHOD(MapDocumentTest, "SnapBrushVerticesTest.snapVerticesCrash_2244") {
+TEST_CASE_METHOD(MapDocumentTest, "SnapBrushVerticesTest.snapVerticesCrash_2244")
+{
   document->selectAllNodes();
   document->deleteObjects();
 

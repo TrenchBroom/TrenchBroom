@@ -26,19 +26,23 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushNode;
 
 /**
- * A brush face reference creates a persistent reference to a face that has a specific boundary
- * plane. It can be resolved later, and if the brush then has a face with the same boundary plane,
- * that face will be returned.
+ * A brush face reference creates a persistent reference to a face that has a specific
+ * boundary plane. It can be resolved later, and if the brush then has a face with the
+ * same boundary plane, that face will be returned.
  *
- * Depending on how the brush was modified in time since the reference has been created, the
- * resolved face might not be the same as the face which the reference was created with.
+ * Depending on how the brush was modified in time since the reference has been created,
+ * the resolved face might not be the same as the face which the reference was created
+ * with.
  */
-class BrushFaceReference {
+class BrushFaceReference
+{
 private:
   BrushNode* m_node;
   vm::plane3 m_facePlane;
@@ -66,11 +70,13 @@ public:
 std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& handles);
 
 /**
- * Returns a vector brush face handles representing the faces to which the given face references are
- * resolved.
+ * Returns a vector brush face handles representing the faces to which the given face
+ * references are resolved.
  *
- * @throws BrushFAceReferenceException if any of the given face references cannot be resolved
+ * @throws BrushFAceReferenceException if any of the given face references cannot be
+ * resolved
  */
-std::vector<BrushFaceHandle> resolveAllRefs(const std::vector<BrushFaceReference>& faceRefs);
+std::vector<BrushFaceHandle> resolveAllRefs(
+  const std::vector<BrushFaceReference>& faceRefs);
 } // namespace Model
 } // namespace TrenchBroom

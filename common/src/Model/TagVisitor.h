@@ -19,8 +19,10 @@
 
 #pragma once
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushNode;
 class BrushFace;
 class EntityNode;
@@ -29,7 +31,8 @@ class LayerNode;
 class PatchNode;
 class WorldNode;
 
-class TagVisitor {
+class TagVisitor
+{
 public:
   virtual ~TagVisitor();
 
@@ -42,7 +45,8 @@ public:
   virtual void visit(PatchNode& patch);
 };
 
-class ConstTagVisitor {
+class ConstTagVisitor
+{
 public:
   virtual ~ConstTagVisitor();
 

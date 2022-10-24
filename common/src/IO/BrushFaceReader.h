@@ -24,8 +24,10 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushNode;
 class BrushFace;
 class EntityProperty;
@@ -34,13 +36,15 @@ enum class MapFormat;
 class Node;
 } // namespace Model
 
-namespace IO {
+namespace IO
+{
 class ParserStatus;
 
 /**
  * Used for pasting brush faces (i.e. their texture alignment only)
  */
-class BrushFaceReader : public MapReader {
+class BrushFaceReader : public MapReader
+{
 private:
   std::vector<Model::BrushFace> m_brushFaces;
 
@@ -54,7 +58,9 @@ private: // implement MapReader interface
     std::unique_ptr<Model::WorldNode> worldNode, ParserStatus& status) override;
   void onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus& status) override;
   void onNode(
-    Model::Node* parentNode, std::unique_ptr<Model::Node> node, ParserStatus& status) override;
+    Model::Node* parentNode,
+    std::unique_ptr<Model::Node> node,
+    ParserStatus& status) override;
   void onBrushFace(Model::BrushFace face, ParserStatus& status) override;
 };
 } // namespace IO

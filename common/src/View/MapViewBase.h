@@ -35,28 +35,33 @@ class QShortcut;
 class QString;
 class QAction;
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class BrushEntityDefinition;
 class EntityDefinition;
 enum class EntityDefinitionType;
 class PointEntityDefinition;
 } // namespace Assets
 
-namespace IO {
+namespace IO
+{
 class Path;
 }
 
-namespace Model {
+namespace Model
+{
 class GroupNode;
 class Node;
 class NodeCollection;
 class SmartTag;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class Camera;
 class Compass;
 class MapRenderer;
@@ -66,7 +71,8 @@ class RenderContext;
 enum class RenderMode;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class Action;
 class AnimationManager;
 class Command;
@@ -80,7 +86,8 @@ class UndoableCommand;
 class MapViewBase : public RenderView,
                     public MapView,
                     public ToolBoxConnector,
-                    public CameraLinkableView {
+                    public CameraLinkableView
+{
   Q_OBJECT
 public:
   static const int DefaultCameraAnimationDuration;
@@ -98,8 +105,8 @@ private:
   std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
 
   /**
-   * Tracks whether this map view has most recently gotten the focus. This is tracked and updated by
-   * a MapViewActivationTracker instance.
+   * Tracks whether this map view has most recently gotten the focus. This is tracked and
+   * updated by a MapViewActivationTracker instance.
    */
   bool m_isCurrent;
 
@@ -112,8 +119,11 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
-    Renderer::MapRenderer& renderer, GLContextManager& contextManager);
+    Logger* logger,
+    std::weak_ptr<MapDocument> document,
+    MapViewToolBox& toolBox,
+    Renderer::MapRenderer& renderer,
+    GLContextManager& contextManager);
 
   void setCompass(std::unique_ptr<Renderer::Compass> compass);
 
@@ -125,7 +135,8 @@ protected:
    *
    * On normal app startup, these tasks are handled by documentDidChange(),
    * but when changing map view layouts (e.g. 1 pane to 2 pane) there are
-   * no document notifications to handle these tasks, so it must be done by the constructor.
+   * no document notifications to handle these tasks, so it must be done by the
+   * constructor.
    */
   void mapViewBaseVirtualInit();
 
@@ -183,7 +194,8 @@ public: // move, rotate, flip actions
   bool canFlipObjects() const;
 
 public: // texture actions
-  enum class TextureActionMode {
+  enum class TextureActionMode
+  {
     Normal,
     Coarse,
     Fine
@@ -215,34 +227,38 @@ public: // reparenting objects
   Model::Node* findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const;
 
   void mergeSelectedGroups();
-  Model::GroupNode* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
+  Model::GroupNode* findGroupToMergeGroupsInto(
+    const Model::NodeCollection& selectedNodes) const;
 
   /**
    * Checks whether the given node can be reparented under the given new parent.
    *
    * @param node the node to reparent
    * @param newParent the new parent node
-   * @return true if the given node can be reparented under the given new parent, and false
-   * otherwise
+   * @return true if the given node can be reparented under the given new parent, and
+   * false otherwise
    */
   bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
 
   void moveSelectedBrushesToEntity();
-  Model::Node* findNewParentEntityForBrushes(const std::vector<Model::Node*>& nodes) const;
+  Model::Node* findNewParentEntityForBrushes(
+    const std::vector<Model::Node*>& nodes) const;
 
-  bool canReparentNodes(const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const;
+  bool canReparentNodes(
+    const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const;
   /**
    * Reparents nodes, and deselects everything as a side effect.
    *
    * @param nodes the nodes to reparent
    * @param newParent the new parent
-   * @param preserveEntities if true, if `nodes` contains brushes belonging to an entity, the whole
-   *                         entity and all brushes it contains are also reparented.
-   *                         if false, only the brushes listed in `nodes` are reparented, not any
-   *                         parent entities.
+   * @param preserveEntities if true, if `nodes` contains brushes belonging to an entity,
+   * the whole entity and all brushes it contains are also reparented. if false, only the
+   * brushes listed in `nodes` are reparented, not any parent entities.
    */
   void reparentNodes(
-    const std::vector<Model::Node*>& nodes, Model::Node* newParent, bool preserveEntities);
+    const std::vector<Model::Node*>& nodes,
+    Model::Node* newParent,
+    bool preserveEntities);
   std::vector<Model::Node*> collectReparentableNodes(
     const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const;
 
@@ -315,14 +331,17 @@ private: // implement RenderView interface
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
   void renderSoftMapBounds(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-  void renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderPointFile(
+    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
-  void renderPortalFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderPortalFile(
+    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
   void invalidatePortalFileRenderer();
   void validatePortalFileRenderer(Renderer::RenderContext& renderContext);
 
   void renderCompass(Renderer::RenderBatch& renderBatch);
-  void renderFPS(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderFPS(
+    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
 public: // implement InputEventProcessor interface
   void processEvent(const KeyEvent& event) override;
@@ -361,10 +380,12 @@ private: // subclassing interface
   virtual void doRenderGrid(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
   virtual void doRenderMap(
-    Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext,
+    Renderer::MapRenderer& renderer,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) = 0;
   virtual void doRenderTools(
-    MapViewToolBox& toolBox, Renderer::RenderContext& renderContext,
+    MapViewToolBox& toolBox,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) = 0;
   virtual void doRenderExtras(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

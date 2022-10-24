@@ -27,17 +27,23 @@
 
 //#define EXPENSIVE_CHECKS
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 AllocationTracker::Range::Range(Index p, Index s)
   : pos(p)
-  , size(s) {}
+  , size(s)
+{
+}
 
-bool AllocationTracker::Range::operator==(const Range& other) const {
+bool AllocationTracker::Range::operator==(const Range& other) const
+{
   return pos == other.pos && size == other.size;
 }
 
-bool AllocationTracker::Range::operator<(const Range& other) const {
+bool AllocationTracker::Range::operator<(const Range& other) const
+{
   if (pos < other.pos)
     return true;
   if (pos > other.pos)
@@ -47,17 +53,21 @@ bool AllocationTracker::Range::operator<(const Range& other) const {
 }
 
 static std::vector<AllocationTracker::Block*>::iterator findFirstLargerOrEqualBin(
-  std::vector<AllocationTracker::Block*>& bins, const size_t desiredSize) {
+  std::vector<AllocationTracker::Block*>& bins, const size_t desiredSize)
+{
   return std::lower_bound(
-    bins.begin(), bins.end(), desiredSize, [](const AllocationTracker::Block* a, const size_t b) {
-      return a->size < b;
-    });
+    bins.begin(),
+    bins.end(),
+    desiredSize,
+    [](const AllocationTracker::Block* a, const size_t b) { return a->size < b; });
 }
 
-void AllocationTracker::unlinkFromBinList(Block* block) {
+void AllocationTracker::unlinkFromBinList(Block* block)
+{
   assert(block->free);
 
-  if (block->prevOfSameSize == nullptr) {
+  if (block->prevOfSameSize == nullptr)
+  {
     // slow case: when we are the head of the list
     // (m_sizeToFreeBlock has a pointer to us)
 
@@ -67,15 +77,20 @@ void AllocationTracker::unlinkFromBinList(Block* block) {
     assert(*it == block);
 
     // make sure we prune empty lists from the map!
-    if (block->nextOfSameSize == nullptr) {
+    if (block->nextOfSameSize == nullptr)
+    {
       // NOTE: O(n) in the number of bins
       m_freeBlockSizeBins.erase(it);
-    } else {
+    }
+    else
+    {
       *it = block->nextOfSameSize;
       block->nextOfSameSize->prevOfSameSize = nullptr;
       block->nextOfSameSize = nullptr;
     }
-  } else {
+  }
+  else
+  {
     // "regular" case, not the head of a size bin list.
 
     // handle the "previous" side
@@ -84,19 +99,21 @@ void AllocationTracker::unlinkFromBinList(Block* block) {
     block->prevOfSameSize->nextOfSameSize = block->nextOfSameSize;
 
     // handle the "next" side
-    if (block->nextOfSameSize) {
+    if (block->nextOfSameSize)
+    {
       assert(block->size == block->nextOfSameSize->size);
       block->nextOfSameSize->prevOfSameSize = block->prevOfSameSize;
     }
 
-    // clear the nextOfSameSize/prevOfSameSize pointers to mark the block as unlinked from the bin
-    // list
+    // clear the nextOfSameSize/prevOfSameSize pointers to mark the block as unlinked from
+    // the bin list
     block->nextOfSameSize = nullptr;
     block->prevOfSameSize = nullptr;
   }
 }
 
-void AllocationTracker::linkToBinList(Block* block) {
+void AllocationTracker::linkToBinList(Block* block)
+{
   assert(block->free);
   assert(block->size > 0);
   assert(block->prevOfSameSize == nullptr);
@@ -104,11 +121,15 @@ void AllocationTracker::linkToBinList(Block* block) {
 
   auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, block->size);
 
-  if (it == m_freeBlockSizeBins.end()) {
+  if (it == m_freeBlockSizeBins.end())
+  {
     // All existing bins too small; insert at end.
     m_freeBlockSizeBins.insert(it, block);
-  } else if ((*it)->size == block->size) {
-    // There is an existing exact match for the bin size, so we don't need to resize the vector.
+  }
+  else if ((*it)->size == block->size)
+  {
+    // There is an existing exact match for the bin size, so we don't need to resize the
+    // vector.
     Block* previousListHead = *it;
 
     assert(previousListHead->size == block->size);
@@ -120,19 +141,24 @@ void AllocationTracker::linkToBinList(Block* block) {
 
     // NOTE: inserts into the map
     *it = block;
-  } else {
+  }
+  else
+  {
     // Slow case: insert a new bin, before `it`.
     m_freeBlockSizeBins.insert(it, block);
   }
 }
 
-void AllocationTracker::recycle(Block* block) {
+void AllocationTracker::recycle(Block* block)
+{
   block->nextRecycledBlock = m_recycledBlockList;
   m_recycledBlockList = block;
 }
 
-AllocationTracker::Block* AllocationTracker::obtainBlock() {
-  if (m_recycledBlockList != nullptr) {
+AllocationTracker::Block* AllocationTracker::obtainBlock()
+{
+  if (m_recycledBlockList != nullptr)
+  {
     Block* newBlock = m_recycledBlockList;
     m_recycledBlockList = newBlock->nextRecycledBlock;
     return newBlock;
@@ -140,7 +166,8 @@ AllocationTracker::Block* AllocationTracker::obtainBlock() {
   return new Block();
 }
 
-AllocationTracker::Block* AllocationTracker::allocate(const size_t needed) {
+AllocationTracker::Block* AllocationTracker::allocate(const size_t needed)
+{
   checkInvariants();
 
   if (needed == 0)
@@ -148,7 +175,8 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed) {
 
   // find the smallest free block that will fit the allocation
   auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, needed);
-  if (it == m_freeBlockSizeBins.end()) {
+  if (it == m_freeBlockSizeBins.end())
+  {
     checkInvariants();
     return nullptr;
   }
@@ -162,9 +190,12 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed) {
   assert(block->prevOfSameSize == nullptr);
   {
     Block* blockAfter = block->nextOfSameSize;
-    if (blockAfter == nullptr) {
+    if (blockAfter == nullptr)
+    {
       m_freeBlockSizeBins.erase(it);
-    } else {
+    }
+    else
+    {
       *it = blockAfter;
       blockAfter->prevOfSameSize = nullptr;
     }
@@ -173,7 +204,8 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed) {
   block->nextOfSameSize = nullptr;
   block->prevOfSameSize = nullptr;
 
-  if (block->size == needed) {
+  if (block->size == needed)
+  {
     // lucky case: exact size. we're done
     block->free = false;
 
@@ -196,11 +228,14 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed) {
   newBlock->free = false;
 
   // update the block that was to the left of block
-  if (block->left == nullptr) {
+  if (block->left == nullptr)
+  {
     // update m_leftmostBlock
     assert(m_leftmostBlock == block);
     m_leftmostBlock = newBlock;
-  } else {
+  }
+  else
+  {
     block->left->right = newBlock;
   }
 
@@ -214,7 +249,8 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed) {
   return newBlock;
 }
 
-void AllocationTracker::free(Block* block) {
+void AllocationTracker::free(Block* block)
+{
   checkInvariants();
 
   assert(!block->free);
@@ -226,7 +262,8 @@ void AllocationTracker::free(Block* block) {
 
   // 3 possible cases for merging blocks:
   // a) merge left, block, and right
-  if (left != nullptr && left->free && right != nullptr && right->free) {
+  if (left != nullptr && left->free && right != nullptr && right->free)
+  {
 
     // keep left, delete block and right
 
@@ -237,7 +274,8 @@ void AllocationTracker::free(Block* block) {
 
     Block* newRightNeighbour = right->right;
     left->right = newRightNeighbour;
-    if (newRightNeighbour) {
+    if (newRightNeighbour)
+    {
       newRightNeighbour->left = left;
     }
 
@@ -247,7 +285,8 @@ void AllocationTracker::free(Block* block) {
     linkToBinList(left);
 
     // update rightmost block
-    if (m_rightmostBlock == right) {
+    if (m_rightmostBlock == right)
+    {
       m_rightmostBlock = left;
     }
 
@@ -256,14 +295,16 @@ void AllocationTracker::free(Block* block) {
   }
 
   // b) merge left and block
-  if (left != nullptr && left->free) {
+  if (left != nullptr && left->free)
+  {
     // keep left, delete block
 
     unlinkFromBinList(left);
 
     left->size += block->size;
     left->right = right;
-    if (right) {
+    if (right)
+    {
       right->left = left;
     }
 
@@ -272,7 +313,8 @@ void AllocationTracker::free(Block* block) {
     linkToBinList(left);
 
     // update rightmost block
-    if (m_rightmostBlock == block) {
+    if (m_rightmostBlock == block)
+    {
       m_rightmostBlock = left;
     }
 
@@ -281,7 +323,8 @@ void AllocationTracker::free(Block* block) {
   }
 
   // c) merge block and right
-  if (right != nullptr && right->free) {
+  if (right != nullptr && right->free)
+  {
     // keep block, delete right
 
     unlinkFromBinList(right);
@@ -289,7 +332,8 @@ void AllocationTracker::free(Block* block) {
     block->size += right->size;
     Block* newRightNeighbour = right->right;
     block->right = newRightNeighbour;
-    if (newRightNeighbour != nullptr) {
+    if (newRightNeighbour != nullptr)
+    {
       newRightNeighbour->left = block;
     }
 
@@ -299,7 +343,8 @@ void AllocationTracker::free(Block* block) {
     linkToBinList(block);
 
     // update rightmost block
-    if (m_rightmostBlock == right) {
+    if (m_rightmostBlock == right)
+    {
       m_rightmostBlock = block;
     }
 
@@ -319,8 +364,10 @@ AllocationTracker::AllocationTracker(const Index initial_capacity)
   : m_capacity(0)
   , m_leftmostBlock(nullptr)
   , m_rightmostBlock(nullptr)
-  , m_recycledBlockList(nullptr) {
-  if (initial_capacity > 0) {
+  , m_recycledBlockList(nullptr)
+{
+  if (initial_capacity > 0)
+  {
     expand(initial_capacity);
     checkInvariants();
   }
@@ -330,32 +377,40 @@ AllocationTracker::AllocationTracker()
   : m_capacity(0)
   , m_leftmostBlock(nullptr)
   , m_rightmostBlock(nullptr)
-  , m_recycledBlockList(nullptr) {}
+  , m_recycledBlockList(nullptr)
+{
+}
 
-AllocationTracker::~AllocationTracker() {
+AllocationTracker::~AllocationTracker()
+{
   checkInvariants();
 
   Block* next;
-  for (Block* block = m_leftmostBlock; block != nullptr; block = next) {
+  for (Block* block = m_leftmostBlock; block != nullptr; block = next)
+  {
     next = block->right;
     delete block;
   }
 
-  for (Block* block = m_recycledBlockList; block != nullptr; block = next) {
+  for (Block* block = m_recycledBlockList; block != nullptr; block = next)
+  {
     next = block->nextRecycledBlock;
     delete block;
   }
 }
 
-size_t AllocationTracker::capacity() const {
+size_t AllocationTracker::capacity() const
+{
   return static_cast<size_t>(m_capacity);
 }
 
-void AllocationTracker::expand(const Index newCapacity) {
+void AllocationTracker::expand(const Index newCapacity)
+{
   checkInvariants();
 
   // special case: empty
-  if (m_capacity == 0) {
+  if (m_capacity == 0)
+  {
     assert(newCapacity > 0);
     m_capacity = newCapacity;
 
@@ -382,14 +437,17 @@ void AllocationTracker::expand(const Index newCapacity) {
 
   // 2 cases:
   Block* lastBlock = m_rightmostBlock;
-  if (lastBlock->free) {
+  if (lastBlock->free)
+  {
     // the current buffer ends in a free block. we can just expand it.
     unlinkFromBinList(lastBlock);
 
     lastBlock->size += increase;
 
     linkToBinList(lastBlock);
-  } else {
+  }
+  else
+  {
     // the current buffer ends in a used block.
     // create a new free block
 
@@ -414,11 +472,14 @@ void AllocationTracker::expand(const Index newCapacity) {
   checkInvariants();
 }
 
-bool AllocationTracker::hasAllocations() const {
-  // NOTE: this loop should execute at most 2 iterations, because adjacent free blocks are always
-  // merged
-  for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
-    if (!block->free) {
+bool AllocationTracker::hasAllocations() const
+{
+  // NOTE: this loop should execute at most 2 iterations, because adjacent free blocks are
+  // always merged
+  for (Block* block = m_leftmostBlock; block != nullptr; block = block->right)
+  {
+    if (!block->free)
+    {
       return true;
     }
   }
@@ -427,27 +488,34 @@ bool AllocationTracker::hasAllocations() const {
 
 // Testing / debugging
 
-std::vector<AllocationTracker::Range> AllocationTracker::freeBlocks() const {
+std::vector<AllocationTracker::Range> AllocationTracker::freeBlocks() const
+{
   kdl::vector_set<Range> res;
-  for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
-    if (block->free) {
+  for (Block* block = m_leftmostBlock; block != nullptr; block = block->right)
+  {
+    if (block->free)
+    {
       res.insert(Range{block->pos, block->size});
     }
   }
   return res.release_data();
 }
 
-std::vector<AllocationTracker::Range> AllocationTracker::usedBlocks() const {
+std::vector<AllocationTracker::Range> AllocationTracker::usedBlocks() const
+{
   kdl::vector_set<Range> res;
-  for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
-    if (!block->free) {
+  for (Block* block = m_leftmostBlock; block != nullptr; block = block->right)
+  {
+    if (!block->free)
+    {
       res.insert(Range{block->pos, block->size});
     }
   }
   return res.release_data();
 }
 
-AllocationTracker::Index AllocationTracker::largestPossibleAllocation() const {
+AllocationTracker::Index AllocationTracker::largestPossibleAllocation() const
+{
   auto it = m_freeBlockSizeBins.crbegin();
   if (it == m_freeBlockSizeBins.crend())
     return 0;
@@ -455,9 +523,11 @@ AllocationTracker::Index AllocationTracker::largestPossibleAllocation() const {
   return (*it)->size;
 }
 
-void AllocationTracker::checkInvariants() const {
+void AllocationTracker::checkInvariants() const
+{
 #ifdef EXPENSIVE_CHECKS
-  if (m_capacity == 0) {
+  if (m_capacity == 0)
+  {
     assert(m_leftmostBlock == nullptr);
     assert(m_rightmostBlock == nullptr);
     assert(m_freeBlockSizeBins.empty());
@@ -473,20 +543,25 @@ void AllocationTracker::checkInvariants() const {
 
   // check the left/right pointers, size, pos
   size_t totalSize = 0;
-  for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
+  for (Block* block = m_leftmostBlock; block != nullptr; block = block->right)
+  {
     assert(block->size != 0);
     totalSize += block->size;
 
-    if (block->right != nullptr) {
+    if (block->right != nullptr)
+    {
       assert(block->right->left == block);
       assert(block->right->pos == block->pos + block->size);
-    } else {
+    }
+    else
+    {
       // rightmost block
       assert(block == m_rightmostBlock);
     }
 
     // used blocks aren't in the nextOfSameSize linked list
-    if (!block->free) {
+    if (!block->free)
+    {
       assert(block->prevOfSameSize == nullptr);
       assert(block->nextOfSameSize == nullptr);
     }
@@ -494,23 +569,27 @@ void AllocationTracker::checkInvariants() const {
   assert(m_capacity == totalSize);
 
   // check the size map
-  for (const auto& headBlock : m_freeBlockSizeBins) {
+  for (const auto& headBlock : m_freeBlockSizeBins)
+  {
     assert(headBlock != nullptr);
     assert(headBlock->prevOfSameSize == nullptr);
 
     // check they all have the correct size
-    for (Block* block = headBlock; block != nullptr; block = block->nextOfSameSize) {
+    for (Block* block = headBlock; block != nullptr; block = block->nextOfSameSize)
+    {
       assert(block->free);
       assert(block->size == headBlock->size);
 
-      if (block->nextOfSameSize != nullptr) {
+      if (block->nextOfSameSize != nullptr)
+      {
         assert(block->nextOfSameSize->prevOfSameSize == block);
       }
     }
   }
 
   // ensure the size bins are sorted
-  for (size_t i = 0; (i + 1) < m_freeBlockSizeBins.size(); ++i) {
+  for (size_t i = 0; (i + 1) < m_freeBlockSizeBins.size(); ++i)
+  {
     const auto& a = m_freeBlockSizeBins.at(i);
     const auto& b = m_freeBlockSizeBins.at(i + 1);
     assert(a->size < b->size);

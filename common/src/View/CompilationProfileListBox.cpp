@@ -26,8 +26,10 @@
 
 #include <QBoxLayout>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 // CompilationProfileItemRenderer
 
 CompilationProfileItemRenderer::CompilationProfileItemRenderer(
@@ -35,8 +37,10 @@ CompilationProfileItemRenderer::CompilationProfileItemRenderer(
   : ControlListBoxItemRenderer(parent)
   , m_profile(&profile)
   , m_nameText(nullptr)
-  , m_taskCountText(nullptr) {
-  setContextMenuPolicy(Qt::CustomContextMenu); // request customContextMenuRequested() to be emitted
+  , m_taskCountText(nullptr)
+{
+  setContextMenuPolicy(
+    Qt::CustomContextMenu); // request customContextMenuRequested() to be emitted
 
   m_nameText = new ElidedLabel("", Qt::ElideRight);
   m_taskCountText = new ElidedLabel("", Qt::ElideMiddle);
@@ -55,11 +59,15 @@ CompilationProfileItemRenderer::CompilationProfileItemRenderer(
 
 CompilationProfileItemRenderer::~CompilationProfileItemRenderer() {}
 
-void CompilationProfileItemRenderer::updateItem() {
-  if (m_profile == nullptr) {
+void CompilationProfileItemRenderer::updateItem()
+{
+  if (m_profile == nullptr)
+  {
     m_nameText->setText("");
     m_taskCountText->setText("");
-  } else {
+  }
+  else
+  {
     m_nameText->setText(QString::fromStdString(m_profile->name()));
     m_taskCountText->setText(QString::number(m_profile->taskCount()) + " tasks");
   }
@@ -70,24 +78,29 @@ void CompilationProfileItemRenderer::updateItem() {
 CompilationProfileListBox::CompilationProfileListBox(
   const Model::CompilationConfig& config, QWidget* parent)
   : ControlListBox("Click the '+' button to create a compilation profile.", true, parent)
-  , m_config(config) {
+  , m_config(config)
+{
   reload();
 }
 
-void CompilationProfileListBox::reloadProfiles() {
+void CompilationProfileListBox::reloadProfiles()
+{
   reload();
 }
 
-void CompilationProfileListBox::updateProfiles() {
+void CompilationProfileListBox::updateProfiles()
+{
   updateItems();
 }
 
-size_t CompilationProfileListBox::itemCount() const {
+size_t CompilationProfileListBox::itemCount() const
+{
   return m_config.profileCount();
 }
 
 ControlListBoxItemRenderer* CompilationProfileListBox::createItemRenderer(
-  QWidget* parent, const size_t index) {
+  QWidget* parent, const size_t index)
+{
   auto* profile = m_config.profile(index);
   auto* renderer = new CompilationProfileItemRenderer(*profile, parent);
   connect(renderer, &QWidget::customContextMenuRequested, this, [=](const QPoint& pos) {

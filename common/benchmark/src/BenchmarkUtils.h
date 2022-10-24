@@ -29,12 +29,15 @@
 #endif
 
 // the noinline is so you can see the timeLambda when profiling
-template <class L> TB_NOINLINE static void timeLambda(L&& lambda, const std::string& message) {
+template <class L>
+TB_NOINLINE static void timeLambda(L&& lambda, const std::string& message)
+{
   const auto start = std::chrono::high_resolution_clock::now();
   lambda();
   const auto end = std::chrono::high_resolution_clock::now();
 
   printf(
-    "Time elapsed for '%s': %fms\n", message.c_str(),
+    "Time elapsed for '%s': %fms\n",
+    message.c_str(),
     std::chrono::duration<double>(end - start).count() * 1000.0);
 }

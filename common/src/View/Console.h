@@ -28,9 +28,12 @@ class QTextEdit;
 class QString;
 class QWidget;
 
-namespace TrenchBroom {
-namespace View {
-class Console : public TabBookPage, public Logger {
+namespace TrenchBroom
+{
+namespace View
+{
+class Console : public TabBookPage, public Logger
+{
 private:
   QTextEdit* m_textView;
 

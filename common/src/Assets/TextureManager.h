@@ -25,19 +25,23 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace IO {
+namespace IO
+{
 class Path;
 class TextureLoader;
 } // namespace IO
 
-namespace Assets {
+namespace Assets
+{
 class Texture;
 class TextureCollection;
 
-class TextureManager {
+class TextureManager
+{
 private:
   using TextureMap = std::map<std::string, Texture*>;
 
@@ -59,7 +63,8 @@ public:
   TextureManager(int magFilter, int minFilter, Logger& logger);
   ~TextureManager();
 
-  void setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader);
+  void setTextureCollections(
+    const std::vector<IO::Path>& paths, IO::TextureLoader& loader);
   void setTextureCollections(std::vector<TextureCollection> collections);
 
 private:

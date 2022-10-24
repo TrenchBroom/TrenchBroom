@@ -21,11 +21,14 @@
 
 #include "View/VertexToolControllerBase.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class FaceTool;
 
-class FaceToolController : public VertexToolControllerBase<FaceTool> {
+class FaceToolController : public VertexToolControllerBase<FaceTool>
+{
 private:
   class SelectFacePart;
   class MoveFacePart;

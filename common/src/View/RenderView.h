@@ -32,17 +32,21 @@
 #undef Status
 #undef CursorShape
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class FontManager;
 class ShaderManager;
 class VboManager;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class GLContextManager;
 
-class RenderView : public QOpenGLWidget, public InputEventProcessor {
+class RenderView : public QOpenGLWidget, public InputEventProcessor
+{
   Q_OBJECT
 private:
   Color m_focusColor;

@@ -25,11 +25,14 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Entity;
 
-class EntityPropertiesVariableStore : public EL::VariableStore {
+class EntityPropertiesVariableStore : public EL::VariableStore
+{
 private:
   const Entity& m_entity;
 

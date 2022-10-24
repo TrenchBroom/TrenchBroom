@@ -26,10 +26,14 @@
 
 #include <QDebug>
 
-namespace TrenchBroom {
-namespace View {
-namespace Fonts {
-QFont fixedWidthFont() {
+namespace TrenchBroom
+{
+namespace View
+{
+namespace Fonts
+{
+QFont fixedWidthFont()
+{
 #if defined __APPLE__
   QFont font("Monaco");
   font.setStyleHint(QFont::TypeWriter);
@@ -40,42 +44,50 @@ QFont fixedWidthFont() {
 }
 } // namespace Fonts
 
-namespace Colors {
-QColor defaultText() {
+namespace Colors
+{
+QColor defaultText()
+{
   QPalette pal;
   QColor result = pal.color(QPalette::Normal, QPalette::WindowText);
   return result;
 }
 
-QColor highlightText() {
+QColor highlightText()
+{
   // Used for selected tabs of TabBar control.
   QPalette pal;
   QColor result = pal.color(QPalette::Normal, QPalette::Highlight);
   return result;
 }
 
-QColor disabledText() {
+QColor disabledText()
+{
   QPalette pal;
   QColor result = pal.color(QPalette::Disabled, QPalette::WindowText);
   return result;
 }
 
 /**
- * Table cell/text edit widget disabled text. Intended for use against a QPalette::Base background.
+ * Table cell/text edit widget disabled text. Intended for use against a QPalette::Base
+ * background.
  */
-QColor disabledCellText() {
+QColor disabledCellText()
+{
   QPalette pal;
   QColor result = pal.color(QPalette::Disabled, QPalette::Text);
   return result;
 }
 
-QColor disabledText(const QWidget* widget) {
+QColor disabledText(const QWidget* widget)
+{
   const QPalette& pal = widget->palette();
   QColor result = pal.color(QPalette::Disabled, QPalette::WindowText);
   return result;
 }
 
-QColor window() {
+QColor window()
+{
   QPalette pal;
   QColor result = pal.color(QPalette::Active, QPalette::Window);
   return result;

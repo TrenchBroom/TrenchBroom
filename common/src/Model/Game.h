@@ -36,15 +36,18 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class EntityDefinitionFileSpec;
 class TextureManager;
 } // namespace Assets
 
-namespace Model {
+namespace Model
+{
 class EntityNodeBase;
 class BrushFace;
 class BrushFaceAttributes;
@@ -55,9 +58,11 @@ class Node;
 class SmartTag;
 class WorldNode;
 
-class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader {
+class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader
+{
 public:
-  enum class TexturePackageType {
+  enum class TexturePackageType
+  {
     File,
     Directory
   };
@@ -79,11 +84,13 @@ public:
 
   const std::vector<SmartTag>& smartTags() const;
 
-  enum class SoftMapBoundsType {
+  enum class SoftMapBoundsType
+  {
     Game,
     Map
   };
-  struct SoftMapBounds {
+  struct SoftMapBounds
+  {
     SoftMapBoundsType source;
     /**
      * std::nullopt indicates unlimited soft map bounds
@@ -95,8 +102,8 @@ public:
    */
   std::optional<vm::bbox3> softMapBounds() const;
   /**
-   * Returns the soft map bounds specified in the given World entity, or if unset, the value from
-   * softMapBounds()
+   * Returns the soft map bounds specified in the given World entity, or if unset, the
+   * value from softMapBounds()
    */
   SoftMapBounds extractSoftMapBounds(const Entity& entity) const;
 
@@ -104,16 +111,23 @@ public: // loading and writing map files
   std::unique_ptr<WorldNode> newMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
   std::unique_ptr<WorldNode> loadMap(
-    MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const;
+    MapFormat format,
+    const vm::bbox3& worldBounds,
+    const IO::Path& path,
+    Logger& logger) const;
   void writeMap(WorldNode& world, const IO::Path& path) const;
   void exportMap(WorldNode& world, const IO::ExportOptions& options) const;
 
 public: // parsing and serializing objects
   std::vector<Node*> parseNodes(
-    const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds,
+    const std::string& str,
+    MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
     Logger& logger) const;
   std::vector<BrushFace> parseBrushFaces(
-    const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds,
+    const std::string& str,
+    MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
     Logger& logger) const;
 
   void writeNodesToStream(
@@ -124,7 +138,9 @@ public: // parsing and serializing objects
 public: // texture collection handling
   TexturePackageType texturePackageType() const;
   void loadTextureCollections(
-    const Entity& entity, const IO::Path& documentPath, Assets::TextureManager& textureManager,
+    const Entity& entity,
+    const IO::Path& documentPath,
+    Assets::TextureManager& textureManager,
     Logger& logger) const;
   bool isTextureCollection(const IO::Path& path) const;
   std::vector<std::string> fileTextureCollectionExtensions() const;
@@ -137,9 +153,11 @@ public: // texture collection handling
 public: // entity definition handling
   bool isEntityDefinitionFile(const IO::Path& path) const;
   std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
-  Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const Entity& entity) const;
+  Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(
+    const Entity& entity) const;
   IO::Path findEntityDefinitionFile(
-    const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const;
+    const Assets::EntityDefinitionFileSpec& spec,
+    const std::vector<IO::Path>& searchPaths) const;
 
 public: // mods
   std::vector<std::string> availableMods() const;
@@ -173,35 +191,48 @@ private: // subclassing interface
   virtual std::unique_ptr<WorldNode> doNewMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const = 0;
   virtual std::unique_ptr<WorldNode> doLoadMap(
-    MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const = 0;
+    MapFormat format,
+    const vm::bbox3& worldBounds,
+    const IO::Path& path,
+    Logger& logger) const = 0;
   virtual void doWriteMap(WorldNode& world, const IO::Path& path) const = 0;
   virtual void doExportMap(WorldNode& world, const IO::ExportOptions& options) const = 0;
 
   virtual std::vector<Node*> doParseNodes(
-    const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds,
+    const std::string& str,
+    MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
     Logger& logger) const = 0;
   virtual std::vector<BrushFace> doParseBrushFaces(
-    const std::string& str, MapFormat mapFormat, const vm::bbox3& worldBounds,
+    const std::string& str,
+    MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
     Logger& logger) const = 0;
   virtual void doWriteNodesToStream(
     WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const = 0;
   virtual void doWriteBrushFacesToStream(
-    WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const = 0;
+    WorldNode& world,
+    const std::vector<BrushFace>& faces,
+    std::ostream& stream) const = 0;
 
   virtual TexturePackageType doTexturePackageType() const = 0;
   virtual void doLoadTextureCollections(
-    const Entity& entity, const IO::Path& documentPath, Assets::TextureManager& textureManager,
+    const Entity& entity,
+    const IO::Path& documentPath,
+    Assets::TextureManager& textureManager,
     Logger& logger) const = 0;
   virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
   virtual std::vector<std::string> doFileTextureCollectionExtensions() const = 0;
   virtual std::vector<IO::Path> doFindTextureCollections() const = 0;
-  virtual std::vector<IO::Path> doExtractTextureCollections(const Entity& entity) const = 0;
+  virtual std::vector<IO::Path> doExtractTextureCollections(
+    const Entity& entity) const = 0;
   virtual void doUpdateTextureCollections(
     Entity& entity, const std::vector<IO::Path>& paths) const = 0;
   virtual void doReloadShaders() = 0;
 
   virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
-  virtual std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles() const = 0;
+  virtual std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
+    const = 0;
   virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(
     const Entity& entity) const = 0;
   virtual IO::Path doFindEntityDefinitionFile(

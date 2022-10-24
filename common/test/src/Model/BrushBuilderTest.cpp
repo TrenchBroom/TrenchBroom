@@ -29,9 +29,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]")
+{
   const vm::bbox3 worldBounds(8192.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
@@ -42,12 +45,14 @@ TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]") {
   const auto faces = cube.faces();
   CHECK(faces.size() == 6u);
 
-  for (size_t i = 0; i < faces.size(); ++i) {
+  for (size_t i = 0; i < faces.size(); ++i)
+  {
     CHECK(faces[i].attributes().textureName() == "someName");
   }
 }
 
-TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]") {
+TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]")
+{
   const vm::bbox3 worldBounds(8192.0);
 
   BrushFaceAttributes defaultAttribs("defaultTexture");
@@ -67,7 +72,8 @@ TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]") {
   const auto faces = cube.faces();
   CHECK(faces.size() == 6u);
 
-  for (size_t i = 0; i < faces.size(); ++i) {
+  for (size_t i = 0; i < faces.size(); ++i)
+  {
     CHECK(faces[i].attributes().textureName() == "someName");
     CHECK(faces[i].attributes().offset() == vm::vec2f(0.5f, 0.5f));
     CHECK(faces[i].attributes().scale() == vm::vec2f(0.5f, 0.5f));

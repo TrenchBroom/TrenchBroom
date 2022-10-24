@@ -24,15 +24,19 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class OrthographicCamera;
 }
 
-namespace View {
+namespace View
+{
 class DragTracker;
 
-class UVCameraTool : public ToolController, public Tool {
+class UVCameraTool : public ToolController, public Tool
+{
 private:
   Renderer::OrthographicCamera& m_camera;
 

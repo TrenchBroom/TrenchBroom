@@ -28,20 +28,25 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-template <typename T, size_t S, typename U> class AABBTree;
+namespace TrenchBroom
+{
+template <typename T, size_t S, typename U>
+class AABBTree;
 
-namespace Renderer {
+namespace Renderer
+{
 enum class PrimType;
 class TexturedIndexRangeRenderer;
 class TexturedRenderer;
 } // namespace Renderer
 
-namespace Assets {
+namespace Assets
+{
 class Texture;
 class TextureCollection;
 
-enum class PitchType {
+enum class PitchType
+{
   Normal,
   MdlInverted
 };
@@ -52,7 +57,8 @@ enum class PitchType {
  * See
  * https://github.com/ericwa/Quakespasm/blob/7e7e13f9335697f8e94d1631fdf60ecdddb7498f/quakespasm/Quake/r_sprite.c#L82
  */
-enum class Orientation {
+enum class Orientation
+{
   /** Faces view plane, up is towards the heavens. */
   ViewPlaneParallelUpright,
   /** Faces camera origin, up is towards the heavens. */
@@ -66,10 +72,11 @@ enum class Orientation {
 };
 
 /**
- * One frame of the model. Since frames are loaded on demand, each frame has two possible states:
- * loaded and unloaded. These states are modeled as subclasses of this class.
+ * One frame of the model. Since frames are loaded on demand, each frame has two possible
+ * states: loaded and unloaded. These states are modeled as subclasses of this class.
  */
-class EntityModelFrame {
+class EntityModelFrame
+{
 private:
   size_t m_index;
   size_t m_skinOffset;
@@ -123,14 +130,14 @@ public:
   virtual const vm::bbox3f& bounds() const = 0;
 
   /**
-   * Returns this frame's pitch type. The pitch type controls how a rotational transformation matrix
-   * can be computed from an entity that uses this model frame.
+   * Returns this frame's pitch type. The pitch type controls how a rotational
+   * transformation matrix can be computed from an entity that uses this model frame.
    */
   virtual PitchType pitchType() const = 0;
 
   /**
-   * Returns this frame's orientation. The orientation controls how the frame is oriented in space
-   * depending on the camera position.
+   * Returns this frame's orientation. The orientation controls how the frame is oriented
+   * in space depending on the camera position.
    */
   virtual Orientation orientation() const = 0;
 
@@ -138,8 +145,8 @@ public:
    * Intersects this frame with the given ray and returns the point of intersection.
    *
    * @param ray the ray to intersect
-   * @return the distance to the point of intersection or NaN if the given ray does not intersect
-   * this frame
+   * @return the distance to the point of intersection or NaN if the given ray does not
+   * intersect this frame
    */
   virtual float intersect(const vm::ray3f& ray) const = 0;
 };
@@ -147,7 +154,8 @@ public:
 /**
  * A frame of the model in its loaded state.
  */
-class EntityModelLoadedFrame : public EntityModelFrame {
+class EntityModelLoadedFrame : public EntityModelFrame
+{
 private:
   std::string m_name;
   vm::bbox3f m_bounds;
@@ -171,7 +179,10 @@ public:
    * @param orientation the orientation
    */
   EntityModelLoadedFrame(
-    size_t index, const std::string& name, const vm::bbox3f& bounds, PitchType pitchType,
+    size_t index,
+    const std::string& name,
+    const vm::bbox3f& bounds,
+    PitchType pitchType,
     Orientation orientation);
 
   ~EntityModelLoadedFrame();
@@ -188,11 +199,14 @@ public:
    *
    * @param vertices the vertices
    * @param primType the primitive type
-   * @param index the index of the first primitive's first vertex in the given vertex array
+   * @param index the index of the first primitive's first vertex in the given vertex
+   * array
    * @param count the number of vertices that make up the primitive(s)
    */
   void addToSpacialTree(
-    const std::vector<EntityModelVertex>& vertices, Renderer::PrimType primType, size_t index,
+    const std::vector<EntityModelVertex>& vertices,
+    Renderer::PrimType primType,
+    size_t index,
     size_t count);
 };
 
@@ -201,14 +215,15 @@ class EntityModelIndexedMesh;
 class EntityModelTexturedMesh;
 
 /**
- * A model surface represents an individual part of a model. MDL and MD2 models use only one
- * surface, while more complex model formats such as MD3 contain multiple surfaces with one skin per
- * surface.
+ * A model surface represents an individual part of a model. MDL and MD2 models use only
+ * one surface, while more complex model formats such as MD3 contain multiple surfaces
+ * with one skin per surface.
  *
- * Each surface contains per frame meshes. The number of per frame meshes should match the number of
- * frames in the model.
+ * Each surface contains per frame meshes. The number of per frame meshes should match the
+ * number of frames in the model.
  */
-class EntityModelSurface {
+class EntityModelSurface
+{
 private:
   std::string m_name;
   std::vector<std::unique_ptr<EntityModelMesh>> m_meshes;
@@ -241,7 +256,8 @@ public:
   void prepare(int minFilter, int magFilter);
 
   /**
-   * Sets the minification and magnification filters for the skin textures of this surface.
+   * Sets the minification and magnification filters for the skin textures of this
+   * surface.
    *
    * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
    * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
@@ -256,7 +272,8 @@ public:
    * @param indices the vertex indices
    */
   void addIndexedMesh(
-    EntityModelLoadedFrame& frame, std::vector<EntityModelVertex> vertices,
+    EntityModelLoadedFrame& frame,
+    std::vector<EntityModelVertex> vertices,
     EntityModelIndices indices);
 
   /**
@@ -267,7 +284,8 @@ public:
    * @param indices the per texture vertex indices
    */
   void addTexturedMesh(
-    EntityModelLoadedFrame& frame, std::vector<EntityModelVertex> vertices,
+    EntityModelLoadedFrame& frame,
+    std::vector<EntityModelVertex> vertices,
     EntityModelTexturedIndices indices);
 
   /**
@@ -278,7 +296,8 @@ public:
   void setSkins(std::vector<Texture> skins);
 
   /**
-   * Returns the number of frame meshes in this surface, should match the model's frame count.
+   * Returns the number of frame meshes in this surface, should match the model's frame
+   * count.
    *
    * @return the number of frame meshes
    */
@@ -312,11 +331,13 @@ public:
 };
 
 /**
- * Manages all data necessary to render an entity model. Each model can have multiple frames, and
- * multiple surfaces. Each surface represents an independent mesh of primitives such as triangles,
- * and the corresponding textures. Every surface has a separate mesh for each frame of the model.
+ * Manages all data necessary to render an entity model. Each model can have multiple
+ * frames, and multiple surfaces. Each surface represents an independent mesh of
+ * primitives such as triangles, and the corresponding textures. Every surface has a
+ * separate mesh for each frame of the model.
  */
-class EntityModel {
+class EntityModel
+{
 private:
   std::string m_name;
   bool m_prepared;
@@ -336,7 +357,8 @@ public:
   explicit EntityModel(std::string name, PitchType pitchType, Orientation orientation);
 
   /**
-   * Creates a renderer to render the given frame of the model using the skin with the given index.
+   * Creates a renderer to render the given frame of the model using the skin with the
+   * given index.
    *
    * @param skinIndex the index of the skin to use
    * @param frameIndex the index of the frame to render

@@ -28,74 +28,80 @@
 
 #include <vecmath/scalar.h>
 
-namespace TrenchBroom {
-namespace Model {
-namespace HitFilters {
-HitFilter any() {
-  return [](const Hit&) {
-    return true;
-  };
+namespace TrenchBroom
+{
+namespace Model
+{
+namespace HitFilters
+{
+HitFilter any()
+{
+  return [](const Hit&) { return true; };
 }
 
-HitFilter none() {
-  return [](const Hit&) {
-    return false;
-  };
+HitFilter none()
+{
+  return [](const Hit&) { return false; };
 }
 
-HitFilter type(const HitType::Type typeMask) {
-  return [typeMask](const Hit& hit) {
-    return hit.hasType(typeMask);
-  };
+HitFilter type(const HitType::Type typeMask)
+{
+  return [typeMask](const Hit& hit) { return hit.hasType(typeMask); };
 }
 
-HitFilter selected() {
+HitFilter selected()
+{
   return [](const Hit& hit) {
-    if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+    if (const auto faceHandle = Model::hitToFaceHandle(hit))
+    {
       return faceHandle->node()->selected() || faceHandle->face().selected();
     }
-    if (const auto* node = hitToNode(hit)) {
+    if (const auto* node = hitToNode(hit))
+    {
       return node->selected();
     }
     return false;
   };
 }
 
-HitFilter transitivelySelected() {
+HitFilter transitivelySelected()
+{
   return [](const Hit& hit) {
-    if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+    if (const auto faceHandle = Model::hitToFaceHandle(hit))
+    {
       return faceHandle->node()->transitivelySelected() || faceHandle->face().selected();
     }
-    if (const auto* node = hitToNode(hit)) {
+    if (const auto* node = hitToNode(hit))
+    {
       return node->transitivelySelected();
     }
     return false;
   };
 }
 
-HitFilter minDistance(const FloatType minDistance) {
-  return [minDistance](const Hit& hit) {
-    return hit.distance() >= minDistance;
-  };
+HitFilter minDistance(const FloatType minDistance)
+{
+  return [minDistance](const Hit& hit) { return hit.distance() >= minDistance; };
 }
 } // namespace HitFilters
 
-HitFilter operator&&(HitFilter lhs, HitFilter rhs) {
+HitFilter operator&&(HitFilter lhs, HitFilter rhs)
+{
   return [lhs = std::move(lhs), rhs = std::move(rhs)](const Hit& hit) {
     return lhs(hit) && rhs(hit);
   };
 }
 
-HitFilter operator||(HitFilter lhs, HitFilter rhs) {
+HitFilter operator||(HitFilter lhs, HitFilter rhs)
+{
   return [lhs = std::move(lhs), rhs = std::move(rhs)](const Hit& hit) {
     return lhs(hit) || rhs(hit);
   };
 }
 
-HitFilter operator!(HitFilter filter) {
-  return [filter = std::move(filter)](const Hit& hit) {
-    return !filter(hit);
-  };
+HitFilter operator!(HitFilter filter)
+{
+  return [filter = std::move(filter)](const Hit& hit) { return !filter(hit); };
 }
 } // namespace Model
 } // namespace TrenchBroom

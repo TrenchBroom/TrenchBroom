@@ -19,34 +19,46 @@
 
 #pragma once
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushFace;
 class BrushNode;
 
-namespace BrushFacePredicates {
-struct True {
+namespace BrushFacePredicates
+{
+struct True
+{
   bool operator()(const Model::BrushNode* brush, const BrushFace& face) const;
 };
 
-struct False {
+struct False
+{
   bool operator()(const Model::BrushNode* brush, const BrushFace& face) const;
 };
 
-template <typename P> class Not {
+template <typename P>
+class Not
+{
 private:
   P m_p;
 
 public:
   explicit Not(const P& p)
-    : m_p(p) {}
+    : m_p(p)
+  {
+  }
 
-  bool operator()(const Model::BrushNode* brush, const BrushFace& face) const {
+  bool operator()(const Model::BrushNode* brush, const BrushFace& face) const
+  {
     return !m_p(brush, face);
   }
 };
 
-template <typename P1, typename P2> class And {
+template <typename P1, typename P2>
+class And
+{
 private:
   P1 m_p1;
   P2 m_p2;
@@ -54,14 +66,19 @@ private:
 public:
   And(const P1& p1, const P2& p2)
     : m_p1(p1)
-    , m_p2(p2) {}
+    , m_p2(p2)
+  {
+  }
 
-  bool operator()(const Model::BrushNode* brush, const BrushFace& face) const {
+  bool operator()(const Model::BrushNode* brush, const BrushFace& face) const
+  {
     return m_p1(brush, face) && m_p2(brush, face);
   }
 };
 
-template <typename P1, typename P2> class Or {
+template <typename P1, typename P2>
+class Or
+{
 private:
   P1 m_p1;
   P2 m_p2;
@@ -69,9 +86,12 @@ private:
 public:
   Or(const P1& p1, const P2& p2)
     : m_p1(p1)
-    , m_p2(p2) {}
+    , m_p2(p2)
+  {
+  }
 
-  bool operator()(const Model::BrushNode* brush, const BrushFace& face) const {
+  bool operator()(const Model::BrushNode* brush, const BrushFace& face) const
+  {
     return m_p1(brush, face) || m_p2(brush, face);
   }
 };

@@ -29,71 +29,87 @@
 
 #include <ostream>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 CompilationConfig::CompilationConfig() {}
 
-CompilationConfig::CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles)
-  : m_profiles(std::move(profiles)) {}
+CompilationConfig::CompilationConfig(
+  std::vector<std::unique_ptr<CompilationProfile>> profiles)
+  : m_profiles(std::move(profiles))
+{
+}
 
-CompilationConfig::CompilationConfig(const CompilationConfig& other) {
+CompilationConfig::CompilationConfig(const CompilationConfig& other)
+{
   m_profiles.reserve(other.m_profiles.size());
 
-  for (const auto& original : other.m_profiles) {
+  for (const auto& original : other.m_profiles)
+  {
     m_profiles.push_back(original->clone());
   }
 }
 
 CompilationConfig::~CompilationConfig() = default;
 
-CompilationConfig& CompilationConfig::operator=(CompilationConfig other) {
+CompilationConfig& CompilationConfig::operator=(CompilationConfig other)
+{
   using std::swap;
   swap(*this, other);
   return *this;
 }
 
-void swap(CompilationConfig& lhs, CompilationConfig& rhs) {
+void swap(CompilationConfig& lhs, CompilationConfig& rhs)
+{
   using std::swap;
   swap(lhs.m_profiles, rhs.m_profiles);
 }
 
-bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs) {
+bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs)
+{
   return kdl::const_deref_range{lhs.m_profiles} == kdl::const_deref_range{rhs.m_profiles};
 }
 
-bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs) {
+bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs)
+{
   return !(lhs == rhs);
 }
 
-std::ostream& operator<<(std::ostream& str, const CompilationConfig& config) {
+std::ostream& operator<<(std::ostream& str, const CompilationConfig& config)
+{
   kdl::struct_stream{str} << "CompilationConfig"
                           << "m_profiles" << kdl::const_deref_range{config.m_profiles};
   return str;
 }
 
-size_t CompilationConfig::profileCount() const {
+size_t CompilationConfig::profileCount() const
+{
   return m_profiles.size();
 }
 
-CompilationProfile* CompilationConfig::profile(const size_t index) const {
+CompilationProfile* CompilationConfig::profile(const size_t index) const
+{
   assert(index < profileCount());
   return m_profiles[index].get();
 }
 
-size_t CompilationConfig::indexOfProfile(CompilationProfile* profile) const {
-  auto result = kdl::vec_index_of(m_profiles, [=](const auto& ptr) {
-    return ptr.get() == profile;
-  });
+size_t CompilationConfig::indexOfProfile(CompilationProfile* profile) const
+{
+  auto result =
+    kdl::vec_index_of(m_profiles, [=](const auto& ptr) { return ptr.get() == profile; });
   assert(result.has_value());
   return result.value();
 }
 
-void CompilationConfig::addProfile(std::unique_ptr<CompilationProfile> profile) {
+void CompilationConfig::addProfile(std::unique_ptr<CompilationProfile> profile)
+{
   ensure(profile != nullptr, "profile is null");
   m_profiles.push_back(std::move(profile));
 }
 
-void CompilationConfig::removeProfile(const size_t index) {
+void CompilationConfig::removeProfile(const size_t index)
+{
   assert(index < profileCount());
   m_profiles = kdl::vec_erase_at(std::move(m_profiles), index);
 }

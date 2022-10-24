@@ -26,8 +26,10 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BezierPatch;
 class Brush;
 class BrushNode;
@@ -37,22 +39,26 @@ class Node;
 class PatchNode;
 } // namespace Model
 
-namespace IO {
-class MapFileSerializer : public NodeSerializer {
+namespace IO
+{
+class MapFileSerializer : public NodeSerializer
+{
 private:
   using LineStack = std::vector<size_t>;
   LineStack m_startLineStack;
   size_t m_line;
   std::ostream& m_stream;
 
-  struct PrecomputedString {
+  struct PrecomputedString
+  {
     std::string string;
     size_t lineCount;
   };
   std::unordered_map<const Model::Node*, PrecomputedString> m_nodeToPrecomputedString;
 
 public:
-  static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
+  static std::unique_ptr<NodeSerializer> create(
+    Model::MapFormat format, std::ostream& stream);
 
 protected:
   explicit MapFileSerializer(std::ostream& stream);
@@ -74,7 +80,8 @@ private:
   size_t startLine();
 
 private: // threadsafe
-  virtual void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const = 0;
+  virtual void doWriteBrushFace(
+    std::ostream& stream, const Model::BrushFace& face) const = 0;
   PrecomputedString writeBrushFaces(const Model::Brush& brush) const;
   PrecomputedString writePatch(const Model::BezierPatch& patch) const;
 };

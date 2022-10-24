@@ -23,11 +23,14 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class TabBar;
 
-class TabBookPage : public QWidget {
+class TabBookPage : public QWidget
+{
   Q_OBJECT
 public:
   explicit TabBookPage(QWidget* parent = nullptr);
@@ -35,7 +38,8 @@ public:
   virtual QWidget* createTabBarPage(QWidget* parent);
 };
 
-class TabBook : public QWidget {
+class TabBook : public QWidget
+{
   Q_OBJECT
 private:
   TabBar* m_tabBar;

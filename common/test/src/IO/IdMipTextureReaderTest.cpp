@@ -34,9 +34,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("IdMipTextureReaderTest.testLoadWad", "[IdMipTextureReaderTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("IdMipTextureReaderTest.testLoadWad", "[IdMipTextureReaderTest]")
+{
   using TexInfo = std::tuple<std::string, size_t, size_t>;
 
   // clang-format off
@@ -66,13 +69,15 @@ TEST_CASE("IdMipTextureReaderTest.testLoadWad", "[IdMipTextureReaderTest]") {
   // clang-format on
 
   DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-  const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
+  const Assets::Palette palette =
+    Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
   TextureReader::TextureNameStrategy nameStrategy;
   NullLogger logger;
   IdMipTextureReader textureLoader(nameStrategy, fs, logger, palette);
 
-  const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
+  const Path wadPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
   WadFileSystem wadFS(wadPath, logger);
 
   const Assets::Texture texture =

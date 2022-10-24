@@ -30,8 +30,10 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 std::string GLContextManager::GLVendor = "unknown";
 std::string GLContextManager::GLRenderer = "unknown";
 std::string GLContextManager::GLVersion = "unknown";
@@ -40,26 +42,33 @@ GLContextManager::GLContextManager()
   : m_initialized(false)
   , m_shaderManager(std::make_unique<Renderer::ShaderManager>())
   , m_vboManager(std::make_unique<Renderer::VboManager>(m_shaderManager.get()))
-  , m_fontManager(std::make_unique<Renderer::FontManager>()) {}
+  , m_fontManager(std::make_unique<Renderer::FontManager>())
+{
+}
 
 GLContextManager::~GLContextManager() = default;
 
-bool GLContextManager::initialized() const {
+bool GLContextManager::initialized() const
+{
   return m_initialized;
 }
 
-static void initializeGlew() {
+static void initializeGlew()
+{
   glewExperimental = GL_TRUE;
   const GLenum glewState = glewInit();
-  if (glewState != GLEW_OK) {
+  if (glewState != GLEW_OK)
+  {
     auto str = std::stringstream();
     str << "Error initializing glew: " << glewGetErrorString(glewState);
     throw RenderException(str.str());
   }
 }
 
-bool GLContextManager::initialize() {
-  if (!m_initialized) {
+bool GLContextManager::initialize()
+{
+  if (!m_initialized)
+  {
     initializeGlew();
 
     GLVendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
@@ -72,15 +81,18 @@ bool GLContextManager::initialize() {
   return false;
 }
 
-Renderer::VboManager& GLContextManager::vboManager() {
+Renderer::VboManager& GLContextManager::vboManager()
+{
   return *m_vboManager;
 }
 
-Renderer::FontManager& GLContextManager::fontManager() {
+Renderer::FontManager& GLContextManager::fontManager()
+{
   return *m_fontManager;
 }
 
-Renderer::ShaderManager& GLContextManager::shaderManager() {
+Renderer::ShaderManager& GLContextManager::shaderManager()
+{
   return *m_shaderManager;
 }
 } // namespace View

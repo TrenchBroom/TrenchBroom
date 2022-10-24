@@ -28,26 +28,31 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Assets {
-static ModelDefinition makeModelDefinition(const std::string& expression) {
+namespace TrenchBroom
+{
+namespace Assets
+{
+static ModelDefinition makeModelDefinition(const std::string& expression)
+{
   auto parser = IO::ELParser{IO::ELParser::Mode::Strict, expression};
   return ModelDefinition{parser.parse()};
 }
 
-TEST_CASE("ModelDefinitionTest.append") {
+TEST_CASE("ModelDefinitionTest.append")
+{
   auto d1 = makeModelDefinition(R"("maps/b_shell0.bsp")");
   REQUIRE(
-    d1.modelSpecification(EL::NullVariableStore{}) ==
-    ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0});
+    d1.modelSpecification(EL::NullVariableStore{})
+    == ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0});
 
   d1.append(makeModelDefinition(R"("maps/b_shell1.bsp")"));
   CHECK(
-    d1.modelSpecification(EL::NullVariableStore{}) ==
-    ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0});
+    d1.modelSpecification(EL::NullVariableStore{})
+    == ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0});
 }
 
-TEST_CASE("ModelDefinitionTest.modelSpecification") {
+TEST_CASE("ModelDefinitionTest.modelSpecification")
+{
   using T = std::tuple<std::string, std::map<std::string, EL::Value>, ModelSpecification>;
 
   // clang-format off
@@ -80,10 +85,12 @@ TEST_CASE("ModelDefinitionTest.modelSpecification") {
 
   const auto modelDefinition = makeModelDefinition(expression);
   CHECK(
-    modelDefinition.modelSpecification(EL::VariableTable{variables}) == expectedModelSpecification);
+    modelDefinition.modelSpecification(EL::VariableTable{variables})
+    == expectedModelSpecification);
 }
 
-TEST_CASE("ModelDefinitionTest.defaultModelSpecification") {
+TEST_CASE("ModelDefinitionTest.defaultModelSpecification")
+{
   using T = std::tuple<std::string, ModelSpecification>;
 
   // clang-format off
@@ -108,7 +115,8 @@ TEST_CASE("ModelDefinitionTest.defaultModelSpecification") {
   CHECK(modelDefinition.defaultModelSpecification() == expectedModelSpecification);
 }
 
-TEST_CASE("ModelDefinitionTest.scale") {
+TEST_CASE("ModelDefinitionTest.scale")
+{
   using T = std::tuple<std::string, std::optional<std::string>, vm::vec3>;
 
   // clang-format off
@@ -136,9 +144,9 @@ TEST_CASE("ModelDefinitionTest.scale") {
   }};
 
   const auto defaultScaleExpression =
-    globalScaleExpressionStr
-      ? std::optional<EL::Expression>{IO::ELParser::parseStrict(*globalScaleExpressionStr)}
-      : std::nullopt;
+    globalScaleExpressionStr ? std::optional<EL::Expression>{IO::ELParser::parseStrict(
+      *globalScaleExpressionStr)}
+                             : std::nullopt;
 
   CHECK(modelDefinition.scale(variables, defaultScaleExpression) == expectedScale);
 }

@@ -28,48 +28,61 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
-SmartPropertyEditor::SmartPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
+namespace TrenchBroom
+{
+namespace View
+{
+SmartPropertyEditor::SmartPropertyEditor(
+  std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget(parent)
   , m_document(document)
-  , m_active(false) {}
+  , m_active(false)
+{
+}
 
 SmartPropertyEditor::~SmartPropertyEditor() {}
 
-void SmartPropertyEditor::activate(const std::string& propertyKey) {
+void SmartPropertyEditor::activate(const std::string& propertyKey)
+{
   assert(!m_active);
   m_propertyKey = propertyKey;
   m_active = true;
 }
 
-void SmartPropertyEditor::update(const std::vector<Model::EntityNodeBase*>& nodes) {
+void SmartPropertyEditor::update(const std::vector<Model::EntityNodeBase*>& nodes)
+{
   m_nodes = nodes;
   doUpdateVisual(m_nodes);
 }
 
-void SmartPropertyEditor::deactivate() {
+void SmartPropertyEditor::deactivate()
+{
   m_active = false;
   m_propertyKey = "";
 }
 
-bool SmartPropertyEditor::usesPropertyKey(const std::string& propertyKey) const {
+bool SmartPropertyEditor::usesPropertyKey(const std::string& propertyKey) const
+{
   return m_propertyKey == propertyKey;
 }
 
-std::shared_ptr<MapDocument> SmartPropertyEditor::document() const {
+std::shared_ptr<MapDocument> SmartPropertyEditor::document() const
+{
   return kdl::mem_lock(m_document);
 }
 
-const std::string& SmartPropertyEditor::propertyKey() const {
+const std::string& SmartPropertyEditor::propertyKey() const
+{
   return m_propertyKey;
 }
 
-const std::vector<Model::EntityNodeBase*> SmartPropertyEditor::nodes() const {
+const std::vector<Model::EntityNodeBase*> SmartPropertyEditor::nodes() const
+{
   return m_nodes;
 }
 
-void SmartPropertyEditor::addOrUpdateProperty(const std::string& value) {
+void SmartPropertyEditor::addOrUpdateProperty(const std::string& value)
+{
   assert(m_active);
   document()->setProperty(m_propertyKey, value);
 }

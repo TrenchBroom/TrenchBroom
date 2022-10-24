@@ -23,12 +23,15 @@
 
 #include <vecmath/bbox.h>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 
-class SelectionBoundsRenderer {
+class SelectionBoundsRenderer
+{
 private:
   const vm::bbox3 m_bounds;
 

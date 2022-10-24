@@ -29,17 +29,21 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class Texture;
 }
 
-namespace IO {
+namespace IO
+{
 class FileSystem;
 
-class ObjParser : public EntityModelParser {
+class ObjParser : public EntityModelParser
+{
 private:
   std::string m_name;
   std::string_view m_text;
@@ -61,17 +65,18 @@ public:
     std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) = 0;
 
   /**
-   * Loads a material. On failure, return the empty unique_ptr (as the original exceptions are
-   * usually caught anyway to test each format).
+   * Loads a material. On failure, return the empty unique_ptr (as the original exceptions
+   * are usually caught anyway to test each format).
    * @param name The name of the material.
    * @param logger The logger to use.
    */
-  virtual std::optional<Assets::Texture> loadMaterial(const std::string& name, Logger& logger) = 0;
+  virtual std::optional<Assets::Texture> loadMaterial(
+    const std::string& name, Logger& logger) = 0;
 
   /**
-   * Loads the "fallback material". This is used if no material is specified or if loadMaterial
-   * fails. This function is not supposed to fail in any way. Should it still fail regardless, it
-   * should throw a ParserException.
+   * Loads the "fallback material". This is used if no material is specified or if
+   * loadMaterial fails. This function is not supposed to fail in any way. Should it still
+   * fail regardless, it should throw a ParserException.
    */
   virtual std::optional<Assets::Texture> loadFallbackMaterial(Logger& logger) = 0;
 
@@ -82,7 +87,8 @@ private:
 /**
  * The specific instantiation of the ObjParser as it applies to Neverball.
  */
-class NvObjParser : public ObjParser {
+class NvObjParser : public ObjParser
+{
 private:
   Path m_path;
   const FileSystem& m_fs;
@@ -102,7 +108,8 @@ public:
 private:
   bool transformObjCoordinateSet(
     std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) override;
-  std::optional<Assets::Texture> loadMaterial(const std::string& name, Logger& logger) override;
+  std::optional<Assets::Texture> loadMaterial(
+    const std::string& name, Logger& logger) override;
   std::optional<Assets::Texture> loadFallbackMaterial(Logger& logger) override;
 };
 } // namespace IO

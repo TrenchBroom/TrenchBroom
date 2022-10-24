@@ -24,9 +24,12 @@
 class QPushButton;
 class QResizeEvent;
 
-namespace TrenchBroom {
-namespace View {
-class ColorButton : public QWidget {
+namespace TrenchBroom
+{
+namespace View
+{
+class ColorButton : public QWidget
+{
   Q_OBJECT
 private:
   QWidget* m_colorIndicator;
@@ -47,7 +50,8 @@ signals:
   void colorChangedByUser(const QColor& color);
 public slots:
   /**
-   * Change the current color displayed on the button. Causes colorChanged() to be emitted.
+   * Change the current color displayed on the button. Causes colorChanged() to be
+   * emitted.
    */
   void setColor(const QColor& color);
 };

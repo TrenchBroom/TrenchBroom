@@ -35,11 +35,15 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 void assertModelDefinition(
-  const ModelSpecification& expected, IO::EntityDefinitionParser& parser,
-  const std::string& entityPropertiesStr) {
+  const ModelSpecification& expected,
+  IO::EntityDefinitionParser& parser,
+  const std::string& entityPropertiesStr)
+{
   IO::TestParserStatus status;
   std::vector<EntityDefinition*> definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
@@ -53,8 +57,10 @@ void assertModelDefinition(
 }
 
 void assertModelDefinition(
-  const ModelSpecification& expected, const EntityDefinition* definition,
-  const std::string& entityPropertiesStr) {
+  const ModelSpecification& expected,
+  const EntityDefinition* definition,
+  const std::string& entityPropertiesStr)
+{
   assert(definition->type() == EntityDefinitionType::PointEntity);
 
   const PointEntityDefinition* pointDefinition =
@@ -64,10 +70,13 @@ void assertModelDefinition(
 }
 
 void assertModelDefinition(
-  const ModelSpecification& expected, const ModelDefinition& actual,
-  const std::string& entityPropertiesStr) {
-  const auto entityPropertiesMap =
-    IO::ELParser::parseStrict(entityPropertiesStr).evaluate(EL::EvaluationContext()).mapValue();
+  const ModelSpecification& expected,
+  const ModelDefinition& actual,
+  const std::string& entityPropertiesStr)
+{
+  const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr)
+                                     .evaluate(EL::EvaluationContext())
+                                     .mapValue();
   const auto variableStore = EL::VariableTable(entityPropertiesMap);
   CHECK(actual.modelSpecification(variableStore) == expected);
 }

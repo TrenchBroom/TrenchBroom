@@ -25,76 +25,87 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 AboutDialog* AboutDialog::instance = nullptr;
 
-void AboutDialog::showAboutDialog() {
-  if (AboutDialog::instance == nullptr) {
+void AboutDialog::showAboutDialog()
+{
+  if (AboutDialog::instance == nullptr)
+  {
     AboutDialog::instance = new AboutDialog();
     AboutDialog::instance->show();
-  } else {
+  }
+  else
+  {
     AboutDialog::instance->show();
     AboutDialog::instance->raise();
   }
 }
 
-void AboutDialog::closeAboutDialog() {
+void AboutDialog::closeAboutDialog()
+{
   if (AboutDialog::instance != nullptr)
     AboutDialog::instance->close();
 }
 
-AboutDialog::~AboutDialog() {
+AboutDialog::~AboutDialog()
+{
   instance = nullptr;
 }
 
 AboutDialog::AboutDialog()
-  : QDialog() {
+  : QDialog()
+{
   // This makes it so the About dialog doesn't prevent the application from quitting
   setAttribute(Qt::WA_QuitOnClose, false);
   createGui();
 }
 
-void AboutDialog::createGui() {
-  const QString creditsString = tr("github.com/TrenchBroom/TrenchBroom\n\n"
-                                   "<b>Developers</b>\n"
-                                   "Kristian Duske\n"
-                                   "Eric Wasylishen\n\n"
-                                   "<b>Contributors</b>\n"
-                                   "20kdc, "
-                                   "aapokaapo, "
-                                   "Amara M. Kilic, "
-                                   "Ari Vuollet, "
-                                   "bazhenovc, "
-                                   "chronicol, "
-                                   "Corey Jones, "
-                                   "Jonas Lund, "
-                                   "Jonathan Linat, "
-                                   "Josh Palmer, "
-                                   "mankeli, "
-                                   "Matthew Borkowski, "
-                                   "mittorn, "
-                                   "negke, "
-                                   "Philipp Nahratow, "
-                                   "rebb, "
-                                   "Rohit Nirmal, "
-                                   "Scampie, "
-                                   "Yuki Raven\n\n"
-                                   "<b>3rd Party Libraries, Tools and Assets</b>\n"
-                                   "Qt (Cross platform GUI library)\n"
-                                   "FreeType (Font rendering library)\n"
-                                   "FreeImage (Image loading & manipulation library)\n"
-                                   "GLEW (OpenGL extension library)\n"
-                                   "tinyxml2 (XML parsing library)\n"
-                                   "miniz (Archive library)\n"
-                                   "Assimp (Asset importer library)\n"
-                                   "Catch 2 (C++ testing framework)\n"
-                                   "StackWalker (C++ stack trace analyzer)\n"
-                                   "CMake (Cross platform build manager)\n"
-                                   "Vcpkg (C/C++ dependency manager)\n"
-                                   "Pandoc (Universal document converter)\n"
-                                   "Source Sans Pro (Font)\n"
-                                   "Font Awesome 5 Free (Icons)\n")
+void AboutDialog::createGui()
+{
+  const QString creditsString = tr(
+                                  "github.com/TrenchBroom/TrenchBroom\n\n"
+                                  "<b>Developers</b>\n"
+                                  "Kristian Duske\n"
+                                  "Eric Wasylishen\n\n"
+                                  "<b>Contributors</b>\n"
+                                  "20kdc, "
+                                  "aapokaapo, "
+                                  "Amara M. Kilic, "
+                                  "Ari Vuollet, "
+                                  "bazhenovc, "
+                                  "chronicol, "
+                                  "Corey Jones, "
+                                  "Jonas Lund, "
+                                  "Jonathan Linat, "
+                                  "Josh Palmer, "
+                                  "mankeli, "
+                                  "Matthew Borkowski, "
+                                  "mittorn, "
+                                  "negke, "
+                                  "Philipp Nahratow, "
+                                  "rebb, "
+                                  "Rohit Nirmal, "
+                                  "Scampie, "
+                                  "Yuki Raven\n\n"
+                                  "<b>3rd Party Libraries, Tools and Assets</b>\n"
+                                  "Qt (Cross platform GUI library)\n"
+                                  "FreeType (Font rendering library)\n"
+                                  "FreeImage (Image loading & manipulation library)\n"
+                                  "GLEW (OpenGL extension library)\n"
+                                  "tinyxml2 (XML parsing library)\n"
+                                  "miniz (Archive library)\n"
+                                  "Assimp (Asset importer library)\n"
+                                  "Catch 2 (C++ testing framework)\n"
+                                  "StackWalker (C++ stack trace analyzer)\n"
+                                  "CMake (Cross platform build manager)\n"
+                                  "Vcpkg (C/C++ dependency manager)\n"
+                                  "Pandoc (Universal document converter)\n"
+                                  "Source Sans Pro (Font)\n"
+                                  "Font Awesome 5 Free (Icons)\n")
                                   .replace("\n", "<br/>");
   setWindowIconTB(this);
 

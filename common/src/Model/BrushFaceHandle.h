@@ -23,19 +23,23 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushNode;
 class BrushFace;
 
 /**
- * A brush face handle represents a brush face and additionally gives access to its containing brush
- * node.
+ * A brush face handle represents a brush face and additionally gives access to its
+ * containing brush node.
  *
- * Note that brush faces are volatile and may be deleted when a brush is modified. Care must be
- * taken to prevent stale brush face handles which reference non existing brush faces.
+ * Note that brush faces are volatile and may be deleted when a brush is modified. Care
+ * must be taken to prevent stale brush face handles which reference non existing brush
+ * faces.
  */
-class BrushFaceHandle {
+class BrushFaceHandle
+{
 private:
   BrushNode* m_node;
   size_t m_faceIndex;

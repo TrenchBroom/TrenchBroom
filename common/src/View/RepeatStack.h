@@ -22,19 +22,22 @@
 #include <functional>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 /**
  * A stack of actions (C++ callables) that can be repeatedly executed as a whole.
  *
  * Actions are repeated in the order in which they have been added to the stack. If the
- * stack is currently repeating, requests for adding an action are ignored so that repeating
- * actions doesn't put the repeated actions on the stack again.
+ * stack is currently repeating, requests for adding an action are ignored so that
+ * repeating actions doesn't put the repeated actions on the stack again.
  *
- * The stack can be cleared immediately or it can be primed to be cleared automatically when
- * the next action is pushed to the stack.
+ * The stack can be cleared immediately or it can be primed to be cleared automatically
+ * when the next action is pushed to the stack.
  */
-class RepeatStack {
+class RepeatStack
+{
 public:
   using RepeatableAction = std::function<void()>;
   using Transaction = std::vector<RepeatableAction>;
@@ -116,8 +119,8 @@ public: // transactions
   void startTransaction();
   /**
    * Closes the currently open transaction. If there is a parent transaction,
-   * pushes it to the end of that transaction, which becomes the new currently open transaction,
-   * otherwise pushes it to the end of the main action stack.
+   * pushes it to the end of that transaction, which becomes the new currently open
+   * transaction, otherwise pushes it to the end of the main action stack.
    *
    * Has no effect if we are currently repeating actions.
    */

@@ -39,31 +39,40 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 // SingleSelectionListWidget
 
 SingleSelectionListWidget::SingleSelectionListWidget(QWidget* parent)
   : QListWidget(parent)
-  , m_allowDeselectAll(true) {}
+  , m_allowDeselectAll(true)
+{
+}
 
 void SingleSelectionListWidget::selectionChanged(
-  const QItemSelection& selected, const QItemSelection& deselected) {
+  const QItemSelection& selected, const QItemSelection& deselected)
+{
   QListWidget::selectionChanged(selected, deselected);
 
-  if (!m_allowDeselectAll) {
-    if (selectedIndexes().isEmpty() && !deselected.isEmpty()) {
+  if (!m_allowDeselectAll)
+  {
+    if (selectedIndexes().isEmpty() && !deselected.isEmpty())
+    {
       // reselect the items that were just deselected
       selectionModel()->select(deselected, QItemSelectionModel::Select);
     }
   }
 }
 
-void SingleSelectionListWidget::setAllowDeselectAll(bool allow) {
+void SingleSelectionListWidget::setAllowDeselectAll(bool allow)
+{
   m_allowDeselectAll = allow;
 }
 
-bool SingleSelectionListWidget::allowDeselectAll() const {
+bool SingleSelectionListWidget::allowDeselectAll() const
+{
   return m_allowDeselectAll;
 }
 
@@ -72,13 +81,15 @@ bool SingleSelectionListWidget::allowDeselectAll() const {
 EntityDefinitionFileChooser::EntityDefinitionFileChooser(
   std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget(parent)
-  , m_document(document) {
+  , m_document(document)
+{
   createGui();
   bindEvents();
   connectObservers();
 }
 
-void EntityDefinitionFileChooser::createGui() {
+void EntityDefinitionFileChooser::createGui()
+{
   TitledPanel* builtinContainer = new TitledPanel(tr("Builtin"), false, true);
   builtinContainer->setBackgroundRole(QPalette::Base);
   builtinContainer->setAutoFillBackground(true);
@@ -120,19 +131,27 @@ void EntityDefinitionFileChooser::createGui() {
   setLayout(sizer);
 }
 
-void EntityDefinitionFileChooser::bindEvents() {
+void EntityDefinitionFileChooser::bindEvents()
+{
   connect(
-    m_builtin, &QListWidget::itemSelectionChanged, this,
+    m_builtin,
+    &QListWidget::itemSelectionChanged,
+    this,
     &EntityDefinitionFileChooser::builtinSelectionChanged);
   connect(
-    m_chooseExternal, &QAbstractButton::clicked, this,
+    m_chooseExternal,
+    &QAbstractButton::clicked,
+    this,
     &EntityDefinitionFileChooser::chooseExternalClicked);
   connect(
-    m_reloadExternal, &QAbstractButton::clicked, this,
+    m_reloadExternal,
+    &QAbstractButton::clicked,
+    this,
     &EntityDefinitionFileChooser::reloadExternalClicked);
 }
 
-void EntityDefinitionFileChooser::connectObservers() {
+void EntityDefinitionFileChooser::connectObservers()
+{
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->documentWasNewedNotifier.connect(
     this, &EntityDefinitionFileChooser::documentWasNewed);
@@ -142,19 +161,23 @@ void EntityDefinitionFileChooser::connectObservers() {
     this, &EntityDefinitionFileChooser::entityDefinitionsDidChange);
 }
 
-void EntityDefinitionFileChooser::documentWasNewed(MapDocument*) {
+void EntityDefinitionFileChooser::documentWasNewed(MapDocument*)
+{
   updateControls();
 }
 
-void EntityDefinitionFileChooser::documentWasLoaded(MapDocument*) {
+void EntityDefinitionFileChooser::documentWasLoaded(MapDocument*)
+{
   updateControls();
 }
 
-void EntityDefinitionFileChooser::entityDefinitionsDidChange() {
+void EntityDefinitionFileChooser::entityDefinitionsDidChange()
+{
   updateControls();
 }
 
-void EntityDefinitionFileChooser::updateControls() {
+void EntityDefinitionFileChooser::updateControls()
+{
   m_builtin->setAllowDeselectAll(true);
   m_builtin->clear();
   m_builtin->setAllowDeselectAll(false);
@@ -163,7 +186,8 @@ void EntityDefinitionFileChooser::updateControls() {
   auto specs = document->allEntityDefinitionFiles();
   specs = kdl::vec_sort(std::move(specs));
 
-  for (const auto& spec : specs) {
+  for (const auto& spec : specs)
+  {
     const auto& path = spec.path();
 
     auto* item = new QListWidgetItem();
@@ -174,10 +198,12 @@ void EntityDefinitionFileChooser::updateControls() {
   }
 
   const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
-  if (spec.builtin()) {
-    if (const auto index = kdl::vec_index_of(specs, spec)) {
-      // the chosen builtin entity definition file might not be in the game config anymore if the
-      // config has changed after the definition file was chosen
+  if (spec.builtin())
+  {
+    if (const auto index = kdl::vec_index_of(specs, spec))
+    {
+      // the chosen builtin entity definition file might not be in the game config anymore
+      // if the config has changed after the definition file was chosen
       m_builtin->setCurrentRow(static_cast<int>(*index));
     }
     m_external->setText(tr("use builtin"));
@@ -189,7 +215,9 @@ void EntityDefinitionFileChooser::updateControls() {
     QFont font = m_external->font();
     font.setStyle(QFont::StyleOblique);
     m_external->setFont(font);
-  } else {
+  }
+  else
+  {
     m_builtin->clearSelection();
     m_external->setText(IO::pathAsQString(spec.path()));
 
@@ -204,8 +232,10 @@ void EntityDefinitionFileChooser::updateControls() {
   m_reloadExternal->setEnabled(document->entityDefinitionFile().external());
 }
 
-void EntityDefinitionFileChooser::builtinSelectionChanged() {
-  if (m_builtin->selectedItems().isEmpty()) {
+void EntityDefinitionFileChooser::builtinSelectionChanged()
+{
+  if (m_builtin->selectedItems().isEmpty())
+  {
     return;
   }
 
@@ -213,16 +243,19 @@ void EntityDefinitionFileChooser::builtinSelectionChanged() {
   auto spec = item->data(Qt::UserRole).value<Assets::EntityDefinitionFileSpec>();
 
   auto document = kdl::mem_lock(m_document);
-  if (document->entityDefinitionFile() == spec) {
+  if (document->entityDefinitionFile() == spec)
+  {
     return;
   }
 
   document->setEntityDefinitionFile(spec);
 }
 
-void EntityDefinitionFileChooser::chooseExternalClicked() {
+void EntityDefinitionFileChooser::chooseExternalClicked()
+{
   const QString fileName = QFileDialog::getOpenFileName(
-    nullptr, tr("Load Entity Definition File"),
+    nullptr,
+    tr("Load Entity Definition File"),
     fileDialogDefaultDirectory(FileDialogDir::EntityDefinition),
     "All supported entity definition files (*.fgd *.def *.ent);;"
     "Worldcraft / Hammer files (*.fgd);;"
@@ -236,7 +269,8 @@ void EntityDefinitionFileChooser::chooseExternalClicked() {
   loadEntityDefinitionFile(m_document, this, fileName);
 }
 
-void EntityDefinitionFileChooser::reloadExternalClicked() {
+void EntityDefinitionFileChooser::reloadExternalClicked()
+{
   auto document = kdl::mem_lock(m_document);
   document->reloadEntityDefinitions();
 }

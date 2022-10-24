@@ -28,11 +28,14 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class FaceHandleManager;
 
-class FaceTool : public VertexToolBase<vm::polygon3> {
+class FaceTool : public VertexToolBase<vm::polygon3>
+{
 private:
   std::unique_ptr<FaceHandleManager> m_faceHandles;
 
@@ -47,8 +50,10 @@ private:
   using VertexToolBase::findIncidentBrushes;
 
 public:
-  void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
-    const override;
+  void pick(
+    const vm::ray3& pickRay,
+    const Renderer::Camera& camera,
+    Model::PickResult& pickResult) const override;
 
 public:
   FaceHandleManager& handleManager() override;

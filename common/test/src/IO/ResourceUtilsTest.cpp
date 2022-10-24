@@ -27,9 +27,12 @@
 #include "Catch2.h"
 #include "TestLogger.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("ResourceUtilsTest.loadDefaultTexture", "[ResourceUtilsTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("ResourceUtilsTest.loadDefaultTexture", "[ResourceUtilsTest]")
+{
   auto fs = std::make_shared<DiskFileSystem>(
     IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets"));
   NullLogger logger;

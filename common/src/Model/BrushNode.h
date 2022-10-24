@@ -37,23 +37,28 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class BrushRendererBrushCache;
 }
 
-namespace Model {
+namespace Model
+{
 class BrushFace;
 class GroupNode;
 class LayerNode;
 
 class ModelFactory;
 
-class BrushNode : public Node, public Object {
+class BrushNode : public Node, public Object
+{
 public:
   static const HitType::Type BrushHitType;
 
@@ -117,7 +122,9 @@ private: // implement Node interface
 
 private: // implement Object interface
   void doPick(
-    const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
+    const EditorContext& editorContext,
+    const vm::ray3& ray,
+    PickResult& pickResult) override;
   void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
   std::optional<std::tuple<FloatType, size_t>> findFaceHit(const vm::ray3& ray) const;

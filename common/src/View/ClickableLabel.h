@@ -21,9 +21,12 @@
 
 #include <QLabel>
 
-namespace TrenchBroom {
-namespace View {
-class ClickableLabel : public QLabel {
+namespace TrenchBroom
+{
+namespace View
+{
+class ClickableLabel : public QLabel
+{
   Q_OBJECT
 public:
   explicit ClickableLabel(const QString& text, QWidget* parent = nullptr);

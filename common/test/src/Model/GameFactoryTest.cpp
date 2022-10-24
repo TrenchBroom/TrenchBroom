@@ -23,13 +23,16 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 
 static const auto gamesPath = IO::Path{"games"};
 static const auto userPath = IO::Path{"user"};
 
-static void setupTestEnvironment(IO::TestEnvironment& env) {
+static void setupTestEnvironment(IO::TestEnvironment& env)
+{
   env.createDirectory(gamesPath);
   env.createDirectory(gamesPath + IO::Path{"Quake"});
   env.createFile(gamesPath + IO::Path{"Quake/GameConfig.cfg"}, R"({
@@ -90,7 +93,8 @@ static void setupTestEnvironment(IO::TestEnvironment& env) {
 })");
 }
 
-TEST_CASE("GameFactory.initialize") {
+TEST_CASE("GameFactory.initialize")
+{
   const auto env = IO::TestEnvironment{setupTestEnvironment};
 
   auto& gameFactory = GameFactory::instance();

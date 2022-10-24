@@ -36,10 +36,14 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty") {
-  Model::EntityNode* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty")
+{
+  Model::EntityNode* entityNode =
+    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
 
   document->deselectAll();
   document->selectNodes({entityNode});
@@ -49,7 +53,8 @@ TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty") {
   auto validators = std::vector<const Model::Validator*>{
     new Model::EmptyPropertyKeyValidator(), new Model::EmptyPropertyValueValidator()};
 
-  class AcceptAllIssues {
+  class AcceptAllIssues
+  {
   public:
     bool operator()(const Model::Issue*) const { return true; }
   };
@@ -85,9 +90,9 @@ TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty") {
   const Model::Issue* issue1 = issues.at(1);
 
   // Should be one EmptyPropertyNameIssue and one EmptyPropertyValueIssue
-  CHECK(
-    ((issue0->type() == validators[0]->type() && issue1->type() == validators[1]->type()) ||
-     (issue0->type() == validators[1]->type() && issue1->type() == validators[0]->type())));
+  CHECK((
+    (issue0->type() == validators[0]->type() && issue1->type() == validators[1]->type())
+    || (issue0->type() == validators[1]->type() && issue1->type() == validators[0]->type())));
 
   auto fixes = document->world()->quickFixes(issue0->type());
   REQUIRE(1 == fixes.size());

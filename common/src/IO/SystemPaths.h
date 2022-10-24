@@ -23,12 +23,15 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
-namespace SystemPaths {
+namespace TrenchBroom
+{
+namespace IO
+{
+namespace SystemPaths
+{
 /**
- * Returns the directory containing the TrenchBroom executable (this will be inside the .app bundle
- * on macOS).
+ * Returns the directory containing the TrenchBroom executable (this will be inside the
+ * .app bundle on macOS).
  */
 Path appDirectory();
 /**

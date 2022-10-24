@@ -25,35 +25,45 @@
 
 #include <QVBoxLayout>
 
-namespace TrenchBroom {
-namespace View {
-TitledPanel::TitledPanel(const QString& title, QWidget* parent, bool showDivider, bool boldTitle)
+namespace TrenchBroom
+{
+namespace View
+{
+TitledPanel::TitledPanel(
+  const QString& title, QWidget* parent, bool showDivider, bool boldTitle)
   : QWidget(parent)
   , m_titleBar(nullptr)
-  , m_panel(nullptr) {
-  m_titleBar =
-    new TitleBar(title, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, boldTitle);
+  , m_panel(nullptr)
+{
+  m_titleBar = new TitleBar(
+    title, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, boldTitle);
   m_panel = new QWidget();
 
   auto* layout = new QVBoxLayout();
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(m_titleBar);
-  if (showDivider) {
+  if (showDivider)
+  {
     layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
   }
   layout->addWidget(m_panel, 1);
   setLayout(layout);
 }
 
-TitledPanel::TitledPanel(const QString& title, const bool showDivider, const bool boldTitle)
-  : TitledPanel(title, nullptr, showDivider, boldTitle) {}
+TitledPanel::TitledPanel(
+  const QString& title, const bool showDivider, const bool boldTitle)
+  : TitledPanel(title, nullptr, showDivider, boldTitle)
+{
+}
 
-TitleBar* TitledPanel::getTitleBar() const {
+TitleBar* TitledPanel::getTitleBar() const
+{
   return m_titleBar;
 }
 
-QWidget* TitledPanel::getPanel() const {
+QWidget* TitledPanel::getPanel() const
+{
   return m_panel;
 }
 } // namespace View

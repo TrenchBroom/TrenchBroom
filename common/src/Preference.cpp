@@ -19,7 +19,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Preference.h"
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 PrefSerializer::~PrefSerializer() {}
 
 PreferenceBase::~PreferenceBase() {}

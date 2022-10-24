@@ -26,11 +26,15 @@
 
 #include <QString>
 
-namespace TrenchBroom {
-namespace View {
-class CachingLogger : public Logger {
+namespace TrenchBroom
+{
+namespace View
+{
+class CachingLogger : public Logger
+{
 private:
-  struct Message {
+  struct Message
+  {
   public:
     LogLevel level;
     QString str;

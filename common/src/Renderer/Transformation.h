@@ -24,9 +24,12 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
-class Transformation {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+class Transformation
+{
 private:
   using MatrixStack = std::vector<vm::mat4x4f>;
   MatrixStack m_projectionStack;
@@ -35,7 +38,8 @@ private:
 
 public:
   Transformation(
-    const vm::mat4x4f& projection, const vm::mat4x4f& view,
+    const vm::mat4x4f& projection,
+    const vm::mat4x4f& view,
     const vm::mat4x4f& model = vm::mat4x4f::identity());
   ~Transformation();
 
@@ -46,7 +50,8 @@ public:
   Transformation slice() const;
 
   void pushTransformation(
-    const vm::mat4x4f& projection, const vm::mat4x4f& view,
+    const vm::mat4x4f& projection,
+    const vm::mat4x4f& view,
     const vm::mat4x4f& model = vm::mat4x4f::identity());
   void popTransformation();
   void pushModelMatrix(const vm::mat4x4f& matrix);
@@ -62,14 +67,17 @@ private:
   Transformation& operator=(const Transformation& other);
 };
 
-class ReplaceTransformation {
+class ReplaceTransformation
+{
 protected:
   Transformation& m_transformation;
 
 public:
   ReplaceTransformation(
-    Transformation& transformation, const vm::mat4x4f& projectionMatrix,
-    const vm::mat4x4f& viewMatrix, const vm::mat4x4f& modelMatrix = vm::mat4x4f::identity());
+    Transformation& transformation,
+    const vm::mat4x4f& projectionMatrix,
+    const vm::mat4x4f& viewMatrix,
+    const vm::mat4x4f& modelMatrix = vm::mat4x4f::identity());
   ~ReplaceTransformation();
 
 private:
@@ -77,7 +85,8 @@ private:
   ReplaceTransformation& operator=(const ReplaceTransformation& other);
 };
 
-class MultiplyModelMatrix {
+class MultiplyModelMatrix
+{
 protected:
   Transformation& m_transformation;
 
@@ -90,7 +99,8 @@ private:
   MultiplyModelMatrix& operator=(const ReplaceTransformation& other);
 };
 
-class ReplaceModelMatrix {
+class ReplaceModelMatrix
+{
 protected:
   Transformation& m_transformation;
 

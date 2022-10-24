@@ -42,15 +42,19 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("ObjSerializer.writeBrush") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("ObjSerializer.writeBrush")
+{
   const auto worldBounds = vm::bbox3{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+  auto* brushNode =
+    new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
   map.defaultLayer()->addChild(brushNode);
 
   auto objStream = std::ostringstream{};
@@ -59,8 +63,8 @@ TEST_CASE("ObjSerializer.writeBrush") {
   const auto objOptions =
     ObjExportOptions{Path{"/some/export/path.obj"}, ObjMtlPathMode::RelativeToGamePath};
 
-  auto writer =
-    NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
+  auto writer = NodeWriter{
+    map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
   writer.writeMap();
 
   CHECK(objStream.str() == R"(mtllib some_file_name.mtl
@@ -109,7 +113,8 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
 )");
 }
 
-TEST_CASE("ObjSerializer.writePatch") {
+TEST_CASE("ObjSerializer.writePatch")
+{
   const auto worldBounds = vm::bbox3{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
@@ -136,8 +141,8 @@ TEST_CASE("ObjSerializer.writePatch") {
   const auto objOptions =
     ObjExportOptions{Path{"/some/export/path.obj"}, ObjMtlPathMode::RelativeToGamePath};
 
-  auto writer =
-    NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
+  auto writer = NodeWriter{
+    map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
   writer.writeMap();
 
   CHECK(objStream.str() == R"(mtllib some_file_name.mtl
@@ -384,7 +389,8 @@ f  71/1/71  80/1/80  81/1/81  72/1/72
 )");
 }
 
-TEST_CASE("ObjSerializer.writeRelativeMaterialPath") {
+TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
+{
   const auto worldBounds = vm::bbox3{8192.0};
 
   // must outlive map
@@ -394,10 +400,12 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath") {
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+  auto* brushNode =
+    new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
   map.defaultLayer()->addChild(brushNode);
 
-  for (size_t i = 0; i < brushNode->brush().faceCount(); ++i) {
+  for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)
+  {
     brushNode->setFaceTexture(i, &texture);
   }
 
@@ -423,16 +431,16 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath") {
 
   texture.setAbsolutePath(textureAbsolutePath);
 
-  auto writer =
-    NodeWriter{map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
+  auto writer = NodeWriter{
+    map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
   writer.writeMap();
 
   const auto expectedMtl = expectedPath ? fmt::format(
-                                            R"(newmtl some_texture
+                             R"(newmtl some_texture
 map_Kd {}
 
 )",
-                                            expectedPath->asString())
+                             expectedPath->asString())
                                         : R"(newmtl some_texture
 
 )";

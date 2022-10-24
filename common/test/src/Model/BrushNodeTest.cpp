@@ -54,13 +54,16 @@
 #include "Catch2.h"
 #include "TestUtils.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("BrushNodeTest.entity", "[BrushNodeTest]") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("BrushNodeTest.entity", "[BrushNodeTest]")
+{
   const auto worldBounds = vm::bbox3{4096.0};
 
-  auto* brushNode =
-    new BrushNode{BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure").value()};
   auto entityNode = EntityNode{Entity{}};
 
   CHECK(brushNode->entity() == nullptr);
@@ -69,7 +72,8 @@ TEST_CASE("BrushNodeTest.entity", "[BrushNodeTest]") {
   CHECK(brushNode->entity() == &entityNode);
 }
 
-TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
+TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]")
+{
   const vm::bbox3 worldBounds(4096.0);
 
   // build a cube with length 16 at the origin
@@ -78,12 +82,14 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
       worldBounds,
       {
         // left
-        createParaxial(vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0), vm::vec3(0.0, 0.0, 1.0)),
+        createParaxial(
+          vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0), vm::vec3(0.0, 0.0, 1.0)),
         // right
         createParaxial(
           vm::vec3(16.0, 0.0, 0.0), vm::vec3(16.0, 0.0, 1.0), vm::vec3(16.0, 1.0, 0.0)),
         // front
-        createParaxial(vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 0.0, 1.0), vm::vec3(1.0, 0.0, 0.0)),
+        createParaxial(
+          vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 0.0, 1.0), vm::vec3(1.0, 0.0, 0.0)),
         // back
         createParaxial(
           vm::vec3(0.0, 16.0, 0.0), vm::vec3(1.0, 16.0, 0.0), vm::vec3(0.0, 16.0, 1.0)),
@@ -91,13 +97,15 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
         createParaxial(
           vm::vec3(0.0, 0.0, 16.0), vm::vec3(0.0, 1.0, 16.0), vm::vec3(1.0, 0.0, 16.0)),
         // bottom
-        createParaxial(vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
+        createParaxial(
+          vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
       .value());
 
   CHECK(!brush.hasSelectedFaces());
 
-  SECTION("Selecting faces correctly updates the node's face selection count") {
+  SECTION("Selecting faces correctly updates the node's face selection count")
+  {
     brush.selectFace(0u);
     CHECK(brush.hasSelectedFaces());
 
@@ -111,7 +119,10 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
     CHECK(!brush.hasSelectedFaces());
   }
 
-  SECTION("Passing a brush with selected faces to constructor clears the brushes face selection") {
+  SECTION(
+    "Passing a brush with selected faces to constructor clears the brushes face "
+    "selection")
+  {
     REQUIRE(!brush.hasSelectedFaces());
 
     Brush copy = brush.brush();
@@ -122,7 +133,10 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
     CHECK(!another.hasSelectedFaces());
   }
 
-  SECTION("Setting a brush with selected faces correctly updates the node's face selection count") {
+  SECTION(
+    "Setting a brush with selected faces correctly updates the node's face selection "
+    "count")
+  {
     REQUIRE(!brush.hasSelectedFaces());
 
     Brush copy = brush.brush();
@@ -139,7 +153,9 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
     CHECK(!brush.hasSelectedFaces());
   }
 
-  SECTION("Cloning a brush node with selected faces returns a clone with no selected faces") {
+  SECTION(
+    "Cloning a brush node with selected faces returns a clone with no selected faces")
+  {
     REQUIRE(!brush.hasSelectedFaces());
 
     brush.selectFace(0u);
@@ -151,12 +167,14 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]") {
   }
 }
 
-TEST_CASE("BrushNodeTest.containsPatchNode", "[BrushNodeTest]") {
+TEST_CASE("BrushNodeTest.containsPatchNode", "[BrushNodeTest]")
+{
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto builder = Model::BrushBuilder{MapFormat::Quake3, worldBounds};
   auto brushNode = Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
-  transformNode(brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
+  transformNode(
+    brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
   // a half cylinder that, at this position, just sticks out of the brush
   // clang-format off
@@ -176,13 +194,15 @@ TEST_CASE("BrushNodeTest.containsPatchNode", "[BrushNodeTest]") {
   CHECK_FALSE(brushNode.contains(&patchNode));
 }
 
-TEST_CASE("BrushNodeTest.intersectsPatchNode", "[BrushNodeTest]") {
+TEST_CASE("BrushNodeTest.intersectsPatchNode", "[BrushNodeTest]")
+{
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto builder = Model::BrushBuilder{MapFormat::Quake3, worldBounds};
 
   auto brushNode = Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
-  transformNode(brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
+  transformNode(
+    brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
   // a half cylinder that, at this position, just sticks out of the brush
   // clang-format off
@@ -195,38 +215,47 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode", "[BrushNodeTest]") {
 
   CHECK(brushNode.intersects(&patchNode));
 
-  SECTION("Brush contains patch") {
+  SECTION("Brush contains patch")
+  {
     transformNode(patchNode, vm::translation_matrix(vm::vec3{0, -8, 0}), worldBounds);
     CHECK(brushNode.intersects(&patchNode));
   }
 
-  SECTION("Patch sticks out of top of brush") {
+  SECTION("Patch sticks out of top of brush")
+  {
     transformNode(patchNode, vm::translation_matrix(vm::vec3{0, -8, 32}), worldBounds);
     CHECK(brushNode.intersects(&patchNode));
   }
 
-  SECTION("Patch is above brush") {
+  SECTION("Patch is above brush")
+  {
     transformNode(patchNode, vm::translation_matrix(vm::vec3{0, -8, 64}), worldBounds);
     CHECK_FALSE(brushNode.intersects(&patchNode));
   }
 
-  SECTION("Patch doesn't touch brush, but bounds intersect") {
+  SECTION("Patch doesn't touch brush, but bounds intersect")
+  {
     transformNode(patchNode, vm::translation_matrix(vm::vec3{0, 32, 0}), worldBounds);
     CHECK_FALSE(brushNode.intersects(&patchNode));
   }
 
-  SECTION("Brush does not contain any grid points, but patch intersects") {
+  SECTION("Brush does not contain any grid points, but patch intersects")
+  {
     auto thinBrushNode = Model::BrushNode{
-      builder.createCuboid(vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_texture")
+      builder
+        .createCuboid(
+          vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_texture")
         .value()};
-    for (const auto& point : patchNode.grid().points) {
+    for (const auto& point : patchNode.grid().points)
+    {
       REQUIRE_FALSE(thinBrushNode.brush().containsPoint(point.position));
     }
     CHECK(thinBrushNode.intersects(&patchNode));
   }
 }
 
-TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]") {
+TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]")
+{
   const vm::bbox3 worldBounds(4096.0);
   const auto editorContext = EditorContext{};
 
@@ -236,12 +265,14 @@ TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]") {
       worldBounds,
       {
         // left
-        createParaxial(vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0), vm::vec3(0.0, 0.0, 1.0)),
+        createParaxial(
+          vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0), vm::vec3(0.0, 0.0, 1.0)),
         // right
         createParaxial(
           vm::vec3(16.0, 0.0, 0.0), vm::vec3(16.0, 0.0, 1.0), vm::vec3(16.0, 1.0, 0.0)),
         // front
-        createParaxial(vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 0.0, 1.0), vm::vec3(1.0, 0.0, 0.0)),
+        createParaxial(
+          vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 0.0, 1.0), vm::vec3(1.0, 0.0, 0.0)),
         // back
         createParaxial(
           vm::vec3(0.0, 16.0, 0.0), vm::vec3(1.0, 16.0, 0.0), vm::vec3(0.0, 16.0, 1.0)),
@@ -249,7 +280,8 @@ TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]") {
         createParaxial(
           vm::vec3(0.0, 0.0, 16.0), vm::vec3(0.0, 1.0, 16.0), vm::vec3(1.0, 0.0, 16.0)),
         // bottom
-        createParaxial(vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
+        createParaxial(
+          vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
       .value());
 
@@ -266,7 +298,8 @@ TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]") {
   CHECK(hits2.empty());
 }
 
-TEST_CASE("BrushNodeTest.clone", "[BrushNodeTest]") {
+TEST_CASE("BrushNodeTest.clone", "[BrushNodeTest]")
+{
   const vm::bbox3 worldBounds(4096.0);
 
   // build a cube with length 16 at the origin
@@ -275,12 +308,14 @@ TEST_CASE("BrushNodeTest.clone", "[BrushNodeTest]") {
       worldBounds,
       {
         // left
-        createParaxial(vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0), vm::vec3(0.0, 0.0, 1.0)),
+        createParaxial(
+          vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0), vm::vec3(0.0, 0.0, 1.0)),
         // right
         createParaxial(
           vm::vec3(16.0, 0.0, 0.0), vm::vec3(16.0, 0.0, 1.0), vm::vec3(16.0, 1.0, 0.0)),
         // front
-        createParaxial(vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 0.0, 1.0), vm::vec3(1.0, 0.0, 0.0)),
+        createParaxial(
+          vm::vec3(0.0, 0.0, 0.0), vm::vec3(0.0, 0.0, 1.0), vm::vec3(1.0, 0.0, 0.0)),
         // back
         createParaxial(
           vm::vec3(0.0, 16.0, 0.0), vm::vec3(1.0, 16.0, 0.0), vm::vec3(0.0, 16.0, 1.0)),
@@ -288,14 +323,16 @@ TEST_CASE("BrushNodeTest.clone", "[BrushNodeTest]") {
         createParaxial(
           vm::vec3(0.0, 0.0, 16.0), vm::vec3(0.0, 1.0, 16.0), vm::vec3(1.0, 0.0, 16.0)),
         // bottom
-        createParaxial(vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
+        createParaxial(
+          vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
       .value());
 
   BrushNode* clone = original.clone(worldBounds);
 
   CHECK(clone->brush().faceCount() == original.brush().faceCount());
-  for (const auto& originalFace : original.brush().faces()) {
+  for (const auto& originalFace : original.brush().faces())
+  {
     const auto cloneFaceIndex = clone->brush().findFace(originalFace.boundary());
     CHECK(cloneFaceIndex.has_value());
 

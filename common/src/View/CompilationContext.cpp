@@ -25,29 +25,39 @@
 
 #include <kdl/memory_utils.h>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 CompilationContext::CompilationContext(
-  std::weak_ptr<MapDocument> document, const EL::VariableStore& variables,
-  const TextOutputAdapter& output, bool test)
+  std::weak_ptr<MapDocument> document,
+  const EL::VariableStore& variables,
+  const TextOutputAdapter& output,
+  bool test)
   : m_document(document)
   , m_variables(variables.clone())
   , m_output(output)
-  , m_test(test) {}
+  , m_test(test)
+{
+}
 
-std::shared_ptr<MapDocument> CompilationContext::document() const {
+std::shared_ptr<MapDocument> CompilationContext::document() const
+{
   return kdl::mem_lock(m_document);
 }
 
-bool CompilationContext::test() const {
+bool CompilationContext::test() const
+{
   return m_test;
 }
 
-std::string CompilationContext::interpolate(const std::string& input) const {
+std::string CompilationContext::interpolate(const std::string& input) const
+{
   return EL::interpolate(input, EL::EvaluationContext(*m_variables));
 }
 
-std::string CompilationContext::variableValue(const std::string& variableName) const {
+std::string CompilationContext::variableValue(const std::string& variableName) const
+{
   return m_variables->value(variableName).convertTo(EL::ValueType::String).stringValue();
 }
 } // namespace View

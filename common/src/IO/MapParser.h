@@ -29,16 +29,20 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EntityProperty;
 class BrushFaceAttributes;
 } // namespace Model
 
-namespace IO {
+namespace IO
+{
 class ParserStatus;
 
-class MapParser {
+class MapParser
+{
 public:
   virtual ~MapParser();
 
@@ -49,15 +53,31 @@ protected: // subclassing interface for users of the parser
   virtual void onBeginBrush(size_t line, ParserStatus& status) = 0;
   virtual void onEndBrush(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
   virtual void onStandardBrushFace(
-    size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2,
-    const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) = 0;
+    size_t line,
+    Model::MapFormat targetMapFormat,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const vm::vec3& point3,
+    const Model::BrushFaceAttributes& attribs,
+    ParserStatus& status) = 0;
   virtual void onValveBrushFace(
-    size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2,
-    const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX,
-    const vm::vec3& texAxisY, ParserStatus& status) = 0;
+    size_t line,
+    Model::MapFormat targetMapFormat,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const vm::vec3& point3,
+    const Model::BrushFaceAttributes& attribs,
+    const vm::vec3& texAxisX,
+    const vm::vec3& texAxisY,
+    ParserStatus& status) = 0;
   virtual void onPatch(
-    size_t startLine, size_t lineCount, Model::MapFormat targetMapFormat, size_t rowCount,
-    size_t columnCount, std::vector<vm::vec<FloatType, 5>> controlPoints, std::string textureName,
+    size_t startLine,
+    size_t lineCount,
+    Model::MapFormat targetMapFormat,
+    size_t rowCount,
+    size_t columnCount,
+    std::vector<vm::vec<FloatType, 5>> controlPoints,
+    std::string textureName,
     ParserStatus& status) = 0;
 };
 } // namespace IO
