@@ -147,9 +147,8 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(TrenchBroom
   importer.SetIOHandler(new AssimpIOSystem{m_fs});
 
   const auto* scene = importer.ReadFile(
-    m_path.asString(), aiProcess_Triangulate | aiProcess_FlipWindingOrder |
-                         aiProcess_MakeLeftHanded | aiProcess_JoinIdenticalVertices |
-                         aiProcess_SortByPType | aiProcess_FlipUVs);
+    m_path.asString(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
+                         aiProcess_FlipWindingOrder | aiProcess_SortByPType | aiProcess_FlipUVs);
 
   if (!scene) {
     throw ParserException{
@@ -161,11 +160,9 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(TrenchBroom
 
   surface.setSkins(std::move(m_textures));
 
-  // Assimp files import as y-up. Use this transform to change the model to z-up.
-  auto axisTransform = aiMatrix4x4{1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                                   0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-
-  processNode(*scene->mRootNode, *scene, scene->mRootNode->mTransformation, axisTransform);
+  // Assimp files import as y-up. We must multiply the root transform with an axis transform matrix.
+  processNode(
+    *scene->mRootNode, *scene, scene->mRootNode->mTransformation, get_axis_transform(*scene));
 
   // Build bounds.
   auto bounds = vm::bbox3f::builder{};
@@ -355,6 +352,48 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger) {
         ": " + exception.what());
     }
   }
+}
+
+aiMatrix4x4 AssimpParser::get_axis_transform(const aiScene& scene) {
+  aiMatrix4x4 matrix = aiMatrix4x4();
+
+  if (scene.mMetaData) {
+    // These MUST be in32_t, or the metadata 'Get' function will get confused.
+    int32_t upAxis = 0, frontAxis = 0, coordAxis = 0, upAxisSign = 0, frontAxisSign = 0,
+            coordAxisSign = 0;
+    float unitScale = 1.0f;
+
+    bool metadataPresent = scene.mMetaData->Get("UpAxis", upAxis) &&
+                           scene.mMetaData->Get("UpAxisSign", upAxisSign) &&
+                           scene.mMetaData->Get("FrontAxis", frontAxis) &&
+                           scene.mMetaData->Get("FrontAxisSign", frontAxisSign) &&
+                           scene.mMetaData->Get("CoordAxis", coordAxis) &&
+                           scene.mMetaData->Get("CoordAxisSign", coordAxisSign) &&
+                           scene.mMetaData->Get("UnitScaleFactor", unitScale);
+
+    if (!metadataPresent) {
+      // By default, all 3D data from is provided in a right-handed coordinate system.
+      // +X to the right. -Z into the screen. +Y upwards.
+      upAxis = 1;
+      upAxisSign = 1;
+      frontAxis = 2;
+      frontAxisSign = 1;
+      coordAxis = 0;
+      coordAxisSign = 1;
+      unitScale = 1.0f;
+    }
+
+    aiVector3D up, front, coord;
+    up[static_cast<unsigned int>(upAxis)] = static_cast<float>(upAxisSign) * unitScale;
+    front[static_cast<unsigned int>(frontAxis)] = static_cast<float>(frontAxisSign) * unitScale;
+    coord[static_cast<unsigned int>(coordAxis)] = static_cast<float>(coordAxisSign) * unitScale;
+
+    matrix = aiMatrix4x4t(
+      coord.x, coord.y, coord.z, 0.0f, -front.x, -front.y, -front.z, 0.0f, up.x, up.y, up.z, 0.0f,
+      0.0f, 0.0f, 0.0f, 1.0f);
+  }
+
+  return matrix;
 }
 
 } // namespace IO
