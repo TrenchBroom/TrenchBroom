@@ -159,7 +159,7 @@ bool FlyModeHelper::anyKeyDown() const {
 }
 
 void FlyModeHelper::resetKeys() {
-  m_forward = m_backward = m_left = m_right = m_up = m_down = false;
+  m_forward = m_backward = m_left = m_right = m_up = m_down = m_fast = m_slow = false;
 }
 
 vm::vec3f FlyModeHelper::moveDelta(const float time) {
